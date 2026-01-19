@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -56,10 +56,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _session2 = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            var session3 = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _session2 = await TestHelpers.Instance.GenerateSessionAsync();
+            var session3 = await TestHelpers.Instance.GenerateSessionAsync();
             TestHelpers.Instance.FriendHttpClient
                 .Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>
@@ -105,7 +105,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 MinilandInfo = "test",
                 Type = 1
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
             var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.AreEqual(Game18NConstString.MinilandChanged, lastpacket!.Message);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 MinilandInfo = "Test Test",
                 Type = 1
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
             var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.AreEqual(Game18NConstString.MinilandChanged, lastpacket!.Message);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
@@ -139,7 +139,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 Parameter = MinilandState.Lock,
                 Type = 2
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
             var lastpacket = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
@@ -155,7 +155,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 Parameter = MinilandState.Open,
                 Type = 2
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
             var lastpacket = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandPublic);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
@@ -171,7 +171,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 Parameter = MinilandState.Private,
                 Type = 2
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
             var lastpacket = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandPrivate);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 Parameter = MinilandState.Private,
                 Type = 2
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
 
             var miniland = _minilandProvider.GetMiniland(_session!.Character.CharacterId);
             Assert.AreEqual(MinilandState.Private, miniland.State);
@@ -206,7 +206,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 Parameter = MinilandState.Lock,
                 Type = 2
             };
-            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!).ConfigureAwait(false);
+            await _mlEditPacketHandler!.ExecuteAsync(mleditPacket, _session!);
 
             var miniland = _minilandProvider.GetMiniland(_session!.Character.CharacterId);
             Assert.AreEqual(MinilandState.Lock, miniland.State);

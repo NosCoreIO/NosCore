@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -52,7 +52,7 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertOrUpdateMapsAsync(string folder, List<string[]> packetList)
         {
-            var dictionaryId = await ParseDatAsync(folder).ConfigureAwait(false);
+            var dictionaryId = await ParseDatAsync(folder);
             var folderMap = folder + _folderMap;
             var dictionaryMusic = packetList.Where(o => o[0].Equals("at") && (o.Length > 7))
                 .GroupBy(x => x[2])
@@ -66,7 +66,7 @@ namespace NosCore.Parser.Parsers
                 ShopAllowed = short.Parse(file.Name) == 147
             }).ToList();
 
-            await mapDao.TryInsertOrUpdateAsync(maps).ConfigureAwait(false);
+            await mapDao.TryInsertOrUpdateAsync(maps);
             logger.Information(logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
         }
     }

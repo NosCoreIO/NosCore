@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -61,7 +61,7 @@ namespace NosCore.WebApi.Controllers
                 return BadRequest(logLanguage[LogLanguageKey.AUTH_ERROR]);
             }
 
-            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity).ConfigureAwait(false);
+            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity);
             if (account == null)
             {
                 return BadRequest(logLanguage[LogLanguageKey.AUTH_ERROR]);
@@ -80,7 +80,7 @@ namespace NosCore.WebApi.Controllers
 
             account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");
 
-            account = await accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
+            account = await accountDao.TryInsertOrUpdateAsync(account);
             var platformGameAccountId = Guid.NewGuid();
             var claims = new ClaimsIdentity(new[]
             {
@@ -149,7 +149,7 @@ namespace NosCore.WebApi.Controllers
         [AllowAnonymous]
         public async Task<IActionResult> HasMfaEnabled(string? username)
         {
-            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == username).ConfigureAwait(false);
+            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == username);
             if (account == null || account.MfaSecret == null)
             {
                 return Ok(false);

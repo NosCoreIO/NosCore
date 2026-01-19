@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -121,7 +121,7 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<ItemDto>(folder + _itemCardDto,
                 "END", 1, actionList, logger, logLanguage);
-            var items = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
+            var items = (await genericParser.GetDtosAsync()).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
                 HardcodeItem(item);
@@ -156,8 +156,8 @@ namespace NosCore.Parser.Parsers
                 { 16, new List<(short, short)> { (5173, 2511) } },
             });
 
-            await itemDao.TryInsertOrUpdateAsync(items).ConfigureAwait(false);
-            await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            await itemDao.TryInsertOrUpdateAsync(items);
+            await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
             logger.Information(logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
         }

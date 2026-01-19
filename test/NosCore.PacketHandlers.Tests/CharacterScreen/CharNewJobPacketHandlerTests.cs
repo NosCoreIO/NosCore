@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -41,10 +41,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _chara = _session.Character;
-            await _session.SetCharacterAsync(null).ConfigureAwait(false);
+            await _session.SetCharacterAsync(null);
             TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => _chara);
             _charNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
         }
@@ -56,8 +56,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            }, _session!);
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
         }
 
         [TestMethod]
@@ -66,12 +66,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             const string name = "TestCharacter";
             _chara!.Level = 80;
             CharacterDto character = _chara;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character);
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            }, _session!);
+            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
         }
 
         [TestMethod]
@@ -81,12 +81,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _chara!.Class = CharacterClassType.MartialArtist;
             CharacterDto character = _chara;
             _chara.Level = 80;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character);
             await _charNewJobPacketHandler!.ExecuteAsync(new CharNewJobPacket
             {
                 Name = name
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            }, _session!);
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
         }
     }
 }

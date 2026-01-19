@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            await packetHttpClient.SendMessagesAsync(new List<IMessage>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
+            await packetHttpClient.SendMessagesAsync(new List<IMessage>(new[] { sayPostedPacket, msgPostedPacket }));
         }
     }
 }

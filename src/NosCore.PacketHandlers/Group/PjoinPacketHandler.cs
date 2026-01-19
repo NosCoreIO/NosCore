@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Group
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.GroupIsFull
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -83,17 +83,17 @@ namespace NosCore.PacketHandlers.Group
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.AlreadyInAnotherGroup
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
-                    var blacklisteds = await blacklistHttpCLient.GetBlacklistedAsync(clientSession.Character.VisualId).ConfigureAwait(false);
+                    var blacklisteds = await blacklistHttpCLient.GetBlacklistedAsync(clientSession.Character.VisualId);
                     if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.AlreadyBlacklisted
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -103,7 +103,7 @@ namespace NosCore.PacketHandlers.Group
                         {
                             Type = MessageType.Default,
                             Message = Game18NConstString.GroupBlocked
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Group
                                 Message = Game18NConstString.CannotSendInvite,
                                 ArgumentType = 4,
                                 Game18NArguments = { diffTimeSpan.Seconds }
-                            }).ConfigureAwait(false);
+                            });
                             return;
                         }
                     }
@@ -134,7 +134,7 @@ namespace NosCore.PacketHandlers.Group
                             Message = Game18NConstString.YouInvitedToGroup,
                             ArgumentType = 1,
                             Game18NArguments = { targetSession.Name ?? "" }
-                        }).ConfigureAwait(false);
+                        });
                         await targetSession.SendPacketAsync(new Dlgi2Packet
                         {
                             Question = Game18NConstString.GroupInvite,
@@ -150,7 +150,7 @@ namespace NosCore.PacketHandlers.Group
                                 CharacterId = clientSession.Character.CharacterId,
                                 RequestType = GroupRequestType.Declined
                             }
-                        }).ConfigureAwait(false);
+                        });
                     }
 
                     break;
@@ -164,7 +164,7 @@ namespace NosCore.PacketHandlers.Group
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.CanNotChangeGroupMode
-                    }).ConfigureAwait(false);
+                    });
 
                     await Task.WhenAll(clientSession.Character.Group.Values
                         .Where(s => s.Item2.VisualId != clientSession.Character.CharacterId)
@@ -196,7 +196,7 @@ namespace NosCore.PacketHandlers.Group
                                     RequestType = GroupRequestType.DeclinedShare
                                 }
                             });
-                        })).ConfigureAwait(false);
+                        }));
 
                     break;
                 case GroupRequestType.Accepted:
@@ -217,12 +217,12 @@ namespace NosCore.PacketHandlers.Group
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.GroupIsFull
-                        }).ConfigureAwait(false);
+                        });
 
                         await targetSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.GroupIsFull
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -245,7 +245,7 @@ namespace NosCore.PacketHandlers.Group
                         await targetSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.YouAreNowGroupLeader
-                        }).ConfigureAwait(false);
+                        });
 
                         targetSession.Group = clientSession.Character.Group;
                         clientSession.Character.GroupRequestCharacterIds.Clear();
@@ -269,7 +269,7 @@ namespace NosCore.PacketHandlers.Group
 
                     groupIdService.Items[currentGroup.GroupId] = currentGroup;
                     await clientSession.Character.MapInstance.SendPacketAsync(
-                        clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
+                        clientSession.Character.Group.GeneratePidx(clientSession.Character));
 
                     break;
                 case GroupRequestType.Declined:
@@ -287,7 +287,7 @@ namespace NosCore.PacketHandlers.Group
                         Message = Game18NConstString.GroupInviteRejected,
                         ArgumentType = 1,
                         Game18NArguments = { targetSession.Name ?? "" }
-                    }).ConfigureAwait(false);
+                    });
                     break;
                 case GroupRequestType.AcceptedShare:
                     if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
@@ -305,14 +305,14 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.ChangedSamePointOfReturn
-                    }).ConfigureAwait(false);
+                    });
                     await clientSession.SendPacketAsync(new Msgi2Packet
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.SomeoneChangedPointOfReturn,
                         ArgumentType = 1,
                         Game18NArguments = { targetSession.Name ?? "" }
-                    }).ConfigureAwait(false);
+                    });
                     //TODO: add a way to change respawn points when system will be done
                     break;
                 case GroupRequestType.DeclinedShare:
@@ -326,14 +326,14 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.RefusedSharePointOfReturn
-                    }).ConfigureAwait(false);
+                    });
                     await clientSession.SendPacketAsync(new Msgi2Packet
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.SomeoneRefusedToSharePointOfReturn,
                         ArgumentType = 1,
                         Game18NArguments = { targetSession.Name ?? "" }
-                    }).ConfigureAwait(false);
+                    });
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN]);

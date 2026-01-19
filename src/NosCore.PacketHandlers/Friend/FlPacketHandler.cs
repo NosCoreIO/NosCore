@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Friend
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Friend
                 Type = FinsPacketType.Accepted
             };
 
-            await session.HandlePacketsAsync(new[] { fins }).ConfigureAwait(false);
+            await session.HandlePacketsAsync(new[] { fins });
         }
     }
 }

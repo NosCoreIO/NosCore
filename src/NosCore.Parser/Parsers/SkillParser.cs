@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -92,7 +92,7 @@ namespace NosCore.Parser.Parsers
             };
             var genericParser = new GenericParser<SkillDto>(folder + _fileCardDat,
                 "#=========================================================", 1, actionList, logger, logLanguage);
-            var skills = await genericParser.GetDtosAsync().ConfigureAwait(false);
+            var skills = await genericParser.GetDtosAsync();
 
             foreach (var skill in skills.Where(s => s.Class > 31))
             {
@@ -119,9 +119,9 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await skillDao.TryInsertOrUpdateAsync(skills).ConfigureAwait(false);
-            await comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo)).ConfigureAwait(false);
-            await bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            await skillDao.TryInsertOrUpdateAsync(skills);
+            await comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo));
+            await bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
             logger.Information(logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
         }

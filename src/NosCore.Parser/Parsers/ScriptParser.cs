@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -44,7 +44,7 @@ namespace NosCore.Parser.Parsers
             var scripts = new List<ScriptDto>();
             string? line;
             byte scriptId = 0;
-            while ((line = await stream.ReadLineAsync().ConfigureAwait(false)) != null)
+            while ((line = await stream.ReadLineAsync()) != null)
             {
                 var split = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
                 if (line.StartsWith("#"))
@@ -73,7 +73,7 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await scriptDao.TryInsertOrUpdateAsync(scripts).ConfigureAwait(false);
+            await scriptDao.TryInsertOrUpdateAsync(scripts);
             logger.Information(logLanguage[LogLanguageKey.SCRIPTS_PARSED], scripts.Count);
         }
     }

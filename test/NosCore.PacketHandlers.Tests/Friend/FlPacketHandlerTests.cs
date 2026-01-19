@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
             TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
@@ -62,14 +62,14 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
 
                 });
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _flPacketHandler = new FlCommandPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
         }
 
         [TestMethod]
         public async Task Test_Add_Distant_FriendAsync()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             var friendRequestHolder = new FriendRequestRegistry();
             friendRequestHolder.RegisterRequest(Guid.NewGuid(),
                 targetSession.Character.CharacterId, _session!.Character.CharacterId);
@@ -97,11 +97,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     FinsPacketType.Accepted
         ));
 
-            await _flPacketHandler!.ExecuteAsync(flPacket, _session).ConfigureAwait(false);
+            await _flPacketHandler!.ExecuteAsync(flPacket, _session);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
                 (s.CharacterId == _session.Character.CharacterId) &&
                 (s.RelatedCharacterId == targetSession.Character.CharacterId)
-                && (s.RelationType == CharacterRelationType.Friend)).ConfigureAwait(false) != null);
+                && (s.RelationType == CharacterRelationType.Friend)) != null);
         }
     }
 }

@@ -105,12 +105,12 @@ namespace NosCore.GameObject.Services.MailService
             var characternames = new Dictionary<long, string?>();
             foreach (var characterId in charactersIds)
             {
-                characternames.Add(characterId, (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId).ConfigureAwait(false))?.Name);
+                characternames.Add(characterId, (await _characterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId))?.Name);
             }
 
             foreach (var mail in mails)
             {
-                var itinst = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstanceId).ConfigureAwait(false);
+                var itinst = await _itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstanceId);
                 ItemDto? it = null;
                 if (itinst != null)
                 {

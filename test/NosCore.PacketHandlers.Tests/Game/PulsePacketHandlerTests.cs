@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -40,8 +40,8 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             _pulsePacketHandler = new PulsePacketHandler();
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
         }
 
         [TestMethod]
@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 {
                     Tick = i
                 };
-                await _pulsePacketHandler!.ExecuteAsync(pulsePacket, _session!).ConfigureAwait(false);
+                await _pulsePacketHandler!.ExecuteAsync(pulsePacket, _session!);
             }
 
             Assert.IsTrue(_session?.LastPulse == pulsePacket.Tick);

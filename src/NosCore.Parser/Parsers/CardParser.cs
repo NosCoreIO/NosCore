@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -67,9 +67,9 @@ namespace NosCore.Parser.Parsers
             };
             var genericParser = new GenericParser<CardDto>(folder + _fileCardDat,
                 "END", 1, actionList, logger, logLanguage);
-            var cards = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
-            await cardDao.TryInsertOrUpdateAsync(cards).ConfigureAwait(false);
-            await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
+            var cards = (await genericParser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
+            await cardDao.TryInsertOrUpdateAsync(cards);
+            await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
             logger.Information(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
         }

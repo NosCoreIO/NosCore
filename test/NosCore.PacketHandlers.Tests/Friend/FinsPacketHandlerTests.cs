@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -66,9 +66,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             _channelHub = new Mock<IChannelHub>();
             _channelHub.Setup(s => s.GetCommunicationChannels())
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 _friendRequestHolder, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
-            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
+            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session);
             Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
         }
 
@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
-            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
+            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session);
 
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
@@ -146,7 +146,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
 
-            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session).ConfigureAwait(false);
+            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session);
             Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
         }
     }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     Type = SMemoType.FailNpc,
                     Message = Game18NConstString.ItemCanNotBeSold
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.MaxGoldReached
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -75,12 +75,12 @@ namespace NosCore.PacketHandlers.Shops
             {
                 Type = SMemoType.SuccessPlayer,
                 Message = Game18NConstString.TradeSuccessfull
-            }).ConfigureAwait(false);
+            });
 
             clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
                 inv.ItemInstanceId);
-            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
         }
     }
 }

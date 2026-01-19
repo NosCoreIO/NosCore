@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             try
             {
-                await HandlePacketsAsync(package.Packets, true).ConfigureAwait(false);
+                await HandlePacketsAsync(package.Packets, true);
             }
             catch (Exception ex)
             {
@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                     foreach (var handler in disconnectHandlers)
                     {
-                        await handler.HandleDisconnectAsync(this).ConfigureAwait(false);
+                        await handler.HandleDisconnectAsync(this);
                     }
                 }
             }

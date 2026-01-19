@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Movement
                     VisualId = session.Character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.WillMoveShortly
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -81,12 +81,12 @@ namespace NosCore.PacketHandlers.Movement
                 && (mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
+                await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY);
             }
             else
             {
                 await mapChangeService.ChangeMapInstanceAsync(session, portal.DestinationMapInstanceId, portal.DestinationX,
-                    portal.DestinationY).ConfigureAwait(false);
+                    portal.DestinationY);
             }
         }
     }

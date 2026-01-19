@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -61,22 +61,22 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             _charNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                     new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto,Guid>>().Object);
-            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler }).ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { _charNewPacketHandler });
             _chara = _session.Character;
             _mapChangeService = new Mock<IMapChangeService>();
             TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => _chara);
-            await _session.SetCharacterAsync(null).ConfigureAwait(false);
+            await _session.SetCharacterAsync(null);
         }
 
         [TestMethod]
         public async Task CreateCharacterWhenInGame_Does_Not_Create_CharacterAsync()
         {
             var idServer = new IdService<MapItem>(1);
-            await _session!.SetCharacterAsync(_chara).ConfigureAwait(false);
+            await _session!.SetCharacterAsync(_chara);
             _session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
@@ -85,8 +85,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await _session!.HandlePacketsAsync(new[] {new CharNewPacket
             {
                 Name = name
-            }}).ConfigureAwait(false);
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            }});
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
         }
 
         [TestMethod]
@@ -96,8 +96,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            }, _session!);
+            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
         }
 
 
@@ -108,8 +108,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name).ConfigureAwait(false));
+            }, _session!);
+            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == name));
         }
 
         [TestMethod]
@@ -119,7 +119,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await _charNewPacketHandler!.ExecuteAsync(new CharNewPacket
             {
                 Name = name
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == name)!.Skip(1).Any());
         }
 
@@ -131,7 +131,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 Name = name,
                 Slot = 1
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == 1)!.Skip(1).Any());
         }
     }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -39,27 +39,27 @@ namespace NosCore.PacketHandlers.Friend
         public override async Task ExecuteAsync(BlInsPacket blinsPacket, ClientSession session)
         {
             var result = await blacklistHttpClient.AddBlacklistAsync(new BlacklistRequest
-            { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket }).ConfigureAwait(false);
+            { CharacterId = session.Character.CharacterId, BlInsPacket = blinsPacket });
             switch (result)
             {
                 case LanguageKey.CANT_BLOCK_FRIEND:
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.CannotBlackListFriend
-                    }).ConfigureAwait(false);
+                    });
                     break;
                 case LanguageKey.ALREADY_BLACKLISTED:
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.AlreadyBlacklisted
-                    }).ConfigureAwait(false);
+                    });
                     break;
                 case LanguageKey.BLACKLIST_ADDED:
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.CharacterBlacklisted
-                    }).ConfigureAwait(false);
-                    await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                    });
+                    await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient));
                     break;
                 default:
                     logger.Warning(logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);

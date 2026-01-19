@@ -33,7 +33,7 @@ public class MinilandDisconnectHandler(IMinilandService minilandService, IMapIns
             return;
         }
 
-        var minilandId = await minilandService.DeleteMinilandAsync(session.Character.CharacterId).ConfigureAwait(false);
+        var minilandId = await minilandService.DeleteMinilandAsync(session.Character.CharacterId);
         if (minilandId != null)
         {
             mapInstanceGeneratorService.RemoveMap((Guid)minilandId);

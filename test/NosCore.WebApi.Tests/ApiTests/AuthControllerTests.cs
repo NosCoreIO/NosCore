@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -54,8 +54,8 @@ namespace NosCore.WebApi.Tests.ApiTests
         public async Task Setup()
         {
             _authCodeService = new AuthCodeService();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _logger = new Mock<ILogger<AuthController>>();
             _controller = new AuthController(Options.Create(new WebApiConfiguration()
             {

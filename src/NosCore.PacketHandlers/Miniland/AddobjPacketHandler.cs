@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Miniland
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.YouAlreadyHaveThisMinilandObject
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Miniland
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.InstallationOnlyLockMode
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -86,16 +86,16 @@ namespace NosCore.PacketHandlers.Miniland
                             minilandobject.ItemInstance.Item.ItemSubType)).Value;
                 if (min != null)
                 {
-                    await clientSession.HandlePacketsAsync(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance?.Slot ?? 0 } }).ConfigureAwait(false);
+                    await clientSession.HandlePacketsAsync(new[] { new RmvobjPacket { Slot = min.InventoryItemInstance?.Slot ?? 0 } });
                 }
             }
 
             minilandProvider.AddMinilandObject(minilandobj, clientSession.Character.CharacterId, minilandobject);
 
-            await clientSession.SendPacketAsync(minilandobj.GenerateEffect()).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(minilandobj.GenerateEffect());
             await clientSession.SendPacketAsync(new MinilandPointPacket
-            { MinilandPoint = minilandobject.ItemInstance?.Item?.MinilandObjectPoint ?? 0, Unknown = 100 }).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(minilandobj.GenerateMapDesignObject()).ConfigureAwait(false);
+            { MinilandPoint = minilandobject.ItemInstance?.Item?.MinilandObjectPoint ?? 0, Unknown = 100 });
+            await clientSession.SendPacketAsync(minilandobj.GenerateMapDesignObject());
         }
     }
 }

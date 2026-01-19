@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -74,10 +74,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
 
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.MapInstance.Portals = new List<Portal>
             {
                 new()
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestMethod]
         public async Task UserCanNotCreateShopCloseToPortalAsync()
         {
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session!).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session!);
             var packet = (InfoiPacket?)_session?.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.IsTrue(packet?.Message == Game18NConstString.OpenShopAwayPortal);
             Assert.IsNull(_session?.Character.Shop);
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Team, new Mock<ISessionGroupFactory>().Object);
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.TeammateCanNotOpenShop);
             Assert.IsNull(_session.Character.Shop);
@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
             _session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, new Mock<ISessionGroupFactory>().Object);
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsNull(packet);
         }
@@ -134,7 +134,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             _session!.Character.PositionX = 7;
             _session.Character.PositionY = 7;
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session);
             var packet = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
 
             Assert.IsTrue(packet?.Message == Game18NConstString.UseCommercialMapToShop);
@@ -154,7 +154,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
             _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -177,7 +177,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Red && packet?.Message == Game18NConstString.SomeItemsCannotBeTraded);
@@ -201,7 +201,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session).ConfigureAwait(false);
+            await _mShopPacketHandler!.ExecuteAsync(_shopPacket, _session);
             Assert.IsNotNull(_session.Character.Shop);
         }
 
@@ -224,7 +224,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NoscorePocketType.Etc, 2);
 
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            await _session!.HandlePacketsAsync(new[] { _shopPacket }).ConfigureAwait(false);
+            await _session!.HandlePacketsAsync(new[] { _shopPacket });
             Assert.IsNull(_session.Character.Shop);
         }
 
@@ -238,7 +238,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 Type = CreateShopPacketType.Open,
                 ItemList = new List<MShopItemSubPacket?>(),
                 Name = "TEST SHOP"
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsNull(_session.Character.Shop);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.NoItemToSell);

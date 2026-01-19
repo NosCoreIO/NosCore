@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -50,43 +50,43 @@ namespace NosCore.GameObject.Services.SaveService
             try
             {
                 var account = character.Account;
-                await accountDao.TryInsertOrUpdateAsync(account).ConfigureAwait(false);
+                await accountDao.TryInsertOrUpdateAsync(account);
 
-                await characterDao.TryInsertOrUpdateAsync(character).ConfigureAwait(false);
+                await characterDao.TryInsertOrUpdateAsync(character);
 
                 var quicklistEntriesToDelete = quicklistEntriesDao
                         .Where(i => i.CharacterId == character.VisualId)!.ToList()
                     .Where(i => character.QuicklistEntries.All(o => o.Id != i.Id)).ToList();
-                await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray()).ConfigureAwait(false);
-                await quicklistEntriesDao.TryInsertOrUpdateAsync(character.QuicklistEntries).ConfigureAwait(false);
+                await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray());
+                await quicklistEntriesDao.TryInsertOrUpdateAsync(character.QuicklistEntries);
 
                 // load and concat inventory with equipment
                 var itemsToDelete = inventoryItemInstanceDao
                         .Where(i => i.CharacterId == character.VisualId)!.ToList()
                     .Where(i => character.InventoryService.Values.All(o => o.Id != i.Id)).ToList();
 
-                await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()).ConfigureAwait(false);
-                await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()).ConfigureAwait(false);
+                await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray());
+                await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
 
-                await itemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.Select(s => s.ItemInstance).ToArray()).ConfigureAwait(false);
-                await inventoryItemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.ToArray()).ConfigureAwait(false);
+                await itemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.Select(s => s.ItemInstance).ToArray());
+                await inventoryItemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.ToArray());
 
                 var staticBonusToDelete = staticBonusDao
                         .Where(i => i.CharacterId == character.VisualId)!.ToList()
                     .Where(i => character.StaticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
-                await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId)).ConfigureAwait(false);
-                await staticBonusDao.TryInsertOrUpdateAsync(character.StaticBonusList).ConfigureAwait(false);
+                await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId));
+                await staticBonusDao.TryInsertOrUpdateAsync(character.StaticBonusList);
 
-                await titleDao.TryInsertOrUpdateAsync(character.Titles).ConfigureAwait(false);
+                await titleDao.TryInsertOrUpdateAsync(character.Titles);
 
                 var minilandDto = (MinilandDto)minilandProvider.GetMiniland(character.VisualId);
-                await minilandDao.TryInsertOrUpdateAsync(minilandDto).ConfigureAwait(false);
+                await minilandDao.TryInsertOrUpdateAsync(minilandDto);
 
                 var questsToDelete = characterQuestDao
                         .Where(i => i.CharacterId == character.VisualId)!.ToList()
                     .Where(i => character.Quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
-                await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id)).ConfigureAwait(false);
-                await characterQuestDao.TryInsertOrUpdateAsync(character.Quests.Values).ConfigureAwait(false);
+                await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id));
+                await characterQuestDao.TryInsertOrUpdateAsync(character.Quests.Values);
             }
             catch (Exception e)
             {

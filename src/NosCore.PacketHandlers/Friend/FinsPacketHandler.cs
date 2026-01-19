@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Friend
             if (targetCharacter != null)
             {
                 var result = await friendHttpClient.AddFriendAsync(new FriendShipRequest
-                { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket }).ConfigureAwait(false);
+                { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
 
                 switch (result)
                 {
@@ -52,21 +52,21 @@ namespace NosCore.PacketHandlers.Friend
                         await session.Character.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.MaxFriendReachedAdd
-                        }).ConfigureAwait(false);
+                        });
                         break;
 
                     case LanguageKey.BLACKLIST_BLOCKED:
                         await session.Character.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.AlreadyBlacklisted
-                        }).ConfigureAwait(false);
+                        });
                         break;
 
                     case LanguageKey.ALREADY_FRIEND:
                         await session.Character.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.RegisteredAsFriend
-                        }).ConfigureAwait(false);
+                        });
                         break;
 
                     case LanguageKey.FRIEND_REQUEST_BLOCKED:
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Friend
                             Message = Game18NConstString.HAsFriendRequestBlocked,
                             ArgumentType = 1,
                             Game18NArguments = { targetCharacter.Name! }
-                        }).ConfigureAwait(false);
+                        });
                         break;
 
                     case LanguageKey.FRIEND_REQUEST_SENT:
@@ -88,30 +88,30 @@ namespace NosCore.PacketHandlers.Friend
                             { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
                             NoPacket = new FinsPacket
                             { Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId }
-                        }).ConfigureAwait(false);
+                        });
                         break;
 
                     case LanguageKey.FRIEND_ADDED:
                         await session.Character.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.Registered
-                        }).ConfigureAwait(false);
+                        });
                         await targetCharacter.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.Registered
-                        }).ConfigureAwait(false);
+                        });
 
                         await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                            pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
+                            pubSubHub));
                         await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient,
-                            channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
+                            channelHttpClient, pubSubHub));
                         break;
 
                     case LanguageKey.FRIEND_REJECTED:
                         await targetCharacter.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.YouAreBlocked
-                        }).ConfigureAwait(false);
+                        });
                         break;
 
                     default:

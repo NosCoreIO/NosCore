@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Game18NConstString.ItemWillDestroy
-                        }).ConfigureAwait(false);
+                        });
                     break;
 
                 case RequestDeletionType.Requested:
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Game18NConstString.AskDestroyItem
-                        }).ConfigureAwait(false);
+                        });
                     break;
 
                 case RequestDeletionType.Confirmed:
@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
                         (NoscorePocketType)bIPacket.PocketType, bIPacket.Slot);
-                    await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot)).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:
                     return;

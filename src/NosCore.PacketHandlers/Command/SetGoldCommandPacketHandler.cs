@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -51,11 +51,11 @@ namespace NosCore.PacketHandlers.Command
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
-            await pubSubHub.SendMessageAsync(data).ConfigureAwait(false);
+            await pubSubHub.SendMessageAsync(data);
         }
     }
 }

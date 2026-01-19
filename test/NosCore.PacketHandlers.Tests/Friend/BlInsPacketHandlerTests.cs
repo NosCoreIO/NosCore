@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -48,8 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
 
             TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
@@ -79,17 +79,17 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 CharacterId = 2
             };
 
-            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!).ConfigureAwait(false);
+            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session!);
             Assert.IsNull(await
                 TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
                     (_session!.Character.CharacterId == s.CharacterId) &&
-                    (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false));
+                    (s.RelationType == CharacterRelationType.Blocked)));
         }
 
         [TestMethod]
         public async Task Test_Blacklist_CharacterAsync()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session).ConfigureAwait(false);
+            await _blInsPacketHandler!.ExecuteAsync(blinsPacket, _session);
             Assert.IsNotNull(
                 TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s => (_session.Character.CharacterId == s.CharacterId)
                     && (targetSession.Character.CharacterId == s.RelatedCharacterId) &&

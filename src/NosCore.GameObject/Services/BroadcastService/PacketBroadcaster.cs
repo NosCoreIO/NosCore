@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Services.BroadcastService
     {
         public async Task SendToAsync(IPacketTarget target, IPacket packet)
         {
-            await SendToAsync(target, new[] { packet }).ConfigureAwait(false);
+            await SendToAsync(target, new[] { packet });
         }
 
         public async Task SendToAsync(IPacketTarget target, IEnumerable<IPacket> packets)
@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Services.BroadcastService
             var sessions = GetTargetSessions(target);
 
             var tasks = sessions.Select(s => s.Sender.SendPacketsAsync(packetList));
-            await Task.WhenAll(tasks).ConfigureAwait(false);
+            await Task.WhenAll(tasks);
         }
 
         private IEnumerable<SessionInfo> GetTargetSessions(IPacketTarget target)

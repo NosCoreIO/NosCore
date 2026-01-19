@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -62,9 +62,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
                 .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             _minilandProvider = new Mock<IMinilandService>();
             _mapChangeService = new Mock<IMapChangeService>();
             _mjoinPacketHandler = new MJoinPacketHandler(_friendHttpClient.Object, _minilandProvider.Object, _mapChangeService.Object, TestHelpers.Instance.SessionRegistry);
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 VisualId = 50,
                 Type = VisualType.Player
             };
-            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!);
             
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session!, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
         }
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 VisualId = _targetSession!.Character.CharacterId,
                 Type = VisualType.Player
             };
-            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!);
 
 
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_targetSession, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
-            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session);
 
             var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);
@@ -157,7 +157,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                     RelationType = CharacterRelationType.Friend
                 }
             });
-            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session!);
             _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -206,7 +206,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
-            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session);
 
             _mapChangeService!.Verify(x=>x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);
         }
@@ -243,7 +243,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             });
             _minilandProvider!.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
             { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
-            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session).ConfigureAwait(false);
+            await _mjoinPacketHandler!.ExecuteAsync(mjoinPacket, _session);
 
             var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.MinilandLocked);

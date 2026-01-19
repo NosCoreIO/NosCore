@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -38,13 +38,13 @@ namespace NosCore.PacketHandlers.Miniland
         public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
             var target = sessionRegistry.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
-            var friendList = await friendHttpClient.GetFriendsAsync(session.Character.CharacterId).ConfigureAwait(false);
+            var friendList = await friendHttpClient.GetFriendsAsync(session.Character.CharacterId);
             if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
                 var miniland = minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (miniland.State == MinilandState.Open)
                 {
-                    await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+                    await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8);
                 }
                 else
                 {
@@ -54,13 +54,13 @@ namespace NosCore.PacketHandlers.Miniland
                             .ToList()
                             .Contains(target.VisualId))
                     {
-                        await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8).ConfigureAwait(false);
+                        await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8);
                         return;
                     }
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.MinilandLocked
-                    }).ConfigureAwait(false);
+                    });
                 }
             }
         }

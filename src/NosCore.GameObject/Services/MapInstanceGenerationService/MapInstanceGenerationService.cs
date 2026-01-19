@@ -121,8 +121,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
             mapInstanceRegistry.SetAll(mapInstances);
 
-            await Task.WhenAll(mapInstanceRegistry.GetAll().Select(s => s.StartLifeAsync())).ConfigureAwait(false);
-            await Task.WhenAll(mapInstanceRegistry.GetAll().Select(mapInstance => portals.TryGetValue(mapInstance.Map.MapId, out var portal) ? LoadPortalsAsync(mapInstance, portal) : Task.CompletedTask)).ConfigureAwait(false);
+            await Task.WhenAll(mapInstanceRegistry.GetAll().Select(s => s.StartLifeAsync()));
+            await Task.WhenAll(mapInstanceRegistry.GetAll().Select(mapInstance => portals.TryGetValue(mapInstance.Map.MapId, out var portal) ? LoadPortalsAsync(mapInstance, portal) : Task.CompletedTask));
         }
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                  }
 
                  return Task.FromResult(portal);
-             })).ConfigureAwait(false);
+             }));
 
             mapInstance.Portals.AddRange(portalList);
         }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -43,9 +43,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _useItemPacketHandler = new UseItemPacketHandler();
         }
 
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _useItemPacketHandler!.ExecuteAsync(new UseItemPacket { Slot = 0, Type = PocketType.Equipment, Mode = 1 },
-                _session).ConfigureAwait(false);
+                _session);
 
             Assert.IsTrue(_session.Character.InventoryService.Any(s =>
                 (s.Value.ItemInstance.ItemVNum == 1) && (s.Value.Type == NoscorePocketType.Wear) &&
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue((_session.Character.SpAdditionPoint != 0) && !_session.LastPackets.Any(s => s is MsgiPacket));
         }
 
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CannotBeUsedExceedsCapacity);
         }
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 Slot = item.Value.Slot,
                 Mode = 0,
                 Parameter = 0
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue((_session.Character.SpAdditionPoint == TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints) &&
                 !_session.LastPackets.Any(s => s is MsgiPacket));
         }

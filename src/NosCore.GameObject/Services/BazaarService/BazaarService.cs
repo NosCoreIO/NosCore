@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -180,15 +180,15 @@ namespace NosCore.GameObject.Services.BazaarService
 
             if ((bzlink.ItemInstance?.Amount == count) && (requestCharacterName == bzlink.SellerName))
             {
-                await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId).ConfigureAwait(false);
+                await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId);
                 bazaarRegistry.Unregister(bzlink.BazaarItem.BazaarItemId);
-                await itemInstanceDao.TryDeleteAsync(bzlink.ItemInstance.Id).ConfigureAwait(false);
+                await itemInstanceDao.TryDeleteAsync(bzlink.ItemInstance.Id);
             }
             else
             {
                 var item = (IItemInstanceDto)bzlink.ItemInstance!;
                 item.Amount -= count;
-                await itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
+                await itemInstanceDao.TryInsertOrUpdateAsync(item);
             }
 
             return true;

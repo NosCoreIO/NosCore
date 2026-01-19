@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -53,8 +53,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestRewardDto.Amount), chunk => ImportAmount(chunk)},
             };
             var genericParser = new GenericParser<QuestRewardDto>(folder + _fileQuestPrizeDat, "END", 0, actionList, logger, logLanguage);
-            var questRewardDtos = await genericParser.GetDtosAsync().ConfigureAwait(false);
-            await questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos).ConfigureAwait(false);
+            var questRewardDtos = await genericParser.GetDtosAsync();
+            await questRewardDtoDao.TryInsertOrUpdateAsync(questRewardDtos);
             logger.Information(logLanguage[LogLanguageKey.QUEST_PRIZES_PARSED], questRewardDtos.Count);
         }
 

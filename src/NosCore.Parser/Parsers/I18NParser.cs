@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -55,7 +55,7 @@ namespace NosCore.Parser.Parsers
                 {
                     using var stream = new StreamReader(I18NTextFileName(file, region),
                         Encoding.Default);
-                    var lines = (await stream.ReadToEndAsync().ConfigureAwait(false)).Split(
+                    var lines = (await stream.ReadToEndAsync()).Split(
                         new[] { "\r\n", "\r", "\n" },
                         StringSplitOptions.None
                     );
@@ -73,7 +73,7 @@ namespace NosCore.Parser.Parsers
                             });
                         }
                     }
-                    await dao.TryInsertOrUpdateAsync(dtos.Values).ConfigureAwait(false);
+                    await dao.TryInsertOrUpdateAsync(dtos.Values);
 
                     logger.Information(
                         logLanguage[logLanguageKey],

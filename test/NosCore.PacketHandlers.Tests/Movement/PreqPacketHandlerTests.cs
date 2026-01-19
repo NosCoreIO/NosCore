@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -44,8 +44,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _minilandProvider = new Mock<IMinilandService>();
             _mapChangeService = new Mock<IMapChangeService>();
             _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             _session!.Character.PositionX = 0;
             _session.Character.PositionY = 0;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
 
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Once);
         }
@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             _session.Character.PositionY = 0;
 
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
             Assert.IsTrue(_session.Character.LastPortal == time);
         }
 
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.LastPortal = time.Plus(Duration.FromMinutes(1));
             _session.Character.LastMove = time;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
         }
 
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             _session.Character.PositionY = 0;
             var time = TestHelpers.Instance.Clock.GetCurrentInstant();
             _session.Character.LastPortal = time;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
         }
 
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             _session!.Character.PositionX = 8;
             _session.Character.PositionY = 8;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
             _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
         }
 
@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session).ConfigureAwait(false);
+            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
 
             _mapChangeService!.Verify(x => x.ChangeMapAsync(_session, 1, 5, 5), Times.Once);
         }

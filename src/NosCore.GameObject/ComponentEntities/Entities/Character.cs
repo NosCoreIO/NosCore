@@ -243,19 +243,19 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         {
             HeroLevel = level;
             HeroXp = 0;
-            await GenerateLevelupPacketsAsync().ConfigureAwait(false);
+            await GenerateLevelupPacketsAsync();
             await SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.HeroLevelIncreased
-            }).ConfigureAwait(false);
+            });
         }
 
         public async Task SetJobLevelAsync(byte jobLevel)
         {
             JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             JobLevelXp = 0;
-            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
             var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
             await Task.WhenAll(mapSessions.Select(s =>
             {
@@ -265,12 +265,12 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 //}
 
                 return s.SendPacketAsync(this.GenerateEff(8));
-            })).ConfigureAwait(false);
+            }));
             await SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.JobLevelIncreased
-            }).ConfigureAwait(false);
+            });
         }
 
         public void JoinGroup(Group group)
@@ -294,16 +294,16 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 
                 if (Group.Count == 1)
                 {
-                    await groupMember.LeaveGroupAsync().ConfigureAwait(false);
-                    await groupMember.SendPacketAsync(Group.GeneratePidx(groupMember)).ConfigureAwait(false);
+                    await groupMember.LeaveGroupAsync();
+                    await groupMember.SendPacketAsync(Group.GeneratePidx(groupMember));
                     await groupMember.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.PartyDisbanded
-                    }).ConfigureAwait(false);
+                    });
                 }
 
-                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit()).ConfigureAwait(false);
+                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit());
             }
 
             Group = new Group(GroupType.Group, sessionGroupFactory);
@@ -321,14 +321,14 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                     VisualId = CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.RemoveEquipment
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
             JobLevel = 1;
             JobLevelXp = 0;
-            await SendPacketAsync(new NpInfoPacket()).ConfigureAwait(false);
-            await SendPacketAsync(new PclearPacket()).ConfigureAwait(false);
+            await SendPacketAsync(new NpInfoPacket());
+            await SendPacketAsync(new PclearPacket());
 
             if (classType == CharacterClassType.Adventurer)
             {
@@ -360,22 +360,22 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 .Where(inv => inv != null))
             {
                 await SendPacketsAsync(
-                    inv!.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot))).ConfigureAwait(false);
+                    inv!.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
             }
 
-            await SendPacketAsync(this.GenerateTit()).ConfigureAwait(false);
-            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateEq()).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateEff(8)).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateTit());
+            await SendPacketAsync(GenerateStat());
+            await MapInstance.SendPacketAsync(this.GenerateEq());
+            await MapInstance.SendPacketAsync(this.GenerateEff(8));
             //TODO: Faction
-            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateCMode()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCond());
+            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await SendPacketAsync(this.GenerateCMode());
             await SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.ClassChanged
-            }).ConfigureAwait(false);
+            });
 
             QuicklistEntries = new List<QuicklistEntryDto>
             {
@@ -391,10 +391,10 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 }
             };
 
-            await MapInstance.SendPacketAsync(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Channel!.Id)).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(Group!.GeneratePidx(this)).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateEff(6)).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateEff(198)).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateIn(Prefix ?? ""), new EveryoneBut(Channel!.Id));
+            await MapInstance.SendPacketAsync(Group!.GeneratePidx(this));
+            await MapInstance.SendPacketAsync(this.GenerateEff(6));
+            await MapInstance.SendPacketAsync(this.GenerateEff(198));
         }
 
         public Task AddGoldAsync(long gold)
@@ -422,19 +422,19 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         public async Task SetGoldAsync(long gold)
         {
             Gold = gold;
-            await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateGold());
             await SendPacketAsync(this.GenerateSay(
                 GetMessageFromKey(LanguageKey.UPDATE_GOLD),
-                SayColorType.Red)).ConfigureAwait(false);
+                SayColorType.Red));
         }
 
         public async Task SetReputationAsync(long reput)
         {
             Reput = reput;
-            await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateFd());
             await SendPacketAsync(this.GenerateSay(
                 GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
-                SayColorType.Red)).ConfigureAwait(false);
+                SayColorType.Red));
         }
 
         //todo move this
@@ -446,22 +446,22 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 {
                     if (mail.ItemInstance != null)
                     {
-                        await SendPacketAsync(mail.GeneratePost(0)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(0));
                     }
                     else
                     {
-                        await SendPacketAsync(mail.GeneratePost(1)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(1));
                     }
                 }
                 else
                 {
                     if (mail.ItemInstance != null)
                     {
-                        await SendPacketAsync(mail.GeneratePost(3)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(3));
                     }
                     else
                     {
-                        await SendPacketAsync(mail.GeneratePost(2)).ConfigureAwait(false);
+                        await SendPacketAsync(mail.GeneratePost(2));
                     }
                 }
             }
@@ -481,12 +481,12 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         {
             Shop = null;
 
-            await MapInstance.SendPacketAsync(this.GenerateShop(AccountLanguage)).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GeneratePFlag()).ConfigureAwait(false);
+            await MapInstance.SendPacketAsync(this.GenerateShop(AccountLanguage));
+            await MapInstance.SendPacketAsync(this.GeneratePFlag());
 
             IsSitting = false;
-            await SendPacketAsync(this.GenerateCond()).ConfigureAwait(false);
-            await MapInstance.SendPacketAsync(this.GenerateRest()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateCond());
+            await MapInstance.SendPacketAsync(this.GenerateRest());
         }
 
         public async Task BuyAsync(Shop shop, short slot, short amount)
@@ -519,7 +519,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 {
                     Type = SMemoType.FailNpc,
                     Message = Game18NConstString.NotEnoughGold5
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -529,7 +529,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 {
                     Type = SMemoType.FailNpc,
                     Message = Game18NConstString.ReputationNotHighEnough
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -548,7 +548,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                     {
                         Type = SMemoType.FailPlayer,
                         Message = GetMessageFromKey(LanguageKey.TOO_RICH_SELLER)
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
 
@@ -567,28 +567,28 @@ namespace NosCore.GameObject.ComponentEntities.Entities
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = CharacterId);
-                var packet = await (shop.OwnerCharacter == null ? Task.FromResult((NInvPacket?)null) : shop.OwnerCharacter.BuyFromAsync(item, amount, slotChar)).ConfigureAwait(false);
+                var packet = await (shop.OwnerCharacter == null ? Task.FromResult((NInvPacket?)null) : shop.OwnerCharacter.BuyFromAsync(item, amount, slotChar));
                 if (packet != null)
                 {
-                    await SendPacketAsync(packet).ConfigureAwait(false);
+                    await SendPacketAsync(packet);
                 }
 
-                await SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot))).ConfigureAwait(false);
+                await SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
                 await SendPacketAsync(new SMemoiPacket
                 {
                     Type = SMemoType.SuccessNpc,
                     Message = Game18NConstString.TradeSuccessfull
-                }).ConfigureAwait(false);
+                });
 
                 if (reputprice == 0)
                 {
                     Gold -= (long)(price * percent);
-                    await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
+                    await SendPacketAsync(this.GenerateGold());
                 }
                 else
                 {
                     Reput -= reputprice;
-                    await SendPacketAsync(this.GenerateFd()).ConfigureAwait(false);
+                    await SendPacketAsync(this.GenerateFd());
                     await SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
@@ -597,7 +597,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                         Message = Game18NConstString.ReputationReduced,
                         ArgumentType = 4,
                         Game18NArguments = { reputprice }
-                    }).ConfigureAwait(false);
+                    });
                 }
             }
             else
@@ -606,7 +606,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.NotEnoughSpace
-                }).ConfigureAwait(false);
+                });
             }
         }
 
@@ -623,10 +623,10 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 Shop!.ShopItems.TryRemove(slot, out _);
             }
 
-            await SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)type, slotChar)).ConfigureAwait(false);
+            await SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)type, slotChar));
             var sellAmount = (item?.Price ?? 0) * amount;
             Gold += sellAmount;
-            await SendPacketAsync(this.GenerateGold()).ConfigureAwait(false);
+            await SendPacketAsync(this.GenerateGold());
             Shop!.Sell += sellAmount;
 
             await SendPacketAsync(new SellListPacket
@@ -641,23 +641,23 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                         SellAmount = item?.Amount ?? 0
                     }
                 }
-            }).ConfigureAwait(false);
+            });
 
             if (!Shop.ShopItems.IsEmpty)
             {
                 return this.GenerateNInv(1, 0);
             }
 
-            await CloseShopAsync().ConfigureAwait(false);
+            await CloseShopAsync();
             return null;
 
         }
 
         private async Task GenerateLevelupPacketsAsync()
         {
-            await SendPacketAsync(GenerateStat()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateStatInfo()).ConfigureAwait(false);
-            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
+            await SendPacketAsync(GenerateStat());
+            await SendPacketAsync(this.GenerateStatInfo());
+            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
             var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
 
             await Task.WhenAll(mapSessions.Select(async s =>
@@ -665,13 +665,13 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 if (s.VisualId != VisualId)
                 {
                     await s.SendPacketAsync(this.GenerateIn(Authority == AuthorityType.Moderator
-                        ? GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty)).ConfigureAwait(false);
+                        ? GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
                     //TODO: Generate GIDX
                 }
 
-                await s.SendPacketAsync(this.GenerateEff(6)).ConfigureAwait(false);
-                await s.SendPacketAsync(this.GenerateEff(198)).ConfigureAwait(false);
-            })).ConfigureAwait(false);
+                await s.SendPacketAsync(this.GenerateEff(6));
+                await s.SendPacketAsync(this.GenerateEff(198));
+            }));
 
             foreach (var member in Group!.Keys)
             {
@@ -681,18 +681,18 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 groupMember?.SendPacketAsync(groupMember.Group!.GeneratePinit());
             }
 
-            await SendPacketAsync(Group.GeneratePinit()).ConfigureAwait(false);
+            await SendPacketAsync(Group.GeneratePinit());
         }
 
         public async Task SetLevelAsync(byte level)
         {
             this.SetLevel(level);
-            await GenerateLevelupPacketsAsync().ConfigureAwait(false);
+            await GenerateLevelupPacketsAsync();
             await SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.LevelIncreased
-            }).ConfigureAwait(false);
+            });
         }
 
 

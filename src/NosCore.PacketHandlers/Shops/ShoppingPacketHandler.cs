@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Shops
             if (aliveEntity.Shop?.ShopItems.IsEmpty == false)
             {
                 await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType))
-                    .ConfigureAwait(false);
+                    ;
             }
         }
     }

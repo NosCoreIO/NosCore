@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -47,9 +47,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _getPacketHandler = new GetPacketHandler(Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance.Amount == 2);
         }
 
@@ -105,7 +105,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughSpace && packet.Type == 0);
             Assert.IsTrue(_session.Character.InventoryService.Count == 2);
@@ -125,7 +125,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(_session.Character.InventoryService.First().Value.ItemInstance.Rare == 6);
         }
 
@@ -147,7 +147,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
                 packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.UnableToPickUp);
@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(_session.Character.InventoryService.Count > 0);
         }
 
@@ -191,7 +191,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PickerId = _session.Character.CharacterId,
                 VisualId = 100001,
                 PickerType = VisualType.Player
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
     }

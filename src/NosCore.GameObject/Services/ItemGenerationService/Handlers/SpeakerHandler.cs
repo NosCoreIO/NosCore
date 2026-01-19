@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 Argument = 3,
                 SecondArgument = 1,
                 EntityId = requestData.Data.Item1.Slot
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

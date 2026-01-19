@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var itemssearch = packet.ItemVNumFilter?.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
             var bzlist = await bazaarHttpClient.GetBazaar(-1, (byte?)packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
-                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null).ConfigureAwait(false);
+                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
             var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         Upgrade = bzlink.ItemInstance.Upgrade,
                         EInfo = new EInfoPacket()
                     }).ToList() as List<RcbListElementPacket?>
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

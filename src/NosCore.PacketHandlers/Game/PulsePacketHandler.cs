@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Game
             session.LastPulse += 60;
             if (pulsePacket.Tick != session.LastPulse)
             {
-                await session.DisconnectAsync().ConfigureAwait(false);
+                await session.DisconnectAsync();
             }
         }
     }

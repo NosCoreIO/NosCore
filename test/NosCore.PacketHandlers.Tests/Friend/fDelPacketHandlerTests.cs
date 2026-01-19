@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -63,8 +63,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
             _channelHub = new Mock<IChannelHub>();
@@ -116,13 +116,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
                    CharacterId = _session.Character.CharacterId,
                    RelationType = CharacterRelationType.Friend
                }
-           }).ConfigureAwait(false);
+           });
             var fdelPacket = new FdelPacket
             {
                 CharacterId = 2
             };
 
-            await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session).ConfigureAwait(false);
+            await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session);
 
             Assert.IsTrue(!(_characterRelationDao!.LoadAll()).Any());
         }
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestMethod]
         public async Task Test_Delete_FriendAsync()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
@@ -156,13 +156,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     CharacterId = _session.Character.CharacterId,
                     RelationType = CharacterRelationType.Friend
                 }
-            }).ConfigureAwait(false);
+            });
             var fdelPacket = new FdelPacket
             {
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session).ConfigureAwait(false);
+            await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session);
 
             Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
@@ -170,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestMethod]
         public async Task Test_Delete_Friend_No_FriendAsync()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
             var list = new List<CharacterDto>
@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 CharacterId = targetSession.Character.CharacterId
             };
 
-            await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session).ConfigureAwait(false);
+            await _fDelPacketHandler!.ExecuteAsync(fdelPacket, _session);
             var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
             Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST,
                 _session.Account.Language], lastpacket?.Message);

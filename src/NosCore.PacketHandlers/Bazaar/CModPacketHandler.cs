@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
-            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId,null,null,null,null,null,null,null,null).ConfigureAwait(false);
+            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId,null,null,null,null,null,null,null,null);
             var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
@@ -53,18 +53,18 @@ namespace NosCore.PacketHandlers.Bazaar
                     {
                         Type = 1,
                         Message = Game18NConstString.CannotChangePriceSoldItems
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
 
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
                     var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), packet.NewPrice.AsJsonElement().AsNode()));
-                    var bzMod = await bazaarHttpClient.ModifyBazaarAsync(packet.BazaarId, patch).ConfigureAwait(false);
+                    var bzMod = await bazaarHttpClient.ModifyBazaarAsync(packet.BazaarId, patch);
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {
-                        await clientSession.HandlePacketsAsync(new[] {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}}).ConfigureAwait(false);
+                        await clientSession.HandlePacketsAsync(new[] {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             Message = Game18NConstString.NewSellingPrice,
                             ArgumentType = 4,
                             Game18NArguments = { bzMod.BazaarItem?.Price ?? 0 }
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
                 }
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     Type = 1,
                     Message = Game18NConstString.OfferUpdated
-                }).ConfigureAwait(false);
+                });
 
             }
             else

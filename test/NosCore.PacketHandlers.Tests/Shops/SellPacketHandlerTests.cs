@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -54,10 +54,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
             _instanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _sellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration);
         }
 
@@ -82,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
-                _session).ConfigureAwait(false);
+                _session);
             Assert.IsTrue(_session.Character.Gold == 0);
             Assert.IsNotNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
-                _session).ConfigureAwait(false);
+                _session);
             var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
             Assert.IsTrue(packet?.Type == SMemoType.FailNpc && packet?.Message == Game18NConstString.ItemCanNotBeSold);
             Assert.IsTrue(_session.Character.Gold == 0);
@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
             _session.Character.MapInstance = _instanceProvider!.GetBaseMapById(1)!;
             await _sellPacketHandler!.ExecuteAsync(new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Etc },
-                _session).ConfigureAwait(false);
+                _session);
             Assert.IsTrue(_session.Character.Gold > 0);
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Etc));
         }

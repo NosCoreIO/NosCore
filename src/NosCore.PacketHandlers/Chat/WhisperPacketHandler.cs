@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Chat
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
-                })).ConfigureAwait(false);
+                }));
 
                 var speakPacket = session.Character.GenerateSpk(new SpeakPacket
                 {
@@ -98,13 +98,13 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId).ConfigureAwait(false);
+                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.AlreadyBlacklisted
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
 
@@ -118,7 +118,7 @@ namespace NosCore.PacketHandlers.Chat
                     SenderCharacter = new Character { Name = session.Character.Name },
                     OriginWorldId = channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }).ConfigureAwait(false);
+                });
             }
             catch (Exception e)
             {

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                     VisualId = requestData.ClientSession.Character.CharacterId,
                     Type = SayColorType.Red,
                     Message = Game18NConstString.CantUseInGroup
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.CanNotChangeJobAtThisLevel
-                }).ConfigureAwait(false);
+                });
 
                 await requestData.ClientSession.SendPacketAsync(new SayiPacket
                 {
@@ -74,7 +74,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                     VisualId = requestData.ClientSession.Character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.CanNotChangeJobAtThisJobLevel
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
-            await requestData.ClientSession.Character.ChangeClassAsync(classType).ConfigureAwait(false);
+            await requestData.ClientSession.Character.ChangeClassAsync(classType);
         }
     }
 }

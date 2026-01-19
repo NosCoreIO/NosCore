@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -52,15 +52,15 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 
             if (inv != null)
             {
-                await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
                 requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
                     out _);
                 await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
+                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum)).ConfigureAwait(false);
+                        requestData.ClientSession.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
                 }
 
                 await requestData.ClientSession.SendPacketAsync(new SayiPacket
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                     Message = Game18NConstString.ReceivedThisItem,
                     ArgumentType = 2,
                     Game18NArguments = { inv.ItemInstance.ItemVNum.ToString(), amount }
-                }).ConfigureAwait(false);
+                });
 
                 if (requestData.ClientSession.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                         Message = Game18NConstString.CharacterHasReceivedItem,
                         ArgumentType = 13,
                         Game18NArguments = { $"{requestData.ClientSession.Character.Name} {inv.ItemInstance.Item.VNum}" }
-                    }).ConfigureAwait(false);
+                    });
                 }
             }
             else
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.NotEnoughSpace
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -57,10 +57,10 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                 Active = false,
                 CharacterId = requestData.ClientSession.Character.VisualId
             });
-            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character.GenerateTitle()).ConfigureAwait(false);
-            await requestData.ClientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.TitleChangedOrHidden }).ConfigureAwait(false);
+            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(requestData.ClientSession.Character.GenerateTitle());
+            await requestData.ClientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.TitleChangedOrHidden });
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
         }
     }
 }

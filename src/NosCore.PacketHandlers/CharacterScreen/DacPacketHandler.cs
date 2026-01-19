@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
             await clientSession.HandlePacketsAsync(new[] { new SelectPacket { Slot = packet.Slot } })
-                .ConfigureAwait(false);
+                ;
 
             logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                 clientSession.Account.Name);

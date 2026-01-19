@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Services.MinilandService
             var miniland = mapInstanceAccessorService.GetMapInstance(minilandInfo!.MapInstanceId);
             foreach (var obj in miniland!.MapDesignObjects.Values)
             {
-                await minilandObjectsDao.TryInsertOrUpdateAsync(obj).ConfigureAwait(false);
+                await minilandObjectsDao.TryInsertOrUpdateAsync(obj);
             }
 
             if (minilandRegistry.Unregister(characterId, out var removedMiniland))
@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Services.MinilandService
 
         public async Task<Miniland> InitializeAsync(Character character, IMapInstanceGeneratorService generator)
         {
-            var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId).ConfigureAwait(false);
+            var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId);
             if (minilandInfoDto == null)
             {
                 throw new ArgumentException();
@@ -128,7 +128,7 @@ namespace NosCore.GameObject.Services.MinilandService
             minilandInfo.CharacterEntity = character;
 
             minilandRegistry.Register(character.CharacterId, minilandInfo);
-            await generator.AddMapInstanceAsync(miniland).ConfigureAwait(false);
+            await generator.AddMapInstanceAsync(miniland);
 
             var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToList();
@@ -161,7 +161,7 @@ namespace NosCore.GameObject.Services.MinilandService
                     return;
                 case MinilandState.Private:
                     {
-                        List<long> friends = (await friendHttpClient.GetFriendsAsync(characterId).ConfigureAwait(false))
+                        List<long> friends = (await friendHttpClient.GetFriendsAsync(characterId))
                             .Select(s => s.CharacterId)
                             .ToList();
                         miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.GameObject.Services.BroadcastService;
 using DeleteMailData = NosCore.GameObject.InterChannelCommunication.Messages.DeleteMailData;
@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 Type = 2,
                 PostType = data.PostType,
                 Id = data.MailId
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -49,8 +49,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _item = TestHelpers.Instance.GenerateItemProvider();
             _mailHttpClient = new Mock<IMailHub>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             {
                 Type = 5,
                 GiftId = 1
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsNull(packet);
         }
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             {
                 Type = 5,
                 GiftId = 1
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 7);
         }
@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             {
                 Type = 4,
                 GiftId = 1
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 2);
         }
@@ -139,7 +139,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             {
                 Type = 4,
                 GiftId = 1
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 5);
         }

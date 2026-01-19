@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -59,9 +59,9 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<NpcTalkDto>(folder + _fileNpcTalkDat,
                 "%", 0, actionList, logger, logLanguage);
-            var npcTalks = (await genericParser.GetDtosAsync(" ").ConfigureAwait(false)).ToList();
+            var npcTalks = (await genericParser.GetDtosAsync(" ")).ToList();
             npcTalks.Add(new NpcTalkDto { DialogId = 99, NameI18NKey = "" });
-            await npcTalkDao.TryInsertOrUpdateAsync(npcTalks).ConfigureAwait(false);
+            await npcTalkDao.TryInsertOrUpdateAsync(npcTalks);
 
             logger.Information(logLanguage[LogLanguageKey.NPCTALKS_PARSED], npcTalks.Count);
         }

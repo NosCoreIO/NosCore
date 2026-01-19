@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Exchange
                             Message = Game18NConstString.TradingWithSomeoneElse,
                             ArgumentType = 1,
                             Game18NArguments = { target?.Name ?? "" }
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -86,11 +86,11 @@ namespace NosCore.PacketHandlers.Exchange
                             Message = Game18NConstString.BlockingTrades,
                             ArgumentType = 1,
                             Game18NArguments = { target?.Name ?? "" }
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
-                    var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(clientSession.Character.VisualId).ConfigureAwait(false);
+                    var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(clientSession.Character.VisualId);
                     if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
                     {
                         await clientSession.SendPacketAsync(new SayiPacket
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Exchange
                             VisualId = clientSession.Character.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.AlreadyBlacklisted
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -108,7 +108,7 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.CanNotTradeShopOwners
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Exchange
                         Message = Game18NConstString.YouInvitedToTrade,
                         ArgumentType = 1,
                         Game18NArguments = { target.Name }
-                    }).ConfigureAwait(false);
+                    });
 
                     await target.SendPacketAsync(new Dlgi2Packet
                     {
@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Exchange
                         Question = Game18NConstString.WantAcceptTrade,
                         ArgumentType = 2,
                         Game18NArguments = { $"{clientSession.Character.Level}", clientSession.Character.Name ?? "" }
-                    }).ConfigureAwait(false);
+                    });
                     return;
 
                 case RequestExchangeType.List:
@@ -137,8 +137,8 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    await clientSession.SendPacketAsync(clientSession.Character.GenerateServerExcListPacket(null, null, null)).ConfigureAwait(false);
-                    await (target == null ? Task.CompletedTask : target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null))).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateServerExcListPacket(null, null, null));
+                    await (target == null ? Task.CompletedTask : target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null)));
                     return;
 
                 case RequestExchangeType.Declined:
@@ -150,14 +150,14 @@ namespace NosCore.PacketHandlers.Exchange
                         Message = Game18NConstString.CancelledTrade,
                         ArgumentType = 1,
                         Game18NArguments = { target?.Name ?? "" }
-                    }).ConfigureAwait(false);
+                    });
                     await (target == null ? Task.CompletedTask : target.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
                         VisualId = target.CharacterId,
                         Type = SayColorType.Yellow,
                         Message = Game18NConstString.TradeCancelled2
-                    })).ConfigureAwait(false);
+                    }));
                     return;
 
                 case RequestExchangeType.Confirmed:
@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.TradeWaitingConfirm
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -198,11 +198,11 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             if (infoPacket.Key == clientSession.Character.CharacterId)
                             {
-                                await clientSession.SendPacketAsync(infoPacket.Value).ConfigureAwait(false);
+                                await clientSession.SendPacketAsync(infoPacket.Value);
                             }
                             else if (infoPacket.Key == exchangeTarget.VisualId)
                             {
-                                await exchangeTarget.SendPacketAsync(infoPacket.Value).ConfigureAwait(false);
+                                await exchangeTarget.SendPacketAsync(infoPacket.Value);
                             }
                             else
                             {
@@ -219,32 +219,32 @@ namespace NosCore.PacketHandlers.Exchange
                         {
                             if (item.Key == clientSession.Character.CharacterId)
                             {
-                                await clientSession.SendPacketAsync(item.Value).ConfigureAwait(false);
+                                await clientSession.SendPacketAsync(item.Value);
                             }
                             else
                             {
-                                await exchangeTarget.SendPacketAsync(item.Value).ConfigureAwait(false);
+                                await exchangeTarget.SendPacketAsync(item.Value);
                             }
                         }
 
                         var getSessionData = exchangeService.GetData(clientSession.Character.CharacterId);
-                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold).ConfigureAwait(false);
+                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold);
                         clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
 
-                        await exchangeTarget.AddGoldAsync(getSessionData.Gold).ConfigureAwait(false);
+                        await exchangeTarget.AddGoldAsync(getSessionData.Gold);
                         exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
 
                         var getTargetData = exchangeService.GetData(exchangeTarget.VisualId);
-                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold).ConfigureAwait(false);
+                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold);
                         exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
 
-                        await clientSession.Character.AddGoldAsync(getTargetData.Gold).ConfigureAwait(false);
+                        await clientSession.Character.AddGoldAsync(getTargetData.Gold);
                         clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 
                     closeExchange = exchangeService.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
-                    await exchangeTarget.SendPacketAsync(closeExchange).ConfigureAwait(false);
-                    await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
+                    await exchangeTarget.SendPacketAsync(closeExchange);
+                    await clientSession.SendPacketAsync(closeExchange);
                     return;
 
                 case RequestExchangeType.Cancelled:
@@ -260,7 +260,7 @@ namespace NosCore.PacketHandlers.Exchange
                     closeExchange =
                         exchangeService.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
                     cancelTarget?.SendPacketAsync(closeExchange);
-                    await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(closeExchange);
                     return;
 
                 default:

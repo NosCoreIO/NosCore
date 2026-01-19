@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
                 new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new TitleGuriHandler();
         }
 
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            }).ConfigureAwait(false);
+            });
             var lastpacket = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.AreEqual(Game18NConstString.TitleChangedOrHidden, lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.Titles.Count);
@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            }).ConfigureAwait(false);
+            });
             var lastpacket = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(1, Session.Character.Titles.Count);
@@ -99,7 +99,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            }).ConfigureAwait(false);
+            });
             var lastpacket = (InfoiPacket?)Session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(0, Session.Character.Titles.Count);

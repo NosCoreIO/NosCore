@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                     VisualId = requestData.ClientSession.Character.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NotInPair
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                     VisualId = requestData.ClientSession.Character.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NotInPair
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -88,14 +88,14 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 Message = Game18NConstString.EffectActivated,
                 ArgumentType = 2,
                 Game18NArguments = { itemInstance.ItemInstance.Item.VNum.ToString() }
-            }).ConfigureAwait(false);
+            });
             await requestData.ClientSession.SendPacketAsync(
-                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
+                itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                 itemInstance.ItemInstanceId);
 
             requestData.ClientSession.Character.LoadExpensions();
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(conf)).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateExts(conf));
         }
     }
 }

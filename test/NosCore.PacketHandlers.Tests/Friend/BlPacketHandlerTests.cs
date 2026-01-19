@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -52,8 +52,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
 
             TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestMethod]
         public async Task Test_Distant_BlacklistAsync()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
             var blPacket = new BlPacket
             {
                 CharacterName = targetSession.Character.Name
@@ -100,11 +100,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 _characterRelationDao!, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));
-            await _blPacketHandler!.ExecuteAsync(blPacket, _session).ConfigureAwait(false);
+            await _blPacketHandler!.ExecuteAsync(blPacket, _session);
             Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
                 (s.CharacterId == _session.Character.CharacterId) &&
                 (s.RelatedCharacterId == targetSession.Character.CharacterId)
-                && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false) != null);
+                && (s.RelationType == CharacterRelationType.Blocked)) != null);
         }
     }
 }

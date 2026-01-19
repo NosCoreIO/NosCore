@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -48,8 +48,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
                     itemInstance.ItemInstanceId);
                 await requestData.ClientSession.SendPacketAsync(
-                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot)).ConfigureAwait(false);
-                await requestData.ClientSession.Character.AddAdditionalSpPointsAsync(itemInstance.ItemInstance.Item.EffectValue).ConfigureAwait(false);
+                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+                await requestData.ClientSession.Character.AddAdditionalSpPointsAsync(itemInstance.ItemInstance.Item.EffectValue);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.CannotBeUsedExceedsCapacity
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

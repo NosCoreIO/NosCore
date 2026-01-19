@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Inventory
                 mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
             await clientSession.SendPacketAsync(
-                newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot)).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot)).ConfigureAwait(false);
+                newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
+            await clientSession.SendPacketAsync(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
         }
     }
 }

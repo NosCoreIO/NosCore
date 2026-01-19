@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -72,10 +72,10 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             _channelHub = new Mock<IChannelHub>();
             _sessionRefHolder = new SessionRefHolder();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _sessionRefHolder[_session.Channel!.Id] = new RegionTypeMapping(_session.SessionId, RegionType.EN);
             _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
 
             Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
 
             Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.OldClient);
@@ -143,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(Guid.NewGuid().ToString()),
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
 
             Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
@@ -158,7 +158,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
 
             Assert.IsNotNull((NsTestPacket?)_session!.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AlreadyConnected);
         }
@@ -187,7 +187,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
@@ -213,7 +213,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
 
             Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.Maintenance);
@@ -230,7 +230,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
             {
                 AuthToken = GuidToToken(_tokenGuid),
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }

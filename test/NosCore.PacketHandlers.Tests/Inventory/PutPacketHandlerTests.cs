@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -42,9 +42,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _putPacketHandler = new PutPacketHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.GameLanguageLocalizer);
         }
 
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 500
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue((_session.Character.InventoryService.Count == 1) &&
                 (_session.Character.InventoryService.FirstOrDefault().Value.ItemInstance?.Amount == 499));
         }
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
                 packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
         }
 
@@ -103,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
                 packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);
@@ -121,7 +121,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 PocketType = PocketType.Main,
                 Slot = 0,
                 Amount = 1
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId &&
                 packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CantDropItem);

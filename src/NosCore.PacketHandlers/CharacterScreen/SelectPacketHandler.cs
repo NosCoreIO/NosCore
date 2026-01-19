@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var characterDto = await
                     characterDao.FirstOrDefaultAsync(s =>
                         (s.AccountId == clientSession.Account.AccountId) && (s.Slot == packet.Slot)
-                        && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId).ConfigureAwait(false);
+                        && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
                 if (characterDto == null)
                 {
                     logger.Error(logLanguage[LogLanguageKey.CHARACTER_SLOT_EMPTY], new
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.PositionX = character.MapX;
                 character.PositionY = character.MapY;
                 character.Direction = 2;
-                character.Script = character.CurrentScriptId != null ? await scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId).ConfigureAwait(false) : null;
+                character.Script = character.CurrentScriptId != null ? await scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId) : null;
                 character.Group!.JoinGroup(character);
 
                 var inventories = inventoryItemInstanceDao
@@ -103,12 +103,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
                     InventoryItemInstance.Create(itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
                         character.CharacterId, k));
-                await clientSession.SetCharacterAsync(character).ConfigureAwait(false);
+                await clientSession.SetCharacterAsync(character);
 
 #pragma warning disable CS0618
-                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(logger, logLanguage)).ConfigureAwait(false);
+                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(logger, logLanguage));
 #pragma warning restore CS0618
-                await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst());
                 if (clientSession.Character.Hp > clientSession.Character.MaxHp)
                 {
                     clientSession.Character.Hp = clientSession.Character.MaxHp;
@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<StaticBonusDto>();
                 clientSession.Character.Titles = titleDao
                     .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<TitleDto>();
-                await clientSession.SendPacketAsync(new OkPacket()).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(new OkPacket());
             }
             catch (Exception ex)
             {

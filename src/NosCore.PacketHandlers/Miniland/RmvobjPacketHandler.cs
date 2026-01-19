@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Miniland
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.RemoveOnlyLockMode
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -58,10 +58,10 @@ namespace NosCore.PacketHandlers.Miniland
 
             var minilandObject = clientSession.Character.MapInstance.MapDesignObjects[minilandobject.Id];
             clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
-            await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true));
             await clientSession.SendPacketAsync(new MinilandPointPacket
-            { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 }).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(minilandObject.GenerateMapDesignObject(true)).ConfigureAwait(false);
+            { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });
+            await clientSession.SendPacketAsync(minilandObject.GenerateMapDesignObject(true));
         }
     }
 }

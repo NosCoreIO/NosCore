@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
@@ -26,7 +26,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
                     (_, __, timeSpan) =>
                         logger.Verbose(
                             logLanguage[LogLanguageKey.MASTER_SERVER_PING])
-                ).ExecuteAsync(Ping).ConfigureAwait(false);
+                ).ExecuteAsync(Ping);
             logger.Error(
                 logLanguage[LogLanguageKey.MASTER_SERVER_PING_FAILED]);
             Environment.Exit(0);

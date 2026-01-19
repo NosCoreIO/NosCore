@@ -34,7 +34,7 @@ public class LoginPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         var packetHeader = packet.Header;
         if (string.IsNullOrWhiteSpace(packetHeader))
         {
-            await session.DisconnectAsync().ConfigureAwait(false);
+            await session.DisconnectAsync();
             return;
         }
 
@@ -52,6 +52,6 @@ public class LoginPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
             return;
         }
 
-        await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
+        await handler.ExecuteAsync(packet, session);
     }
 }

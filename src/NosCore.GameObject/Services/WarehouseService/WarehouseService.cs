@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -57,14 +57,14 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> WithdrawItemAsync(Guid id)
         {
-            var item = await warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id).ConfigureAwait(false);
+            var item = await warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id);
             if (item == null)
             {
                 return false;
             }
-            await warehouseItemDao.TryDeleteAsync(item.Id).ConfigureAwait(false);
-            await warehouseDao.TryDeleteAsync(item.WarehouseId).ConfigureAwait(false);
-            await itemInstanceDao.TryDeleteAsync(item.ItemInstanceId).ConfigureAwait(false);
+            await warehouseItemDao.TryDeleteAsync(item.Id);
+            await warehouseDao.TryDeleteAsync(item.WarehouseId);
+            await itemInstanceDao.TryDeleteAsync(item.ItemInstanceId);
             return true;
         }
 

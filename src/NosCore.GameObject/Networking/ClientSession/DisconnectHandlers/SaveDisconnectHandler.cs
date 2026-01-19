@@ -31,6 +31,6 @@ public class SaveDisconnectHandler(ISaveService saveService) : ISessionDisconnec
             return;
         }
 
-        await saveService.SaveAsync(session.Character).ConfigureAwait(false);
+        await saveService.SaveAsync(session.Character);
     }
 }

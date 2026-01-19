@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -61,8 +61,8 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task SetupAsync()
         {
             _password = new Sha512Hasher().Hash("test");
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _authHttpClient = new Mock<IAuthHub>();
             _pubSubHub = TestHelpers.Instance.PubSubHub;
             _loginConfiguration = Options.Create(new LoginConfiguration());
@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.OldClient);
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsTrue(_session.LastPackets.Count == 0);
         }
@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = "noaccount"
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
 
             Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name.ToUpperInvariant()
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.WrongCaps);
@@ -136,7 +136,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = encryption.Hash("test1"),
                 Username = _session!.Account.Name
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
@@ -152,7 +152,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session.Account.Name
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AlreadyConnected);
         }
@@ -184,7 +184,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
@@ -213,7 +213,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.Maintenance);
@@ -232,7 +232,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             {
                 Password = _password,
                 Username = _session!.Account.Name
-            }, _session).ConfigureAwait(false);
+            }, _session);
 
             Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }

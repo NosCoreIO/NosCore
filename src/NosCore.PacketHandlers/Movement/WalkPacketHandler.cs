@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Movement
             }
 
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
-                new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
+                new EveryoneBut(session.Channel!.Id));
 
             session.Character.LastMove = clock.GetCurrentInstant();
             if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)

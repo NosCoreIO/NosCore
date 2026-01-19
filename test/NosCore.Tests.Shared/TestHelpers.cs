@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -250,7 +250,7 @@ namespace NosCore.Tests.Shared
                 }
             };
             var npc = new MapNpcDto();
-            await _mapNpcDao.TryInsertOrUpdateAsync(npc).ConfigureAwait(false);
+            await _mapNpcDao.TryInsertOrUpdateAsync(npc);
             var mapInstanceRegistry = new MapInstanceRegistry();
             MapInstanceAccessorService = new MapInstanceAccessorService(mapInstanceRegistry);
             var mapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
@@ -261,9 +261,9 @@ namespace NosCore.Tests.Shared
                 _mapNpcDao,
                 _mapMonsterDao, _portalDao, _shopItemDao, _logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()),
                 mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, sessionGroupFactory, SessionRegistry);
-            await instanceGeneratorService.InitializeAsync().ConfigureAwait(false);
+            await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock, mapChangeService, sessionGroupFactory, SessionRegistry)).ConfigureAwait(false);
+                MapInstanceType.NormalInstance, MapItemProvider, _logger, Clock, mapChangeService, sessionGroupFactory, SessionRegistry));
             MapInstanceGeneratorService = instanceGeneratorService;
         }
 
@@ -312,7 +312,7 @@ namespace NosCore.Tests.Shared
             _lastId++;
             var acc = new AccountDto
             { AccountId = _lastId, Name = "AccountTest" + _lastId, Password = new Sha512Hasher().Hash("test") };
-            acc = await AccountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
+            acc = await AccountDao.TryInsertOrUpdateAsync(acc);
             var sessionRefHolder = new SessionRefHolder();
             var handlers = packetHandlers ?? new List<IPacketHandler>
             {
@@ -364,13 +364,13 @@ namespace NosCore.Tests.Shared
                 StaticBonusList = new List<StaticBonusDto>(),
                 Titles = new List<TitleDto>()
             };
-            await CharacterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
+            await CharacterDao.TryInsertOrUpdateAsync(chara);
             var mockChannel = new Mock<IChannel>();
             mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
             session.RegisterChannel(mockChannel.Object);
             session.InitializeAccount(acc);
             chara.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
-            await session.SetCharacterAsync(chara).ConfigureAwait(false);
+            await session.SetCharacterAsync(chara);
             session.Character.InitializeGroup();
             session.Account = acc;
             return session;
@@ -380,7 +380,7 @@ namespace NosCore.Tests.Shared
         {
             _lazy = new Lazy<TestHelpers>(() => new TestHelpers());
             Instance.InitDatabase();
-            await Instance.GenerateMapInstanceProviderAsync().ConfigureAwait(false);
+            await Instance.GenerateMapInstanceProviderAsync();
         }
     }
 }

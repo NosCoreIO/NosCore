@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Services.ChannelService
     {
         public async Task MoveChannelAsync(Networking.ClientSession.ClientSession clientSession, int channelId)
         {
-            var servers = await channelHttpClient.GetCommunicationChannels().ConfigureAwait(false);
+            var servers = await channelHttpClient.GetCommunicationChannels();
             var server = servers.FirstOrDefault(x => x.Id == channelId);
             if (server == null || server.Type != ServerType.WorldServer)
             {

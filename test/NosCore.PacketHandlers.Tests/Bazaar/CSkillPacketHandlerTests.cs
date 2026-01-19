@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -43,9 +43,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.StaticBonusList = new List<StaticBonusDto>();
             _cskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock);
         }
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await _session!.HandlePacketsAsync(new[]
             {
                 new CSkillPacket()
-            }).ConfigureAwait(false);
+            });
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestMethod]
         public async Task OpenWhenNoMedalAsync()
         {
-            await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session!).ConfigureAwait(false);
+            await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session!);
             var lastpacket = (InfoiPacket?)_session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.IsTrue(lastpacket?.Message == Game18NConstString.NosMerchantMedaleAllowPlayerToUseNosbazarOnAllGeneralMaps);
         }
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             {
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
-            await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session).ConfigureAwait(false);
+            await _cskillPacketHandler!.ExecuteAsync(new CSkillPacket(), _session);
         }
     }
 }

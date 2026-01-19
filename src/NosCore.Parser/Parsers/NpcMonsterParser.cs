@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -149,11 +149,11 @@ namespace NosCore.Parser.Parsers
 
             var genericParser = new GenericParser<NpcMonsterDto>(folder + _fileNpcId,
                 "#========================================================", 1, actionList, _logger, _logLanguage);
-            var monsters = (await genericParser.GetDtosAsync().ConfigureAwait(false)).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
-            await _npcMonsterDao.TryInsertOrUpdateAsync(monsters).ConfigureAwait(false);
-            await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards)).ConfigureAwait(false);
-            await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop)).ConfigureAwait(false);
-            await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill)).ConfigureAwait(false);
+            var monsters = (await genericParser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
+            await _npcMonsterDao.TryInsertOrUpdateAsync(monsters);
+            await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
+            await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
+            await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
             _logger.Information(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
         }
 

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Quest
                         FirstArgument = session.Character.Script.Argument1,
                         SecondArgument = session.Character.Script.ScriptId,
                         ThirdArgument = session.Character.Script.ScriptStepId,
-                    }).ConfigureAwait(false);
+                    });
                     break;
 
                 case QuestActionType.Achieve:
@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Quest
                         FirstArgument = session.Character.Script.Argument1,
                         SecondArgument = session.Character.Script.ScriptId,
                         ThirdArgument = session.Character.Script.ScriptStepId,
-                    }).ConfigureAwait(false);
+                    });
                     break;
 
                 case QuestActionType.GiveUp:

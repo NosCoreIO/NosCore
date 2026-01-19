@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Bazaar
         {
             var list = new List<RcsListPacket.RcsListElementPacket?>();
             var bzlist = await bazaarHttpClient.GetBazaar(-1, packet.Index, 50, 0, 0, 0, 0, 0,
-                clientSession.Character.CharacterId).ConfigureAwait(false);
+                clientSession.Character.CharacterId);
 
             foreach (var bz in bzlist)
             {
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 PageNumber = packet.Index,
                 Items = list
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

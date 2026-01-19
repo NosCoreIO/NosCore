@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -48,8 +48,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new BazaarMedalsHandler(TestHelpers.Instance.Clock);
             var items = new List<ItemDto>
             {
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 StaticBonusType = StaticBonusType.BazaarMedalGold
             });
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
@@ -94,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         {
             var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
         }

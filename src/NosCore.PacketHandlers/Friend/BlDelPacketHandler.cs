@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -36,12 +36,12 @@ namespace NosCore.PacketHandlers.Friend
     {
         public override async Task ExecuteAsync(BlDelPacket bldelPacket, ClientSession session)
         {
-            var list = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == bldelPacket.CharacterId);
             if (idtorem != null)
             {
-                await blacklistHttpClient.DeleteAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
-                await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+                await blacklistHttpClient.DeleteAsync(idtorem.CharacterRelationId);
+                await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient));
             }
             else
             {
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Friend
                 {
                     Message = gameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST,
                         session.Account.Language]
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

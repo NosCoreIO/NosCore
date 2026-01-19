@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -79,14 +79,14 @@ namespace NosCore.PacketHandlers.Inventory
                     VisualId = clientSession.Character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.UnableToPickUp
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
             mapItem.Requests[typeof(IGetMapItemEventHandler)].OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
 
-            await Task.WhenAll(mapItem.HandlerTasks).ConfigureAwait(false);
+            await Task.WhenAll(mapItem.HandlerTasks);
         }
     }
 }

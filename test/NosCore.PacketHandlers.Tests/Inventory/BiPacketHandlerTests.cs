@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _item = TestHelpers.Instance.GenerateItemProvider();
             _biPacketHandler = new BiPacketHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1012, 999), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket
-            { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main }, _session).ConfigureAwait(false);
+            { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Main }, _session);
             var packet = (IvnPacket?)_session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets?.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);
         }
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
             await _biPacketHandler!.ExecuteAsync(new BiPacket
-            { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment }, _session).ConfigureAwait(false);
+            { Option = RequestDeletionType.Confirmed, Slot = 0, PocketType = PocketType.Equipment }, _session);
             Assert.IsTrue(_session.Character.InventoryService.Count == 0);
             var packet = (IvnPacket?)_session.LastPackets.FirstOrDefault(s => s is IvnPacket);
             Assert.IsTrue(packet?.IvnSubPackets?.All(iv => (iv?.Slot == 0) && (iv.VNum == -1)) ?? false);

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -57,9 +57,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _bazaarHttpClient = new Mock<IBazaarHub>();
             _itemProvider = new Mock<IItemGenerationService>();
             _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     Amount = 1,
                     VNum = 1012
                 }
-            }).ConfigureAwait(false);
+            });
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var lastpacket = (RCScalcPacket?)_session!.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(0, lastpacket?.Price);
         }
@@ -127,7 +127,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var lastpacket = (RCScalcPacket?)_session!.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(0, lastpacket?.Price);
         }
@@ -153,7 +153,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var lastpacket = (RCScalcPacket?)_session.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(50, lastpacket?.Price);
         }
@@ -168,7 +168,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session).ConfigureAwait(false);
+            }, _session);
             var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(Game18NConstString.MaxGoldReached, lastpacket?.Message);
         }
@@ -185,7 +185,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 Price = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var lastpacket = (RCScalcPacket?)_session!.LastPackets.FirstOrDefault(s => s is RCScalcPacket);
             Assert.AreEqual(50, lastpacket?.Total);
         }

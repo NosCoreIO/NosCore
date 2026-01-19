@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
-            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null).ConfigureAwait(false);
+            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))
             {
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             Message = Game18NConstString.PurchaseCompleted,
                             ArgumentType = 2,
                             Game18NArguments = { bz.ItemInstance.ItemVNum.ToString(), bz.ItemInstance.Amount }
-                        }).ConfigureAwait(false);
+                        });
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,
@@ -79,10 +79,10 @@ namespace NosCore.PacketHandlers.Bazaar
                             Message = Game18NConstString.PurchaseCompletedWithGoldUsed,
                             ArgumentType = 4,
                             Game18NArguments = { price }
-                        }).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
+                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
                         
-                        var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id).ConfigureAwait(false);
+                        var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id);
                         if (itemInstance == null)
                         {
                             return;
@@ -93,9 +93,9 @@ namespace NosCore.PacketHandlers.Bazaar
                         var newInv =
                             clientSession.Character.InventoryService.AddItemToPocket(
                                 InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange()).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange());
                         var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, bz.ItemInstance.Amount,
-                            clientSession.Character.Name).ConfigureAwait(false);
+                            clientSession.Character.Name);
                         if (remove)
                         {
                             await clientSession.SendPacketAsync(new RCScalcPacket
@@ -106,9 +106,9 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Amount = bz.BazaarItem.Amount,
                                 Taxes = taxes,
                                 Total = price + taxes
-                            }).ConfigureAwait(false);
+                            });
                             await clientSession.HandlePacketsAsync(new[]
-                                {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}}).ConfigureAwait(false);
+                                {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
                             return;
                         }
 
@@ -120,7 +120,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         {
                             Type = MessageType.Default,
                             Message = Game18NConstString.MaxGoldReached
-                        }).ConfigureAwait(false);
+                        });
                     }
                 }
                 else
@@ -128,19 +128,19 @@ namespace NosCore.PacketHandlers.Bazaar
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.NotEnoughSpace
-                    }).ConfigureAwait(false);
+                    });
                 }
 
                 await clientSession.SendPacketAsync(new RCScalcPacket
                 {
                     Type = VisualType.Player, Price = bz.BazaarItem.Price, RemainingAmount = 0,
                     Amount = bz.BazaarItem.Amount, Taxes = 0, Total = 0
-                }).ConfigureAwait(false);
+                });
             }
             else
             {
                 await clientSession.SendPacketAsync(new RCScalcPacket
-                { Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0 }).ConfigureAwait(false);
+                { Type = VisualType.Player, Price = 0, RemainingAmount = 0, Amount = 0, Taxes = 0, Total = 0 });
             }
         }
     }

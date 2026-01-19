@@ -30,6 +30,6 @@ public class GroupDisconnectHandler : ISessionDisconnectHandler
             return;
         }
 
-        await session.Character.LeaveGroupAsync().ConfigureAwait(false);
+        await session.Character.LeaveGroupAsync();
     }
 }

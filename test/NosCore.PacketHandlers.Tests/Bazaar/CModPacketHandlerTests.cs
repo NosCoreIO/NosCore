@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -50,9 +50,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            _session = await TestHelpers.Instance.GenerateSessionAsync();
             _bazaarHttpClient = new Mock<IBazaarHub>();
             _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
@@ -98,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session).ConfigureAwait(false);
+            }, _session);
             Assert.IsNull(_session.LastPackets.FirstOrDefault());
         }
 
@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -125,7 +125,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 50,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -138,7 +138,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 60,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
             Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.CannotChangePriceSoldItems);
         }
@@ -152,7 +152,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 70,
                 Amount = 2,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
             Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
         }
@@ -166,7 +166,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 60,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             Assert.IsNull(_session!.LastPackets.FirstOrDefault());
         }
 
@@ -179,7 +179,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 NewPrice = 70,
                 Amount = 1,
                 VNum = 1012
-            }, _session!).ConfigureAwait(false);
+            }, _session!);
             var lastpacket = (SayiPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId &&
                 lastpacket?.Type == SayColorType.Yellow && lastpacket?.Message == Game18NConstString.NewSellingPrice &&
