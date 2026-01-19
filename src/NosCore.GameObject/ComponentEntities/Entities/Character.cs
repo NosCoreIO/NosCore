@@ -2,22 +2,10 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
-// Copyright (C) 2019 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
 using Microsoft.Extensions.Options;
+using NodaTime;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -26,6 +14,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
@@ -34,14 +23,21 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.GameObject.Services.SpeedCalculationService;
+using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -58,15 +54,6 @@ using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using NodaTime;
-using NosCore.GameObject.Services.BattleService;
-using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.MapChangeService;
-using NosCore.GameObject.Services.SpeedCalculationService;
-using NosCore.Core.I18N;
-using NosCore.Networking;
-using NosCore.Networking.SessionGroup;
-using NosCore.Networking.SessionGroup.ChannelMatcher;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.ComponentEntities.Entities

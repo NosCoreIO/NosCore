@@ -2,20 +2,7 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
-// Copyright (C) 2019 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -30,16 +17,27 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.LoginService;
+using NosCore.Networking;
+using NosCore.Networking.Encoding;
+using NosCore.Networking.Encoding.Filter;
+using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
 using NosCore.Packets.Attributes;
@@ -48,6 +46,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Generic;
@@ -56,18 +55,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using NodaTime;
-using NosCore.Core.Services.IdService;
-using NosCore.GameObject.InterChannelCommunication;
-using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.Services.LoginService;
-using NosCore.Networking;
-using NosCore.Networking.Encoding;
-using NosCore.Networking.Encoding.Filter;
-using NosCore.Networking.SessionRef;
-using NosCore.Shared.I18N;
 
 namespace NosCore.LoginServer
 {
@@ -208,11 +195,11 @@ namespace NosCore.LoginServer
                     {
                         Console.Title = Title;
                     }
-                    
+
                     InitializeConfiguration(args, services);
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
-           
+
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
                     services.AddHostedService<LoginServer>();

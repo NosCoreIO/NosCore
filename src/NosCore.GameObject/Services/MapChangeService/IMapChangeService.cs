@@ -1,6 +1,6 @@
-﻿using System;
+﻿using NosCore.GameObject.Networking.ClientSession;
+using System;
 using System.Threading.Tasks;
-using NosCore.GameObject.Networking.ClientSession;
 
 namespace NosCore.GameObject.Services.MapChangeService
 {

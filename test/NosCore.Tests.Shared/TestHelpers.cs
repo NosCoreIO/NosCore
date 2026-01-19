@@ -2,24 +2,8 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
-// Copyright (C) 2019 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Localization;
@@ -90,6 +74,9 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
 using InventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
 using Item = NosCore.GameObject.Services.ItemGenerationService.Item.Item;
@@ -121,7 +108,7 @@ namespace NosCore.Tests.Shared
         public Mock<IPubSubHub> PubSubHub = new();
         public Mock<IFriendHub> FriendHttpClient = new();
         public NosCore.GameObject.Services.BroadcastService.SessionRegistry SessionRegistry = new(new Mock<ILogger>().Object);
-        public FakeClock Clock = new(Instant.FromUtc(2021,01,01,01,01,01));
+        public FakeClock Clock = new(Instant.FromUtc(2021, 01, 01, 01, 01, 01));
         public ISessionGroupFactory SessionGroupFactory { get; private set; } = null!;
         private TestHelpers()
         {
