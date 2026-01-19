@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -20,7 +20,6 @@
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Specialists;
@@ -29,6 +28,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking;
 
@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.NoSpecialistCardEquipped
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
 
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.CantUseInVehicle
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
 
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Inventory
                         {
                             Message = gameLanguageLocalizer[LanguageKey.SP_NOPOINTS,
                                 clientSession.Account.Language]
-                        }).ConfigureAwait(false);
+                        });
                         return;
                     }
 
@@ -107,13 +107,13 @@ namespace NosCore.PacketHandlers.Inventory
                                 Type = DelayPacketType.Locomotion,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
-                            }).ConfigureAwait(false);
+                            });
                             await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
                                 Type = GuriPacketType.Dance,
                                 Argument = 1,
                                 EntityId = clientSession.Character.CharacterId
-                            }).ConfigureAwait(false);
+                            });
                         }
                     }
                     else
@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.Inventory
                             Message = Game18NConstString.CantTrasformWithSideEffect,
                             ArgumentType = 4,
                             Game18NArguments = { (short)(clientSession.Character.SpCooldown - (int)Math.Round(currentRunningSeconds)) }
-                        }).ConfigureAwait(false);
+                        });
                     }
                 }
             }

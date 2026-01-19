@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -69,7 +69,7 @@ namespace NosCore.Parser.Parsers
             using (var stream = new StreamReader(folder + _fileQuestDat, Encoding.Default))
             {
                 string? line;
-                while ((line = await stream.ReadLineAsync().ConfigureAwait(false)) != null)
+                while ((line = await stream.ReadLineAsync()) != null)
                 {
                     var splitted = line.Split(' ', '\t');
                     switch (splitted.Length)
@@ -95,8 +95,8 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            await actDao.TryInsertOrUpdateAsync(acts).ConfigureAwait(false);
-            await actDescDao.TryInsertOrUpdateAsync(actParts).ConfigureAwait(false);
+            await actDao.TryInsertOrUpdateAsync(acts);
+            await actDescDao.TryInsertOrUpdateAsync(actParts);
             logger.Information(logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
         }
     }

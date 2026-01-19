@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,10 +19,8 @@
 
 using System.Collections.Generic;
 using NosCore.Data.Enumerations.Miniland;
-using NosCore.GameObject;
-using NosCore.GameObject.Helper;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Warehouse;
@@ -35,6 +33,8 @@ using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.Dao.Interfaces;
 using NosCore.GameObject.Services.ItemGenerationService;
 using System;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.WarehouseService;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
@@ -96,17 +96,17 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                             MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]
                         }
                     }
-                }).ConfigureAwait(false);
+                });
             }
             else
             {
                 var links = await warehouseHttpClient.GetWarehouseItems(null, clientSession.Character.CharacterId,
-                    WarehouseType.Warehouse, null).ConfigureAwait(false);
+                    WarehouseType.Warehouse, null);
                 var warehouseItems = new List<WarehouseItem>();
                 foreach (var warehouselink in links)
                 {
                     var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == warehouselink.ItemInstance!.Id).ConfigureAwait(false);
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == warehouselink.ItemInstance!.Id);
                     warehouseItem.ItemInstance = itemProvider.Convert(itemInstance!);
                     warehouseItems.Add(warehouseItem);
                 }
@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     IvnSubPackets = warehouseItems.Select(invItem =>
                         invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance!.Item.Type,
                             invItem.Slot)).ToList()
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

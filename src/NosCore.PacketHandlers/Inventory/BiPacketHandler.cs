@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -28,6 +27,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Game18NConstString.ItemWillDestroy
-                        }).ConfigureAwait(false);
+                        });
                     break;
 
                 case RequestDeletionType.Requested:
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Option = RequestDeletionType.Declined
                             },
                             Question = Game18NConstString.AskDestroyItem
-                        }).ConfigureAwait(false);
+                        });
                     break;
 
                 case RequestDeletionType.Confirmed:
@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Inventory
 
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
                         (NoscorePocketType)bIPacket.PocketType, bIPacket.Slot);
-                    await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot)).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));
                     break;
                 default:
                     return;

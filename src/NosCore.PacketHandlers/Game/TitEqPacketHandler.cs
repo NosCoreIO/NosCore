@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Player;
@@ -25,6 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 
 
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Game
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.TitleChangedOrHidden
-                    }).ConfigureAwait(false);
+                    });
                     break;
                 default:
                     foreach (var title in session.Character.Titles.Where(s => s.TitleType != titEqPacket.TitleId))
@@ -63,11 +63,11 @@ namespace NosCore.PacketHandlers.Game
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.TitleEffectChangedOrDeactivated
-                    }).ConfigureAwait(false);
+                    });
                     break;
             }
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo()).ConfigureAwait(false);
-            await session.Character.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
+            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo());
+            await session.Character.SendPacketAsync(session.Character.GenerateTitle());
         }
     }
 }

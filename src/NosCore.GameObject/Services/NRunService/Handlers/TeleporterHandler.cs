@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.NRunService.Handlers
 {
@@ -55,10 +56,10 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
         {
             if (clientSession.Character.Gold >= goldToPay)
             {
-                await clientSession.Character.RemoveGoldAsync(goldToPay).ConfigureAwait(false);
+                await clientSession.Character.RemoveGoldAsync(goldToPay);
                 await mapChangeService.ChangeMapAsync(clientSession,
                     mapId, (short)RandomHelper.Instance.RandomNumber(x1, x2),
-                    (short)RandomHelper.Instance.RandomNumber(y1, y2)).ConfigureAwait(false);
+                    (short)RandomHelper.Instance.RandomNumber(y1, y2));
                 return;
             }
 
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 VisualId = clientSession.Character.CharacterId,
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.NotEnoughGold
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

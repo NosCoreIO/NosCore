@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -21,7 +21,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -30,6 +29,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using Character = NosCore.Data.WebApi.Character;
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Command
                 ReceiverType = ReceiverType.All
             };
 
-            await packetHttpClient.SendMessagesAsync(new List<IMessage>(new[] { sayPostedPacket, msgPostedPacket })).ConfigureAwait(false);
+            await packetHttpClient.SendMessagesAsync(new List<IMessage>(new[] { sayPostedPacket, msgPostedPacket }));
         }
     }
 }

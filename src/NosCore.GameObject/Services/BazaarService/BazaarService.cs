@@ -26,7 +26,6 @@ using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.Packets.Enumerations;
 using System;
 using System.Collections.Generic;
@@ -36,7 +35,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.BazaarService
 {
-    public class BazaarService(BazaarItemsHolder holder, IDao<BazaarItemDto, long> bazaarItemDao,
+    public class BazaarService(IBazaarRegistry bazaarRegistry, IDao<BazaarItemDto, long> bazaarItemDao,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock)
         : IBazaarService
     {
@@ -57,12 +56,14 @@ namespace NosCore.GameObject.Services.BazaarService
             IEnumerable<BazaarLink> bzlinks;
             if (id != -1)
             {
-                bzlinks = holder.BazaarItems.Values.Where(s => s.BazaarItem?.BazaarItemId == id);
+                var item = bazaarRegistry.GetById(id);
+                bzlinks = item != null ? new[] { item } : Enumerable.Empty<BazaarLink>();
             }
             else
             {
-                bzlinks = holder.BazaarItems.Values.Where(s =>
-                    (s.BazaarItem?.SellerId == sellerFilter) || (sellerFilter == null));
+                bzlinks = sellerFilter != null
+                    ? bazaarRegistry.GetBySellerId(sellerFilter.Value)
+                    : bazaarRegistry.GetAll();
             }
 
             foreach (var bz in bzlinks)
@@ -164,30 +165,37 @@ namespace NosCore.GameObject.Services.BazaarService
             return bzlist.Skip(index ?? 0 * pageSize ?? 0).Take((byte)(pageSize ?? bzlist.Count)).ToList();
         }
 
-        public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName)
+        public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null)
         {
-            var bzlink = holder.BazaarItems.Values.FirstOrDefault(s => s.BazaarItem?.BazaarItemId == id);
+            var bzlink = bazaarRegistry.GetById(id);
             if (bzlink == null)
             {
                 throw new ArgumentException();
             }
 
-            if ((bzlink.ItemInstance?.Amount - count < 0) || (count < 0))
+            if ((bzlink.ItemInstance?.Amount - count < 0) || (count <= 0))
             {
                 return false;
             }
 
-            if ((bzlink.ItemInstance?.Amount == count) && (requestCharacterName == bzlink.SellerName))
+            if (bzlink.ItemInstance?.Amount == count)
             {
-                await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId).ConfigureAwait(false);
-                holder.BazaarItems.TryRemove(bzlink.BazaarItem.BazaarItemId, out _);
-                await itemInstanceDao.TryDeleteAsync(bzlink.ItemInstance.Id).ConfigureAwait(false);
+                await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId);
+                bazaarRegistry.Unregister(bzlink.BazaarItem.BazaarItemId);
+                await itemInstanceDao.TryDeleteAsync(bzlink.ItemInstance.Id);
             }
             else
             {
                 var item = (IItemInstanceDto)bzlink.ItemInstance!;
                 item.Amount -= count;
-                await itemInstanceDao.TryInsertOrUpdateAsync(item).ConfigureAwait(false);
+                await itemInstanceDao.TryInsertOrUpdateAsync(item);
+
+                if (item.Amount <= 0)
+                {
+                    await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId);
+                    bazaarRegistry.Unregister(bzlink.BazaarItem.BazaarItemId);
+                    await itemInstanceDao.TryDeleteAsync(item.Id);
+                }
             }
 
             return true;
@@ -195,8 +203,8 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<LanguageKey> AddBazaarAsync(Guid itemInstanceId, long characterId, string? characterName, bool hasMedal, long price, bool isPackage, short duration, short amount)
         {
-            var items = holder.BazaarItems.Values.Where(o => o.BazaarItem!.SellerId == characterId);
-            if (items.Count() > 10 * (hasMedal ? 10 : 1) - 1)
+            var itemCount = bazaarRegistry.CountBySellerId(characterId);
+            if (itemCount > 10 * (hasMedal ? 10 : 1) - 1)
             {
                 return LanguageKey.LIMIT_EXCEEDED;
             }
@@ -235,10 +243,11 @@ namespace NosCore.GameObject.Services.BazaarService
                 ItemInstanceId = item!.Id
             };
             bazaarItem = await bazaarItemDao.TryInsertOrUpdateAsync(bazaarItem).ConfigureAwait(true);
-            holder.BazaarItems.TryAdd(bazaarItem.BazaarItemId,
+            bazaarRegistry.Register(bazaarItem.BazaarItemId,
                 new BazaarLink
                 {
-                    BazaarItem = bazaarItem, SellerName = characterName,
+                    BazaarItem = bazaarItem,
+                    SellerName = characterName,
                     ItemInstance = (ItemInstanceDto)item
                 });
 
@@ -247,8 +256,7 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod)
         {
-            var item = holder.BazaarItems.Values
-                .FirstOrDefault(o => o.BazaarItem?.BazaarItemId == id);
+            var item = bazaarRegistry.GetById(id);
             if ((item?.BazaarItem == null) || (item.BazaarItem?.Amount != item.ItemInstance?.Amount))
             {
                 return null;
@@ -258,7 +266,7 @@ namespace NosCore.GameObject.Services.BazaarService
             item = JsonSerializer.Deserialize<BazaarLink>(result.Result, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
             var bz = item!.BazaarItem!;
             await bazaarItemDao.TryInsertOrUpdateAsync(bz).ConfigureAwait(true);
-            holder.BazaarItems[item.BazaarItem!.BazaarItemId] = item;
+            bazaarRegistry.Update(item.BazaarItem!.BazaarItemId, item);
             return item;
         }
     }

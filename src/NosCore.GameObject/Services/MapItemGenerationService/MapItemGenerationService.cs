@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.ClientPackets.Drops;
 using System;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {

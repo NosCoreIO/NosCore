@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -20,11 +20,11 @@
 using System.Linq;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetLevelAsync(levelPacket.Level).ConfigureAwait(false);
+                await session.Character.SetLevelAsync(levelPacket.Level);
                 return;
             }
 
@@ -59,11 +59,11 @@ namespace NosCore.PacketHandlers.Command
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
-            await pubSubHub.SendMessageAsync(data).ConfigureAwait(false);
+            await pubSubHub.SendMessageAsync(data);
         }
     }
 }

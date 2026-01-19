@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -35,6 +35,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Tests.Friend
@@ -43,17 +44,17 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class BlPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private BlPacketHandler? _blPacketHandler;
-        private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private ClientSession? _session;
+        private BlPacketHandler BlPacketHandler = null!;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
+        private ClientSession Session = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
+            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
 
             TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
@@ -62,49 +63,61 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         Type = ServerType.WorldServer,
                         Id = 1
                     }
-
                 });
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
-        
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
-
                 });
-            _blPacketHandler = new BlPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
+            BlPacketHandler = new BlPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger));
         }
 
         [TestMethod]
-        public async Task Test_Distant_BlacklistAsync()
+        public async Task BlacklistingDistantPlayerByNameShouldSucceed()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            var blPacket = new BlPacket
-            {
-                CharacterName = targetSession.Character.Name
-            };
+            await new Spec("Blacklisting distant player by name should succeed")
+                .GivenAsync(TargetPlayerIsOnline)
+                .WhenAsync(BlacklistingTargetByName)
+                .ThenAsync(BlockedRelationShouldExist)
+                .ExecuteAsync();
+        }
+
+        private ClientSession? TargetSession;
+
+        private async Task TargetPlayerIsOnline()
+        {
+            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = targetSession.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = TargetSession.Character.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session!.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
-
                 });
             var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
-                _characterRelationDao!, TestHelpers.Instance.CharacterDao);
+                CharacterRelationDao, TestHelpers.Instance.CharacterDao);
             TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
-                .Returns(blacklist.BlacklistPlayerAsync( _session!.Character.CharacterId, targetSession.Character.VisualId));
-            await _blPacketHandler!.ExecuteAsync(blPacket, _session).ConfigureAwait(false);
-            Assert.IsTrue(await _characterRelationDao!.FirstOrDefaultAsync(s =>
-                (s.CharacterId == _session.Character.CharacterId) &&
-                (s.RelatedCharacterId == targetSession.Character.CharacterId)
-                && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false) != null);
+                .Returns(blacklist.BlacklistPlayerAsync(Session.Character.CharacterId, TargetSession.Character.VisualId));
+        }
+
+        private async Task BlacklistingTargetByName()
+        {
+            await BlPacketHandler.ExecuteAsync(new BlPacket { CharacterName = TargetSession!.Character.Name }, Session);
+        }
+
+        private async Task BlockedRelationShouldExist()
+        {
+            var result = await CharacterRelationDao.FirstOrDefaultAsync(s =>
+                s.CharacterId == Session.Character.CharacterId &&
+                s.RelatedCharacterId == TargetSession!.Character.CharacterId &&
+                s.RelationType == CharacterRelationType.Blocked);
+            Assert.IsNotNull(result);
         }
     }
 }

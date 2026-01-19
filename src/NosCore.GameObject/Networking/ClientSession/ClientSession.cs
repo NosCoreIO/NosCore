@@ -35,6 +35,8 @@ using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Networking.ClientSession
 {
@@ -152,7 +154,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             try
             {
-                await HandlePacketsAsync(package.Packets, true).ConfigureAwait(false);
+                await HandlePacketsAsync(package.Packets, true);
             }
             catch (Exception ex)
             {
@@ -181,7 +183,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                     foreach (var handler in disconnectHandlers)
                     {
-                        await handler.HandleDisconnectAsync(this).ConfigureAwait(false);
+                        await handler.HandleDisconnectAsync(this);
                     }
                 }
             }

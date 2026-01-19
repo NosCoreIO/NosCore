@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -24,10 +24,10 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             {
                 await session.SendPacketAsync(session.GenerateSay(
                     string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, session.AccountLanguage],
-                        data.ItemInstance.Amount), SayColorType.Green)).ConfigureAwait(false);
+                        data.ItemInstance.Amount), SayColorType.Green));
             }
 
-            await session.GenerateMailAsync(new[] { data }).ConfigureAwait(false);
+            await session.GenerateMailAsync(new[] { data });
         }
     }
 }

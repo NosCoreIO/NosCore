@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Services.BlackListService
                 RelationType = CharacterRelationType.Blocked
             };
 
-            await characterRelationDao.TryInsertOrUpdateAsync(data).ConfigureAwait(false);
+            await characterRelationDao.TryInsertOrUpdateAsync(data);
             return LanguageKey.BLACKLIST_ADDED;
 
         }
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Services.BlackListService
 
                 charList.Add(new CharacterRelationStatus
                 {
-                    CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId).ConfigureAwait(false))?.Name ?? "",
+                    CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId))?.Name ?? "",
                     CharacterId = rel.RelatedCharacterId,
                     IsConnected = character != null,
                     RelationType = rel.RelationType,
@@ -111,12 +111,12 @@ namespace NosCore.GameObject.Services.BlackListService
         public async Task<bool> UnblacklistAsync(Guid id)
         {
             var rel = await characterRelationDao.FirstOrDefaultAsync(s =>
-                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked)).ConfigureAwait(false);
+                (s.CharacterRelationId == id) && (s.RelationType == CharacterRelationType.Blocked));
             if (rel == null)
             {
                 return false;
             }
-            await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId).ConfigureAwait(false);
+            await characterRelationDao.TryDeleteAsync(rel.CharacterRelationId);
             return true;
         }
     }

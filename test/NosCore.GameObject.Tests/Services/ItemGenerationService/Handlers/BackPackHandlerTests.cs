@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -39,31 +39,32 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
 {
     [TestClass]
     public class BackPackHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new BackPackHandler(Options.Create(new WorldConfiguration { MaxAdditionalSpPoints = 1 }), TestHelpers.Instance.Clock);
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryTicketUpgrade, EffectValue = 0},
                 new Item {VNum = 2, ItemType = ItemType.Special, Effect = ItemEffectType.InventoryUpgrade, EffectValue = 0},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
         [TestMethod]
-        public async Task Test_Can_Not_StackAsync()
+        public async Task TestCanNotStackAsync()
         {
             Session!.Character.StaticBonusList.Add(new StaticBonusDto
             {
@@ -71,20 +72,20 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 DateEnd = null,
                 StaticBonusType = StaticBonusType.BackPack
             });
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(2), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
 
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
-        public async Task Test_BackPackAsync()
+        public async Task TestBackPackAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
@@ -95,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_Can_Not_StackTicketAsync()
+        public async Task TestCanNotStackTicketAsync()
         {
             Session!.Character.StaticBonusList.Add(new StaticBonusDto
             {
@@ -103,20 +104,20 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 DateEnd = null,
                 StaticBonusType = StaticBonusType.InventoryTicketUpgrade
             });
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
 
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);
             Assert.AreEqual(1, Session.Character.InventoryService.Count);
         }
 
         [TestMethod]
-        public async Task Test_BackPackTicketAsync()
+        public async Task TestBackPackTicketAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (ExtsPacket?)Session.LastPackets.FirstOrDefault(s => s is ExtsPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(1, Session.Character.StaticBonusList.Count);

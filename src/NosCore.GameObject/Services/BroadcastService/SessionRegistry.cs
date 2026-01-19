@@ -25,10 +25,11 @@ using System.Threading.Tasks;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.Interfaces;
+using Serilog;
 
 namespace NosCore.GameObject.Services.BroadcastService
 {
-    public class SessionRegistry : ISessionRegistry
+    public class SessionRegistry(ILogger logger) : ISessionRegistry
     {
         private readonly ConcurrentDictionary<string, SessionInfo> _sessionsByChannelId = new();
         private readonly ConcurrentDictionary<long, string> _channelIdByCharacterId = new();
@@ -110,14 +111,36 @@ namespace NosCore.GameObject.Services.BroadcastService
 
         public async Task BroadcastPacketAsync(IPacket packet)
         {
-            await Task.WhenAll(_sessionsByChannelId.Values.Select(s => s.Sender.SendPacketAsync(packet)));
+            var tasks = _sessionsByChannelId.Values.Select(async s =>
+            {
+                try
+                {
+                    await s.Sender.SendPacketAsync(packet);
+                }
+                catch (Exception ex)
+                {
+                    logger.Warning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
+                }
+            });
+            await Task.WhenAll(tasks);
         }
 
         public async Task BroadcastPacketAsync(IPacket packet, string excludeChannelId)
         {
-            await Task.WhenAll(_sessionsByChannelId.Values
+            var tasks = _sessionsByChannelId.Values
                 .Where(s => s.ChannelId != excludeChannelId)
-                .Select(s => s.Sender.SendPacketAsync(packet)));
+                .Select(async s =>
+                {
+                    try
+                    {
+                        await s.Sender.SendPacketAsync(packet);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Warning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
+                    }
+                });
+            await Task.WhenAll(tasks);
         }
 
         public async Task DisconnectByCharacterIdAsync(long characterId)

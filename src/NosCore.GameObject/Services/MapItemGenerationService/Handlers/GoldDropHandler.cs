@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -29,6 +29,7 @@ using System;
 using System.Threading.Tasks;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum)).ConfigureAwait(false);
+                        requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum));
                 }
 
                 requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
@@ -62,7 +63,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
                     Game18NArguments = { requestData.Data.Item1.Amount, requestData.Data.Item1.ItemInstance!.Item.Name[requestData.ClientSession.Account.Language] }
-                }).ConfigureAwait(false);
+                });
 #pragma warning restore NosCoreAnalyzers
             }
             else
@@ -72,13 +73,13 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.MaxGoldReached
-                }).ConfigureAwait(false);
+                });
             }
 
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateGold()).ConfigureAwait(false);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateGold());
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId)).ConfigureAwait(false);
+                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
         }
     }
 }

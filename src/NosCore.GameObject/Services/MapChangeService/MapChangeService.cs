@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Services.MapChangeService
             }
             
             mapInstanceAccessorService.GetMapInstance(session.Character.MapInstanceId);
-            await ChangeMapInstanceAsync(session, session.Character.MapInstanceId, mapX, mapY).ConfigureAwait(false);
+            await ChangeMapInstanceAsync(session, session.Character.MapInstanceId, mapX, mapY);
         }
 
         public async Task ChangeMapInstanceAsync(ClientSession session, Guid mapInstanceId, int? mapX = null, int? mapY = null)
@@ -76,9 +76,9 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     session.Character.MapInstance.Sessions.Remove(session.Channel);
                 }
-                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(false)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(false));
                 session.Character.MapInstance.LastUnregister = clock.GetCurrentInstant();
-                await LeaveMapAsync(session).ConfigureAwait(false);
+                await LeaveMapAsync(session);
                 if (session.Character.MapInstance.Sessions.Count == 0)
                 {
                     session.Character.MapInstance.IsSleeping = true;
@@ -107,20 +107,20 @@ namespace NosCore.GameObject.Services.MapChangeService
                     session.Character.PositionY = (short)mapY;
                 }
 
-                await session.SendPacketAsync(session.Character.GenerateCInfo()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateCMode()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateEq()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateEquipment()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateAt()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
-                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(true)).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateCInfo());
+                await session.SendPacketAsync(session.Character.GenerateCMode());
+                await session.SendPacketAsync(session.Character.GenerateEq());
+                await session.SendPacketAsync(session.Character.GenerateEquipment());
+                await session.SendPacketAsync(session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+                await session.SendPacketAsync(session.Character.GenerateStat());
+                await session.SendPacketAsync(session.Character.GenerateAt());
+                await session.SendPacketAsync(session.Character.GenerateCond());
+                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(session.Character.GeneratePairy(
                     session.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy,
-                        NoscorePocketType.Wear)?.ItemInstance as WearableInstance)).ConfigureAwait(false);
-                await session.SendPacketsAsync(session.Character.MapInstance.GetMapItems(session.Character.AccountLanguage)).ConfigureAwait(false);
-                await session.SendPacketsAsync(session.Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect())).ConfigureAwait(false);
+                        NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
+                await session.SendPacketsAsync(session.Character.MapInstance.GetMapItems(session.Character.AccountLanguage));
+                await session.SendPacketsAsync(session.Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
                 var minilandPortals = minilandProvider
                     .GetMinilandPortals(session.Character.CharacterId)
@@ -129,18 +129,18 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (minilandPortals.Count > 0)
                 {
-                    await session.SendPacketsAsync(minilandPortals.Select(s => s.GenerateGp())).ConfigureAwait(false);
+                    await session.SendPacketsAsync(minilandPortals.Select(s => s.GenerateGp()));
                 }
 
-                await session.SendPacketAsync(session.Character.Group!.GeneratePinit()).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.Group!.GeneratePinit());
                 if (!session.Character.Group.IsEmpty)
                 {
-                    await session.SendPacketsAsync(session.Character.Group.GeneratePst()).ConfigureAwait(false);
+                    await session.SendPacketsAsync(session.Character.Group.GeneratePst());
                 }
 
                 if ((session.Character.Group.Type == GroupType.Group) && (session.Character.Group.Count > 1))
                 {
-                    await session.Character.MapInstance.SendPacketAsync(session.Character.Group.GeneratePidx(session.Character)).ConfigureAwait(false);
+                    await session.Character.MapInstance.SendPacketAsync(session.Character.Group.GeneratePidx(session.Character));
                 }
 
                 var mapSessions = sessionRegistry.GetCharacters(s =>
@@ -150,16 +150,16 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     await session.SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
                         ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, s.AccountLanguage]}"
-                        : string.Empty)).ConfigureAwait(false);
+                        : string.Empty));
                     if (s.Shop == null)
                     {
                         return;
                     }
 
-                    await session.SendPacketAsync(s.GeneratePFlag()).ConfigureAwait(false);
-                    await session.SendPacketAsync(s.GenerateShop(session.Account.Language)).ConfigureAwait(false);
-                })).ConfigureAwait(false);
-                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo()).ConfigureAwait(false);
+                    await session.SendPacketAsync(s.GeneratePFlag());
+                    await session.SendPacketAsync(s.GenerateShop(session.Account.Language));
+                }));
+                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo());
                 session.Character.MapInstance.IsSleeping = false;
                 if (session.Channel?.Id != null)
                 {
@@ -167,7 +167,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     {
                         await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(session.Character.Authority == AuthorityType.Moderator
                                 ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, session.Character.AccountLanguage]}]" : string.Empty),
-                            new EveryoneBut(session.Character.Channel!.Id)).ConfigureAwait(false);
+                            new EveryoneBut(session.Character.Channel!.Id));
                     }
 
                     session.Character.MapInstance.Sessions.Add(session.Channel);
@@ -190,15 +190,15 @@ namespace NosCore.GameObject.Services.MapChangeService
             var sender = sessionRegistry.GetSenderByCharacterId(characterId);
             if (sender is ClientSession session)
             {
-                await ChangeMapAsync(session, mapId, mapX, mapY).ConfigureAwait(false);
+                await ChangeMapAsync(session, mapId, mapX, mapY);
             }
         }
 
         private async Task LeaveMapAsync(ClientSession session)
         {
-            await session.SendPacketAsync(new MapOutPacket()).ConfigureAwait(false);
+            await session.SendPacketAsync(new MapOutPacket());
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateOut(),
-                new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
+                new EveryoneBut(session.Channel!.Id));
         }
 
     }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -80,7 +80,7 @@ namespace NosCore.Parser.Parsers
                 npcCounter++;
             }
 
-            await mapNpcDao.TryInsertOrUpdateAsync(npcs).ConfigureAwait(false);
+            await mapNpcDao.TryInsertOrUpdateAsync(npcs);
             logger.Information(logLanguage[LogLanguageKey.NPCS_PARSED], npcCounter);
         }
     }

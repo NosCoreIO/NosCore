@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -35,34 +35,64 @@ using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Tests.Shared;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
     [TestClass]
-    public class CbListPacketHandlerTest
+    public class CBListPacketHandlerTests
     {
-        private Mock<IBazaarHub>? _bazaarHttpClient;
-        private CBListPacketHandler? _cblistPacketHandler;
-        private ClientSession? _session;
+        private Mock<IBazaarHub> BazaarHttpClient = null!;
+        private CBListPacketHandler CblistPacketHandler = null!;
+        private ClientSession Session = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHub>();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            BazaarHttpClient = new Mock<IBazaarHub>();
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true}
             };
-            _cblistPacketHandler = new CBListPacketHandler(_bazaarHttpClient.Object, items, TestHelpers.Instance.Clock);
+            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, items, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
-        public async Task ListShouldReturnEmptyWhenNoItemsAsync()
+        public async Task ListingShouldReturnEmptyWhenNoItems()
         {
-            _bazaarHttpClient!.Setup(b =>
+            await new Spec("Listing should return empty when no items")
+                .Given(BazaarHasNoItems)
+                .WhenAsync(ListingBazaarItems)
+                .Then(ShouldReceiveEmptyList)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ListingShouldReturnValidItems()
+        {
+            await new Spec("Listing should return valid items")
+                .Given(BazaarHasValidItems)
+                .WhenAsync(ListingBazaarItems)
+                .Then(ShouldReceiveOneItem)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ListingShouldFilterInvalidItems()
+        {
+            await new Spec("Listing should filter invalid items")
+                .Given(BazaarHasInvalidItems)
+                .WhenAsync(ListingBazaarItems)
+                .Then(ShouldReceiveEmptyList)
+                .ExecuteAsync();
+        }
+
+        private void BazaarHasNoItems()
+        {
+            BazaarHttpClient.Setup(b =>
                 b.GetBazaar(
                     It.IsAny<long>(),
                     It.IsAny<byte?>(),
@@ -74,15 +104,22 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     It.IsAny<byte?>(),
                     It.IsAny<long?>())
             ).ReturnsAsync(new List<BazaarLink>());
-            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
-            var lastpacket = (RcbListPacket?)_session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
-            Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
 
-        [TestMethod]
-        public async Task ListShouldReturnTheItemsAsync()
+        private async Task ListingBazaarItems()
         {
-            _bazaarHttpClient!.Setup(b =>
+            await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, Session);
+        }
+
+        private void ShouldReceiveEmptyList()
+        {
+            var packet = (RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            Assert.IsTrue(packet?.Items?.Count == 0);
+        }
+
+        private void BazaarHasValidItems()
+        {
+            BazaarHttpClient.Setup(b =>
                 b.GetBazaar(
                     It.IsAny<long>(),
                     It.IsAny<byte?>(),
@@ -103,15 +140,17 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
-            var lastpacket = (RcbListPacket?)_session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
-            Assert.IsTrue(lastpacket?.Items?.Count == 1);
         }
 
-        [TestMethod]
-        public async Task ListShouldReturnTheItemsNotValidAsync()
+        private void ShouldReceiveOneItem()
         {
-            _bazaarHttpClient!.Setup(b =>
+            var packet = (RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            Assert.IsTrue(packet?.Items?.Count == 1);
+        }
+
+        private void BazaarHasInvalidItems()
+        {
+            BazaarHttpClient.Setup(b =>
                 b.GetBazaar(
                     It.IsAny<long>(),
                     It.IsAny<byte?>(),
@@ -131,11 +170,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
                 }
             });
-            await _cblistPacketHandler!.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, _session!).ConfigureAwait(false);
-            var lastpacket = (RcbListPacket?)_session!.LastPackets.FirstOrDefault(s => s is RcbListPacket);
-            Assert.IsTrue(lastpacket?.Items?.Count == 0);
         }
-
-        //todo list filter
     }
 }

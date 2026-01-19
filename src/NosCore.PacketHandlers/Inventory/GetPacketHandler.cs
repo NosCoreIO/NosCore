@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Packets.ClientPackets.Drops;
@@ -29,6 +28,8 @@ using Serilog;
 using System;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 using NosCore.Shared.I18N;
 using NosCore.Packets.ServerPackets.Chats;
 
@@ -78,14 +79,14 @@ namespace NosCore.PacketHandlers.Inventory
                     VisualId = clientSession.Character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.UnableToPickUp
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
             mapItem.Requests[typeof(IGetMapItemEventHandler)].OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
                 new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
 
-            await Task.WhenAll(mapItem.HandlerTasks).ConfigureAwait(false);
+            await Task.WhenAll(mapItem.HandlerTasks);
         }
     }
 }

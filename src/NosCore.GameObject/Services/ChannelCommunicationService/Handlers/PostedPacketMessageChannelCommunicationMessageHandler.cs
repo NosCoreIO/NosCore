@@ -1,8 +1,7 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.Networking;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -21,7 +20,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
-                    await sessionRegistry.BroadcastPacketAsync(message).ConfigureAwait(false);
+                    await sessionRegistry.BroadcastPacketAsync(message);
                     break;
                 case ReceiverType.OnlySomeone:
                     ICharacterEntity? receiverSession;
@@ -42,7 +41,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         return;
                     }
 
-                    await receiverSession.SendPacketAsync(message).ConfigureAwait(false);
+                    await receiverSession.SendPacketAsync(message);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);

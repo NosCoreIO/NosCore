@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -21,7 +21,6 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Shops;
@@ -29,6 +28,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Shops
 {
@@ -38,6 +38,11 @@ namespace NosCore.PacketHandlers.Shops
         public override async Task ExecuteAsync(SellPacket sellPacket, ClientSession clientSession)
         {
             var type = (NoscorePocketType)sellPacket.Data;
+
+            if (sellPacket.Amount <= 0)
+            {
+                return;
+            }
 
             var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot, type);
             if ((inv == null) || (sellPacket.Amount > inv.ItemInstance.Amount))
@@ -52,35 +57,42 @@ namespace NosCore.PacketHandlers.Shops
                 {
                     Type = SMemoType.FailNpc,
                     Message = Game18NConstString.ItemCanNotBeSold
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
             var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
                 : inv.ItemInstance.Item.Price / 20;
 
-            if (clientSession.Character.Gold + price * sellPacket.Amount > worldConfiguration.Value.MaxGoldAmount)
+            if (price < 0 || price > long.MaxValue / sellPacket.Amount)
+            {
+                return;
+            }
+
+            var totalPrice = price * sellPacket.Amount;
+
+            if (clientSession.Character.Gold + totalPrice > worldConfiguration.Value.MaxGoldAmount)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.MaxGoldReached
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
-            clientSession.Character.Gold += price * sellPacket.Amount;
+            clientSession.Character.Gold += totalPrice;
 
             await clientSession.SendPacketAsync(new SMemoiPacket
             {
                 Type = SMemoType.SuccessPlayer,
                 Message = Game18NConstString.TradeSuccessfull
-            }).ConfigureAwait(false);
+            });
 
             clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
                 inv.ItemInstanceId);
-            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold()).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
         }
     }
 }

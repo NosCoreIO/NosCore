@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -21,7 +21,6 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -36,6 +35,7 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Chat
                 {
                     SpeakType = SpeakType.Player,
                     Message = message.ToString()
-                })).ConfigureAwait(false);
+                }));
 
                 var speakPacket = session.Character.GenerateSpk(new SpeakPacket
                 {
@@ -98,13 +98,13 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId).ConfigureAwait(false);
+                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.AlreadyBlacklisted
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
 
@@ -118,7 +118,7 @@ namespace NosCore.PacketHandlers.Chat
                     SenderCharacter = new Character { Name = session.Character.Name },
                     OriginWorldId = channel.ChannelId,
                     ReceiverType = ReceiverType.OnlySomeone
-                }).ConfigureAwait(false);
+                });
             }
             catch (Exception e)
             {

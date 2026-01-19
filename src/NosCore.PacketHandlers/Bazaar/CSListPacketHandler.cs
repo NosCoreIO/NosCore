@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -26,6 +25,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Bazaar
         {
             var list = new List<RcsListPacket.RcsListElementPacket?>();
             var bzlist = await bazaarHttpClient.GetBazaar(-1, packet.Index, 50, 0, 0, 0, 0, 0,
-                clientSession.Character.CharacterId).ConfigureAwait(false);
+                clientSession.Character.CharacterId);
 
             foreach (var bz in bzlist)
             {
@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 PageNumber = packet.Index,
                 Items = list
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

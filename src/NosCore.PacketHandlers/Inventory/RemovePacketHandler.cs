@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -26,6 +25,7 @@ using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 
 
@@ -60,19 +60,19 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.NotEnoughSpace
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot)).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
 
-            await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq()).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment()).ConfigureAwait(false);
+            await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq());
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment());
 
             if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {
                 await clientSession.Character.MapInstance.SendPacketAsync(
-                    clientSession.Character.GeneratePairy(null)).ConfigureAwait(false);
+                    clientSession.Character.GeneratePairy(null));
             }
         }
     }

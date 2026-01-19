@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,13 +17,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Helper;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -33,6 +30,9 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.MailService;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
@@ -78,39 +78,39 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             switch (minigamePacket.Type)
             {
                 case 1:
-                    await PlayAsync(game).ConfigureAwait(false);
+                    await PlayAsync(game);
                     break;
 
                 case 2:
-                    await BroadcastEffectAsync().ConfigureAwait(false);
+                    await BroadcastEffectAsync();
                     break;
 
                 case 3:
-                    await ShowBoxLevelsAsync(game).ConfigureAwait(false);
+                    await ShowBoxLevelsAsync(game);
                     break;
 
                 case 4:
-                    await SelectGiftAsync().ConfigureAwait(false);
+                    await SelectGiftAsync();
                     break;
 
                 case 5:
-                    await ShowMinilandManagmentAsync().ConfigureAwait(false);
+                    await ShowMinilandManagmentAsync();
                     break;
 
                 case 6:
-                    await RefillAsync().ConfigureAwait(false);
+                    await RefillAsync();
                     break;
 
                 case 7:
-                    await ShowGiftsAsync().ConfigureAwait(false);
+                    await ShowGiftsAsync();
                     break;
 
                 case 8:
-                    await OpenGiftBatchAsync().ConfigureAwait(false);
+                    await OpenGiftBatchAsync();
                     break;
 
                 case 9:
-                    await UseCouponAsync().ConfigureAwait(false);
+                    await UseCouponAsync();
                     break;
             }
         }
@@ -130,8 +130,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     Message = Game18NConstString.ToppedUpPoints,
                     ArgumentType = 4,
                     Game18NArguments = { point }
-                }).ConfigureAwait(false);
-                await ShowMinilandManagmentAsync().ConfigureAwait(false);
+                });
+                await ShowMinilandManagmentAsync();
             }
         }
 
@@ -212,7 +212,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                             Message = Game18NConstString.ReceivedThisItem,
                             ArgumentType = 2,
                             Game18NArguments = { item.Item.VNum.ToString(), amount }
-                        }).ConfigureAwait(false);
+                        });
                     }
 
                     list.Add(new MloPmgSubPacket
@@ -224,7 +224,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 }
             }
 
-            await ShowGiftsAsync(list.ToArray()).ConfigureAwait(false);
+            await ShowGiftsAsync(list.ToArray());
         }
 
         private Task ShowGiftsAsync()
@@ -272,7 +272,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             if (_clientSession?.Character.Gold > _minigamePacket.Point)
             {
                 _clientSession.Character.Gold -= (int)_minigamePacket.Point;
-                await _clientSession.SendPacketAsync(_clientSession.Character.GenerateGold()).ConfigureAwait(false);
+                await _clientSession.SendPacketAsync(_clientSession.Character.GenerateGold());
                 _minilandObject!.InventoryItemInstance!.ItemInstance.DurabilityPoint +=
                     (int)(_minigamePacket.Point / 100);
                 await _clientSession.SendPacketAsync(new InfoiPacket
@@ -280,8 +280,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     Message = Game18NConstString.ToppedUpPoints,
                     ArgumentType = 4,
                     Game18NArguments = { (int)_minigamePacket.Point / 100 }
-                }).ConfigureAwait(false);
-                await ShowMinilandManagmentAsync().ConfigureAwait(false);
+                });
+                await ShowMinilandManagmentAsync();
             }
         }
 
@@ -297,7 +297,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 return;
             }
-            await _clientSession!.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.VNum }).ConfigureAwait(false);
+            await _clientSession!.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.VNum });
             // _clientSession.SendPacket(new MlptPacket {_miniland.MinilandPoint, 100});
             var inv = _clientSession.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 itemProvider.Create(obj.VNum,
@@ -344,7 +344,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = _clientSession.Character.CharacterId
-            }).ConfigureAwait(false);
+            });
             short level = -1;
             for (short i = 0; i < MinilandHelper.Instance.MinilandMaxPoint[game].Count(); i++)
             {
@@ -361,7 +361,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             await _clientSession.SendPacketAsync(level != -1
                 ? new MloLvPacket { Level = level }
                 : (IPacket)new MinigamePacket
-                { Type = 3, Id = game, MinigameVNum = _minigamePacket!.MinigameVNum, Unknown = 0, Point = 0 }).ConfigureAwait(false);
+                { Type = 3, Id = game, MinigameVNum = _minigamePacket!.MinigameVNum, Unknown = 0, Point = 0 });
         }
 
         private Task BroadcastEffectAsync()
@@ -385,7 +385,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     VisualId = _clientSession.Character.CharacterId,
                     Type = SayColorType.Red,
                     Message = Game18NConstString.NeedToRestoreDurability
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -402,7 +402,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         Unknown = 1
                     },
                     Question = Game18NConstString.NotEnoughProductionPointsAskStart
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -411,10 +411,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = _clientSession.Character.CharacterId
-            }).ConfigureAwait(false);
+            });
             _miniland.CurrentMinigame = (short)(game == 0 ? 5102 : game == 1 ? 5103 : game == 2 ? 5105 : game == 3
                 ? 5104 : game == 4 ? 5113 : 5112);
-            await _clientSession.SendPacketAsync(new MloStPacket { Game = game }).ConfigureAwait(false);
+            await _clientSession.SendPacketAsync(new MloStPacket { Game = game });
         }
     }
 }

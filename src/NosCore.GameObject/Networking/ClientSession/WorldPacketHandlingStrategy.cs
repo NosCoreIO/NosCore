@@ -20,11 +20,10 @@
 using System.Threading.Tasks;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
-using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
-using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -61,7 +60,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         if (string.IsNullOrWhiteSpace(packetHeader) && isFromNetwork)
         {
             logger.Warning(logLanguage[LogLanguageKey.CORRUPT_PACKET], processedPacket);
-            await session.DisconnectAsync().ConfigureAwait(false);
+            await session.DisconnectAsync();
             return;
         }
 
@@ -96,7 +95,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         if (session.LastKeepAliveIdentity != 0 && packet.KeepAliveId != session.LastKeepAliveIdentity + 1)
         {
             logger.Error(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
-            await session.DisconnectAsync().ConfigureAwait(false);
+            await session.DisconnectAsync();
             return false;
         }
 
@@ -104,7 +103,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
 
         if (packet.KeepAliveId == null)
         {
-            await session.DisconnectAsync().ConfigureAwait(false);
+            await session.DisconnectAsync();
             return false;
         }
 
@@ -209,7 +208,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
 
         try
         {
-            await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200)).ConfigureAwait(false);
+            await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200));
         }
         finally
         {

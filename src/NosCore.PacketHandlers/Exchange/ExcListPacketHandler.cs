@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,9 +19,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.ClientPackets.Exchanges;
@@ -31,6 +29,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.PacketHandlers.Exchange
@@ -51,7 +50,7 @@ namespace NosCore.PacketHandlers.Exchange
 
             var target = sessionRegistry.GetCharacter(s =>
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
-                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
+                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as GameObject.ComponentEntities.Entities.Character;
 
             if ((packet.SubPackets!.Count > 0) && (target != null))
             {
@@ -66,8 +65,8 @@ namespace NosCore.PacketHandlers.Exchange
                         var closeExchange =
                             exchangeService.CloseExchange(clientSession.Character.VisualId,
                                 ExchangeResultType.Failure);
-                        await clientSession.SendPacketAsync(closeExchange).ConfigureAwait(false);
-                        await target.SendPacketAsync(closeExchange).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(closeExchange);
+                        await target.SendPacketAsync(closeExchange);
                         logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
                         return;
                     }
@@ -75,8 +74,8 @@ namespace NosCore.PacketHandlers.Exchange
                     if (!item.ItemInstance.Item.IsTradable)
                     {
                         await clientSession.SendPacketAsync(exchangeService.CloseExchange(clientSession.Character.CharacterId,
-                            ExchangeResultType.Failure)).ConfigureAwait(false);
-                        await target.SendPacketAsync(exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure)).ConfigureAwait(false);
+                            ExchangeResultType.Failure));
+                        await target.SendPacketAsync(exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure));
                         logger.Error(
                             logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
                         return;
@@ -105,7 +104,7 @@ namespace NosCore.PacketHandlers.Exchange
 
             exchangeService.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
             await (target == null ? Task.CompletedTask : target.SendPacketAsync(
-                clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList))).ConfigureAwait(false);
+                clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList)));
         }
     }
 }

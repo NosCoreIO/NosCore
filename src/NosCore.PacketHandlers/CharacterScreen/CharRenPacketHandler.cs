@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -21,7 +21,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
@@ -31,6 +30,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             var characterName = packet.Name;
             var chara = await characterDao.FirstOrDefaultAsync(s =>
                     (s.AccountId == accountId) && (s.Slot == slot) && (s.State == CharacterState.Active) && (s.ServerId == configuration.Value.ServerId))
-                .ConfigureAwait(false);
+                ;
             if ((chara == null) || (chara.ShouldRename == false))
             {
                 return;
@@ -56,24 +56,24 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var character = await
                     characterDao.FirstOrDefaultAsync(s =>
-                        (s.Name == characterName) && (s.State == CharacterState.Active)).ConfigureAwait(false);
+                        (s.Name == characterName) && (s.State == CharacterState.Active));
                 if (character == null)
                 {
                     chara.Name = characterName;
                     chara.ShouldRename = false;
-                    await characterDao.TryInsertOrUpdateAsync(chara).ConfigureAwait(false);
-                    await clientSession.SendPacketAsync(new SuccessPacket()).ConfigureAwait(false);
+                    await characterDao.TryInsertOrUpdateAsync(chara);
+                    await clientSession.SendPacketAsync(new SuccessPacket());
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket()
                     {
                         Name = clientSession.Account.Name,
-                    } }).ConfigureAwait(false);
+                    } });
                 }
                 else
                 {
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.CharacterNameAlreadyTaken
-                    }).ConfigureAwait(false);
+                    });
                 }
             }
             else
@@ -81,7 +81,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 await clientSession.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.NameIsInvalid
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

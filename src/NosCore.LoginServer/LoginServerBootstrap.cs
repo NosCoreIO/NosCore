@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -38,7 +38,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
@@ -186,7 +186,7 @@ namespace NosCore.LoginServer
         {
             try
             {
-                await BuildHost(args).RunAsync().ConfigureAwait(false);
+                await BuildHost(args).RunAsync();
             }
             catch (Exception ex)
             {

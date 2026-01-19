@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MinilandService;
@@ -29,6 +28,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Movement
                     VisualId = session.Character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.WillMoveShortly
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -80,12 +81,12 @@ namespace NosCore.PacketHandlers.Movement
                 && (mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
                     == MapInstanceType.BaseMapInstance))
             {
-                await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY).ConfigureAwait(false);
+                await mapChangeService.ChangeMapAsync(session, session.Character.MapId, session.Character.MapX, session.Character.MapY);
             }
             else
             {
                 await mapChangeService.ChangeMapInstanceAsync(session, portal.DestinationMapInstanceId, portal.DestinationX,
-                    portal.DestinationY).ConfigureAwait(false);
+                    portal.DestinationY);
             }
         }
     }

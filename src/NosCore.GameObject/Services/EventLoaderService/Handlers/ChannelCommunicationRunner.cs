@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
                 {
                     if (_handlers.TryGetValue(message.GetType(), out var handler))
                     {
-                        await handler.Handle(message).ConfigureAwait(false);
+                        await handler.Handle(message);
                     }
                     else
                     {
@@ -81,13 +81,13 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            await _pubSubHubClient.StartAsync().ConfigureAwait(false);
+            await _pubSubHubClient.StartAsync();
         }
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
             _pubSubHubClient.OnMessageReceived -= OnMessageReceived;
-            await _pubSubHubClient.StopAsync().ConfigureAwait(false);
+            await _pubSubHubClient.StopAsync();
         }
     }
 }

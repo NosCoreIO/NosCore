@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -34,113 +34,137 @@ using NosCore.PacketHandlers.Parcel;
 using NosCore.Packets.ClientPackets.Parcel;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Tests.Shared;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Parcel
 {
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private Mock<IMailHub>? _mailHttpClient;
-        private PclPacketHandler? _pclPacketHandler;
-        private IItemGenerationService? _item;
-        private ClientSession? _session;
-        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
+        private Mock<IMailHub> MailHttpClient = null!;
+        private PclPacketHandler PclPacketHandler = null!;
+        private IItemGenerationService Item = null!;
+        private ClientSession Session = null!;
+        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
+        private MailData? Mail;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _item = TestHelpers.Instance.GenerateItemProvider();
-            _mailHttpClient = new Mock<IMailHub>();
-            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-            _pclPacketHandler = new PclPacketHandler(_mailHttpClient.Object, _item, _itemInstanceDao.Object);
+            await TestHelpers.ResetAsync();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Item = TestHelpers.Instance.GenerateItemProvider();
+            MailHttpClient = new Mock<IMailHub>();
+            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
+            PclPacketHandler = new PclPacketHandler(MailHttpClient.Object, Item, ItemInstanceDao.Object);
         }
 
         [TestMethod]
-        public async Task Test_GiftNotFoundAsync()
+        public async Task GiftNotFoundShouldReturnNoPacket()
         {
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
-            await _pclPacketHandler!.ExecuteAsync(new PclPacket
+            await new Spec("Gift not found should return no packet")
+                .Given(NoGiftExists)
+                .WhenAsync(DeletingGift)
+                .Then(NoParcelPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeletingGiftShouldReturnDeletePacket()
+        {
+            await new Spec("Deleting gift should return delete packet")
+                .Given(GiftExists)
+                .WhenAsync(DeletingGift)
+                .Then(DeleteParcelPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReceivingGiftShouldReturnReceivePacket()
+        {
+            await new Spec("Receiving gift should return receive packet")
+                .Given(GiftExists)
+                .WhenAsync(ReceivingGift)
+                .Then(ReceiveParcelPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReceivingGiftWithNoSpaceShouldReturnNoSpacePacket()
+        {
+            await new Spec("Receiving gift with no space should return no space packet")
+                .Given(GiftExists)
+                .And(InventoryIsFull)
+                .WhenAsync(ReceivingGift)
+                .Then(NoSpaceParcelPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void NoGiftExists()
+        {
+            MailHttpClient.Setup(s => s.GetMails(1, Session.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
+        }
+
+        private void GiftExists()
+        {
+            var item = Item.Create(1);
+            Mail = new MailData
+            {
+                ItemInstance = (ItemInstanceDto)item,
+                MailDto = new MailDto
+                {
+                    ItemInstanceId = item.Id
+                }
+            };
+            ItemInstanceDao.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(item);
+            MailHttpClient.Setup(s => s.GetMails(1, Session.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { Mail });
+        }
+
+        private void InventoryIsFull()
+        {
+            TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 0;
+        }
+
+        private async Task DeletingGift()
+        {
+            await PclPacketHandler.ExecuteAsync(new PclPacket
             {
                 Type = 5,
                 GiftId = 1
-            }, _session!).ConfigureAwait(false);
-            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            }, Session);
+        }
+
+        private async Task ReceivingGift()
+        {
+            await PclPacketHandler.ExecuteAsync(new PclPacket
+            {
+                Type = 4,
+                GiftId = 1
+            }, Session);
+        }
+
+        private void NoParcelPacketShouldBeSent()
+        {
+            var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsNull(packet);
         }
 
-        [TestMethod]
-        public async Task Test_DeleteGiftAsync()
+        private void DeleteParcelPacketShouldBeSent()
         {
-            var item = _item!.Create(1);
-            var mail = new MailData
-            {
-                ItemInstance = (ItemInstanceDto)item,
-                MailDto = new MailDto
-                {
-                    ItemInstanceId = item.Id
-                }
-            };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData>() { mail });
-            await _pclPacketHandler!.ExecuteAsync(new PclPacket
-            {
-                Type = 5,
-                GiftId = 1
-            }, _session!).ConfigureAwait(false);
-            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 7);
         }
 
-        [TestMethod]
-        public async Task Test_ReceiveGiftAsync()
+        private void ReceiveParcelPacketShouldBeSent()
         {
-            var item = _item!.Create(1);
-            var mail = new MailData
-            {
-                ItemInstance = (ItemInstanceDto)item,
-                MailDto = new MailDto
-                {
-                    ItemInstanceId = item.Id
-                }
-            };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
-            await _pclPacketHandler!.ExecuteAsync(new PclPacket
-            {
-                Type = 4,
-                GiftId = 1
-            }, _session!).ConfigureAwait(false);
-            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 2);
         }
 
-        [TestMethod]
-        public async Task Test_ReceiveGiftNoPlaceAsync()
+        private void NoSpaceParcelPacketShouldBeSent()
         {
-            TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 0;
-            var item = _item!.Create(1);
-            var mail = new MailData
-            {
-                ItemInstance = (ItemInstanceDto)item,
-                MailDto = new MailDto
-                {
-                    ItemInstanceId = item.Id
-                }
-            };
-            _itemInstanceDao!.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(item);
-            _mailHttpClient!.Setup(s => s.GetMails(1, _session!.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { mail });
-
-            await _pclPacketHandler!.ExecuteAsync(new PclPacket
-            {
-                Type = 4,
-                GiftId = 1
-            }, _session!).ConfigureAwait(false);
-            var packet = (ParcelPacket?)_session!.LastPackets.FirstOrDefault(s => s is ParcelPacket);
+            var packet = (ParcelPacket?)Session.LastPackets.FirstOrDefault(s => s is ParcelPacket);
             Assert.IsTrue(packet?.Type == 5);
         }
     }

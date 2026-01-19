@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,7 +17,6 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.Quest;
@@ -26,6 +25,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Quest
 {
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Quest
                         FirstArgument = session.Character.Script.Argument1,
                         SecondArgument = session.Character.Script.ScriptId,
                         ThirdArgument = session.Character.Script.ScriptStepId,
-                    }).ConfigureAwait(false);
+                    });
                     break;
 
                 case QuestActionType.Achieve:
@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.Quest
                         FirstArgument = session.Character.Script.Argument1,
                         SecondArgument = session.Character.Script.ScriptId,
                         ThirdArgument = session.Character.Script.ScriptStepId,
-                    }).ConfigureAwait(false);
+                    });
                     break;
 
                 case QuestActionType.GiveUp:

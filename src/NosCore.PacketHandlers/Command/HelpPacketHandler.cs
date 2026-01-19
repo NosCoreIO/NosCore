@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,13 +19,13 @@
 
 using NosCore.Core.Extensions;
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Command
         public override async Task ExecuteAsync(HelpPacket helpPacket, ClientSession session)
         {
             await session.SendPacketAsync(session.Character.GenerateSay("-------------Help command-------------",
-                SayColorType.Red)).ConfigureAwait(false);
+                SayColorType.Red));
             var classes = helpPacket.GetType().Assembly.GetTypes().Where(t =>
                     typeof(ICommandPacket).IsAssignableFrom(t)
                     && (t.GetCustomAttribute<CommandPacketHeaderAttribute>()?.Authority <= session.Account.Authority))
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Command
                 var message = method.Invoke(classInstance, null)?.ToString();
                 if (!string.IsNullOrEmpty(message))
                 {
-                    await session.SendPacketAsync(session.Character.GenerateSay(message, SayColorType.Green)).ConfigureAwait(false);
+                    await session.SendPacketAsync(session.Character.GenerateSay(message, SayColorType.Green));
                 }
             }
         }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,7 +19,6 @@
 
 using System.Linq;
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -27,7 +26,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 using NodaTime;
-using NosCore.GameObject.Helper;
+using NosCore.GameObject.Services.MailService;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
@@ -47,19 +47,19 @@ namespace NosCore.PacketHandlers.Command
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
             await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, session.Character, receiver.ConnectedCharacter!.Id,null, giftPacket.VNum,
-                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false, null, null)).ConfigureAwait(false);
+                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false, null, null));
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = session.Character.CharacterId,
                 Type = SayColorType.Red,
                 Message = Game18NConstString.GiftDelivered
-            }).ConfigureAwait(false);
+            });
         }
 
     

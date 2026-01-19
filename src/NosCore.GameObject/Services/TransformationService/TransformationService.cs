@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -26,6 +26,7 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -50,8 +51,8 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Morph = 0;
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
-            await character.SendPacketAsync(character.GenerateCond()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
+            await character.SendPacketAsync(character.GenerateCond());
+            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
             character.SpCooldown = 30;
             await character.SendPacketAsync(new SayiPacket
             {
@@ -61,16 +62,16 @@ namespace NosCore.GameObject.Services.TransformationService
                 Message = Game18NConstString.DurationOfSideEffect,
                 ArgumentType = 4,
                 Game18NArguments = { character.SpCooldown }
-            }).ConfigureAwait(false);
-            await character.SendPacketAsync(new SdPacket { Cooldown = character.SpCooldown }).ConfigureAwait(false);
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode()).ConfigureAwait(false);
+            });
+            await character.SendPacketAsync(new SdPacket { Cooldown = character.SpCooldown });
+            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
             await character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = character.CharacterId
-            }).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateStat()).ConfigureAwait(false);
+            });
+            await character.SendPacketAsync(character.GenerateStat());
 
             async Task CoolDown()
             {
@@ -80,8 +81,8 @@ namespace NosCore.GameObject.Services.TransformationService
                     VisualId = character.CharacterId,
                     Type = SayColorType.Red,
                     Message = Game18NConstString.TransformationSideEffectGone
-                }).ConfigureAwait(false);
-                await character.SendPacketAsync(new SdPacket { Cooldown = 0 }).ConfigureAwait(false);
+                });
+                await character.SendPacketAsync(new SdPacket { Cooldown = 0 });
             }
 
             Observable.Timer(TimeSpan.FromMilliseconds(character.SpCooldown * 1000)).Select(_ => CoolDown()).Subscribe();
@@ -104,7 +105,7 @@ namespace NosCore.GameObject.Services.TransformationService
                     VisualId = character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.CanNotBeWornReputationLow
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -117,7 +118,7 @@ namespace NosCore.GameObject.Services.TransformationService
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.SpecialistAndFairyDifferentElement
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -126,18 +127,18 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Morph = sp.Item.Morph;
             character.MorphUpgrade = sp.Upgrade;
             character.MorphDesign = sp.Design;
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService)).ConfigureAwait(false);
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(196)).ConfigureAwait(false);
+            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
+            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await character.MapInstance.SendPacketAsync(character.GenerateEff(196));
             await character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Dance,
                 Value = 1,
                 EntityId = character.CharacterId
-            }).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateSpPoint()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateCond()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateStat()).ConfigureAwait(false);
+            });
+            await character.SendPacketAsync(character.GenerateSpPoint());
+            await character.SendPacketAsync(character.GenerateCond());
+            await character.SendPacketAsync(character.GenerateStat());
         }
 
         public async Task ChangeVehicleAsync(Character character, Item item)
@@ -153,10 +154,10 @@ namespace NosCore.GameObject.Services.TransformationService
                     : item.SecondMorph;
 
             await character.MapInstance.SendPacketAsync(
-                character.GenerateEff(196)).ConfigureAwait(false);
+                character.GenerateEff(196));
             await character.MapInstance.SendPacketAsync(character
-                .GenerateCMode()).ConfigureAwait(false);
-            await character.SendPacketAsync(character.GenerateCond()).ConfigureAwait(false);
+                .GenerateCMode());
+            await character.SendPacketAsync(character.GenerateCond());
         }
 
         public async Task RemoveVehicleAsync(Character character)
@@ -182,8 +183,8 @@ namespace NosCore.GameObject.Services.TransformationService
 
             character.IsVehicled = false;
             character.VehicleSpeed = 0;
-            await character.SendPacketAsync(character.GenerateCond()).ConfigureAwait(false);
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode()).ConfigureAwait(false);
+            await character.SendPacketAsync(character.GenerateCond());
+            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
         }
     }
 }

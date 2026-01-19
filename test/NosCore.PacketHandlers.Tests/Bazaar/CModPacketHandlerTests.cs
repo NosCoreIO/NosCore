@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -36,27 +36,28 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
     [TestClass]
-    public class CModPacketHandlerTest
+    public class CModPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IBazaarHub>? _bazaarHttpClient;
-        private CModPacketHandler? _cmodPacketHandler;
-        private ClientSession? _session;
+        private Mock<IBazaarHub> BazaarHttpClient = null!;
+        private CModPacketHandler CmodPacketHandler = null!;
+        private ClientSession Session = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
             Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _bazaarHttpClient = new Mock<IBazaarHub>();
-            _cmodPacketHandler = new CModPacketHandler(_bazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            BazaarHttpClient = new Mock<IBazaarHub>();
+            CmodPacketHandler = new CModPacketHandler(BazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
+            BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()
                 {
                     SellerName = "test",
@@ -64,126 +65,180 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 }});
 
-            _bazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
+            BazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()
                 {
-                    SellerName = _session.Character.Name,
+                    SellerName = Session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
                 }});
 
-            _bazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
+            BazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()
                 {
-                    SellerName = _session.Character.Name,
+                    SellerName = Session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 }});
-            _bazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
-            _bazaarHttpClient.Setup(b => b.ModifyBazaarAsync(It.IsAny<long>(), It.IsAny<JsonPatch?>()!)).ReturnsAsync(new BazaarLink
+            BazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
+            BazaarHttpClient.Setup(b => b.ModifyBazaarAsync(It.IsAny<long>(), It.IsAny<JsonPatch?>()!)).ReturnsAsync(new BazaarLink
             {
-                SellerName = _session.Character.Name,
+                SellerName = Session.Character.Name,
                 BazaarItem = new BazaarItemDto { Price = 70, Amount = 1 },
                 ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
             });
         }
 
         [TestMethod]
-        public async Task ModifyWhenInExchangeAsync()
+        public async Task ModifyingWhileInShopShouldBeIgnored()
         {
-            _session!.Character.InShop = true;
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-            {
-                BazaarId = 1,
-                NewPrice = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            await new Spec("Modifying while in shop should be ignored")
+                .Given(CharacterIsInShop)
+                .WhenAsync(ModifyingBazaarItemAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ModifyWhenNoItemAsync()
+        public async Task ModifyingNonExistentItemShouldBeIgnored()
         {
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-            {
-                BazaarId = 1,
-                NewPrice = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNull(_session!.LastPackets.FirstOrDefault());
-        }
-
-
-        [TestMethod]
-        public async Task ModifyWhenOtherSellerAsync()
-        {
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-            {
-                BazaarId = 0,
-                NewPrice = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNull(_session!.LastPackets.FirstOrDefault());
+            await new Spec("Modifying non existent item should be ignored")
+                .WhenAsync(ModifyingNonExistentItemAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ModifyWhenSoldAsync()
+        public async Task ModifyingOtherSellersItemShouldBeIgnored()
         {
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-            {
-                BazaarId = 3,
-                NewPrice = 60,
-                Amount = 1,
-                VNum = 1012
-            }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.CannotChangePriceSoldItems);
+            await new Spec("Modifying other sellers item should be ignored")
+                .WhenAsync(ModifyingOtherSellersItemAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ModifyWhenWrongAmountAsync()
+        public async Task ModifyingSoldItemShouldShowError()
         {
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-            {
-                BazaarId = 2,
-                NewPrice = 70,
-                Amount = 2,
-                VNum = 1012
-            }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            await new Spec("Modifying sold item should show error")
+                .WhenAsync(ModifyingSoldItemAsync)
+                .Then(ShouldReceiveCannotChangePriceMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ModifyWhenPriceSamePriceAsync()
+        public async Task ModifyingWithWrongAmountShouldShowOfferUpdated()
         {
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
-            {
-                BazaarId = 2,
-                NewPrice = 60,
-                Amount = 1,
-                VNum = 1012
-            }, _session!).ConfigureAwait(false);
-            Assert.IsNull(_session!.LastPackets.FirstOrDefault());
+            await new Spec("Modifying with wrong amount should show offer updated")
+                .WhenAsync(ModifyingWithWrongAmountAsync)
+                .Then(ShouldReceiveOfferUpdatedMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ModifyAsync()
+        public async Task ModifyingToSamePriceShouldBeIgnored()
         {
-            await _cmodPacketHandler!.ExecuteAsync(new CModPacket
+            await new Spec("Modifying to same price should be ignored")
+                .WhenAsync(ModifyingToSamePriceAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ModifyingPriceShouldSucceed()
+        {
+            await new Spec("Modifying price should succeed")
+                .WhenAsync(ModifyingPriceSuccessfullyAsync)
+                .Then(ShouldReceiveNewPriceMessage)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsInShop()
+        {
+            Session.Character.InShop = true;
+        }
+
+        private async Task ModifyingBazaarItemAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
             {
-                BazaarId = 2,
-                NewPrice = 70,
-                Amount = 1,
-                VNum = 1012
-            }, _session!).ConfigureAwait(false);
-            var lastpacket = (SayiPacket?)_session!.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId &&
-                lastpacket?.Type == SayColorType.Yellow && lastpacket?.Message == Game18NConstString.NewSellingPrice &&
-                lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 70);
+                BazaarId = 1, NewPrice = 50, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private void NoPacketShouldBeSent()
+        {
+            Assert.IsNull(Session.LastPackets.FirstOrDefault());
+        }
+
+        private async Task ModifyingNonExistentItemAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 1, NewPrice = 50, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private async Task ModifyingOtherSellersItemAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 0, NewPrice = 50, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private async Task ModifyingSoldItemAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 3, NewPrice = 60, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private void ShouldReceiveCannotChangePriceMessage()
+        {
+            var packet = (ModaliPacket?)Session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(packet?.Type == 1 && packet?.Message == Game18NConstString.CannotChangePriceSoldItems);
+        }
+
+        private async Task ModifyingWithWrongAmountAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 2, NewPrice = 70, Amount = 2, VNum = 1012
+            }, Session);
+        }
+
+        private void ShouldReceiveOfferUpdatedMessage()
+        {
+            var packet = (ModaliPacket?)Session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(packet?.Type == 1 && packet?.Message == Game18NConstString.OfferUpdated);
+        }
+
+        private async Task ModifyingToSamePriceAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 2, NewPrice = 60, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private async Task ModifyingPriceSuccessfullyAsync()
+        {
+            await CmodPacketHandler.ExecuteAsync(new CModPacket
+            {
+                BazaarId = 2, NewPrice = 70, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private void ShouldReceiveNewPriceMessage()
+        {
+            var packet = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player &&
+                packet?.VisualId == Session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow &&
+                packet?.Message == Game18NConstString.NewSellingPrice &&
+                packet?.ArgumentType == 4 && (long?)packet?.Game18NArguments[0] == 70);
         }
     }
 }

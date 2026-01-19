@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -26,6 +25,7 @@ using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -44,21 +44,21 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.AttackWhileBazar
-                }).ConfigureAwait(false);
+                });
 
                 await clientSession.SendPacketAsync(new WopenPacket
                 {
                     Type = WindowType.NosBazaar,
                     Unknown = medal,
                     Unknown2 = (byte)time
-                }).ConfigureAwait(false);
+                });
             }
             else
             {
                 await clientSession.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.NosMerchantMedaleAllowPlayerToUseNosbazarOnAllGeneralMaps
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

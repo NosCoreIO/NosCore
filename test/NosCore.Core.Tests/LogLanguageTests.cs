@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -28,18 +28,19 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Resource;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using SpecLight;
 
 namespace NosCore.Core.Tests
 {
     [TestClass]
     public class LogLanguageTests
     {
-        private readonly LogLanguageLocalizer<LogLanguageKey, LocalizedResources> _logLanguageLocalizer;
+        private readonly LogLanguageLocalizer<LogLanguageKey, LocalizedResources> LogLanguageLocalizer;
 
         public LogLanguageTests()
         {
             var factory = new ResourceManagerStringLocalizerFactory(Options.Create(new LocalizationOptions()), new LoggerFactory());
-            _logLanguageLocalizer = new LogLanguageLocalizer<LogLanguageKey, LocalizedResources>(
+            LogLanguageLocalizer = new LogLanguageLocalizer<LogLanguageKey, LocalizedResources>(
                 new StringLocalizer<LocalizedResources>(factory));
         }
 
@@ -58,7 +59,7 @@ namespace NosCore.Core.Tests
         {
             CultureInfo.CurrentCulture = new CultureInfo(type.ToString());
 
-            var result = string.Join(Environment.NewLine, I18NTestHelpers.GetKeysWithMissingTranslations(_logLanguageLocalizer)
+            var result = string.Join(Environment.NewLine, I18NTestHelpers.GetKeysWithMissingTranslations(LogLanguageLocalizer)
                 .Select(x => $"value {x} not defined"));
 
             if (result.Length != 0)
@@ -81,8 +82,8 @@ namespace NosCore.Core.Tests
         {
             CultureInfo.CurrentUICulture = new CultureInfo(type.ToString());
 
-            var result = string.Join(Environment.NewLine, 
-                I18NTestHelpers.GetUselessTranslations(_logLanguageLocalizer, Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString())
+            var result = string.Join(Environment.NewLine,
+                I18NTestHelpers.GetUselessTranslations(LogLanguageLocalizer, Enum.GetValues(typeof(LanguageKey)).OfType<LanguageKey>().Select(s => s.ToString())
                 .Concat(Enum.GetValues(typeof(LogLanguageKey)).OfType<LogLanguageKey>().Select(s => s.ToString())).ToList())
                 .Select(x => $"key {x} is useless"));
 
@@ -92,15 +93,21 @@ namespace NosCore.Core.Tests
             }
         }
 
-
         [TestMethod]
         public void CheckLanguageUsage()
+        {
+            new Spec("Check language usage")
+                .Then(AllLanguageKeysShouldBeUsed)
+                .Execute();
+        }
+
+        private void AllLanguageKeysShouldBeUsed()
         {
             var result = string.Join(Environment.NewLine,
                 I18NTestHelpers.GetUselessLanguageKeys<LanguageKey>().Cast<Enum>()
                     .Union(I18NTestHelpers.GetUselessLanguageKeys<LogLanguageKey>().Cast<Enum>())
                     .Select(x => $"{x.GetType().Name} {x} is not used!"));
-      
+
             if (result.Length != 0)
             {
                 Assert.Fail(result);

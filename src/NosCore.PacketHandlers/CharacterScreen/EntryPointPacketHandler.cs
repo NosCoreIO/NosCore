@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -24,7 +24,6 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
@@ -41,6 +40,7 @@ using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.Shared.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
@@ -65,11 +65,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     accountName
                 });
-                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                await clientSession.DisconnectAsync();
                 return;
             }
 
-            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == accountName).ConfigureAwait(false);
+            var account = await accountDao.FirstOrDefaultAsync(s => s.Name == accountName);
 
             if (account == null)
             {
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     accountName
                 });
-                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                await clientSession.DisconnectAsync();
                 return;
             }
 
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 (passwordLessConnection
                     ? await authHttpClient
                         .GetAwaitingConnectionAsync(accountName, password, sessionId)
-                        .ConfigureAwait(false) != null
+                         != null
                     : account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
                     true);
 
@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     accountName
                 });
-                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                await clientSession.DisconnectAsync();
                 return;
             }
 
@@ -142,7 +142,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         Type = GuriPacketType.TextInput,
                         Argument = 3,
                         EntityId = 0
-                    }).ConfigureAwait(false);
+                    });
                     return;
                 }
             }
@@ -151,8 +151,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
 
             // load characterlist packet for each character in Character
-            await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 }).ConfigureAwait(false);
-            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.Character>()))
+            await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 });
+            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.ComponentEntities.Entities.Character>()))
             {
                 var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -214,10 +214,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Design = equipment[(byte)EquipmentType.Hat]?.Item?.IsColored ?? false
                         ? equipment[(byte)EquipmentType.Hat]?.Design ?? 0 : 0,
                     Rename = character.ShouldRename
-                }).ConfigureAwait(false);
+                });
             }
 
-            await clientSession.SendPacketAsync(new ClistEndPacket()).ConfigureAwait(false);
+            await clientSession.SendPacketAsync(new ClistEndPacket());
         }
     }
 }

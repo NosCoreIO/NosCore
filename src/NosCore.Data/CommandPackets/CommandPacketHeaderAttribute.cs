@@ -23,7 +23,7 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.Data.CommandPackets
 {
-    public class CommandPacketHeaderAttribute(string identification, AuthorityType authority) : PacketHeaderAttribute(identification, Scope.InGame | Scope.InGame)
+    public class CommandPacketHeaderAttribute(string identification, AuthorityType authority) : PacketHeaderAttribute(identification, Scope.InGame)
     {
         public AuthorityType Authority { get; } = authority;
     }

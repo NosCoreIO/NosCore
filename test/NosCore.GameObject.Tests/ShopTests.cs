@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -22,371 +22,293 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NosCore.Algorithm.DignityService;
-using NosCore.Algorithm.ExperienceService;
-using NosCore.Algorithm.HeroExperienceService;
-using NosCore.Algorithm.HpService;
-using NosCore.Algorithm.JobExperienceService;
-using NosCore.Algorithm.MpService;
-using NosCore.Algorithm.ReputationService;
-using NosCore.Core.Configuration;
-using NosCore.Core.Encryption;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Character;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
-using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.CharacterService;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.EventLoaderService;
-using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Services.SpeedCalculationService;
-using NosCore.Networking;
-using NosCore.Networking.Encoding;
-using NosCore.Networking.SessionGroup;
-using NosCore.Networking.SessionRef;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Shop;
-using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
+using NosCore.Tests.Shared.BDD;
+using SpecLight;
 
 namespace NosCore.GameObject.Tests
 {
     [TestClass]
-    public class ShopTests
+    public class ShopTests : SpecBase
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private IFriendHub? _friendHttpClient;
-        private IMapInstanceAccessorService? _instanceProvider;
-        private ClientSession? _session;
+        private IMapInstanceAccessorService InstanceProvider = null!;
+        private ItemGenerationService ItemBuilder = null!;
 
         [TestInitialize]
-        public async Task SetupAsync()
+        public override async Task SetupAsync()
         {
-            Broadcaster.Reset();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _friendHttpClient = new Mock<IFriendHub>().Object;
+            await base.SetupAsync();
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 3;
-            _instanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-        }
-
-
-        [TestMethod]
-        public async Task UserCanNotShopNonExistingSlotAsync()
-        {
-            _session!.Character.Gold = 9999999999;
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            await _session.Character.BuyAsync(shop, 1, 99).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            InstanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
         }
 
         [TestMethod]
-        public async Task UserCantShopMoreThanQuantityNonExistingSlotAsync()
+        public async Task BuyingFromNonExistentSlotShouldFail()
         {
-            _session!.Character.Gold = 9999999999;
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0, Amount = 98 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            await new Spec("Buying from non existent slot should fail")
+                .Given(CharacterHasGold_, 9999999999L)
+                .WhenAsync(AttemptingToBuyFromWrongSlotAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UserCantShopWithoutMoneyAsync()
+        public async Task BuyingMoreThanShopQuantityShouldFail()
         {
-            _session!.Character.Gold = 500000;
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
-
-            var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughGold5);
+            await new Spec("Buying more than shop quantity should fail")
+                .Given(CharacterHasGold_, 9999999999L)
+                .WhenAsync(AttemptingToBuyMoreThanAvailableAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UserCantShopWithoutReputAsync()
+        public async Task BuyingWithoutEnoughGoldShouldFail()
         {
-            _session!.Character.Reput = 500000;
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 500000}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            await _session.Character.BuyAsync(shop, 0, 99).ConfigureAwait(false);
-
-            var packet = (SMemoiPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.ReputationNotHighEnough);
+            await new Spec("Buying without enough gold should fail")
+                .Given(CharacterHasGold_, 500000L)
+                .WhenAsync(AttemptingToBuy_ItemsAsync, 99)
+                .Then(ShouldReceiveNotEnoughGoldMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UserCantShopWithoutPlaceAsync()
+        public async Task BuyingWithoutEnoughReputationShouldFail()
         {
-            _session!.Character.Gold = 500000;
-
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.ItemProvider = itemBuilder;
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            _session!.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 0);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 1);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 2);
-
-            await _session.Character.BuyAsync(shop, 0, 999).ConfigureAwait(false);
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughSpace);
+            await new Spec("Buying without enough reputation should fail")
+                .Given(CharacterHasReputation_, 500000L)
+                .WhenAsync(AttemptingToBuyReputationItemAsync)
+                .Then(ShouldReceiveReputationError)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UserCanShopAsync()
+        public async Task BuyingWithoutInventorySpaceShouldFail()
         {
-            _session!.Character.Gold = 500000;
-
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.ItemProvider = itemBuilder;
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1, -1), Type = 0 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            _session!.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 0);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 1);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 2);
-
-            await _session.Character.BuyAsync(shop, 0, 998).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
-            Assert.IsTrue(_session.Character.Gold == 499002);
+            await new Spec("Buying without inventory space should fail")
+                .Given(CharacterHasGoldButFullInventory)
+                .WhenAsync(AttemptingToBuyWithFullInventoryAsync)
+                .Then(ShouldReceiveNotEnoughSpaceMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UserCanShopReputAsync()
+        public async Task SuccessfulPurchaseShouldUpdateGoldAndInventory()
         {
-            _session!.Character.Reput = 500000;
-
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ReputPrice = 1}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.ItemProvider = itemBuilder;
-            var list = new ConcurrentDictionary<int, ShopItem>();
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = itemBuilder.Create(1), Type = 0 });
-            var shop = new Shop
-            {
-                ShopItems = list
-            };
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 0);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 1);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 1), _session.Character.CharacterId),
-                NoscorePocketType.Etc, 2);
-
-            await _session.Character.BuyAsync(shop, 0, 998).ConfigureAwait(false);
-            Assert.IsTrue(_session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
-            Assert.IsTrue(_session.Character.Reput == 499002);
+            await new Spec("Successful purchase should update gold and inventory")
+                .Given(CharacterHasGoldAndPartialInventory)
+                .WhenAsync(Buying998ItemsAt1GoldEachAsync)
+                .Then(AllInventorySlotsShouldHave_Items, 999)
+                .And(GoldShouldBeDeducted)
+                .ExecuteAsync();
         }
 
-        private async Task<ClientSession> PrepareSessionShopAsync()
+        [TestMethod]
+        public async Task SuccessfulReputationPurchaseShouldUpdateReputation()
         {
-            var conf = Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999, MaxGoldAmount = 999_999_999 });
-            var sessionRefHolder = new SessionRefHolder();
-            var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(new List<IPacketHandler>());
-            var characterInitializationService = new Mock<ICharacterInitializationService>();
-            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<Character>())).Returns(Task.CompletedTask);
-            var session2 = new ClientSession(
+            await new Spec("Successful reputation purchase should update reputation")
+                .Given(CharacterHasReputationAndPartialInventory)
+                .WhenAsync(Buying998ItemsAt1ReputationEachAsync)
+                .Then(AllInventorySlotsShouldHave_Items, 999)
+                .And(ReputationShouldBeDeducted)
+                .ExecuteAsync();
+        }
+
+        private Shop CreateShop(ItemGenerationService itemBuilder, short amount = -1, long? price = null, byte slot = 0)
+        {
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            var shopItem = new ShopItem
+            {
+                Slot = slot,
+                ItemInstance = itemBuilder.Create(1, amount),
+                Type = 0
+            };
+            if (amount > 0)
+            {
+                shopItem.Amount = amount;
+            }
+            if (price.HasValue)
+            {
+                shopItem.Price = price.Value;
+            }
+            list.TryAdd(slot, shopItem);
+            return new Shop { ShopItems = list };
+        }
+
+        private ItemGenerationService CreateItemBuilder(long price = 500000, long reputPrice = 0)
+        {
+            var items = new List<ItemDto>
+            {
+                new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = price, ReputPrice = reputPrice }
+            };
+            return new ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
-                packetHandlerRegistry,
-                new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.PubSubHub.Object,
-                new Mock<IEncoder>().Object,
-                new WorldPacketHandlingStrategy(Logger, TestHelpers.Instance.LogLanguageLocalizer, sessionRefHolder),
-                new List<ISessionDisconnectHandler>(),
-                new NosCore.GameObject.Services.BroadcastService.SessionRegistry(),
-                characterInitializationService.Object,
-                TestHelpers.Instance.GameLanguageLocalizer);
-            var mockChannel = new Mock<IChannel>();
-            mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
-            session2.RegisterChannel(mockChannel.Object);
-            var account = new AccountDto { Name = "AccountTest", Password = new Sha512Hasher().Hash("test") };
-            session2.InitializeAccount(account);
-            session2.SessionId = 1;
+                TestHelpers.Instance.LogLanguageLocalizer);
+        }
 
-            var mapinstance = _instanceProvider!.GetBaseMapById(0)!;
-            var chara2 = new Character(new InventoryService(new List<ItemDto>(), conf, Logger), new Mock<IExchangeService>().Object, new Mock<IItemGenerationService>().Object, new HpService(), new MpService(), new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), new ReputationService(), new DignityService(), TestHelpers.Instance.WorldConfiguration, new Mock<ISpeedCalculationService>().Object, TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.GameLanguageLocalizer)
-            {
-                CharacterId = 1,
-                Name = "chara2",
-                Slot = 1,
-                AccountId = 1,
-                MapId = 1,
-                State = CharacterState.Active
-            };
-            chara2.MapInstance = mapinstance;
-            await session2.SetCharacterAsync(chara2).ConfigureAwait(false);
-            session2.Account = account;
+        private void CharacterHasGold_(long gold)
+        {
+            CharacterHasGold(gold);
+        }
 
-            _session!.Character.Gold = 500000;
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 1}
-            };
-            var itemBuilder = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _session.Character.ItemProvider = itemBuilder;
+        private void CharacterHasReputation_(long reput)
+        {
+            Session.Character.Reput = reput;
+        }
+
+        private async Task AttemptingToBuyFromWrongSlotAsync()
+        {
+            var itemBuilder = CreateItemBuilder();
+            var shop = CreateShop(itemBuilder);
+            await Session.Character.BuyAsync(shop, 1, 99);
+        }
+
+
+        private async Task AttemptingToBuyMoreThanAvailableAsync()
+        {
+            var itemBuilder = CreateItemBuilder();
             var list = new ConcurrentDictionary<int, ShopItem>();
-            var it = itemBuilder.Create(1, 999);
-            session2.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(it, session2.Character.CharacterId), NoscorePocketType.Etc, 0);
-            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = it, Type = 0, Price = 1, Amount = 999 });
-            list.TryAdd(1, new ShopItem { Slot = 1, ItemInstance = it, Type = 0, Price = 1, Amount = 500 });
-            session2.Character.Shop = new Shop
+            list.TryAdd(0, new ShopItem
             {
-                OwnerCharacter = session2.Character,
-                ShopItems = list
-            };
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId),
+                Slot = 0,
+                ItemInstance = itemBuilder.Create(1, -1),
+                Type = 0,
+                Amount = 98
+            });
+            var shop = new Shop { ShopItems = list };
+            await Session.Character.BuyAsync(shop, 0, 99);
+        }
+
+        private async Task AttemptingToBuy_ItemsAsync(int value)
+        {
+            var itemBuilder = CreateItemBuilder();
+            var shop = CreateShop(itemBuilder);
+
+            await Session.Character.BuyAsync(shop, 0, 99);
+        }
+
+        private void ShouldReceiveNotEnoughGoldMessage()
+        {
+            var packet = GetLastPacket<SMemoiPacket>();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.NotEnoughGold5, packet.Message);
+        }
+
+        private async Task AttemptingToBuyReputationItemAsync()
+        {
+            var itemBuilder = CreateItemBuilder(0, 500000);
+            var shop = CreateShop(itemBuilder);
+            await Session.Character.BuyAsync(shop, 0, 99);
+        }
+
+        private void ShouldReceiveReputationError()
+        {
+            var packet = GetLastPacket<SMemoiPacket>();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.ReputationNotHighEnough, packet.Message);
+        }
+
+        private void CharacterHasGoldButFullInventory()
+        {
+            CharacterHasGold(500000);
+            ItemBuilder = CreateItemBuilder(1);
+            Session.Character.ItemProvider = ItemBuilder;
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(itemBuilder.Create(1, 999), session2.Character.CharacterId),
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
                 NoscorePocketType.Etc, 1);
-            return session2;
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 2);
         }
 
-        [TestMethod]
-        public async Task UserCanShopFromSessionAsync()
+        private async Task AttemptingToBuyWithFullInventoryAsync()
         {
-            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
-            await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
-            Assert.IsTrue(session2.Character.Gold == 999);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 0);
+            var shop = CreateShop(ItemBuilder, -1, 1);
+            await Session.Character.BuyAsync(shop, 0, 999);
         }
 
-        [TestMethod]
-        public async Task UserCanShopFromSessionPartialAsync()
+        private void ShouldReceiveNotEnoughSpaceMessage()
         {
-            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
-            await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 998).ConfigureAwait(false);
-            Assert.IsTrue(session2.Character.Gold == 998);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 1);
+            ShouldReceiveMessage(Game18NConstString.NotEnoughSpace);
         }
 
-        [TestMethod]
-        public async Task UserCanNotShopMoreThanShopAsync()
+        private void CharacterHasGoldAndPartialInventory()
         {
-            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
-            await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 501).ConfigureAwait(false);
-            Assert.IsTrue(session2.Character.Gold == 0);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
+            CharacterHasGold(500000);
+            ItemBuilder = CreateItemBuilder(1);
+            Session.Character.ItemProvider = ItemBuilder;
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 0);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 1);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 1), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 2);
         }
 
-        [TestMethod]
-        public async Task UserCanShopFullAsync()
+        private async Task Buying998ItemsAt1GoldEachAsync()
         {
-            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
-            await _session!.Character.BuyAsync(session2.Character.Shop!, 1, 500).ConfigureAwait(false);
-            Assert.IsTrue(session2.Character.Gold == 500);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 499);
+            var shop = CreateShop(ItemBuilder);
+            await Session.Character.BuyAsync(shop, 0, 998);
         }
 
-        [TestMethod]
-        public async Task UserCanNotShopTooRichAsync()
+        private void AllInventorySlotsShouldHave_Items(int value)
         {
-            var session2 = await PrepareSessionShopAsync().ConfigureAwait(false);
-            session2.Character.Gold = 999_999_999;
-            await _session!.Character.BuyAsync(session2.Character.Shop!, 0, 999).ConfigureAwait(false);
-            Assert.IsTrue(session2.Character.Gold == 999_999_999);
-            Assert.IsTrue(session2.Character.InventoryService.CountItem(1) == 999);
-            var packet = (SMemoPacket?)_session.LastPackets.FirstOrDefault(s => s is SMemoPacket);
-            Assert.IsTrue(packet?.Message == TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.TOO_RICH_SELLER, _session.Account.Language]);
+            Assert.IsTrue(Session.Character.InventoryService.All(s => s.Value.ItemInstance?.Amount == 999));
+        }
+
+        private void GoldShouldBeDeducted()
+        {
+            Assert.AreEqual(499002, Session.Character.Gold);
+        }
+
+        private void CharacterHasReputationAndPartialInventory()
+        {
+            Session.Character.Reput = 500000;
+            ItemBuilder = CreateItemBuilder(0, 1);
+            Session.Character.ItemProvider = ItemBuilder;
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 0);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 1);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemBuilder.Create(1, 1), Session.Character.CharacterId),
+                NoscorePocketType.Etc, 2);
+        }
+
+        private async Task Buying998ItemsAt1ReputationEachAsync()
+        {
+            var list = new ConcurrentDictionary<int, ShopItem>();
+            list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = ItemBuilder.Create(1), Type = 0 });
+            var shop = new Shop { ShopItems = list };
+            await Session.Character.BuyAsync(shop, 0, 998);
+        }
+
+        private void ReputationShouldBeDeducted()
+        {
+            Assert.AreEqual(499002, Session.Character.Reput);
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -37,6 +37,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 using GuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
 namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
@@ -44,8 +45,8 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private IItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,50 +56,50 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0, Type =  NoscorePocketType.Main},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
-            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new TitleGuriHandler();
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerAsync()
+        public async Task TestTitleGuriHandlerAsync()
         {
-            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            }).ConfigureAwait(false);
+            });
             var lastpacket = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.AreEqual(Game18NConstString.TitleChangedOrHidden, lastpacket?.Message);
             Assert.AreEqual(1, Session.Character.Titles.Count);
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerWhenDuplicateAsync()
+        public async Task TestTitleGuriHandlerWhenDuplicateAsync()
         {
-            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             Session.Character.Titles = new List<TitleDto> { new() { TitleType = 1 } };
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            }).ConfigureAwait(false);
+            });
             var lastpacket = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(1, Session.Character.Titles.Count);
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerWhenNoTitleItemAsync()
+        public async Task TestTitleGuriHandlerWhenNoTitleItemAsync()
         {
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
                 VisualId = 0
-            }).ConfigureAwait(false);
+            });
             var lastpacket = (InfoiPacket?)Session!.LastPackets.FirstOrDefault(s => s is InfoiPacket);
             Assert.IsNull(lastpacket);
             Assert.AreEqual(0, Session.Character.Titles.Count);

@@ -1,25 +1,27 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using AutoFixture;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
@@ -27,400 +29,299 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Services.BazaarService;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
+using SpecLight;
 
 namespace NosCore.GameObject.Tests
 {
     [TestClass]
     public class BazaarTests
     {
-        public delegate SaveResult DelegateInsert(ref BazaarItemDto y);
-
-        private BazaarHub? _bazaarController;
-        private BazaarItemsHolder? _bazaarItemsHolder;
-        private Guid _guid;
-        private Mock<IDao<BazaarItemDto, long>>? _mockBzDao;
-        private Mock<IDao<IItemInstanceDto?, Guid>>? _mockItemDao;
-
+        private BazaarHub BazaarController = null!;
+        private BazaarRegistry BazaarItemsHolder = null!;
+        private Guid Guid;
+        private Mock<IDao<BazaarItemDto, long>> MockBzDao = null!;
+        private Mock<IDao<IItemInstanceDto?, Guid>> MockItemDao = null!;
+        private NosCoreFixture Fixture = null!;
+        private LanguageKey? LastResult;
 
         [TestInitialize]
         public void Setup()
         {
-            _guid = Guid.NewGuid();
-            _mockBzDao = new Mock<IDao<BazaarItemDto, long>>();
-            _mockItemDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
+            Guid = Guid.NewGuid();
+            Fixture = new NosCoreFixture();
+            MockBzDao = new Mock<IDao<BazaarItemDto, long>>();
+            MockItemDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
 
             var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
-            _bazaarItemsHolder =
-                new BazaarItemsHolder(_mockBzDao.Object, _mockItemDao.Object, mockCharacterDao.Object);
-            _bazaarController = new BazaarHub(new BazaarService(_bazaarItemsHolder, _mockBzDao.Object, _mockItemDao.Object, TestHelpers.Instance.Clock));
-            _mockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
+            BazaarItemsHolder = new BazaarRegistry(MockBzDao.Object, MockItemDao.Object, mockCharacterDao.Object);
+            BazaarController = new BazaarHub(new BazaarService(BazaarItemsHolder, MockBzDao.Object, MockItemDao.Object, TestHelpers.Instance.Clock));
+            MockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
-            _mockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
+            MockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
                 .Returns<BazaarItemDto>(Task.FromResult);
         }
 
         [TestMethod]
-        public async Task AddToBazaarAllStackAsync()
+        public async Task AddingFullStackToBazaarShouldSucceed()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            var add = await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
-            Assert.AreEqual(_guid, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.ItemInstanceId);
-            Assert.AreEqual(99, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Amount ?? 0);
-            Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
+            await new Spec("Adding full stack to bazaar should succeed")
+                .Given(AnItemExistsWithQuantity_, 99)
+                .WhenAsync(RegisteringItems_, 99)
+                .Then(TheItemShouldBeInBazaar)
+                .And(TheBazaarAmountShouldBe_, 99)
+                .And(TheResultShouldBeSuccess)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddToBazaarPartialStackAsync()
+        public async Task AddingPartialStackShouldCreateNewItemInstance()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            var add = await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 50,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
-            Assert.AreNotEqual(_guid, _bazaarItemsHolder!.BazaarItems[0].BazaarItem?.ItemInstanceId);
-            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
-            Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, add);
+            await new Spec("Adding partial stack creates new item instance")
+                .Given(AnItemExistsWithQuantity_, 99)
+                .WhenAsync(RegisteringItems_, 50)
+                .Then(ANewItemInstanceShouldBeCreated)
+                .And(TheBazaarAmountShouldBe_, 50)
+                .And(TheResultShouldBeSuccess)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddToBazaarNegativeAmountAsync()
+        public async Task AddingNegativeAmountShouldThrow()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = -50,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                })).ConfigureAwait(false);
+            await new Spec("Adding negative amount should throw")
+                .Given(AnItemExistsWithQuantity_, 99)
+                .When(AttemptingToRegisterNegativeAmountThrows)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddToBazaarNegativePriceAsync()
+        public async Task AddingNegativePriceShouldThrow()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 50,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = -50
-                })).ConfigureAwait(false);
+            await new Spec("Adding negative price should throw")
+                .Given(AnItemExistsWithQuantity_, 99)
+                .When(AttemptingToRegisterNegativePriceThrows)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddToBazaarMoreThanItemAsync()
+        public async Task AddingMoreThanAvailableShouldThrow()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 100,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 100
-                })).ConfigureAwait(false);
+            await new Spec("Adding more than available should throw")
+                .Given(AnItemExistsWithQuantity_, 99)
+                .When(AttemptingToRegisterMoreThanAvailableThrows)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddToBazaarNullItemAsync()
+        public async Task AddingNullItemShouldThrow()
         {
-            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 50,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 100
-                })).ConfigureAwait(false);
+            await new Spec("Adding null item should throw")
+                .When(AttemptingToRegisterNonExistentItemThrows)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddMoreThanLimitAsync()
+        public async Task ExceedingBazaarLimitShouldFail()
         {
             var rand = new Random();
-            _mockBzDao!.Setup(m => m.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
+            MockBzDao.Setup(m => m.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
                 .Returns((BazaarItemDto y) =>
-               {
-                   y.BazaarItemId = rand.Next(0, 9999999);
-                   return Task.FromResult(y);
-               });
-            LanguageKey? add = null;
+                {
+                    y.BazaarItemId = rand.Next(0, 9999999);
+                    return Task.FromResult(y);
+                });
+
+            await new Spec("Exceeding bazaar limit should fail")
+                .GivenAsync(APlayerAttemptsToListManyItems)
+                .Then(Only_ItemsShouldBeListed, 10)
+                .And(TheResultShouldBeLimitExceeded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeletingNonExistentListingShouldThrow()
+        {
+            await new Spec("Deleting non-existent listing should throw")
+                .When(AttemptingToDeleteNonExistentListingThrows)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OwnerCanRemoveFromBazaar()
+        {
+            await new Spec("Owner can remove from bazaar")
+                .GivenAsync(AnItemIsListedByOwner)
+                .WhenAsync(OwnerRemovesAllItems)
+                .Then(ListingShouldBeRemoved)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ModifyingPriceShouldSucceed()
+        {
+            await new Spec("Modifying price should succeed")
+                .GivenAsync(AnItemIsListedAtPrice_, 80L)
+                .WhenAsync(ChangingPriceTo_, 50L)
+                .Then(PriceShouldBe_, 50L)
+                .ExecuteAsync();
+        }
+
+        private void AnItemExistsWithQuantity_(int amount)
+        {
+            MockItemDao
+                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto { Id = Guid, Amount = (short)amount });
+        }
+
+        private async Task RegisteringItems_(int amount)
+        {
+            LastResult = await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                .With(r => r.Amount, amount)
+                .With(r => r.ItemInstanceId, Guid)
+                .Create());
+        }
+
+        private void TheItemShouldBeInBazaar()
+        {
+            Assert.AreEqual(Guid, BazaarItemsHolder.GetById(0)?.BazaarItem?.ItemInstanceId);
+        }
+
+        private void TheBazaarAmountShouldBe_(int expected)
+        {
+            Assert.AreEqual(expected, BazaarItemsHolder.GetById(0)?.BazaarItem?.Amount ?? 0);
+        }
+
+        private void TheResultShouldBeSuccess()
+        {
+            Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, LastResult);
+        }
+
+        private void ANewItemInstanceShouldBeCreated()
+        {
+            Assert.AreNotEqual(Guid, BazaarItemsHolder.GetById(0)?.BazaarItem?.ItemInstanceId);
+        }
+
+        private void AttemptingToRegisterNegativeAmountThrows()
+        {
+            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
+                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                    .With(r => r.Amount, -50)
+                    .With(r => r.ItemInstanceId, Guid)
+                    .Create()));
+        }
+
+        private void AttemptingToRegisterNegativePriceThrows()
+        {
+            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
+                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                    .With(r => r.Amount, 50)
+                    .With(r => r.Price, -50)
+                    .With(r => r.ItemInstanceId, Guid)
+                    .Create()));
+        }
+
+        private void AttemptingToRegisterMoreThanAvailableThrows()
+        {
+            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
+                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                    .With(r => r.Amount, 100)
+                    .With(r => r.ItemInstanceId, Guid)
+                    .Create()));
+        }
+
+        private void AttemptingToRegisterNonExistentItemThrows()
+        {
+            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
+                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                    .With(r => r.ItemInstanceId, Guid)
+                    .Create()));
+        }
+
+        private async Task APlayerAttemptsToListManyItems()
+        {
             for (var i = 0; i < 12; i++)
             {
                 var guid = Guid.NewGuid();
-                _mockItemDao!.Reset();
-                _mockItemDao!.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
+                MockItemDao.Reset();
+                MockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                     .Returns<IItemInstanceDto?>(Task.FromResult);
-                _mockItemDao!
+                MockItemDao
                     .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                    .ReturnsAsync(new ItemInstanceDto
-                    {
-                        Id = guid,
-                        Amount = 99
-                    });
-                add = await _bazaarController!.AddBazaarAsync(
-                    new BazaarRequest
-                    {
-                        Amount = 99,
-                        CharacterId = 1,
-                        CharacterName = "test",
-                        Duration = 3600,
-                        HasMedal = false,
-                        IsPackage = false,
-                        ItemInstanceId = guid,
-                        Price = 50
-                    }).ConfigureAwait(false);
+                    .ReturnsAsync(new ItemInstanceDto { Id = guid, Amount = 99 });
+                LastResult = await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                    .With(r => r.Amount, 99)
+                    .With(r => r.ItemInstanceId, guid)
+                    .With(r => r.CharacterId, 1L)
+                    .With(r => r.CharacterName, "test")
+                    .With(r => r.HasMedal, false)
+                    .Create());
             }
-
-            Assert.AreEqual(10, _bazaarItemsHolder!.BazaarItems.Count);
-            Assert.AreEqual(LanguageKey.LIMIT_EXCEEDED, add);
         }
 
-        [TestMethod]
-        public async Task DeleteFromBazaarNegativeCountAsync()
+        private void Only_ItemsShouldBeListed(int value)
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
-            Assert.AreEqual(false, await _bazaarController.DeleteBazaarAsync(0, -1, "test").ConfigureAwait(false));
+            Assert.AreEqual(10, BazaarItemsHolder.GetAll().Count());
         }
 
-        [TestMethod]
-        public async Task DeleteFromBazaarMoreThanRegisteredAsync()
+        private void TheResultShouldBeLimitExceeded()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await _bazaarController!.AddBazaarAsync(
-                 new BazaarRequest
-                 {
-                     Amount = 99,
-                     CharacterId = 1,
-                     CharacterName = "test",
-                     Duration = 3600,
-                     HasMedal = false,
-                     IsPackage = false,
-                     ItemInstanceId = _guid,
-                     Price = 50
-                 }).ConfigureAwait(false);
-            Assert.AreEqual(false, await _bazaarController.DeleteBazaarAsync(0, 100, "test").ConfigureAwait(false));
+            Assert.AreEqual(LanguageKey.LIMIT_EXCEEDED, LastResult);
         }
 
-        [TestMethod]
-        public async Task DeleteFromBazaarSomeoneElseAsync()
+        private void AttemptingToDeleteNonExistentListingThrows()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await _bazaarController!.AddBazaarAsync(
-               new BazaarRequest
-               {
-                   Amount = 99,
-                   CharacterId = 1,
-                   CharacterName = "test",
-                   Duration = 3600,
-                   HasMedal = false,
-                   IsPackage = false,
-                   ItemInstanceId = _guid,
-                   Price = 50
-               }).ConfigureAwait(false);
-            Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test2").ConfigureAwait(false));
-            Assert.AreEqual(1, _bazaarItemsHolder!.BazaarItems.Values.Count);
-            Assert.AreEqual(0, _bazaarItemsHolder.BazaarItems[0].ItemInstance?.Amount ?? 0);
-            Assert.AreEqual(99, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Amount ?? 0);
+            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
+                await BazaarController.DeleteBazaarAsync(0, 99, "test"));
         }
 
-        [TestMethod]
-        public async Task DeleteFromUserBazaarAsync()
+        private async Task AnItemIsListedByOwner()
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
-            Assert.AreEqual(true, await _bazaarController.DeleteBazaarAsync(0, 99, "test").ConfigureAwait(false));
-            Assert.AreEqual(0, _bazaarItemsHolder!.BazaarItems.Values.Count);
+            AnItemExistsWithQuantity_(99);
+            await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                .With(r => r.Amount, 99)
+                .With(r => r.ItemInstanceId, Guid)
+                .With(r => r.CharacterName, "test")
+                .Create());
         }
 
-        [TestMethod]
-        public async Task DeleteFromBazaarNotRegisteredAsync()
+        private async Task OwnerRemovesAllItems()
         {
-            await Assert.ThrowsExactlyAsync<ArgumentException>(() => _bazaarController!.DeleteBazaarAsync(0, 99, "test")).ConfigureAwait(false);
+            var result = await BazaarController.DeleteBazaarAsync(0, 99, "test");
+            Assert.IsTrue(result);
         }
 
-        [TestMethod]
-        public async Task ModifyBazaarNotRegisteredAsync()
+        private void ListingShouldBeRemoved()
         {
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 50.AsJsonElement().AsNode()));
-            Assert.IsNull(await _bazaarController!.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
+            Assert.AreEqual(0, BazaarItemsHolder.GetAll().Count());
         }
 
-        [TestMethod]
-        public async Task ModifyBazaarAsync()
+        private async Task AnItemIsListedAtPrice_(long price)
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 80
-                }).ConfigureAwait(false);
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 50.AsJsonElement().AsNode()));
-            Assert.IsNotNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
-            Assert.AreEqual(50, _bazaarItemsHolder?.BazaarItems[0].BazaarItem?.Price);
+            AnItemExistsWithQuantity_(99);
+            await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
+                .With(r => r.Amount, 99)
+                .With(r => r.ItemInstanceId, Guid)
+                .With(r => r.Price, price)
+                .Create());
         }
 
-        [TestMethod]
-        public async Task ModifyBazaarAlreadySoldAsync()
+        private async Task ChangingPriceTo_(long newPrice)
         {
-            _mockItemDao!
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto
-                {
-                    Id = _guid,
-                    Amount = 99
-                });
-            var add = await _bazaarController!.AddBazaarAsync(
-                new BazaarRequest
-                {
-                    Amount = 99,
-                    CharacterId = 1,
-                    CharacterName = "test",
-                    Duration = 3600,
-                    HasMedal = false,
-                    IsPackage = false,
-                    ItemInstanceId = _guid,
-                    Price = 50
-                }).ConfigureAwait(false);
-            _bazaarItemsHolder!.BazaarItems[0].ItemInstance!.Amount--;
-            var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), 10.AsJsonElement().AsNode()));
-            Assert.IsNull(await _bazaarController.ModifyBazaarAsync(0, patch).ConfigureAwait(false));
-            Assert.AreEqual(50, _bazaarItemsHolder.BazaarItems[0].BazaarItem?.Price);
+            var patch = new JsonPatch(PatchOperation.Replace(
+                JsonPointer.Parse("/BazaarItem/Price"), newPrice.AsJsonElement().AsNode()));
+            var result = await BazaarController.ModifyBazaarAsync(0, patch);
+            Assert.IsNotNull(result);
+        }
+
+        private void PriceShouldBe_(long expected)
+        {
+            Assert.AreEqual(expected, BazaarItemsHolder.GetById(0)?.BazaarItem?.Price);
         }
     }
 }

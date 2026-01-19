@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,7 +24,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -35,6 +34,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Group
 {
@@ -42,156 +42,192 @@ namespace NosCore.PacketHandlers.Tests.Group
     public class PJoinPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Dictionary<int, ClientSession> _sessions = new();
-        private PjoinPacketHandler? _pJoinPacketHandler;
+        private readonly Dictionary<int, ClientSession> Sessions = new();
+        private PjoinPacketHandler PJoinPacketHandler = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            var idServer = new IdService<GameObject.Group>(1);
+            await TestHelpers.ResetAsync();
+            var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+                var session = await TestHelpers.Instance.GenerateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);
-                _sessions.Add(i, session);
+                Sessions.Add(i, session);
                 var sessionGroupFactoryMock = new Mock<ISessionGroupFactory>();
                 sessionGroupFactoryMock.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
-                session.Character.Group = new GameObject.Group(GroupType.Group, sessionGroupFactoryMock.Object);
+                session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, sessionGroupFactoryMock.Object);
                 session.Character.Group.JoinGroup(session.Character);
             }
 
             var mock = new Mock<IBlacklistHub>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]
-        public async Task Test_Accept_Group_Join_RequestedAsync()
+        public async Task AcceptGroupJoinRequestShouldSucceed()
         {
-            _sessions[1].Character.GroupRequestCharacterIds
-                .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
-
-            var pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions[1].Character.CharacterId
-            };
-
-            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            Assert.IsTrue((_sessions[0].Character.Group!.Count > 1)
-                && (_sessions[1].Character.Group!.Count > 1)
-                && (_sessions[0].Character.Group!.GroupId
-                    == _sessions[1].Character.Group!.GroupId));
+            await new Spec("Accept group join request should succeed")
+                .Given(Session1HasGroupRequestFromSession0)
+                .WhenAsync(Session0AcceptsSession1RequestAsync)
+                .Then(BothSessionsShouldBeInSameGroup)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task Test_Join_Full_GroupAsync()
+        public async Task JoinFullGroupShouldFail()
         {
-            PjoinPacket pjoinPacket;
+            await new Spec("Join full group should fail")
+                .GivenAsync(GroupIsFullAsync)
+                .WhenAsync(Session_RequestsToJoinAsync, 3)
+                .Then(Session_ShouldNotJoinGroup, 3)
+                .ExecuteAsync();
+        }
 
+        [TestMethod]
+        public async Task AcceptNotRequestedGroupShouldFail()
+        {
+            await new Spec("Accept not requested group should fail")
+                .WhenAsync(Session0AcceptsSession1RequestAsync)
+                .Then(BothSessionsShouldBeAlone)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeclineNotRequestedGroupShouldFail()
+        {
+            await new Spec("Decline not requested group should fail")
+                .WhenAsync(Session0DeclinesSession1RequestAsync)
+                .Then(BothSessionsShouldBeAlone)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LastRequestNotNullAfterOne()
+        {
+            await new Spec("Last request not null after one")
+                .WhenAsync(Session_InvitesMultipleSessionsAsync, 0)
+                .Then(LastGroupRequestShouldNotBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TwoRequestsLess5SecDelayShouldOnlyAddOne()
+        {
+            await new Spec("Two requests less 5 sec delay should only add one")
+                .WhenAsync(Session_InvitesWithShortDelayAsync, 0)
+                .Then(OnlyOneRequestShouldExist)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TwoRequestsMore5SecDelayShouldAddBoth()
+        {
+            await new Spec("Two requests more 5 sec delay should add both")
+                .WhenAsync(Session_InvitesWithLongDelayAsync, 0)
+                .Then(TwoRequestsShouldExist)
+                .ExecuteAsync();
+        }
+
+        private void Session1HasGroupRequestFromSession0()
+        {
+            Sessions[1].Character.GroupRequestCharacterIds
+                .TryAdd(Sessions[0].Character.CharacterId, Sessions[0].Character.CharacterId);
+        }
+
+        private async Task GroupIsFullAsync()
+        {
             for (var i = 1; i < 3; i++)
             {
-                _sessions[i].Character.GroupRequestCharacterIds
-                    .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
+                Sessions[i].Character.GroupRequestCharacterIds
+                    .TryAdd(Sessions[0].Character.CharacterId, Sessions[0].Character.CharacterId);
 
-                pjoinPacket = new PjoinPacket
+                var pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Accepted,
-                    CharacterId = _sessions[i].Character.CharacterId
+                    CharacterId = Sessions[i].Character.CharacterId
                 };
 
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
+                await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
-
-            Assert.IsTrue(_sessions[0].Character.Group!.IsGroupFull
-                && _sessions[1].Character.Group!.IsGroupFull
-                && _sessions[2].Character.Group!.IsGroupFull);
-
-            _sessions[3].Character.GroupRequestCharacterIds
-                .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
-
-            pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions[3].Character.CharacterId
-            };
-
-            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            Assert.IsTrue(_sessions[3].Character.Group!.Count == 1);
         }
 
-        [TestMethod]
-        public async Task Test_Accept_Not_Requested_GroupAsync()
+        private async Task Session0AcceptsSession1RequestAsync()
         {
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions[1].Character.CharacterId
+                CharacterId = Sessions[1].Character.CharacterId
             };
 
-            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            Assert.IsTrue((_sessions[0].Character.Group!.Count == 1)
-                && (_sessions[1].Character.Group!.Count == 1));
+            await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
         }
 
-        [TestMethod]
-        public async Task Test_Decline_Not_Requested_GroupAsync()
+        private async Task Session0DeclinesSession1RequestAsync()
         {
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Declined,
-                CharacterId = _sessions[1].Character.CharacterId
+                CharacterId = Sessions[1].Character.CharacterId
             };
 
-            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            Assert.IsTrue((_sessions[0].Character.Group!.Count == 1)
-                && (_sessions[1].Character.Group!.Count == 1));
+            await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
         }
 
-        [TestMethod]
-        public async Task Test_Last_Request_Not_Null_After_OneAsync()
+        private async Task Session_RequestsToJoinAsync(int value)
+        {
+            Sessions[3].Character.GroupRequestCharacterIds
+                .TryAdd(Sessions[0].Character.CharacterId, Sessions[0].Character.CharacterId);
+
+            var pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Accepted,
+                CharacterId = Sessions[3].Character.CharacterId
+            };
+
+            await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
+        }
+
+        private async Task Session_InvitesMultipleSessionsAsync(int value)
         {
             for (var i = 1; i < 3; i++)
             {
                 var pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Invited,
-                    CharacterId = _sessions[i].Character.CharacterId
+                    CharacterId = Sessions[i].Character.CharacterId
                 };
 
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
+                await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
-            Assert.IsNotNull(_sessions[0].Character.LastGroupRequest);
         }
 
-        [TestMethod]
-        public async Task Test_Two_Request_Less_5_Sec_DelayAsync()
+        private async Task Session_InvitesWithShortDelayAsync(int value)
         {
             for (var i = 1; i < 3; i++)
             {
                 var pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Invited,
-                    CharacterId = _sessions[i].Character.CharacterId
+                    CharacterId = Sessions[i].Character.CharacterId
                 };
                 TestHelpers.Instance.Clock.AdvanceSeconds(1);
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
+                await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
-
-            Assert.IsTrue(_sessions[0].Character.GroupRequestCharacterIds.Count == 1);
         }
 
-        [TestMethod]
-        public async Task Test_Two_Request_More_5_Sec_DelayAsync()
+        private async Task Session_InvitesWithLongDelayAsync(int value)
         {
             for (var i = 1; i < 3; i++)
             {
                 var pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Invited,
-                    CharacterId = _sessions[i].Character.CharacterId
+                    CharacterId = Sessions[i].Character.CharacterId
                 };
 
                 if (i == 2)
@@ -199,10 +235,42 @@ namespace NosCore.PacketHandlers.Tests.Group
                     TestHelpers.Instance.Clock.AdvanceMinutes(6);
                 }
 
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
+                await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
+        }
 
-            Assert.IsTrue(_sessions[0].Character.GroupRequestCharacterIds.Count == 2);
+        private void BothSessionsShouldBeInSameGroup()
+        {
+            Assert.IsTrue((Sessions[0].Character.Group!.Count > 1)
+                && (Sessions[1].Character.Group!.Count > 1)
+                && (Sessions[0].Character.Group!.GroupId
+                    == Sessions[1].Character.Group!.GroupId));
+        }
+
+        private void Session_ShouldNotJoinGroup(int value)
+        {
+            Assert.IsTrue(Sessions[3].Character.Group!.Count == 1);
+        }
+
+        private void BothSessionsShouldBeAlone()
+        {
+            Assert.IsTrue((Sessions[0].Character.Group!.Count == 1)
+                && (Sessions[1].Character.Group!.Count == 1));
+        }
+
+        private void LastGroupRequestShouldNotBeNull()
+        {
+            Assert.IsNotNull(Sessions[0].Character.LastGroupRequest);
+        }
+
+        private void OnlyOneRequestShouldExist()
+        {
+            Assert.IsTrue(Sessions[0].Character.GroupRequestCharacterIds.Count == 1);
+        }
+
+        private void TwoRequestsShouldExist()
+        {
+            Assert.IsTrue(Sessions[0].Character.GroupRequestCharacterIds.Count == 2);
         }
     }
 }

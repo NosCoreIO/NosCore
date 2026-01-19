@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.ServerPackets.Auction;
@@ -27,6 +26,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Bazaar
             var itemssearch = packet.ItemVNumFilter?.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
 
             var bzlist = await bazaarHttpClient.GetBazaar(-1, (byte?)packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
-                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null).ConfigureAwait(false);
+                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
             var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
 
             //price up price down quantity up quantity down
@@ -91,7 +91,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         Upgrade = bzlink.ItemInstance.Upgrade,
                         EInfo = new EInfoPacket()
                     }).ToList() as List<RcbListElementPacket?>
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

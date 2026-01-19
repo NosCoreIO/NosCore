@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -37,6 +37,7 @@ using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using NosCore.WebApi.Controllers;
+using SpecLight;
 using TwoFactorAuthNet;
 
 namespace NosCore.WebApi.Tests.ApiTests
@@ -44,133 +45,217 @@ namespace NosCore.WebApi.Tests.ApiTests
     [TestClass]
     public class AuthControllerTests
     {
-        private readonly string _tokenGuid = Guid.NewGuid().ToString();
-        private AuthController _controller = null!;
-        private ClientSession _session = null!;
-        private Mock<ILogger<AuthController>> _logger = null!;
-        private IAuthCodeService _authCodeService = null!;
+        private readonly string TokenGuid = Guid.NewGuid().ToString();
+        private AuthController Controller = null!;
+        private ClientSession Session = null!;
+        private Mock<ILogger<AuthController>> Logger = null!;
+        private IAuthCodeService AuthCodeService = null!;
+        private IActionResult? Result;
 
         [TestInitialize]
         public async Task Setup()
         {
-            _authCodeService = new AuthCodeService();
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _logger = new Mock<ILogger<AuthController>>();
-            _controller = new AuthController(Options.Create(new WebApiConfiguration()
+            AuthCodeService = new AuthCodeService();
+            await TestHelpers.ResetAsync();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Logger = new Mock<ILogger<AuthController>>();
+            Controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, _logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
-               new AuthHub(_authCodeService), _authCodeService);
+            }), TestHelpers.Instance.AccountDao, Logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
+               new AuthHub(AuthCodeService), AuthCodeService);
         }
 
         [TestMethod]
-        public async Task ConnectUser()
+        public async Task ConnectUserShouldLogSuccess()
         {
-            await _controller.ConnectUserAsync(new ApiSession
+            await new Spec("Connect user should log success")
+                .WhenAsync(UserConnectsWithValidCredentials)
+                .Then(SuccessShouldBeLogged)
+                .ExecuteAsync();
+        }
+
+        private async Task UserConnectsWithValidCredentials()
+        {
+            await Controller.ConnectUserAsync(new ApiSession
             {
-                Identity = _session.Account.Name,
+                Identity = Session.Account.Name,
                 GfLang = "EN",
                 Password = "test",
                 Locale = "en-GB"
             });
-            _logger.Verify(
+        }
+
+        private void SuccessShouldBeLogged()
+        {
+            Logger.Verify(
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], _session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
+                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
         }
 
         [TestMethod]
-        public async Task ConnectUserInvalidPassword()
+        public async Task ConnectUserWithInvalidPasswordShouldFail()
         {
-            var result = await _controller.ConnectUserAsync(new ApiSession
+            await new Spec("Connect user with invalid password should fail")
+                .WhenAsync(UserConnectsWithInvalidPassword)
+                .Then(ShouldReturnAuthIncorrectError)
+                .ExecuteAsync();
+        }
+
+        private async Task UserConnectsWithInvalidPassword()
+        {
+            Result = await Controller.ConnectUserAsync(new ApiSession
             {
-                Identity = _session.Account.Name,
+                Identity = Session.Account.Name,
                 GfLang = "EN",
                 Password = "test2"
             });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
-        [TestMethod]
-        public async Task ConnectUserAsyncWhenInvalidAccount()
+        private void ShouldReturnAuthIncorrectError()
         {
-            var result = await _controller.ConnectUserAsync(new ApiSession
-            {
-                Identity = _session.Account.Name + "abc"
-            });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_ERROR])), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
         }
 
         [TestMethod]
-        public async Task ConnectUserAsyncWhenInvalidMfa()
+        public async Task ConnectUserWithInvalidAccountShouldFail()
         {
-            var tfa = new TwoFactorAuth();
-            _session.Account.MfaSecret = tfa.CreateSecret();
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session.Account);
-
-            var result = await _controller.ConnectUserAsync(new ApiSession
-            {
-                Identity = _session.Account.Name,
-                Mfa = tfa.GetCode(string.Concat(_session.Account.MfaSecret.Reverse())),
-            });
-
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            await new Spec("Connect user with invalid account should fail")
+                .WhenAsync(UserConnectsWithInvalidAccount)
+                .Then(ShouldReturnAuthError)
+                .ExecuteAsync();
         }
 
-        [TestMethod]
-        public async Task ConnectUserAsyncWhenNoMfa()
+        private async Task UserConnectsWithInvalidAccount()
         {
-            var result = await _controller.ConnectUserAsync(new ApiSession
+            Result = await Controller.ConnectUserAsync(new ApiSession
             {
-                Identity = _session.Account.Name
+                Identity = Session.Account.Name + "abc"
             });
-
-            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
         }
 
-        [TestMethod]
-        public async Task ConnectUserAsyncWhenValidMfa()
+        private void ShouldReturnAuthError()
         {
-            var tfa = new TwoFactorAuth();
-            _session.Account.MfaSecret = tfa.CreateSecret();
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session.Account);
-
-            var result = await _controller.ConnectUserAsync(new ApiSession
-            {
-                Identity = _session.Account.Name,
-                Mfa = tfa.GetCode(_session.Account.MfaSecret),
-            });
-
-            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_ERROR])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
         }
 
         [TestMethod]
-        public void GetAuthCodeGenerateAuthCodeWhenValidIdentity()
+        public async Task ConnectUserWithInvalidMfaShouldFail()
+        {
+            await new Spec("Connect user with invalid MFA should fail")
+                .GivenAsync(UserHasMfaEnabled)
+                .WhenAsync(UserConnectsWithInvalidMfaCode)
+                .Then(ShouldReturnMfaIncorrectError)
+                .ExecuteAsync();
+        }
+
+        private TwoFactorAuth? Tfa;
+
+        private async Task UserHasMfaEnabled()
+        {
+            Tfa = new TwoFactorAuth();
+            Session.Account.MfaSecret = Tfa.CreateSecret();
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+        }
+
+        private async Task UserConnectsWithInvalidMfaCode()
+        {
+            Result = await Controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = Session.Account.Name,
+                Mfa = Tfa!.GetCode(string.Concat(Session.Account.MfaSecret!.Reverse())),
+            });
+        }
+
+        private void ShouldReturnMfaIncorrectError()
+        {
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
+        }
+
+        [TestMethod]
+        public async Task ConnectUserWithoutMfaShouldSucceed()
+        {
+            await new Spec("Connect user without MFA should succeed")
+                .WhenAsync(UserConnectsWithoutMfa)
+                .Then(ShouldNotReturnMfaIncorrectError)
+                .ExecuteAsync();
+        }
+
+        private async Task UserConnectsWithoutMfa()
+        {
+            Result = await Controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = Session.Account.Name
+            });
+        }
+
+        private void ShouldNotReturnMfaIncorrectError()
+        {
+            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
+        }
+
+        [TestMethod]
+        public async Task ConnectUserWithValidMfaShouldSucceed()
+        {
+            await new Spec("Connect user with valid MFA should succeed")
+                .GivenAsync(UserHasMfaEnabled)
+                .WhenAsync(UserConnectsWithValidMfaCode)
+                .Then(ShouldNotReturnMfaIncorrectError)
+                .ExecuteAsync();
+        }
+
+        private async Task UserConnectsWithValidMfaCode()
+        {
+            Result = await Controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = Session.Account.Name,
+                Mfa = Tfa!.GetCode(Session.Account.MfaSecret!),
+            });
+        }
+
+        [TestMethod]
+        public void GetAuthCodeShouldGenerateCodeWhenValidIdentity()
+        {
+            new Spec("Get auth code should generate code when valid identity")
+                .Given(ControllerHasValidIdentity)
+                .When(GettingAuthCode)
+                .Then(ShouldReturnValidGuid)
+                .Execute();
+        }
+
+        private void ControllerHasValidIdentity()
         {
             var claims = new List<Claim>()
             {
                 new(ClaimTypes.Sid, "123"),
-                new(ClaimTypes.NameIdentifier, _session.Account.Name),
+                new(ClaimTypes.NameIdentifier, Session.Account.Name),
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-            _controller.ControllerContext = new ControllerContext
+            Controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
                     User = new ClaimsPrincipal(identity)
                 }
             };
+        }
 
-            var result = _controller.GetAuthCode(new ApiPlatformGameAccount
+        private void GettingAuthCode()
+        {
+            Result = Controller.GetAuthCode(new ApiPlatformGameAccount
             {
                 PlatformGameAccountId = "123"
             });
-            var okResult = (OkObjectResult)result;
+        }
+
+        private void ShouldReturnValidGuid()
+        {
+            var okResult = (OkObjectResult)Result!;
             Assert.IsNotNull(okResult.Value);
             var codeProperty = okResult.Value.GetType().GetProperty("code");
             Assert.IsNotNull(codeProperty);
@@ -179,98 +264,196 @@ namespace NosCore.WebApi.Tests.ApiTests
         }
 
         [TestMethod]
-        public void GetAuthCodeDoesNotGenerateAuthCodeWhenInvalidIdentity()
+        public void GetAuthCodeShouldFailWhenInvalidIdentity()
+        {
+            new Spec("Get auth code should fail when invalid identity")
+                .Given(ControllerHasInvalidIdentity)
+                .When(GettingAuthCode)
+                .Then(ShouldReturnAuthIncorrectError)
+                .Execute();
+        }
+
+        private void ControllerHasInvalidIdentity()
         {
             var claims = new List<Claim>()
             {
                 new(ClaimTypes.Sid, "124"),
-                new(ClaimTypes.NameIdentifier, _session.Account.Name),
+                new(ClaimTypes.NameIdentifier, Session.Account.Name),
             };
             var identity = new ClaimsIdentity(claims, "TestAuthType");
-
-            _controller.ControllerContext = new ControllerContext
+            Controller.ControllerContext = new ControllerContext
             {
                 HttpContext = new DefaultHttpContext
                 {
                     User = new ClaimsPrincipal(identity)
                 }
             };
-
-            var result = _controller.GetAuthCode(new ApiPlatformGameAccount
-            {
-                PlatformGameAccountId = "123"
-            });
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize(((BadRequestObjectResult)result)));
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnNullWhenTokenNull()
+        public async Task GetExpectingConnectionShouldReturnNullWhenTokenNull()
         {
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, null, 1);
-            Assert.AreEqual(null, ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return null when token null")
+                .WhenAsync(GettingExpectingConnectionWithNullToken)
+                .Then(ShouldReturnNull)
+                .ExecuteAsync();
+        }
+
+        private async Task GettingExpectingConnectionWithNullToken()
+        {
+            Result = await Controller.GetExpectingConnection(Session.Account.Name, null, 1);
+        }
+
+        private void ShouldReturnNull()
+        {
+            Assert.AreEqual(null, ((OkObjectResult)Result!).Value);
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnNullWhenNotAuthCode()
+        public async Task GetExpectingConnectionShouldReturnNullWhenNoAuthCode()
         {
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, "A1A2A3", 1);
-            Assert.AreEqual(null, ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return null when no auth code")
+                .WhenAsync(GettingExpectingConnectionWithInvalidAuthCode)
+                .Then(ShouldReturnNull)
+                .ExecuteAsync();
+        }
+
+        private async Task GettingExpectingConnectionWithInvalidAuthCode()
+        {
+            Result = await Controller.GetExpectingConnection(Session.Account.Name, "A1A2A3", 1);
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnAccountNameWhenAuthCode()
+        public async Task GetExpectingConnectionShouldReturnAccountNameWhenAuthCode()
         {
-            _authCodeService.StoreAuthCode(_tokenGuid, _session.Account.Name);
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, string.Join("", _tokenGuid.ToCharArray().Select(s => Convert.ToByte(s).ToString("x"))), 1);
-            Assert.AreEqual(_session.Account.Name, ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return account name when auth code")
+                .Given(AuthCodeIsStored)
+                .WhenAsync(GettingExpectingConnectionWithValidAuthCode)
+                .Then(ShouldReturnAccountName)
+                .ExecuteAsync();
+        }
+
+        private void AuthCodeIsStored()
+        {
+            AuthCodeService.StoreAuthCode(TokenGuid, Session.Account.Name);
+        }
+
+        private async Task GettingExpectingConnectionWithValidAuthCode()
+        {
+            Result = await Controller.GetExpectingConnection(Session.Account.Name, string.Join("", TokenGuid.ToCharArray().Select(s => Convert.ToByte(s).ToString("x"))), 1);
+        }
+
+        private void ShouldReturnAccountName()
+        {
+            Assert.AreEqual(Session.Account.Name, ((OkObjectResult)Result!).Value);
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnNullWhenTokenNoneSessionTicket()
+        public async Task GetExpectingConnectionShouldReturnNullWhenNoneSessionTicket()
         {
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, "NONE_SESSION_TICKET", 1);
-            Assert.AreEqual(null, ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return null when none session ticket")
+                .WhenAsync(GettingExpectingConnectionWithNoneSessionTicket)
+                .Then(ShouldReturnNull)
+                .ExecuteAsync();
+        }
+
+        private async Task GettingExpectingConnectionWithNoneSessionTicket()
+        {
+            Result = await Controller.GetExpectingConnection(Session.Account.Name, "NONE_SESSION_TICKET", 1);
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnTrueWhenGfModeAndExpecting()
+        public async Task GetExpectingConnectionShouldReturnTrueWhenGfModeAndExpecting()
         {
-            _authCodeService.MarkReadyForAuth(_session.Account.Name, 1);
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
-            Assert.AreEqual("true", ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return true when gf mode and expecting")
+                .Given(UserIsMarkedReadyForAuth)
+                .WhenAsync(GettingExpectingConnectionInGfMode)
+                .Then(ShouldReturnTrue)
+                .ExecuteAsync();
+        }
+
+        private void UserIsMarkedReadyForAuth()
+        {
+            AuthCodeService.MarkReadyForAuth(Session.Account.Name, 1);
+        }
+
+        private async Task GettingExpectingConnectionInGfMode()
+        {
+            Result = await Controller.GetExpectingConnection(Session.Account.Name, "thisisgfmode", 1);
+        }
+
+        private void ShouldReturnTrue()
+        {
+            Assert.AreEqual("true", ((OkObjectResult)Result!).Value);
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnTrueWhenGfModeAndExpectingButWrongSessionId()
+        public async Task GetExpectingConnectionShouldReturnFalseWhenGfModeButWrongSessionId()
         {
-            _authCodeService.MarkReadyForAuth(_session.Account.Name, 1);
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 2);
-            Assert.AreEqual("false", ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return false when gf mode but wrong session id")
+                .Given(UserIsMarkedReadyForAuth)
+                .WhenAsync(GettingExpectingConnectionInGfModeWithWrongSession)
+                .Then(ShouldReturnFalse)
+                .ExecuteAsync();
+        }
+
+        private async Task GettingExpectingConnectionInGfModeWithWrongSession()
+        {
+            Result = await Controller.GetExpectingConnection(Session.Account.Name, "thisisgfmode", 2);
+        }
+
+        private void ShouldReturnFalse()
+        {
+            Assert.AreEqual("false", ((OkObjectResult)Result!).Value);
         }
 
         [TestMethod]
-        public async Task GetExpectingConnectionReturnFalseWhenGfModeAndNotExpecting()
+        public async Task GetExpectingConnectionShouldReturnFalseWhenGfModeAndNotExpecting()
         {
-            var result = await _controller.GetExpectingConnection(_session.Account.Name, "thisisgfmode", 1);
-            Assert.AreEqual("false", ((OkObjectResult)result).Value);
-        }
-
-
-        [TestMethod]
-        public async Task HasMfaEnabledReturnTrueWhenTokenNotNull()
-        {
-            _session.Account.MfaSecret = "12345";
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session.Account);
-            var result = await _controller.HasMfaEnabled(_session.Account.Name);
-            Assert.AreEqual(true, ((OkObjectResult)result).Value);
+            await new Spec("Get expecting connection should return false when gf mode and not expecting")
+                .WhenAsync(GettingExpectingConnectionInGfMode)
+                .Then(ShouldReturnFalse)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task HasMfaEnabledReturnFalseWhenTokenNull()
+        public async Task HasMfaEnabledShouldReturnTrueWhenMfaSecretExists()
         {
-            var result = await _controller.HasMfaEnabled(_session.Account.Name);
-            Assert.AreEqual(false, ((OkObjectResult)result).Value);
+            await new Spec("Has MFA enabled should return true when MFA secret exists")
+                .GivenAsync(UserHasMfaSecret)
+                .WhenAsync(CheckingIfMfaEnabled)
+                .Then(ShouldReturnTrueValue)
+                .ExecuteAsync();
         }
 
+        private async Task UserHasMfaSecret()
+        {
+            Session.Account.MfaSecret = "12345";
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+        }
+
+        private async Task CheckingIfMfaEnabled()
+        {
+            Result = await Controller.HasMfaEnabled(Session.Account.Name);
+        }
+
+        private void ShouldReturnTrueValue()
+        {
+            Assert.AreEqual(true, ((OkObjectResult)Result!).Value);
+        }
+
+        [TestMethod]
+        public async Task HasMfaEnabledShouldReturnFalseWhenNoMfaSecret()
+        {
+            await new Spec("Has MFA enabled should return false when no MFA secret")
+                .WhenAsync(CheckingIfMfaEnabled)
+                .Then(ShouldReturnFalseValue)
+                .ExecuteAsync();
+        }
+
+        private void ShouldReturnFalseValue()
+        {
+            Assert.AreEqual(false, ((OkObjectResult)Result!).Value);
+        }
     }
 }

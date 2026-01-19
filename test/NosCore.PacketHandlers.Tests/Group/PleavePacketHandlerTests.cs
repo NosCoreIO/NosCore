@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -24,7 +24,6 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -36,6 +35,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Group
 {
@@ -43,164 +43,163 @@ namespace NosCore.PacketHandlers.Tests.Group
     public class PleavePacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Dictionary<int, ClientSession> _sessions = new();
-        private PjoinPacketHandler? _pJoinPacketHandler;
-        private PleavePacketHandler? _pLeavePacketHandler;
+        private readonly Dictionary<int, ClientSession> Sessions = new();
+        private PjoinPacketHandler PJoinPacketHandler = null!;
+        private PleavePacketHandler PLeavePacketHandler = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             Broadcaster.Reset();
-            var idServer = new IdService<GameObject.Group>(1);
+            await TestHelpers.ResetAsync();
+            var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+                var session = await TestHelpers.Instance.GenerateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);
-                _sessions.Add(i, session);
+                Sessions.Add(i, session);
                 var sessionGroupFactoryMock = new Mock<ISessionGroupFactory>();
                 sessionGroupFactoryMock.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
-                session.Character.Group = new GameObject.Group(GroupType.Group, sessionGroupFactoryMock.Object);
+                session.Character.Group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, sessionGroupFactoryMock.Object);
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            _pLeavePacketHandler = new PleavePacketHandler(idServer, TestHelpers.Instance.SessionRegistry);
+            PLeavePacketHandler = new PleavePacketHandler(idServer, TestHelpers.Instance.SessionRegistry);
 
             var mock = new Mock<IBlacklistHub>();
-            _pJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]
-        public async Task Test_Leave_Group_When_Not_GroupedAsync()
+        public async Task LeaveGroupWhenNotGroupedShouldKeepSolo()
         {
-            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _sessions[0]).ConfigureAwait(false);
-
-            Assert.IsTrue((_sessions[0].Character.Group != null) && (_sessions[0].Character.Group!.Count == 1));
+            await new Spec("Leave group when not grouped should keep solo")
+                .WhenAsync(Session_LeavesGroupAsync, 0)
+                .Then(Session_ShouldBeAlone, 0)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task Test_Leave_Group_When_GroupedAsync()
+        public async Task LeaveGroupWhenGroupedShouldLeave()
+        {
+            await new Spec("Leave group when grouped should leave")
+                .GivenAsync(SessionsAreInFullGroupAsync)
+                .WhenAsync(Session_LeavesGroupAsync, 1)
+                .Then(Session_ShouldBeAlone, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LeaderLeavingShouldTransferLeadership()
+        {
+            await new Spec("Leader leaving should transfer leadership")
+                .GivenAsync(SessionsAreInFullGroupAsync)
+                .WhenAsync(Session_LeavesGroupAsync, 0)
+                .Then(Session_ShouldBeLeader, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NonLeaderLeavingThreePersonGroupShouldKeepLeader()
+        {
+            await new Spec("Non leader leaving three person group should keep leader")
+                .GivenAsync(SessionsAreInFullGroupAsync)
+                .WhenAsync(Session_LeavesGroupAsync, 1)
+                .Then(Session_ShouldBeLeader, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeclineGroupJoinShouldKeepBothAlone()
+        {
+            await new Spec("Decline group join should keep both alone")
+                .Given(Session1HasGroupRequestFromSession0)
+                .WhenAsync(Session_DeclinesAndLeavesAsync, 0)
+                .Then(BothSessionsShouldBeAlone)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LeavingTwoPersonGroupShouldDissolve()
+        {
+            await new Spec("Leaving two person group should dissolve")
+                .GivenAsync(TwoSessionsAreGroupedAsync)
+                .WhenAsync(Session_LeavesGroupAsync, 0)
+                .Then(BothSessionsShouldBeAlone)
+                .ExecuteAsync();
+        }
+
+        private async Task SessionsAreInFullGroupAsync()
         {
             for (var i = 1; i < 3; i++)
             {
-                _sessions[i].Character.GroupRequestCharacterIds
-                    .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
+                Sessions[i].Character.GroupRequestCharacterIds
+                    .TryAdd(Sessions[0].Character.CharacterId, Sessions[0].Character.CharacterId);
 
                 var pjoinPacket = new PjoinPacket
                 {
                     RequestType = GroupRequestType.Accepted,
-                    CharacterId = _sessions[i].Character.CharacterId
+                    CharacterId = Sessions[i].Character.CharacterId
                 };
 
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
+                await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
-
-            Assert.IsTrue(_sessions[0].Character.Group!.IsGroupFull
-                && _sessions[1].Character.Group!.IsGroupFull
-                && _sessions[2].Character.Group!.IsGroupFull);
-
-            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _sessions[1]).ConfigureAwait(false);
-
-            Assert.IsTrue(_sessions[1].Character.Group!.Count == 1);
         }
 
-        [TestMethod]
-        public async Task Test_Leader_ChangeAsync()
+        private void Session1HasGroupRequestFromSession0()
         {
-            for (var i = 1; i < 3; i++)
-            {
-                _sessions[i].Character.GroupRequestCharacterIds
-                    .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
-
-                var pjoinPacket = new PjoinPacket
-                {
-                    RequestType = GroupRequestType.Accepted,
-                    CharacterId = _sessions[i].Character.CharacterId
-                };
-
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            }
-
-            Assert.IsTrue(_sessions[0].Character.Group!.IsGroupFull
-                && _sessions[1].Character.Group!.IsGroupFull
-                && _sessions[2].Character.Group!.IsGroupFull && _sessions[0].Character.Group!
-                    .IsGroupLeader(_sessions[0].Character.CharacterId));
-
-            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _sessions[0]).ConfigureAwait(false);
-
-            Assert.IsTrue(_sessions[1].Character.Group!
-                .IsGroupLeader(_sessions[1].Character.CharacterId));
+            Sessions[1].Character.GroupRequestCharacterIds
+                .TryAdd(Sessions[0].Character.CharacterId, Sessions[0].Character.CharacterId);
         }
 
-        [TestMethod]
-        public async Task Test_Leaving_Three_Person_GroupAsync()
+        private async Task TwoSessionsAreGroupedAsync()
         {
-            for (var i = 1; i < 3; i++)
-            {
-                _sessions[i].Character.GroupRequestCharacterIds
-                    .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
-
-                var pjoinPacket = new PjoinPacket
-                {
-                    RequestType = GroupRequestType.Accepted,
-                    CharacterId = _sessions[i].Character.CharacterId
-                };
-
-                await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            }
-
-            Assert.IsTrue(_sessions[0].Character.Group!.IsGroupFull
-                && _sessions[1].Character.Group!.IsGroupFull
-                && _sessions[2].Character.Group!.IsGroupFull && _sessions[0].Character.Group!
-                    .IsGroupLeader(_sessions[0].Character.CharacterId));
-
-            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _sessions[1]).ConfigureAwait(false);
-
-            Assert.IsTrue(_sessions[0].Character.Group!
-                .IsGroupLeader(_sessions[0].Character.CharacterId));
-        }
-
-        [TestMethod]
-        public async Task Test_Decline_Group_Join_RequestedAsync()
-        {
-            _sessions[1].Character.GroupRequestCharacterIds
-                .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
-
-            var pjoinPacket = new PjoinPacket
-            {
-                RequestType = GroupRequestType.Declined,
-                CharacterId = _sessions[1].Character.CharacterId
-            };
-
-            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _sessions[0]).ConfigureAwait(false);
-            Assert.IsTrue((_sessions[0].Character.Group!.Count == 1)
-                && (_sessions[1].Character.Group!.Count == 1));
-        }
-
-        [TestMethod]
-        public async Task Test_Leaving_Two_Person_GroupAsync()
-        {
-            _sessions[1].Character.GroupRequestCharacterIds
-                .TryAdd(_sessions[0].Character.CharacterId, _sessions[0].Character.CharacterId);
+            Sessions[1].Character.GroupRequestCharacterIds
+                .TryAdd(Sessions[0].Character.CharacterId, Sessions[0].Character.CharacterId);
 
             var pjoinPacket = new PjoinPacket
             {
                 RequestType = GroupRequestType.Accepted,
-                CharacterId = _sessions[1].Character.CharacterId
+                CharacterId = Sessions[1].Character.CharacterId
             };
 
-            await _pJoinPacketHandler!.ExecuteAsync(pjoinPacket, _sessions[0]).ConfigureAwait(false);
-            Assert.IsTrue((_sessions[0].Character.Group!.Count > 1)
-                && (_sessions[1].Character.Group!.Count > 1)
-                && (_sessions[0].Character.Group!.GroupId
-                    == _sessions[1].Character.Group!.GroupId));
+            await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
+        }
 
-            await _pLeavePacketHandler!.ExecuteAsync(new PleavePacket(), _sessions[0]).ConfigureAwait(false);
+        private async Task Session_LeavesGroupAsync(int value)
+        {
+            await PLeavePacketHandler.ExecuteAsync(new PleavePacket(), Sessions[value]);
+        }
 
-            Assert.IsTrue((_sessions[0].Character.Group!.Count == 1)
-                && (_sessions[1].Character.Group!.Count == 1));
+        private async Task Session_DeclinesAndLeavesAsync(int value)
+        {
+            var pjoinPacket = new PjoinPacket
+            {
+                RequestType = GroupRequestType.Declined,
+                CharacterId = Sessions[1].Character.CharacterId
+            };
+
+            await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
+            await PLeavePacketHandler.ExecuteAsync(new PleavePacket(), Sessions[0]);
+        }
+
+        private void Session_ShouldBeAlone(int value)
+        {
+            Assert.IsTrue((Sessions[value].Character.Group != null) && (Sessions[value].Character.Group!.Count == 1));
+        }
+
+        private void Session_ShouldBeLeader(int value)
+        {
+            Assert.IsTrue(Sessions[value].Character.Group!
+                .IsGroupLeader(Sessions[value].Character.CharacterId));
+        }
+
+        private void BothSessionsShouldBeAlone()
+        {
+            Assert.IsTrue((Sessions[0].Character.Group!.Count == 1)
+                && (Sessions[1].Character.Group!.Count == 1));
         }
     }
 }

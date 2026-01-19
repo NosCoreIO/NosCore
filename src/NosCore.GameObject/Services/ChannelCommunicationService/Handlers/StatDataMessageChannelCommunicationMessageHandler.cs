@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
@@ -31,13 +31,13 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     session.SetLevel((byte)data.Data);
                     break;
                 case UpdateStatActionType.UpdateJobLevel:
-                    await session.SetJobLevelAsync((byte)data.Data).ConfigureAwait(false);
+                    await session.SetJobLevelAsync((byte)data.Data);
                     break;
                 case UpdateStatActionType.UpdateHeroLevel:
-                    await session.SetHeroLevelAsync((byte)data.Data).ConfigureAwait(false);
+                    await session.SetHeroLevelAsync((byte)data.Data);
                     break;
                 case UpdateStatActionType.UpdateReputation:
-                    await session.SetReputationAsync(data.Data).ConfigureAwait(false);
+                    await session.SetReputationAsync(data.Data);
                     break;
                 case UpdateStatActionType.UpdateGold:
                     if (session.Gold + data.Data > worldConfiguration.Value.MaxGoldAmount)
@@ -45,10 +45,10 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         return;
                     }
 
-                    await session.SetGoldAsync(data.Data).ConfigureAwait(false);
+                    await session.SetGoldAsync(data.Data);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    await session.ChangeClassAsync((CharacterClassType)data.Data).ConfigureAwait(false);
+                    await session.ChangeClassAsync((CharacterClassType)data.Data);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);

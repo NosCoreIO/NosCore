@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -43,23 +43,24 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
 {
     [TestClass]
     public class WearEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private Mock<ILogger>? _logger;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private Mock<ILogger>? Logger;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            _logger = new Mock<ILogger>();
+            await TestHelpers.ResetAsync();
+            Logger = new Mock<ILogger>();
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 40;
-            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            Handler = new WearEventHandler(_logger.Object, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer);
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Handler = new WearEventHandler(Logger.Object, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer);
             var items = new List<ItemDto>
             {
                 new Item
@@ -117,148 +118,148 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                     EquipmentSlot = EquipmentType.Amulet
                 }
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
-        public async Task Test_Can_Not_Use_WearEvent_In_ShopAsync()
+        public async Task TestCanNotUseWearEventInShopAsync()
         {
             Session!.Character.InShop = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
-            _logger!.Verify(s => s.Error(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]), Times.Exactly(1));
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
+            Logger!.Verify(s => s.Error(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]), Times.Exactly(1));
         }
 
         [TestMethod]
-        public async Task Test_BoundCharacter_QuestionAsync()
+        public async Task TestBoundCharacterQuestionAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (QnaPacket?)Session.LastPackets.FirstOrDefault(s => s is QnaPacket);
             Assert.AreEqual(Session.GetMessageFromKey(LanguageKey.ASK_BIND), lastpacket?.Question);
         }
 
         [TestMethod]
-        public async Task Test_BoundCharacterAsync()
+        public async Task TestBoundCharacterAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(Session.Character.CharacterId, itemInstance.ItemInstance?.BoundCharacterId);
         }
 
         [TestMethod]
-        public async Task Test_BadEquipmentAsync()
+        public async Task TestBadEquipmentAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(5), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(5), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.AreEqual(lastpacket?.VisualType == VisualType.Player, lastpacket?.VisualId == Session.Character.CharacterId);
             Assert.AreEqual(lastpacket?.Type == SayColorType.Yellow, lastpacket?.Message == Game18NConstString.CanNotWearThat);
         }
 
         [TestMethod]
-        public async Task Test_BadFairyAsync()
+        public async Task TestBadFairyAsync()
         {
             UseItem.Mode = 1;
             Session!.Character.UseSp = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(2), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
+            var sp = InventoryItemInstance.Create(ItemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(Game18NConstString.SpecialistAndFairyDifferentElement, lastpacket?.Message);
         }
 
         [TestMethod]
-        public async Task Test_SpLoadingAsync()
+        public async Task TestSpLoadingAsync()
         {
             UseItem.Mode = 1;
             Session!.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
             Session.Character.SpCooldown = 300;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
+            var sp = InventoryItemInstance.Create(ItemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CantTrasformWithSideEffect);
             Assert.AreEqual(lastpacket?.ArgumentType == 4, (int?)lastpacket?.Game18NArguments[0] == Session.Character.SpCooldown);
         }
 
         [TestMethod]
-        public async Task Test_UseSpAsync()
+        public async Task TestUseSpAsync()
         {
             UseItem.Mode = 1;
             Session!.Character.UseSp = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            var sp = InventoryItemInstance.Create(_itemProvider.Create(4), Session.Character.CharacterId);
+            var sp = InventoryItemInstance.Create(ItemProvider.Create(4), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(sp, NoscorePocketType.Wear);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.AreEqual(lastpacket?.VisualType == VisualType.Player, lastpacket?.VisualId == Session.Character.CharacterId);
             Assert.AreEqual(lastpacket?.Type == SayColorType.Yellow, lastpacket?.Message == Game18NConstString.SpecialistCardsCannotBeTradedWhileTransformed);
         }
 
         [TestMethod]
-        public async Task Test_UseDestroyedSpAsync()
+        public async Task TestUseDestroyedSpAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(4), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             itemInstance.ItemInstance.Rare = -2;
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CantUseBecauseSoulDestroyed);
         }
 
         [TestMethod]
-        public async Task Test_Use_BadJobLevelAsync()
+        public async Task TestUseBadJobLevelAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(6), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(6), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Message, Game18NConstString.CanNotBeWornDifferentClass);
         }
 
         [TestMethod]
-        public async Task Test_Use_SPAsync()
+        public async Task TestUseSPAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(4), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(4), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (SpPacket?)Session.LastPackets.FirstOrDefault(s => s is SpPacket);
             Assert.IsNotNull(lastpacket);
         }
 
         [TestMethod]
-        public async Task Test_Use_FairyAsync()
+        public async Task TestUseFairyAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (PairyPacket?)Session.Character.MapInstance.LastPackets.FirstOrDefault(s => s is PairyPacket);
             Assert.IsNotNull(lastpacket);
         }
 
         [TestMethod]
-        public async Task Test_Use_AmuletAsync()
+        public async Task TestUseAmuletAsync()
         {
             UseItem.Mode = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(7), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(7), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (EffectPacket?)Session.LastPackets.FirstOrDefault(s => s is EffectPacket);
             Assert.IsNotNull(lastpacket);
             Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime)), itemInstance.ItemInstance.ItemDeleteTime);

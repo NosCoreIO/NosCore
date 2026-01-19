@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -86,7 +86,7 @@ namespace NosCore.Parser.Parsers.Generic
                 {
                     logger.Verbose(logLanguage[LogLanguageKey.CHUNK_FORMAT_INVALID], lines, ex);
                 }
-            }))).ConfigureAwait(false);
+            })));
             return resultCollection.ToList();
         }
     }

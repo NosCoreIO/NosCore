@@ -37,6 +37,6 @@ public class MapDisconnectHandler : ISessionDisconnectHandler
             session.Character.MapInstance.Sessions.Remove(session.Channel);
         }
 
-        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateOut()).ConfigureAwait(false);
+        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateOut());
     }
 }

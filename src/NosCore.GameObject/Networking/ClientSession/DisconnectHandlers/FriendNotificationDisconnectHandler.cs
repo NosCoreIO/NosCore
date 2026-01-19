@@ -34,6 +34,6 @@ public class FriendNotificationDisconnectHandler(IFriendHub friendHub, IPubSubHu
             return;
         }
 
-        await session.Character.SendFinfoAsync(friendHub, pubSubHub, serializer, false).ConfigureAwait(false);
+        await session.Character.SendFinfoAsync(friendHub, pubSubHub, serializer, false);
     }
 }

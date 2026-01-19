@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -20,7 +20,6 @@
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -40,6 +39,7 @@ using NodaTime;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking.SessionGroup;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
@@ -308,8 +308,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         return;
                     }
 
-                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync())).ConfigureAwait(false);
-                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync())).ConfigureAwait(false);
+                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync()));
+                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync()));
                 }
                 catch (Exception e)
                 {

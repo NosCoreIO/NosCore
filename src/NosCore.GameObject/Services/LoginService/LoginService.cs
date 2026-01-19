@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -60,36 +60,36 @@ namespace NosCore.GameObject.Services.LoginService
                     await clientSession.SendPacketAsync(new FailcPacket
                     {
                         Type = LoginFailType.OldClient
-                    }).ConfigureAwait(false);
-                    await clientSession.DisconnectAsync().ConfigureAwait(false);
+                    });
+                    await clientSession.DisconnectAsync();
                     return;
                 }
 
                 if (useApiAuth)
                 {
-                    username = await authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId).ConfigureAwait(false);
+                    username = await authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId);
                 }
 
-                var acc = await accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower()).ConfigureAwait(false);
+                var acc = await accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower());
 
                 if ((acc != null) && (acc.Name != username))
                 {
                     await clientSession.SendPacketAsync(new FailcPacket
                     {
                         Type = LoginFailType.WrongCaps
-                    }).ConfigureAwait(false);
-                    await clientSession.DisconnectAsync().ConfigureAwait(false);
+                    });
+                    await clientSession.DisconnectAsync();
                     return;
                 }
 
                 if ((acc == null)
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.Ordinal)))
                 {
                     await clientSession.SendPacketAsync(new FailcPacket
                     {
                         Type = LoginFailType.AccountOrPasswordWrong
-                    }).ConfigureAwait(false);
-                    await clientSession.DisconnectAsync().ConfigureAwait(false);
+                    });
+                    await clientSession.DisconnectAsync();
                     return;
                 }
 
@@ -99,14 +99,14 @@ namespace NosCore.GameObject.Services.LoginService
                         await clientSession.SendPacketAsync(new FailcPacket
                         {
                             Type = LoginFailType.Banned
-                        }).ConfigureAwait(false);
+                        });
                         break;
                     case AuthorityType.Closed:
                     case AuthorityType.Unconfirmed:
                         await clientSession.SendPacketAsync(new FailcPacket
                         {
                             Type = LoginFailType.CantConnect
-                        }).ConfigureAwait(false);
+                        });
                         break;
                     default:
                         var connectedAccount = await pubSubHub.GetSubscribersAsync();
@@ -117,21 +117,21 @@ namespace NosCore.GameObject.Services.LoginService
                             await clientSession.SendPacketAsync(new FailcPacket
                             {
                                 Type = LoginFailType.AlreadyConnected
-                            }).ConfigureAwait(false);
-                            await clientSession.DisconnectAsync().ConfigureAwait(false);
+                            });
+                            await clientSession.DisconnectAsync();
                             return;
                         }
 
                         acc.Language = language;
 
-                        acc = await accountDao.TryInsertOrUpdateAsync(acc).ConfigureAwait(false);
+                        acc = await accountDao.TryInsertOrUpdateAsync(acc);
                         if (servers.Count <= 0)
                         {
                             await clientSession.SendPacketAsync(new FailcPacket
                             {
                                 Type = LoginFailType.CantConnect
-                            }).ConfigureAwait(false);
-                            await clientSession.DisconnectAsync().ConfigureAwait(false);
+                            });
+                            await clientSession.DisconnectAsync();
                             return;
                         }
 
@@ -195,19 +195,19 @@ namespace NosCore.GameObject.Services.LoginService
                             Name = useApiAuth ? "4" : "1"
                         }); //useless server to end the client reception
 
-                        await clientSession.SendPacketAsync(nstest).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(nstest);
                         return;
                 }
 
-                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                await clientSession.DisconnectAsync();
             }
             catch
             {
                 await clientSession.SendPacketAsync(new FailcPacket
                 {
                     Type = LoginFailType.UnhandledError
-                }).ConfigureAwait(false);
-                await clientSession.DisconnectAsync().ConfigureAwait(false);
+                });
+                await clientSession.DisconnectAsync();
             }
         }
     }

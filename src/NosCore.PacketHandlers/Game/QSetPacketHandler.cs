@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,13 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Dto;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Quicklist;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Quicklist;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Game
                     OriginQuickListSlot = data2,
                     Data = 0
                 }
-            }).ConfigureAwait(false);
+            });
         }
 
         public override async Task ExecuteAsync(QsetPacket qSetPacket, ClientSession session)
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.Game
                         IconVNum = data2,
                         Morph = morph
                     });
-                    await SendQSetAsync(session, quickListIndex, q2, type, data1, data2).ConfigureAwait(false);
+                    await SendQSetAsync(session, quickListIndex, q2, type, data1, data2);
                     break;
 
                 case QSetType.Move:
@@ -94,15 +94,15 @@ namespace NosCore.PacketHandlers.Game
 
                         if (qlTo == null)
                         {
-                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
-                            await SendQSetAsync(session, data1, data2, QSetType.Reset, 7, -1).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum);
+                            await SendQSetAsync(session, data1, data2, QSetType.Reset, 7, -1);
                         }
                         else
                         {
-                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlFrom.QuickListIndex, qlFrom.Slot, (QSetType)qlFrom.Type, qlFrom.IconType, qlFrom.IconVNum);
                             qlTo.QuickListIndex = data1;
                             qlTo.Slot = data2;
-                            await SendQSetAsync(session, qlTo.QuickListIndex, qlTo.Slot, (QSetType)qlTo.Type, qlTo.IconType, qlTo.IconVNum).ConfigureAwait(false);
+                            await SendQSetAsync(session, qlTo.QuickListIndex, qlTo.Slot, (QSetType)qlTo.Type, qlTo.IconType, qlTo.IconVNum);
                         }
                     }
 
@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Game
                 case QSetType.Remove:
                     session.Character.QuicklistEntries.RemoveAll(
                         n => (n.QuickListIndex == quickListIndex) && (n.Slot == q2) && (n.Morph == morph));
-                    await SendQSetAsync(session, quickListIndex, q2, QSetType.Reset, 7, -1).ConfigureAwait(false);
+                    await SendQSetAsync(session, quickListIndex, q2, QSetType.Reset, 7, -1);
                     break;
 
                 default:

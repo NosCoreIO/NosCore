@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -20,7 +20,6 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
@@ -32,6 +31,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -68,19 +68,19 @@ namespace NosCore.PacketHandlers.Game
             if (worldConfiguration.Value.WorldInformation)
             {
                 await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
-                    SayColorType.Yellow)).ConfigureAwait(false);
+                    SayColorType.Yellow));
                 await session.SendPacketAsync(session.Character.GenerateSay("Github : https://github.com/NosCoreIO/NosCore/",
-                    SayColorType.Red)).ConfigureAwait(false);
+                    SayColorType.Red));
                 await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
-                    SayColorType.Yellow)).ConfigureAwait(false);
+                    SayColorType.Yellow));
             }
 
 
             await skillService.LoadSkill(session.Character);
-            await session.SendPacketAsync(session.Character.GenerateTit()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateSpPoint()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateRsfi()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateQuestPacket()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateTit());
+            await session.SendPacketAsync(session.Character.GenerateSpPoint());
+            await session.SendPacketAsync(session.Character.GenerateRsfi());
+            await session.SendPacketAsync(session.Character.GenerateQuestPacket());
 
             if (session.Character.Hp <= 0)
             {
@@ -88,13 +88,13 @@ namespace NosCore.PacketHandlers.Game
             }
             else
             {
-                await mapChangeService.ChangeMapAsync(session).ConfigureAwait(false);
+                await mapChangeService.ChangeMapAsync(session);
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());
             //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
-            await session.SendPacketAsync(session.Character.GenerateFd()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateStat()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateFd());
+            await session.SendPacketAsync(session.Character.GenerateStat());
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Game
                     VisualId = session.Character.CharacterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.NosMerchantActive,
-                }).ConfigureAwait(false);
+                });
             }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
@@ -129,9 +129,9 @@ namespace NosCore.PacketHandlers.Game
             //                Session.SendPacket($"bn {i} {Language.Instance.GetMessageFromKey($"BN{i}")}");
             //            }
             session.Character.LoadExpensions();
-            await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration)).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration));
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
-            await session.SendPacketAsync(new PclearPacket()).ConfigureAwait(false);
+            await session.SendPacketAsync(new PclearPacket());
 
             //            Session.SendPacket(Session.Character.GeneratePinit());
             //            Session.SendPackets(Session.Character.GeneratePst());
@@ -147,7 +147,7 @@ namespace NosCore.PacketHandlers.Game
             });
             //            Session.SendPacket($"twk 2 {Session.Character.CharacterId} {Session.Account.Name} {Session.Character.Name} shtmxpdlfeoqkr");
 
-            await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket())).ConfigureAwait(false);
+            await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket()));
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
@@ -156,11 +156,11 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPackets(Session.Character.GenerateScN());
             //            Session.Character.GenerateStartupInventory();
 
-            await session.SendPacketAsync(session.Character.GenerateGold()).ConfigureAwait(false);
-            await session.SendPacketAsync(session.Character.GenerateCond()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateGold());
+            await session.SendPacketAsync(session.Character.GenerateCond());
 
             await session.SendPacketAsync(session.Character.GenerateSki());
-            await session.SendPacketsAsync(session.Character.GenerateQuicklist()).ConfigureAwait(false);
+            await session.SendPacketsAsync(session.Character.GenerateQuicklist());
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
             //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
@@ -171,10 +171,10 @@ namespace NosCore.PacketHandlers.Game
 
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
-            await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true).ConfigureAwait(false);
+            await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true);
 
-            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
-            await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient).ConfigureAwait(false)).ConfigureAwait(false);
+            await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub));
+            await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient));
             //            Session.SendPacket(clinit);
             //            Session.SendPacket(flinit);
             //            Session.SendPacket(kdlinit);
@@ -208,10 +208,10 @@ namespace NosCore.PacketHandlers.Game
             //            }
 
             //            // finfo - friends info
-            var mails = await mailHttpClient.GetMails(-1, session.Character.CharacterId, false).ConfigureAwait(false);
-            await session.Character.GenerateMailAsync(mails).ConfigureAwait(false);
+            var mails = await mailHttpClient.GetMails(-1, session.Character.CharacterId, false);
+            await session.Character.GenerateMailAsync(mails);
 
-            await session.SendPacketAsync(session.Character.GenerateTitle()).ConfigureAwait(false);
+            await session.SendPacketAsync(session.Character.GenerateTitle());
             int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);
             int mailcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId == null && !mail.IsOpened);
 
@@ -225,7 +225,7 @@ namespace NosCore.PacketHandlers.Game
                     Message = Game18NConstString.NewParcelArrived,
                     ArgumentType = 4,
                     Game18NArguments = { giftcount }
-                }).ConfigureAwait(false);
+                });
             }
 
             if (mailcount > 0)
@@ -238,7 +238,7 @@ namespace NosCore.PacketHandlers.Game
                     Message = Game18NConstString.NewNoteArrived,
                     ArgumentType = 4,
                     Game18NArguments = { mailcount }
-                }).ConfigureAwait(false);
+                });
             }
 
             //            Session.Character.DeleteTimeout();

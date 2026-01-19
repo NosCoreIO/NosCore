@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ServerPackets.Shop;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,372 +1,341 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
-using NosCore.GameObject.Networking;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventLoaderService;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using NosCore.Tests.Shared.BDD;
+using NosCore.Tests.Shared.BDD.Steps;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
     [TestClass]
-    public class CRegPacketHandlerTest
+    public class CRegPacketHandlerTests : SpecBase
     {
-        private Mock<IBazaarHub>? _bazaarHttpClient;
-        private CRegPacketHandler? _cregPacketHandler;
-        private Mock<IDao<InventoryItemInstanceDto, Guid>>? _inventoryItemInstanceDao;
-        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
-        private ItemGenerationService? _itemProvider;
-        private ClientSession? _session;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private Mock<IBazaarHub> BazaarHttpClient = null!;
+        private CRegPacketHandler CregPacketHandler = null!;
+        private Mock<IDao<InventoryItemInstanceDto, Guid>> InventoryItemInstanceDao = null!;
+        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
 
         [TestInitialize]
-        public async Task SetupAsync()
+        public override async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
-            _session.Character.StaticBonusList = new List<StaticBonusDto>();
-            _bazaarHttpClient = new Mock<IBazaarHub>();
-            _inventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
-            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-            _bazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true},
-                new Item {Type = NoscorePocketType.Main, VNum = 1013},
-                new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
-                new Item {Type = NoscorePocketType.Equipment, VNum = 2, ItemType = ItemType.Weapon},
-                new Item {Type = NoscorePocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
-                new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
-            };
-            _itemProvider = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _cregPacketHandler = new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                _bazaarHttpClient.Object, _itemInstanceDao.Object, _inventoryItemInstanceDao.Object);
-            _itemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
+            await base.SetupAsync();
+            BazaarHttpClient = new Mock<IBazaarHub>();
+            InventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
+            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
+            BazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>()))
+                .ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);
+            CregPacketHandler = new CRegPacketHandler(
+                TestHelpers.Instance.WorldConfiguration,
+                BazaarHttpClient.Object,
+                ItemInstanceDao.Object,
+                InventoryItemInstanceDao.Object);
+            ItemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
         }
 
         [TestMethod]
-        public async Task RegisterWhenInExchangeOrTradeAsync()
+        public async Task RegisteringWhileInShopShouldBeIgnored()
         {
-            _session!.Character.InShop = true;
-            await _session!.HandlePacketsAsync(new[]{new CRegPacket
+            await new Spec("Registering while in shop should be ignored")
+                .Given(TheCharacterIsInAShop)
+                .WhenAsync(AttemptingToRegisterAnItem)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringWithoutEnoughGoldForTaxShouldFail()
+        {
+            await new Spec("Registering without enough gold for tax should fail")
+                .WhenAsync(AttemptingToRegisterAnItem)
+                .Then(ShouldReceiveNotEnoughGoldMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringNegativeAmountShouldBeIgnored()
+        {
+            await new Spec("Registering negative amount should be ignored")
+                .Given(CharacterHasGold_, 500000L)
+                .WhenAsync(AttemptingToRegisterNegativeAmount)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringNonExistentItemShouldBeIgnored()
+        {
+            await new Spec("Registering non existent item should be ignored")
+                .Given(CharacterHasGold_, 500000L)
+                .WhenAsync(AttemptingToRegisterAnItem)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringTooExpensiveWithoutMedalShouldFail()
+        {
+            await new Spec("Registering too expensive without medal should fail")
+                .Given(CharacterHasGold_, 500000L)
+                .And(CharacterHasItem_, (short)1012)
+                .WhenAsync(AttemptingToRegisterAtExcessivePrice)
+                .Then(ShouldReceivePriceLimitMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MedalHoldersPayReducedTax()
+        {
+            await new Spec("Medal holders pay reduced tax")
+                .Given(CharacterHasGold_, 100000L)
+                .And(CharacterHasBazaarMedal)
+                .And(CharacterHasItem_, (short)1012)
+                .WhenAsync(RegisteringAnExpensiveItem)
+                .Then(InventoryShouldBeEmpty)
+                .And(ShouldReceiveSuccessMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringOverMaxPriceShouldFail()
+        {
+            await new Spec("Registering over max price should fail")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasItem_, (short)1012)
+                .WhenAsync(AttemptingToRegisterAboveMaxGold)
+                .Then(ShouldReceivePriceLimitMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringTooLongWithoutMedalShouldFail()
+        {
+            await new Spec("Registering too long without medal should fail")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasItem_, (short)1012)
+                .WhenAsync(AttemptingToRegisterForExtendedDuration)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringInvalidDurationShouldFail()
+        {
+            await new Spec("Registering invalid duration should fail")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasItem_, (short)1012)
+                .WhenAsync(AttemptingToRegisterWithInvalidDuration)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ExceedingListingLimitShouldFail()
+        {
+            BazaarHttpClient.Reset();
+            BazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>()))
+                .ReturnsAsync(LanguageKey.LIMIT_EXCEEDED);
+
+            await new Spec("Exceeding listing limit should fail")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasManyItems)
+                .WhenAsync(AttemptingToRegisterBeyondLimit)
+                .Then(ItemShouldRemainInInventory)
+                .And(ShouldReceiveLimitExceededMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringFullStackShouldSucceed()
+        {
+            await new Spec("Registering full stack should succeed")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasManyItems)
+                .WhenAsync(RegisteringAll_Items, 999)
+                .Then(InventoryShouldBeEmpty)
+                .And(ShouldReceiveSuccessMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringMoreThanInventoryShouldFail()
+        {
+            await new Spec("Registering more than inventory should fail")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasItem_, (short)1012)
+                .WhenAsync(AttemptingToRegister_Items, 2)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RegisteringPartialStackShouldSucceed()
+        {
+            await new Spec("Registering partial stack should succeed")
+                .Given(CharacterHasGold_, 5000000L)
+                .And(CharacterHasManyItems)
+                .WhenAsync(Registering_Items, 949)
+                .Then(FiftyItemsShouldRemain)
+                .And(ShouldReceiveSuccessMessage)
+                .ExecuteAsync();
+        }
+
+        private CRegPacket CreateCRegPacket(short amount = 1, long price = 1000, byte durability = 1)
+        {
+            return new CRegPacket
             {
                 Type = 0,
-                Inventory = 0,
+                Inventory = 1,
                 Slot = 0,
-                Durability = 0,
+                Amount = amount,
+                Price = price,
+                Durability = durability,
                 IsPackage = false,
-                Amount = 1,
                 Taxe = 0,
                 MedalUsed = 0
-            }}).ConfigureAwait(false);
+            };
+        }
 
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+        private void TheCharacterIsInAShop()
+        {
+            Session.InShop();
+        }
+
+        private async Task AttemptingToRegisterAnItem()
+        {
+            await Session.HandlePacketsAsync(new[] { CreateCRegPacket() });
         }
 
 
-        [TestMethod]
-        public async Task RegisterTaxWhenMedalMoreThanGoldAsync()
+        private void ShouldReceiveNotEnoughGoldMessage()
         {
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 0,
-                Slot = 0,
-                Durability = 0,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0
-            }, _session!).ConfigureAwait(false);
-
-            var lastpacket = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NotEnoughGold);
+            ShouldReceiveMessage(Game18NConstString.NotEnoughGold);
         }
 
-        [TestMethod]
-        public async Task RegisterNegativeAmountAsync()
+        private void CharacterHasGold_(long gold)
         {
-            _session!.Character.Gold = 500000;
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 0,
-                Slot = 0,
-                Durability = 0,
-                IsPackage = false,
-                Amount = -1,
-                Taxe = 0,
-                MedalUsed = 0
-            }, _session).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            CharacterHasGold(gold);
         }
 
-        [TestMethod]
-        public async Task RegisterNotExistingItemAsync()
+        private async Task AttemptingToRegisterNegativeAmount()
         {
-            _session!.Character.Gold = 500000;
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 0,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0
-            }, _session).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(amount: -1), Session);
         }
 
-        [TestMethod]
-        public async Task RegisterTooExpensiveWhenNoMedalAsync()
+        private void CharacterHasItem_(short vnum)
         {
-            _session!.Character.Gold = 500000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
-                .First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 0,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 100000001
-            }, _session).ConfigureAwait(false);
-            var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 1000000);
+            CharacterHasItem(vnum);
         }
 
-        [TestMethod]
-        public async Task RegisterHasSmallerTaxWhenMedalAsync()
+        private async Task AttemptingToRegisterAtExcessivePrice()
         {
-            _session!.Character.Gold = 100000;
-            _session.Character.StaticBonusList.Add(new StaticBonusDto
-            {
-                StaticBonusType = StaticBonusType.BazaarMedalGold
-            });
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
-                .First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 1,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 10000000
-            }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 100000001), Session);
         }
 
-        [TestMethod]
-        public async Task RegisterTooExpensiveAsync()
+        private void ShouldReceivePriceLimitMessage()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
-                .First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 0,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1
-            }, _session).ConfigureAwait(false);
-            var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.NotExceedMaxPrice && lastpacket?.ArgumentType == 4 && (long?)lastpacket?.Game18NArguments[0] == 1000000);
+            ShouldReceiveModalMessage(Game18NConstString.NotExceedMaxPrice, 1, 4);
         }
 
-        [TestMethod]
-        public async Task RegisterTooLongWhenNoMedalAsync()
+        private void CharacterHasBazaarMedal()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
-                .First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 2,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 1
-            }, _session).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            CharacterHasMedalBonus(StaticBonusType.BazaarMedalGold);
+        }
+
+        private async Task RegisteringAnExpensiveItem()
+        {
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 10000000), Session);
         }
 
 
-        [TestMethod]
-        public async Task RegisterUnvalidTimeAsync()
+        private void ShouldReceiveSuccessMessage()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
-                .First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 7,
-                IsPackage = false,
-                Amount = 1,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 1
-            }, _session).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            ShouldReceiveMessage(Game18NConstString.ItemAddedToBazar, MessageType.Default);
         }
 
-        [TestMethod]
-        public async Task RegisterLimitExceededAsync()
+        private async Task AttemptingToRegisterAboveMaxGold()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
-            _bazaarHttpClient!.Reset();
-            _bazaarHttpClient!.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>())).ReturnsAsync(LanguageKey.LIMIT_EXCEEDED);
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 1,
-                IsPackage = false,
-                Amount = 949,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 1
-            }, _session!).ConfigureAwait(false);
-            var lastpacket = (ModaliPacket?)_session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.AreEqual(999, _session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.ListedMaxItemsNumber);
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1), Session);
         }
 
-        [TestMethod]
-        public async Task RegisterAllSlotAsync()
+        private async Task AttemptingToRegisterForExtendedDuration()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 1,
-                IsPackage = false,
-                Amount = 999,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 1
-            }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(0, _session.Character.InventoryService.Count);
-            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 1, durability: 2), Session);
         }
 
-        [TestMethod]
-        public async Task RegisterLessThanInInventoryAsync()
+        private async Task AttemptingToRegisterWithInvalidDuration()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012), 0))!
-                .First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 1,
-                IsPackage = false,
-                Amount = 2,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 1
-            }, _session).ConfigureAwait(false);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 1, durability: 7), Session);
         }
 
-        [TestMethod]
-        public async Task RegisterPartialSlotAsync()
+        private void CharacterHasManyItems()
         {
-            _session!.Character.Gold = 5000000;
-            _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 999), 0))!.First();
-            await _cregPacketHandler!.ExecuteAsync(new CRegPacket
-            {
-                Type = 0,
-                Inventory = 1,
-                Slot = 0,
-                Durability = 1,
-                IsPackage = false,
-                Amount = 949,
-                Taxe = 0,
-                MedalUsed = 0,
-                Price = 1
-            }, _session).ConfigureAwait(false);
-            var lastpacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.AreEqual(50, _session.Character.InventoryService.FirstOrDefault().Value.ItemInstance.Amount);
-            Assert.IsTrue(lastpacket?.Type == MessageType.Default && lastpacket?.Message == Game18NConstString.ItemAddedToBazar);
+            CharacterHasItem(1012, 999);
+        }
+
+        private async Task AttemptingToRegisterBeyondLimit()
+        {
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(amount: 949, price: 1), Session);
+        }
+
+        private void ItemShouldRemainInInventory()
+        {
+            InventoryShouldContainItem(1012, 999);
+        }
+
+        private void ShouldReceiveLimitExceededMessage()
+        {
+            ShouldReceiveModalMessage(Game18NConstString.ListedMaxItemsNumber);
+        }
+
+        private async Task RegisteringAll_Items(int value)
+        {
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(amount: 999, price: 1), Session);
+        }
+
+        private async Task AttemptingToRegister_Items(int value)
+        {
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(amount: 2, price: 1), Session);
+        }
+
+        private async Task Registering_Items(int value)
+        {
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(amount: 949, price: 1), Session);
+        }
+
+        private void FiftyItemsShouldRemain()
+        {
+            InventoryShouldContainItem(1012, 50);
         }
     }
 }

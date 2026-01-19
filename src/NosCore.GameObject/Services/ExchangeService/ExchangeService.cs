@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -23,7 +23,6 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -41,17 +40,20 @@ using System.Linq;
 namespace NosCore.GameObject.Services.ExchangeService
 {
     public class ExchangeService(IItemGenerationService itemBuilderService,
-            IOptions<WorldConfiguration> worldConfiguration, ILogger logger, ExchangeRequestHolder requestHolder,
+            IOptions<WorldConfiguration> worldConfiguration, ILogger logger, IExchangeRequestRegistry exchangeRegistry,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
         : IExchangeService
     {
         public void SetGold(long visualId, long gold, long bankGold)
         {
-            requestHolder.ExchangeDatas[visualId].Gold = gold;
-            requestHolder.ExchangeDatas[visualId].BankGold = bankGold;
+            var data = exchangeRegistry.GetExchangeData(visualId);
+            if (data != null)
+            {
+                data.Gold = gold;
+                data.BankGold = bankGold;
+            }
         }
 
-        //TODO: Remove these clientsessions as parameter
         public Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
             ICharacterEntity targetSession)
         {
@@ -107,11 +109,21 @@ namespace NosCore.GameObject.Services.ExchangeService
                     dictionary);
             }
 
-            if (session.Character.InventoryService.EnoughPlace(
+            var targetFirstItem = targetInfo.ExchangeItems.Keys.FirstOrDefault();
+            var exchangeFirstItem = exchangeInfo.ExchangeItems.Keys.FirstOrDefault();
+
+            var targetHasItems = targetFirstItem != null;
+            var exchangeHasItems = exchangeFirstItem != null;
+
+            var targetEnoughPlace = !targetHasItems || session.Character.InventoryService.EnoughPlace(
                 targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
-                targetInfo.ExchangeItems.Keys.First().Type) && targetSession.InventoryService.EnoughPlace(
+                targetFirstItem!.Type);
+
+            var exchangeEnoughPlace = !exchangeHasItems || targetSession.InventoryService.EnoughPlace(
                 exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
-                targetInfo.ExchangeItems.Keys.First().Type))
+                exchangeFirstItem!.Type);
+
+            if (targetEnoughPlace && exchangeEnoughPlace)
             {
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Success, null);
             }
@@ -131,68 +143,76 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         public void ConfirmExchange(long visualId)
         {
-            requestHolder.ExchangeDatas[visualId].ExchangeConfirmed = true;
+            var data = exchangeRegistry.GetExchangeData(visualId);
+            if (data != null)
+            {
+                data.ExchangeConfirmed = true;
+            }
         }
 
         public bool IsExchangeConfirmed(long visualId)
         {
-            return requestHolder.ExchangeDatas[visualId].ExchangeConfirmed;
+            return exchangeRegistry.GetExchangeData(visualId)?.ExchangeConfirmed ?? false;
         }
 
         public ExchangeData GetData(long visualId)
         {
-            return requestHolder.ExchangeDatas[visualId];
+            return exchangeRegistry.GetExchangeData(visualId) ?? new ExchangeData();
         }
 
         public void AddItems(long visualId, InventoryItemInstance item, short amount)
         {
-            var data = requestHolder.ExchangeRequests.FirstOrDefault(k => k.Key == visualId);
-            if (data.Equals(default))
+            var request = exchangeRegistry.GetExchangeRequest(visualId);
+            if (request == null)
             {
                 logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return;
             }
 
-            requestHolder.ExchangeDatas[data.Key].ExchangeItems.TryAdd(item, amount);
+            var data = exchangeRegistry.GetExchangeData(visualId);
+            data?.ExchangeItems.TryAdd(item, amount);
         }
 
         public bool CheckExchange(long visualId)
         {
-            return requestHolder.ExchangeRequests.Any(k => (k.Key == visualId) || (k.Value == visualId));
+            return exchangeRegistry.HasExchange(visualId);
         }
 
         public long? GetTargetId(long visualId)
         {
-            var id = requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
-            if (id.Equals(default(KeyValuePair<long, long>)))
+            var pair = exchangeRegistry.GetExchangeRequestPair(visualId);
+            if (pair == null)
             {
                 return null;
             }
 
-            return id.Value == visualId ? id.Key : id.Value;
+            return pair.Value.Value == visualId ? pair.Value.Key : pair.Value.Value;
         }
 
         public bool CheckExchange(long visualId, long targetId)
         {
-            return requestHolder.ExchangeRequests.Any(k => (k.Key == visualId) && (k.Value == visualId)) ||
-                requestHolder.ExchangeRequests.Any(k => (k.Key == targetId) && (k.Value == targetId));
+            var pair1 = exchangeRegistry.GetExchangeRequestPair(visualId);
+            var pair2 = exchangeRegistry.GetExchangeRequestPair(targetId);
+            return (pair1 != null && pair1.Value.Key == visualId && pair1.Value.Value == visualId) ||
+                   (pair2 != null && pair2.Value.Key == targetId && pair2.Value.Value == targetId);
         }
 
         public ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType)
         {
-            var data = requestHolder.ExchangeRequests.FirstOrDefault(k => (k.Key == visualId) || (k.Value == visualId));
-            if ((data.Key == 0) && (data.Value == 0))
+            var pair = exchangeRegistry.GetExchangeRequestPair(visualId);
+            if (pair == null)
             {
                 logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return null;
             }
 
-            if (!requestHolder.ExchangeDatas.TryRemove(data.Key, out _) || !requestHolder.ExchangeRequests.TryRemove(data.Key, out _))
+            var data = pair.Value;
+            if (!exchangeRegistry.RemoveExchangeData(data.Key) || !exchangeRegistry.RemoveExchangeRequest(data.Key))
             {
                 logger.Error(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
             }
 
-            if (!requestHolder.ExchangeDatas.TryRemove(data.Value, out _) || !requestHolder.ExchangeRequests.TryRemove(data.Value, out _))
+            if (!exchangeRegistry.RemoveExchangeData(data.Value) || !exchangeRegistry.RemoveExchangeRequest(data.Value))
             {
                 logger.Error(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
             }
@@ -211,10 +231,10 @@ namespace NosCore.GameObject.Services.ExchangeService
                 return false;
             }
 
-            requestHolder.ExchangeRequests[visualId] = targetVisualId;
-            requestHolder.ExchangeRequests[targetVisualId] = visualId;
-            requestHolder.ExchangeDatas[visualId] = new ExchangeData();
-            requestHolder.ExchangeDatas[targetVisualId] = new ExchangeData();
+            exchangeRegistry.SetExchangeRequest(visualId, targetVisualId);
+            exchangeRegistry.SetExchangeRequest(targetVisualId, visualId);
+            exchangeRegistry.SetExchangeData(visualId, new ExchangeData());
+            exchangeRegistry.SetExchangeData(targetVisualId, new ExchangeData());
             return true;
         }
 
@@ -222,41 +242,79 @@ namespace NosCore.GameObject.Services.ExchangeService
             IInventoryService sessionInventory, IInventoryService targetInventory)
         {
             var usersArray = new[] { firstUser, secondUser };
-            var items = new List<KeyValuePair<long, IvnPacket>>(); //SessionId, PocketChange
+            var items = new List<KeyValuePair<long, IvnPacket>>();
+            var pendingTransfers = new List<(
+                IInventoryService OriginInventory,
+                IInventoryService DestInventory,
+                InventoryItemInstance OriginalItem,
+                short Amount,
+                long TargetId,
+                long SessionId,
+                bool IsFullTransfer
+            )>();
 
             foreach (var user in usersArray)
             {
-                foreach (var item in requestHolder.ExchangeDatas[user].ExchangeItems)
+                var userData = exchangeRegistry.GetExchangeData(user);
+                if (userData == null) continue;
+
+                foreach (var item in userData.ExchangeItems)
                 {
                     var destInventory = user == firstUser ? targetInventory : sessionInventory;
                     var originInventory = user == firstUser ? sessionInventory : targetInventory;
                     var targetId = user == firstUser ? secondUser : firstUser;
                     var sessionId = user == firstUser ? firstUser : secondUser;
-                    InventoryItemInstance? newItem = null;
+                    var isFullTransfer = item.Value == item.Key.ItemInstance.Amount;
 
-                    if (item.Value == item.Key.ItemInstance.Amount)
-                    {
-                        originInventory.Remove(item.Key.ItemInstanceId);
-                    }
-                    else
-                    {
-                        newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.ItemInstanceId);
-                    }
-
-                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(
-                        item.Key.ItemInstance.ItemVNum,
-                        item.Key.ItemInstance.Amount, (sbyte)item.Key.ItemInstance.Rare, item.Key.ItemInstance.Upgrade,
-                        (byte)item.Key.ItemInstance.Design), targetId))?.FirstOrDefault();
-                    if (inv == null)
-                    {
-                        return items;
-                    }
-
-                    items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
-                        newItem.GeneratePocketChange((PocketType)item.Key.Type, item.Key.Slot)));
-                    items.Add(new KeyValuePair<long, IvnPacket>(targetId,
-                        item.Key.GeneratePocketChange((PocketType)inv.Type, inv.Slot)));
+                    pendingTransfers.Add((originInventory, destInventory, item.Key, item.Value, targetId, sessionId, isFullTransfer));
                 }
+            }
+
+            var addedItems = new List<(IInventoryService Inventory, InventoryItemInstance Item)>();
+
+            foreach (var transfer in pendingTransfers)
+            {
+                var newItem = itemBuilderService.Create(
+                    transfer.OriginalItem.ItemInstance.ItemVNum,
+                    transfer.Amount,
+                    (sbyte)transfer.OriginalItem.ItemInstance.Rare,
+                    transfer.OriginalItem.ItemInstance.Upgrade,
+                    (byte)transfer.OriginalItem.ItemInstance.Design);
+
+                var inv = transfer.DestInventory.AddItemToPocket(
+                    InventoryItemInstance.Create(newItem, transfer.TargetId))?.FirstOrDefault();
+
+                if (inv == null)
+                {
+                    foreach (var added in addedItems)
+                    {
+                        added.Inventory.DeleteFromTypeAndSlot(added.Item.Type, added.Item.Slot);
+                    }
+                    return new List<KeyValuePair<long, IvnPacket>>();
+                }
+
+                addedItems.Add((transfer.DestInventory, inv));
+            }
+
+            for (var i = 0; i < pendingTransfers.Count; i++)
+            {
+                var transfer = pendingTransfers[i];
+                var addedItem = addedItems[i];
+
+                InventoryItemInstance? sourceItem = null;
+                if (transfer.IsFullTransfer)
+                {
+                    transfer.OriginInventory.Remove(transfer.OriginalItem.ItemInstanceId);
+                }
+                else
+                {
+                    sourceItem = transfer.OriginInventory.RemoveItemAmountFromInventory(transfer.Amount, transfer.OriginalItem.ItemInstanceId);
+                }
+
+                items.Add(new KeyValuePair<long, IvnPacket>(transfer.SessionId,
+                    (sourceItem ?? transfer.OriginalItem).GeneratePocketChange((PocketType)transfer.OriginalItem.Type, transfer.OriginalItem.Slot)));
+                items.Add(new KeyValuePair<long, IvnPacket>(transfer.TargetId,
+                    transfer.OriginalItem.GeneratePocketChange((PocketType)addedItem.Item.Type, addedItem.Item.Slot)));
             }
 
             return items;

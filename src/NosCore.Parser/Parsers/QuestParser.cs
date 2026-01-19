@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -80,11 +80,11 @@ namespace NosCore.Parser.Parsers
                 {nameof(QuestDto.QuestObjective), ImportQuestObjectives},
             };
             var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, logger, logLanguage);
-            var quests = await genericParser.GetDtosAsync().ConfigureAwait(false);
+            var quests = await genericParser.GetDtosAsync();
 
-            await questDao.TryInsertOrUpdateAsync(quests).ConfigureAwait(false);
-            await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward)).ConfigureAwait(false);
-            await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective)).ConfigureAwait(false);
+            await questDao.TryInsertOrUpdateAsync(quests);
+            await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
+            await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
 
             logger.Information(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
         }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -52,7 +52,7 @@ namespace NosCore.WorldServer
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             Broadcaster.Initialize(sessionGroupFactory);
-            await mapInstanceGeneratorService.InitializeAsync().ConfigureAwait(false);
+            await mapInstanceGeneratorService.InitializeAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
@@ -74,7 +74,7 @@ namespace NosCore.WorldServer
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
-            await Task.WhenAny(connectTask, clock.Run(stoppingToken), networkManager.RunServerAsync()).ConfigureAwait(false);
+            await Task.WhenAny(connectTask, clock.Run(stoppingToken), networkManager.RunServerAsync());
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -20,13 +20,13 @@
 using System.Linq;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -39,17 +39,17 @@ namespace NosCore.PacketHandlers.Friend
     {
         public override async Task ExecuteAsync(FdelPacket fdelPacket, ClientSession session)
         {
-            var list = await friendHttpClient.GetFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var list = await friendHttpClient.GetFriendsAsync(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
             if (idtorem != null)
             {
-                await friendHttpClient.DeleteAsync(idtorem.CharacterRelationId).ConfigureAwait(false);
+                await friendHttpClient.DeleteAsync(idtorem.CharacterRelationId);
                 var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
                 await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                    pubSubHub).ConfigureAwait(false))).ConfigureAwait(false);
+                    pubSubHub)));
 
                 await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                    pubSubHub).ConfigureAwait(false)).ConfigureAwait(false);
+                    pubSubHub));
             }
             else
             {
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Friend
                 {
                     Message = gameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST,
                         session.Account.Language]
-                }).ConfigureAwait(false);
+                });
             }
         }
     }

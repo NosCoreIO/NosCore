@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using NosCore.GameObject.Services.BroadcastService;
 using DisconnectData = NosCore.GameObject.InterChannelCommunication.Messages.DisconnectData;
 
@@ -14,7 +14,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 return;
             }
 
-            await sessionRegistry.DisconnectByCharacterIdAsync(data.CharacterId).ConfigureAwait(false);
+            await sessionRegistry.DisconnectByCharacterIdAsync(data.CharacterId);
         }
     }
 }

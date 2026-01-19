@@ -23,6 +23,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ItemStorage;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Services.InventoryService
     public class InventoryService(List<ItemDto> items, IOptions<WorldConfiguration> configuration, ILogger logger)
         : ConcurrentDictionary<Guid, InventoryItemInstance>, IInventoryService
     {
-        private byte GetMaxSlot(NoscorePocketType pocket)
+        public int GetMaxSlots(NoscorePocketType pocket)
         {
             //TODO make this configurable
             return (byte)(pocket switch
@@ -104,6 +105,11 @@ namespace NosCore.GameObject.Services.InventoryService
         public List<InventoryItemInstance>? AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type,
             short? slot)
         {
+            if (newItem?.ItemInstance == null || newItem.ItemInstance.Amount <= 0)
+            {
+                return null;
+            }
+
             var invlist = new List<InventoryItemInstance>();
             // override type if necessary
             if (type.HasValue)
@@ -118,7 +124,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 var slotNotFull = this.ToList().Select(s => s.Value).Where(i =>
                     i.ItemInstance.ItemVNum.Equals(newItem.ItemInstance.ItemVNum) &&
                     (i.ItemInstance.Amount < configuration.Value.MaxItemAmount));
-                var freeslot = GetMaxSlot(newItem.Type) - this.Count(s => s.Value.Type == newItem.Type);
+                var freeslot = GetMaxSlots(newItem.Type) - this.Count(s => s.Value.Type == newItem.Type);
                 IEnumerable<InventoryItemInstance> itemInstances =
                     slotNotFull as IList<InventoryItemInstance> ?? slotNotFull.ToList();
                 if (newItem.ItemInstance.Amount <= freeslot * configuration.Value.MaxItemAmount
@@ -161,8 +167,8 @@ namespace NosCore.GameObject.Services.InventoryService
                 return null;
             }
 
-            if (this.Any(s => (s.Value.Slot == newItem.Slot) && (s.Value.Type == newItem.Type))
-                || (newItem.Slot >= GetMaxSlot(newItem.Type)))
+            if (newItem.Slot < 0 || newItem.Slot >= GetMaxSlots(newItem.Type)
+                || this.Any(s => (s.Value.Slot == newItem.Slot) && (s.Value.Type == newItem.Type)))
             {
                 return null;
             }
@@ -336,8 +342,8 @@ namespace NosCore.GameObject.Services.InventoryService
             sourcePocket = LoadBySlotAndType(sourceSlot, sourcetype);
             destinationPocket = LoadBySlotAndType(destinationSlot, sourcetype);
 
-            if ((sourceSlot == destinationSlot) || (amount == 0)
-                || (destinationSlot > GetMaxSlot(sourcetype)))
+            if ((sourceSlot == destinationSlot) || (amount <= 0)
+                || (destinationSlot < 0) || (destinationSlot >= GetMaxSlots(sourcetype)))
             {
                 return false;
             }
@@ -436,7 +442,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 var itemList = this.Select(s => s.Value).Where(i => i.Type == type).ToList();
                 if (!place.ContainsKey(type))
                 {
-                    place.Add(type, GetMaxSlot(type) - itemList.Count);
+                    place.Add(type, GetMaxSlots(type) - itemList.Count);
                 }
 
                 var amount = itemGroup.Sum(s => s.Amount);
@@ -457,6 +463,11 @@ namespace NosCore.GameObject.Services.InventoryService
 
         public InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id)
         {
+            if (amount <= 0)
+            {
+                return null;
+            }
+
             var inv = this[id];
             if (inv?.ItemInstance != null)
             {
@@ -474,19 +485,57 @@ namespace NosCore.GameObject.Services.InventoryService
             return null;
         }
 
-        private short? GetFreeSlot(NoscorePocketType type)
+        public short? GetFreeSlot(NoscorePocketType type)
         {
-            var itemInstanceSlotsByType = this.Select(s => s.Value).Where(i => i.Type == type).OrderBy(i => i.Slot)
-                .Select(i => (int)i.Slot);
-            IEnumerable<int> instanceSlotsByType =
-                itemInstanceSlotsByType as int[] ?? itemInstanceSlotsByType.ToArray();
-            var nextFreeSlot = instanceSlotsByType.Any()
-                ? Enumerable
-                    .Range(0, GetMaxSlot(type) + 1)
-                    .Except(instanceSlotsByType).FirstOrDefault()
-                : 0;
-            return (short?)nextFreeSlot < GetMaxSlot(type) ? (short?)nextFreeSlot : null;
+            var maxSlots = GetMaxSlots(type);
+            var occupiedSlots = new HashSet<short>(
+                this.Select(s => s.Value).Where(i => i.Type == type).Select(i => i.Slot));
+
+            for (short slot = 0; slot < maxSlots; slot++)
+            {
+                if (!occupiedSlots.Contains(slot))
+                {
+                    return slot;
+                }
+            }
+
+            return null;
         }
+
+        public bool HasFreeSlot(NoscorePocketType slotType) => GetFreeSlot(slotType).HasValue;
+
+        public IEnumerable<InventoryItemInstance> GetAllBySlotType(NoscorePocketType slotType) =>
+            this.Select(s => s.Value).Where(i => i.Type == slotType);
+
+        public IEnumerable<InventoryItemInstance> GetAll() => this.Select(s => s.Value);
+
+        InventoryItemInstance? ISlotBasedStorage<InventoryItemInstance, NoscorePocketType>.GetBySlot(short slot, NoscorePocketType slotType) =>
+            LoadBySlotAndType(slot, slotType);
+
+        InventoryItemInstance? ISlotBasedStorage<InventoryItemInstance, NoscorePocketType>.GetById(Guid id) =>
+            LoadByItemInstanceId(id);
+
+        int ISlotBasedStorage<InventoryItemInstance, NoscorePocketType>.CountBySlotType(NoscorePocketType slotType) =>
+            CountItemInAnPocket(slotType);
+
+        List<InventoryItemInstance>? IMutableSlotBasedStorage<InventoryItemInstance, NoscorePocketType>.AddItem(
+            InventoryItemInstance item, NoscorePocketType? slotType, short? slot) =>
+            AddItemToPocket(item, slotType, slot);
+
+        InventoryItemInstance? IMutableSlotBasedStorage<InventoryItemInstance, NoscorePocketType>.RemoveBySlot(
+            short slot, NoscorePocketType slotType) =>
+            DeleteFromTypeAndSlot(slotType, slot);
+
+        InventoryItemInstance? IMutableSlotBasedStorage<InventoryItemInstance, NoscorePocketType>.RemoveById(Guid id) =>
+            DeleteById(id);
+
+        InventoryItemInstance? IMutableSlotBasedStorage<InventoryItemInstance, NoscorePocketType>.RemoveItemAmount(
+            short amount, Guid id) =>
+            RemoveItemAmountFromInventory(amount, id);
+
+        InventoryItemInstance? IMutableSlotBasedStorage<InventoryItemInstance, NoscorePocketType>.MoveItem(
+            short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType, short? targetSlot, bool swap) =>
+            MoveInPocket(sourceSlot, sourceType, targetType, targetSlot, swap);
 
         private InventoryItemInstance? TakeItem(short slot, NoscorePocketType type)
         {

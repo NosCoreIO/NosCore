@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,11 +18,11 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Inventory
 {
@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Inventory
                 mviPacket.Amount,
                 mviPacket.DestinationSlot, out var previousInventory, out var newInventory);
             await clientSession.SendPacketAsync(
-                newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot)).ConfigureAwait(false);
-            await clientSession.SendPacketAsync(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot)).ConfigureAwait(false);
+                newInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.DestinationSlot));
+            await clientSession.SendPacketAsync(previousInventory.GeneratePocketChange(mviPacket.InventoryType, mviPacket.Slot));
         }
     }
 }

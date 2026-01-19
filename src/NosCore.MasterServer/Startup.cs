@@ -47,8 +47,9 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject.Holders;
 using NosCore.GameObject.Services.BazaarService;
+using NosCore.GameObject.Services.FriendService;
+using NosCore.GameObject.Services.MailService;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
@@ -180,9 +181,11 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterLogger();
 
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
-            containerBuilder.RegisterAssemblyTypes(typeof(FriendRequestHolder).Assembly)
-                .Where(t => t.Name.EndsWith("Holder"))
-                .SingleInstance();
+
+            // Register registries
+            containerBuilder.RegisterType<BazaarRegistry>().As<IBazaarRegistry>().SingleInstance();
+            containerBuilder.RegisterType<FriendRequestRegistry>().As<IFriendRequestRegistry>().SingleInstance();
+            containerBuilder.RegisterType<ParcelRegistry>().As<IParcelRegistry>().SingleInstance();
 
             containerBuilder.RegisterType<ChannelHub>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();

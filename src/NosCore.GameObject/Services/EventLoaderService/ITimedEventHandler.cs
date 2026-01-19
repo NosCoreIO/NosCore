@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Services.EventLoaderService
 {

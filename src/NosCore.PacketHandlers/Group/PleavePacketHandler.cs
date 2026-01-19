@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,6 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -30,11 +29,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Services.IdService;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler(IIdService<GameObject.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
+    public class PleavePacketHandler(IIdService<GameObject.Services.GroupService.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Group
             if (group.Count > 2)
             {
                 var isLeader = group.IsGroupLeader(clientSession.Character.CharacterId);
-                await clientSession.Character.LeaveGroupAsync().ConfigureAwait(false);
+                await clientSession.Character.LeaveGroupAsync();
 
                 if (isLeader)
                 {
@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Group
                     await targetsession.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.YouAreNowGroupLeader
-                    }).ConfigureAwait(false);
+                    });
                 }
 
                 if (group.Type != GroupType.Group)
@@ -75,12 +75,12 @@ namespace NosCore.PacketHandlers.Group
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
                     var character = member.Item2 as ICharacterEntity;
-                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group!.GeneratePinit())).ConfigureAwait(false);
+                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group!.GeneratePinit()));
                 }
 
-                await clientSession.SendPacketAsync(clientSession.Character.Group!.GeneratePinit()).ConfigureAwait(false);
+                await clientSession.SendPacketAsync(clientSession.Character.Group!.GeneratePinit());
                 await clientSession.Character.MapInstance.SendPacketAsync(
-                    clientSession.Character.Group.GeneratePidx(clientSession.Character)).ConfigureAwait(false);
+                    clientSession.Character.Group.GeneratePidx(clientSession.Character));
             }
             else
             {
@@ -102,11 +102,11 @@ namespace NosCore.PacketHandlers.Group
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.PartyDisbanded
-                    }).ConfigureAwait(false);
+                    });
 
-                    await targetsession.LeaveGroupAsync().ConfigureAwait(false);
-                    await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit()).ConfigureAwait(false);
-                    await targetsession.MapInstance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession)).ConfigureAwait(false);
+                    await targetsession.LeaveGroupAsync();
+                    await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit());
+                    await targetsession.MapInstance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession));
                 }
 
                 groupIdService.Items.TryRemove(group.GroupId, out _);

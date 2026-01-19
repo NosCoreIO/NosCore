@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,13 +18,13 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using NosCore.Data.CommandPackets;
-using NosCore.GameObject;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Friend
 {
@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Friend
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Friend
                 Type = FinsPacketType.Accepted
             };
 
-            await session.HandlePacketsAsync(new[] { fins }).ConfigureAwait(false);
+            await session.HandlePacketsAsync(new[] { fins });
         }
     }
 }

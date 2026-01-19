@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -37,35 +37,36 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
 {
     [TestClass]
     public class SpRechargerEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync().ConfigureAwait(false);
-            Session = await TestHelpers.Instance.GenerateSessionAsync().ConfigureAwait(false);
+            await TestHelpers.ResetAsync();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new SpRechargerEventHandler(Options.Create(new WorldConfiguration { MaxAdditionalSpPoints = 1 }));
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
         [TestMethod]
-        public async Task Test_SpRecharger_When_MaxAsync()
+        public async Task TestSpRechargerWhenMaxAsync()
         {
             Session!.Character.SpAdditionPoint = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(lastpacket?.Type == MessageType.Default, lastpacket?.Message == Game18NConstString.CannotBeUsedExceedsCapacity);
             Assert.AreEqual(1, Session.Character.SpAdditionPoint);
@@ -73,12 +74,12 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_SpRechargerAsync()
+        public async Task TestSpRechargerAsync()
         {
             Session!.Character.SpAdditionPoint = 0;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
-            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance).ConfigureAwait(false);
+            await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(1, Session.Character.SpAdditionPoint);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);
         }

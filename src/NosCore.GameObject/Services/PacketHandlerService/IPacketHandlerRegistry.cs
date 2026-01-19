@@ -18,6 +18,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System;
+using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Attributes;
 
 namespace NosCore.GameObject.Services.PacketHandlerService

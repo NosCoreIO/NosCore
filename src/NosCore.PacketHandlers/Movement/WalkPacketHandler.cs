@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Movement;
@@ -27,6 +26,7 @@ using NosCore.PathFinder.Interfaces;
 using Serilog;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Shared.I18N;
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Movement
             }
 
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
-                new EveryoneBut(session.Channel!.Id)).ConfigureAwait(false);
+                new EveryoneBut(session.Channel!.Id));
 
             session.Character.LastMove = clock.GetCurrentInstant();
             if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)

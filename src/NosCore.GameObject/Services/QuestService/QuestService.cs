@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -36,6 +36,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Shared.I18N;
+using NosCore.GameObject.ComponentEntities.Entities;
 
 namespace NosCore.GameObject.Services.QuestService
 {
@@ -52,15 +53,15 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 if (worldConfiguration.Value.SceneOnCreate)
                 {
-                    await character.SendPacketAsync(new ScenePacket { SceneId = 40 }).ConfigureAwait(false);
-                    await Task.Delay(TimeSpan.FromSeconds(71)).ConfigureAwait(false);
+                    await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
+                    await Task.Delay(TimeSpan.FromSeconds(71));
                 }
-                await Task.Delay(TimeSpan.FromSeconds(2)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromSeconds(2));
             }
 
             if (packet != null)
             {
-                if (!await CheckScriptStateAsync(packet, character).ConfigureAwait(false))
+                if (!await CheckScriptStateAsync(packet, character))
                 {
                     return;
                 }
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Services.QuestService
                     if (quest != null)
                     {
                         quest.CompletedOn = clock.GetCurrentInstant();
-                        await character.SendPacketAsync(quest.GenerateQstiPacket(false)).ConfigureAwait(false);
+                        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
                     }
                 }
             }
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 ScriptId = nextScript.ScriptId,
                 ScriptStepId = nextScript.ScriptStepId
-            }).ConfigureAwait(false);
+            });
         }
 
         private async Task<bool> CheckScriptStateAsync(ScriptClientPacket packet, ICharacterEntity character)
@@ -115,7 +116,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            return await IsValidScriptAsync(character, packet.Type, (int)scriptId, (int)scriptStepId).ConfigureAwait(false);
+            return await IsValidScriptAsync(character, packet.Type, (int)scriptId, (int)scriptStepId);
         }
 
         private async Task<bool> IsValidScriptAsync(ICharacterEntity character, QuestActionType type, int scriptId, int scriptStepId)
@@ -128,10 +129,10 @@ namespace NosCore.GameObject.Services.QuestService
 
             return script.StepType switch
             {
-                "q_complete" => await ValidateQuestAsync(character, script.Argument1 ?? 0).ConfigureAwait(false),
-                "quest" => await AddQuestAsync(character, type, script.Argument1 ?? 0).ConfigureAwait(false),
-                "time" => await TimeAsync(script.Argument1 ?? 0).ConfigureAwait(false),
-                "targetoff" => await TargetOffPacketAsync(script.Argument1 ?? 0, character).ConfigureAwait(false),
+                "q_complete" => await ValidateQuestAsync(character, script.Argument1 ?? 0),
+                "quest" => await AddQuestAsync(character, type, script.Argument1 ?? 0),
+                "time" => await TimeAsync(script.Argument1 ?? 0),
+                "targetoff" => await TargetOffPacketAsync(script.Argument1 ?? 0, character),
                 "web" => true,
                 "talk" => true,
                 "openwin" => true,
@@ -147,7 +148,7 @@ namespace NosCore.GameObject.Services.QuestService
 
         private async Task<bool> TimeAsync(short delay)
         {
-            await Task.Delay(TimeSpan.FromSeconds(delay)).ConfigureAwait(false);
+            await Task.Delay(TimeSpan.FromSeconds(delay));
             return true;
         }
 
@@ -156,7 +157,7 @@ namespace NosCore.GameObject.Services.QuestService
             var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
             if (questDto != null)
             {
-                return await ValidateQuestAsync(character, questId).ConfigureAwait(false);
+                return await ValidateQuestAsync(character, questId);
             }
 
             logger.Error(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
@@ -176,7 +177,7 @@ namespace NosCore.GameObject.Services.QuestService
                 character.Quests.FirstOrDefault(s => s.Value.QuestId == questId && s.Value.CompletedOn == null);
             if (!characterQuest.Equals(new KeyValuePair<Guid, CharacterQuest>()))
             {
-                var isValid = await ValidateQuestAsync(character, questId).ConfigureAwait(false);
+                var isValid = await ValidateQuestAsync(character, questId);
                 if (type != QuestActionType.Achieve)
                 {
                     return isValid;
@@ -191,9 +192,9 @@ namespace NosCore.GameObject.Services.QuestService
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.QuestComplete
-                }).ConfigureAwait(false);
-                await character.SendPacketAsync(characterQuest.Value.GenerateQstiPacket(false)).ConfigureAwait(false);
-                await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
+                });
+                await character.SendPacketAsync(characterQuest.Value.GenerateQstiPacket(false));
+                await character.SendPacketAsync(character.GenerateQuestPacket());
             }
 
             var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
@@ -218,7 +219,7 @@ namespace NosCore.GameObject.Services.QuestService
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.LevelTooLow
-                }).ConfigureAwait(false);
+                });
                 return false;
             }
 
@@ -228,7 +229,7 @@ namespace NosCore.GameObject.Services.QuestService
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.LevelTooHigh
-                }).ConfigureAwait(false);
+                });
                 return false;
             }
 
@@ -238,7 +239,7 @@ namespace NosCore.GameObject.Services.QuestService
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.DailyQuestOncePerDay
-                }).ConfigureAwait(false);
+                });
                 return false;
             }
 
@@ -249,10 +250,10 @@ namespace NosCore.GameObject.Services.QuestService
                 Quest = quest,
                 QuestId = quest.QuestId
             });
-            await character.SendPacketAsync(character.GenerateQuestPacket()).ConfigureAwait(false);
+            await character.SendPacketAsync(character.GenerateQuestPacket());
             if (quest.TargetMap != null)
             {
-                await character.SendPacketAsync(quest.GenerateTargetPacket()).ConfigureAwait(false);
+                await character.SendPacketAsync(quest.GenerateTargetPacket());
             }
             return true;
         }
@@ -305,7 +306,7 @@ namespace NosCore.GameObject.Services.QuestService
                         && (character.MapId == (characterQuest.Quest.TargetMap ?? 0));
                     if (isValid)
                     {
-                        await character.SendPacketAsync(characterQuest.Quest.GenerateTargetOffPacket()).ConfigureAwait(false);
+                        await character.SendPacketAsync(characterQuest.Quest.GenerateTargetOffPacket());
                     }
                     break;
                 case QuestType.CollectMapEntity:

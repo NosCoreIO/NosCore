@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -57,7 +57,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(lodPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(lodPortal);
             }
 
             var minilandPortal = new PortalDto
@@ -77,7 +77,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(minilandPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(minilandPortal);
             }
 
             var weddingPortal = new PortalDto
@@ -96,7 +96,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(weddingPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(weddingPortal);
             }
 
             var glacerusCavernPortal = new PortalDto
@@ -115,7 +115,7 @@ namespace NosCore.Parser.Parsers
                 null)
             {
                 portalCounter++;
-                await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal).ConfigureAwait(false);
+                await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal);
             }
 
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
@@ -181,7 +181,7 @@ namespace NosCore.Parser.Parsers
                 .Where(s => s.SourceMapId.Equals(portal.SourceMapId)).Any(
                     s => (s.DestinationMapId == portal.DestinationMapId) && (s.SourceX == portal.SourceX)
                         && (s.SourceY == portal.SourceY))).ToList();
-            await portalDao.TryInsertOrUpdateAsync(portalsDtos).ConfigureAwait(false);
+            await portalDao.TryInsertOrUpdateAsync(portalsDtos);
 
             logger.Information(logLanguage[LogLanguageKey.PORTALS_PARSED],
                 portalsDtos.Count + portalCounter);

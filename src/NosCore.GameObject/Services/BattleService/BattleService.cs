@@ -24,7 +24,6 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
-using static NosCore.Data.Enumerations.Buff.AdditionalTypes;
 
 namespace NosCore.GameObject.Services.BattleService;
 

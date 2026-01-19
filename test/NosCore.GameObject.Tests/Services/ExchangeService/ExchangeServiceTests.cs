@@ -1,19 +1,19 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -26,7 +26,7 @@ using Moq;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Holders;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -35,6 +35,8 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
+using ExchangeRequestRegistry = NosCore.GameObject.Services.ExchangeService.ExchangeRequestRegistry;
 
 namespace NosCore.GameObject.Tests.Services.ExchangeService
 {
@@ -42,17 +44,14 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
     public class ExchangeServiceTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private GameObject.Services.ExchangeService.ExchangeService? _exchangeProvider;
-
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-
-        private IOptions<WorldConfiguration>? _worldConfiguration;
+        private GameObject.Services.ExchangeService.ExchangeService? ExchangeProvider;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private IOptions<WorldConfiguration>? WorldConfiguration;
 
         [TestInitialize]
         public void Setup()
         {
-
-            _worldConfiguration = Options.Create(new WorldConfiguration
+            WorldConfiguration = Options.Create(new WorldConfiguration
             {
                 MaxItemAmount = 999,
                 BackpackSize = 48,
@@ -66,112 +65,186 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
                 new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            _exchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(_itemProvider, _worldConfiguration, Logger, new ExchangeRequestHolder(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, Logger, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]
-        public void Test_Set_Gold()
+        public void SettingGoldShouldUpdateExchangeData()
         {
-            _exchangeProvider!.OpenExchange(1, 2);
-            _exchangeProvider.SetGold(1, 1000, 1000);
-            _exchangeProvider.SetGold(2, 2000, 2000);
+            new Spec("Setting gold should update exchange data")
+                .Given(ExchangeIsOpen)
+                .When(SettingGoldForBothParties)
+                .Then(BothPartiesShouldHaveCorrectGold)
+                .Execute();
+        }
 
-            var data1 = _exchangeProvider.GetData(1);
-            var data2 = _exchangeProvider.GetData(2);
+        [TestMethod]
+        public void ConfirmingExchangeShouldSetConfirmedFlag()
+        {
+            new Spec("Confirming exchange should set confirmed flag")
+                .Given(ExchangeIsOpen)
+                .When(BothPartiesConfirm)
+                .Then(BothShouldBeConfirmed)
+                .Execute();
+        }
 
+        [TestMethod]
+        public void AddingItemsShouldAddToExchange()
+        {
+            new Spec("Adding items should add to exchange")
+                .Given(ExchangeIsOpen)
+                .When(AddingItemToExchange)
+                .Then(ExchangeShouldContainItem)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void CheckingExchangeShouldReturnCorrectStatus()
+        {
+            new Spec("Checking exchange should return correct status")
+                .Then(CheckBeforeOpenShouldBeFalse)
+                .And(CheckAfterOpenShouldBeTrue)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void ClosingExchangeShouldWorkCorrectly()
+        {
+            new Spec("Closing exchange should work correctly")
+                .Then(CloseWithoutExchangeShouldReturnNull)
+                .And(CloseWithExchangeShouldReturnResult)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void OpeningExchangeShouldSucceed()
+        {
+            new Spec("Opening exchange should succeed")
+                .Then(FirstExchangeShouldSucceed)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void OpeningSecondExchangeShouldFail()
+        {
+            new Spec("Opening second exchange should fail")
+                .Given(ExchangeIsOpen)
+                .Then(SecondExchangeShouldFail)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void ProcessingExchangeShouldSwapItems()
+        {
+            new Spec("Processing exchange should swap items")
+                .Then(ProcessExchangeShouldReturnItemsForBoth)
+                .Execute();
+        }
+
+        private void ExchangeIsOpen()
+        {
+            ExchangeProvider!.OpenExchange(1, 2);
+        }
+
+        private void SettingGoldForBothParties()
+        {
+            ExchangeProvider!.SetGold(1, 1000, 1000);
+            ExchangeProvider.SetGold(2, 2000, 2000);
+        }
+
+        private void BothPartiesShouldHaveCorrectGold()
+        {
+            var data1 = ExchangeProvider!.GetData(1);
+            var data2 = ExchangeProvider.GetData(2);
             Assert.IsTrue((data1.Gold == 1000) && (data1.BankGold == 1000) && (data2.Gold == 2000) &&
                 (data2.BankGold == 2000));
         }
 
-        [TestMethod]
-        public void Test_Confirm_Exchange()
+        private void BothPartiesConfirm()
         {
-            _exchangeProvider!.OpenExchange(1, 2);
-            _exchangeProvider.ConfirmExchange(1);
-            _exchangeProvider.ConfirmExchange(2);
+            ExchangeProvider!.ConfirmExchange(1);
+            ExchangeProvider.ConfirmExchange(2);
+        }
 
-            var data1 = _exchangeProvider.GetData(1);
-            var data2 = _exchangeProvider.GetData(2);
-
+        private void BothShouldBeConfirmed()
+        {
+            var data1 = ExchangeProvider!.GetData(1);
+            var data2 = ExchangeProvider.GetData(2);
             Assert.IsTrue(data1.ExchangeConfirmed && data2.ExchangeConfirmed);
         }
 
-        [TestMethod]
-        public void Test_Add_Items()
+        private void AddingItemToExchange()
         {
-            _exchangeProvider!.OpenExchange(1, 2);
-
             var item = new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 })
             {
                 Amount = 1
             });
+            ExchangeProvider!.AddItems(1, item, item.ItemInstance.Amount);
+        }
 
-            _exchangeProvider.AddItems(1, item, item.ItemInstance.Amount);
-
-            var data1 = _exchangeProvider.GetData(1);
-
+        private void ExchangeShouldContainItem()
+        {
+            var data1 = ExchangeProvider!.GetData(1);
             Assert.IsTrue(data1.ExchangeItems.Any(s =>
                 (s.Key.ItemInstance?.ItemVNum == 1012) && (s.Key.ItemInstance.Amount == 1)));
         }
 
-        [TestMethod]
-        public void Test_Check_Exchange()
+        private void CheckBeforeOpenShouldBeFalse()
         {
-            var wrongExchange = _exchangeProvider!.CheckExchange(1);
-            _exchangeProvider.OpenExchange(1, 2);
-            var goodExchange = _exchangeProvider.CheckExchange(1);
-
-            Assert.IsTrue(!wrongExchange && goodExchange);
-        }
-
-        [TestMethod]
-        public void Test_Close_Exchange()
-        {
-            var wrongClose = _exchangeProvider!.CloseExchange(1, ExchangeResultType.Failure);
-
-            Assert.IsNull(wrongClose);
-
-            _exchangeProvider.OpenExchange(1, 2);
-            var goodClose = _exchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
-            Assert.IsTrue((goodClose != null) && (goodClose.Type == ExchangeResultType.Failure));
-        }
-
-        [TestMethod]
-        public void Test_Open_Exchange()
-        {
-            var exchange = _exchangeProvider!.OpenExchange(1, 2);
-            Assert.IsTrue(exchange);
-        }
-
-        [TestMethod]
-        public void Test_Open_Second_Exchange()
-        {
-            var exchange = _exchangeProvider!.OpenExchange(1, 2);
-            Assert.IsTrue(exchange);
-
-            var wrongExchange = _exchangeProvider.OpenExchange(1, 3);
+            var wrongExchange = ExchangeProvider!.CheckExchange(1);
             Assert.IsFalse(wrongExchange);
         }
 
-        [TestMethod]
-        public void Test_Process_Exchange()
+        private void CheckAfterOpenShouldBeTrue()
+        {
+            ExchangeProvider!.OpenExchange(1, 2);
+            var goodExchange = ExchangeProvider.CheckExchange(1);
+            Assert.IsTrue(goodExchange);
+        }
+
+        private void CloseWithoutExchangeShouldReturnNull()
+        {
+            var wrongClose = ExchangeProvider!.CloseExchange(1, ExchangeResultType.Failure);
+            Assert.IsNull(wrongClose);
+        }
+
+        private void CloseWithExchangeShouldReturnResult()
+        {
+            ExchangeProvider!.OpenExchange(1, 2);
+            var goodClose = ExchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
+            Assert.IsTrue((goodClose != null) && (goodClose.Type == ExchangeResultType.Failure));
+        }
+
+        private void FirstExchangeShouldSucceed()
+        {
+            var exchange = ExchangeProvider!.OpenExchange(1, 2);
+            Assert.IsTrue(exchange);
+        }
+
+        private void SecondExchangeShouldFail()
+        {
+            var wrongExchange = ExchangeProvider!.OpenExchange(1, 3);
+            Assert.IsFalse(wrongExchange);
+        }
+
+        private void ProcessExchangeShouldReturnItemsForBoth()
         {
             IInventoryService inventory1 =
                 new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    _worldConfiguration!, Logger);
+                    WorldConfiguration!, Logger);
             IInventoryService inventory2 =
                 new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main } },
-                    _worldConfiguration!, Logger);
-            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1012, 1), 0))!
+                    WorldConfiguration!, Logger);
+            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 1), 0))!
                 .First();
-            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(_itemProvider.Create(1013, 1), 0))!
+            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 1), 0))!
                 .First();
 
-            _exchangeProvider!.OpenExchange(1, 2);
-            _exchangeProvider.AddItems(1, item1, 1);
-            _exchangeProvider.AddItems(2, item2, 1);
-            var itemList = _exchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
+            ExchangeProvider!.OpenExchange(1, 2);
+            ExchangeProvider.AddItems(1, item1, 1);
+            ExchangeProvider.AddItems(2, item2, 1);
+            var itemList = ExchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
             Assert.IsTrue((itemList.Count(s => s.Key == 1) == 2) && (itemList.Count(s => s.Key == 2) == 2));
         }
     }

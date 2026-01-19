@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -92,7 +92,7 @@ namespace NosCore.Parser.Parsers
                     Name = "DefaultOasis"
                 }
             };
-            await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps).ConfigureAwait(false);
+            await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps);
             logger.Information(logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
                 respawnmaptypemaps.Count());
         }

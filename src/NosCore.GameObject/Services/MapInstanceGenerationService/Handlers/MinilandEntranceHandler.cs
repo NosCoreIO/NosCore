@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -43,16 +43,16 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
                 await requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {
                     Message = miniland.MinilandMessage!.Replace(' ', '^')
-                }).ConfigureAwait(false);
+                });
 
                 miniland.DailyVisitCount++;
                 miniland.VisitCount++;
-                await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfobr()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfobr());
             }
             else
             {
-                await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfo()).ConfigureAwait(false);
-                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateMlobjlst()).ConfigureAwait(false);
+                await requestData.ClientSession.SendPacketAsync(miniland.GenerateMlinfo());
+                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateMlobjlst());
             }
 
             //TODO add pets
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
                 Message = Game18NConstString.TotalVisitors,
                 ArgumentType = 4,
                 Game18NArguments = { miniland.VisitCount }
-            }).ConfigureAwait(false);
+            });
 
             await requestData.ClientSession.SendPacketAsync(new SayiPacket
             {
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
                 Message = Game18NConstString.TodayVisitors,
                 ArgumentType = 4,
                 Game18NArguments = { miniland.DailyVisitCount }
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

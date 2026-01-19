@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -19,7 +19,6 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NRunService;
@@ -33,6 +32,8 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 
@@ -50,7 +51,7 @@ namespace NosCore.PacketHandlers.Shops
                 await clientSession.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.OpenShopAwayPortal
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.Shops
                     VisualId = clientSession.Character.CharacterId,
                     Type = SayColorType.Red,
                     Message = Game18NConstString.TeammateCanNotOpenShop
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -71,8 +72,8 @@ namespace NosCore.PacketHandlers.Shops
                 await clientSession.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UseCommercialMapToShop
-                }).ConfigureAwait(false);
-                await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
+                });
+                await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                 return;
             }
 
@@ -97,9 +98,14 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        if (inv.ItemInstance.Amount < item.Amount)
+                        if (inv.ItemInstance.Amount < item.Amount || item.Amount <= 0)
                         {
                             //todo log
+                            return;
+                        }
+
+                        if (item.Price < 0)
+                        {
                             return;
                         }
 
@@ -111,8 +117,8 @@ namespace NosCore.PacketHandlers.Shops
                                 VisualId = clientSession.Character.CharacterId,
                                 Type = SayColorType.Red,
                                 Message = Game18NConstString.SomeItemsCannotBeTraded
-                            }).ConfigureAwait(false);
-                            await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
+                            });
+                            await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                             clientSession.Character.Shop = null;
                             return;
                         }
@@ -136,8 +142,8 @@ namespace NosCore.PacketHandlers.Shops
                             VisualId = clientSession.Character.CharacterId,
                             Type = SayColorType.Yellow,
                             Message = Game18NConstString.NoItemToSell
-                        }).ConfigureAwait(false);
-                        await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop }).ConfigureAwait(false);
+                        });
+                        await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                         clientSession.Character.Shop = null;
                         return;
                     }
@@ -155,26 +161,26 @@ namespace NosCore.PacketHandlers.Shops
                             mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
                     }
 
-                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop(clientSession.Character.AccountLanguage)).ConfigureAwait(false);
+                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop(clientSession.Character.AccountLanguage));
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.ShopOpened
-                    }).ConfigureAwait(false);
+                    });
 
                     clientSession.Character.Requests[typeof(INrunEventHandler)].Subscribe(data =>
                         data.ClientSession.SendPacketAsync(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
-                        new EveryoneBut(clientSession.Channel!.Id)).ConfigureAwait(false);
+                        new EveryoneBut(clientSession.Channel!.Id));
                     clientSession.Character.IsSitting = true;
-                    await clientSession.SendPacketAsync(clientSession.Character.GenerateCond()).ConfigureAwait(false);
-                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateRest()).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateCond());
+                    await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateRest());
                     break;
                 case CreateShopPacketType.Close:
-                    await clientSession.Character.CloseShopAsync().ConfigureAwait(false);
+                    await clientSession.Character.CloseShopAsync();
                     break;
                 case CreateShopPacketType.Create:
-                    await clientSession.SendPacketAsync(new IshopPacket()).ConfigureAwait(false);
+                    await clientSession.SendPacketAsync(new IshopPacket());
                     break;
                 default:
                     //todo log

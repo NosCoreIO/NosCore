@@ -19,7 +19,6 @@
 
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
@@ -35,7 +34,7 @@ public class LoginPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         var packetHeader = packet.Header;
         if (string.IsNullOrWhiteSpace(packetHeader))
         {
-            await session.DisconnectAsync().ConfigureAwait(false);
+            await session.DisconnectAsync();
             return;
         }
 
@@ -53,6 +52,6 @@ public class LoginPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
             return;
         }
 
-        await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
+        await handler.ExecuteAsync(packet, session);
     }
 }

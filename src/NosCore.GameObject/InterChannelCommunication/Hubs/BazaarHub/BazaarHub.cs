@@ -33,7 +33,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter) => Task.FromResult(bazaarService.GetBazaar(id, index, pageSize, typeFilter,
             subTypeFilter, levelFilter, rareFilter, upgradeFilter, sellerFilter));
 
-        public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName) => bazaarService.DeleteBazaarAsync(id, count, requestCharacterName);
+        public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null) => bazaarService.DeleteBazaarAsync(id, count, requestCharacterName, requestCharacterId);
 
         public Task<LanguageKey> AddBazaarAsync( BazaarRequest bazaarRequest) => bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
             bazaarRequest.CharacterId, bazaarRequest.CharacterName, bazaarRequest.HasMedal, bazaarRequest.Price, bazaarRequest.IsPackage, bazaarRequest.Duration, bazaarRequest.Amount);

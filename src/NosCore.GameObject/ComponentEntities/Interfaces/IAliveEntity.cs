@@ -19,8 +19,7 @@
 
 using System.Collections.Concurrent;
 using System.Threading;
-using System.Threading.Tasks;
-using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ShopService;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -22,7 +22,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.UI;
@@ -83,16 +82,16 @@ namespace NosCore.GameObject.Services.GuriRunnerService.Handlers
                     return;
                 }
                 message = CraftMessage(message, valuesplit.Skip(2).ToArray()).Replace(' ', '|');
-                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
+                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSayItem(message, deeplink), requestData.ClientSession.Channel!.Id);
             }
             else
             {
                 message = CraftMessage(message, valuesplit);
-                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), requestData.ClientSession.Channel!.Id).ConfigureAwait(false);
+                await sessionRegistry.BroadcastPacketAsync(requestData.ClientSession.Character.GenerateSay(message, (SayColorType)13), requestData.ClientSession.Channel!.Id);
             }
 
             requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await requestData.ClientSession.Character.SendPacketAsync(inv.GeneratePocketChange(PocketType.Etc, (short)(requestData.Data.VisualId ?? 0))).ConfigureAwait(false);
+            await requestData.ClientSession.Character.SendPacketAsync(inv.GeneratePocketChange(PocketType.Etc, (short)(requestData.Data.VisualId ?? 0)));
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -24,7 +24,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -38,6 +37,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.PacketHandlers.Command
 {
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Command
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.ItemDoesNotExist
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -127,11 +127,11 @@ namespace NosCore.PacketHandlers.Command
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.NotEnoughSpace
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
-            await session.SendPacketAsync(inv.GeneratePocketChange()).ConfigureAwait(false);
+            await session.SendPacketAsync(inv.GeneratePocketChange());
             var firstItem = inv[0];
 
             if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
@@ -166,7 +166,7 @@ namespace NosCore.PacketHandlers.Command
                 Message = Game18NConstString.ReceivedThisItem,
                 ArgumentType = 2,
                 Game18NArguments = { iteminfo.VNum.ToString(), amount }
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

@@ -41,15 +41,6 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Networking;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ClientPackets.Battle;
-using NosCore.Packets.ServerPackets.Battle;
-using Microsoft.AspNetCore.Http;
-using NosCore.Data.Enumerations.Battle;
-using NosCore.Data.Enumerations.Map;
-using static NosCore.Data.Enumerations.Buff.AdditionalTypes;
-using System.Collections.Concurrent;
-using System.Threading;
 
 
 namespace NosCore.GameObject.ComponentEntities.Extensions

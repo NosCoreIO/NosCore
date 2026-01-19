@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -21,9 +21,7 @@ using NosCore.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
@@ -32,6 +30,7 @@ using NosCore.Packets.ServerPackets.UI;
 using Serilog;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using Character = NosCore.Data.WebApi.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -47,7 +46,7 @@ namespace NosCore.PacketHandlers.Chat
     {
         public override async Task ExecuteAsync(BtkPacket btkPacket, ClientSession session)
         {
-            var friendlist = await friendHttpClient.GetFriendsAsync(session.Character.VisualId).ConfigureAwait(false);
+            var friendlist = await friendHttpClient.GetFriendsAsync(session.Character.VisualId);
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
@@ -69,7 +68,7 @@ namespace NosCore.PacketHandlers.Chat
 
             if (receiverSession != null)
             {
-                await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message)).ConfigureAwait(false);
+                await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message));
                 return;
             }
 
@@ -81,7 +80,7 @@ namespace NosCore.PacketHandlers.Chat
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.FriendOffline
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -94,7 +93,7 @@ namespace NosCore.PacketHandlers.Chat
                 { Name = session.Character.Name, Id = session.Character.CharacterId },
                 OriginWorldId = channel.ChannelId,
                 ReceiverType = ReceiverType.OnlySomeone
-            }).ConfigureAwait(false);
+            });
         }
     }
 }

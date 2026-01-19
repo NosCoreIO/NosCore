@@ -25,6 +25,8 @@ namespace NosCore.Data.WebApi
     {
         public WarehouseDto? Warehouse { get; set; }
 
+        public short Slot { get; set; }
+
         //todo move this to a generic ItemInstance with a converter
         public ItemInstanceDto? ItemInstance { get; set; }
     }

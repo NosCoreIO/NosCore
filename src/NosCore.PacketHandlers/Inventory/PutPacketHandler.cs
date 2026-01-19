@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -22,12 +22,12 @@ using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject;
 using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using System.Threading.Tasks;
+using NosCore.GameObject.Infastructure;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.Enumerations;
@@ -65,14 +65,14 @@ namespace NosCore.PacketHandlers.Inventory
                                 VisualId = clientSession.Character.CharacterId,
                                 Type = SayColorType.Yellow,
                                 Message = Game18NConstString.CantDropItem
-                            }).ConfigureAwait(false);
+                            });
                             return;
                         }
 
                         invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType)putPacket.PocketType);
-                        await clientSession.SendPacketAsync(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot)).ConfigureAwait(false);
-                        await clientSession.Character.MapInstance.SendPacketAsync(droppedItem.GenerateDrop()).ConfigureAwait(false);
+                        await clientSession.SendPacketAsync(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
+                        await clientSession.Character.MapInstance.SendPacketAsync(droppedItem.GenerateDrop());
                     }
                     else
                     {
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Inventory
                         {
                             Type = MessageType.Default,
                             Message = gameLanguageLocalizer[LanguageKey.DROP_MAP_FULL, clientSession.Account.Language],
-                        }).ConfigureAwait(false);
+                        });
                     }
                 }
                 else
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         Type = MessageType.Default,
                         Message = gameLanguageLocalizer[LanguageKey.BAD_DROP_AMOUNT, clientSession.Account.Language],
-                    }).ConfigureAwait(false);
+                    });
                 }
             }
             else
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Inventory
                     VisualId = clientSession.Character.CharacterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.CantDropItem
-                }).ConfigureAwait(false);
+                });
             }
         }
     }
