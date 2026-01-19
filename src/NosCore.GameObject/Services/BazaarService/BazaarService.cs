@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -165,7 +165,7 @@ namespace NosCore.GameObject.Services.BazaarService
             return bzlist.Skip(index ?? 0 * pageSize ?? 0).Take((byte)(pageSize ?? bzlist.Count)).ToList();
         }
 
-        public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName)
+        public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null)
         {
             var bzlink = bazaarRegistry.GetById(id);
             if (bzlink == null)
@@ -173,12 +173,12 @@ namespace NosCore.GameObject.Services.BazaarService
                 throw new ArgumentException();
             }
 
-            if ((bzlink.ItemInstance?.Amount - count < 0) || (count < 0))
+            if ((bzlink.ItemInstance?.Amount - count < 0) || (count <= 0))
             {
                 return false;
             }
 
-            if ((bzlink.ItemInstance?.Amount == count) && (requestCharacterName == bzlink.SellerName))
+            if (bzlink.ItemInstance?.Amount == count)
             {
                 await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId);
                 bazaarRegistry.Unregister(bzlink.BazaarItem.BazaarItemId);
@@ -189,6 +189,13 @@ namespace NosCore.GameObject.Services.BazaarService
                 var item = (IItemInstanceDto)bzlink.ItemInstance!;
                 item.Amount -= count;
                 await itemInstanceDao.TryInsertOrUpdateAsync(item);
+
+                if (item.Amount <= 0)
+                {
+                    await bazaarItemDao.TryDeleteAsync(bzlink.BazaarItem!.BazaarItemId);
+                    bazaarRegistry.Unregister(bzlink.BazaarItem.BazaarItemId);
+                    await itemInstanceDao.TryDeleteAsync(item.Id);
+                }
             }
 
             return true;

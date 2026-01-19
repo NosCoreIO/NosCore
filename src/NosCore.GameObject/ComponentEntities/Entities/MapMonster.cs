@@ -100,6 +100,8 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 
         public Task StartLifeAsync()
         {
+            Life?.Dispose();
+
             async Task LifeAsync()
             {
                 try
@@ -113,7 +115,6 @@ namespace NosCore.GameObject.ComponentEntities.Entities
                 {
                     logger.Error(e.Message, e);
                 }
-
             }
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
             return Task.CompletedTask;

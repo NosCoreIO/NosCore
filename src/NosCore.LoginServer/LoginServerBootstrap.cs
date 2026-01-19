@@ -38,7 +38,6 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Login;

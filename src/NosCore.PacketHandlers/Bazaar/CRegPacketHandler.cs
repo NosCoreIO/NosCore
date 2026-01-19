@@ -49,9 +49,19 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CRegPacket cRegPacket, ClientSession clientSession)
         {
+            if (cRegPacket.Amount <= 0 || cRegPacket.Price < 0)
+            {
+                return;
+            }
+
             var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
                 (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
                 (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
+
+            if (cRegPacket.Price > long.MaxValue / cRegPacket.Amount)
+            {
+                return;
+            }
 
             var price = cRegPacket.Price * cRegPacket.Amount;
             var taxmax = price > 100000 ? price / 200 : 500;

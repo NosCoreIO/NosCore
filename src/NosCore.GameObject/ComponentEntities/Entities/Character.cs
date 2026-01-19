@@ -491,14 +491,31 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 
         public async Task BuyAsync(Shop shop, short slot, short amount)
         {
+            if (amount <= 0)
+            {
+                return;
+            }
+
             var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
             if (item == null)
             {
                 return;
             }
 
-            var price = item.Price ?? item.ItemInstance!.Item.Price * amount;
-            var reputprice = item.Price == null ? item.ItemInstance!.Item.ReputPrice * amount : 0;
+            var itemPrice = item.Price ?? item.ItemInstance!.Item.Price;
+            if (itemPrice < 0 || itemPrice > long.MaxValue / amount)
+            {
+                return;
+            }
+            var price = itemPrice * amount;
+
+            var itemReputPrice = item.Price == null ? item.ItemInstance!.Item.ReputPrice : 0;
+            if (itemReputPrice < 0 || itemReputPrice > long.MaxValue / amount)
+            {
+                return;
+            }
+            var reputprice = itemReputPrice * amount;
+
             var percent = DignityIcon switch
             {
                 DignityType.Dreadful => 1.1,

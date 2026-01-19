@@ -19,12 +19,14 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ItemStorage;
 using System;
 using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.InventoryService
 {
-    public interface IInventoryService : IDictionary<Guid, InventoryItemInstance>
+    public interface IInventoryService : IDictionary<Guid, InventoryItemInstance>,
+        IMutableSlotBasedStorage<InventoryItemInstance, NoscorePocketType>
     {
         Dictionary<NoscorePocketType, byte> Expensions { get; set; }
 
@@ -35,7 +37,6 @@ namespace NosCore.GameObject.Services.InventoryService
             AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
 
         bool CanAddItem(short itemVnum);
-        int CountItem(int itemVNum);
         int CountItemInAnPocket(NoscorePocketType inv);
         InventoryItemInstance? DeleteById(Guid id);
         InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot);
@@ -48,10 +49,6 @@ namespace NosCore.GameObject.Services.InventoryService
         InventoryItemInstance? MoveInPocket(short sourceSlot, NoscorePocketType sourceType, NoscorePocketType targetType,
             short? targetSlot, bool swap);
 
-        bool TryMoveItem(NoscorePocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
-            out InventoryItemInstance? sourcePocket, out InventoryItemInstance? destinationPocket);
-
-        bool EnoughPlace(List<IItemInstance> itemInstances, NoscorePocketType type);
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
     }
 }

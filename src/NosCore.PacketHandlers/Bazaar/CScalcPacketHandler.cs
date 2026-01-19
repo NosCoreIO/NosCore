@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -82,20 +82,27 @@ namespace NosCore.PacketHandlers.Bazaar
                         });
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
                         
-                        var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id);
-                        if (itemInstance == null)
+                        if (bz.ItemInstance.Amount > 0)
                         {
-                            return;
-                        }
-                        var item = itemProvider.Convert(itemInstance);
-                        item.Id = Guid.NewGuid();
+                            var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id);
+                            if (itemInstance == null)
+                            {
+                                return;
+                            }
+                            var item = itemProvider.Convert(itemInstance);
+                            item.Id = Guid.NewGuid();
 
-                        var newInv =
-                            clientSession.Character.InventoryService.AddItemToPocket(
-                                InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange());
+                            var newInv =
+                                clientSession.Character.InventoryService.AddItemToPocket(
+                                    InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                            if (newInv != null)
+                            {
+                                await clientSession.SendPacketAsync(newInv.GeneratePocketChange());
+                            }
+                        }
+
                         var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, bz.ItemInstance.Amount,
-                            clientSession.Character.Name);
+                            clientSession.Character.Name, clientSession.Character.CharacterId);
                         if (remove)
                         {
                             await clientSession.SendPacketAsync(new RCScalcPacket

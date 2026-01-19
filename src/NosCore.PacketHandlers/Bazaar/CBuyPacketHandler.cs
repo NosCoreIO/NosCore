@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -48,6 +48,11 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CBuyPacket packet, ClientSession clientSession)
         {
+            if (packet.Amount <= 0)
+            {
+                return;
+            }
+
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
@@ -61,7 +66,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var price = bz.BazaarItem.Price * packet.Amount;
                 if (clientSession.Character.InventoryService.CanAddItem(bz.ItemInstance.ItemVNum))
                 {
-                    if (clientSession.Character.Gold - price > 0)
+                    if (clientSession.Character.Gold >= price)
                     {
                         clientSession.Character.Gold -= price;
                         await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());

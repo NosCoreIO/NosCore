@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.BazaarService
         List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter);
 
-        Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName);
+        Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null);
 
         Task<LanguageKey> AddBazaarAsync(Guid itemInstanceId, long characterId, string? characterName, bool hasMedal, long price, bool isPackage, short duration, short amount);
 

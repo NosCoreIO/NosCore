@@ -98,9 +98,14 @@ namespace NosCore.PacketHandlers.Shops
                             continue;
                         }
 
-                        if (inv.ItemInstance.Amount < item.Amount)
+                        if (inv.ItemInstance.Amount < item.Amount || item.Amount <= 0)
                         {
                             //todo log
+                            return;
+                        }
+
+                        if (item.Price < 0)
+                        {
                             return;
                         }
 

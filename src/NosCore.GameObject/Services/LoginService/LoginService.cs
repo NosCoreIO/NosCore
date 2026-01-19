@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Services.LoginService
                 }
 
                 if ((acc == null)
-                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.OrdinalIgnoreCase)))
+                    || (!useApiAuth && !string.Equals(acc.Password, passwordToken, StringComparison.Ordinal)))
                 {
                     await clientSession.SendPacketAsync(new FailcPacket
                     {

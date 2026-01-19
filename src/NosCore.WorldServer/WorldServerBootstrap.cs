@@ -63,7 +63,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Resource;
 using NosCore.Database.Entities.Base;
-using NosCore.GameObject;
 using NosCore.Packets.Attributes;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -72,7 +71,6 @@ using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 using System.Collections.Generic;
@@ -87,7 +85,6 @@ using NosCore.Packets;
 using ILogger = Serilog.ILogger;
 using Character = NosCore.GameObject.ComponentEntities.Entities.Character;
 using NosCore.Packets.Enumerations;
-using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
@@ -135,7 +132,8 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterLogger();
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHubClient).Assembly)
                 .Where(t => t.Name.EndsWith("HubClient") && t.Name != nameof(ChannelHubClient))
-                .AsImplementedInterfaces();
+                .AsImplementedInterfaces()
+                .SingleInstance();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<HubConnectionFactory>();
 

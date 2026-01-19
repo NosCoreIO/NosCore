@@ -134,6 +134,8 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 
         public Task StartLifeAsync()
         {
+            Life?.Dispose();
+
             async Task LifeAsync()
             {
                 try

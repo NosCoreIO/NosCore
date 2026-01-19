@@ -109,11 +109,21 @@ namespace NosCore.GameObject.Services.ExchangeService
                     dictionary);
             }
 
-            if (session.Character.InventoryService.EnoughPlace(
+            var targetFirstItem = targetInfo.ExchangeItems.Keys.FirstOrDefault();
+            var exchangeFirstItem = exchangeInfo.ExchangeItems.Keys.FirstOrDefault();
+
+            var targetHasItems = targetFirstItem != null;
+            var exchangeHasItems = exchangeFirstItem != null;
+
+            var targetEnoughPlace = !targetHasItems || session.Character.InventoryService.EnoughPlace(
                 targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
-                targetInfo.ExchangeItems.Keys.First().Type) && targetSession.InventoryService.EnoughPlace(
+                targetFirstItem!.Type);
+
+            var exchangeEnoughPlace = !exchangeHasItems || targetSession.InventoryService.EnoughPlace(
                 exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
-                targetInfo.ExchangeItems.Keys.First().Type))
+                exchangeFirstItem!.Type);
+
+            if (targetEnoughPlace && exchangeEnoughPlace)
             {
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Success, null);
             }
@@ -233,6 +243,15 @@ namespace NosCore.GameObject.Services.ExchangeService
         {
             var usersArray = new[] { firstUser, secondUser };
             var items = new List<KeyValuePair<long, IvnPacket>>();
+            var pendingTransfers = new List<(
+                IInventoryService OriginInventory,
+                IInventoryService DestInventory,
+                InventoryItemInstance OriginalItem,
+                short Amount,
+                long TargetId,
+                long SessionId,
+                bool IsFullTransfer
+            )>();
 
             foreach (var user in usersArray)
             {
@@ -245,31 +264,57 @@ namespace NosCore.GameObject.Services.ExchangeService
                     var originInventory = user == firstUser ? sessionInventory : targetInventory;
                     var targetId = user == firstUser ? secondUser : firstUser;
                     var sessionId = user == firstUser ? firstUser : secondUser;
-                    InventoryItemInstance? newItem = null;
+                    var isFullTransfer = item.Value == item.Key.ItemInstance.Amount;
 
-                    if (item.Value == item.Key.ItemInstance.Amount)
-                    {
-                        originInventory.Remove(item.Key.ItemInstanceId);
-                    }
-                    else
-                    {
-                        newItem = originInventory.RemoveItemAmountFromInventory(item.Value, item.Key.ItemInstanceId);
-                    }
-
-                    var inv = destInventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(
-                        item.Key.ItemInstance.ItemVNum,
-                        item.Key.ItemInstance.Amount, (sbyte)item.Key.ItemInstance.Rare, item.Key.ItemInstance.Upgrade,
-                        (byte)item.Key.ItemInstance.Design), targetId))?.FirstOrDefault();
-                    if (inv == null)
-                    {
-                        return items;
-                    }
-
-                    items.Add(new KeyValuePair<long, IvnPacket>(sessionId,
-                        newItem.GeneratePocketChange((PocketType)item.Key.Type, item.Key.Slot)));
-                    items.Add(new KeyValuePair<long, IvnPacket>(targetId,
-                        item.Key.GeneratePocketChange((PocketType)inv.Type, inv.Slot)));
+                    pendingTransfers.Add((originInventory, destInventory, item.Key, item.Value, targetId, sessionId, isFullTransfer));
                 }
+            }
+
+            var addedItems = new List<(IInventoryService Inventory, InventoryItemInstance Item)>();
+
+            foreach (var transfer in pendingTransfers)
+            {
+                var newItem = itemBuilderService.Create(
+                    transfer.OriginalItem.ItemInstance.ItemVNum,
+                    transfer.Amount,
+                    (sbyte)transfer.OriginalItem.ItemInstance.Rare,
+                    transfer.OriginalItem.ItemInstance.Upgrade,
+                    (byte)transfer.OriginalItem.ItemInstance.Design);
+
+                var inv = transfer.DestInventory.AddItemToPocket(
+                    InventoryItemInstance.Create(newItem, transfer.TargetId))?.FirstOrDefault();
+
+                if (inv == null)
+                {
+                    foreach (var added in addedItems)
+                    {
+                        added.Inventory.DeleteFromTypeAndSlot(added.Item.Type, added.Item.Slot);
+                    }
+                    return new List<KeyValuePair<long, IvnPacket>>();
+                }
+
+                addedItems.Add((transfer.DestInventory, inv));
+            }
+
+            for (var i = 0; i < pendingTransfers.Count; i++)
+            {
+                var transfer = pendingTransfers[i];
+                var addedItem = addedItems[i];
+
+                InventoryItemInstance? sourceItem = null;
+                if (transfer.IsFullTransfer)
+                {
+                    transfer.OriginInventory.Remove(transfer.OriginalItem.ItemInstanceId);
+                }
+                else
+                {
+                    sourceItem = transfer.OriginInventory.RemoveItemAmountFromInventory(transfer.Amount, transfer.OriginalItem.ItemInstanceId);
+                }
+
+                items.Add(new KeyValuePair<long, IvnPacket>(transfer.SessionId,
+                    (sourceItem ?? transfer.OriginalItem).GeneratePocketChange((PocketType)transfer.OriginalItem.Type, transfer.OriginalItem.Slot)));
+                items.Add(new KeyValuePair<long, IvnPacket>(transfer.TargetId,
+                    transfer.OriginalItem.GeneratePocketChange((PocketType)addedItem.Item.Type, addedItem.Item.Slot)));
             }
 
             return items;

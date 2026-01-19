@@ -39,6 +39,11 @@ namespace NosCore.PacketHandlers.Shops
         {
             var type = (NoscorePocketType)sellPacket.Data;
 
+            if (sellPacket.Amount <= 0)
+            {
+                return;
+            }
+
             var inv = clientSession.Character.InventoryService.LoadBySlotAndType(sellPacket.Slot, type);
             if ((inv == null) || (sellPacket.Amount > inv.ItemInstance.Amount))
             {
@@ -59,7 +64,14 @@ namespace NosCore.PacketHandlers.Shops
             var price = inv.ItemInstance.Item.ItemType == ItemType.Sell ? inv.ItemInstance.Item.Price
                 : inv.ItemInstance.Item.Price / 20;
 
-            if (clientSession.Character.Gold + price * sellPacket.Amount > worldConfiguration.Value.MaxGoldAmount)
+            if (price < 0 || price > long.MaxValue / sellPacket.Amount)
+            {
+                return;
+            }
+
+            var totalPrice = price * sellPacket.Amount;
+
+            if (clientSession.Character.Gold + totalPrice > worldConfiguration.Value.MaxGoldAmount)
             {
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
@@ -69,7 +81,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            clientSession.Character.Gold += price * sellPacket.Amount;
+            clientSession.Character.Gold += totalPrice;
 
             await clientSession.SendPacketAsync(new SMemoiPacket
             {
