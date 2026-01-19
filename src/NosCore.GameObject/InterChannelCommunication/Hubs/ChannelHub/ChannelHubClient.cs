@@ -1,12 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR.Client;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Polly;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 {

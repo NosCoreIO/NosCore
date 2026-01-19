@@ -17,13 +17,13 @@
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-using System.IO;
-using System.Linq;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System.IO;
+using System.Linq;
+using System.Text;
 
 namespace NosCore.DtoGenerator
 {
@@ -199,7 +199,7 @@ namespace NosCore.DtoGenerator
                                 DiagnosticSeverity.Error,
                                 true), null));
                     }
-                
+
                     var code = $@"//  __  _  __    __   ___ __  ___ ___  
 // |  \| |/__\ /' _/ / _//__\| _ \ __| 
 // | | ' | \/ |`._`.| \_| \/ | v / _|  

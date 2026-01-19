@@ -2,26 +2,14 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
-// Copyright (C) 2019 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
-using System.Linq;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -30,9 +18,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using System.Linq;
 using System.Threading.Tasks;
-using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
@@ -42,7 +29,7 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
-            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId,null,null,null,null,null,null,null,null);
+            var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
@@ -64,7 +51,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
                     {
-                        await clientSession.HandlePacketsAsync(new[] {new CSListPacket {Index = 0, Filter = BazaarStatusType.Default}});
+                        await clientSession.HandlePacketsAsync(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
                             VisualType = VisualType.Player,

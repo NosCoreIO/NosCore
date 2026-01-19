@@ -1,5 +1,5 @@
-using System.Threading.Tasks;
 using NosCore.GameObject.Services.BroadcastService;
+using System.Threading.Tasks;
 using DisconnectData = NosCore.GameObject.InterChannelCommunication.Messages.DisconnectData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers

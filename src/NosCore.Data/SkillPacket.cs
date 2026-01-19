@@ -1,7 +1,7 @@
-﻿using NosCore.Packets.Attributes;
-using NosCore.Packets;
-using System.Collections.Generic;
+﻿using NosCore.Packets;
+using NosCore.Packets.Attributes;
 using NosCore.Packets.Enumerations;
+using System.Collections.Generic;
 
 //todo move to NosCore.Packets
 namespace NosCore.Data

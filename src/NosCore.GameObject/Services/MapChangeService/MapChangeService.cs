@@ -1,7 +1,4 @@
 
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -25,6 +22,9 @@ using NosCore.Packets.ServerPackets.Map;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapChangeService
 {
@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 session.Character.MapInstance = mapInstance;
             }
-            
+
             mapInstanceAccessorService.GetMapInstance(session.Character.MapInstanceId);
             await ChangeMapInstanceAsync(session, session.Character.MapInstanceId, mapX, mapY);
         }
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     session.Character.IsSitting = false;
                 }
-                
+
                 session.Character.MapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
 
                 if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)

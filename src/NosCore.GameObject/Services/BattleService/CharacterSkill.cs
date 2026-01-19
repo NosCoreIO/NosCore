@@ -1,6 +1,6 @@
-﻿using System;
-using NosCore.Data.Dto;
+﻿using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using System;
 
 namespace NosCore.GameObject.Services.BattleService
 {

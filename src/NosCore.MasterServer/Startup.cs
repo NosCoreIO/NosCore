@@ -1,21 +1,8 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
-// Copyright (C) 2019 - NosCore
-// 
-// NosCore is a free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+//
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -47,10 +34,21 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.InterChannelCommunication;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Services.AuthService;
 using NosCore.GameObject.Services.BazaarService;
+using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.GameObject.Services.MailService;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -64,17 +62,6 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 using ILogger = Serilog.ILogger;
-using NosCore.GameObject.InterChannelCommunication;
-using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
-using NosCore.GameObject.Services.AuthService;
 
 namespace NosCore.MasterServer
 {
@@ -224,7 +211,7 @@ namespace NosCore.MasterServer
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(masterConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.ConfigureOptions<ConfigureJwtBearerOptions>();
-           
+
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
