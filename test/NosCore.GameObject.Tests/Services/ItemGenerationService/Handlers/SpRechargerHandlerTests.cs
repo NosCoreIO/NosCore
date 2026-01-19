@@ -44,8 +44,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     [TestClass]
     public class SpRechargerEventHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -57,14 +57,14 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             {
                 new Item {VNum = 1, ItemType = ItemType.Special, EffectValue = 1},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
+                new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
         [TestMethod]
-        public async Task Test_SpRecharger_When_MaxAsync()
+        public async Task TestSpRechargerWhenMaxAsync()
         {
             Session!.Character.SpAdditionPoint = 1;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
@@ -74,10 +74,10 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_SpRechargerAsync()
+        public async Task TestSpRechargerAsync()
         {
             Session!.Character.SpAdditionPoint = 0;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(1, Session.Character.SpAdditionPoint);

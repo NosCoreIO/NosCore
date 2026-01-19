@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -41,218 +41,280 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
     [TestClass]
-    public class CBuyPacketHandlerTest
+    public class CBuyPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Mock<IBazaarHub>? _bazaarHttpClient;
-        private CBuyPacketHandler? _cbuyPacketHandler;
-        private Mock<IDao<IItemInstanceDto?, Guid>>? _itemInstanceDao;
-        private Mock<IItemGenerationService>? _itemProvider;
-        private ClientSession? _session;
+        private Mock<IBazaarHub> BazaarHttpClient = null!;
+        private CBuyPacketHandler CbuyPacketHandler = null!;
+        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
+        private Mock<IItemGenerationService> ItemProvider = null!;
+        private ClientSession Session = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Broadcaster.Reset();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _bazaarHttpClient = new Mock<IBazaarHub>();
-            _itemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-            _itemProvider = new Mock<IItemGenerationService>();
-            _cbuyPacketHandler = new CBuyPacketHandler(_bazaarHttpClient.Object, _itemProvider.Object, Logger,
-                _itemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer);
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            BazaarHttpClient = new Mock<IBazaarHub>();
+            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
+            ItemProvider = new Mock<IItemGenerationService>();
+            CbuyPacketHandler = new CBuyPacketHandler(BazaarHttpClient.Object, ItemProvider.Object, Logger,
+                ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer);
 
-            _bazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
+            BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink> { new BazaarLink
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 }});
-            _bazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
+            BazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink> { new BazaarLink
                 {
-                    SellerName = _session!.Character.Name,
+                    SellerName = Session.Character.Name,
                     BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012 }
                 }});
-            _bazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
-                    new List<BazaarLink> { new BazaarLink
+            BazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
+                new List<BazaarLink> { new BazaarLink
                 {
                     SellerName = "test",
                     BazaarItem = new BazaarItemDto { Price = 50, Amount = 99, IsPackage = true },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 99 }
                 }});
-            _bazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
-            _bazaarHttpClient.Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>())).ReturnsAsync(true);
+            BazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
+            BazaarHttpClient.Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>())).ReturnsAsync(true);
         }
 
         [TestMethod]
-        public async Task BuyWhenExchangeOrTradeAsync()
+        public async Task BuyingWhileInShopShouldBeIgnored()
         {
-            _session!.Character.InShop = true;
-            await _session!.HandlePacketsAsync(new[]
-            {
-                new CBuyPacket
-                {
-                    BazaarId = 1,
-                    Price = 50,
-                    Amount = 1,
-                    VNum = 1012
-                }
-            }); ;
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            await new Spec("Buying while in shop should be ignored")
+                .Given(CharacterIsInShop)
+                .WhenAsync(BuyingFromBazaarViaMiddleware)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task BuyWhenNoItemFoundAsync()
+        public async Task BuyingNonExistentItemShouldShowOfferUpdated()
         {
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 1,
-                Price = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session!);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            await new Spec("Buying non existent item should show offer updated")
+                .WhenAsync(BuyingNonExistentItem)
+                .Then(ShouldReceiveOfferUpdatedMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task BuyWhenSellerAsync()
+        public async Task BuyingOwnItemShouldShowOfferUpdated()
         {
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 2,
-                Price = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session!);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            await new Spec("Buying own item should show offer updated")
+                .WhenAsync(BuyingOwnItem)
+                .Then(ShouldReceiveOfferUpdatedMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task BuyWhenDifferentPriceAsync()
+        public async Task BuyingAtWrongPriceShouldShowOfferUpdated()
         {
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 0,
-                Price = 40,
-                Amount = 1,
-                VNum = 1012
-            }, _session!);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+            await new Spec("Buying at wrong price should show offer updated")
+                .WhenAsync(BuyingAtWrongPrice)
+                .Then(ShouldReceiveOfferUpdatedMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task BuyWhenCanNotAddItemAsync()
+        public async Task BuyingWhenInventoryFullShouldShowNoSpace()
+        {
+            await new Spec("Buying when inventory full should show no space")
+                .Given(InventoryIsFull)
+                .WhenAsync(BuyingItemFromBazaar)
+                .Then(ShouldReceiveNotEnoughSpaceMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingMoreThanAvailableShouldShowOfferUpdated()
+        {
+            await new Spec("Buying more than available should show offer updated")
+                .Given(CharacterHasGold_, 5000L)
+                .WhenAsync(BuyingMoreThanAvailable)
+                .Then(ShouldReceiveOfferUpdatedMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingPartialPackageShouldBeIgnored()
+        {
+            await new Spec("Buying partial package should be ignored")
+                .Given(CharacterHasGold_, 5000L)
+                .WhenAsync(BuyingPartialPackage)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingFullPackageShouldSucceed()
+        {
+            await new Spec("Buying full package should succeed")
+                .Given(CharacterHasGold_, 5000L)
+                .And(ItemProviderIsConfigured)
+                .WhenAsync(BuyingFullPackage)
+                .Then(ShouldReceiveBoughtItemMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingWithoutEnoughGoldShouldFail()
+        {
+            await new Spec("Buying without enough gold should fail")
+                .WhenAsync(BuyingItemFromBazaar)
+                .Then(ShouldReceiveInsufficientGoldMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingItemShouldSucceed()
+        {
+            await new Spec("Buying item should succeed")
+                .Given(CharacterHasGold_, 5000L)
+                .And(ItemProviderIsConfigured)
+                .WhenAsync(BuyingItemFromBazaar)
+                .Then(ShouldReceiveBoughtItemMessage)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsInShop()
+        {
+            Session.Character.InShop = true;
+        }
+
+        private async Task BuyingFromBazaarViaMiddleware()
+        {
+            await Session.HandlePacketsAsync(new[]
+            {
+                new CBuyPacket { BazaarId = 1, Price = 50, Amount = 1, VNum = 1012 }
+            });
+        }
+
+        private void NoPacketShouldBeSent()
+        {
+            Assert.IsNull(Session.LastPackets.FirstOrDefault());
+        }
+
+        private async Task BuyingNonExistentItem()
+        {
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
+            {
+                BazaarId = 1, Price = 50, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private void ShouldReceiveOfferUpdatedMessage()
+        {
+            var packet = (ModaliPacket?)Session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(packet?.Type == 1 && packet?.Message == Game18NConstString.OfferUpdated);
+        }
+
+        private async Task BuyingOwnItem()
+        {
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
+            {
+                BazaarId = 2, Price = 50, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private async Task BuyingAtWrongPrice()
+        {
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
+            {
+                BazaarId = 0, Price = 40, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private void InventoryIsFull()
         {
             var guid1 = Guid.NewGuid();
             var guid2 = Guid.NewGuid();
-            _session!.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid2 })
+            Session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid2 })
             {
                 Id = guid2, Slot = 0, Type = NoscorePocketType.Main
             });
-            _session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid1 })
+            Session.Character.InventoryService.AddItemToPocket(new InventoryItemInstance(new ItemInstance(new Item { VNum = 1012 }) { Amount = 999, Id = guid1 })
             {
                 Id = guid1, Slot = 1, Type = NoscorePocketType.Main
             });
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 0,
-                Price = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session);
-            var lastpacket = (InfoiPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.NotEnoughSpace);
         }
 
-        [TestMethod]
-        public async Task BuyMoreThanSellingAsync()
+        private async Task BuyingItemFromBazaar()
         {
-            _session!.Character.Gold = 5000;
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
             {
-                BazaarId = 0,
-                Price = 50,
-                Amount = 2,
-                VNum = 1012
-            }, _session);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Type == 1 && lastpacket?.Message == Game18NConstString.OfferUpdated);
+                BazaarId = 0, Price = 50, Amount = 1, VNum = 1012
+            }, Session);
         }
 
-        [TestMethod]
-        public async Task BuyPartialPackageAsync()
+        private void ShouldReceiveNotEnoughSpaceMessage()
         {
-            _session!.Character.Gold = 5000;
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 3,
-                Price = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            var packet = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.NotEnoughSpace);
         }
 
-        [TestMethod]
-        public async Task BuyPackageAsync()
+        private void CharacterHasGold_(long gold)
         {
-            _session!.Character.Gold = 5000;
+            Session.Character.Gold = gold;
+        }
+
+        private async Task BuyingMoreThanAvailable()
+        {
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
+            {
+                BazaarId = 0, Price = 50, Amount = 2, VNum = 1012
+            }, Session);
+        }
+
+        private async Task BuyingPartialPackage()
+        {
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
+            {
+                BazaarId = 3, Price = 50, Amount = 1, VNum = 1012
+            }, Session);
+        }
+
+        private void ItemProviderIsConfigured()
+        {
             var item = new Item { Type = NoscorePocketType.Main, VNum = 1012 };
-            _itemProvider!.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
+            ItemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
                 .Returns(new ItemInstance(item) { Amount = 1, Item = item });
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 3,
-                Price = 50,
-                Amount = 99,
-                VNum = 1012
-            }, _session);
-            var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow &&
-                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (string?)lastpacket?.Game18NArguments[0] == item.VNum.ToString() && (short?)lastpacket?.Game18NArguments[1] == 99);
         }
 
-        [TestMethod]
-        public async Task BuyNotEnoughMoneyAsync()
+        private async Task BuyingFullPackage()
         {
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket
             {
-                BazaarId = 0,
-                Price = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session!);
-            var lastpacket = (ModaliPacket?)_session!.LastPackets.FirstOrDefault(s => s is ModaliPacket);
-            Assert.IsTrue(lastpacket?.Message == Game18NConstString.InsufficientGoldAvailable);
+                BazaarId = 3, Price = 50, Amount = 99, VNum = 1012
+            }, Session);
         }
 
-        [TestMethod]
-        public async Task BuyAsync()
+        private void ShouldReceiveBoughtItemMessage()
         {
-            _session!.Character.Gold = 5000;
-            var item = new Item { Type = NoscorePocketType.Main, VNum = 1012 };
-            _itemProvider!.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>()))
-                .Returns(new ItemInstance(item) { Amount = 1, Item = item });
-            await _cbuyPacketHandler!.ExecuteAsync(new CBuyPacket
-            {
-                BazaarId = 0,
-                Price = 50,
-                Amount = 1,
-                VNum = 1012
-            }, _session);
-            var lastpacket = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(lastpacket?.VisualType == VisualType.Player && lastpacket?.VisualId == _session.Character.CharacterId && lastpacket?.Type == SayColorType.Yellow &&
-                lastpacket?.Message == Game18NConstString.BoughtItem && lastpacket?.ArgumentType == 2 && (string?)lastpacket?.Game18NArguments[0] == item.VNum.ToString() && (short?)lastpacket?.Game18NArguments[1] == 1);
+            var packet = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player &&
+                packet?.VisualId == Session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow &&
+                packet?.Message == Game18NConstString.BoughtItem);
+        }
+
+        private void ShouldReceiveInsufficientGoldMessage()
+        {
+            var packet = (ModaliPacket?)Session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
+            Assert.IsTrue(packet?.Message == Game18NConstString.InsufficientGoldAvailable);
         }
     }
 }

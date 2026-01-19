@@ -42,8 +42,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     [TestClass]
     public class BazaarMedalsHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -56,13 +56,13 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
                 new Item {VNum = 1, Effect = ItemEffectType.GoldNosMerchantUpgrade, EffectValue = 1},
                 new Item {VNum = 2, Effect = ItemEffectType.SilverNosMerchantUpgrade, EffectValue = 1},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
         [TestMethod]
-        public async Task Test_AddMedal_AlreadyOneDifferentAsync()
+        public async Task TestAddMedalAlreadyOneDifferentAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(2), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(2), Session!.Character.CharacterId);
             Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = Session.Character.CharacterId,
@@ -75,9 +75,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_AddMedal_AlreadyOneAsync()
+        public async Task TestAddMedalAlreadyOneAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.StaticBonusList.Add(new StaticBonusDto
             {
                 CharacterId = Session.Character.CharacterId,
@@ -90,9 +90,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_AddMedalAsync()
+        public async Task TestAddMedalAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             Assert.AreEqual(0, Session.Character.InventoryService.Count);

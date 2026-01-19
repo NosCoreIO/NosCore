@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -40,137 +40,158 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Friend
 {
     [TestClass]
-    public class BDelPacketHandlerTests
+    public class BlDelPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private BlacklistService? _blackListController;
-        private Mock<IBlacklistHub>? _blackListHttpClient;
-        private BlDelPacketHandler? _blDelPacketHandler;
-        private Mock<IDao<CharacterDto, long>>? _characterDao;
-        private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private Mock<IPubSubHub>? _connectedAccountHttpClient;
-        private Mock<IChannelHub>? _channelHub;
-        private ClientSession? _session;
+        private BlacklistService BlackListController = null!;
+        private Mock<IBlacklistHub> BlackListHttpClient = null!;
+        private BlDelPacketHandler BlDelPacketHandler = null!;
+        private Mock<IDao<CharacterDto, long>> CharacterDao = null!;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
+        private Mock<IPubSubHub> ConnectedAccountHttpClient = null!;
+        private Mock<IChannelHub> ChannelHub = null!;
+        private ClientSession Session = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
+            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             Broadcaster.Reset();
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
-            _channelHub = new Mock<IChannelHub>();
-            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+            ChannelHub = new Mock<IChannelHub>();
+            ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId }
+                        ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
-
                 });
-            _blackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
-            _blDelPacketHandler = new BlDelPacketHandler(_blackListHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
-            _characterDao = new Mock<IDao<CharacterDto, long>>();
-            _blackListController = new BlacklistService(_connectedAccountHttpClient.Object, _channelHub.Object, _characterRelationDao,
-                _characterDao.Object);
-            _blackListHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
-                .Returns((long id) => _blackListController.GetBlacklistedListAsync(id));
-            _blackListHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
-                .Callback((Guid id) => Task.FromResult(_blackListController.UnblacklistAsync(id)));
+            BlackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
+            BlDelPacketHandler = new BlDelPacketHandler(BlackListHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
+            CharacterDao = new Mock<IDao<CharacterDto, long>>();
+            BlackListController = new BlacklistService(ConnectedAccountHttpClient.Object, ChannelHub.Object, CharacterRelationDao,
+                CharacterDao.Object);
+            BlackListHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
+                .Returns((long id) => BlackListController.GetBlacklistedListAsync(id));
+            BlackListHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
+                .Callback((Guid id) => Task.FromResult(BlackListController.UnblacklistAsync(id)));
         }
 
         [TestMethod]
-        public async Task Test_Delete_Friend_When_DisconnectedAsync()
+        public async Task DeletingBlacklistedPlayerWhenDisconnectedShouldSucceed()
         {
-            var targetGuid = Guid.NewGuid();
-            var list = new List<CharacterDto>
-            {
-                _session!.Character,
-                new() {CharacterId = 2, Name = "test"}
-            };
-            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
-            await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
-            {
-               new CharacterRelationDto
-               {
-                   RelatedCharacterId = 2,
-                   CharacterRelationId = targetGuid,
-                   CharacterId = _session.Character.CharacterId,
-                   RelationType = CharacterRelationType.Blocked
-               }
-           });
-            var blDelPacket = new BlDelPacket
-            {
-                CharacterId = 2
-            };
-
-            await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session);
-
-            Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
+            await new Spec("Deleting blacklisted player when disconnected should succeed")
+                .Given(TargetPlayerIsDisconnected)
+                .AndAsync(CharacterHasBlockedDisconnectedTarget)
+                .WhenAsync(DeletingFromBlacklist)
+                .Then(BlacklistShouldBeEmpty)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task Test_Delete_FriendAsync()
+        public async Task DeletingBlacklistedPlayerShouldSucceed()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            Guid.NewGuid();
-            var targetGuid = Guid.NewGuid();
+            await new Spec("Deleting blacklisted player should succeed")
+                .GivenAsync(TargetPlayerIsOnline)
+                .AndAsync(CharacterHasBlockedTarget)
+                .WhenAsync(DeletingTargetFromBlacklist)
+                .Then(BlacklistShouldBeEmpty)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeletingNonBlacklistedPlayerShouldShowError()
+        {
+            await new Spec("Deleting non blacklisted player should show error")
+                .GivenAsync(TargetPlayerIsOnline)
+                .WhenAsync(DeletingTargetFromBlacklist)
+                .Then(ShouldReceiveNotInBlacklistMessage)
+                .ExecuteAsync();
+        }
+
+        private ClientSession? TargetSession;
+        private long TargetCharacterId = 2;
+
+        private void TargetPlayerIsDisconnected()
+        {
             var list = new List<CharacterDto>
             {
-                _session!.Character,
-                targetSession.Character
+                Session.Character,
+                new() { CharacterId = 2, Name = "test" }
             };
-            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+            CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
-            await _characterRelationDao!.TryInsertOrUpdateAsync(new[]
+        }
+
+        private async Task TargetPlayerIsOnline()
+        {
+            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            TargetCharacterId = TargetSession.Character.CharacterId;
+            var list = new List<CharacterDto>
+            {
+                Session.Character,
+                TargetSession.Character
+            };
+            CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
+        }
+
+        private async Task CharacterHasBlockedDisconnectedTarget()
+        {
+            var targetGuid = Guid.NewGuid();
+            await CharacterRelationDao.TryInsertOrUpdateAsync(new[]
             {
                 new CharacterRelationDto
                 {
-                    RelatedCharacterId = targetSession.Character.CharacterId,
+                    RelatedCharacterId = 2,
                     CharacterRelationId = targetGuid,
-                    CharacterId = _session.Character.CharacterId,
+                    CharacterId = Session.Character.CharacterId,
                     RelationType = CharacterRelationType.Blocked
                 }
             });
-            var blDelPacket = new BlDelPacket
-            {
-                CharacterId = targetSession.Character.CharacterId
-            };
-
-            await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session);
-
-            Assert.IsTrue(!_characterRelationDao.LoadAll().Any());
         }
 
-        [TestMethod]
-        public async Task Test_Delete_Friend_No_FriendAsync()
+        private async Task CharacterHasBlockedTarget()
         {
-            var targetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
-            var list = new List<CharacterDto>
+            await CharacterRelationDao.TryInsertOrUpdateAsync(new[]
             {
-                _session!.Character,
-                targetSession.Character
-            };
-            _characterDao!.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
+                new CharacterRelationDto
+                {
+                    RelatedCharacterId = TargetSession!.Character.CharacterId,
+                    CharacterRelationId = targetGuid,
+                    CharacterId = Session.Character.CharacterId,
+                    RelationType = CharacterRelationType.Blocked
+                }
+            });
+        }
 
-            var blDelPacket = new BlDelPacket
-            {
-                CharacterId = targetSession.Character.CharacterId
-            };
+        private async Task DeletingFromBlacklist()
+        {
+            await BlDelPacketHandler.ExecuteAsync(new BlDelPacket { CharacterId = 2 }, Session);
+        }
 
-            await _blDelPacketHandler!.ExecuteAsync(blDelPacket, _session);
-            var lastpacket = (InfoPacket?)_session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST,
-                _session.Account.Language], lastpacket!.Message);
+        private async Task DeletingTargetFromBlacklist()
+        {
+            await BlDelPacketHandler.ExecuteAsync(new BlDelPacket { CharacterId = TargetCharacterId }, Session);
+        }
+
+        private void BlacklistShouldBeEmpty()
+        {
+            Assert.IsFalse(CharacterRelationDao.LoadAll().Any());
+        }
+
+        private void ShouldReceiveNotInBlacklistMessage()
+        {
+            var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
+            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language], lastpacket!.Message);
         }
     }
 }

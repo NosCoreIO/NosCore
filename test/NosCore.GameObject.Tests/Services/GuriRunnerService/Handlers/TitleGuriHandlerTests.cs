@@ -45,8 +45,8 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     [TestClass]
     public class TitleGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private IItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -56,17 +56,17 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             {
                 new Item {VNum = 1, ItemType = ItemType.Title, EffectValue = 0, Type =  NoscorePocketType.Main},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new TitleGuriHandler();
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerAsync()
+        public async Task TestTitleGuriHandlerAsync()
         {
-            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.Title,
@@ -78,9 +78,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerWhenDuplicateAsync()
+        public async Task TestTitleGuriHandlerWhenDuplicateAsync()
         {
-            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             Session.Character.Titles = new List<TitleDto> { new() { TitleType = 1 } };
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_TitleGuriHandlerWhenNoTitleItemAsync()
+        public async Task TestTitleGuriHandlerWhenNoTitleItemAsync()
         {
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {

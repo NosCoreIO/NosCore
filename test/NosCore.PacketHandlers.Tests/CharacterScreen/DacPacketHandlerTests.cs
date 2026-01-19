@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -33,6 +33,7 @@ using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.CharacterScreen
 {
@@ -40,99 +41,140 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class DacPacketHandlerTests
     {
         private static readonly Mock<ILogger> Logger = new();
-        private DacPacketHandler _dacPacketHandler = null!;
-        private ClientSession _session = null!;
-        private Mock<IAuthHub> _authHttpClient = null!;
-        private Mock<IPubSubHub> _pubSubHub = null!;
-        private Mock<IChannelHub> _channelHub = null!;
-        private string _accountName = null!;
+        private DacPacketHandler DacPacketHandler = null!;
+        private ClientSession Session = null!;
+        private Mock<IAuthHub> AuthHttpClient = null!;
+        private Mock<IPubSubHub> PubSubHub = null!;
+        private Mock<IChannelHub> ChannelHub = null!;
+        private string AccountName = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _accountName = _session.Account.Name;
-            _session.Account = null!;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character);
-            await _session.SetCharacterAsync(null);
-            _authHttpClient = new Mock<IAuthHub>();
-            _pubSubHub = TestHelpers.Instance.PubSubHub;
-            _channelHub = TestHelpers.Instance.ChannelHub;
-            _channelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
-            _pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
-            _dacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, _authHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            AccountName = Session.Account.Name;
+            Session.Account = null!;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character);
+            await Session.SetCharacterAsync(null);
+            AuthHttpClient = new Mock<IAuthHub>();
+            PubSubHub = TestHelpers.Instance.PubSubHub;
+            ChannelHub = TestHelpers.Instance.ChannelHub;
+            ChannelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            DacPacketHandler =
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, AuthHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
-        public async Task ConnectionWithAlreadyConnectedAccountAsync()
+        public async Task ConnectionWithAlreadyConnectedAccountShouldFail()
         {
-            var packet = new DacPacket(_accountName)
-            {
-                Slot = 2,
-            };
-            _channelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>()
+            await new Spec("Connection with already connected account should fail")
+                .Given(AccountIsAlreadyConnected)
+                .WhenAsync(ConnectingWithAccount)
+                .Then(AlreadyConnectedErrorShouldBeLogged)
+                .And(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConnectionWithInvalidAccountShouldFail()
+        {
+            await new Spec("Connection with invalid account should fail")
+                .WhenAsync(ConnectingWithFakeAccount)
+                .Then(InvalidAccountErrorShouldBeLogged)
+                .And(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConnectionWithNotInWaitingAccountShouldFail()
+        {
+            await new Spec("Connection with not in waiting account should fail")
+                .WhenAsync(ConnectingWithAccount)
+                .Then(InvalidPasswordErrorShouldBeLogged)
+                .And(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConnectionWithWaitingAccountShouldSucceed()
+        {
+            await new Spec("Connection with waiting account should succeed")
+                .Given(AccountIsInWaitingState)
+                .WhenAsync(ConnectingWithAccount)
+                .Then(AccountShouldBeSet)
+                .ExecuteAsync();
+        }
+
+        private void AccountIsAlreadyConnected()
+        {
+            ChannelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>()
             {
                 new()
                 {
                     Id = 1,
                 }
             });
-            _pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
+            PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
                 new List<Subscriber>
                 {
                     new()
                     {
                         ChannelId = 1,
-                        Name = _accountName
+                        Name = AccountName
                     }
                 });
-            await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
-            Assert.IsNull(_session.Account);
         }
 
-        [TestMethod]
-        public async Task ConnectionWithInvalidAccountAsync()
+        private void AccountIsInWaitingState()
+        {
+            AuthHttpClient.Setup(authHttpClient => authHttpClient
+                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync("123");
+        }
+
+        private async Task ConnectingWithAccount()
+        {
+            var packet = new DacPacket(AccountName)
+            {
+                Slot = 0,
+            };
+            await DacPacketHandler.ExecuteAsync(packet, Session);
+        }
+
+        private async Task ConnectingWithFakeAccount()
         {
             var packet = new DacPacket("fakeName")
             {
                 Slot = 2,
             };
-            await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT]),
-
-        It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
-
-            Assert.IsNull(_session.Account);
+            await DacPacketHandler.ExecuteAsync(packet, Session);
         }
 
-        [TestMethod]
-        public async Task ConnectionWithNotInwaitingAccountAsync()
+        private void AlreadyConnectedErrorShouldBeLogged()
         {
-            await _dacPacketHandler.ExecuteAsync(new DacPacket(_accountName)
-            {
-                Slot = 0,
-            }, _session);
-            Logger.Verify(o => o.Error(It.Is<string>(o => o == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD]),
-
-        It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
-            Assert.IsNull(_session.Account);
+            Logger.Verify(o => o.Error(It.Is<string>(s => s == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
         }
 
-        [TestMethod]
-        public async Task ConnectionWithInwaitingAccountAsync()
+        private void InvalidAccountErrorShouldBeLogged()
         {
-            var packet = new DacPacket(_accountName)
-            {
-                Slot = 0,
-            };
-            _authHttpClient.Setup(authHttpClient => authHttpClient
-                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("123");
-            await _dacPacketHandler.ExecuteAsync(packet, _session);
-            Assert.IsNotNull(_session.Account);
+            Logger.Verify(o => o.Error(It.Is<string>(s => s == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+        }
+
+        private void InvalidPasswordErrorShouldBeLogged()
+        {
+            Logger.Verify(o => o.Error(It.Is<string>(s => s == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+        }
+
+        private void AccountShouldBeNull()
+        {
+            Assert.IsNull(Session.Account);
+        }
+
+        private void AccountShouldBeSet()
+        {
+            Assert.IsNotNull(Session.Account);
         }
     }
 }

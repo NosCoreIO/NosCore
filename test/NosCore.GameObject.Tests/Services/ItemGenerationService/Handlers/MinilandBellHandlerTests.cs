@@ -46,34 +46,34 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     [TestClass]
     public class MinilandBellHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private Mock<IMinilandService>? _minilandProvider;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private Mock<IMinilandService>? MinilandProvider;
         private Mock<IMapChangeService> mapChangeService = null!;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _minilandProvider = new Mock<IMinilandService>();
+            MinilandProvider = new Mock<IMinilandService>();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            _minilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
+            MinilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
                 .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
             mapChangeService = new Mock<IMapChangeService>();
-            Handler = new MinilandBellHandler(_minilandProvider.Object, mapChangeService.Object);
+            Handler = new MinilandBellHandler(MinilandProvider.Object, mapChangeService.Object);
             var items = new List<ItemDto>
             {
                 new Item {VNum = 1, Effect = ItemEffectType.Teleport, EffectValue = 2},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
-        public async Task Test_Miniland_On_InstanceAsync()
+        public async Task TestMinilandOnInstanceAsync()
         {
             Session!.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(TestHelpers.Instance.MinilandId)!;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
@@ -83,10 +83,10 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_Miniland_On_VehicleAsync()
+        public async Task TestMinilandOnVehicleAsync()
         {
             Session!.Character.IsVehicled = true;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
@@ -96,9 +96,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_Miniland_DelayAsync()
+        public async Task TestMinilandDelayAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
@@ -107,10 +107,10 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
         }
 
         [TestMethod]
-        public async Task Test_MinilandAsync()
+        public async Task TestMinilandAsync()
         {
             UseItem.Mode = 2;
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             mapChangeService.Verify(x=>x.ChangeMapInstanceAsync(Session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);

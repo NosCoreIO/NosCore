@@ -49,17 +49,17 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
 
-        private IItemGenerationService? _item;
-        private NrunService _nrRunService = null!;
-        private ClientSession? _session;
+        private IItemGenerationService? Item;
+        private NrunService NrRunService = null!;
+        private ClientSession? Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _item = TestHelpers.Instance.GenerateItemProvider();
-            _nrRunService = new NrunService(
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Item = TestHelpers.Instance.GenerateItemProvider();
+            NrRunService = new NrunService(
                 new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
                     {new ChangeClassEventHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer)});
         }
@@ -71,8 +71,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         public async Task UserCantChangeClassLowLevelAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _session!.Character.Level = 15;
-            await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
+            Session!.Character.Level = 15;
+            await NrRunService.NRunLaunchAsync(Session, new Tuple<IAliveEntity, NrunPacket>(Session.Character, (new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
 
-            var msgiPacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            var msgiPacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(msgiPacket?.Type == MessageType.Default && msgiPacket?.Message == Game18NConstString.CanNotChangeJobAtThisLevel);
         }
 
@@ -91,8 +91,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         public async Task UserCantChangeClassLowJobLevelAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _session!.Character.JobLevel = 20;
-            await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
+            Session!.Character.JobLevel = 20;
+            await NrRunService.NRunLaunchAsync(Session, new Tuple<IAliveEntity, NrunPacket>(Session.Character, (new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
          
-            var msgiPacket = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            var msgiPacket = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(msgiPacket?.Type == MessageType.Default && msgiPacket?.Message == Game18NConstString.CanNotChangeJobAtThisLevel);
         }
 
@@ -111,15 +111,15 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         public async Task UserCantChangeBadClassAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _session!.Character.Class = characterClass;
-            await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
+            Session!.Character.Class = characterClass;
+            await NrRunService.NRunLaunchAsync(Session, new Tuple<IAliveEntity, NrunPacket>(Session.Character, (new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
                 VisualId = 0,
                 Type = (byte)CharacterClassType.Swordsman
             })));
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            var packet = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
         }
 
         [DataTestMethod]
@@ -128,9 +128,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         public async Task UserCantChangeToBadClassAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _session!.Character.Level = 15;
-            _session.Character.JobLevel = 20;
-            await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
+            Session!.Character.Level = 15;
+            Session.Character.JobLevel = 20;
+            await NrRunService.NRunLaunchAsync(Session, new Tuple<IAliveEntity, NrunPacket>(Session.Character, (new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -138,9 +138,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
             
-            Assert.IsTrue((_session.Character.Class == CharacterClassType.Adventurer) &&
-                (_session.Character.Level == 15) &&
-                (_session.Character.JobLevel == 20));
+            Assert.IsTrue((Session.Character.Class == CharacterClassType.Adventurer) &&
+                (Session.Character.Level == 15) &&
+                (Session.Character.JobLevel == 20));
         }
 
         [DataTestMethod]
@@ -150,9 +150,9 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         public async Task UserCanChangeClassAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _session!.Character.Level = 15;
-            _session.Character.JobLevel = 20;
-            await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
+            Session!.Character.Level = 15;
+            Session.Character.JobLevel = 20;
+            await NrRunService.NRunLaunchAsync(Session, new Tuple<IAliveEntity, NrunPacket>(Session.Character, (new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -160,8 +160,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
 
-            Assert.IsTrue((_session.Character.Class == characterClass) && (_session.Character.Level == 15) &&
-                (_session.Character.JobLevel == 1));
+            Assert.IsTrue((Session.Character.Class == characterClass) && (Session.Character.Level == 15) &&
+                (Session.Character.JobLevel == 1));
         }
 
         [DataTestMethod]
@@ -171,12 +171,12 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         public async Task UserCanNotChangeClassWhenEquipmentAsync(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
-            _session!.Character.Level = 15;
-            _session.Character.JobLevel = 20;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(1, 1), 0));
-            var item = _session.Character.InventoryService.First();
+            Session!.Character.Level = 15;
+            Session.Character.JobLevel = 20;
+            Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(Item!.Create(1, 1), 0));
+            var item = Session.Character.InventoryService.First();
             item.Value.Type = NoscorePocketType.Wear;
-            await _nrRunService.NRunLaunchAsync(_session, new Tuple<IAliveEntity, NrunPacket>(_session.Character, (new NrunPacket
+            await NrRunService.NRunLaunchAsync(Session, new Tuple<IAliveEntity, NrunPacket>(Session.Character, (new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 Runner = NrunRunnerType.ChangeClass,
@@ -184,8 +184,8 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
                 Type = (byte)characterClass
             })));
 
-            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.RemoveEquipment);
+            var packet = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == Session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.RemoveEquipment);
         }
     }
 }

@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -41,200 +41,265 @@ using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Login
 {
     [TestClass]
-    public class NoS0575PacketHandlerTests
+    public class NoS0575PacketHandlerSpecs
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private string _password = null!;
-        private Mock<IAuthHub>? _authHttpClient;
-        private Mock<IPubSubHub>? _pubSubHub;
-        private IOptions<LoginConfiguration>? _loginConfiguration;
-        private NoS0575PacketHandler? _noS0575PacketHandler;
-        private ClientSession? _session;
-        private Mock<IChannelHub>? _channelHub;
-        private SessionRefHolder? _sessionRefHolder;
+        private string Password = null!;
+        private Mock<IAuthHub> AuthHttpClient = null!;
+        private Mock<IPubSubHub> PubSubHub = null!;
+        private IOptions<LoginConfiguration> LoginConfiguration = null!;
+        private NoS0575PacketHandler NoS0575PacketHandler = null!;
+        private ClientSession Session = null!;
+        private Mock<IChannelHub> ChannelHub = null!;
+        private SessionRefHolder SessionRefHolder = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            _password = new Sha512Hasher().Hash("test");
+            Password = new Sha512Hasher().Hash("test");
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _authHttpClient = new Mock<IAuthHub>();
-            _pubSubHub = TestHelpers.Instance.PubSubHub;
-            _loginConfiguration = Options.Create(new LoginConfiguration());
-            _sessionRefHolder = new SessionRefHolder();
-            _channelHub = new Mock<IChannelHub>();
-            _sessionRefHolder![_session!.Channel!.Id] = new RegionTypeMapping(_session.SessionId, RegionType.EN);
-            _noS0575PacketHandler = new NoS0575PacketHandler(new LoginService(_loginConfiguration,
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            AuthHttpClient = new Mock<IAuthHub>();
+            PubSubHub = TestHelpers.Instance.PubSubHub;
+            LoginConfiguration = Options.Create(new LoginConfiguration());
+            SessionRefHolder = new SessionRefHolder();
+            ChannelHub = new Mock<IChannelHub>();
+            SessionRefHolder[Session.Channel!.Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
+            NoS0575PacketHandler = new NoS0575PacketHandler(new LoginService(LoginConfiguration,
                     TestHelpers.Instance.AccountDao,
-                    _authHttpClient.Object, _pubSubHub.Object, _channelHub!.Object, TestHelpers.Instance.CharacterDao, _sessionRefHolder!),
-                _loginConfiguration, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+                    AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, TestHelpers.Instance.CharacterDao, SessionRefHolder),
+                LoginConfiguration, Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
-        public async Task LoginOldClientAsync()
+        public async Task LoginWithOldClientShouldFail()
         {
-            _loginConfiguration!.Value.ClientVersion = new ClientVersionSubPacket { Major = 1 };
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name.ToUpperInvariant()
-            }, _session);
+            await new Spec("Login with old client should fail")
+                .Given(ClientVersionIsSet)
+                .WhenAsync(LoggingInWithUppercaseNameAsync)
+                .Then(ShouldReceiveOldClientError)
+                .ExecuteAsync();
+        }
 
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+        [TestMethod]
+        public async Task LoginWithOldAuthWhenNewEnforcedShouldFail()
+        {
+            await new Spec("Login with old auth when new enforced should fail")
+                .Given(NewAuthIsEnforced)
+                .WhenAsync(LoggingInWithUppercaseNameAsync)
+                .Then(NoPacketsShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithNoAccountShouldFail()
+        {
+            await new Spec("Login with no account should fail")
+                .WhenAsync(LoggingInWithFakeAccountAsync)
+                .Then(ShouldReceiveAccountWrongError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithWrongCapsShouldFail()
+        {
+            await new Spec("Login with wrong caps should fail")
+                .WhenAsync(LoggingInWithUppercaseNameAsync)
+                .Then(ShouldReceiveWrongCapsError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithWrongPasswordShouldFail()
+        {
+            await new Spec("Login with wrong password should fail")
+                .WhenAsync(LoggingInWithWrongPasswordAsync)
+                .Then(ShouldReceiveAccountWrongError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithCorrectCredentialsShouldSucceed()
+        {
+            await new Spec("Login with correct credentials should succeed")
+                .Given(ServerIsAvailable)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWhenAlreadyConnectedShouldFail()
+        {
+            await new Spec("Login when already connected should fail")
+                .Given(AccountIsAlreadyConnected)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveAlreadyConnectedError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithNoServerShouldFail()
+        {
+            await new Spec("Login with no server should fail")
+                .Given(NoServerIsAvailable)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveCantConnectError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginDuringMaintenanceShouldFail()
+        {
+            await new Spec("Login during maintenance should fail")
+                .Given(ServerIsInMaintenance)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveMaintenanceError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginDuringMaintenanceAsGmShouldSucceed()
+        {
+            await new Spec("Login during maintenance as gm should succeed")
+                .Given(ServerIsInMaintenance)
+                .AndAsync(AccountIsGameMasterAsync)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
+        }
+
+        private void ClientVersionIsSet()
+        {
+            LoginConfiguration.Value.ClientVersion = new ClientVersionSubPacket { Major = 1 };
+        }
+
+        private void NewAuthIsEnforced()
+        {
+            LoginConfiguration.Value.EnforceNewAuth = true;
+        }
+
+        private void ServerIsAvailable()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+        }
+
+        private void AccountIsAlreadyConnected()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            PubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
+                new List<Subscriber>
+                    { new() { Name = Session.Account.Name } });
+        }
+
+        private void NoServerIsAvailable()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+        }
+
+        private void ServerIsInMaintenance()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+        }
+
+        private async Task AccountIsGameMasterAsync()
+        {
+            Session.Account.Authority = AuthorityType.GameMaster;
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+        }
+
+        private async Task LoggingInWithUppercaseNameAsync()
+        {
+            await NoS0575PacketHandler.ExecuteAsync(new NoS0575Packet
+            {
+                Password = Password,
+                Username = Session.Account.Name.ToUpperInvariant()
+            }, Session);
+        }
+
+        private async Task LoggingInWithFakeAccountAsync()
+        {
+            await NoS0575PacketHandler.ExecuteAsync(new NoS0575Packet
+            {
+                Password = Password,
+                Username = "noaccount"
+            }, Session);
+        }
+
+        private async Task LoggingInWithWrongPasswordAsync()
+        {
+            var encryption = new Sha512Hasher();
+            await NoS0575PacketHandler.ExecuteAsync(new NoS0575Packet
+            {
+                Password = encryption.Hash("test1"),
+                Username = Session.Account.Name
+            }, Session);
+        }
+
+        private async Task LoggingInCorrectlyAsync()
+        {
+            await NoS0575PacketHandler.ExecuteAsync(new NoS0575Packet
+            {
+                Password = Password,
+                Username = Session.Account.Name
+            }, Session);
+        }
+
+        private void ShouldReceiveOldClientError()
+        {
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.OldClient);
         }
 
-        [TestMethod]
-        public async Task LoginOldAuthWithNewAuthEnforcedAsync()
+        private void NoPacketsShouldBeSent()
         {
-            _loginConfiguration!.Value.EnforceNewAuth = true;
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name.ToUpperInvariant()
-            }, _session);
-
-            Assert.IsTrue(_session.LastPackets.Count == 0);
+            Assert.IsTrue(Session.LastPackets.Count == 0);
         }
 
-        [TestMethod]
-        public async Task LoginNoAccountAsync()
+        private void ShouldReceiveAccountWrongError()
         {
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = "noaccount"
-            }, _session!);
-
-            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
         }
 
-        [TestMethod]
-        public async Task LoginWrongCapsAsync()
+        private void ShouldReceiveWrongCapsError()
         {
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name.ToUpperInvariant()
-            }, _session);
-
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.WrongCaps);
         }
 
-        [TestMethod]
-        public async Task LoginWrongPAsswordAsync()
+        private void ShouldReceiveNsTestPacket()
         {
-            var encryption = new Sha512Hasher();
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = encryption.Hash("test1"),
-                Username = _session!.Account.Name
-            }, _session);
-
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.AccountOrPasswordWrong);
+            Assert.IsNotNull((NsTestPacket?)Session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
-        [TestMethod]
-        public async Task LoginAsync()
+        private void ShouldReceiveAlreadyConnectedError()
         {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
-                .ReturnsAsync(new List<Subscriber>());
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name
-            }, _session);
-
-            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
-        }
-
-        [TestMethod]
-        public async Task LoginAlreadyConnectedAsync()
-        {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _pubSubHub!.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
-                new List<Subscriber>
-                    {new() {Name = _session!.Account.Name}});
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session.Account.Name
-            }, _session);
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AlreadyConnected);
         }
 
-        [TestMethod]
-        public async Task LoginNoServerAsync()
+        private void ShouldReceiveCantConnectError()
         {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
-            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
-                .ReturnsAsync(new List<Subscriber>());
-
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name
-            }, _session);
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
 
-        //[TestMethod]
-        //public void LoginBanned()
-        //{
-        //    _handler.VerifyLogin(new NoS0575Packet
-        //    {
-        //        Password ="test".Sha512(),
-        //        Name = Name,
-        //    });
-        //    Assert.IsTrue(_session.LastPacket is FailcPacket);
-        //    Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.Banned);
-        //}
-
-
-        [TestMethod]
-        public async Task LoginMaintenanceAsync()
+        private void ShouldReceiveMaintenanceError()
         {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
-            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
-                .ReturnsAsync(new List<Subscriber>());
-
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name
-            }, _session);
-
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.Maintenance);
-        }
-
-        [TestMethod]
-        public async Task LoginMaintenanceGameMasterAsync()
-        {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>() { new() { IsMaintenance = true } });
-            _pubSubHub!.Setup(s => s.GetSubscribersAsync())
-                .ReturnsAsync(new List<Subscriber>());
-
-            _session!.Account.Authority = AuthorityType.GameMaster;
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);
-            await _noS0575PacketHandler!.ExecuteAsync(new NoS0575Packet
-            {
-                Password = _password,
-                Username = _session!.Account.Name
-            }, _session);
-
-            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
     }
 }

@@ -45,9 +45,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
     [TestClass]
     public class SpeakerGuriHandlerTests : GuriEventHandlerTestsBase
     {
-        private IItemGenerationService? _itemProvider;
-        private Mock<ILogger>? _logger;
-        private ClientSession? _receiverSession;
+        private IItemGenerationService? ItemProvider;
+        private Mock<ILogger>? Logger;
+        private ClientSession? ReceiverSession;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -57,20 +57,20 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
             {
                 new Item {VNum = 1, ItemType = ItemType.Magical, Type =  NoscorePocketType.Etc, Effect = ItemEffectType.Speaker},
             };
-            _logger = new Mock<ILogger>();
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
+            Logger = new Mock<ILogger>();
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger.Object, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            _receiverSession = await TestHelpers.Instance.GenerateSessionAsync();
+            ReceiverSession = await TestHelpers.Instance.GenerateSessionAsync();
 
-            Handler = new SpeakerGuriHandler(_logger.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            Handler = new SpeakerGuriHandler(Logger.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]
-        public async Task Test_SpeakerWithItemAsync()
+        public async Task TestSpeakerWithItemAsync()
         {
-            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
@@ -79,17 +79,17 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Data = 999,
                 Value = "2 0 {test}"
             });
-            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNotNull(sayitempacket);
-            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
 
         [TestMethod]
-        public async Task Test_SpeakerWithItemDoesNotExistAsync()
+        public async Task TestSpeakerWithItemDoesNotExistAsync()
         {
-            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+            Session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
@@ -98,32 +98,32 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Data = 999,
                 Value = "2 1 {test}"
             });
-            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
 
 
         [TestMethod]
-        public async Task Test_SpeakerWithoutItemAsync()
+        public async Task TestSpeakerWithoutItemAsync()
         {
             Session!.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(_itemProvider!.Create(1, 1), 0));
+                InventoryItemInstance.Create(ItemProvider!.Create(1, 1), 0));
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
                 VisualId = 0,
             });
-            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNotNull(saypacket);
         }
 
         [TestMethod]
-        public async Task Test_SpeakerWithNoSpeakerAsync()
+        public async Task TestSpeakerWithNoSpeakerAsync()
         {
             await ExecuteGuriEventHandlerAsync(new GuriPacket
             {
@@ -131,9 +131,9 @@ namespace NosCore.GameObject.Tests.Services.GuriRunnerService.Handlers
                 Argument = 3,
                 VisualId = 0
             });
-            var sayitempacket = (SayItemPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
+            var sayitempacket = (SayItemPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayItemPacket);
             Assert.IsNull(sayitempacket);
-            var saypacket = (SayPacket?)_receiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
+            var saypacket = (SayPacket?)ReceiverSession!.LastPackets.FirstOrDefault(s => s is SayPacket);
             Assert.IsNull(saypacket);
         }
     }

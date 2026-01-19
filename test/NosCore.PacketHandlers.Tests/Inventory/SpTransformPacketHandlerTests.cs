@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -38,8 +38,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
+using SpecLight;
 
-//TODO stop using obsolete
 #pragma warning disable 618
 
 namespace NosCore.PacketHandlers.Tests.Inventory
@@ -47,159 +47,263 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class SpTransformPacketHandlerTests
     {
-        private IItemGenerationService? _item;
-        private ClientSession? _session;
-        private SpTransformPacketHandler? _spTransformPacketHandler;
-        
+        private IItemGenerationService Item = null!;
+        private ClientSession Session = null!;
+        private SpTransformPacketHandler SpTransformPacketHandler = null!;
+
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _item = TestHelpers.Instance.GenerateItemProvider();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _spTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock, 
-                new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, 
-                    new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer), TestHelpers.Instance.GameLanguageLocalizer);
+            Item = TestHelpers.Instance.GenerateItemProvider();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            SpTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock,
+                new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
+                    new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
+                    new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer),
+                TestHelpers.Instance.GameLanguageLocalizer);
         }
 
+        [TestMethod]
+        public async Task TransformingWithoutSpShouldShowError()
+        {
+            await new Spec("Transforming without sp should show error")
+                .WhenAsync(AttemptingToTransform)
+                .Then(ShouldReceiveNoSpEquippedMessage)
+                .ExecuteAsync();
+        }
 
         [TestMethod]
-        public async Task Test_Transform_NoSpAsync()
+        public async Task TransformingWhileInVehicleShouldFail()
         {
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session!);
-            var packet = (MsgiPacket?)_session!.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            await new Spec("Transforming while in vehicle should fail")
+                .Given(CharacterIsInVehicle)
+                .And(CharacterHasSpEquipped)
+                .WhenAsync(AttemptingToTransform)
+                .Then(ShouldReceiveCantUseInVehicleMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingWhileSittingShouldBeIgnored()
+        {
+            await new Spec("Transforming while sitting should be ignored")
+                .Given(CharacterIsSitting)
+                .WhenAsync(AttemptingToTransform)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RemovingSpWhileTransformedShouldUntransform()
+        {
+            await new Spec("Removing sp while transformed should untransform")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(CharacterShouldNotBeTransformed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingWithSpPointsAndReputationShouldSucceed()
+        {
+            await new Spec("Transforming with sp points and reputation should succeed")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasHighReputation)
+                .And(CharacterHasSpEquipped)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(CharacterShouldBeTransformed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingWithBadFairyElementShouldFail()
+        {
+            await new Spec("Transforming with bad fairy element should fail")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasHighReputation)
+                .And(CharacterHasSpAndMismatchedFairyEquipped)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(ShouldReceiveDifferentElementMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingWithLowReputationShouldFail()
+        {
+            await new Spec("Transforming with low reputation should fail")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasSpEquipped)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(ShouldReceiveLowReputationMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingDuringCooldownShouldShowCooldownMessage()
+        {
+            await new Spec("Transforming during cooldown should show cooldown message")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasSpEquipped)
+                .And(CharacterHasSpCooldown)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(ShouldReceiveCooldownMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingWithoutSpPointsShouldShowNoPointsMessage()
+        {
+            await new Spec("Transforming without sp points should show no points message")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterHasLastSpSet)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(ShouldReceiveNoSpPointsMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingShouldShowDelayPacket()
+        {
+            await new Spec("Transforming should show delay packet")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasSpEquipped)
+                .And(CharacterHasLastSpSet)
+                .WhenAsync(AttemptingToTransform)
+                .Then(ShouldReceiveDelayPacket)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsInVehicle()
+        {
+            Session.Character.IsVehicled = true;
+        }
+
+        private void CharacterHasSpEquipped()
+        {
+            Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(Item.Create(912, 1), Session.Character.CharacterId));
+            var item = Session.Character.InventoryService.First();
+            item.Value.Type = NoscorePocketType.Wear;
+            item.Value.Slot = (byte)EquipmentType.Sp;
+        }
+
+        private void CharacterIsSitting()
+        {
+            Session.Character.IsSitting = true;
+        }
+
+        private void CharacterIsTransformed()
+        {
+            Session.Character.UseSp = true;
+        }
+
+        private void CharacterHasSpPoints()
+        {
+            Session.Character.SpPoint = 1;
+        }
+
+        private void CharacterHasHighReputation()
+        {
+            Session.Character.Reput = 5000000;
+        }
+
+        private void CharacterHasSpAndMismatchedFairyEquipped()
+        {
+            var spItem = Session.Character.InventoryService
+                .AddItemToPocket(InventoryItemInstance.Create(Item.Create(912, 1), Session.Character.CharacterId))!
+                .First();
+            var fairy = Session.Character.InventoryService
+                .AddItemToPocket(InventoryItemInstance.Create(Item.Create(2, 1), Session.Character.CharacterId))!
+                .First();
+
+            spItem.Type = NoscorePocketType.Wear;
+            spItem.Slot = (byte)EquipmentType.Sp;
+            fairy.Type = NoscorePocketType.Wear;
+            fairy.Slot = (byte)EquipmentType.Fairy;
+        }
+
+        private void CharacterHasSpCooldown()
+        {
+            Session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
+            Session.Character.SpCooldown = 30;
+        }
+
+        private void CharacterHasLastSpSet()
+        {
+            Session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
+        }
+
+        private async Task AttemptingToTransform()
+        {
+            await SpTransformPacketHandler.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, Session);
+        }
+
+        private async Task AttemptingToTransformWithWearAndTransform()
+        {
+            await SpTransformPacketHandler.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, Session);
+        }
+
+        private void ShouldReceiveNoSpEquippedMessage()
+        {
+            var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.NoSpecialistCardEquipped);
         }
 
-        [TestMethod]
-        public async Task Test_Transform_VehicleAsync()
+        private void ShouldReceiveCantUseInVehicleMessage()
         {
-            _session!.Character.IsVehicled = true;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Message == Game18NConstString.CantUseInVehicle);
         }
 
-
-        [TestMethod]
-        public async Task Test_Transform_SittedAsync()
+        private void NoPacketShouldBeSent()
         {
-            _session!.Character.IsSitting = true;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
-            Assert.IsNull(_session.LastPackets.FirstOrDefault());
+            Assert.IsNull(Session.LastPackets.FirstOrDefault());
         }
 
-        [TestMethod]
-        public async Task Test_RemoveSpAsync()
+        private void CharacterShouldNotBeTransformed()
         {
-            _session!.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            _session.Character.UseSp = true;
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
-            Assert.IsFalse(_session.Character.UseSp);
+            Assert.IsFalse(Session.Character.UseSp);
         }
 
-        [TestMethod]
-        public async Task Test_TransformAsync()
+        private void CharacterShouldBeTransformed()
         {
-            _session!.Character.SpPoint = 1;
-            _session.Character.Reput = 5000000;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
-            Assert.IsTrue(_session.Character.UseSp);
+            Assert.IsTrue(Session.Character.UseSp);
         }
 
-        [TestMethod]
-        public async Task Test_Transform_BadFairyAsync()
+        private void ShouldReceiveDifferentElementMessage()
         {
-            _session!.Character.SpPoint = 1;
-            _session.Character.Reput = 5000000;
-            var item = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1), _session.Character.CharacterId))!
-                .First();
-            var fairy = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(_item!.Create(2, 1), _session.Character.CharacterId))!
-                .First();
-
-            item.Type = NoscorePocketType.Wear;
-            item.Slot = (byte)EquipmentType.Sp;
-            fairy.Type = NoscorePocketType.Wear;
-            fairy.Slot = (byte)EquipmentType.Fairy;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.IsTrue(packet?.Message == Game18NConstString.SpecialistAndFairyDifferentElement);
         }
 
-        [TestMethod]
-        public async Task Test_Transform_BadReputAsync()
+        private void ShouldReceiveLowReputationMessage()
         {
-            _session!.Character.SpPoint = 1;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
-            var packet = (SayiPacket?)_session.LastPackets.FirstOrDefault(s => s is SayiPacket);
-            Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == _session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.CanNotBeWornReputationLow);
+            var packet = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
+            Assert.IsTrue(packet?.VisualType == VisualType.Player &&
+                packet?.VisualId == Session.Character.CharacterId &&
+                packet?.Type == SayColorType.Yellow &&
+                packet?.Message == Game18NConstString.CanNotBeWornReputationLow);
         }
 
-
-        [TestMethod]
-        public async Task Test_TransformBefore_CooldownAsync()
+        private void ShouldReceiveCooldownMessage()
         {
-            _session!.Character.SpPoint = 1;
-            _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.SpCooldown = 30;
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
-            var packet = (MsgiPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
-            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.CantTrasformWithSideEffect && packet?.ArgumentType == 4 && (short?)packet?.Game18NArguments[0] == 30);
+            var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default &&
+                packet?.Message == Game18NConstString.CantTrasformWithSideEffect &&
+                packet?.ArgumentType == 4 &&
+                (short?)packet?.Game18NArguments[0] == 30);
         }
 
-        [TestMethod]
-        public async Task Test_Transform_OutOfSpPointAsync()
+        private void ShouldReceiveNoSpPointsMessage()
         {
-            _session!.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }, _session);
-            var packet = (MsgPacket?)_session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message ==
-                TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.SP_NOPOINTS, _session.Account.Language]);
+            var packet = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
+            Assert.IsTrue(packet?.Message == TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.SP_NOPOINTS, Session.Account.Language]);
         }
 
-        [TestMethod]
-        public async Task Test_Transform_DelayAsync()
+        private void ShouldReceiveDelayPacket()
         {
-            _session!.Character.SpPoint = 1;
-            _session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_item!.Create(912, 1),
-                _session.Character.CharacterId));
-            var item = _session.Character.InventoryService.First();
-            item.Value.Type = NoscorePocketType.Wear;
-            item.Value.Slot = (byte)EquipmentType.Sp;
-            await _spTransformPacketHandler!.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, _session);
-            var packet = (DelayPacket?)_session.LastPackets.FirstOrDefault(s => s is DelayPacket);
+            var packet = (DelayPacket?)Session.LastPackets.FirstOrDefault(s => s is DelayPacket);
             Assert.IsTrue(packet?.Delay == 5000);
         }
     }

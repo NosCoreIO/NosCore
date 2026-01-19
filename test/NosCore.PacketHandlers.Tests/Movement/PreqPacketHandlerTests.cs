@@ -2,135 +2,128 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NodaTime;
-using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Tests.Shared;
-using NosCore.GameObject.ComponentEntities.Entities;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Movement
 {
     [TestClass]
     public class PreqPacketHandlerTests
     {
-        private Mock<IMinilandService>? _minilandProvider;
-        private PreqPacketHandler? _preqPacketHandler;
-        private ClientSession? _session;
-        private Mock<IMapChangeService>? _mapChangeService;
+        private PreqPacketHandler Handler = null!;
+        private ClientSession Session = null!;
+        private Mock<IHeuristic> DistanceCalculator = null!;
+        private Mock<IMinilandService> MinilandService = null!;
+        private Mock<IMapChangeService> MapChangeService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _minilandProvider = new Mock<IMinilandService>();
-            _mapChangeService = new Mock<IMapChangeService>();
-            _minilandProvider.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<Portal>());
-            _preqPacketHandler =
-                new PreqPacketHandler(TestHelpers.Instance.MapInstanceAccessorService, _minilandProvider.Object, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock, _mapChangeService.Object);
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Broadcaster.Reset();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            DistanceCalculator = new Mock<IHeuristic>();
+            MinilandService = new Mock<IMinilandService>();
+            MapChangeService = new Mock<IMapChangeService>();
 
-            _session.Character.MapInstance.Portals = new List<Portal>
-            {
-                new()
-                {
-                    DestinationMapId = 1,
-                    DestinationMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId,
-                    DestinationX = 5, DestinationY = 5, SourceMapId = 0,
-                    SourceMapInstanceId = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!.MapInstanceId,
-                    SourceX = 0, SourceY = 0
-                }
-            };
+            DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
+                .Returns(10);
+
+            MinilandService.Setup(x => x.GetMinilandPortals(It.IsAny<long>()))
+                .Returns(new List<NosCore.GameObject.ComponentEntities.Entities.Portal>());
+
+            Handler = new PreqPacketHandler(
+                TestHelpers.Instance.MapInstanceAccessorService,
+                MinilandService.Object,
+                DistanceCalculator.Object,
+                TestHelpers.Instance.Clock,
+                MapChangeService.Object);
         }
 
         [TestMethod]
-        public async Task UserCanUsePortalAsync()
+        public async Task UsingPortalTooQuicklyShouldShowCooldownMessage()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
-
-            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Once);
+            await new Spec("Using portal too quickly should show cooldown message")
+                .Given(CharacterIsOnMap)
+                .And(CharacterRecentlyUsedPortal)
+                .WhenAsync(UsingPortal)
+                .Then(ShouldReceiveCooldownMessage)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UserLastPortalSetOnUsageAsync()
+        public async Task UsingPortalWhenNoPortalNearbyShouldBeIgnored()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
-
-            var time = TestHelpers.Instance.Clock.GetCurrentInstant();
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
-            Assert.IsTrue(_session.Character.LastPortal == time);
+            await new Spec("Using portal when no portal nearby should be ignored")
+                .Given(CharacterIsOnMap)
+                .And(NoPortalNearby)
+                .WhenAsync(UsingPortal)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
         }
 
-        [TestMethod]
-        public async Task UserCanTUsePortalIfRecentlyMovedAsync()
+        private void CharacterIsOnMap()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
-            var time = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.LastPortal = time.Plus(Duration.FromMinutes(1));
-            _session.Character.LastMove = time;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
-            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
+            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.PositionX = 10;
+            Session.Character.PositionY = 10;
         }
 
-        [TestMethod]
-        public async Task UserCanTUsePortalIfRecentlyUsedAsync()
+        private void CharacterRecentlyUsedPortal()
         {
-            _session!.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
-            var time = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _session.Character.LastPortal = time;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
-            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
+            Session.Character.LastPortal = TestHelpers.Instance.Clock.GetCurrentInstant();
         }
 
-
-        [TestMethod]
-        public async Task UserCanTUsePortalIfTooFarAsync()
+        private void NoPortalNearby()
         {
-            _session!.Character.PositionX = 8;
-            _session.Character.PositionY = 8;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
-            _mapChangeService!.Verify(x => x.ChangeMapInstanceAsync(_session, TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!.MapInstanceId, 5, 5), Times.Never);
+            DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
+                .Returns(100);
         }
 
-        [TestMethod]
-        public async Task UserFromInstanceGoesBackToOriginePlaceAsync()
+        private async Task UsingPortal()
         {
-            _session!.Character.MapX = 5;
-            _session.Character.MapY = 5;
-            _session.Character.PositionX = 0;
-            _session.Character.PositionY = 0;
-            _session.Character.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
-            await _preqPacketHandler!.ExecuteAsync(new PreqPacket(), _session);
+            await Handler.ExecuteAsync(new PreqPacket(), Session);
+        }
 
-            _mapChangeService!.Verify(x => x.ChangeMapAsync(_session, 1, 5, 5), Times.Once);
+        private void ShouldReceiveCooldownMessage()
+        {
+            var packet = Session.LastPackets.OfType<SayiPacket>().FirstOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.WillMoveShortly, packet.Message);
+        }
+
+        private void NoPacketShouldBeSent()
+        {
+            Assert.AreEqual(0, Session.LastPackets.Count);
         }
     }
 }

@@ -41,8 +41,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
     [TestClass]
     public class SpeakerHandlerTests : UseItemEventHandlerTestsBase
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? _itemProvider;
-        private readonly ILogger _logger = new Mock<ILogger>().Object;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
+        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -54,14 +54,14 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             {
                 new Item {VNum = 1, ItemType = ItemType.Magical, Effect = ItemEffectType.Speaker, EffectValue = 0},
             };
-            _itemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), _logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items,
+                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()), Logger, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
-        public async Task Test_SpeakerItemHandlerAsync()
+        public async Task TestSpeakerItemHandlerAsync()
         {
-            var itemInstance = InventoryItemInstance.Create(_itemProvider!.Create(1), Session!.Character.CharacterId);
+            var itemInstance = InventoryItemInstance.Create(ItemProvider!.Create(1), Session!.Character.CharacterId);
             Session.Character.InventoryService.AddItemToPocket(itemInstance);
             await ExecuteInventoryItemInstanceEventHandlerAsync(itemInstance);
             var lastpacket = (GuriPacket?)Session.LastPackets.FirstOrDefault(s => s is GuriPacket);

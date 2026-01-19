@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -44,25 +44,26 @@ using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Login
 {
     [TestClass]
-    public class NoS0577PacketHandlerTests
+    public class NoS0577PacketHandlerSpecs
     {
-        private readonly string _tokenGuid = Guid.NewGuid().ToString();
-        private IHasher _encryption = null!;
-        private readonly Mock<IAuthHub> _authHttpClient = new();
-        private readonly Mock<IPubSubHub> _pubSubHub = TestHelpers.Instance.PubSubHub;
-        private readonly IOptions<LoginConfiguration> _loginConfiguration = Options.Create(new LoginConfiguration
+        private readonly string TokenGuid = Guid.NewGuid().ToString();
+        private IHasher Encryption = null!;
+        private readonly Mock<IAuthHub> AuthHttpClient = new();
+        private readonly Mock<IPubSubHub> PubSubHub = TestHelpers.Instance.PubSubHub;
+        private readonly IOptions<LoginConfiguration> LoginConfiguration = Options.Create(new LoginConfiguration
         {
             MasterCommunication = new WebApiConfiguration()
         });
 
-        private NoS0577PacketHandler? _noS0577PacketHandler;
-        private ClientSession? _session;
-        private Mock<IChannelHub>? _channelHub;
-        private SessionRefHolder? _sessionRefHolder;
+        private NoS0577PacketHandler NoS0577PacketHandler = null!;
+        private ClientSession Session = null!;
+        private Mock<IChannelHub> ChannelHub = null!;
+        private SessionRefHolder SessionRefHolder = null!;
 
         private static string GuidToToken(string token)
         {
@@ -73,166 +74,221 @@ namespace NosCore.PacketHandlers.Tests.Login
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            _channelHub = new Mock<IChannelHub>();
-            _sessionRefHolder = new SessionRefHolder();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _sessionRefHolder[_session.Channel!.Id] = new RegionTypeMapping(_session.SessionId, RegionType.EN);
-            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
+            ChannelHub = new Mock<IChannelHub>();
+            SessionRefHolder = new SessionRefHolder();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            SessionRefHolder[Session.Channel!.Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
+            AuthHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
-                (string?)((new OkObjectResult(_session.Account.Name)).Value));
-            _noS0577PacketHandler = new NoS0577PacketHandler(new LoginService(_loginConfiguration,
+                (string?)((new OkObjectResult(Session.Account.Name)).Value));
+            NoS0577PacketHandler = new NoS0577PacketHandler(new LoginService(LoginConfiguration,
                 TestHelpers.Instance.AccountDao,
-                _authHttpClient.Object, _pubSubHub.Object, _channelHub.Object, TestHelpers.Instance.CharacterDao, _sessionRefHolder));
+                AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, TestHelpers.Instance.CharacterDao, SessionRefHolder));
         }
 
         [TestMethod]
-        public async Task LoginBCryptAsync()
+        public async Task LoginWithBcryptShouldSucceed()
         {
-            _encryption = new BcryptHasher();
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-                 .ReturnsAsync(new List<Subscriber>());
-            _session!.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
-            _session.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, _session.Account.NewAuthSalt);
-
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session);
-
-
-            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            await new Spec("Login with bcrypt should succeed")
+                .Given(ServerIsAvailable)
+                .And(AccountUsesBcrypt)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task LoginPbkdf2Async()
+        public async Task LoginWithPbkdf2ShouldSucceed()
         {
-            _encryption = new Pbkdf2Hasher();
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-             .ReturnsAsync(new List<Subscriber>());
-            _session!.Account.NewAuthPassword = _encryption.Hash(_tokenGuid, "MY_SUPER_SECRET_HASH");
-            _session.Account.NewAuthSalt = "MY_SUPER_SECRET_HASH";
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session);
-
-            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+            await new Spec("Login with pbkdf2 should succeed")
+                .Given(ServerIsAvailable)
+                .And(AccountUsesPbkdf_, 2)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task LoginOldClientAsync()
+        public async Task LoginWithOldClientShouldFail()
         {
-            _loginConfiguration.Value.ClientVersion = new ClientVersionSubPacket { Major = 1 };
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session!);
+            await new Spec("Login with old client should fail")
+                .Given(ClientVersionIsSet)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveOldClientError)
+                .ExecuteAsync();
+        }
 
-            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+        [TestMethod]
+        public async Task LoginWithWrongTokenShouldFail()
+        {
+            await new Spec("Login with wrong token should fail")
+                .Given(TokenIsInvalid)
+                .WhenAsync(LoggingInWithWrongToken)
+                .Then(ShouldReceiveAccountWrongError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithCorrectCredentialsShouldSucceed()
+        {
+            await new Spec("Login with correct credentials should succeed")
+                .Given(ServerIsAvailable)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWhenAlreadyConnectedShouldFail()
+        {
+            await new Spec("Login when already connected should fail")
+                .Given(AccountIsAlreadyConnected)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveAlreadyConnectedError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginWithNoServerShouldFail()
+        {
+            await new Spec("Login with no server should fail")
+                .Given(NoServerIsAvailable)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveCantConnectError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginDuringMaintenanceShouldFail()
+        {
+            await new Spec("Login during maintenance should fail")
+                .Given(ServerIsInMaintenance)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveMaintenanceError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginDuringMaintenanceAsGmShouldSucceed()
+        {
+            await new Spec("Login during maintenance as gm should succeed")
+                .Given(ServerIsInMaintenance)
+                .AndAsync(AccountIsGameMaster)
+                .WhenAsync(LoggingInWithToken)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
+        }
+
+        private void ServerIsAvailable()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+        }
+
+        private void AccountUsesBcrypt()
+        {
+            Encryption = new BcryptHasher();
+            Session.Account.NewAuthSalt = BCrypt.Net.BCrypt.GenerateSalt();
+            Session.Account.NewAuthPassword = Encryption.Hash(TokenGuid, Session.Account.NewAuthSalt);
+        }
+
+        private void AccountUsesPbkdf_(int value)
+        {
+            Encryption = new Pbkdf2Hasher();
+            Session.Account.NewAuthPassword = Encryption.Hash(TokenGuid, "MYSUPERSECRETHASH");
+            Session.Account.NewAuthSalt = "MYSUPERSECRETHASH";
+        }
+
+        private void ClientVersionIsSet()
+        {
+            LoginConfiguration.Value.ClientVersion = new ClientVersionSubPacket { Major = 1 };
+        }
+
+        private void TokenIsInvalid()
+        {
+            AuthHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
+                (string?)((new OkObjectResult(null)).Value));
+        }
+
+        private void AccountIsAlreadyConnected()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>
+                    { new() { Name = Session.Account.Name } });
+        }
+
+        private void NoServerIsAvailable()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+        }
+
+        private void ServerIsInMaintenance()
+        {
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>());
+        }
+
+        private async Task AccountIsGameMaster()
+        {
+            Session.Account.Authority = AuthorityType.GameMaster;
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+        }
+
+        private async Task LoggingInWithToken()
+        {
+            await NoS0577PacketHandler.ExecuteAsync(new NoS0577Packet
+            {
+                AuthToken = GuidToToken(TokenGuid),
+            }, Session);
+        }
+
+        private async Task LoggingInWithWrongToken()
+        {
+            await NoS0577PacketHandler.ExecuteAsync(new NoS0577Packet
+            {
+                AuthToken = GuidToToken(Guid.NewGuid().ToString()),
+            }, Session);
+        }
+
+        private void ShouldReceiveNsTestPacket()
+        {
+            Assert.IsNotNull((NsTestPacket?)Session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
+        }
+
+        private void ShouldReceiveOldClientError()
+        {
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.OldClient);
         }
 
-        [TestMethod]
-        public async Task LoginWrongTokenAsync()
+        private void ShouldReceiveAccountWrongError()
         {
-            _authHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>
-                (string?)((new OkObjectResult(null)).Value));
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(Guid.NewGuid().ToString()),
-            }, _session!);
-
-            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
         }
 
-        [TestMethod]
-        public async Task LoginAsync()
+        private void ShouldReceiveAlreadyConnectedError()
         {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-                 .ReturnsAsync(new List<Subscriber>());
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session!);
-
-            Assert.IsNotNull((NsTestPacket?)_session!.LastPackets.FirstOrDefault(s => s is NsTestPacket));
-        }
-
-        [TestMethod]
-        public async Task LoginAlreadyConnectedAsync()
-        {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-                 .ReturnsAsync(new List<Subscriber>
-                    {new() {Name = _session!.Account.Name}});
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session);
-            Assert.IsTrue(((FailcPacket?)_session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AlreadyConnected);
         }
 
-        [TestMethod]
-        public async Task LoginNoServerAsync()
+        private void ShouldReceiveCantConnectError()
         {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-                 .ReturnsAsync(new List<Subscriber>());
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session!);
-            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.CantConnect);
         }
 
-        //[TestMethod]
-        //public async Task LoginBanned()
-        //{
-        //    _handler.VerifyLogin(new NoS0575Packet
-        //    {
-        //        Password ="test".Sha512(),
-        //        Name = Name,
-        //    });
-        //    Assert.IsTrue(_session.LastPacket is FailcPacket);
-        //    Assert.IsTrue(((FailcPacket) _session.LastPacket).Type == LoginFailType.Banned);
-        //}
-
-        [TestMethod]
-        public async Task LoginMaintenanceAsync()
+        private void ShouldReceiveMaintenanceError()
         {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-                  .ReturnsAsync(new List<Subscriber>());
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session!);
-
-            Assert.IsTrue(((FailcPacket?)_session!.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.Maintenance);
-        }
-
-        [TestMethod]
-        public async Task LoginMaintenanceGameMasterAsync()
-        {
-            _channelHub!.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
-            _pubSubHub.Setup(s => s.GetSubscribersAsync())
-                .ReturnsAsync(new List<Subscriber>());
-            _session!.Account.Authority = AuthorityType.GameMaster;
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(_session!.Account);
-            await _noS0577PacketHandler!.ExecuteAsync(new NoS0577Packet
-            {
-                AuthToken = GuidToToken(_tokenGuid),
-            }, _session);
-
-            Assert.IsNotNull((NsTestPacket?)_session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
     }
 }

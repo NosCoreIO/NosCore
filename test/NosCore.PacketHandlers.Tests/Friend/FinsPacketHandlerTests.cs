@@ -2,18 +2,18 @@
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
-// 
+//
 // Copyright (C) 2019 - NosCore
-// 
+//
 // NosCore is a free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
 // the Free Software Foundation, either version 3 of the License, or any later version.
-// 
+//
 // This program is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
 // MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
-// 
+//
 // You should have received a copy of the GNU General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
@@ -28,6 +28,7 @@ using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -39,8 +40,9 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using Serilog;
-using NosCore.GameObject.ComponentEntities.Entities;
+using SpecLight;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Tests.Friend
@@ -49,105 +51,153 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class FinsPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private readonly Mock<IChannelHub> _channelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-        private IDao<CharacterRelationDto, Guid>? _characterRelationDao;
-        private readonly Mock<IPubSubHub> _connectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
-        private Mock<IChannelHub>? _channelHub;
-        private FinsPacketHandler? _finsPacketHandler;
-        private readonly Mock<IFriendHub> _friendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private FriendRequestRegistry? _friendRequestHolder;
-
-        private ClientSession? _session;
-        private ClientSession? _targetSession;
+        private NosCoreFixture Fixture = null!;
+        private readonly Mock<IChannelHub> ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
+        private readonly Mock<IPubSubHub> ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+        private Mock<IChannelHub> ChannelHub = null!;
+        private FinsPacketHandler FinsPacketHandler = null!;
+        private readonly Mock<IFriendHub> FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private FriendRequestRegistry FriendRequestHolder = null!;
+        private ClientSession Session = null!;
+        private ClientSession TargetSession = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
+                .ConstructUsing(src => new MapNpc(null, new Mock<ILogger>().Object,
+                    TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
             Broadcaster.Reset();
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _targetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            _characterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            _channelHub = new Mock<IChannelHub>();
-            _channelHub.Setup(s => s.GetCommunicationChannels())
-                .ReturnsAsync(new List<ChannelInfo>(){
-                    new ChannelInfo
-                    {
-                        Type = ServerType.WorldServer,
-                        Id = 1
-                    }
-
+            Fixture = new NosCoreFixture();
+            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
+            ChannelHub = new Mock<IChannelHub>();
+            ChannelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo>
+                {
+                    new ChannelInfo { Type = ServerType.WorldServer, Id = 1 }
                 });
-            _friendRequestHolder = new FriendRequestRegistry();
-            _connectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
-                .ReturnsAsync(new List<Subscriber>(){
+            FriendRequestHolder = new FriendRequestRegistry();
+            ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>
+                {
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _targetSession.Character.CharacterId }
+                        ChannelId = 1,
+                        ConnectedCharacter = new Character { Id = TargetSession.Character.CharacterId }
                     },
                     new Subscriber
                     {
-                        ChannelId = 1, ConnectedCharacter = new Character { Id = _session.Character.CharacterId }
+                        ChannelId = 1,
+                        ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
+                });
+            FinsPacketHandler = new FinsPacketHandler(
+                FriendHttpClient.Object,
+                ChannelHttpClient.Object,
+                ConnectedAccountHttpClient.Object,
+                new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger));
+        }
 
-                    });
-            _finsPacketHandler = new FinsPacketHandler(_friendHttpClient.Object, _channelHttpClient.Object,
-                _connectedAccountHttpClient.Object, new NosCore.GameObject.Services.BroadcastService.SessionRegistry());
+        private FriendService CreateFriendService()
+        {
+            return new FriendService(
+                new Mock<ILogger>().Object,
+                CharacterRelationDao,
+                TestHelpers.Instance.CharacterDao,
+                FriendRequestHolder,
+                ConnectedAccountHttpClient.Object,
+                ChannelHub.Object,
+                TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
-        public async Task Test_Add_FriendAsync()
+        public async Task AcceptingFriendRequestShouldCreateMutualRelation()
         {
-            _friendRequestHolder!.RegisterRequest(Guid.NewGuid(),
-                _targetSession!.Character.CharacterId, _session!.Character.CharacterId);
-            var finsPacket = new FinsPacket
-            {
-                CharacterId = _targetSession.Character.CharacterId,
-                Type = FinsPacketType.Accepted
-            };
-
-            var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
-            _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
-            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session);
-            Assert.IsTrue(_characterRelationDao!.LoadAll().Count() == 2);
+            await new Spec("Accepting friend request should create mutual relation")
+                .Given(AFriendRequestExists)
+                .WhenAsync(AcceptingTheFriendRequest)
+                .Then(TwoFriendRelationsShouldBeCreated)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task Test_Add_Friend_When_DisconnectedAsync()
+        public async Task AddingFriendWhenTargetDisconnectedShouldFail()
         {
-            var finsPacket = new FinsPacket
-            {
-                CharacterId = _targetSession!.Character.CharacterId,
-                Type = FinsPacketType.Accepted
-            };
-            var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
-            _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
-            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session);
-
-            Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
+            await new Spec("Adding friend when target disconnected should fail")
+                .WhenAsync(AttemptingToAddFriend)
+                .Then(NoRelationShouldBeCreated)
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task Test_Add_Not_Requested_FriendAsync()
+        public async Task AcceptingUnrequestedFriendShouldFail()
+        {
+            await new Spec("Accepting unrequested friend should fail")
+                .WhenAsync(AttemptingToAcceptNonExistentRequest)
+                .Then(NoRelationShouldBeCreated)
+                .ExecuteAsync();
+        }
+
+        private void AFriendRequestExists()
+        {
+            FriendRequestHolder.RegisterRequest(Guid.NewGuid(),
+                TargetSession.Character.CharacterId, Session.Character.CharacterId);
+        }
+
+        private async Task AcceptingTheFriendRequest()
         {
             var finsPacket = new FinsPacket
             {
-                CharacterId = _targetSession!.Character.CharacterId,
+                CharacterId = TargetSession.Character.CharacterId,
                 Type = FinsPacketType.Accepted
             };
-            var friend = new FriendService(Logger, _characterRelationDao!, TestHelpers.Instance.CharacterDao,
-                _friendRequestHolder!, _connectedAccountHttpClient.Object, _channelHub!.Object, TestHelpers.Instance.LogLanguageLocalizer);
-            _friendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
-                .Returns(friend.AddFriendAsync(_session!.Character.CharacterId, finsPacket.CharacterId, finsPacket.Type));
+            var friend = CreateFriendService();
+            FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
+                .Returns(friend.AddFriendAsync(Session.Character.CharacterId,
+                    finsPacket.CharacterId, finsPacket.Type));
+            await FinsPacketHandler.ExecuteAsync(finsPacket, Session);
+        }
 
-            await _finsPacketHandler!.ExecuteAsync(finsPacket, _session);
-            Assert.IsFalse(_characterRelationDao!.LoadAll().Any());
+        private void TwoFriendRelationsShouldBeCreated()
+        {
+            Assert.AreEqual(2, CharacterRelationDao.LoadAll().Count());
+        }
+
+        private async Task AttemptingToAddFriend()
+        {
+            var finsPacket = new FinsPacket
+            {
+                CharacterId = TargetSession.Character.CharacterId,
+                Type = FinsPacketType.Accepted
+            };
+            var friend = CreateFriendService();
+            FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
+                .Returns(friend.AddFriendAsync(Session.Character.CharacterId,
+                    finsPacket.CharacterId, finsPacket.Type));
+            await FinsPacketHandler.ExecuteAsync(finsPacket, Session);
+        }
+
+        private void NoRelationShouldBeCreated()
+        {
+            Assert.IsFalse(CharacterRelationDao.LoadAll().Any());
+        }
+
+        private async Task AttemptingToAcceptNonExistentRequest()
+        {
+            var finsPacket = new FinsPacket
+            {
+                CharacterId = TargetSession.Character.CharacterId,
+                Type = FinsPacketType.Accepted
+            };
+            var friend = CreateFriendService();
+            FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
+                .Returns(friend.AddFriendAsync(Session.Character.CharacterId,
+                    finsPacket.CharacterId, finsPacket.Type));
+            await FinsPacketHandler.ExecuteAsync(finsPacket, Session);
         }
     }
 }
