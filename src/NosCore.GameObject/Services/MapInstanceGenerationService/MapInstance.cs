@@ -16,6 +16,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
@@ -48,10 +49,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IClock _clock;
         private readonly IMapChangeService _mapChangeService;
         private readonly ISessionRegistry _sessionRegistry;
+        private readonly IHeuristic _distanceCalculator;
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -72,6 +74,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _logger = logger;
             _mapChangeService = mapChangeService;
             _sessionRegistry = sessionRegistry;
+            _distanceCalculator = distanceCalculator;
             Requests = new Dictionary<Type, Subject<RequestData<MapInstance>>>
             {
                 [typeof(IMapInstanceEntranceEventHandler)] = new()
@@ -93,8 +96,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                 _isSleeping = true;
                 _isSleepingRequest = false;
-                Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => monster.StopLife());
-                Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => npc.StopLife());
+                Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
+                Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
 
                 return true;
             }
@@ -295,8 +298,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         return;
                     }
 
-                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync()));
-                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync()));
+                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_distanceCalculator, _clock, _logger)));
+                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_distanceCalculator, _clock, _logger)));
                 }
                 catch (Exception e)
                 {

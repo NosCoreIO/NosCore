@@ -6,6 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.StaticEntities;
+using System;
 
 namespace NosCore.GameObject.ComponentEntities.Interfaces
 {
@@ -19,8 +20,14 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         bool IsDisabled { get; }
 
-        NpcMonsterDto NpcMonster { get; }
+        NpcMonsterDto NpcMonster { get; set; }
 
         Instant LastMove { get; set; }
+
+        IDisposable? Life { get; set; }
+
+        new bool IsAlive { get; set; }
+
+        new byte Speed { get; set; }
     }
 }

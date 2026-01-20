@@ -6,6 +6,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -42,7 +45,8 @@ namespace NosCore.PacketHandlers.Tests.Command
             PubSubHub.Setup(x => x.GetSubscribersAsync())
                 .Returns(Task.FromResult(new List<Subscriber>()));
 
-            Handler = new ChangeClassPacketHandler(PubSubHub.Object);
+            Handler = new ChangeClassPacketHandler(PubSubHub.Object,
+                TestHelpers.Instance.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService());
         }
 
         [TestMethod]

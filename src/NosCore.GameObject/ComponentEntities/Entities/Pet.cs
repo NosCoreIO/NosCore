@@ -20,8 +20,8 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 {
     public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {
-        public IDisposable? Life { get; private set; }
-        public NpcMonsterDto NpcMonster { get; private set; } = null!;
+        public IDisposable? Life { get; set; }
+        public NpcMonsterDto NpcMonster { get; set; } = null!;
         public short Effect { get; set; }
         public short EffectDelay { get; set; }
         public Instant LastMove { get; set; }
@@ -62,16 +62,6 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 
         public short Race => NpcMonster.Race;
 
-        public Shop? Shop => null;
-
-
-        internal void Initialize(NpcMonsterDto npcMonster)
-        {
-            NpcMonster = npcMonster;
-            Mp = NpcMonster.MaxMp;
-            Hp = NpcMonster.MaxHp;
-            Speed = NpcMonster.Speed;
-            IsAlive = true;
-        }
+        public Shop? Shop { get; set; }
     }
 }

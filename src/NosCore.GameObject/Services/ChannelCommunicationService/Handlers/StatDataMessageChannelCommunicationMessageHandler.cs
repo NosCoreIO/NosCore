@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     await session.SetGoldAsync(data.Data);
                     break;
                 case UpdateStatActionType.UpdateClass:
-                    await session.ChangeClassAsync((CharacterClassType)data.Data);
+                    await session.ChangeClassAsync((CharacterClassType)data.Data, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);

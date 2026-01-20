@@ -53,8 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, new Mock<ILogger>().Object,
-                    TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
+                .ConstructUsing(src => new MapNpc());
             Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             Fixture = new NosCoreFixture();

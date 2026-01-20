@@ -72,7 +72,6 @@ namespace NosCore.PacketHandlers.Tests.Command
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            Session.Character.Size = 10;
             Session.LastPackets.Clear();
         }
 

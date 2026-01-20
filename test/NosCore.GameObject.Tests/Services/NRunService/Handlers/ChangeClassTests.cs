@@ -6,6 +6,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Infastructure;
@@ -48,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             Item = TestHelpers.Instance.GenerateItemProvider();
             NrRunService = new NrunService(
                 new List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
-                    {new ChangeClassEventHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer)});
+                    {new ChangeClassEventHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService())});
         }
 
         [DataTestMethod]

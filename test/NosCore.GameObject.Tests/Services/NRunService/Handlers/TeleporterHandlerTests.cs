@@ -6,8 +6,10 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -114,26 +116,18 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
 
         private void NpcWithTeleportDialog()
         {
-            Npc = new MapNpc(
-                TestHelpers.Instance.GenerateItemProvider(),
-                Logger,
-                TestHelpers.Instance.DistanceCalculator,
-                TestHelpers.Instance.Clock);
+            Npc = new MapNpc();
             Npc.MapNpcId = 1;
             Npc.Dialog = 439;
-            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>());
+            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
         }
 
         private void NpcWithInvalidDialog()
         {
-            Npc = new MapNpc(
-                TestHelpers.Instance.GenerateItemProvider(),
-                Logger,
-                TestHelpers.Instance.DistanceCalculator,
-                TestHelpers.Instance.Clock);
+            Npc = new MapNpc();
             Npc.MapNpcId = 1;
             Npc.Dialog = 1;
-            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>());
+            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
         }
 
         private void CharacterHasEnoughGold()

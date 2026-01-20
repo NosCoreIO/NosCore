@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
@@ -162,7 +163,7 @@ namespace NosCore.GameObject.Tests
         {
             var itemBuilder = CreateItemBuilder();
             var shop = CreateShop(itemBuilder);
-            await Session.Character.BuyAsync(shop, 1, 99);
+            await Session.Character.BuyAsync(shop, 1, 99, TestHelpers.Instance.WorldConfiguration);
         }
 
 
@@ -178,7 +179,7 @@ namespace NosCore.GameObject.Tests
                 Amount = 98
             });
             var shop = new Shop { ShopItems = list };
-            await Session.Character.BuyAsync(shop, 0, 99);
+            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration);
         }
 
         private async Task AttemptingToBuy_ItemsAsync(int value)
@@ -186,7 +187,7 @@ namespace NosCore.GameObject.Tests
             var itemBuilder = CreateItemBuilder();
             var shop = CreateShop(itemBuilder);
 
-            await Session.Character.BuyAsync(shop, 0, 99);
+            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration);
         }
 
         private void ShouldReceiveNotEnoughGoldMessage()
@@ -200,7 +201,7 @@ namespace NosCore.GameObject.Tests
         {
             var itemBuilder = CreateItemBuilder(0, 500000);
             var shop = CreateShop(itemBuilder);
-            await Session.Character.BuyAsync(shop, 0, 99);
+            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration);
         }
 
         private void ShouldReceiveReputationError()
@@ -229,7 +230,7 @@ namespace NosCore.GameObject.Tests
         private async Task AttemptingToBuyWithFullInventoryAsync()
         {
             var shop = CreateShop(ItemBuilder, -1, 1);
-            await Session.Character.BuyAsync(shop, 0, 999);
+            await Session.Character.BuyAsync(shop, 0, 999, TestHelpers.Instance.WorldConfiguration);
         }
 
         private void ShouldReceiveNotEnoughSpaceMessage()
@@ -256,7 +257,7 @@ namespace NosCore.GameObject.Tests
         private async Task Buying998ItemsAt1GoldEachAsync()
         {
             var shop = CreateShop(ItemBuilder);
-            await Session.Character.BuyAsync(shop, 0, 998);
+            await Session.Character.BuyAsync(shop, 0, 998, TestHelpers.Instance.WorldConfiguration);
         }
 
         private void AllInventorySlotsShouldHave_Items(int value)
@@ -290,7 +291,7 @@ namespace NosCore.GameObject.Tests
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = ItemBuilder.Create(1), Type = 0 });
             var shop = new Shop { ShopItems = list };
-            await Session.Character.BuyAsync(shop, 0, 998);
+            await Session.Character.BuyAsync(shop, 0, 998, TestHelpers.Instance.WorldConfiguration);
         }
 
         private void ReputationShouldBeDeducted()
