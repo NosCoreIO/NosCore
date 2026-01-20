@@ -80,63 +80,58 @@ namespace NosCore.Parser.Parsers
         {
             _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
             _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
-            {
-                {nameof(NpcMonsterDto.NpcMonsterVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(NpcMonsterDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
-                {nameof(NpcMonsterDto.Level), chunk => Level(chunk)},
-                {nameof(NpcMonsterDto.HeroXp), chunk => ImportXp(chunk) / 25},
-                {nameof(NpcMonsterDto.Race), chunk => Convert.ToByte(chunk["RACE"][0][2])},
-                {nameof(NpcMonsterDto.RaceType), chunk => Convert.ToByte(chunk["RACE"][0][3])},
-                {nameof(NpcMonsterDto.Element), chunk => Convert.ToByte(chunk["ATTRIB"][0][2])},
-                {nameof(NpcMonsterDto.ElementRate), chunk => Convert.ToInt16(chunk["ATTRIB"][0][3])},
-                {nameof(NpcMonsterDto.FireResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][4])},
-                {nameof(NpcMonsterDto.WaterResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][5])},
-                {nameof(NpcMonsterDto.LightResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][6])},
-                {nameof(NpcMonsterDto.DarkResistance), chunk => Convert.ToInt16(chunk["ATTRIB"][0][7])},
-                {nameof(NpcMonsterDto.MaxHp), chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)]},
-                {nameof(NpcMonsterDto.MaxMp), chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]},
-                {nameof(NpcMonsterDto.Xp), chunk =>  ImportXp(chunk)},
-                {nameof(NpcMonsterDto.JobXp), chunk => ImportJxp(chunk)},
-                {nameof(NpcMonsterDto.IsHostile), chunk => chunk["PREATT"][0][2] != "0" },
-                {nameof(NpcMonsterDto.NoticeRange), chunk => Convert.ToByte(chunk["PREATT"][0][4])},
-                {nameof(NpcMonsterDto.Speed), chunk => Convert.ToByte(chunk["PREATT"][0][5])},
-                {nameof(NpcMonsterDto.RespawnTime), chunk => Convert.ToInt32(chunk["PREATT"][0][6])},
-                {nameof(NpcMonsterDto.CloseDefence), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18)},
-                {nameof(NpcMonsterDto.DistanceDefence), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2])- 1) * 3 + 17)},
-                {nameof(NpcMonsterDto.MagicDefence), chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13)},
-                {nameof(NpcMonsterDto.DefenceDodge), chunk =>  Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2])- 1) * 5 + 31)},
-                {nameof(NpcMonsterDto.DistanceDefenceDodge), chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31)},
-                {nameof(NpcMonsterDto.AttackClass), chunk => Convert.ToByte(chunk["ZSKILL"][0][2])},
-                {nameof(NpcMonsterDto.BasicRange), chunk => Convert.ToByte(chunk["ZSKILL"][0][3])},
-                {nameof(NpcMonsterDto.BasicArea), chunk => Convert.ToByte(chunk["ZSKILL"][0][5])},
-                {nameof(NpcMonsterDto.BasicCooldown), chunk => Convert.ToInt16(chunk["ZSKILL"][0][6])},
-                {nameof(NpcMonsterDto.AttackUpgrade), chunk => Convert.ToByte(LoadUnknownData(chunk) == 1?chunk["WINFO"][0][2]:chunk["WINFO"][0][4])},
-                {nameof(NpcMonsterDto.DefenceUpgrade), chunk => Convert.ToByte(LoadUnknownData(chunk) == 1? chunk["WINFO"][0][2]:chunk["AINFO"][0][3])},
-                {nameof(NpcMonsterDto.BasicSkill), chunk => Convert.ToInt16(chunk["EFF"][0][2])},
-                {nameof(NpcMonsterDto.VNumRequired), chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4])},
-                {nameof(NpcMonsterDto.AmountRequired), chunk =>  Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0")},
-                {nameof(NpcMonsterDto.DamageMinimum), chunk => ImportDamageMinimum(chunk)},
-                {nameof(NpcMonsterDto.DamageMaximum), chunk => ImportDamageMaximum(chunk)},
-                {nameof(NpcMonsterDto.Concentrate), chunk => ImportConcentrate(chunk)},
-                {nameof(NpcMonsterDto.CriticalChance), chunk => ImportCriticalChance(chunk)},
-                {nameof(NpcMonsterDto.CriticalRate), chunk => ImportCriticalRate(chunk)},
-                {nameof(NpcMonsterDto.NpcMonsterSkill), ImportNpcMonsterSkill},
-                {nameof(NpcMonsterDto.BCards), ImportBCards},
-                {nameof(NpcMonsterDto.Drop), ImportDrops},
-                {nameof(NpcMonsterDto.MonsterType), chunk => ImportMonsterType(chunk)},
-                {nameof(NpcMonsterDto.NoAggresiveIcon), chunk => {
-                        var unknowndata = LoadUnknownData(chunk);
-                        return (unknowndata == -2147483616
-                            || unknowndata ==  -2147483647
-                            || unknowndata ==  -2147483646) && ((Convert.ToByte(chunk["RACE"][0][2]) == 8) && (Convert.ToByte(chunk["RACE"][0][3]) == 0));
-                     }
-                }
-            };
-
-            var genericParser = new GenericParser<NpcMonsterDto>(folder + _fileNpcId,
-                "#========================================================", 1, actionList, _logger, _logLanguage);
-            var monsters = (await genericParser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
+            var parser = FluentParserBuilder<NpcMonsterDto>.Create(folder + _fileNpcId, "#========================================================", 1)
+                .Field(x => x.NpcMonsterVNum, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
+                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
+                .Field(x => x.Level, chunk => Level(chunk))
+                .Field(x => x.HeroXp, chunk => ImportXp(chunk) / 25)
+                .Field(x => x.Race, chunk => Convert.ToByte(chunk["RACE"][0][2]))
+                .Field(x => x.RaceType, chunk => Convert.ToByte(chunk["RACE"][0][3]))
+                .Field(x => x.Element, chunk => Convert.ToByte(chunk["ATTRIB"][0][2]))
+                .Field(x => x.ElementRate, chunk => Convert.ToInt16(chunk["ATTRIB"][0][3]))
+                .Field(x => x.FireResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][4]))
+                .Field(x => x.WaterResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][5]))
+                .Field(x => x.LightResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][6]))
+                .Field(x => x.DarkResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][7]))
+                .Field(x => x.MaxHp, chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)])
+                .Field(x => x.MaxMp, chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + (Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]))
+                .Field(x => x.Xp, chunk => ImportXp(chunk))
+                .Field(x => x.JobXp, chunk => ImportJxp(chunk))
+                .Field(x => x.IsHostile, chunk => chunk["PREATT"][0][2] != "0")
+                .Field(x => x.NoticeRange, chunk => Convert.ToByte(chunk["PREATT"][0][4]))
+                .Field(x => x.Speed, chunk => Convert.ToByte(chunk["PREATT"][0][5]))
+                .Field(x => x.RespawnTime, chunk => Convert.ToInt32(chunk["PREATT"][0][6]))
+                .Field(x => x.CloseDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18))
+                .Field(x => x.DistanceDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 3 + 17))
+                .Field(x => x.MagicDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13))
+                .Field(x => x.DefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31))
+                .Field(x => x.DistanceDefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31))
+                .Field(x => x.AttackClass, chunk => Convert.ToByte(chunk["ZSKILL"][0][2]))
+                .Field(x => x.BasicRange, chunk => Convert.ToByte(chunk["ZSKILL"][0][3]))
+                .Field(x => x.BasicArea, chunk => Convert.ToByte(chunk["ZSKILL"][0][5]))
+                .Field(x => x.BasicCooldown, chunk => Convert.ToInt16(chunk["ZSKILL"][0][6]))
+                .Field(x => x.AttackUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["WINFO"][0][4]))
+                .Field(x => x.DefenceUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["AINFO"][0][3]))
+                .Field(x => x.BasicSkill, chunk => Convert.ToInt16(chunk["EFF"][0][2]))
+                .Field(x => x.VNumRequired, chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4]))
+                .Field(x => x.AmountRequired, chunk => Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0"))
+                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk))
+                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk))
+                .Field(x => x.Concentrate, chunk => ImportConcentrate(chunk))
+                .Field(x => x.CriticalChance, chunk => ImportCriticalChance(chunk))
+                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk))
+                .Field(x => x.NpcMonsterSkill, chunk => ImportNpcMonsterSkill(chunk))
+                .Field(x => x.BCards, chunk => ImportBCards(chunk))
+                .Field(x => x.Drop, chunk => ImportDrops(chunk))
+                .Field(x => x.MonsterType, chunk => ImportMonsterType(chunk))
+                .Field(x => x.NoAggresiveIcon, chunk =>
+                {
+                    var unknowndata = LoadUnknownData(chunk);
+                    return (unknowndata == -2147483616 || unknowndata == -2147483647 || unknowndata == -2147483646)
+                        && (Convert.ToByte(chunk["RACE"][0][2]) == 8) && (Convert.ToByte(chunk["RACE"][0][3]) == 0);
+                })
+                .Build(_logger, _logLanguage);
+            var monsters = (await parser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters);
             await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
             await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));

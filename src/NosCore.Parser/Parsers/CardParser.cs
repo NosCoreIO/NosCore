@@ -39,22 +39,19 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertCardsAsync(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
-            {
-                {nameof(CardDto.CardId), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(CardDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
-                {nameof(CardDto.Level), chunk => Convert.ToByte(chunk["GROUP"][0][3])},
-                {nameof(CardDto.EffectId), chunk => Convert.ToInt32(chunk["EFFECT"][0][2])},
-                {nameof(CardDto.BuffType), chunk => (BCardType.CardType) Convert.ToByte(chunk["STYLE"][0][3])},
-                {nameof(CardDto.Duration), chunk => Convert.ToInt32(chunk["TIME"][0][2])},
-                {nameof(CardDto.Delay), chunk => Convert.ToInt32(chunk["TIME"][0][3])},
-                {nameof(CardDto.BCards), AddBCards},
-                {nameof(CardDto.TimeoutBuff), chunk => Convert.ToInt16(chunk["LAST"][0][2])},
-                {nameof(CardDto.TimeoutBuffChance), chunk => Convert.ToByte(chunk["LAST"][0][3])}
-            };
-            var genericParser = new GenericParser<CardDto>(folder + _fileCardDat,
-                "END", 1, actionList, logger, logLanguage);
-            var cards = (await genericParser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
+            var parser = FluentParserBuilder<CardDto>.Create(folder + _fileCardDat, "END", 1)
+                .Field(x => x.CardId, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
+                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
+                .Field(x => x.Level, chunk => Convert.ToByte(chunk["GROUP"][0][3]))
+                .Field(x => x.EffectId, chunk => Convert.ToInt32(chunk["EFFECT"][0][2]))
+                .Field(x => x.BuffType, chunk => (BCardType.CardType)Convert.ToByte(chunk["STYLE"][0][3]))
+                .Field(x => x.Duration, chunk => Convert.ToInt32(chunk["TIME"][0][2]))
+                .Field(x => x.Delay, chunk => Convert.ToInt32(chunk["TIME"][0][3]))
+                .Field(x => x.BCards, chunk => AddBCards(chunk))
+                .Field(x => x.TimeoutBuff, chunk => Convert.ToInt16(chunk["LAST"][0][2]))
+                .Field(x => x.TimeoutBuffChance, chunk => Convert.ToByte(chunk["LAST"][0][3]))
+                .Build(logger, logLanguage);
+            var cards = (await parser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             await cardDao.TryInsertOrUpdateAsync(cards);
             await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 

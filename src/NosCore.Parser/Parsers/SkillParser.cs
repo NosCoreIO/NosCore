@@ -44,42 +44,39 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertSkillsAsync(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
-            {
-                {nameof(SkillDto.SkillVNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(SkillDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
-                {nameof(SkillDto.SkillType), chunk => Convert.ToByte(chunk["TYPE"][0][2])},
-                {nameof(SkillDto.CastId), chunk => Convert.ToInt16(chunk["TYPE"][0][3])},
-                {nameof(SkillDto.Class), chunk => Convert.ToByte(chunk["TYPE"][0][4])},
-                {nameof(SkillDto.Type), chunk => Convert.ToByte(chunk["TYPE"][0][5])},
-                {nameof(SkillDto.Element), chunk => Convert.ToByte(chunk["TYPE"][0][7])},
-                {nameof(SkillDto.Combo), AddCombos},
-                {nameof(SkillDto.CpCost), chunk => chunk["COST"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["COST"][0][2])},
-                {nameof(SkillDto.Price), chunk => Convert.ToInt32(chunk["COST"][0][3])},
-                {nameof(SkillDto.CastEffect), chunk => Convert.ToInt16(chunk["EFFECT"][0][3])},
-                {nameof(SkillDto.CastAnimation), chunk => Convert.ToInt16(chunk["EFFECT"][0][4])},
-                {nameof(SkillDto.Effect), chunk => Convert.ToInt16(chunk["EFFECT"][0][5])},
-                {nameof(SkillDto.AttackAnimation), chunk => Convert.ToInt16(chunk["EFFECT"][0][6])},
-                {nameof(SkillDto.TargetType), chunk => Convert.ToByte(chunk["TARGET"][0][2])},
-                {nameof(SkillDto.HitType), chunk => Convert.ToByte(chunk["TARGET"][0][3])},
-                {nameof(SkillDto.Range), chunk => Convert.ToByte(chunk["TARGET"][0][4])},
-                {nameof(SkillDto.TargetRange), chunk => Convert.ToByte(chunk["TARGET"][0][5])},
-                {nameof(SkillDto.UpgradeSkill), chunk => Convert.ToInt16(chunk["DATA"][0][2])},
-                {nameof(SkillDto.UpgradeType), chunk => Convert.ToInt16(chunk["DATA"][0][3])},
-                {nameof(SkillDto.CastTime), chunk => Convert.ToInt16(chunk["DATA"][0][6])},
-                {nameof(SkillDto.Cooldown), chunk => Convert.ToInt16(chunk["DATA"][0][7])},
-                {nameof(SkillDto.MpCost), chunk => Convert.ToInt16(chunk["DATA"][0][10])},
-                {nameof(SkillDto.ItemVNum), chunk => Convert.ToInt16(chunk["DATA"][0][12])},
-                {nameof(SkillDto.BCards), AddBCards},
-                {nameof(SkillDto.MinimumAdventurerLevel), chunk => chunk["LEVEL"][0][3] != "-1" ? byte.Parse(chunk["LEVEL"][0][3]) : (byte)0},
-                {nameof(SkillDto.MinimumSwordmanLevel), chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0},
-                {nameof(SkillDto.MinimumArcherLevel), chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0},
-                {nameof(SkillDto.MinimumMagicianLevel), chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0},
-                {nameof(SkillDto.LevelMinimum), chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0 },
-            };
-            var genericParser = new GenericParser<SkillDto>(folder + _fileCardDat,
-                "#=========================================================", 1, actionList, logger, logLanguage);
-            var skills = await genericParser.GetDtosAsync();
+            var parser = FluentParserBuilder<SkillDto>.Create(folder + _fileCardDat, "#=========================================================", 1)
+                .Field(x => x.SkillVNum, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
+                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
+                .Field(x => x.SkillType, chunk => Convert.ToByte(chunk["TYPE"][0][2]))
+                .Field(x => x.CastId, chunk => Convert.ToInt16(chunk["TYPE"][0][3]))
+                .Field(x => x.Class, chunk => Convert.ToByte(chunk["TYPE"][0][4]))
+                .Field(x => x.Type, chunk => Convert.ToByte(chunk["TYPE"][0][5]))
+                .Field(x => x.Element, chunk => Convert.ToByte(chunk["TYPE"][0][7]))
+                .Field(x => x.Combo, chunk => AddCombos(chunk))
+                .Field(x => x.CpCost, chunk => chunk["COST"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["COST"][0][2]))
+                .Field(x => x.Price, chunk => Convert.ToInt32(chunk["COST"][0][3]))
+                .Field(x => x.CastEffect, chunk => Convert.ToInt16(chunk["EFFECT"][0][3]))
+                .Field(x => x.CastAnimation, chunk => Convert.ToInt16(chunk["EFFECT"][0][4]))
+                .Field(x => x.Effect, chunk => Convert.ToInt16(chunk["EFFECT"][0][5]))
+                .Field(x => x.AttackAnimation, chunk => Convert.ToInt16(chunk["EFFECT"][0][6]))
+                .Field(x => x.TargetType, chunk => Convert.ToByte(chunk["TARGET"][0][2]))
+                .Field(x => x.HitType, chunk => Convert.ToByte(chunk["TARGET"][0][3]))
+                .Field(x => x.Range, chunk => Convert.ToByte(chunk["TARGET"][0][4]))
+                .Field(x => x.TargetRange, chunk => Convert.ToByte(chunk["TARGET"][0][5]))
+                .Field(x => x.UpgradeSkill, chunk => Convert.ToInt16(chunk["DATA"][0][2]))
+                .Field(x => x.UpgradeType, chunk => Convert.ToInt16(chunk["DATA"][0][3]))
+                .Field(x => x.CastTime, chunk => Convert.ToInt16(chunk["DATA"][0][6]))
+                .Field(x => x.Cooldown, chunk => Convert.ToInt16(chunk["DATA"][0][7]))
+                .Field(x => x.MpCost, chunk => Convert.ToInt16(chunk["DATA"][0][10]))
+                .Field(x => x.ItemVNum, chunk => Convert.ToInt16(chunk["DATA"][0][12]))
+                .Field(x => x.BCards, chunk => AddBCards(chunk))
+                .Field(x => x.MinimumAdventurerLevel, chunk => chunk["LEVEL"][0][3] != "-1" ? byte.Parse(chunk["LEVEL"][0][3]) : (byte)0)
+                .Field(x => x.MinimumSwordmanLevel, chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0)
+                .Field(x => x.MinimumArcherLevel, chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0)
+                .Field(x => x.MinimumMagicianLevel, chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0)
+                .Field(x => x.LevelMinimum, chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0)
+                .Build(logger, logLanguage);
+            var skills = await parser.GetDtosAsync();
 
             foreach (var skill in skills.Where(s => s.Class > 31))
             {
