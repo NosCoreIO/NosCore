@@ -39,76 +39,73 @@ namespace NosCore.Parser.Parsers
 
         public async Task ParseAsync(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
-            {
-                {nameof(ItemDto.VNum), chunk => Convert.ToInt16(chunk["VNUM"][0][2])},
-                {nameof(ItemDto.Price), chunk => Convert.ToInt64(chunk["VNUM"][0][3])},
-                {nameof(ItemDto.ReputPrice), chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt64(chunk["VNUM"][0][3]) : 0},
-                {nameof(ItemDto.NameI18NKey), chunk => chunk["NAME"][0][2]},
-                {nameof(ItemDto.Type), chunk => ImportType(chunk)},
-                {nameof(ItemDto.ItemType), chunk => ImportItemType(chunk)},
-                {nameof(ItemDto.ItemSubType), chunk => Convert.ToByte(chunk["INDEX"][0][4])},
-                {nameof(ItemDto.EquipmentSlot), chunk => ImportEquipmentType(chunk)},
-                {nameof(ItemDto.Morph), chunk =>  ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ?Convert.ToInt16(chunk["INDEX"][0][5]) :
-                    ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default},
-                {nameof(ItemDto.Class), chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3])},
-                {nameof(ItemDto.Flag8), chunk => chunk["FLAG"][0][24] == "1"},
-                {nameof(ItemDto.Flag7), chunk => chunk["FLAG"][0][23] == "1"},
-                {nameof(ItemDto.IsHeroic), chunk => chunk["FLAG"][0][22] == "1"},
-                {nameof(ItemDto.Flag6), chunk => chunk["FLAG"][0][20] == "1"},
-                {nameof(ItemDto.Sex), chunk =>  chunk["FLAG"][0][18] == "1" ? (byte)1 : chunk["FLAG"][0][17] == "1" ? (byte)2 : (byte)0},
-                {nameof(ItemDto.IsColored), chunk => chunk["FLAG"][0][16] == "1"},
-                {nameof(ItemDto.RequireBinding), chunk => chunk["FLAG"][0][15] == "1"},
-                {nameof(ItemDto.Flag4), chunk => chunk["FLAG"][0][14] == "1"},
-                {nameof(ItemDto.Flag3), chunk => chunk["FLAG"][0][13] == "1"},
-                {nameof(ItemDto.Flag2), chunk => chunk["FLAG"][0][12] == "1"},
-                {nameof(ItemDto.Flag1), chunk => chunk["FLAG"][0][11] == "1"},
-                {nameof(ItemDto.Flag9), chunk => chunk["FLAG"][0][10] == "1"},
-                {nameof(ItemDto.IsWarehouse), chunk => chunk["FLAG"][0][9] == "1"},
-                {nameof(ItemDto.IsMinilandActionable), chunk => chunk["FLAG"][0][8] == "1"},
-                {nameof(ItemDto.IsTradable), chunk => chunk["FLAG"][0][7] == "0"},
-                {nameof(ItemDto.IsDroppable), chunk => chunk["FLAG"][0][6] == "0"},
-                {nameof(ItemDto.IsSoldable), chunk => chunk["FLAG"][0][5] == "0"},
-                {nameof(ItemDto.LevelMinimum),  chunk => ImportLevelMinimum(chunk)},
-                {nameof(ItemDto.BCards),  ImportBCards},
-                {nameof(ItemDto.Effect),  chunk => ImportEffect(chunk)},
-                {nameof(ItemDto.EffectValue),  chunk => ImportEffectValue(chunk)},
-                {nameof(ItemDto.FireResistance),  chunk => ImportResistance(chunk, ElementType.Fire)},
-                {nameof(ItemDto.DarkResistance),  chunk => ImportResistance(chunk, ElementType.Dark)},
-                {nameof(ItemDto.LightResistance),  chunk => ImportResistance(chunk, ElementType.Light)},
-                {nameof(ItemDto.WaterResistance),  chunk => ImportResistance(chunk, ElementType.Water)},
-                {nameof(ItemDto.Hp), chunk => ImportHp(chunk)},
-                {nameof(ItemDto.Mp), chunk => ImportMp(chunk)},
-                {nameof(ItemDto.MinilandObjectPoint), chunk => ImportMinilandObjectPoint(chunk)},
-                {nameof(ItemDto.Width), chunk => ImportWidth(chunk)},
-                {nameof(ItemDto.Height), chunk => ImportHeight(chunk)},
-                {nameof(ItemDto.DefenceDodge), chunk => ImportDefenceDodge(chunk)},
-                {nameof(ItemDto.CloseDefence), chunk => ImportCloseDefence(chunk)},
-                {nameof(ItemDto.DistanceDefence), chunk => ImportDistanceDefence(chunk)},
-                {nameof(ItemDto.MagicDefence), chunk => ImportMagicDefence(chunk)},
-                {nameof(ItemDto.BasicUpgrade), chunk => ImportBasicUpgrade(chunk)},
-                {nameof(ItemDto.WaitDelay), chunk => ImportWaitDelay(chunk)},
-                {nameof(ItemDto.ElementRate), chunk => ImportElementRate(chunk)},
-                {nameof(ItemDto.Speed), chunk => ImportSpeed(chunk)},
-                {nameof(ItemDto.SpType), chunk => ImportSpType(chunk)},
-                {nameof(ItemDto.LevelJobMinimum), chunk => ImportLevelJobMinimum(chunk)},
-                {nameof(ItemDto.ReputationMinimum), chunk => ImportReputationMinimum(chunk)},
-                {nameof(ItemDto.ItemValidTime), chunk => ImportItemValidTime(chunk)},
-                {nameof(ItemDto.Element), chunk => ImportElement(chunk)},
-                {nameof(ItemDto.MaxCellonLvl), chunk => ImportMaxCellonLvl(chunk)},
-                {nameof(ItemDto.MaxCellon), chunk => ImportMaxCellon(chunk)},
-                {nameof(ItemDto.DistanceDefenceDodge), chunk => ImportDistanceDefenceDodge(chunk)},
-                {nameof(ItemDto.MaximumAmmo), chunk => ImportMaximumAmmo(chunk)},
-                {nameof(ItemDto.CriticalRate), chunk => ImportCriticalRate(chunk)},
-                {nameof(ItemDto.CriticalLuckRate), chunk => ImportCriticalLuckRate(chunk)},
-                {nameof(ItemDto.HitRate), chunk => ImportHitRate(chunk)},
-                {nameof(ItemDto.DamageMaximum), chunk => ImportDamageMaximum(chunk)},
-                {nameof(ItemDto.DamageMinimum), chunk => ImportDamageMinimum(chunk)},
-            };
+            var parser = FluentParserBuilder<ItemDto>.Create(folder + _itemCardDto, "END", 1)
+                .Field(x => x.VNum, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
+                .Field(x => x.Price, chunk => Convert.ToInt64(chunk["VNUM"][0][3]))
+                .Field(x => x.ReputPrice, chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt64(chunk["VNUM"][0][3]) : 0)
+                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
+                .Field(x => x.Type, chunk => ImportType(chunk))
+                .Field(x => x.ItemType, chunk => ImportItemType(chunk))
+                .Field(x => x.ItemSubType, chunk => Convert.ToByte(chunk["INDEX"][0][4]))
+                .Field(x => x.EquipmentSlot, chunk => ImportEquipmentType(chunk))
+                .Field(x => x.Morph, chunk => ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ? Convert.ToInt16(chunk["INDEX"][0][5]) :
+                    ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default)
+                .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]))
+                .Field(x => x.Flag8, chunk => chunk["FLAG"][0][24] == "1")
+                .Field(x => x.Flag7, chunk => chunk["FLAG"][0][23] == "1")
+                .Field(x => x.IsHeroic, chunk => chunk["FLAG"][0][22] == "1")
+                .Field(x => x.Flag6, chunk => chunk["FLAG"][0][20] == "1")
+                .Field(x => x.Sex, chunk => chunk["FLAG"][0][18] == "1" ? (byte)1 : chunk["FLAG"][0][17] == "1" ? (byte)2 : (byte)0)
+                .Field(x => x.IsColored, chunk => chunk["FLAG"][0][16] == "1")
+                .Field(x => x.RequireBinding, chunk => chunk["FLAG"][0][15] == "1")
+                .Field(x => x.Flag4, chunk => chunk["FLAG"][0][14] == "1")
+                .Field(x => x.Flag3, chunk => chunk["FLAG"][0][13] == "1")
+                .Field(x => x.Flag2, chunk => chunk["FLAG"][0][12] == "1")
+                .Field(x => x.Flag1, chunk => chunk["FLAG"][0][11] == "1")
+                .Field(x => x.Flag9, chunk => chunk["FLAG"][0][10] == "1")
+                .Field(x => x.IsWarehouse, chunk => chunk["FLAG"][0][9] == "1")
+                .Field(x => x.IsMinilandActionable, chunk => chunk["FLAG"][0][8] == "1")
+                .Field(x => x.IsTradable, chunk => chunk["FLAG"][0][7] == "0")
+                .Field(x => x.IsDroppable, chunk => chunk["FLAG"][0][6] == "0")
+                .Field(x => x.IsSoldable, chunk => chunk["FLAG"][0][5] == "0")
+                .Field(x => x.LevelMinimum, chunk => ImportLevelMinimum(chunk))
+                .Field(x => x.BCards, chunk => ImportBCards(chunk))
+                .Field(x => x.Effect, chunk => ImportEffect(chunk))
+                .Field(x => x.EffectValue, chunk => ImportEffectValue(chunk))
+                .Field(x => x.FireResistance, chunk => ImportResistance(chunk, ElementType.Fire))
+                .Field(x => x.DarkResistance, chunk => ImportResistance(chunk, ElementType.Dark))
+                .Field(x => x.LightResistance, chunk => ImportResistance(chunk, ElementType.Light))
+                .Field(x => x.WaterResistance, chunk => ImportResistance(chunk, ElementType.Water))
+                .Field(x => x.Hp, chunk => ImportHp(chunk))
+                .Field(x => x.Mp, chunk => ImportMp(chunk))
+                .Field(x => x.MinilandObjectPoint, chunk => ImportMinilandObjectPoint(chunk))
+                .Field(x => x.Width, chunk => ImportWidth(chunk))
+                .Field(x => x.Height, chunk => ImportHeight(chunk))
+                .Field(x => x.DefenceDodge, chunk => ImportDefenceDodge(chunk))
+                .Field(x => x.CloseDefence, chunk => ImportCloseDefence(chunk))
+                .Field(x => x.DistanceDefence, chunk => ImportDistanceDefence(chunk))
+                .Field(x => x.MagicDefence, chunk => ImportMagicDefence(chunk))
+                .Field(x => x.BasicUpgrade, chunk => ImportBasicUpgrade(chunk))
+                .Field(x => x.WaitDelay, chunk => ImportWaitDelay(chunk))
+                .Field(x => x.ElementRate, chunk => ImportElementRate(chunk))
+                .Field(x => x.Speed, chunk => ImportSpeed(chunk))
+                .Field(x => x.SpType, chunk => ImportSpType(chunk))
+                .Field(x => x.LevelJobMinimum, chunk => ImportLevelJobMinimum(chunk))
+                .Field(x => x.ReputationMinimum, chunk => ImportReputationMinimum(chunk))
+                .Field(x => x.ItemValidTime, chunk => ImportItemValidTime(chunk))
+                .Field(x => x.Element, chunk => ImportElement(chunk))
+                .Field(x => x.MaxCellonLvl, chunk => ImportMaxCellonLvl(chunk))
+                .Field(x => x.MaxCellon, chunk => ImportMaxCellon(chunk))
+                .Field(x => x.DistanceDefenceDodge, chunk => ImportDistanceDefenceDodge(chunk))
+                .Field(x => x.MaximumAmmo, chunk => ImportMaximumAmmo(chunk))
+                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk))
+                .Field(x => x.CriticalLuckRate, chunk => ImportCriticalLuckRate(chunk))
+                .Field(x => x.HitRate, chunk => ImportHitRate(chunk))
+                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk))
+                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk))
+                .Build(logger, logLanguage);
 
-            var genericParser = new GenericParser<ItemDto>(folder + _itemCardDto,
-                "END", 1, actionList, logger, logLanguage);
-            var items = (await genericParser.GetDtosAsync()).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
+            var items = (await parser.GetDtosAsync()).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
                 HardcodeItem(item);

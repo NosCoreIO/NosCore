@@ -6,6 +6,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.WebApi;
@@ -48,7 +51,8 @@ namespace NosCore.PacketHandlers.Tests.Command
             ChannelHub.Setup(x => x.GetCommunicationChannels())
                 .Returns(Task.FromResult(new List<ChannelInfo>()));
 
-            Handler = new SetLevelCommandPacketHandler(PubSubHub.Object, ChannelHub.Object);
+            Handler = new SetLevelCommandPacketHandler(PubSubHub.Object, ChannelHub.Object,
+                new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]

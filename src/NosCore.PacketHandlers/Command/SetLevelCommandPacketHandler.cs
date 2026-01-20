@@ -4,13 +4,18 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
@@ -19,14 +24,16 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub)
+    public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub,
+        IExperienceService experienceService, IJobExperienceService jobExperienceService,
+        IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry)
         : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetLevelAsync(levelPacket.Level);
+                await session.Character.SetLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, sessionRegistry);
                 return;
             }
 

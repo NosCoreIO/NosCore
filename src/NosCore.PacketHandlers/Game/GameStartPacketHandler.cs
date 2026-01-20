@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Game
 
             await skillService.LoadSkill(session.Character);
             await session.SendPacketAsync(session.Character.GenerateTit());
-            await session.SendPacketAsync(session.Character.GenerateSpPoint());
+            await session.SendPacketAsync(session.Character.GenerateSpPoint(worldConfiguration));
             await session.SendPacketAsync(session.Character.GenerateRsfi());
             await session.SendPacketAsync(session.Character.GenerateQuestPacket());
 

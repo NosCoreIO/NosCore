@@ -4,11 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Networking.SessionGroup;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
-public class GroupDisconnectHandler : ISessionDisconnectHandler
+public class GroupDisconnectHandler(ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry) : ISessionDisconnectHandler
 {
     public async Task HandleDisconnectAsync(ClientSession session)
     {
@@ -17,6 +20,6 @@ public class GroupDisconnectHandler : ISessionDisconnectHandler
             return;
         }
 
-        await session.Character.LeaveGroupAsync();
+        await session.Character.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
     }
 }

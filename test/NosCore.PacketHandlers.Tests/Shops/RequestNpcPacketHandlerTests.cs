@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Shops;
@@ -68,17 +69,13 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void NpcWithDialogExistsOnMap()
         {
-            var npc = new NosCore.GameObject.ComponentEntities.Entities.MapNpc(
-                TestHelpers.Instance.GenerateItemProvider(),
-                Logger,
-                TestHelpers.Instance.DistanceCalculator,
-                TestHelpers.Instance.Clock);
+            var npc = new NosCore.GameObject.ComponentEntities.Entities.MapNpc();
             npc.MapNpcId = 100;
             npc.Dialog = 100;
             npc.MapId = _session.Character.MapInstance.Map.MapId;
             npc.MapX = 1;
             npc.MapY = 1;
-            npc.Initialize(new NosCore.Data.StaticEntities.NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<NosCore.Data.StaticEntities.ShopItemDto>());
+            npc.Initialize(new NosCore.Data.StaticEntities.NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<NosCore.Data.StaticEntities.ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
             _session.Character.MapInstance.Npcs.Add(npc);
         }
 

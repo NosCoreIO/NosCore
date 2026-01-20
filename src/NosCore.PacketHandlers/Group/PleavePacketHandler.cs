@@ -12,6 +12,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -21,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler(IIdService<GameObject.Services.GroupService.Group> groupIdService, ISessionRegistry sessionRegistry) : PacketHandler<PleavePacket>,
+    public class PleavePacketHandler(IIdService<GameObject.Services.GroupService.Group> groupIdService, ISessionRegistry sessionRegistry, ISessionGroupFactory sessionGroupFactory) : PacketHandler<PleavePacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
@@ -36,7 +37,7 @@ namespace NosCore.PacketHandlers.Group
             if (group.Count > 2)
             {
                 var isLeader = group.IsGroupLeader(clientSession.Character.CharacterId);
-                await clientSession.Character.LeaveGroupAsync();
+                await clientSession.Character.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
 
                 if (isLeader)
                 {
@@ -91,7 +92,7 @@ namespace NosCore.PacketHandlers.Group
                         Message = Game18NConstString.PartyDisbanded
                     });
 
-                    await targetsession.LeaveGroupAsync();
+                    await targetsession.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
                     await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit());
                     await targetsession.MapInstance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession));
                 }

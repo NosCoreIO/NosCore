@@ -4,10 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Entities;
@@ -29,7 +31,7 @@ namespace NosCore.GameObject.Services.TransformationService
 {
     public class TransformationService(IClock clock, IExperienceService experienceService,
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration)
         : ITransformationService
     {
         public async Task RemoveSpAsync(Character character)
@@ -123,7 +125,7 @@ namespace NosCore.GameObject.Services.TransformationService
                 Value = 1,
                 EntityId = character.CharacterId
             });
-            await character.SendPacketAsync(character.GenerateSpPoint());
+            await character.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
             await character.SendPacketAsync(character.GenerateCond());
             await character.SendPacketAsync(character.GenerateStat());
         }

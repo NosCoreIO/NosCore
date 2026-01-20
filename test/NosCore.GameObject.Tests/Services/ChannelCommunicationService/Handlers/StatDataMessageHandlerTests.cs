@@ -7,6 +7,9 @@
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
@@ -33,6 +36,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         private Mock<ILogger> Logger = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
         private IOptions<WorldConfiguration> WorldConfig = null!;
+        private Mock<IExperienceService> ExperienceService = null!;
+        private Mock<IJobExperienceService> JobExperienceService = null!;
+        private Mock<IHeroExperienceService> HeroExperienceService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -44,7 +50,10 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             Logger = new Mock<ILogger>();
             LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             WorldConfig = Options.Create(new WorldConfiguration { MaxGoldAmount = 999999999 });
-            Handler = new StatDataMessageChannelCommunicationMessageHandler(Logger.Object, LogLanguage.Object, WorldConfig, SessionRegistry.Object);
+            ExperienceService = new Mock<IExperienceService>();
+            JobExperienceService = new Mock<IJobExperienceService>();
+            HeroExperienceService = new Mock<IHeroExperienceService>();
+            Handler = new StatDataMessageChannelCommunicationMessageHandler(Logger.Object, LogLanguage.Object, WorldConfig, SessionRegistry.Object, ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object);
         }
 
         [TestMethod]

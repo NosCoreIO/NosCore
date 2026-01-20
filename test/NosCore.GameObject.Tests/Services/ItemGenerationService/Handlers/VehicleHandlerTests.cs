@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Logger = new Mock<ILogger>();
-            Handler = new VehicleEventHandler(Logger.Object, TestHelpers.Instance.LogLanguageLocalizer, new GameObject.Services.TransformationService.TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, Logger.Object, TestHelpers.Instance.LogLanguageLocalizer));
+            Handler = new VehicleEventHandler(Logger.Object, TestHelpers.Instance.LogLanguageLocalizer, new GameObject.Services.TransformationService.TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, Logger.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration));
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon}

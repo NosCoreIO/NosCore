@@ -10,7 +10,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
@@ -40,20 +40,23 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         GenderType Gender { get; }
 
-        HairStyleType HairStyle { get; }
+        HairStyleType HairStyle { get; set; }
 
         HairColorType HairColor { get; }
 
-        CharacterClassType Class { get; }
+        CharacterClassType Class { get; set; }
 
         ReputationType ReputIcon { get; }
 
         DignityType DignityIcon { get; }
 
         bool Camouflage { get; }
-        long JobLevelXp { get; }
-        long HeroXp { get; }
-        byte JobLevel { get; }
+        long JobLevelXp { get; set; }
+        long HeroXp { get; set; }
+        byte JobLevel { get; set; }
+        new byte HeroLevel { get; set; }
+        int SpPoint { get; set; }
+        int SpAdditionPoint { get; set; }
 
         bool Invisible { get; }
 
@@ -63,13 +66,11 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
 
-        List<QuicklistEntryDto> QuicklistEntries { get; }
+        List<QuicklistEntryDto> QuicklistEntries { get; set; }
 
         ConcurrentDictionary<short, CharacterSkill> Skills { get; }
 
-        long Gold { get; }
-
-        long BankGold { get; }
+        long Gold { get; set; }
 
         IInventoryService InventoryService { get; }
 
@@ -84,38 +85,21 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Guid? CurrentScriptId { get; }
         ConcurrentDictionary<Guid, CharacterQuest> Quests { get; }
         short Compliment { get; }
-        long Reput { get; }
+        long Reput { get; set; }
         short Dignity { get; }
 
-        Task GenerateMailAsync(IEnumerable<MailData> data);
+        long CharacterId { get; }
+
+        IItemGenerationService ItemProvider { get; }
+
+        long BankGold { get; set; }
+
+        string? Prefix { get; }
 
         Task SendPacketAsync(IPacket packetDefinition);
 
         Task SendPacketsAsync(IEnumerable<IPacket> packetDefinitions);
 
-        Task LeaveGroupAsync();
-
-        void JoinGroup(Group group);
-
-        Task SetJobLevelAsync(byte level);
-
-        Task SetHeroLevelAsync(byte level);
-
-        Task SetReputationAsync(long reput);
-
-        Task SetGoldAsync(long gold);
-
-        Task AddGoldAsync(long gold);
-
-        Task RemoveGoldAsync(long gold);
-
-        void AddBankGold(long bankGold);
-
-        void RemoveBankGold(long bankGold);
-
-        Task ChangeClassAsync(CharacterClassType classType);
-
-        Task ChangeMapAsync(IMapChangeService mapChangeService, short mapId, short mapX, short mapY);
         string GetMessageFromKey(LanguageKey support);
     }
 }

@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Session.Character.MapInstance =
                 new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
                     new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
-                    Logger, TestHelpers.Instance.Clock, MapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry);
+                    Logger, TestHelpers.Instance.Clock, MapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.DistanceCalculator);
         }
 
         private async Task CreatingCharacterViaPacket()

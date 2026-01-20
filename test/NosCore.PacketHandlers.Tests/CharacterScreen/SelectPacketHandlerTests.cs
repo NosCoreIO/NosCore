@@ -13,6 +13,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Networking.SessionGroup;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
@@ -51,7 +52,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new List<QuestObjectiveDto>(),
                 TestHelpers.Instance.WorldConfiguration,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.PubSubHub.Object);
+                TestHelpers.Instance.PubSubHub.Object,
+                new Mock<ISessionGroupFactory>().Object);
         }
 
         [TestMethod]

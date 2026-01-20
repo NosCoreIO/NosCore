@@ -34,7 +34,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Handler = new BuyPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.WorldConfiguration);
         }
 
         [TestMethod]

@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         public async Task SetupAsync()
         {
             TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc(null, Logger, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock));
+                .ConstructUsing(src => new MapNpc());
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()

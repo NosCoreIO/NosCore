@@ -54,14 +54,9 @@ namespace NosCore.GameObject.Tests
                 new Mock<IItemGenerationService>().Object,
                 new HpService(),
                 new MpService(),
-                new ExperienceService(),
-                new JobExperienceService(),
-                new HeroExperienceService(),
                 new ReputationService(),
                 new DignityService(),
-                TestHelpers.Instance.WorldConfiguration,
                 new Mock<ISpeedCalculationService>().Object,
-                new Mock<ISessionGroupFactory>().Object,
                 TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.GameLanguageLocalizer)
             {

@@ -6,6 +6,7 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;

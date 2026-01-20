@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Networking.SessionGroup;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
@@ -40,7 +41,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
-            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub)
+            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub, ISessionGroupFactory sessionGroupFactory)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -62,7 +63,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 var character = characterDto.Adapt<GameObject.ComponentEntities.Entities.Character>();
-                character.InitializeGroup();
+                character.InitializeGroup(sessionGroupFactory);
                 await pubSubHub.SubscribeAsync(new Subscriber
                 {
                     Id = clientSession.SessionId,

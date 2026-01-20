@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             Logger = new Mock<ILogger>();
             TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 40;
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new WearEventHandler(Logger.Object, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer);
+            Handler = new WearEventHandler(Logger.Object, TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration);
             var items = new List<ItemDto>
             {
                 new Item

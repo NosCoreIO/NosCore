@@ -4,8 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Options;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Core.Configuration;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -18,14 +24,16 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ChangeClassPacketHandler(IPubSubHub pubSubHub)
+    public class ChangeClassPacketHandler(IPubSubHub pubSubHub,
+        IOptions<WorldConfiguration> worldConfiguration, IExperienceService experienceService,
+        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
         : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ChangeClassPacket changeClassPacket, ClientSession session)
         {
             if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.Character.ChangeClassAsync(changeClassPacket.ClassType);
+                await session.Character.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
                 return;
             }
 

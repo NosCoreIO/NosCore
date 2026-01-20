@@ -50,7 +50,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         short Race { get; }
 
-        Shop? Shop { get; }
+        Shop? Shop { get; set; }
 
         SemaphoreSlim HitSemaphore { get; }
 

@@ -4,72 +4,30 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Mapster;
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.ShopService;
-using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
-using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace NosCore.GameObject.ComponentEntities.Entities
 {
-    public class MapNpc(IItemGenerationService? itemProvider, ILogger logger, IHeuristic distanceCalculator,
-            IClock clock)
-        : MapNpcDto, INonPlayableEntity, IRequestableEntity
+    public class MapNpc : MapNpcDto, INonPlayableEntity, IRequestableEntity
     {
-        public NpcMonsterDto NpcMonster { get; private set; } = null!;
+        public NpcMonsterDto NpcMonster { get; set; } = null!;
 
-        public IDisposable? Life { get; private set; }
+        public IDisposable? Life { get; set; }
         public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
-        public void Initialize(NpcMonsterDto npcMonster, ShopDto? shopDto, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto)
-        {
-            NpcMonster = npcMonster;
-            Mp = NpcMonster?.MaxMp ?? 0;
-            Hp = NpcMonster?.MaxHp ?? 0;
-            Speed = NpcMonster?.Speed ?? 0;
-            PositionX = MapX;
-            PositionY = MapY;
-            IsAlive = true;
-
-            Task RequestExecAsync(RequestData request)
-            {
-                return ShowDialogAsync(request);
-            }
-            Requests[typeof(INrunEventHandler)]?.Select(RequestExecAsync).Subscribe();
-            var shopObj = shopDto;
-            if (shopObj == null)
-            {
-                return;
-            }
-
-            var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
-            Parallel.ForEach(shopItemsDto, shopItemGrouping =>
-            {
-                var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                shopItem.ItemInstance = itemProvider!.Create(shopItemGrouping.ItemVNum, -1);
-                shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
-            });
-            Shop = shopObj.Adapt<Shop>();
-            Shop.Name = npcTalkDto?.Name ?? new I18NString();
-            Shop.OwnerCharacter = null;
-            Shop.ShopItems = shopItemsList;
-        }
         public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
 
         public byte Speed { get; set; }
@@ -101,49 +59,11 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
-        public Shop? Shop { get; private set; }
+        public Shop? Shop { get; set; }
 
         public Dictionary<Type, Subject<RequestData>> Requests { get; set; } = new()
         {
             [typeof(INrunEventHandler)] = new()
         };
-
-        private Task ShowDialogAsync(RequestData requestData)
-        {
-            return requestData.ClientSession.SendPacketAsync(this.GenerateNpcReq(Dialog ?? 0));
-        }
-
-        internal void StopLife()
-        {
-            Life?.Dispose();
-            Life = null;
-        }
-
-        public Task StartLifeAsync()
-        {
-            Life?.Dispose();
-
-            async Task LifeAsync()
-            {
-                try
-                {
-                    if (!MapInstance.IsSleeping)
-                    {
-                        await MonsterLifeAsync();
-                    }
-                }
-                catch (Exception e)
-                {
-                    logger.Error(e.Message, e);
-                }
-            }
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
-            return Task.CompletedTask;
-        }
-
-        private Task MonsterLifeAsync()
-        {
-            return this.MoveAsync(distanceCalculator, clock);
-        }
     }
 }

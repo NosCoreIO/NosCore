@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Groups;
@@ -221,7 +222,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         if (targetSession.Group.Type == GroupType.Group)
                         {
-                            clientSession.Character.JoinGroup(targetSession.Group);
+                            clientSession.Character.JoinGroup(targetSession.Group!);
                         }
                     }
                     else

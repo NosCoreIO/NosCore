@@ -12,12 +12,15 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking.SessionGroup;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
@@ -35,7 +38,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, IMapInstanceRegistry mapInstanceRegistry,
             IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator)
         : IMapInstanceGeneratorService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -98,7 +101,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems);
+                            s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems, itemProvider);
                         });
                         mapinstance.LoadNpcs(npc);
                     }
@@ -114,7 +117,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock, mapChangeService, sessionGroupFactory, sessionRegistry);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock, mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)

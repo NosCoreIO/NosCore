@@ -45,29 +45,27 @@ namespace NosCore.Parser.Parsers
         {
             _questRewards = questRewardDao.LoadAll().ToDictionary(x => x.QuestRewardId, x => x);
 
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
-            {
-                {nameof(QuestDto.QuestId), chunk => Convert.ToInt16(chunk["VNUM"][0][1])},
-                {nameof(QuestDto.QuestType), chunk => (QuestType)Enum.Parse(typeof(QuestType), chunk["VNUM"][0][2])},
-                {nameof(QuestDto.AutoFinish), chunk => chunk["VNUM"][0][3] == "1"},
-                {nameof(QuestDto.IsDaily), chunk => chunk["VNUM"][0][4] == "-1"},
-                {nameof(QuestDto.RequiredQuestId), chunk => chunk["VNUM"][0][5] != "-1" ? short.Parse(chunk["VNUM"][0][5]) : (short?)null },
-                {nameof(QuestDto.IsSecondary), chunk => chunk["VNUM"][0][6] != "-1"},
-                {nameof(QuestDto.LevelMin), chunk => Convert.ToByte(chunk["LEVEL"][0][1])},
-                {nameof(QuestDto.LevelMax), chunk => Convert.ToByte(chunk["LEVEL"][0][2])},
-                {nameof(QuestDto.TitleI18NKey), chunk => chunk["TITLE"][0][1]},
-                {nameof(QuestDto.DescI18NKey), chunk => chunk["DESC"][0][1]},
-                {nameof(QuestDto.TargetX), chunk =>  chunk["TARGET"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][1])},
-                {nameof(QuestDto.TargetY), chunk =>  chunk["TARGET"][0][2] == "-1"  ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][2])},
-                {nameof(QuestDto.TargetMap), chunk => chunk["TARGET"][0][3] == "-1"  ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][3])},
-                {nameof(QuestDto.StartDialogId), chunk => chunk["TARGET"][0][1] == "-1" ? (int?)null :  Convert.ToInt32(chunk["TALK"][0][1])},
-                {nameof(QuestDto.EndDialogId), chunk => chunk["TARGET"][0][2] == "-1" ? (int?)null :  Convert.ToInt32(chunk["TALK"][0][2])},
-                {nameof(QuestDto.NextQuestId), chunk => chunk["LINK"][0][1] == "-1" ? (short?)null :  Convert.ToInt16(chunk["LINK"][0][1])},
-                {nameof(QuestDto.QuestQuestReward), ImportQuestQuestRewards},
-                {nameof(QuestDto.QuestObjective), ImportQuestObjectives},
-            };
-            var genericParser = new GenericParser<QuestDto>(folder + _fileQuestDat, "END", 0, actionList, logger, logLanguage);
-            var quests = await genericParser.GetDtosAsync();
+            var parser = FluentParserBuilder<QuestDto>.Create(folder + _fileQuestDat, "END", 0)
+                .Field(x => x.QuestId, chunk => Convert.ToInt16(chunk["VNUM"][0][1]))
+                .Field(x => x.QuestType, chunk => (QuestType)Enum.Parse(typeof(QuestType), chunk["VNUM"][0][2]))
+                .Field(x => x.AutoFinish, chunk => chunk["VNUM"][0][3] == "1")
+                .Field(x => x.IsDaily, chunk => chunk["VNUM"][0][4] == "-1")
+                .Field(x => x.RequiredQuestId, chunk => chunk["VNUM"][0][5] != "-1" ? short.Parse(chunk["VNUM"][0][5]) : (short?)null)
+                .Field(x => x.IsSecondary, chunk => chunk["VNUM"][0][6] != "-1")
+                .Field(x => x.LevelMin, chunk => Convert.ToByte(chunk["LEVEL"][0][1]))
+                .Field(x => x.LevelMax, chunk => Convert.ToByte(chunk["LEVEL"][0][2]))
+                .Field(x => x.TitleI18NKey, chunk => chunk["TITLE"][0][1])
+                .Field(x => x.DescI18NKey, chunk => chunk["DESC"][0][1])
+                .Field(x => x.TargetX, chunk => chunk["TARGET"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][1]))
+                .Field(x => x.TargetY, chunk => chunk["TARGET"][0][2] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][2]))
+                .Field(x => x.TargetMap, chunk => chunk["TARGET"][0][3] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][3]))
+                .Field(x => x.StartDialogId, chunk => chunk["TARGET"][0][1] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][1]))
+                .Field(x => x.EndDialogId, chunk => chunk["TARGET"][0][2] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][2]))
+                .Field(x => x.NextQuestId, chunk => chunk["LINK"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["LINK"][0][1]))
+                .Field(x => x.QuestQuestReward, chunk => ImportQuestQuestRewards(chunk))
+                .Field(x => x.QuestObjective, chunk => ImportQuestObjectives(chunk))
+                .Build(logger, logLanguage);
+            var quests = await parser.GetDtosAsync();
 
             await questDao.TryInsertOrUpdateAsync(quests);
             await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));

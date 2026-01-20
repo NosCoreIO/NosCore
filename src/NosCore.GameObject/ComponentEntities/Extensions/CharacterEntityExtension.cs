@@ -12,6 +12,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -20,9 +21,19 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Data.Dto;
+using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Networking;
+using NosCore.Networking.SessionGroup;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Entities;
@@ -31,6 +42,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Relations;
@@ -44,6 +56,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
+using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.ComponentEntities.Extensions
 {
@@ -694,6 +707,510 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 MorphUpgrade = 0,
                 ArenaWinner = false
             };
+        }
+
+        public static Task AddGoldAsync(this ICharacterEntity characterEntity)
+        {
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+        }
+
+        public static Task AddGoldAsync(this ICharacterEntity characterEntity, long gold)
+        {
+            characterEntity.Gold += gold;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+        }
+
+        public static Task RemoveGoldAsync(this ICharacterEntity characterEntity, long gold)
+        {
+            characterEntity.Gold -= gold;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+        }
+
+        public static async Task SetGoldAsync(this ICharacterEntity characterEntity, long gold)
+        {
+            characterEntity.Gold = gold;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateSay(
+                characterEntity.GetMessageFromKey(LanguageKey.UPDATE_GOLD),
+                SayColorType.Red));
+        }
+
+        public static async Task SetReputationAsync(this ICharacterEntity characterEntity, long reput)
+        {
+            characterEntity.Reput = reput;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateFd());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateSay(
+                characterEntity.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
+                SayColorType.Red));
+        }
+
+        public static SpPacket GenerateSpPoint(this ICharacterEntity characterEntity, IOptions<WorldConfiguration> worldConfiguration)
+        {
+            return new SpPacket
+            {
+                AdditionalPoint = characterEntity.SpAdditionPoint,
+                MaxAdditionalPoint = worldConfiguration.Value.MaxAdditionalSpPoints,
+                SpPoint = characterEntity.SpPoint,
+                MaxSpPoint = worldConfiguration.Value.MaxSpPoints
+            };
+        }
+
+        public static StatPacket GenerateStat(this ICharacterEntity characterEntity)
+        {
+            return new StatPacket
+            {
+                Hp = characterEntity.Hp,
+                HpMaximum = characterEntity.MaxHp,
+                Mp = characterEntity.Mp,
+                MpMaximum = characterEntity.MaxMp,
+                Unknown = 0,
+                Option = 0
+            };
+        }
+
+        public static Task AddSpPointsAsync(this ICharacterEntity characterEntity, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
+        {
+            characterEntity.SpPoint = characterEntity.SpPoint + spPointToAdd > worldConfiguration.Value.MaxSpPoints
+                ? worldConfiguration.Value.MaxSpPoints : characterEntity.SpPoint + spPointToAdd;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateSpPoint(worldConfiguration));
+        }
+
+        public static Task AddAdditionalSpPointsAsync(this ICharacterEntity characterEntity, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
+        {
+            characterEntity.SpAdditionPoint = characterEntity.SpAdditionPoint + spPointToAdd > worldConfiguration.Value.MaxAdditionalSpPoints
+                ? worldConfiguration.Value.MaxAdditionalSpPoints : characterEntity.SpAdditionPoint + spPointToAdd;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateSpPoint(worldConfiguration));
+        }
+
+        public static async Task SetJobLevelAsync(this ICharacterEntity characterEntity, byte jobLevel,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        {
+            characterEntity.JobLevel = (byte)((characterEntity.Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
+            characterEntity.JobLevelXp = 0;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.JobLevelIncreased
+            });
+        }
+
+        public static async Task SetHeroLevelAsync(this ICharacterEntity characterEntity, byte level,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        {
+            characterEntity.HeroLevel = level;
+            characterEntity.HeroXp = 0;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.HeroLevelIncreased
+            });
+        }
+
+        public static void InitializeGroup(this ICharacterEntity characterEntity, ISessionGroupFactory sessionGroupFactory)
+        {
+            if (characterEntity.Group != null)
+            {
+                return;
+            }
+
+            characterEntity.Group = new Group(GroupType.Group, sessionGroupFactory);
+            characterEntity.Group.JoinGroup(characterEntity);
+        }
+
+        public static void JoinGroup(this ICharacterEntity characterEntity, Group group)
+        {
+            characterEntity.Group = group;
+            group.JoinGroup(characterEntity);
+        }
+
+        public static async Task LeaveGroupAsync(this ICharacterEntity characterEntity,
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+        {
+            characterEntity.Group!.LeaveGroup(characterEntity);
+            foreach (var member in characterEntity.Group.Keys.Where(s => (s.Item2 != characterEntity.VisualId) || (s.Item1 != VisualType.Player)))
+            {
+                var groupMember = sessionRegistry.GetCharacter(s =>
+                    (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
+
+                if (groupMember == null)
+                {
+                    continue;
+                }
+
+                if (characterEntity.Group.Count == 1)
+                {
+                    await groupMember.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
+                    await groupMember.SendPacketAsync(characterEntity.Group.GeneratePidx(groupMember));
+                    await groupMember.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.PartyDisbanded
+                    });
+                }
+
+                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit());
+            }
+
+            characterEntity.Group = new Group(GroupType.Group, sessionGroupFactory);
+            characterEntity.Group.JoinGroup(characterEntity);
+        }
+
+        public static void AddBankGold(this ICharacterEntity characterEntity, long bankGold)
+        {
+            characterEntity.BankGold += bankGold;
+        }
+
+        public static void RemoveBankGold(this ICharacterEntity characterEntity, long bankGold)
+        {
+            characterEntity.BankGold -= bankGold;
+        }
+
+        public static async Task GenerateMailAsync(this ICharacterEntity characterEntity, IEnumerable<MailData> mails)
+        {
+            foreach (var mail in mails)
+            {
+                if (!mail.MailDto.IsSenderCopy && (mail.ReceiverName == characterEntity.Name))
+                {
+                    if (mail.ItemInstance != null)
+                    {
+                        await characterEntity.SendPacketAsync(mail.GeneratePost(0)!);
+                    }
+                    else
+                    {
+                        await characterEntity.SendPacketAsync(mail.GeneratePost(1)!);
+                    }
+                }
+                else
+                {
+                    if (mail.ItemInstance != null)
+                    {
+                        await characterEntity.SendPacketAsync(mail.GeneratePost(3)!);
+                    }
+                    else
+                    {
+                        await characterEntity.SendPacketAsync(mail.GeneratePost(2)!);
+                    }
+                }
+            }
+        }
+
+        public static Task ChangeMapAsync(this ICharacterEntity characterEntity, IMapChangeService mapChangeService, short mapId, short mapX, short mapY)
+        {
+            return mapChangeService.ChangeMapByCharacterIdAsync(characterEntity.CharacterId, mapId, mapX, mapY);
+        }
+
+        public static async Task CloseShopAsync(this ICharacterEntity characterEntity)
+        {
+            characterEntity.Shop = null;
+
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateShop(characterEntity.AccountLanguage));
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GeneratePFlag());
+
+            characterEntity.IsSitting = false;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateCond());
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateRest());
+        }
+
+        public static async Task ChangeClassAsync(this ICharacterEntity characterEntity, CharacterClassType classType,
+            IOptions<WorldConfiguration> worldConfiguration,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        {
+            if (characterEntity.InventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
+            {
+                await characterEntity.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = characterEntity.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.RemoveEquipment
+                });
+                return;
+            }
+
+            characterEntity.JobLevel = 1;
+            characterEntity.JobLevelXp = 0;
+            await characterEntity.SendPacketAsync(new NpInfoPacket());
+            await characterEntity.SendPacketAsync(new PclearPacket());
+
+            if (classType == CharacterClassType.Adventurer)
+            {
+                characterEntity.HairStyle = characterEntity.HairStyle > HairStyleType.HairStyleB ? 0 : characterEntity.HairStyle;
+            }
+
+            characterEntity.Class = classType;
+            characterEntity.Hp = characterEntity.MaxHp;
+            characterEntity.Mp = characterEntity.MaxMp;
+            var itemsToAdd = new List<BasicEquipment>();
+            foreach (var (key, _) in worldConfiguration.Value.BasicEquipments)
+            {
+                switch (key)
+                {
+                    case nameof(CharacterClassType.Adventurer) when characterEntity.Class == CharacterClassType.Adventurer:
+                    case nameof(CharacterClassType.Archer) when characterEntity.Class == CharacterClassType.Archer:
+                    case nameof(CharacterClassType.Mage) when characterEntity.Class == CharacterClassType.Mage:
+                    case nameof(CharacterClassType.MartialArtist) when characterEntity.Class == CharacterClassType.MartialArtist:
+                    case nameof(CharacterClassType.Swordsman) when characterEntity.Class == CharacterClassType.Swordsman:
+                        itemsToAdd.AddRange(worldConfiguration.Value.BasicEquipments[key]);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            foreach (var inv in itemsToAdd
+                .Select(itemToAdd => characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(characterEntity.ItemProvider.Create(itemToAdd.VNum, itemToAdd.Amount), characterEntity.CharacterId), itemToAdd.NoscorePocketType))
+                .Where(inv => inv != null))
+            {
+                await characterEntity.SendPacketsAsync(
+                    inv!.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
+            }
+
+            await characterEntity.SendPacketAsync(characterEntity.GenerateTit());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateEq());
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateEff(8));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateCond());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateCMode());
+            await characterEntity.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.ClassChanged
+            });
+
+            characterEntity.QuicklistEntries = new List<QuicklistEntryDto>
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    CharacterId = characterEntity.CharacterId,
+                    QuickListIndex = 0,
+                    Slot = 9,
+                    Type = 1,
+                    IconType = 3,
+                    IconVNum = 1
+                }
+            };
+
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateIn(characterEntity.Prefix ?? ""), new EveryoneBut(characterEntity.Channel!.Id));
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.Group!.GeneratePidx(characterEntity));
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateEff(6));
+            await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateEff(198));
+        }
+
+        public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
+            IOptions<WorldConfiguration> worldConfiguration)
+        {
+            if (amount <= 0)
+            {
+                return;
+            }
+
+            var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
+            if (item == null)
+            {
+                return;
+            }
+
+            var itemPrice = item.Price ?? item.ItemInstance!.Item.Price;
+            if (itemPrice < 0 || itemPrice > long.MaxValue / amount)
+            {
+                return;
+            }
+            var price = itemPrice * amount;
+
+            var itemReputPrice = item.Price == null ? item.ItemInstance!.Item.ReputPrice : 0;
+            if (itemReputPrice < 0 || itemReputPrice > long.MaxValue / amount)
+            {
+                return;
+            }
+            var reputprice = itemReputPrice * amount;
+
+            var percent = characterEntity.DignityIcon switch
+            {
+                DignityType.Dreadful => 1.1,
+                DignityType.Unqualified => 1.2,
+                DignityType.Failed => 1.5,
+                DignityType.Useless => 1.5,
+                _ => 1.0,
+            };
+            if (amount > item.Amount)
+            {
+                return;
+            }
+
+            if ((reputprice == 0) && (price * percent > characterEntity.Gold))
+            {
+                await characterEntity.SendPacketAsync(new SMemoiPacket
+                {
+                    Type = SMemoType.FailNpc,
+                    Message = Game18NConstString.NotEnoughGold5
+                });
+                return;
+            }
+
+            if (reputprice > characterEntity.Reput)
+            {
+                await characterEntity.SendPacketAsync(new SMemoiPacket
+                {
+                    Type = SMemoType.FailNpc,
+                    Message = Game18NConstString.ReputationNotHighEnough
+                });
+                return;
+            }
+
+            short slotChar = item.Slot;
+            List<InventoryItemInstance>? inv;
+            if (shop.OwnerCharacter == null)
+            {
+                inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                    characterEntity.ItemProvider.Create(item.ItemInstance!.ItemVNum, amount), characterEntity.CharacterId));
+            }
+            else
+            {
+                if (price + shop.OwnerCharacter.Gold > worldConfiguration.Value.MaxGoldAmount)
+                {
+                    await characterEntity.SendPacketAsync(new SMemoPacket
+                    {
+                        Type = SMemoType.FailPlayer,
+                        Message = characterEntity.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER)
+                    });
+                    return;
+                }
+
+                if (amount == item.ItemInstance?.Amount)
+                {
+                    inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item.ItemInstance,
+                        characterEntity.CharacterId));
+                }
+                else
+                {
+                    inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                        characterEntity.ItemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), characterEntity.CharacterId));
+                }
+            }
+
+            if (inv?.Count > 0)
+            {
+                inv.ForEach(it => it.CharacterId = characterEntity.CharacterId);
+                var packet = await (shop.OwnerCharacter == null ? Task.FromResult((NInvPacket?)null) : shop.OwnerCharacter.BuyFromAsync(item, amount, slotChar));
+                if (packet != null)
+                {
+                    await characterEntity.SendPacketAsync(packet);
+                }
+
+                await characterEntity.SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
+                await characterEntity.SendPacketAsync(new SMemoiPacket
+                {
+                    Type = SMemoType.SuccessNpc,
+                    Message = Game18NConstString.TradeSuccessfull
+                });
+
+                if (reputprice == 0)
+                {
+                    characterEntity.Gold -= (long)(price * percent);
+                    await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+                }
+                else
+                {
+                    characterEntity.Reput -= reputprice;
+                    await characterEntity.SendPacketAsync(characterEntity.GenerateFd());
+                    await characterEntity.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = characterEntity.CharacterId,
+                        Type = SayColorType.Red,
+                        Message = Game18NConstString.ReputationReduced,
+                        ArgumentType = 4,
+                        Game18NArguments = { reputprice }
+                    });
+                }
+            }
+            else
+            {
+                await characterEntity.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.NotEnoughSpace
+                });
+            }
+        }
+
+        public static async Task<NInvPacket?> BuyFromAsync(this ICharacterEntity characterEntity, ShopItem item, short amount, short slotChar)
+        {
+            var type = item.Type;
+            var itemInstance = amount == item.ItemInstance?.Amount
+                ? characterEntity.InventoryService.DeleteById(item.ItemInstance.Id)
+                : characterEntity.InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstance!.Id);
+            var slot = item.Slot;
+            item.Amount = (short)((item.Amount ?? 0) - amount);
+            if ((item?.Amount ?? 0) == 0)
+            {
+                characterEntity.Shop!.ShopItems.TryRemove(slot, out _);
+            }
+
+            await characterEntity.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)type, slotChar));
+            var sellAmount = (item?.Price ?? 0) * amount;
+            characterEntity.Gold += sellAmount;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+            characterEntity.Shop!.Sell += sellAmount;
+
+            if (!characterEntity.Shop.ShopItems.IsEmpty)
+            {
+                return characterEntity.GenerateNInv(1, 0);
+            }
+
+            await characterEntity.CloseShopAsync();
+            return null;
+        }
+
+        public static async Task SetLevelAsync(this ICharacterEntity characterEntity, byte level,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+            ISessionRegistry sessionRegistry)
+        {
+            characterEntity.SetLevel(level);
+            await characterEntity.GenerateLevelupPacketsAsync(experienceService, jobExperienceService, heroExperienceService, sessionRegistry);
+            await characterEntity.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.LevelIncreased
+            });
+        }
+
+        public static async Task GenerateLevelupPacketsAsync(this ICharacterEntity characterEntity,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+            ISessionRegistry sessionRegistry)
+        {
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == characterEntity.MapInstance);
+
+            await Task.WhenAll(mapSessions.Select(async s =>
+            {
+                if (s.VisualId != characterEntity.VisualId)
+                {
+                    await s.SendPacketAsync(characterEntity.GenerateIn(characterEntity.Authority == AuthorityType.Moderator
+                        ? characterEntity.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
+                }
+
+                await s.SendPacketAsync(characterEntity.GenerateEff(6));
+                await s.SendPacketAsync(characterEntity.GenerateEff(198));
+            }));
+
+            foreach (var member in characterEntity.Group!.Keys)
+            {
+                var groupMember = sessionRegistry.GetCharacter(s =>
+                    (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
+
+                groupMember?.SendPacketAsync(groupMember.Group!.GeneratePinit());
+            }
+
+            await characterEntity.SendPacketAsync(characterEntity.Group.GeneratePinit());
         }
     }
 }

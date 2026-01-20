@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Options;
 using NodaTime;
+using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -25,7 +27,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 {
-    public class WearEventHandler(ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class WearEventHandler(ILogger logger, IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration)
         : IUseItemEventHandler
     {
         public bool Condition(Item.Item item)
@@ -166,7 +168,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {
-                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint());
+                await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint(worldConfiguration));
             }
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)

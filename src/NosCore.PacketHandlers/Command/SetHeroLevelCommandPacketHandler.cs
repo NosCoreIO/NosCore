@@ -4,8 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -19,14 +23,15 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetHeroLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub)
+    public class SetHeroLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub,
+        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
         : PacketHandler<SetHeroLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetHeroLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetHeroLevelAsync(levelPacket.Level);
+                await session.Character.SetHeroLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService);
                 return;
             }
 
