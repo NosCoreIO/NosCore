@@ -64,7 +64,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
             IReputationService reputationService, IDignityService dignityService,
             IOptions<WorldConfiguration> worldConfiguration, ISpeedCalculationService speedCalculationService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry,
+            ISessionRegistry sessionRegistry,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : CharacterDto, ICharacterEntity
     {
@@ -130,17 +130,6 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         public IInventoryService InventoryService { get; } = inventory;
 
         public Group? Group { get; set; }
-
-        public void InitializeGroup()
-        {
-            if (Group != null)
-            {
-                return;
-            }
-
-            Group = new Group(GroupType.Group, sessionGroupFactory);
-            Group.JoinGroup(this);
-        }
 
         public Instant? LastGroupRequest { get; set; } = null;
 
@@ -226,76 +215,6 @@ namespace NosCore.GameObject.ComponentEntities.Entities
             return sender?.SendPacketsAsync(packetDefinitions) ?? Task.CompletedTask;
         }
 
-        public async Task SetHeroLevelAsync(byte level)
-        {
-            HeroLevel = level;
-            HeroXp = 0;
-            await GenerateLevelupPacketsAsync();
-            await SendPacketAsync(new MsgiPacket
-            {
-                Type = MessageType.Default,
-                Message = Game18NConstString.HeroLevelIncreased
-            });
-        }
-
-        public async Task SetJobLevelAsync(byte jobLevel)
-        {
-            JobLevel = (byte)((Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
-            JobLevelXp = 0;
-            await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
-            var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
-            await Task.WhenAll(mapSessions.Select(s =>
-            {
-                //if (s.VisualId != VisualId)
-                //{
-                //    TODO: Generate GIDX
-                //}
-
-                return s.SendPacketAsync(this.GenerateEff(8));
-            }));
-            await SendPacketAsync(new MsgiPacket
-            {
-                Type = MessageType.Default,
-                Message = Game18NConstString.JobLevelIncreased
-            });
-        }
-
-        public void JoinGroup(Group group)
-        {
-            Group = group;
-            group.JoinGroup(this);
-        }
-
-        public async Task LeaveGroupAsync()
-        {
-            Group!.LeaveGroup(this);
-            foreach (var member in Group.Keys.Where(s => (s.Item2 != CharacterId) || (s.Item1 != VisualType.Player)))
-            {
-                var groupMember = sessionRegistry.GetCharacter(s =>
-                    (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
-
-                if (groupMember == null)
-                {
-                    continue;
-                }
-
-                if (Group.Count == 1)
-                {
-                    await groupMember.LeaveGroupAsync();
-                    await groupMember.SendPacketAsync(Group.GeneratePidx(groupMember));
-                    await groupMember.SendPacketAsync(new MsgiPacket
-                    {
-                        Type = MessageType.Default,
-                        Message = Game18NConstString.PartyDisbanded
-                    });
-                }
-
-                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit());
-            }
-
-            Group = new Group(GroupType.Group, sessionGroupFactory);
-            Group.JoinGroup(this);
-        }
 
         // todo move this
         public async Task ChangeClassAsync(CharacterClassType classType)
@@ -351,7 +270,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
             }
 
             await SendPacketAsync(this.GenerateTit());
-            await SendPacketAsync(GenerateStat());
+            await SendPacketAsync(this.GenerateStat());
             await MapInstance.SendPacketAsync(this.GenerateEq());
             await MapInstance.SendPacketAsync(this.GenerateEff(8));
             //TODO: Faction
@@ -384,17 +303,6 @@ namespace NosCore.GameObject.ComponentEntities.Entities
             await MapInstance.SendPacketAsync(this.GenerateEff(198));
         }
 
-        public Task AddGoldAsync(long gold)
-        {
-            Gold += gold;
-            return SendPacketAsync(this.GenerateGold());
-        }
-
-        public Task RemoveGoldAsync(long gold)
-        {
-            Gold -= gold;
-            return SendPacketAsync(this.GenerateGold());
-        }
 
         public void AddBankGold(long bankGold)
         {
@@ -406,23 +314,6 @@ namespace NosCore.GameObject.ComponentEntities.Entities
             Account.BankMoney -= bankGold;
         }
 
-        public async Task SetGoldAsync(long gold)
-        {
-            Gold = gold;
-            await SendPacketAsync(this.GenerateGold());
-            await SendPacketAsync(this.GenerateSay(
-                GetMessageFromKey(LanguageKey.UPDATE_GOLD),
-                SayColorType.Red));
-        }
-
-        public async Task SetReputationAsync(long reput)
-        {
-            Reput = reput;
-            await SendPacketAsync(this.GenerateFd());
-            await SendPacketAsync(this.GenerateSay(
-                GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
-                SayColorType.Red));
-        }
 
         //todo move this
         public async Task GenerateMailAsync(IEnumerable<MailData> mails)
@@ -659,7 +550,7 @@ namespace NosCore.GameObject.ComponentEntities.Entities
 
         private async Task GenerateLevelupPacketsAsync()
         {
-            await SendPacketAsync(GenerateStat());
+            await SendPacketAsync(this.GenerateStat());
             await SendPacketAsync(this.GenerateStatInfo());
             await SendPacketAsync(this.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
             var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == MapInstance);
@@ -700,41 +591,5 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         }
 
 
-        public SpPacket GenerateSpPoint()
-        {
-            return new SpPacket
-            {
-                AdditionalPoint = SpAdditionPoint,
-                MaxAdditionalPoint = worldConfiguration.Value.MaxAdditionalSpPoints,
-                SpPoint = SpPoint,
-                MaxSpPoint = worldConfiguration.Value.MaxSpPoints
-            };
-        }
-
-        public StatPacket GenerateStat()
-        {
-            return new StatPacket
-            {
-                Hp = Hp,
-                HpMaximum = MaxHp,
-                Mp = Mp,
-                MpMaximum = MaxMp,
-                Unknown = 0,
-                Option = 0
-            };
-        }
-        public Task AddSpPointsAsync(int spPointToAdd)
-        {
-            SpPoint = SpPoint + spPointToAdd > worldConfiguration.Value.MaxSpPoints
-                ? worldConfiguration.Value.MaxSpPoints : SpPoint + spPointToAdd;
-            return SendPacketAsync(GenerateSpPoint());
-        }
-
-        public Task AddAdditionalSpPointsAsync(int spPointToAdd)
-        {
-            SpAdditionPoint = SpAdditionPoint + spPointToAdd > worldConfiguration.Value.MaxAdditionalSpPoints
-                ? worldConfiguration.Value.MaxAdditionalSpPoints : SpAdditionPoint + spPointToAdd;
-            return SendPacketAsync(GenerateSpPoint());
-        }
     }
 }

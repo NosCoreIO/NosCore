@@ -61,7 +61,6 @@ namespace NosCore.GameObject.Tests
                 new DignityService(),
                 TestHelpers.Instance.WorldConfiguration,
                 new Mock<ISpeedCalculationService>().Object,
-                new Mock<ISessionGroupFactory>().Object,
                 TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.GameLanguageLocalizer)
             {

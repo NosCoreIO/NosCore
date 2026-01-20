@@ -12,6 +12,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -20,7 +21,10 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -31,6 +35,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Relations;
@@ -694,6 +699,156 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 MorphUpgrade = 0,
                 ArenaWinner = false
             };
+        }
+
+        public static Task AddGoldAsync(this ICharacterEntity characterEntity)
+        {
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+        }
+
+        public static Task AddGoldAsync(this ICharacterEntity characterEntity, long gold)
+        {
+            characterEntity.Gold += gold;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+        }
+
+        public static Task RemoveGoldAsync(this ICharacterEntity characterEntity, long gold)
+        {
+            characterEntity.Gold -= gold;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+        }
+
+        public static async Task SetGoldAsync(this ICharacterEntity characterEntity, long gold)
+        {
+            characterEntity.Gold = gold;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateSay(
+                characterEntity.GetMessageFromKey(LanguageKey.UPDATE_GOLD),
+                SayColorType.Red));
+        }
+
+        public static async Task SetReputationAsync(this ICharacterEntity characterEntity, long reput)
+        {
+            characterEntity.Reput = reput;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateFd());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateSay(
+                characterEntity.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
+                SayColorType.Red));
+        }
+
+        public static SpPacket GenerateSpPoint(this ICharacterEntity characterEntity, IOptions<WorldConfiguration> worldConfiguration)
+        {
+            return new SpPacket
+            {
+                AdditionalPoint = characterEntity.SpAdditionPoint,
+                MaxAdditionalPoint = worldConfiguration.Value.MaxAdditionalSpPoints,
+                SpPoint = characterEntity.SpPoint,
+                MaxSpPoint = worldConfiguration.Value.MaxSpPoints
+            };
+        }
+
+        public static StatPacket GenerateStat(this ICharacterEntity characterEntity)
+        {
+            return new StatPacket
+            {
+                Hp = characterEntity.Hp,
+                HpMaximum = characterEntity.MaxHp,
+                Mp = characterEntity.Mp,
+                MpMaximum = characterEntity.MaxMp,
+                Unknown = 0,
+                Option = 0
+            };
+        }
+
+        public static Task AddSpPointsAsync(this ICharacterEntity characterEntity, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
+        {
+            characterEntity.SpPoint = characterEntity.SpPoint + spPointToAdd > worldConfiguration.Value.MaxSpPoints
+                ? worldConfiguration.Value.MaxSpPoints : characterEntity.SpPoint + spPointToAdd;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateSpPoint(worldConfiguration));
+        }
+
+        public static Task AddAdditionalSpPointsAsync(this ICharacterEntity characterEntity, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
+        {
+            characterEntity.SpAdditionPoint = characterEntity.SpAdditionPoint + spPointToAdd > worldConfiguration.Value.MaxAdditionalSpPoints
+                ? worldConfiguration.Value.MaxAdditionalSpPoints : characterEntity.SpAdditionPoint + spPointToAdd;
+            return characterEntity.SendPacketAsync(characterEntity.GenerateSpPoint(worldConfiguration));
+        }
+
+        public static async Task SetJobLevelAsync(this ICharacterEntity characterEntity, byte jobLevel,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        {
+            characterEntity.JobLevel = (byte)((characterEntity.Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
+            characterEntity.JobLevelXp = 0;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.JobLevelIncreased
+            });
+        }
+
+        public static async Task SetHeroLevelAsync(this ICharacterEntity characterEntity, byte level,
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        {
+            characterEntity.HeroLevel = level;
+            characterEntity.HeroXp = 0;
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.HeroLevelIncreased
+            });
+        }
+
+        public static void InitializeGroup(this ICharacterEntity characterEntity, ISessionGroupFactory sessionGroupFactory)
+        {
+            if (characterEntity.Group != null)
+            {
+                return;
+            }
+
+            characterEntity.Group = new Group(GroupType.Group, sessionGroupFactory);
+            characterEntity.Group.JoinGroup(characterEntity);
+        }
+
+        public static void JoinGroup(this ICharacterEntity characterEntity, Group group)
+        {
+            characterEntity.Group = group;
+            group.JoinGroup(characterEntity);
+        }
+
+        public static async Task LeaveGroupAsync(this ICharacterEntity characterEntity,
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+        {
+            characterEntity.Group!.LeaveGroup(characterEntity);
+            foreach (var member in characterEntity.Group.Keys.Where(s => (s.Item2 != characterEntity.VisualId) || (s.Item1 != VisualType.Player)))
+            {
+                var groupMember = sessionRegistry.GetCharacter(s =>
+                    (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
+
+                if (groupMember == null)
+                {
+                    continue;
+                }
+
+                if (characterEntity.Group.Count == 1)
+                {
+                    await groupMember.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
+                    await groupMember.SendPacketAsync(characterEntity.Group.GeneratePidx(groupMember));
+                    await groupMember.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.PartyDisbanded
+                    });
+                }
+
+                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit());
+            }
+
+            characterEntity.Group = new Group(GroupType.Group, sessionGroupFactory);
+            characterEntity.Group.JoinGroup(characterEntity);
         }
     }
 }

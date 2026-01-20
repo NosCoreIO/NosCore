@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
             await TestHelpers.ResetAsync();
             Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new SpChargerEventHandler();
+            Handler = new SpChargerEventHandler(TestHelpers.Instance.WorldConfiguration);
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
             IdService = new IdService<MapItem>(1);
         }

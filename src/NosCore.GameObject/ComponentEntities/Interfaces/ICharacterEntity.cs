@@ -51,9 +51,12 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         DignityType DignityIcon { get; }
 
         bool Camouflage { get; }
-        long JobLevelXp { get; }
-        long HeroXp { get; }
-        byte JobLevel { get; }
+        long JobLevelXp { get; set; }
+        long HeroXp { get; set; }
+        byte JobLevel { get; set; }
+        new byte HeroLevel { get; set; }
+        int SpPoint { get; set; }
+        int SpAdditionPoint { get; set; }
 
         bool Invisible { get; }
 
@@ -67,7 +70,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
 
         ConcurrentDictionary<short, CharacterSkill> Skills { get; }
 
-        long Gold { get; }
+        long Gold { get; set; }
 
         long BankGold { get; }
 
@@ -84,7 +87,7 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Guid? CurrentScriptId { get; }
         ConcurrentDictionary<Guid, CharacterQuest> Quests { get; }
         short Compliment { get; }
-        long Reput { get; }
+        long Reput { get; set; }
         short Dignity { get; }
 
         Task GenerateMailAsync(IEnumerable<MailData> data);
@@ -92,22 +95,6 @@ namespace NosCore.GameObject.ComponentEntities.Interfaces
         Task SendPacketAsync(IPacket packetDefinition);
 
         Task SendPacketsAsync(IEnumerable<IPacket> packetDefinitions);
-
-        Task LeaveGroupAsync();
-
-        void JoinGroup(Group group);
-
-        Task SetJobLevelAsync(byte level);
-
-        Task SetHeroLevelAsync(byte level);
-
-        Task SetReputationAsync(long reput);
-
-        Task SetGoldAsync(long gold);
-
-        Task AddGoldAsync(long gold);
-
-        Task RemoveGoldAsync(long gold);
 
         void AddBankGold(long bankGold);
 

@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService
             var handlers = new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
             {
                 new DropEventHandler(),
-                new SpChargerEventHandler(),
+                new SpChargerEventHandler(TestHelpers.Instance.WorldConfiguration),
                 new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)
             };
 

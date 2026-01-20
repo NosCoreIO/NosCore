@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.ComponentEntities.Extensions;
@@ -15,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
-    public class SpChargerEventHandler : IGetMapItemEventHandler
+    public class SpChargerEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
     {
         public bool Condition(MapItem item)
         {
@@ -25,8 +27,8 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
-            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item.EffectValue);
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint());
+            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item.EffectValue, worldConfiguration);
+            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint(worldConfiguration));
             requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
             await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
                 requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));

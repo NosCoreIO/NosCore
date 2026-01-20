@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            PLeavePacketHandler = new PleavePacketHandler(idServer, TestHelpers.Instance.SessionRegistry);
+            PLeavePacketHandler = new PleavePacketHandler(idServer, TestHelpers.Instance.SessionRegistry, new Mock<ISessionGroupFactory>().Object);
 
             var mock = new Mock<IBlacklistHub>();
             PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);

@@ -38,7 +38,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 new Mock<IJobExperienceService>().Object,
                 new Mock<IHeroExperienceService>().Object,
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer,
+                TestHelpers.Instance.WorldConfiguration);
         }
 
         [TestMethod]

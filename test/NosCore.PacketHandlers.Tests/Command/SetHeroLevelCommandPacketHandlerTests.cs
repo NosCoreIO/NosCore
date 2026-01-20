@@ -6,6 +6,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.WebApi;
@@ -32,6 +35,9 @@ namespace NosCore.PacketHandlers.Tests.Command
         private ClientSession Session = null!;
         private Mock<IPubSubHub> PubSubHub = null!;
         private Mock<IChannelHub> ChannelHub = null!;
+        private Mock<IExperienceService> ExperienceService = null!;
+        private Mock<IJobExperienceService> JobExperienceService = null!;
+        private Mock<IHeroExperienceService> HeroExperienceService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -41,6 +47,9 @@ namespace NosCore.PacketHandlers.Tests.Command
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
             ChannelHub = new Mock<IChannelHub>();
+            ExperienceService = new Mock<IExperienceService>();
+            JobExperienceService = new Mock<IJobExperienceService>();
+            HeroExperienceService = new Mock<IHeroExperienceService>();
 
             PubSubHub.Setup(x => x.GetSubscribersAsync())
                 .Returns(Task.FromResult(new List<Subscriber>()));
@@ -48,7 +57,8 @@ namespace NosCore.PacketHandlers.Tests.Command
             ChannelHub.Setup(x => x.GetCommunicationChannels())
                 .Returns(Task.FromResult(new List<ChannelInfo>()));
 
-            Handler = new SetHeroLevelCommandPacketHandler(PubSubHub.Object, ChannelHub.Object);
+            Handler = new SetHeroLevelCommandPacketHandler(PubSubHub.Object, ChannelHub.Object,
+                ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object);
         }
 
         [TestMethod]

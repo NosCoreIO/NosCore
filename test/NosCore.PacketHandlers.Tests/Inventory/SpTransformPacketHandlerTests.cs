@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             SpTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock,
                 new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                    new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer),
+                    new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration),
                 TestHelpers.Instance.GameLanguageLocalizer);
         }
 
