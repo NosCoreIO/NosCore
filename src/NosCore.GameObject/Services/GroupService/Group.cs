@@ -5,7 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;

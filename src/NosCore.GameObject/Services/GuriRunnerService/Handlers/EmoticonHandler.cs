@@ -4,7 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.UI;

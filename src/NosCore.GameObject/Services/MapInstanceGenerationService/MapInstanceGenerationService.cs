@@ -12,7 +12,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.EventLoaderService;

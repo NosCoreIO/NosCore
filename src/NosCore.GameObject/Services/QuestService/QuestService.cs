@@ -11,7 +11,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;

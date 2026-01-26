@@ -5,7 +5,7 @@
 //
 
 using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;

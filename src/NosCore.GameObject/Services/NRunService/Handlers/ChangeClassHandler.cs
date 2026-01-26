@@ -10,7 +10,7 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;

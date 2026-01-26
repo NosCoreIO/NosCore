@@ -7,8 +7,9 @@
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -51,6 +52,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IHeuristic _distanceCalculator;
 
+        public MapWorld EcsWorld { get; }
+
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator)
@@ -79,6 +82,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 [typeof(IMapInstanceEntranceEventHandler)] = new()
             };
+            EcsWorld = new MapWorld();
         }
 
         public Instant LastUnregister { get; set; }
@@ -312,13 +316,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || (Life == null))
+            if (!disposing)
             {
                 return;
             }
 
-            Life.Dispose();
+            Life?.Dispose();
             Life = null;
+            EcsWorld.Dispose();
         }
     }
 }

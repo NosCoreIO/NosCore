@@ -1,0 +1,46 @@
+using NodaTime;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.GroupService;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.ShopService;
+using NosCore.Networking;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
+using System.Threading;
+
+namespace NosCore.GameObject.Ecs.Components;
+
+public record struct PlayerStateComponent(
+    CharacterDto CharacterDto,
+    AccountDto Account,
+    IInventoryService InventoryService,
+    MapInstance MapInstance,
+    Group? Group,
+    Shop? Shop,
+    ScriptDto? Script,
+    ConcurrentDictionary<short, CharacterSkill> Skills,
+    ConcurrentDictionary<Guid, CharacterQuest> Quests,
+    List<QuicklistEntryDto> QuicklistEntries,
+    List<StaticBonusDto> StaticBonusList,
+    List<TitleDto> Titles,
+    ConcurrentDictionary<long, long> GroupRequestCharacterIds,
+    Dictionary<Type, Subject<RequestData>> Requests,
+    bool IsChangingMapInstance,
+    bool IsDisconnecting,
+    bool InShop,
+    bool InExchange,
+    bool CanFight,
+    Instant LastPortal,
+    Instant LastSp,
+    Instant? LastGroupRequest,
+    short SpCooldown,
+    SemaphoreSlim HitSemaphore,
+    IChannel? Channel
+);
