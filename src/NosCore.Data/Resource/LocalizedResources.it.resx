@@ -465,9 +465,6 @@
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>La reputazione è cambiata!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
   </data>
@@ -510,14 +507,8 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
   </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Il negoziante non ha abbastanza spazio per ricevere il tuo oro.</value>
-  </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Ha provato ad utilizzare il vecchio metodo di autorizzazione {0}.</value>
-  </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Lo scambio {0} contenente {1} non è riuscito.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Impossibile richiedere il gruppo</value>
@@ -535,9 +526,6 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Tipo di destinatario sconosciuto</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Il tuo oro è stato aggiornato con successo!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>L'utente non è un amico!</value>

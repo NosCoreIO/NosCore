@@ -405,9 +405,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Votre réputation a changée.</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItem chargés.</value>
   </data>
@@ -422,9 +419,6 @@
   </data>
   <data name="SP_NOPOINTS" xml:space="preserve">
     <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
   </data>
   <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
     <value>Une carte SP invalide a été détéctée.</value>
@@ -455,12 +449,6 @@
   </data>
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>Le joueur {0} est en mode magasin privé.</value>
-  </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>L'échange  {0} contenant {1} à échoué.</value>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>La quantité d'or en inventaire a été mise à jour.</value>
   </data>
   <data name="USER_NOT_IN_EXCHANGE" xml:space="preserve">
     <value>{0} a annulé l'échange.</value>

@@ -378,9 +378,6 @@
     <value>Registered on MasterServer</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Your reputation has changed!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -407,9 +404,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>The seller does not have sufficient space to handle your money.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Unable to request the group</value>
@@ -449,9 +443,6 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Support</value>
   </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Your gold has been updated successfully!</value>
-  </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet received without character being set {0}</value>
   </data>
@@ -490,9 +481,6 @@
   </data>
   <data name="UNKNOWN" xml:space="preserve">
     <value>Unknown</value>
-  </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Failed to remove item from inventory.</value>
   </data>
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>You are already in an exchange.</value>

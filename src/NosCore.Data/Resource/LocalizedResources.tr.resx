@@ -369,9 +369,6 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Ana Sunucu'ya bağlanıldı.</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>İtibarın değişti!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -398,9 +395,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Başarıyla yüklendi!</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Satıcı iade işlemi için yeterli alana sahip değil.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Grup daveti gönderilemedi!</value>
@@ -437,9 +431,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Destek</value>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Altının güncellendi!</value>
   </data>
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>{0} Paketi karakter olmadan kullanılmaya çalışılıyor!</value>
@@ -509,9 +500,6 @@
   </data>
   <data name="SPEAKER" xml:space="preserve">
     <value>Hoparlör</value>
-  </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Silme işlemi gerçekleştirilemedi.</value>
   </data>
   <data name="SHOPSKILLS_LOADED" xml:space="preserve">
     <value>{0} Market becerileri yüklendi!</value>

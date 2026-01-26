@@ -366,9 +366,6 @@
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Tvá pověst byla změněna!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnType bylo úspěšně nahráno!</value>
   </data>
@@ -387,9 +384,6 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Podpora</value>
   </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Obchodník má příliš mnoho zlata pro to aby mohl vzít další od tebe-</value>
-  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Nemožné požádat o skupinu</value>
   </data>
@@ -402,9 +396,6 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Neznámý ReceiverType</value>
   </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Tvé zlato bylo změněno!</value>
-  </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Uživatel není Kamarád</value>
   </data>
@@ -416,9 +407,6 @@
   </data>
   <data name="UNKNOWN" xml:space="preserve">
     <value>Neznámý</value>
-  </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Nepodařilo se odebrat položku z inventáře.</value>
   </data>
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>Již jste ve výměně.</value>

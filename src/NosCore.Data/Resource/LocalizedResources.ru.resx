@@ -455,9 +455,6 @@
     <value>Зарегистрирован на Master сервере</value>
     <comment>check</comment>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Твоя репутация изменилась!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>Импортировано {0} RespawnTypes!</value>
   </data>
@@ -491,14 +488,8 @@
   <data name="SUPPORT" xml:space="preserve">
     <value>Поддержка</value>
   </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>У продавца слишком много денег.</value>
-  </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Попробуйте использователь старый метод аутентификации {0}</value>
-  </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Попытка удаления завершилась неудачей: {0}</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Невозможно отправить приглашение в группу</value>
@@ -516,9 +507,6 @@
   <data name="UNKWNOWN_RECEIVERTYPE" xml:space="preserve">
     <value>Неизвестный Reciever type</value>
     <comment>insert missing type data</comment>
-  </data>
-  <data name="UPDATE_GOLD" xml:space="preserve">
-    <value>Золото было обновлено!</value>
   </data>
   <data name="USER_IS_NOT_A_FRIEND" xml:space="preserve">
     <value>Игрок не является твоим другом!</value>
