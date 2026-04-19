@@ -18,6 +18,7 @@ namespace NosCore.GameObject.Ecs;
 )]
 public readonly partial struct NpcComponentBundle : INonPlayableEntity, IRequestableEntity
 {
+    public Arch.Core.Entity Handle => Entity;
     public short MapX => FirstX;
     public short MapY => FirstY;
 }

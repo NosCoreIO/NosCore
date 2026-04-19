@@ -1,5 +1,5 @@
+using Arch.Core;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ShopService;
@@ -15,7 +15,7 @@ public record struct NpcStateComponent(
     NpcMonsterDto NpcMonster,
     MapInstance MapInstance,
     SemaphoreSlim HitSemaphore,
-    ConcurrentDictionary<IAliveEntity, int> HitList,
+    ConcurrentDictionary<Entity, int> HitList,
     Shop? Shop,
     IDisposable? Life,
     Dictionary<Type, Subject<RequestData>> Requests,

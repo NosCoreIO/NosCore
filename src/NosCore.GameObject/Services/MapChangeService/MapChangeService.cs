@@ -119,6 +119,10 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var speedComp = oldWorld.TryGetComponent<SpeedComponent>(oldEntity) ?? default;
                 var state = oldWorld.TryGetComponent<PlayerStateComponent>(oldEntity) ?? default;
                 var network = oldWorld.TryGetComponent<PlayerNetworkComponent>(oldEntity) ?? default;
+                var context = oldWorld.TryGetComponent<PlayerContextComponent>(oldEntity) ?? default;
+                var inventory = oldWorld.TryGetComponent<PlayerInventoryComponent>(oldEntity) ?? default;
+                var social = oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default;
+                var requests = oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default;
 
                 if (session.Channel?.Id != null)
                 {
@@ -154,8 +158,12 @@ namespace NosCore.GameObject.Services.MapChangeService
                     playerFlags,
                     timing,
                     speedComp,
-                    state with { MapInstance = newMapInstance },
-                    network);
+                    state,
+                    network,
+                    context with { MapInstance = newMapInstance },
+                    inventory,
+                    social,
+                    requests);
 
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;

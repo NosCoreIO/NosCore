@@ -56,7 +56,7 @@ public class BattleService : IBattleService
                 targetIsAlive = false;
             }
 
-            target.HitList.AddOrUpdate(origin, damage.Damage - uselessDamage, (_, oldValue) => oldValue + damage.Damage - uselessDamage);
+            target.HitList.AddOrUpdate(origin.Handle, damage.Damage - uselessDamage, (_, oldValue) => oldValue + damage.Damage - uselessDamage);
             target.Hp = newHp;
 
             if (!targetIsAlive)
@@ -112,32 +112,10 @@ public class BattleService : IBattleService
         return Task.CompletedTask;
     }
 
-    private async Task HandleReward(IAliveEntity target)
+    private Task HandleReward(IAliveEntity target)
     {
-        var damageEntities = target.HitList.ToList();
-        foreach (var damageEntity in damageEntities)
-        {
-            if (damageEntity.Key.IsAlive && damageEntity.Key.MapInstanceId == target.MapInstanceId)
-            {
-                var percentageDamage = (float)damageEntity.Value / damageEntities.Sum(x => x.Value);
-                await FullReward(damageEntity.Key, target);
-            }
-        }
-
         target.HitList.Clear();
-        return;
-
-        Task FullReward(IAliveEntity received, IAliveEntity target)
-        {
-            switch (received.VisualType)
-            {
-                case VisualType.Player:
-                    break;
-                default:
-                    break;
-            }
-            return Task.CompletedTask;
-        }
+        return Task.CompletedTask;
     }
 
     private Task<SkillResult> GetSkill(IAliveEntity origin, long argumentsSkillId)

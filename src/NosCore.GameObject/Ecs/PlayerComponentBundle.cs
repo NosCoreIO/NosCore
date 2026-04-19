@@ -31,10 +31,15 @@ namespace NosCore.GameObject.Ecs;
     typeof(TimingComponent),
     typeof(SpeedComponent),
     typeof(PlayerStateComponent),
-    typeof(PlayerNetworkComponent)
+    typeof(PlayerNetworkComponent),
+    typeof(PlayerContextComponent),
+    typeof(PlayerInventoryComponent),
+    typeof(PlayerSocialComponent),
+    typeof(PlayerRequestsComponent)
 )]
 public readonly partial struct PlayerComponentBundle : ICharacterEntity
 {
+    public Arch.Core.Entity Handle => Entity;
     public long CharacterId => PlayerCharacterId;
     public bool InExchangeOrShop => InShop || InExchange;
 
