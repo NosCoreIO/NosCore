@@ -114,6 +114,52 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task NcifSelfTargetingResolvesViaSessionRegistry()
+        {
+            // Self-inspect: a player right-clicks their own portrait. The requesting
+            // player must be findable via the same SessionRegistry path other players use.
+            await new Spec("Self-targeted ncif resolves the requesting player and replies with stat info")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(RequestingOwnStatInfo)
+                .Then(StInfoPacketShouldBeSent)
+                .And(LastStPacketShouldHaveType_, VisualType.Player)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NcifForObjectVisualTypeIsRejectedSilently()
+        {
+            // Dropped items use VisualType.Object — they are not statful entities,
+            // so the handler should fall through to the default UNKNOWN branch
+            // and emit no StPacket. Documents the current contract.
+            await new Spec("Object type (dropped item) is rejected — items are not statful")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(RequestingObjectStatInfo)
+                .Then(NoStInfoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private async Task RequestingOwnStatInfo()
+        {
+            Session.LastPackets.Clear();
+            await Handler.ExecuteAsync(new NcifPacket
+            {
+                Type = VisualType.Player,
+                TargetId = Session.Character.VisualId
+            }, Session);
+        }
+
+        private async Task RequestingObjectStatInfo()
+        {
+            Session.LastPackets.Clear();
+            await Handler.ExecuteAsync(new NcifPacket
+            {
+                Type = VisualType.Object,
+                TargetId = 1
+            }, Session);
+        }
+
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
