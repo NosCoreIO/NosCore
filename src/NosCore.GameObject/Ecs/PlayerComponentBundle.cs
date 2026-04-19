@@ -57,25 +57,12 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
     // IVisualEntity - VisualId and VisualType are generated
     public short VNum => 0;
 
-    // IAliveEntity
-    public bool IsSitting
-    {
-        get => VisualIsSitting;
-        set => VisualIsSitting = value;
-    }
-
     public short Race => (short)Class;
 
     // INamedEntity - LevelXp is generated
 
     // ICharacterEntity
     byte? ICharacterEntity.VehicleSpeed => VehicleSpeed;
-
-    public short SpCooldown
-    {
-        get => PlayerStateSpCooldown;
-        set => PlayerStateSpCooldown = value;
-    }
 
     public short MapId
     {

@@ -401,7 +401,6 @@ namespace NosCore.Tests.Shared
                 now,
                 now,
                 0,
-                0,
                 Instance.GameLanguageLocalizer
             );
 

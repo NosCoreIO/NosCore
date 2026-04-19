@@ -190,7 +190,7 @@ public class MapWorld : IDisposable
             new NameComponent(name),
             new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>()),
             new PlayerComponent(accountId, characterId, isGm, serverId),
-            new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false, false),
+            new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false),
             new TimingComponent(now, now),
             new SpeedComponent(speed)
         );
