@@ -11,7 +11,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;

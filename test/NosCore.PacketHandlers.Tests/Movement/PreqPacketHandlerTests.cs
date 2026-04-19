@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .Returns(10);
 
             MinilandService.Setup(x => x.GetMinilandPortals(It.IsAny<long>()))
-                .Returns(new List<NosCore.GameObject.ComponentEntities.Entities.Portal>());
+                .Returns(new List<NosCore.GameObject.Map.Portal>());
 
             Handler = new PreqPacketHandler(
                 TestHelpers.Instance.MapInstanceAccessorService,

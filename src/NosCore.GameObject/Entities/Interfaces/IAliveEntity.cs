@@ -8,7 +8,7 @@ using NosCore.GameObject.Services.ShopService;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.GameObject.Entities.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
     {

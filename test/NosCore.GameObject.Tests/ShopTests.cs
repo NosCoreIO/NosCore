@@ -7,7 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;

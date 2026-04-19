@@ -18,13 +18,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Arch" Version="2.1.0-beta" />
-    <PackageReference Include="NosCore.Algorithm" Version="2.0.0" />
-    <PackageReference Include="System.Reactive" Version="6.1.0" />
+    <PackageReference Include="Arch" />
+    <PackageReference Include="NosCore.Algorithm" />
+    <PackageReference Include="System.Reactive" />
+    <PackageReference Include="WolverineFx" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Analyzers" Version="2.0.0">
+    <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.GameObject.Entities.Interfaces
 {
     public interface IRequestableEntity<T>
     {

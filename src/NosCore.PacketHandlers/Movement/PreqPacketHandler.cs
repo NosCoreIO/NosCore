@@ -6,8 +6,8 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;

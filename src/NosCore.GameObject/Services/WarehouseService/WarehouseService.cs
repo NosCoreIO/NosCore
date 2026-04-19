@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             };
         }
 
-        public List<WarehouseLink> GetItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot)
+        public async Task<List<WarehouseLink>> GetItemsAsync(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot)
         {
             var list = new List<WarehouseLink>();
             if (id == null)
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                         continue;
                     }
 
-                    var itemInstance = itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId).Result;
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
                     if (itemInstance != null)
                     {
                         list.Add(new WarehouseLink
@@ -79,10 +79,10 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
             else
             {
-                var warehouseItem = warehouseItemDao.FirstOrDefaultAsync(wi => wi.Id == id.Value).Result;
+                var warehouseItem = await warehouseItemDao.FirstOrDefaultAsync(wi => wi.Id == id.Value);
                 if (warehouseItem != null)
                 {
-                    var itemInstance = itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId).Result;
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
                     if (itemInstance != null)
                     {
                         list.Add(new WarehouseLink
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             return list;
         }
 
-        public List<WarehouseItem> GetWarehouseItems(long ownerId, WarehouseType warehouseType)
+        public async Task<List<WarehouseItem>> GetWarehouseItemsAsync(long ownerId, WarehouseType warehouseType)
         {
             var result = new List<WarehouseItem>();
 
@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
             foreach (var warehouseItem in warehouseItems)
             {
-                var itemInstance = itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId).Result;
+                var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
                 if (itemInstance != null)
                 {
                     result.Add(new WarehouseItem
@@ -139,15 +139,15 @@ namespace NosCore.GameObject.Services.WarehouseService
             return result;
         }
 
-        public WarehouseItem? GetItemBySlot(long ownerId, WarehouseType warehouseType, short slot)
+        public async Task<WarehouseItem?> GetItemBySlotAsync(long ownerId, WarehouseType warehouseType, short slot)
         {
-            var items = GetWarehouseItems(ownerId, warehouseType);
+            var items = await GetWarehouseItemsAsync(ownerId, warehouseType);
             return items.FirstOrDefault(i => i.Slot == slot);
         }
 
-        public short? GetFreeSlot(long ownerId, WarehouseType warehouseType)
+        public async Task<short?> GetFreeSlotAsync(long ownerId, WarehouseType warehouseType)
         {
-            var items = GetWarehouseItems(ownerId, warehouseType);
+            var items = await GetWarehouseItemsAsync(ownerId, warehouseType);
             var maxSlots = GetMaxSlots(warehouseType);
 
             return SlotStorageHelper.FindFreeSlot(
@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<WarehouseItem?> WithdrawItemFromSlotAsync(long ownerId, WarehouseType warehouseType, short slot)
         {
-            var item = GetItemBySlot(ownerId, warehouseType, slot);
+            var item = await GetItemBySlotAsync(ownerId, warehouseType, slot);
             if (item == null)
             {
                 return null;
@@ -195,7 +195,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            var existingItem = GetItemBySlot(ownerId, warehouseType, slot);
+            var existingItem = await GetItemBySlotAsync(ownerId, warehouseType, slot);
             if (existingItem != null)
             {
                 return false;
@@ -205,10 +205,10 @@ namespace NosCore.GameObject.Services.WarehouseService
             item!.Id = Guid.NewGuid();
             item = await itemInstanceDao.TryInsertOrUpdateAsync(item);
 
-            var existingWarehouse = warehouseDao.FirstOrDefaultAsync(s =>
+            var existingWarehouse = await warehouseDao.FirstOrDefaultAsync(s =>
                 s.Type == warehouseType &&
                 s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId) &&
-                s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null)).Result;
+                s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
 
             WarehouseDto warehouse;
             if (existingWarehouse != null)
@@ -241,7 +241,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, IItemInstance itemInstance)
         {
-            var freeSlot = GetFreeSlot(ownerId, warehouseType);
+            var freeSlot = await GetFreeSlotAsync(ownerId, warehouseType);
             if (!freeSlot.HasValue)
             {
                 return false;
@@ -258,13 +258,13 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            var sourceItem = GetItemBySlot(ownerId, warehouseType, sourceSlot);
+            var sourceItem = await GetItemBySlotAsync(ownerId, warehouseType, sourceSlot);
             if (sourceItem == null)
             {
                 return false;
             }
 
-            var destinationItem = GetItemBySlot(ownerId, warehouseType, destinationSlot);
+            var destinationItem = await GetItemBySlotAsync(ownerId, warehouseType, destinationSlot);
 
             if (destinationItem != null)
             {

@@ -8,7 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Networking.SessionGroup;

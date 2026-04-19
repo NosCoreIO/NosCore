@@ -1,7 +1,49 @@
 version: 2
 updates:
-- package-ecosystem: nuget
-  directory: "/"
-  schedule:
-    interval: daily
-  open-pull-requests-limit: 50
+  - package-ecosystem: nuget
+    directory: "/"
+    schedule:
+      interval: daily
+    open-pull-requests-limit: 10
+    groups:
+      microsoft-extensions:
+        patterns:
+          - "Microsoft.Extensions.*"
+          - "Microsoft.AspNetCore.*"
+      entity-framework:
+        patterns:
+          - "Microsoft.EntityFrameworkCore*"
+          - "Npgsql*"
+      serilog:
+        patterns:
+          - "Serilog*"
+          - "AutofacSerilogIntegration"
+      autofac:
+        patterns:
+          - "Autofac*"
+      nodatime:
+        patterns:
+          - "NodaTime*"
+      noscore:
+        patterns:
+          - "NosCore.*"
+      mstest:
+        patterns:
+          - "MSTest.*"
+          - "Microsoft.NET.Test.Sdk"
+          - "coverlet.*"
+      autofixture:
+        patterns:
+          - "AutoFixture*"
+
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: docker
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5

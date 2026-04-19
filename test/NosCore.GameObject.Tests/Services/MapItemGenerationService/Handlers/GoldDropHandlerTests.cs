@@ -5,8 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.Services.IdService;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -24,7 +23,6 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
         private GoldDropEventHandler Handler = null!;
         private ClientSession Session = null!;
         private IItemGenerationService ItemProvider = null!;
-        private IIdService<MapItem> IdService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -34,7 +32,6 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration);
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
-            IdService = new IdService<MapItem>(1);
         }
 
         [TestMethod]
@@ -77,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
                 .Execute();
         }
 
-        private MapItem? TestMapItem;
+        private MapItemComponentBundle? TestMapItem;
         private IItemInstance? ItemInstance;
         private bool ConditionResult;
         private bool GoldVNumCheckResult;
@@ -102,12 +99,12 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
 
         private void CheckingCondition()
         {
-            ConditionResult = Handler.Condition(TestMapItem!);
+            ConditionResult = Handler.Condition(TestMapItem!.Value);
         }
 
         private void CheckingConditionForGoldVNum()
         {
-            GoldVNumCheckResult = TestMapItem!.VNum != 1046;
+            GoldVNumCheckResult = TestMapItem!.Value.VNum != 1046;
         }
 
         private void ConditionShouldBeFalse()
@@ -121,16 +118,9 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
             Assert.IsFalse(ConditionResult);
         }
 
-        private MapItem CreateMapItem(IItemInstance item)
+        private MapItemComponentBundle CreateMapItem(IItemInstance item)
         {
-            var mapItem = new MapItem(IdService.GetNextId())
-            {
-                MapInstance = Session.Character.MapInstance,
-                PositionX = 1,
-                PositionY = 1,
-                ItemInstance = item
-            };
-            return mapItem;
+            return TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, item, 1, 1);
         }
     }
 }

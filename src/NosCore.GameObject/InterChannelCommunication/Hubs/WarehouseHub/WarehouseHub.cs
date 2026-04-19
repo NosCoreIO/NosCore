@@ -16,7 +16,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
 {
     public class WarehouseHub(IWarehouseService warehouseService) : Hub, IWarehouseHub
     {
-        public Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) => Task.FromResult(warehouseService.GetItems(id, ownerId, warehouseType, slot));
+        public Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) => warehouseService.GetItemsAsync(id, ownerId, warehouseType, slot);
 
         public Task<bool> DeleteWarehouseItemAsync(Guid id) => warehouseService.WithdrawItemAsync(id);
 

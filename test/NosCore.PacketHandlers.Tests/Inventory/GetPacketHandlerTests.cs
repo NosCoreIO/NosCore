@@ -7,9 +7,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
@@ -31,6 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private GetPacketHandler GetPacketHandler = null!;
         private IItemGenerationService Item = null!;
         private ClientSession Session = null!;
+        private long DroppedItemVisualId;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -134,16 +138,29 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             Session.Character.PositionY = 7;
         }
 
+        private void DropItem(IItemInstance itemInstance, long? ownerId = null, Instant? droppedAt = null)
+        {
+            var bundle = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, itemInstance, 1, 1);
+            DroppedItemVisualId = bundle.VisualId;
+            if (ownerId != null || droppedAt != null)
+            {
+                var data = Session.Character.MapInstance.EcsWorld.TryGetComponent<MapItemDataComponent>(bundle.Entity)!.Value;
+                Session.Character.MapInstance.EcsWorld.SetComponent(bundle.Entity, data with
+                {
+                    OwnerId = ownerId ?? data.OwnerId,
+                    DroppedAt = droppedAt ?? data.DroppedAt
+                });
+            }
+        }
+
         private void MapHasDroppableItem()
         {
-            Session.Character.MapInstance.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, Item.Create(1012, 1), 1, 1));
+            DropItem(Item.Create(1012, 1));
         }
 
         private void MapHasEquipmentItem()
         {
-            Session.Character.MapInstance.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, Item.Create(1, 1), 1, 1));
+            DropItem(Item.Create(1, 1));
         }
 
         private void CharacterHasSameItemInInventory()
@@ -159,26 +176,17 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
         private void MapHasRareItem()
         {
-            Session.Character.MapInstance.MapItems.TryAdd(100001,
-                TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, Item.Create(1, 1, 6), 1, 1));
+            DropItem(Item.Create(1, 1, 6));
         }
 
         private void MapHasItemOwnedByAnotherPlayer()
         {
-            var mapItem = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, Item.Create(1012, 1), 1, 1);
-            mapItem.VisualId = 1012;
-            mapItem.OwnerId = 2;
-            mapItem.DroppedAt = TestHelpers.Instance.Clock.GetCurrentInstant();
-            Session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
+            DropItem(Item.Create(1012, 1), ownerId: 2, droppedAt: TestHelpers.Instance.Clock.GetCurrentInstant());
         }
 
         private void MapHasOldItemOwnedByAnotherPlayer()
         {
-            var mapItem = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, Item.Create(1012, 1), 1, 1);
-            mapItem.VisualId = 1012;
-            mapItem.OwnerId = 2;
-            mapItem.DroppedAt = TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(-30));
-            Session.Character.MapInstance.MapItems.TryAdd(100001, mapItem);
+            DropItem(Item.Create(1012, 1), ownerId: 2, droppedAt: TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromSeconds(-30)));
         }
 
         private async Task PickingUpItem()
@@ -186,7 +194,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await GetPacketHandler.ExecuteAsync(new GetPacket
             {
                 PickerId = Session.Character.CharacterId,
-                VisualId = 100001,
+                VisualId = DroppedItemVisualId,
                 PickerType = VisualType.Player
             }, Session);
         }

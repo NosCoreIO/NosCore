@@ -6,16 +6,19 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
-using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
@@ -46,6 +49,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private ConcurrentDictionary<int, MapNpc> _npcs;
 
+        private readonly VisibilitySystem _visibilitySystem;
+
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new();
 
         private readonly IClock _clock;
@@ -69,7 +74,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<int, MapMonster>();
             _npcs = new ConcurrentDictionary<int, MapNpc>();
-            MapItems = new ConcurrentDictionary<long, MapItem>();
+            MapItemRequestContexts = new ConcurrentDictionary<long, MapItemRequestContext>();
+            _visibilitySystem = new VisibilitySystem();
             _isSleeping = true;
             _clock = clock;
             LastUnregister = _clock.GetCurrentInstant().Plus(Duration.FromMinutes(-1));
@@ -88,7 +94,42 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public Instant LastUnregister { get; set; }
 
-        public ConcurrentDictionary<long, MapItem> MapItems { get; }
+        public ConcurrentDictionary<long, MapItemRequestContext> MapItemRequestContexts { get; }
+
+        public int MapItemCount => GetMapItemBundles().Count();
+
+        public IEnumerable<MapItemComponentBundle> GetMapItemBundles()
+        {
+            return _visibilitySystem.GetMapItemEntities(EcsWorld)
+                .Select(entity => new MapItemComponentBundle(entity, EcsWorld));
+        }
+
+        public MapItemComponentBundle? TryGetMapItem(long visualId)
+        {
+            foreach (var bundle in GetMapItemBundles())
+            {
+                if (bundle.VisualId == visualId)
+                {
+                    return bundle;
+                }
+            }
+            return null;
+        }
+
+        public bool TryRemoveMapItem(long visualId)
+        {
+            foreach (var entity in _visibilitySystem.GetMapItemEntities(EcsWorld))
+            {
+                var identity = EcsWorld.World.Get<EntityIdentityComponent>(entity);
+                if (identity.VisualId == visualId)
+                {
+                    EcsWorld.DestroyEntity(entity);
+                    MapItemRequestContexts.TryRemove(visualId, out _);
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public bool IsSleeping
         {
@@ -176,10 +217,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
         }
 
-        public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
+        public MapItemComponentBundle? PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             var random2 = Guid.NewGuid();
-            MapItem? droppedItem;
             var possibilities = new List<(short X, short Y)>();
 
             for (short x = -1; x < 2; x++)
@@ -219,8 +259,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
-            droppedItem = _mapItemGenerationService.Create(this, newItemInstance, mapX, mapY);
-            MapItems[droppedItem.VisualId] = droppedItem;
+            var droppedItem = _mapItemGenerationService.Create(this, newItemInstance, mapX, mapY);
             inv.Amount -= amount;
             if (inv.Amount == 0)
             {
@@ -284,7 +323,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     packets.Add(s.GenerateCharSc());
                 }
             });
-            MapItems.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));
+            foreach (var mapItem in GetMapItemBundles())
+            {
+                packets.Add(mapItem.GenerateIn());
+            }
             return packets;
         }
 

@@ -8,6 +8,6 @@ namespace NosCore.GameObject.Ecs;
     typeof(PositionComponent),
     typeof(MapItemDataComponent)
 )]
-public ref partial struct MapItemComponentBundle
+public partial struct MapItemComponentBundle
 {
 }

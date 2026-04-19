@@ -6,7 +6,7 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
@@ -22,12 +22,12 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
     public class GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
     {
-        public bool Condition(MapItem item)
+        public bool Condition(MapItemComponentBundle item)
         {
             return item.VNum == 1046;
         }
 
-        public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<MapItemComponentBundle, GetPacket>> requestData)
         {
             var session = requestData.ClientSession;
             var mapItem = requestData.Data.Item1;
@@ -71,12 +71,13 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
             }
 
             character = session.Character;
+            var visualId = mapItem.VisualId;
             var goldPacket = character.GenerateGold();
             var mapInstance = character.MapInstance;
-            var getPacket = character.GenerateGet(mapItem.VisualId);
+            var getPacket = character.GenerateGet(visualId);
 
             await session.SendPacketAsync(goldPacket);
-            mapInstance.MapItems.TryRemove(mapItem.VisualId, out _);
+            mapInstance.TryRemoveMapItem(visualId);
             await mapInstance.SendPacketAsync(getPacket);
         }
     }

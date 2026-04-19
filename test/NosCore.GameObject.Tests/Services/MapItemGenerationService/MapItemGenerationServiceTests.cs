@@ -7,19 +7,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
-using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -32,7 +28,7 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService
         private IMapItemGenerationService Service = null!;
         private IItemGenerationService ItemProvider = null!;
         private MapInstance MapInstance = null!;
-        private IIdService<MapItem> IdService = null!;
+        private IIdService<MapItemComponentBundle> IdService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -40,17 +36,16 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService
             await TestHelpers.ResetAsync();
 
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
-            IdService = new IdService<MapItem>(1);
+            IdService = new IdService<MapItemComponentBundle>(1);
 
-            var handlers = new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
+            var handlers = new List<IGetMapItemEventHandler>
             {
                 new DropEventHandler(),
                 new SpChargerEventHandler(TestHelpers.Instance.WorldConfiguration),
                 new GoldDropEventHandler(TestHelpers.Instance.WorldConfiguration)
             };
 
-            var eventLoader = new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(handlers);
-            Service = new GameObject.Services.MapItemGenerationService.MapItemGenerationService(eventLoader, IdService);
+            Service = new GameObject.Services.MapItemGenerationService.MapItemGenerationService(handlers, IdService);
             MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
         }
 
@@ -108,8 +103,8 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService
                 .Execute();
         }
 
-        private MapItem? CreatedMapItem;
-        private MapItem? SecondMapItem;
+        private MapItemComponentBundle? CreatedMapItem;
+        private MapItemComponentBundle? SecondMapItem;
         private IItemInstance? ItemInstance;
         private short PositionX = 3;
         private short PositionY = 4;
@@ -149,44 +144,43 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService
         private void MapItemShouldBeCreated()
         {
             Assert.IsNotNull(CreatedMapItem);
-            Assert.IsTrue(CreatedMapItem.VisualId > 0);
+            Assert.IsTrue(CreatedMapItem.Value.VisualId > 0);
         }
 
         private void PositionShouldBeCorrect()
         {
             Assert.IsNotNull(CreatedMapItem);
-            Assert.AreEqual(PositionX, CreatedMapItem.PositionX);
-            Assert.AreEqual(PositionY, CreatedMapItem.PositionY);
+            Assert.AreEqual(PositionX, CreatedMapItem.Value.PositionX);
+            Assert.AreEqual(PositionY, CreatedMapItem.Value.PositionY);
         }
 
         private void ItemInstanceShouldBeCorrect()
         {
             Assert.IsNotNull(CreatedMapItem);
-            Assert.IsNotNull(CreatedMapItem.ItemInstance);
-            Assert.AreEqual(1012, CreatedMapItem.ItemInstance.ItemVNum);
-            Assert.AreEqual((short)25, CreatedMapItem.ItemInstance.Amount);
+            Assert.IsNotNull(CreatedMapItem.Value.ItemInstance);
+            Assert.AreEqual(1012, CreatedMapItem.Value.ItemInstance!.ItemVNum);
+            Assert.AreEqual((short)25, CreatedMapItem.Value.ItemInstance!.Amount);
         }
 
         private void IdsShouldBeUnique()
         {
             Assert.IsNotNull(CreatedMapItem);
             Assert.IsNotNull(SecondMapItem);
-            Assert.AreNotEqual(CreatedMapItem.VisualId, SecondMapItem.VisualId);
+            Assert.AreNotEqual(CreatedMapItem.Value.VisualId, SecondMapItem.Value.VisualId);
         }
 
         private void MapInstanceShouldBeSet()
         {
             Assert.IsNotNull(CreatedMapItem);
-            Assert.IsNotNull(CreatedMapItem.MapInstance);
-            Assert.AreEqual(MapInstance, CreatedMapItem.MapInstance);
+            Assert.AreEqual(MapInstance.MapInstanceId, CreatedMapItem.Value.MapInstanceId);
         }
 
         private void GoldMapItemShouldBeCreated()
         {
             Assert.IsNotNull(CreatedMapItem);
-            Assert.IsNotNull(CreatedMapItem.ItemInstance);
-            Assert.AreEqual(1012, CreatedMapItem.ItemInstance.ItemVNum);
-            Assert.AreEqual((short)1000, CreatedMapItem.ItemInstance.Amount);
+            Assert.IsNotNull(CreatedMapItem.Value.ItemInstance);
+            Assert.AreEqual(1012, CreatedMapItem.Value.ItemInstance!.ItemVNum);
+            Assert.AreEqual((short)1000, CreatedMapItem.Value.ItemInstance!.Amount);
         }
     }
 }

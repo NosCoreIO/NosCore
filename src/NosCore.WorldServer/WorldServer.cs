@@ -15,7 +15,6 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.EventLoaderService;
-using NosCore.GameObject.Services.EventLoaderService.Handlers;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
@@ -31,8 +30,8 @@ namespace NosCore.WorldServer
 {
     public class WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
             Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
-            IClock nodatimeClock, ISaveService saveService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient,
+            ISaveService saveService,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IChannelHub channelHubClient,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         : BackgroundService
     {
@@ -43,8 +42,10 @@ namespace NosCore.WorldServer
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             AppDomain.CurrentDomain.ProcessExit += (s, e) =>
             {
-                var eventSaveAll = new SaveAll(saveAllLogger, nodatimeClock, saveService, logLanguage, sessionRegistry);
-                _ = eventSaveAll.ExecuteAsync();
+                foreach (var clientSession in sessionRegistry.GetSessions())
+                {
+                    _ = saveService.SaveAsync(clientSession);
+                }
                 logger.LogInformation(logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);
             };

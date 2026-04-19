@@ -4,7 +4,7 @@ using NosCore.Algorithm.ReputationService;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;

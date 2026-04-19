@@ -6,8 +6,9 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;

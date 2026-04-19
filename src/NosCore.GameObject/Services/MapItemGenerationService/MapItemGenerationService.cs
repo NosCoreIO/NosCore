@@ -4,34 +4,54 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Core.Services.IdService;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.Services.EventLoaderService;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.Packets.ClientPackets.Drops;
 using System;
+using System.Collections.Generic;
+using System.Reactive.Linq;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
     public class MapItemGenerationService(
-            EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler> runner,
-            IIdService<MapItem> mapItemIdService)
+            IEnumerable<IGetMapItemEventHandler> handlers,
+            IIdService<MapItemComponentBundle> mapItemIdService)
         : IMapItemGenerationService
     {
-        private readonly IEventLoaderService<MapItem, Tuple<MapItem, GetPacket>> _runner = runner;
+        private readonly List<IGetMapItemEventHandler> _handlers = new(handlers);
 
-        public MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
+        public MapItemComponentBundle Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
         {
-            var mapItem = new MapItem(mapItemIdService.GetNextId())
+            var visualId = mapItemIdService.GetNextId();
+            var entity = mapInstance.EcsWorld.CreateMapItem(
+                visualId,
+                itemInstance.ItemVNum,
+                itemInstance.Amount,
+                mapInstance.MapInstanceId,
+                positionX,
+                positionY,
+                null,
+                Instant.MinValue,
+                itemInstance.Id,
+                itemInstance);
+            var bundle = new MapItemComponentBundle(entity, mapInstance.EcsWorld);
+            var context = new MapItemRequestContext();
+            _handlers.ForEach(handler =>
             {
-                MapInstance = mapInstance,
-                ItemInstance = itemInstance,
-                PositionX = positionX,
-                PositionY = positionY
-            };
-            _runner.LoadHandlers(mapItem);
-            return mapItem;
+                if (handler.Condition(bundle))
+                {
+                    context.PickupSubject.Select(request =>
+                    {
+                        var task = handler.ExecuteAsync(request);
+                        context.HandlerTasks.Add(task);
+                        return task;
+                    }).Subscribe();
+                }
+            });
+            mapInstance.MapItemRequestContexts[visualId] = context;
+            return bundle;
         }
     }
 }

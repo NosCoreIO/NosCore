@@ -12,7 +12,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NosCore.GameObject.ComponentEntities.Extensions
+namespace NosCore.GameObject.Entities.Extensions
 {
     public static class IItemInstanceExtension
     {

@@ -6,7 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Shops;
@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void NpcWithDialogExistsOnMap()
         {
-            var npc = new NosCore.GameObject.ComponentEntities.Entities.MapNpc();
+            var npc = new NosCore.GameObject.Map.MapNpc();
             npc.MapNpcId = 100;
             npc.Dialog = 100;
             npc.MapId = _session.Character.MapInstance.Map.MapId;

@@ -8,6 +8,7 @@ using System;
 using Arch.Core;
 using NodaTime;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
@@ -129,12 +130,13 @@ public class MapWorld : IDisposable
         short positionY,
         long? ownerId,
         Instant droppedAt,
-        Guid itemInstanceId)
+        Guid itemInstanceId,
+        IItemInstance? itemInstance)
     {
         var entity = World.Create(
             new EntityIdentityComponent(visualId, VisualType.Object, 0),
             new PositionComponent(positionX, positionY, 0, mapInstanceId),
-            new MapItemDataComponent(vNum, amount, ownerId, droppedAt, itemInstanceId)
+            new MapItemDataComponent(vNum, amount, ownerId, droppedAt, itemInstanceId, itemInstance)
         );
         return entity;
     }

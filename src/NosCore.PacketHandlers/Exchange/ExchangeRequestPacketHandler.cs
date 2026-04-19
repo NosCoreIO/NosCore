@@ -5,7 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;

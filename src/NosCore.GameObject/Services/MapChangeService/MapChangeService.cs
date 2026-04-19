@@ -8,7 +8,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;

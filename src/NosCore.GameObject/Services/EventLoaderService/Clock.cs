@@ -5,7 +5,7 @@
 //
 
 using NodaTime;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using System;
 using System.Collections.Generic;

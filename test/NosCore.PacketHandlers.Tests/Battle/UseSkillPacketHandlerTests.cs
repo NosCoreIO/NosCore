@@ -156,8 +156,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void BattleServiceShouldBeCalled()
         {
-            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.ComponentEntities.Interfaces.ICharacterEntity>(),
-                It.IsAny<NosCore.GameObject.ComponentEntities.Interfaces.IAliveEntity>(),
+            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Entities.Interfaces.ICharacterEntity>(),
+                It.IsAny<NosCore.GameObject.Entities.Interfaces.IAliveEntity>(),
                 It.IsAny<HitArguments>()), Times.Once);
         }
     }

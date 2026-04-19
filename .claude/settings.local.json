@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build *)",
+      "Bash(ls Directory.*)",
+      "Bash(ls .github/)",
+      "Bash(where python *)"
+    ]
+  }
+}

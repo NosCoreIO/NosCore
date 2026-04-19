@@ -34,8 +34,9 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -55,14 +56,13 @@ using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.BattleService;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.SessionGroup;
@@ -194,8 +194,8 @@ namespace NosCore.Tests.Shared
 
         private async Task GenerateMapInstanceProviderAsync()
         {
-            MapItemProvider = new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>
-                {new DropEventHandler(), new SpChargerEventHandler(Instance.WorldConfiguration), new GoldDropEventHandler(Instance.WorldConfiguration)}), new IdService<MapItem>(1));
+            MapItemProvider = new MapItemGenerationService(new List<IGetMapItemEventHandler>
+                {new DropEventHandler(), new SpChargerEventHandler(Instance.WorldConfiguration), new GoldDropEventHandler(Instance.WorldConfiguration)}, new IdService<GameObject.Ecs.MapItemComponentBundle>(1));
             var map = new Map
             {
                 MapId = 0,
@@ -250,7 +250,7 @@ namespace NosCore.Tests.Shared
             var mapInstanceRegistry = new MapInstanceRegistry();
             MapInstanceAccessorService = new MapInstanceAccessorService(mapInstanceRegistry);
             var minilandServiceMock = new Mock<IMinilandService>();
-            minilandServiceMock.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.ComponentEntities.Entities.Portal>());
+            minilandServiceMock.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
             MapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                 MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, Logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry);
             var mapChangeService = MapChangeService;
@@ -298,10 +298,10 @@ namespace NosCore.Tests.Shared
             StaticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(Logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
-            TypeAdapterConfig<MapNpcDto, GameObject.ComponentEntities.Entities.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.ComponentEntities.Entities.MapNpc());
-            TypeAdapterConfig<MapMonsterDto, GameObject.ComponentEntities.Entities.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.ComponentEntities.Entities.MapMonster(new Mock<ISpeedCalculationService>().Object));
+            TypeAdapterConfig<MapNpcDto, GameObject.Map.MapNpc>.NewConfig()
+                .ConstructUsing(src => new GameObject.Map.MapNpc());
+            TypeAdapterConfig<MapMonsterDto, GameObject.Map.MapMonster>.NewConfig()
+                .ConstructUsing(src => new GameObject.Map.MapMonster(new Mock<ISpeedCalculationService>().Object));
 
         }
 

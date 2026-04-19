@@ -125,7 +125,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         public async Task GetFreeSlotShouldReturnAvailableSlot()
         {
             await new Spec("Get free slot should return available slot")
-                .Then(FreeSlotShouldBeAvailable)
+                .ThenAsync(FreeSlotShouldBeAvailable)
                 .ExecuteAsync();
         }
 
@@ -166,7 +166,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         {
             var itemInstance = new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = 1 };
             await Service.DepositItemAsync(OwnerId, WarehouseType.Warehouse, itemInstance, 5);
-            var items = Service.GetWarehouseItems(OwnerId, WarehouseType.Warehouse);
+            var items = await Service.GetWarehouseItemsAsync(OwnerId, WarehouseType.Warehouse);
             WarehouseItemId = items.First().Id;
         }
 
@@ -193,7 +193,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         private async Task ItemShouldBeInWarehouse()
         {
             Assert.IsTrue(DepositResult);
-            var items = Service.GetWarehouseItems(OwnerId, WarehouseType.Warehouse);
+            var items = await Service.GetWarehouseItemsAsync(OwnerId, WarehouseType.Warehouse);
             Assert.AreEqual(1, items.Count);
         }
 
@@ -222,9 +222,9 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
             Assert.IsFalse(MoveResult);
         }
 
-        private void FreeSlotShouldBeAvailable()
+        private async Task FreeSlotShouldBeAvailable()
         {
-            var freeSlot = Service.GetFreeSlot(OwnerId, WarehouseType.Warehouse);
+            var freeSlot = await Service.GetFreeSlotAsync(OwnerId, WarehouseType.Warehouse);
             Assert.IsNotNull(freeSlot);
             Assert.AreEqual((short)0, freeSlot.Value);
         }

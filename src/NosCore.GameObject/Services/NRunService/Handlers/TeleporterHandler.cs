@@ -4,9 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ClientPackets.Npcs;

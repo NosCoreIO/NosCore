@@ -4,13 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Visibility;
 
-namespace NosCore.GameObject.ComponentEntities.Extensions
+namespace NosCore.GameObject.Entities.Extensions
 {
     public static class VisualEntityExtension
     {
@@ -37,26 +38,6 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                     IsSitting = visualEntity.IsSitting,
                     SpawnEffect = SpawnEffectType.NoEffect,
                     Unknow1 = 2
-                }
-            };
-        }
-
-        //TODO move to its own class when correctly defined
-        //Item in packet
-        public static InPacket GenerateIn(this ICountableEntity visualEntity)
-        {
-            return new InPacket
-            {
-                VisualType = visualEntity.VisualType,
-                VisualId = visualEntity.VisualId,
-                VNum = visualEntity.VNum == 0 ? string.Empty : visualEntity.VNum.ToString(),
-                PositionX = visualEntity.PositionX,
-                PositionY = visualEntity.PositionY,
-                InItemSubPacket = new InItemSubPacket
-                {
-                    Amount = visualEntity.Amount,
-                    IsQuestRelative = false,
-                    Owner = 0
                 }
             };
         }

@@ -9,7 +9,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 if ((putPacket.Amount > 0) && (putPacket.Amount <= worldConfiguration.Value.MaxItemAmount))
                 {
-                    if (clientSession.Character.MapInstance.MapItems.Count < 200)
+                    if (clientSession.Character.MapInstance.MapItemCount < 200)
                     {
                         var droppedItem =
                             clientSession.Character.MapInstance.PutItem(putPacket.Amount, invitem.ItemInstance,
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Inventory
                         invitem = clientSession.Character.InventoryService.LoadBySlotAndType(putPacket.Slot,
                             (NoscorePocketType)putPacket.PocketType);
                         await clientSession.SendPacketAsync(invitem.GeneratePocketChange(putPacket.PocketType, putPacket.Slot));
-                        await clientSession.Character.MapInstance.SendPacketAsync(droppedItem.GenerateDrop());
+                        await clientSession.Character.MapInstance.SendPacketAsync(droppedItem.Value.GenerateDrop());
                     }
                     else
                     {

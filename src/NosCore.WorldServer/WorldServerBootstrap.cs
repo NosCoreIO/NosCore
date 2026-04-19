@@ -25,6 +25,7 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
+using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -37,7 +38,8 @@ using NosCore.Data.Resource;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -76,6 +78,8 @@ using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using PlayerComponentBundle = NosCore.GameObject.Ecs.PlayerComponentBundle;
 using ILogger = Serilog.ILogger;
+using IMessage = NosCore.GameObject.InterChannelCommunication.Messages.IMessage;
+using WolverineMessageBus = Wolverine.IMessageBus;
 
 namespace NosCore.WorldServer
 {
@@ -203,7 +207,7 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<Clock>();
             containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
             containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
-            containerBuilder.Register<IIdService<MapItem>>(_ => new IdService<MapItem>(100000)).SingleInstance();
+            containerBuilder.Register<IIdService<MapItemComponentBundle>>(_ => new IdService<MapItemComponentBundle>(100000)).SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
