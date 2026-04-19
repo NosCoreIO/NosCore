@@ -6,7 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -30,7 +30,7 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 
-namespace NosCore.GameObject.Entities.Extensions
+namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class AliveEntityExtension
     {

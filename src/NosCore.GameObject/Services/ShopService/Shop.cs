@@ -6,7 +6,7 @@
 
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using System.Collections.Concurrent;
 using System.Linq;
 

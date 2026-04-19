@@ -6,12 +6,12 @@
 
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Visibility;
 
-namespace NosCore.GameObject.Entities.Extensions
+namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class VisualEntityExtension
     {

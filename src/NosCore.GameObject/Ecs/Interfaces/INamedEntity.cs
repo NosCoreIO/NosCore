@@ -6,7 +6,7 @@
 
 using NosCore.GameObject.Services.GroupService;
 
-namespace NosCore.GameObject.Entities.Interfaces
+namespace NosCore.GameObject.Ecs.Interfaces
 {
     public interface INamedEntity : IAliveEntity
     {

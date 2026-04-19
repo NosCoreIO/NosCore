@@ -5,7 +5,7 @@
 //
 
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Inventory;

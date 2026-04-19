@@ -7,8 +7,8 @@
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Entities.Extensions;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.MailService;
 

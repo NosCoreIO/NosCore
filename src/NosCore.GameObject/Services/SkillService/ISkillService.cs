@@ -1,4 +1,4 @@
-﻿using NosCore.GameObject.Entities.Interfaces;
+﻿using NosCore.GameObject.Ecs.Interfaces;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.SkillService

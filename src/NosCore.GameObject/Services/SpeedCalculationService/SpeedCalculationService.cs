@@ -5,7 +5,7 @@
 //
 
 using NosCore.Algorithm.SpeedService;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {

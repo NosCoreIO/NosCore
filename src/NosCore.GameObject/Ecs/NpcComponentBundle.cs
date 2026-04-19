@@ -1,6 +1,6 @@
 using NosCore.GameObject.Ecs.Attributes;
 using NosCore.GameObject.Ecs.Components;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Ecs;
 
