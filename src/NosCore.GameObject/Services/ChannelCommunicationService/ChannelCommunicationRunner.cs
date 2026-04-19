@@ -18,7 +18,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using IMessage = NosCore.GameObject.InterChannelCommunication.Messages.IMessage;
 
-namespace NosCore.GameObject.Services.EventLoaderService.Handlers
+namespace NosCore.GameObject.Services.ChannelCommunicationService
 {
     [UsedImplicitly]
     public class ChannelCommunicationRunner : IHostedService

@@ -48,7 +48,6 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.AuthService;
 using NosCore.GameObject.Services.BazaarService;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.GameObject.Services.MailService;
 using NosCore.Shared.Authentication;
@@ -184,9 +183,6 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterGeneric(typeof(EventLoaderService<,,>));
 
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);

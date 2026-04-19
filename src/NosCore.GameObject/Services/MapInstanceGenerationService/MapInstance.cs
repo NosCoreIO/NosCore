@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
-    public class MapInstance : IBroadcastable, IDisposable, IRequestableEntity<MapInstance>
+    public class MapInstance : IBroadcastable, IDisposable
     {
         public short MaxPacketsBuffer { get; } = 250;
         private readonly ILogger _logger;
@@ -85,10 +85,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _mapChangeService = mapChangeService;
             _sessionRegistry = sessionRegistry;
             _distanceCalculator = distanceCalculator;
-            Requests = new Dictionary<Type, Subject<RequestData<MapInstance>>>
-            {
-                [typeof(IMapInstanceEntranceEventHandler)] = new()
-            };
             EcsWorld = new MapWorld();
         }
 
@@ -187,8 +183,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public ISessionGroup Sessions { get; set; }
 
         public ConcurrentQueue<IPacket> LastPackets { get; }
-        public Dictionary<Type, Subject<RequestData<MapInstance>>> Requests { get; set; }
-        public List<Task> HandlerTasks { get; set; } = new();
 
         public void Dispose()
         {
@@ -417,11 +411,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
             Life?.Dispose();
             Life = null;
-            foreach (var subject in Requests.Values)
-            {
-                subject.Dispose();
-            }
-            Requests.Clear();
             EcsWorld.Dispose();
         }
     }

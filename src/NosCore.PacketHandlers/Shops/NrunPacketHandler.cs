@@ -30,20 +30,10 @@ namespace NosCore.PacketHandlers.Shops
             switch (nRunPacket.VisualType)
             {
                 case VisualType.Player:
-<<<<<<< HEAD
                     aliveEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == nRunPacket.VisualId, out var runner) ? runner : null;
                     break;
                 case VisualType.Npc:
                     aliveEntity = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == nRunPacket.VisualId);
-=======
-                    entity = sessionRegistry.TryGetCharacter(s => s.VisualId == nRunPacket.VisualId, out var runner)
-                        ? (object)runner
-                        : null;
-                    break;
-                case VisualType.Npc:
-                    var npc = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == nRunPacket.VisualId);
-                    entity = npc.HasValue ? (object)npc.Value : null;
->>>>>>> a29926f2 (Migrate NRunService to Wolverine + decouple NPC dialog dictionary key)
                     break;
                 case null:
                     aliveEntity = null;
@@ -54,21 +44,13 @@ namespace NosCore.PacketHandlers.Shops
                     return Task.CompletedTask;
             }
 
-<<<<<<< HEAD
-            if ((aliveEntity == null) && !forceNull)
-=======
-            if (entity == null && !forceNull)
->>>>>>> a29926f2 (Migrate NRunService to Wolverine + decouple NPC dialog dictionary key)
+            if (aliveEntity == null && !forceNull)
             {
                 logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return Task.CompletedTask;
             }
 
-<<<<<<< HEAD
-            await nRunRunnerService.NRunLaunchAsync(clientSession, new Tuple<IAliveEntity, NrunPacket>(aliveEntity!, nRunPacket));
-=======
-            return messageBus.PublishAsync(new NrunRequestedEvent(clientSession, entity, nRunPacket)).AsTask();
->>>>>>> a29926f2 (Migrate NRunService to Wolverine + decouple NPC dialog dictionary key)
+            return messageBus.PublishAsync(new NrunRequestedEvent(clientSession, aliveEntity, nRunPacket)).AsTask();
         }
     }
 }

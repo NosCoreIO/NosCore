@@ -1,11 +1,10 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -22,34 +21,29 @@ namespace NosCore.PacketHandlers.Shops
     {
         public override Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
-            IRequestableEntity? requestableEntity;
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
-                    requestableEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player) ? player : null;
+                    if (sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player))
+                    {
+                        player.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+                        return Task.CompletedTask;
+                    }
                     break;
                 case VisualType.Npc:
-                    requestableEntity =
-                        clientSession.Character.MapInstance.FindNpc(s => s.VisualId == requestNpcPacket.TargetId);
+                    var npc = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == requestNpcPacket.TargetId);
+                    if (npc.HasValue)
+                    {
+                        npc.Value.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+                        return Task.CompletedTask;
+                    }
                     break;
-
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
-                        requestNpcPacket.Type);
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], requestNpcPacket.Type);
                     return Task.CompletedTask;
             }
 
-            if (requestableEntity == null)
-            {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
-                return Task.CompletedTask;
-            }
-
-<<<<<<< HEAD
-            requestableEntity.Requests[typeof(INrunEventHandler)].OnNext(new RequestData(clientSession));
-=======
-            requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
->>>>>>> a29926f2 (Migrate NRunService to Wolverine + decouple NPC dialog dictionary key)
+            logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
             return Task.CompletedTask;
         }
     }

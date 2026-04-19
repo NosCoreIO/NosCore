@@ -46,7 +46,6 @@ using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.ScheduledJobs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
@@ -220,15 +219,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();
-
-            containerBuilder
-                .RegisterGeneric(typeof(EventLoaderService<,,>));
-
-            containerBuilder
-                .RegisterAssemblyTypes(typeof(IEventHandler<,>).Assembly)
-                .AsClosedTypesOf(typeof(IEventHandler<,>))
-                .SingleInstance()
-                .AsImplementedInterfaces();
 
             containerBuilder
                 .RegisterAssemblyTypes(typeof(ChannelCommunicationMessageHandler<>).Assembly)

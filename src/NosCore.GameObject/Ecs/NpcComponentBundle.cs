@@ -16,7 +16,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(TimingComponent),
     typeof(NpcStateComponent)
 )]
-public readonly partial struct NpcComponentBundle : INonPlayableEntity, IRequestableEntity
+public readonly partial struct NpcComponentBundle : INonPlayableEntity
 {
     public Arch.Core.Entity Handle => Entity;
     public short MapX => FirstX;

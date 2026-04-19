@@ -16,7 +16,6 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -35,8 +34,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
-            ILogger logger, EventLoaderService<MapInstance,
-                MapInstance, IMapInstanceEntranceEventHandler> entranceRunnerService, IMapInstanceRegistry mapInstanceRegistry,
+            ILogger logger, IMapInstanceRegistry mapInstanceRegistry,
             IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator)
@@ -45,7 +43,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public Task AddMapInstanceAsync(MapInstance mapInstance)
         {
             mapInstanceRegistry.Register(mapInstance.MapInstanceId, mapInstance);
-            entranceRunnerService.LoadHandlers(mapInstance);
             return LoadPortalsAsync(mapInstance, portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 
@@ -112,7 +109,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                             bundle.Value.InitializeShopAndDialog(shop, dialog, dtoShopItems, itemProvider);
                         });
                     }
-                    entranceRunnerService.LoadHandlers(mapinstance);
                     return mapinstance;
                 });
 
