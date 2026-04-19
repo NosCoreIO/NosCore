@@ -102,32 +102,23 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var oldWorld = character.World;
                 var oldEntity = character.Entity;
 
+                var identity = oldWorld.TryGetComponent<EntityIdentityComponent>(oldEntity) ?? default;
+                var health = oldWorld.TryGetComponent<HealthComponent>(oldEntity) ?? default;
+                var mana = oldWorld.TryGetComponent<ManaComponent>(oldEntity) ?? default;
                 var position = oldWorld.TryGetComponent<PositionComponent>(oldEntity) ?? default;
+                var visual = oldWorld.TryGetComponent<VisualComponent>(oldEntity) ?? default;
+                var appearance = oldWorld.TryGetComponent<AppearanceComponent>(oldEntity) ?? default;
+                var experience = oldWorld.TryGetComponent<ExperienceComponent>(oldEntity) ?? default;
+                var goldComp = oldWorld.TryGetComponent<GoldComponent>(oldEntity) ?? default;
+                var reputation = oldWorld.TryGetComponent<ReputationComponent>(oldEntity) ?? default;
+                var sp = oldWorld.TryGetComponent<SpComponent>(oldEntity) ?? default;
+                var nameComp = oldWorld.TryGetComponent<NameComponent>(oldEntity) ?? default;
+                var combat = oldWorld.TryGetComponent<CombatComponent>(oldEntity) ?? default;
+                var playerComp = oldWorld.TryGetComponent<PlayerComponent>(oldEntity) ?? default;
+                var playerFlags = oldWorld.TryGetComponent<PlayerFlagsComponent>(oldEntity) ?? default;
+                var timing = oldWorld.TryGetComponent<TimingComponent>(oldEntity) ?? default;
+                var speedComp = oldWorld.TryGetComponent<SpeedComponent>(oldEntity) ?? default;
                 var state = oldWorld.TryGetComponent<PlayerStateComponent>(oldEntity) ?? default;
-
-                var playerEntity = newMapInstance.EcsWorld.ClonePlayer(
-                    oldWorld.TryGetComponent<EntityIdentityComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<HealthComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<ManaComponent>(oldEntity) ?? default,
-                    position with
-                    {
-                        MapInstanceId = newMapInstance.MapInstanceId,
-                        PositionX = mapX != null ? (short)mapX : position.PositionX,
-                        PositionY = mapY != null ? (short)mapY : position.PositionY
-                    },
-                    (oldWorld.TryGetComponent<VisualComponent>(oldEntity) ?? default) with { IsSitting = false },
-                    oldWorld.TryGetComponent<AppearanceComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<ExperienceComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<GoldComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<ReputationComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<SpComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<NameComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<CombatComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<PlayerComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<PlayerFlagsComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<TimingComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<SpeedComponent>(oldEntity) ?? default,
-                    state with { MapInstance = newMapInstance });
 
                 if (session.Channel?.Id != null)
                 {
@@ -140,6 +131,30 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     currentMapInstance.IsSleeping = true;
                 }
+
+                var playerEntity = newMapInstance.EcsWorld.ClonePlayer(
+                    identity,
+                    health,
+                    mana,
+                    position with
+                    {
+                        MapInstanceId = newMapInstance.MapInstanceId,
+                        PositionX = mapX != null ? (short)mapX : position.PositionX,
+                        PositionY = mapY != null ? (short)mapY : position.PositionY
+                    },
+                    visual with { IsSitting = false },
+                    appearance,
+                    experience,
+                    goldComp,
+                    reputation,
+                    sp,
+                    nameComp,
+                    combat,
+                    playerComp,
+                    playerFlags,
+                    timing,
+                    speedComp,
+                    state with { MapInstance = newMapInstance });
 
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;

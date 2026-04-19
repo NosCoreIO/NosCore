@@ -121,6 +121,6 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
 
     public string GetMessageFromKey(LanguageKey languageKey)
     {
-        return languageKey.ToString();
+        return GameLanguageLocalizer[languageKey, Account.Language];
     }
 }

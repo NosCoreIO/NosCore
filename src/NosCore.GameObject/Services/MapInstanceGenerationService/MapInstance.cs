@@ -163,17 +163,17 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return KickAsync(_ => true);
         }
 
-        public Task KickAsync(Func<ClientSession, bool> filter)
+        public async Task KickAsync(Func<ClientSession, bool> filter)
         {
             var sessions = _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId)
                 .Where(s => s.HasPlayerEntity && !s.Character.IsDisconnecting && filter(s))
                 .ToList();
 
-            return Task.WhenAll(sessions.Select(session =>
+            foreach (var session in sessions)
             {
                 var character = session.Character;
-                return _mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);
-            }));
+                await _mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);
+            }
         }
 
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)

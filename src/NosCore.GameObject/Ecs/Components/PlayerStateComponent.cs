@@ -1,6 +1,7 @@
 using NodaTime;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ReputationService;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
@@ -14,6 +15,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Networking;
+using NosCore.Shared.I18N;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -53,5 +55,6 @@ public record struct PlayerStateComponent(
     IPacketSender? Sender,
     IReputationService ReputationService,
     IDignityService DignityService,
+    IGameLanguageLocalizer GameLanguageLocalizer,
     ConcurrentDictionary<IAliveEntity, int> HitList
 );

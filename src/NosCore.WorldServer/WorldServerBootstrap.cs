@@ -74,7 +74,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Character = NosCore.GameObject.ComponentEntities.Entities.Character;
+using PlayerComponentBundle = NosCore.GameObject.Ecs.PlayerComponentBundle;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.WorldServer
@@ -216,7 +216,7 @@ namespace NosCore.WorldServer
 
             RegisterDto(containerBuilder);
 
-            containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(PlayerComponentBundle).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();
 
@@ -298,7 +298,7 @@ namespace NosCore.WorldServer
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
 
-            var assemblyGo = typeof(Character).Assembly.GetTypes();
+            var assemblyGo = typeof(PlayerComponentBundle).Assembly.GetTypes();
 
             assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
                 .ToList()

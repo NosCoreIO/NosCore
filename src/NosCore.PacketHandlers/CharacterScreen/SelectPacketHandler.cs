@@ -38,6 +38,7 @@ using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Core.I18N;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
@@ -60,7 +61,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IReputationService reputationService, IDignityService dignityService, IClock clock,
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISessionGroupFactory sessionGroupFactory,
-            ICharacterInitializationService characterInitializationService)
+            ICharacterInitializationService characterInitializationService, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -187,6 +188,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession,
                     reputationService,
                     dignityService,
+                    gameLanguageLocalizer,
                     new ConcurrentDictionary<IAliveEntity, int>()
                 );
 

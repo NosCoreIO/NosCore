@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
@@ -145,12 +146,15 @@ public static class PlayerBundleExtensions
     {
         player.Reputation = reputation;
         await player.SendPacketAsync(player.GenerateFd());
+        await player.SendPacketAsync(player.GenerateSay(
+            player.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
+            SayColorType.Red));
         await player.MapInstance.SendPacketAsync(player.GenerateIn(""));
     }
 
     public static async Task SetLevelAsync(this PlayerComponentBundle player, byte level,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService)
+        IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry)
     {
         player.Level = level;
         player.LevelXp = 0;
@@ -158,10 +162,52 @@ public static class PlayerBundleExtensions
         player.Mp = player.MaxMp;
 
         await player.SendPacketAsync(player.GenerateStat());
+        await player.SendPacketAsync(player.GenerateStatInfo());
         await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
-        await player.MapInstance.SendPacketAsync(player.GenerateIn(""));
-        await player.MapInstance.SendPacketAsync(player.GenerateEff(6));
-        await player.MapInstance.SendPacketAsync(player.GenerateEff(198));
+
+        var visualId = player.VisualId;
+        var authority = player.Authority;
+        var supportPrefix = authority == AuthorityType.Moderator
+            ? player.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty;
+        var inPacket = player.GenerateIn(supportPrefix);
+        var eff6 = player.GenerateEff(6);
+        var eff198 = player.GenerateEff(198);
+
+        var mapInstance = player.MapInstance;
+        var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == mapInstance).ToList();
+        await Task.WhenAll(mapSessions.Select(async s =>
+        {
+            if (s.VisualId != visualId)
+            {
+                await s.SendPacketAsync(inPacket);
+            }
+            await s.SendPacketAsync(eff6);
+            await s.SendPacketAsync(eff198);
+        }));
+
+        var group = player.Group;
+        if (group != null)
+        {
+            foreach (var member in group.Keys)
+            {
+                if (member.Item1 != VisualType.Player)
+                {
+                    continue;
+                }
+
+                if (sessionRegistry.TryGetCharacter(s => s.VisualId == member.Item2, out var groupMember))
+                {
+                    await groupMember.SendPacketAsync(group.GeneratePinit());
+                }
+            }
+            await player.SendPacketAsync(group.GeneratePinit());
+        }
+
+        await player.SendPacketAsync(new MsgiPacket
+        {
+            Type = MessageType.Default,
+            Message = Game18NConstString.LevelIncreased
+        });
     }
 
     public static InPacket GenerateIn(this PlayerComponentBundle player, string prefix)

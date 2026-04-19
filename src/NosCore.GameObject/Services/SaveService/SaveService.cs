@@ -54,6 +54,8 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.Compliment = character.Compliment;
                 characterDto.MapX = character.PositionX;
                 characterDto.MapY = character.PositionY;
+                characterDto.SpPoint = character.SpPoint;
+                characterDto.SpAdditionPoint = character.SpAdditionPoint;
 
                 await accountDao.TryInsertOrUpdateAsync(account);
                 await characterDao.TryInsertOrUpdateAsync(characterDto);
