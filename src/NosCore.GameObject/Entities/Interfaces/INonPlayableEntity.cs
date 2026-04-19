@@ -8,7 +8,7 @@ using NodaTime;
 using NosCore.Data.StaticEntities;
 using System;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.GameObject.Entities.Interfaces
 {
     public interface INonPlayableEntity : IAliveEntity
     {

@@ -4,13 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Visibility;
 
-namespace NosCore.GameObject.ComponentEntities.Extensions
+namespace NosCore.GameObject.Entities.Extensions
 {
     public static class VisualEntityExtension
     {

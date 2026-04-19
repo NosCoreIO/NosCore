@@ -6,7 +6,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Exchange
 
             var target = sessionRegistry.GetCharacter(s =>
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
-                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as GameObject.ComponentEntities.Entities.Character;
+                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as GameObject.Entities.Entities.Character;
 
             if ((packet.SubPackets!.Count > 0) && (target != null))
             {

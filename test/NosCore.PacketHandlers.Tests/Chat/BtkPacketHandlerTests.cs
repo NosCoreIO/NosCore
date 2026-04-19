@@ -175,7 +175,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void FriendIsOnSameChannel()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<GameObject.ComponentEntities.Interfaces.ICharacterEntity, bool>>()))
+            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<GameObject.Entities.Interfaces.ICharacterEntity, bool>>()))
                 .Returns(FriendSession.Character);
         }
 

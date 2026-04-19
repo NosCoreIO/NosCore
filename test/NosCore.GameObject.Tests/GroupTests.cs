@@ -16,7 +16,7 @@ using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;

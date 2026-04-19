@@ -34,8 +34,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Database;
 using NosCore.Database.Entities;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -288,10 +288,10 @@ namespace NosCore.Tests.Shared
             StaticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(Logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
-            TypeAdapterConfig<MapNpcDto, GameObject.ComponentEntities.Entities.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.ComponentEntities.Entities.MapNpc());
-            TypeAdapterConfig<MapMonsterDto, GameObject.ComponentEntities.Entities.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.ComponentEntities.Entities.MapMonster(new Mock<ISpeedCalculationService>().Object));
+            TypeAdapterConfig<MapNpcDto, GameObject.Entities.Entities.MapNpc>.NewConfig()
+                .ConstructUsing(src => new GameObject.Entities.Entities.MapNpc());
+            TypeAdapterConfig<MapMonsterDto, GameObject.Entities.Entities.MapMonster>.NewConfig()
+                .ConstructUsing(src => new GameObject.Entities.Entities.MapMonster(new Mock<ISpeedCalculationService>().Object));
 
         }
 
@@ -319,7 +319,7 @@ namespace NosCore.Tests.Shared
             };
             var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(handlers);
             var characterInitializationService = new Mock<ICharacterInitializationService>();
-            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<NosCore.GameObject.ComponentEntities.Entities.Character>())).Returns(Task.CompletedTask);
+            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<NosCore.GameObject.Entities.Entities.Character>())).Returns(Task.CompletedTask);
             var session = new ClientSession(
                 Logger,
                 packetHandlerRegistry,
@@ -336,7 +336,7 @@ namespace NosCore.Tests.Shared
                 SessionId = LastId
             };
 
-            var chara = new GameObject.ComponentEntities.Entities.Character(new InventoryService(ItemList, WorldConfiguration, Logger),
+            var chara = new GameObject.Entities.Entities.Character(new InventoryService(ItemList, WorldConfiguration, Logger),
                 new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, Logger, new ExchangeRequestRegistry(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(),
                 new ReputationService(), new DignityService(),
                 new Mock<ISpeedCalculationService>().Object, Instance.SessionRegistry, Instance.GameLanguageLocalizer)

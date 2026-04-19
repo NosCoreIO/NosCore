@@ -6,7 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapItemGenerationService;

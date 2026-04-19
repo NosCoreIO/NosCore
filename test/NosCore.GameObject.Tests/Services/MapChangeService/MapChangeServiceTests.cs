@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
 
             var minilandService = new Mock<IMinilandService>();
             minilandService.Setup(s => s.GetMinilandPortals(It.IsAny<long>()))
-                .Returns(new System.Collections.Generic.List<ComponentEntities.Entities.Portal>());
+                .Returns(new System.Collections.Generic.List<Entities.Entities.Portal>());
 
             Service = new GameObject.Services.MapChangeService.MapChangeService(
                 new Mock<IExperienceService>().Object,

@@ -4,13 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ServerPackets.Shop;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NosCore.GameObject.ComponentEntities.Extensions
+namespace NosCore.GameObject.Entities.Extensions
 {
     public static class GroupExtension
     {

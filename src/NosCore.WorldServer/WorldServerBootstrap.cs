@@ -38,7 +38,7 @@ using NosCore.Data.Resource;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -78,7 +78,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Character = NosCore.GameObject.ComponentEntities.Entities.Character;
+using Character = NosCore.GameObject.Entities.Entities.Character;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.WorldServer

@@ -13,7 +13,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var character = characterDto.Adapt<GameObject.ComponentEntities.Entities.Character>();
+                var character = characterDto.Adapt<GameObject.Entities.Entities.Character>();
                 character.InitializeGroup(sessionGroupFactory);
                 await pubSubHub.SubscribeAsync(new Subscriber
                 {

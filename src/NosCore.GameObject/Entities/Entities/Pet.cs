@@ -7,32 +7,27 @@
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ShopService;
-using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Concurrent;
 using System.Threading;
 
-namespace NosCore.GameObject.ComponentEntities.Entities
+namespace NosCore.GameObject.Entities.Entities
 {
-    public class MapMonster(ISpeedCalculationService speedCalculationService)
-        : MapMonsterDto, INonPlayableEntity
+    public class Pet : MapMonsterDto, INamedEntity //TODO replace MapMonsterDTO by the correct PetDTO
     {
-        public NpcMonsterDto NpcMonster { get; set; } = null!;
-
         public IDisposable? Life { get; set; }
-        public ConcurrentDictionary<IAliveEntity, int> HitList => new();
-
+        public NpcMonsterDto NpcMonster { get; set; } = null!;
+        public short Effect { get; set; }
+        public short EffectDelay { get; set; }
+        public Instant LastMove { get; set; }
         public bool IsSitting { get; set; }
-        public byte Speed
-        {
-            get => speedCalculationService.CalculateSpeed(this);
-            set { }
-        }
-        public byte Size { get; set; } = 10;
+        public byte Speed { get; set; }
+        public byte Size { get; set; }
         public int Mp { get; set; }
         public int Hp { get; set; }
         public short Morph { get; set; }
@@ -41,29 +36,32 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         public byte MorphBonus { get; set; }
         public bool NoAttack { get; set; }
         public bool NoMove { get; set; }
+        public string? Name { get; set; }
         public VisualType VisualType => VisualType.Monster;
+        public long VisualId => 0; // PetId;
         public SemaphoreSlim HitSemaphore { get; } = new SemaphoreSlim(1, 1);
 
-        public long VisualId => MapMonsterId;
+        public ConcurrentDictionary<IAliveEntity, int> HitList => new();
 
         public Guid MapInstanceId { get; set; }
         public short PositionX { get; set; }
         public short PositionY { get; set; }
-
-        public short Effect { get; set; }
-        public short EffectDelay { get; set; }
-        public MapInstance MapInstance { get; set; } = null!;
-        public Instant LastMove { get; set; }
         public bool IsAlive { get; set; }
+
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;
 
-        public short Race => NpcMonster.Race;
-        public Shop? Shop { get; set; }
-
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
+        public Group? Group { get; set; }
+        public long LevelXp { get; set; }
+
+        public MapInstance MapInstance { get; set; } = null!;
+
+        public short Race => NpcMonster.Race;
+
+        public Shop? Shop { get; set; }
     }
 }

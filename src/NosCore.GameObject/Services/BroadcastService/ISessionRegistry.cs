@@ -5,7 +5,7 @@
 //
 
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Packets.Interfaces;
 using System;
 using System.Collections.Generic;

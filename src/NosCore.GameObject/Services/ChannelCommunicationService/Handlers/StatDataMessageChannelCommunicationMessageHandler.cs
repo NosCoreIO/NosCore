@@ -5,7 +5,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;

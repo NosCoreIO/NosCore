@@ -119,7 +119,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
         private async Task SavingNonCharacterEntity()
         {
-            var mockEntity = new Mock<ComponentEntities.Interfaces.ICharacterEntity>();
+            var mockEntity = new Mock<Entities.Interfaces.ICharacterEntity>();
             await Service.SaveAsync(mockEntity.Object);
             SaveCompleted = true;
         }
