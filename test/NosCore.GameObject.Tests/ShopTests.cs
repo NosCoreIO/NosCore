@@ -9,7 +9,6 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -143,8 +142,6 @@ namespace NosCore.GameObject.Tests
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = price, ReputPrice = reputPrice }
             };
             return new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }

@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Services.MapChangeService
             IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -249,8 +249,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     newMapInstance.Sessions.Add(session.Channel!);
                 }
 
-                newMapInstance.Requests[typeof(IMapInstanceEntranceEventHandler)]?
-                    .OnNext(new RequestData<MapInstance>(session, newMapInstance));
+                await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance));
 
                 character.IsChangingMapInstance = false;
             }

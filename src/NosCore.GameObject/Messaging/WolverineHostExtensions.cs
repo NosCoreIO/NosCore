@@ -26,7 +26,6 @@ namespace NosCore.GameObject.Messaging
                 {
                     opts.Discovery.IncludeAssembly(asm);
                 }
-
             });
         }
     }

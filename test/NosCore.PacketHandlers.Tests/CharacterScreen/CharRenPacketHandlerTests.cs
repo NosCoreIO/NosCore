@@ -12,7 +12,6 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;

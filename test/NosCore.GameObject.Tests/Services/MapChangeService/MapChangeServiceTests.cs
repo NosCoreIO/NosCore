@@ -48,7 +48,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.GameLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                new Mock<Wolverine.IMessageBus>().Object);
         }
 
         [TestMethod]

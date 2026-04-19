@@ -6,7 +6,6 @@
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutofacSerilogIntegration;
 using FastExpressionCompiler;
 using FastMember;
 using JetBrains.Annotations;
@@ -24,6 +23,7 @@ using Microsoft.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NodaTime;
+using Serilog;
 using NosCore.Core;
 using NosCore.Core.Encryption;
 using NosCore.Core.Observability;
@@ -48,7 +48,6 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.AuthService;
 using NosCore.GameObject.Services.BazaarService;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.GameObject.Services.MailService;
 using NosCore.Shared.Authentication;
@@ -167,7 +166,7 @@ namespace NosCore.MasterServer
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-            containerBuilder.RegisterLogger();
+            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
 
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 
@@ -184,9 +183,6 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service"))
                 .AsImplementedInterfaces();
-
-            containerBuilder
-                .RegisterGeneric(typeof(EventLoaderService<,,>));
 
             containerBuilder.Populate(services);
             RegisterDto(containerBuilder);

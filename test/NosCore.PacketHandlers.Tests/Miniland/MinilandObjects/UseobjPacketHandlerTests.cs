@@ -19,7 +19,6 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -84,8 +83,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _itemInstanceDaoMock = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider);

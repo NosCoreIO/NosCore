@@ -14,7 +14,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -57,8 +56,6 @@ namespace NosCore.Tests.Shared.BDD
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             ItemProvider = new ItemGenerationService(
                 DefaultItems,
-                new EventLoaderService<Item, System.Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, System.Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }

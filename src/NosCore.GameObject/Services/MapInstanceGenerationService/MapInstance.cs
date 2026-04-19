@@ -38,7 +38,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
-    public class MapInstance : IBroadcastable, IDisposable, IRequestableEntity<MapInstance>
+    public class MapInstance : IBroadcastable, IDisposable
     {
         public short MaxPacketsBuffer { get; } = 250;
         private readonly ILogger _logger;
@@ -75,7 +75,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>();
             _npcs = new ConcurrentDictionary<int, NpcComponentBundle>();
-            MapItemRequestContexts = new ConcurrentDictionary<long, MapItemRequestContext>();
             _visibilitySystem = new VisibilitySystem();
             _isSleeping = true;
             _clock = clock;
@@ -86,16 +85,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _mapChangeService = mapChangeService;
             _sessionRegistry = sessionRegistry;
             _distanceCalculator = distanceCalculator;
-            Requests = new Dictionary<Type, Subject<RequestData<MapInstance>>>
-            {
-                [typeof(IMapInstanceEntranceEventHandler)] = new()
-            };
             EcsWorld = new MapWorld();
         }
 
         public Instant LastUnregister { get; set; }
-
-        public ConcurrentDictionary<long, MapItemRequestContext> MapItemRequestContexts { get; }
 
         public int MapItemCount => GetMapItemBundles().Count();
 
@@ -125,7 +118,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 if (identity.VisualId == visualId)
                 {
                     EcsWorld.DestroyEntity(entity);
-                    MapItemRequestContexts.TryRemove(visualId, out _);
                     return true;
                 }
             }
@@ -191,8 +183,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public ISessionGroup Sessions { get; set; }
 
         public ConcurrentQueue<IPacket> LastPackets { get; }
-        public Dictionary<Type, Subject<RequestData<MapInstance>>> Requests { get; set; }
-        public List<Task> HandlerTasks { get; set; } = new();
 
         public void Dispose()
         {

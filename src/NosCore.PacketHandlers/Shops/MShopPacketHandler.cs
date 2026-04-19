@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -9,7 +9,6 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
@@ -154,7 +153,7 @@ namespace NosCore.PacketHandlers.Shops
                         Message = Game18NConstString.ShopOpened
                     });
 
-                    clientSession.Character.Requests[typeof(INrunEventHandler)].Subscribe(data =>
+                    clientSession.Character.Requests[typeof(NpcDialogRequestSubject)].Subscribe(data =>
                         data.ClientSession.SendPacketAsync(
                             clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),

@@ -24,7 +24,7 @@ using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Ecs.Interfaces
 {
-    public interface ICharacterEntity : INamedEntity, IRequestableEntity
+    public interface ICharacterEntity : INamedEntity
     {
         bool FriendRequestBlocked { get; }
 

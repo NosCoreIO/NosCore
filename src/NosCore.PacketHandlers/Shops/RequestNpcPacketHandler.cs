@@ -5,11 +5,9 @@
 //
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -23,30 +21,29 @@ namespace NosCore.PacketHandlers.Shops
     {
         public override Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
-            IRequestableEntity? requestableEntity;
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
-                    requestableEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player) ? player : null;
+                    if (sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player))
+                    {
+                        player.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+                        return Task.CompletedTask;
+                    }
                     break;
                 case VisualType.Npc:
-                    requestableEntity =
-                        clientSession.Character.MapInstance.FindNpc(s => s.VisualId == requestNpcPacket.TargetId);
+                    var npc = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == requestNpcPacket.TargetId);
+                    if (npc.HasValue)
+                    {
+                        npc.Value.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+                        return Task.CompletedTask;
+                    }
                     break;
-
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
-                        requestNpcPacket.Type);
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], requestNpcPacket.Type);
                     return Task.CompletedTask;
             }
 
-            if (requestableEntity == null)
-            {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
-                return Task.CompletedTask;
-            }
-
-            requestableEntity.Requests[typeof(INrunEventHandler)].OnNext(new RequestData(clientSession));
+            logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
             return Task.CompletedTask;
         }
     }

@@ -6,15 +6,16 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.PacketHandlers.Tests.Game
 {
@@ -23,7 +24,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     {
         private GuriPacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private Mock<IGuriRunnerService> GuriRunnerService = null!;
+        private Mock<IMessageBus> MessageBus = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -32,8 +33,8 @@ namespace NosCore.PacketHandlers.Tests.Game
             Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
 
-            GuriRunnerService = new Mock<IGuriRunnerService>();
-            Handler = new GuriPacketHandler(GuriRunnerService.Object);
+            MessageBus = new Mock<IMessageBus>();
+            Handler = new GuriPacketHandler(MessageBus.Object);
         }
 
         [TestMethod]
@@ -45,22 +46,22 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task GuriPacketShouldCallGuriRunnerService()
+        public async Task GuriPacketShouldPublishEvent()
         {
-            await new Spec("Guri packet should call guri runner service")
+            await new Spec("Guri packet should publish GuriPacketReceivedEvent")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(ExecutingGuriPacket)
-                .Then(GuriRunnerServiceShouldBeCalled)
+                .Then(MessageBusShouldBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task GuriPacketWithTypeShouldPassCorrectData()
         {
-            await new Spec("Guri packet with type should pass correct data")
+            await new Spec("Guri packet with type should publish event carrying that type")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(ExecutingGuriPacketWithType)
-                .Then(GuriRunnerServiceShouldBeCalledWithCorrectType)
+                .Then(MessageBusShouldBeCalledWithCorrectType)
                 .ExecuteAsync();
         }
 
@@ -84,18 +85,18 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.IsNotNull(Handler);
         }
 
-        private void GuriRunnerServiceShouldBeCalled()
+        private void MessageBusShouldBeCalled()
         {
-            GuriRunnerService.Verify(x => x.GuriLaunch(
-                It.IsAny<ClientSession>(),
-                It.IsAny<GuriPacket>()), Times.Once);
+            MessageBus.Verify(x => x.PublishAsync(
+                It.IsAny<GuriPacketReceivedEvent>(),
+                It.IsAny<DeliveryOptions?>()), Times.Once);
         }
 
-        private void GuriRunnerServiceShouldBeCalledWithCorrectType()
+        private void MessageBusShouldBeCalledWithCorrectType()
         {
-            GuriRunnerService.Verify(x => x.GuriLaunch(
-                It.IsAny<ClientSession>(),
-                It.Is<GuriPacket>(p => p.Type == GuriPacketType.Title)), Times.Once);
+            MessageBus.Verify(x => x.PublishAsync(
+                It.Is<GuriPacketReceivedEvent>(e => e.Packet.Type == GuriPacketType.Title),
+                It.IsAny<DeliveryOptions?>()), Times.Once);
         }
     }
 }

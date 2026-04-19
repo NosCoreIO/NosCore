@@ -46,20 +46,15 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.CharacterService;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.ItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
-using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
-using NosCore.GameObject.Services.NRunService;
-using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -194,8 +189,7 @@ namespace NosCore.Tests.Shared
 
         private async Task GenerateMapInstanceProviderAsync()
         {
-            MapItemProvider = new MapItemGenerationService(new List<IGetMapItemEventHandler>
-                {new DropEventHandler(), new SpChargerEventHandler(Instance.WorldConfiguration), new GoldDropEventHandler(Instance.WorldConfiguration)}, new IdService<GameObject.Ecs.MapItemComponentBundle>(1));
+            MapItemProvider = new MapItemGenerationService(new IdService<GameObject.Ecs.MapItemComponentBundle>(1));
             var map = new Map
             {
                 MapId = 0,
@@ -252,12 +246,12 @@ namespace NosCore.Tests.Shared
             var minilandServiceMock = new Mock<IMinilandService>();
             minilandServiceMock.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
             MapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, Logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry);
+                MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, Logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object);
             var mapChangeService = MapChangeService;
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 MapNpcDao,
-                MapMonsterDao, PortalDao, ShopItemDao, Logger, new EventLoaderService<MapInstance, MapInstance, IMapInstanceEntranceEventHandler>(new List<IEventHandler<MapInstance, MapInstance>>()),
+                MapMonsterDao, PortalDao, ShopItemDao, Logger,
                 mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, SessionGroupFactory, SessionRegistry, GenerateItemProvider(), Instance.DistanceCalculator);
             await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
@@ -267,15 +261,7 @@ namespace NosCore.Tests.Shared
 
         public IItemGenerationService GenerateItemProvider()
         {
-            return new ItemGenerationService(ItemList, new EventLoaderService<Item,
-                Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                new List<IEventHandler<Item,
-                    Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>
-                {
-                    new SpRechargerEventHandler(WorldConfiguration),
-                    new VehicleEventHandler(Logger, Instance.LogLanguageLocalizer, new TransformationService(Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogger>().Object, Instance.LogLanguageLocalizer, WorldConfiguration)),
-                    new WearEventHandler(Logger, Instance.Clock, Instance.LogLanguageLocalizer, WorldConfiguration)
-                }), Logger, Instance.LogLanguageLocalizer);
+            return new ItemGenerationService(ItemList, Logger, Instance.LogLanguageLocalizer);
         }
 
         public void InitDatabase()
@@ -312,7 +298,7 @@ namespace NosCore.Tests.Shared
                 new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                         new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, Logger),
                 new BlInsPackettHandler(BlacklistHttpClient.Object, Logger, Instance.LogLanguageLocalizer),
-                new UseItemPacketHandler(),
+                new UseItemPacketHandler(new Mock<Wolverine.IMessageBus>().Object),
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
                 new SelectPacketHandler(CharacterDao, Logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
@@ -435,8 +421,7 @@ namespace NosCore.Tests.Shared
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerRequestsComponent(
                 new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
                 {
-                    { typeof(IUseItemEventHandler), new System.Reactive.Subjects.Subject<RequestData>() },
-                    { typeof(INrunEventHandler), new System.Reactive.Subjects.Subject<RequestData>() }
+                    { typeof(NpcDialogRequestSubject), new System.Reactive.Subjects.Subject<RequestData>() }
                 }));
             session.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 

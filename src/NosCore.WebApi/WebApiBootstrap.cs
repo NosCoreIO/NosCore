@@ -6,7 +6,7 @@
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutofacSerilogIntegration;
+using Serilog;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -58,7 +58,7 @@ namespace NosCore.WebApi
                     containerBuilder.RegisterType<AuthHub>().AsImplementedInterfaces();
                     containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-                    containerBuilder.RegisterLogger();
+                    containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();
 
                     containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch

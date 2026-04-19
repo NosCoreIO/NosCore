@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
@@ -23,13 +22,11 @@ namespace NosCore.GameObject.Messaging.ScheduledJobs
         public async Task Handle(RemoveTimeoutStaticBonusesMessage _)
         {
             var now = clock.GetCurrentInstant();
-            foreach (var session in sessionRegistry.GetSessions().ToList())
+            foreach (var character in sessionRegistry.GetCharacters())
             {
-                var character = session.Character;
-                var staticBonusList = character.StaticBonusList;
-                if (staticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < now) > 0)
+                if (character.StaticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < now) > 0)
                 {
-                    await session.SendPacketAsync(new MsgiPacket
+                    await character.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.MagicItemExpired

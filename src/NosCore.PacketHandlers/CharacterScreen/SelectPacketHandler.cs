@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -28,11 +28,9 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.GroupService;
-using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -184,8 +182,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerRequestsComponent(
                     new Dictionary<Type, Subject<RequestData>>
                     {
-                        { typeof(IUseItemEventHandler), new Subject<RequestData>() },
-                        { typeof(INrunEventHandler), new Subject<RequestData>() }
+                        { typeof(NpcDialogRequestSubject), new Subject<RequestData>() }
                     }));
                 clientSession.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 

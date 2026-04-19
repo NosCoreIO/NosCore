@@ -15,7 +15,6 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -75,8 +74,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _addobjPacketHandler = new AddobjPacketHandler(_minilandProvider);
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }

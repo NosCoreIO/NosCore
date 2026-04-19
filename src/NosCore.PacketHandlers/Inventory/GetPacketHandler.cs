@@ -6,10 +6,9 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -17,13 +16,13 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
-using System;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
         : PacketHandler<GetPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
@@ -41,7 +40,8 @@ namespace NosCore.PacketHandlers.Inventory
             switch (getPacket.PickerType)
             {
                 case VisualType.Player:
-                    canpick = distanceCalculator.GetDistance((clientSession.Character.PositionX, clientSession.Character.PositionY),
+                    canpick = distanceCalculator.GetDistance(
+                        (clientSession.Character.PositionX, clientSession.Character.PositionY),
                         (mapItem.PositionX, mapItem.PositionY)) < 8;
                     break;
 
@@ -59,8 +59,9 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             //TODO add group drops
-            if ((mapItem.OwnerId != null) && (mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > clock.GetCurrentInstant()) &&
-                (mapItem.OwnerId != clientSession.Character.CharacterId))
+            if (mapItem.OwnerId != null
+                && mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > clock.GetCurrentInstant()
+                && mapItem.OwnerId != clientSession.Character.CharacterId)
             {
                 await clientSession.SendPacketAsync(new SayiPacket
                 {
@@ -72,15 +73,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            if (!mapInstance.MapItemRequestContexts.TryGetValue(mapItem.VisualId, out var context))
-            {
-                return;
-            }
-
-            context.PickupSubject.OnNext(new RequestData<Tuple<MapItemComponentBundle, GetPacket>>(clientSession,
-                new Tuple<MapItemComponentBundle, GetPacket>(mapItem, getPacket)));
-
-            await Task.WhenAll(context.HandlerTasks);
+            await messageBus.PublishAsync(new MapItemPickedUpEvent(clientSession, mapItem, getPacket));
         }
     }
 }

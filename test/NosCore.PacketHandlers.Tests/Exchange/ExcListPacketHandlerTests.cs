@@ -11,7 +11,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -55,8 +54,6 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 new Item { Type = NoscorePocketType.Main, VNum = 1013, IsTradable = false }
             };
             ItemProvider = new ItemGenerationService(items,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger, TestHelpers.Instance.LogLanguageLocalizer);
 
             Handler = new ExcListPacketHandler(
