@@ -47,12 +47,14 @@ using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.ScheduledJobs;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.PathfindingService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
@@ -191,6 +193,23 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<MinilandRegistry>().As<IMinilandRegistry>().SingleInstance();
             containerBuilder.RegisterType<ExchangeRequestRegistry>().As<IExchangeRequestRegistry>().SingleInstance();
 
+            // Combat pipeline. Catalog + HitQueue are singletons because they hold
+            // per-target channels / pre-indexed lookup tables. Everything else is
+            // stateless so we keep them transient to play nicely with handler lifetimes.
+            containerBuilder.RegisterType<RandomProvider>().As<IRandomProvider>().SingleInstance();
+            containerBuilder.RegisterType<NpcCombatCatalog>().As<INpcCombatCatalog>().SingleInstance();
+            containerBuilder.RegisterType<HitQueue>().As<IHitQueue>().SingleInstance();
+            containerBuilder.RegisterType<AggroService>().As<IAggroService>().SingleInstance();
+            containerBuilder.RegisterType<BuffService>().As<IBuffService>().SingleInstance();
+            containerBuilder.RegisterType<PathfindingService>().As<IPathfindingService>().SingleInstance();
+            containerBuilder.RegisterType<MonsterAi>().As<IMonsterAi>().SingleInstance();
+            containerBuilder.RegisterType<DamageCalculator>().As<IDamageCalculator>();
+            containerBuilder.RegisterType<SkillResolver>().As<ISkillResolver>();
+            containerBuilder.RegisterType<TargetResolver>().As<ITargetResolver>();
+            containerBuilder.RegisterType<BattleStatsProvider>().As<IBattleStatsProvider>();
+            containerBuilder.RegisterType<RewardService>().As<IRewardService>();
+            containerBuilder.RegisterType<GameObject.Services.BattleService.BattleService>().As<IBattleService>();
+
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();
@@ -246,6 +265,23 @@ namespace NosCore.WorldServer
                     // Autofac-only registrations are invisible to Wolverine's code generation.
                     services.AddSingleton<Serilog.ILogger>(_ => Log.Logger);
                     services.AddSingleton<IClock>(_ => SystemClock.Instance);
+
+                    // Combat pipeline MSDI mirrors. Wolverine's code generation walks
+                    // IServiceCollection, so each direct dependency of a Wolverine handler
+                    // must be visible here in addition to the Autofac registrations above.
+                    services.AddSingleton<IRandomProvider, RandomProvider>();
+                    services.AddSingleton<INpcCombatCatalog, NpcCombatCatalog>();
+                    services.AddSingleton<IHitQueue, HitQueue>();
+                    services.AddSingleton<IAggroService, AggroService>();
+                    services.AddSingleton<IBuffService, BuffService>();
+                    services.AddSingleton<IPathfindingService, PathfindingService>();
+                    services.AddSingleton<IMonsterAi, MonsterAi>();
+                    services.AddTransient<IDamageCalculator, DamageCalculator>();
+                    services.AddTransient<ISkillResolver, SkillResolver>();
+                    services.AddTransient<ITargetResolver, TargetResolver>();
+                    services.AddTransient<IBattleStatsProvider, BattleStatsProvider>();
+                    services.AddTransient<IRewardService, RewardService>();
+                    services.AddTransient<IBattleService, GameObject.Services.BattleService.BattleService>();
 
                     foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }
                                  .SelectMany(a => a.GetTypes())

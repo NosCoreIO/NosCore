@@ -13,6 +13,7 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.PathFinder.Interfaces;
@@ -67,6 +68,13 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         public static Task StartLifeAsync(this INonPlayableEntity entity, IHeuristic distanceCalculator, IClock clock, ILogger logger)
+            => entity.StartLifeAsync(monsterAi: null, distanceCalculator, clock, logger);
+
+        // Overload that lets the caller wire in the aggro-driven AI. When the AI is
+        // absent (or the monster has no aggro target this tick) we fall back to the
+        // original random-wander behaviour. Monsters that are passive patrol as before;
+        // aggroed ones pursue + attack until they leash out.
+        public static Task StartLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, ILogger logger)
         {
             entity.Life?.Dispose();
 
@@ -74,7 +82,15 @@ namespace NosCore.GameObject.Ecs.Extensions
             {
                 try
                 {
-                    if (!entity.MapInstance.IsSleeping)
+                    if (entity.MapInstance.IsSleeping) return;
+
+                    var acted = false;
+                    if (monsterAi != null && entity is MonsterComponentBundle monster)
+                    {
+                        acted = await monsterAi.TickAsync(monster);
+                    }
+
+                    if (!acted)
                     {
                         await entity.MoveAsync(distanceCalculator, clock);
                     }

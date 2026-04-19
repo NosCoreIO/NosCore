@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(SpComponent),
     typeof(NameComponent),
     typeof(CombatComponent),
+    typeof(BuffStateComponent),
     typeof(PlayerComponent),
     typeof(PlayerFlagsComponent),
     typeof(TimingComponent),
