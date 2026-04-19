@@ -6,7 +6,6 @@
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutofacSerilogIntegration;
 using FastExpressionCompiler;
 using FastMember;
 using Mapster;
@@ -119,7 +118,7 @@ namespace NosCore.WorldServer
                 .SingleInstance();
 
             //NosCore.Configuration
-            containerBuilder.RegisterLogger();
+            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHubClient).Assembly)
                 .Where(t => t.Name.EndsWith("HubClient") && t.Name != nameof(ChannelHubClient))
                 .AsImplementedInterfaces()

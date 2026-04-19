@@ -6,7 +6,6 @@
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutofacSerilogIntegration;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -67,7 +66,7 @@ namespace NosCore.Parser
         {
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>()
                 .OnActivated(c => c.Instance.Database.Migrate());
-            containerBuilder.RegisterLogger();
+            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                 .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                 .AsSelf();

@@ -6,7 +6,6 @@
 
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
-using AutofacSerilogIntegration;
 using FastExpressionCompiler;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
@@ -82,7 +81,7 @@ namespace NosCore.LoginServer
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.RegisterLogger();
+            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
                 .SingleInstance();
             containerBuilder.RegisterType<Dao<Database.Entities.Character, CharacterDto, long>>().As<IDao<CharacterDto, long>>()
