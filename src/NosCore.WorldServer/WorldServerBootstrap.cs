@@ -38,7 +38,7 @@ using NosCore.Data.Resource;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -78,7 +78,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using Character = NosCore.GameObject.Entities.Entities.Character;
 using ILogger = Serilog.ILogger;
 
 namespace NosCore.WorldServer
@@ -206,7 +205,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
             containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
             containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
-            containerBuilder.Register<IIdService<MapItem>>(_ => new IdService<MapItem>(100000)).SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
 
             containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
@@ -219,7 +217,7 @@ namespace NosCore.WorldServer
 
             RegisterDto(containerBuilder);
 
-            containerBuilder.RegisterAssemblyTypes(typeof(Character).Assembly)
+            containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();
 
@@ -301,7 +299,7 @@ namespace NosCore.WorldServer
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
 
-            var assemblyGo = typeof(Character).Assembly.GetTypes();
+            var assemblyGo = typeof(MapWorld).Assembly.GetTypes();
 
             assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
                 .ToList()
