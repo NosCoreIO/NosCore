@@ -16,6 +16,8 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.Networking;
+using NosCore.Packets.ServerPackets.Battle;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -28,12 +30,12 @@ public sealed class BuffService(IClock clock) : IBuffService
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
 
-    public Task ApplyAsync(IAliveEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster, int overrideDuration = -1)
+    public async Task ApplyAsync(IAliveEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster, int overrideDuration = -1)
     {
         var buffs = ResolveState(target);
         if (buffs == null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var now = clock.GetCurrentInstant();
@@ -47,7 +49,26 @@ public sealed class BuffService(IClock clock) : IBuffService
             BCards: bCards);
 
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
-        return Task.CompletedTask;
+
+        // Notify the client so the buff icon appears + the visual effect plays. The
+        // client expects duration in deciseconds (same unit as the `bf` packet docs);
+        // BuffLevel is the caster's level so the icon shows the effect tier.
+        if (target.MapInstance != null)
+        {
+            var level = caster?.Level ?? 0;
+            await target.MapInstance.SendPacketAsync(new BfPacket
+            {
+                VisualType = target.VisualType,
+                VisualId = target.VisualId,
+                Buff = new BfPacket.BuffElementSubPacket
+                {
+                    ChargeValue = 0,
+                    BuffId = card.CardId,
+                    Duration = durationMs / 100,
+                },
+                BuffLevel = level,
+            }).ConfigureAwait(false);
+        }
     }
 
     public Task ApplySkillBuffAsync(IAliveEntity target, short skillVnum, short skillDuration, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster)
