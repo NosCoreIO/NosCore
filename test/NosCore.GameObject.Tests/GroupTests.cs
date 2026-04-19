@@ -8,10 +8,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Networking.SessionGroup;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System.Collections.Generic;
@@ -113,7 +114,10 @@ namespace NosCore.GameObject.Tests
 
         private void APetAttemptsToJoin()
         {
-            Group.JoinGroup(new Pet());
+            var pet = new Mock<INamedEntity>();
+            pet.SetupGet(s => s.VisualType).Returns(VisualType.Monster);
+            pet.SetupGet(s => s.VisualId).Returns(1);
+            Group.JoinGroup(pet.Object);
         }
 
         private void GroupShouldRemainEmpty()
