@@ -407,7 +407,6 @@ namespace NosCore.Tests.Shared
                 characterDto,
                 acc,
                 inventoryService,
-                new Mock<IItemGenerationService>().Object,
                 mapInstance,
                 group,
                 null,
@@ -434,8 +433,6 @@ namespace NosCore.Tests.Shared
                 0,
                 0,
                 new SemaphoreSlim(1, 1),
-                session.Channel,
-                session,
                 new ReputationService(),
                 new DignityService(),
                 Instance.GameLanguageLocalizer,
@@ -443,6 +440,7 @@ namespace NosCore.Tests.Shared
             );
 
             mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
+            mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerNetworkComponent(session, session.Channel));
             session.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
             var character = session.Character;

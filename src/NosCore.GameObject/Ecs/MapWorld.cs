@@ -215,10 +215,11 @@ public class MapWorld : IDisposable
         PlayerFlagsComponent playerFlags,
         TimingComponent timing,
         SpeedComponent speed,
-        PlayerStateComponent state)
+        PlayerStateComponent state,
+        PlayerNetworkComponent network)
     {
         return World.Create(identity, health, mana, position, visual, appearance, experience, gold,
-            reputation, sp, name, combat, player, playerFlags, timing, speed, state);
+            reputation, sp, name, combat, player, playerFlags, timing, speed, state, network);
     }
 
     public void DestroyEntity(Entity entity)

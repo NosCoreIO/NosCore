@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Networking;
@@ -461,7 +462,8 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
-            Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration)
+            Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
+            IItemGenerationService itemProvider)
         {
             if (amount <= 0)
             {
@@ -526,7 +528,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             if (shop.OwnerCharacter == null)
             {
                 inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                    characterEntity.ItemProvider.Create(item.ItemInstance!.ItemVNum, amount), characterEntity.CharacterId));
+                    itemProvider.Create(item.ItemInstance!.ItemVNum, amount), characterEntity.CharacterId));
             }
             else
             {
@@ -548,7 +550,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 else
                 {
                     inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                        characterEntity.ItemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), characterEntity.CharacterId));
+                        itemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), characterEntity.CharacterId));
                 }
             }
 

@@ -13,6 +13,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -27,7 +28,8 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
 {
     public class ChangeClassEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> languageLocalizer,
         IOptions<WorldConfiguration> worldConfiguration, IExperienceService experienceService,
-        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+        IItemGenerationService itemProvider)
         : INrunEventHandler
     {
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
@@ -80,7 +82,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
-            await requestData.ClientSession.ChangeClassAsync(classType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
+            await requestData.ClientSession.ChangeClassAsync(classType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService, itemProvider);
         }
     }
 }

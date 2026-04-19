@@ -30,7 +30,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(PlayerFlagsComponent),
     typeof(TimingComponent),
     typeof(SpeedComponent),
-    typeof(PlayerStateComponent)
+    typeof(PlayerStateComponent),
+    typeof(PlayerNetworkComponent)
 )]
 public readonly partial struct PlayerComponentBundle : ICharacterEntity
 {

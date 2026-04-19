@@ -156,7 +156,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     characterDto,
                     clientSession.Account,
                     inventoryService,
-                    itemProvider,
                     mapInstance,
                     group,
                     null,
@@ -183,8 +182,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     0,
                     0,
                     new SemaphoreSlim(1, 1),
-                    clientSession.Channel,
-                    clientSession,
                     reputationService,
                     dignityService,
                     gameLanguageLocalizer,
@@ -192,6 +189,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 );
 
                 mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
+                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerNetworkComponent(clientSession, clientSession.Channel));
                 clientSession.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
                 var character = clientSession.Character;
