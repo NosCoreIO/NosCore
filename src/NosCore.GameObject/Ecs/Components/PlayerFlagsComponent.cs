@@ -18,5 +18,4 @@ public record struct PlayerFlagsComponent(
     bool UseSp,
     bool IsVehicled,
     bool Invisible,
-    bool IsSitting,
     bool Camouflage);

@@ -17,7 +17,6 @@ public record struct PlayerStateComponent(
     bool CanFight,
     Instant LastPortal,
     Instant LastSp,
-    short SpCooldown,
     byte VehicleSpeed,
     IGameLanguageLocalizer GameLanguageLocalizer
 );
