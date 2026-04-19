@@ -44,6 +44,8 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Messaging.ScheduledJobs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -359,6 +361,7 @@ namespace NosCore.WorldServer
             return new HostBuilder()
                 .UseSerilog()
                 .UseConsoleLifetime()
+                .UseNosCoreWolverine("NosCore.WorldServer", typeof(NoS0575PacketHandler).Assembly)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
@@ -371,6 +374,7 @@ namespace NosCore.WorldServer
                     InitializeConfiguration(args, services);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+                    services.AddNosCoreTelemetry("NosCore.WorldServer");
 
                     services.AddI18NLogs();
                     services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
@@ -379,6 +383,14 @@ namespace NosCore.WorldServer
                             x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.AddHostedService<WorldServer>();
+                    services.AddSingleton<IHostedService>(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
+                        sp.GetRequiredService<WolverineMessageBus>(),
+                        sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),
+                        TimeSpan.FromMinutes(5)));
+                    services.AddSingleton<IHostedService>(sp => new RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>(
+                        sp.GetRequiredService<WolverineMessageBus>(),
+                        sp.GetRequiredService<Microsoft.Extensions.Logging.ILogger<RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>>>(),
+                        TimeSpan.FromMinutes(5)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
