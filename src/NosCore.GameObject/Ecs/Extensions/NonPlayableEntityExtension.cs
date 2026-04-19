@@ -11,7 +11,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NRunService;
@@ -24,7 +24,7 @@ using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
-namespace NosCore.GameObject.Entities.Extensions
+namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class NonPlayableEntityExtension
     {

@@ -5,7 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;

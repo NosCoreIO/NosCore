@@ -1,7 +1,7 @@
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ReputationService;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs.Attributes;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.Packets.Interfaces;

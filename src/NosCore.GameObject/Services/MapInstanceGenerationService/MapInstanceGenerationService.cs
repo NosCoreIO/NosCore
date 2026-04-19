@@ -12,7 +12,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.BroadcastService;

@@ -12,7 +12,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
