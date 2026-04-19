@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Tests
         {
             var itemBuilder = CreateItemBuilder();
             var shop = CreateShop(itemBuilder);
-            await Session.Character.BuyAsync(shop, 1, 99, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 1, 99, TestHelpers.Instance.WorldConfiguration, itemBuilder);
         }
 
 
@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Tests
                 Amount = 98
             });
             var shop = new Shop { ShopItems = list };
-            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration, itemBuilder);
         }
 
         private async Task AttemptingToBuy_ItemsAsync(int value)
@@ -187,7 +187,7 @@ namespace NosCore.GameObject.Tests
             var itemBuilder = CreateItemBuilder();
             var shop = CreateShop(itemBuilder);
 
-            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration, itemBuilder);
         }
 
         private void ShouldReceiveNotEnoughGoldMessage()
@@ -201,7 +201,7 @@ namespace NosCore.GameObject.Tests
         {
             var itemBuilder = CreateItemBuilder(0, 500000);
             var shop = CreateShop(itemBuilder);
-            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 0, 99, TestHelpers.Instance.WorldConfiguration, itemBuilder);
         }
 
         private void ShouldReceiveReputationError()
@@ -215,7 +215,7 @@ namespace NosCore.GameObject.Tests
         {
             CharacterHasGold(500000);
             ItemBuilder = CreateItemBuilder(1);
-            Session.Character.ItemProvider = ItemBuilder;
+            
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
@@ -230,7 +230,7 @@ namespace NosCore.GameObject.Tests
         private async Task AttemptingToBuyWithFullInventoryAsync()
         {
             var shop = CreateShop(ItemBuilder, -1, 1);
-            await Session.Character.BuyAsync(shop, 0, 999, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 0, 999, TestHelpers.Instance.WorldConfiguration, ItemBuilder);
         }
 
         private void ShouldReceiveNotEnoughSpaceMessage()
@@ -242,7 +242,7 @@ namespace NosCore.GameObject.Tests
         {
             CharacterHasGold(500000);
             ItemBuilder = CreateItemBuilder(1);
-            Session.Character.ItemProvider = ItemBuilder;
+            
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
@@ -257,7 +257,7 @@ namespace NosCore.GameObject.Tests
         private async Task Buying998ItemsAt1GoldEachAsync()
         {
             var shop = CreateShop(ItemBuilder);
-            await Session.Character.BuyAsync(shop, 0, 998, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 0, 998, TestHelpers.Instance.WorldConfiguration, ItemBuilder);
         }
 
         private void AllInventorySlotsShouldHave_Items(int value)
@@ -274,7 +274,7 @@ namespace NosCore.GameObject.Tests
         {
             Session.Character.Reput = 500000;
             ItemBuilder = CreateItemBuilder(0, 1);
-            Session.Character.ItemProvider = ItemBuilder;
+            
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemBuilder.Create(1, 999), Session.Character.CharacterId),
                 NoscorePocketType.Etc, 0);
@@ -291,7 +291,7 @@ namespace NosCore.GameObject.Tests
             var list = new ConcurrentDictionary<int, ShopItem>();
             list.TryAdd(0, new ShopItem { Slot = 0, ItemInstance = ItemBuilder.Create(1), Type = 0 });
             var shop = new Shop { ShopItems = list };
-            await Session.Character.BuyAsync(shop, 0, 998, TestHelpers.Instance.WorldConfiguration);
+            await Session.Character.BuyAsync(shop, 0, 998, TestHelpers.Instance.WorldConfiguration, ItemBuilder);
         }
 
         private void ReputationShouldBeDeducted()

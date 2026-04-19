@@ -90,8 +90,6 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         long CharacterId { get; }
 
-        IItemGenerationService ItemProvider { get; }
-
         long BankGold { get; set; }
 
         string? Prefix { get; }

@@ -35,7 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.WorldConfiguration);
+                TestHelpers.Instance.WorldConfiguration,
+                TestHelpers.Instance.GenerateItemProvider());
         }
 
         [TestMethod]

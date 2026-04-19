@@ -46,7 +46,8 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .Returns(Task.FromResult(new List<Subscriber>()));
 
             Handler = new ChangeClassPacketHandler(PubSubHub.Object,
-                TestHelpers.Instance.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService());
+                TestHelpers.Instance.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService(),
+                TestHelpers.Instance.GenerateItemProvider());
         }
 
         [TestMethod]

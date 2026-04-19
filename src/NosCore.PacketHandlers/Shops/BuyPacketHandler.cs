@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -21,7 +22,8 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Shops
 {
     public class BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration)
+            ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
+            IItemGenerationService itemProvider)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -44,7 +46,7 @@ namespace NosCore.PacketHandlers.Shops
 
             if (aliveEntity != null)
             {
-                return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration);
+                return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration, itemProvider);
             }
 
             logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);

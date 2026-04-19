@@ -23,6 +23,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
@@ -871,13 +872,13 @@ public static class ClientSessionMailExtensions
 
     public static async Task ChangeClassAsync(this ClientSession session, CharacterClassType classType,
         IOptions<WorldConfiguration> worldConfiguration,
-        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+        IItemGenerationService itemProvider)
     {
         var character = session.Character;
         var inventoryService = character.InventoryService;
         var characterId = character.CharacterId;
         var mapInstance = character.MapInstance;
-        var itemProvider = character.ItemProvider;
         var group = character.Group;
 
         if (inventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))

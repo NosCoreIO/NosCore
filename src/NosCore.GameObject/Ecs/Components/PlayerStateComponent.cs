@@ -10,11 +10,9 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.ShopService;
-using NosCore.Networking;
 using NosCore.Shared.I18N;
 using System;
 using System.Collections.Concurrent;
@@ -28,7 +26,6 @@ public record struct PlayerStateComponent(
     CharacterDto CharacterDto,
     AccountDto Account,
     IInventoryService InventoryService,
-    IItemGenerationService ItemProvider,
     MapInstance MapInstance,
     Group? Group,
     Shop? Shop,
@@ -51,8 +48,6 @@ public record struct PlayerStateComponent(
     short SpCooldown,
     byte VehicleSpeed,
     SemaphoreSlim HitSemaphore,
-    IChannel? Channel,
-    IPacketSender? Sender,
     IReputationService ReputationService,
     IDignityService DignityService,
     IGameLanguageLocalizer GameLanguageLocalizer,

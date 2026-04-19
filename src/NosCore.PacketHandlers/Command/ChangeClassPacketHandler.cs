@@ -16,6 +16,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
@@ -26,14 +27,15 @@ namespace NosCore.PacketHandlers.Command
 {
     public class ChangeClassPacketHandler(IPubSubHub pubSubHub,
         IOptions<WorldConfiguration> worldConfiguration, IExperienceService experienceService,
-        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
+        IItemGenerationService itemProvider)
         : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ChangeClassPacket changeClassPacket, ClientSession session)
         {
             if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
+                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService, itemProvider);
                 return;
             }
 

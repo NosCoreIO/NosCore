@@ -122,10 +122,14 @@ public class ComponentBundleGenerator : IIncrementalGenerator
     {
         if (type is INamedTypeSymbol namedType)
         {
-            var ns = namedType.ContainingNamespace?.ToDisplayString();
-            if (!string.IsNullOrEmpty(ns) && ns != "System" && !ns!.StartsWith("System."))
+            var containing = namedType.ContainingNamespace;
+            if (containing != null && !containing.IsGlobalNamespace)
             {
-                namespaces.Add(ns);
+                var ns = containing.ToDisplayString();
+                if (!string.IsNullOrEmpty(ns) && ns != "System" && !ns!.StartsWith("System."))
+                {
+                    namespaces.Add(ns);
+                }
             }
 
             foreach (var typeArg in namedType.TypeArguments)
