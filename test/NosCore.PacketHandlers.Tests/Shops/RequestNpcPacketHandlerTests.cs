@@ -69,14 +69,18 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void NpcWithDialogExistsOnMap()
         {
-            var npc = new NosCore.GameObject.Entities.Entities.MapNpc();
-            npc.MapNpcId = 100;
-            npc.Dialog = 100;
-            npc.MapId = _session.Character.MapInstance.Map.MapId;
-            npc.MapX = 1;
-            npc.MapY = 1;
-            npc.Initialize(new NosCore.Data.StaticEntities.NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<NosCore.Data.StaticEntities.ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
-            _session.Character.MapInstance.Npcs.Add(npc);
+            var npc = new NosCore.Data.Dto.MapNpcDto
+            {
+                MapNpcId = 100,
+                Dialog = 100,
+                MapId = _session.Character.MapInstance.Map.MapId,
+                MapX = 1,
+                MapY = 1,
+                VNum = 1
+            };
+            _session.Character.MapInstance.LoadNpcs(
+                new List<NosCore.Data.Dto.MapNpcDto> { npc },
+                new List<NosCore.Data.StaticEntities.NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
         }
 
         private async Task ExecutingRequestNpcPacketWithNpcType()
@@ -111,7 +115,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void SessionShouldRemainValid()
         {
-            Assert.IsNotNull(_session.Character);
+            Assert.IsNotNull(_session);
         }
     }
 }

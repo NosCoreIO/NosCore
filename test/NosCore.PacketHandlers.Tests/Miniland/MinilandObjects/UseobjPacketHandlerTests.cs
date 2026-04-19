@@ -14,16 +14,15 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
-using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.GameObject.Services.MinilandService;
 using NosCore.PacketHandlers.Miniland.MinilandObjects;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
@@ -61,8 +60,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc());
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
@@ -163,7 +160,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private void WarehouseHubReturnsEmptyList()
         {
-            _warehouseHubMock.Setup(x => x.GetWarehouseItems(null, _session.Character.CharacterId, WarehouseType.Warehouse, null))
+            var characterId = _session.Character.CharacterId;
+            _warehouseHubMock.Setup(x => x.GetWarehouseItems(null, characterId, WarehouseType.Warehouse, null))
                 .ReturnsAsync(new List<WarehouseLink>());
         }
 

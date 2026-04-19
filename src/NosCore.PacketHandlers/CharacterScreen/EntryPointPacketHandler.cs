@@ -139,7 +139,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 });
-            foreach (var character in characters!.Select(characterDto => characterDto.Adapt<GameObject.Entities.Entities.Character>()))
+            foreach (var character in characters!)
             {
                 var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);

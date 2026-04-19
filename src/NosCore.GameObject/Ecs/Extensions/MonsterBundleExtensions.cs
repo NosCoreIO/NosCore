@@ -21,7 +21,7 @@ public static class MonsterBundleExtensions
         {
             VisualType = VisualType.Monster,
             VisualId = monster.VisualId,
-            VNum = monster.VNum.ToString(),
+            VNum = monster.VNum == 0 ? string.Empty : monster.VNum.ToString(),
             PositionX = monster.PositionX,
             PositionY = monster.PositionY,
             Direction = monster.Direction,

@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -29,13 +30,13 @@ namespace NosCore.PacketHandlers.Game
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = sessionRegistry.GetCharacter(s => s.VisualId == ncifPacket.TargetId);
+                    entity = sessionRegistry.TryGetCharacter(s => s.VisualId == ncifPacket.TargetId, out var player) ? player : null;
                     break;
                 case VisualType.Monster:
-                    entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);
+                    entity = session.Character.MapInstance.FindMonster(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 case VisualType.Npc:
-                    entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
+                    entity = session.Character.MapInstance.FindNpc(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],

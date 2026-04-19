@@ -6,30 +6,47 @@
 
 using Mapster;
 using Microsoft.Extensions.Options;
+using NodaTime;
+using NosCore.Algorithm.DignityService;
+using NosCore.Algorithm.HpService;
+using NosCore.Algorithm.MpService;
+using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.CharacterService;
+using NosCore.GameObject.Services.GroupService;
+using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
-using NosCore.Networking.SessionGroup;
+using NosCore.Core.I18N;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -41,7 +58,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
-            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IPubSubHub pubSubHub, ISessionGroupFactory sessionGroupFactory)
+            IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IPubSubHub pubSubHub, IReputationService reputationService, IDignityService dignityService, IClock clock,
+            List<ItemDto> items, IHpService hpService, IMpService mpService, ISessionGroupFactory sessionGroupFactory,
+            ICharacterInitializationService characterInitializationService, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -62,8 +82,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     return;
                 }
 
-                var character = characterDto.Adapt<GameObject.Entities.Entities.Character>();
-                character.InitializeGroup(sessionGroupFactory);
+                var characterId = characterDto.CharacterId;
+                var characterName = characterDto.Name ?? string.Empty;
+
                 await pubSubHub.SubscribeAsync(new Subscriber
                 {
                     Id = clientSession.SessionId,
@@ -71,45 +92,130 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     Language = clientSession.Account.Language,
                     ConnectedCharacter = new Data.WebApi.Character
                     {
-                        Name = character.Name,
-                        Id = character.CharacterId,
-                        FriendRequestBlocked = character.FriendRequestBlocked
+                        Name = characterName,
+                        Id = characterId,
+                        FriendRequestBlocked = characterDto.FriendRequestBlocked
                     }
                 });
-                character.MapInstance = mapInstanceAccessorService.GetBaseMapById(character.MapId)!;
-                character.PositionX = character.MapX;
-                character.PositionY = character.MapY;
-                character.Direction = 2;
-                character.Script = character.CurrentScriptId != null ? await scriptDao.FirstOrDefaultAsync(s => s.Id == character.CurrentScriptId) : null;
-                character.Group!.JoinGroup(character);
+
+                var mapInstance = mapInstanceAccessorService.GetBaseMapById(characterDto.MapId)!;
+                var script = characterDto.CurrentScriptId != null
+                    ? await scriptDao.FirstOrDefaultAsync(s => s.Id == characterDto.CurrentScriptId)
+                    : null;
 
                 var inventories = inventoryItemInstanceDao
-                    .Where(s => s.CharacterId == character.CharacterId)
+                    .Where(s => s.CharacterId == characterId)
                     ?.ToList() ?? new List<InventoryItemInstanceDto>();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToList();
-                var items = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
-                inventories.ForEach(k => character.InventoryService[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(itemProvider.Convert(items.First(s => s!.Id == k.ItemInstanceId)!),
-                        character.CharacterId, k));
-                await clientSession.SetCharacterAsync(character);
+                var itemInstances = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+
+                var inventoryService = new InventoryService(items, configuration, logger);
+                inventories.ForEach(k => inventoryService[k.ItemInstanceId] =
+                    InventoryItemInstance.Create(itemProvider.Convert(itemInstances.First(s => s!.Id == k.ItemInstanceId)!),
+                        characterId, k));
+
+                var maxHp = (int)hpService.GetHp(characterDto.Class, characterDto.Level);
+                var maxMp = (int)mpService.GetMp(characterDto.Class, characterDto.Level);
+                var authority = clientSession.Account.Authority;
+
+                var playerEntity = mapInstance.EcsWorld.CreatePlayer(
+                    (int)characterId,
+                    characterId,
+                    clientSession.Account.AccountId,
+                    characterName,
+                    mapInstance.MapInstanceId,
+                    characterDto.MapX,
+                    characterDto.MapY,
+                    2,
+                    characterDto.Hp,
+                    maxHp,
+                    characterDto.Mp,
+                    maxMp,
+                    characterDto.Level,
+                    characterDto.LevelXp,
+                    characterDto.JobLevel,
+                    characterDto.JobLevelXp,
+                    characterDto.HeroLevel,
+                    characterDto.HeroXp,
+                    characterDto.Gold,
+                    characterDto.Reput,
+                    (short)characterDto.Dignity,
+                    (short)characterDto.Compliment,
+                    characterDto.Gender,
+                    characterDto.HairStyle,
+                    characterDto.HairColor,
+                    characterDto.Class,
+                    0,
+                    10,
+                    authority,
+                    authority >= NosCore.Shared.Enumerations.AuthorityType.GameMaster,
+                    configuration.Value.ServerId);
+
+                var now = clock.GetCurrentInstant();
+                var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, sessionGroupFactory);
+                var playerStateComponent = new PlayerStateComponent(
+                    characterDto,
+                    clientSession.Account,
+                    inventoryService,
+                    itemProvider,
+                    mapInstance,
+                    group,
+                    null,
+                    script,
+                    new ConcurrentDictionary<short, CharacterSkill>(),
+                    new ConcurrentDictionary<Guid, CharacterQuest>(),
+                    new List<QuicklistEntryDto>(),
+                    new List<StaticBonusDto>(),
+                    new List<TitleDto>(),
+                    new ConcurrentDictionary<long, long>(),
+                    new Dictionary<Type, Subject<RequestData>>
+                    {
+                        { typeof(IUseItemEventHandler), new Subject<RequestData>() },
+                        { typeof(INrunEventHandler), new Subject<RequestData>() }
+                    },
+                    false,
+                    false,
+                    false,
+                    false,
+                    true,
+                    now,
+                    now,
+                    null,
+                    0,
+                    0,
+                    new SemaphoreSlim(1, 1),
+                    clientSession.Channel,
+                    clientSession,
+                    reputationService,
+                    dignityService,
+                    gameLanguageLocalizer,
+                    new ConcurrentDictionary<IAliveEntity, int>()
+                );
+
+                mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
+                clientSession.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
+
+                var character = clientSession.Character;
+                group.JoinGroup(character);
 
 #pragma warning disable CS0618
-                await clientSession.SendPacketsAsync(clientSession.Character.GenerateInv(logger, logLanguage));
+                await clientSession.SendPacketsAsync(character.GenerateInv(logger, logLanguage));
 #pragma warning restore CS0618
-                await clientSession.SendPacketAsync(clientSession.Character.GenerateMlobjlst());
-                if (clientSession.Character.Hp > clientSession.Character.MaxHp)
+                await clientSession.SendPacketAsync(character.GenerateMlobjlst());
+
+                if (character.Hp > character.MaxHp)
                 {
-                    clientSession.Character.Hp = clientSession.Character.MaxHp;
+                    character.Hp = character.MaxHp;
                 }
 
-                if (clientSession.Character.Mp > clientSession.Character.MaxMp)
+                if (character.Mp > character.MaxMp)
                 {
-                    clientSession.Character.Mp = clientSession.Character.MaxMp;
+                    character.Mp = character.MaxMp;
                 }
 
                 var daoQuests = characterQuestDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId) ?? new List<CharacterQuestDto>();
-                clientSession.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
+                    .Where(s => s.CharacterId == characterId) ?? new List<CharacterQuestDto>();
+                character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
                         charquest.Quest = quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
@@ -117,12 +223,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
                             questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
                         return charquest;
                     }));
-                clientSession.Character.QuicklistEntries = quickListEntriesDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<QuicklistEntryDto>();
-                clientSession.Character.StaticBonusList = staticBonusDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<StaticBonusDto>();
-                clientSession.Character.Titles = titleDao
-                    .Where(s => s.CharacterId == clientSession.Character.CharacterId)?.ToList() ?? new List<TitleDto>();
+                character.QuicklistEntries = quickListEntriesDao
+                    .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<QuicklistEntryDto>();
+                character.StaticBonusList = staticBonusDao
+                    .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<StaticBonusDto>();
+                character.Titles = titleDao
+                    .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<TitleDto>();
+
+                await characterInitializationService.InitializeAsync(character);
+
                 await clientSession.SendPacketAsync(new OkPacket());
             }
             catch (Exception ex)

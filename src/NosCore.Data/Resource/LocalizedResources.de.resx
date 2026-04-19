@@ -187,10 +187,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Der Kanal wird gleich schließen.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Charakter nicht geladen!</value>
-    <comment>check</comment>
-  </data>
   <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
     <value>Das Chunkformat ist falsch.</value>
   </data>

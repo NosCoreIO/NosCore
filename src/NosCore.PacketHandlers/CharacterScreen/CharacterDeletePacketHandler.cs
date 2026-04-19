@@ -26,6 +26,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         public override async Task ExecuteAsync(CharacterDeletePacket packet, ClientSession clientSession)
         {
+            if (clientSession.HasSelectedCharacter)
+            {
+                return;
+            }
+
             var account = await accountDao
                 .FirstOrDefaultAsync(s => s.AccountId.Equals(clientSession.Account.AccountId));
             if (account == null)

@@ -44,7 +44,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGenerationService.Handlers
             await TestHelpers.ResetAsync();
             MinilandProvider = new Mock<IMinilandService>();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            MinilandProvider.Setup(s => s.GetMiniland(Session.Character.CharacterId))
+            var characterId = Session.Character.CharacterId;
+            MinilandProvider.Setup(s => s.GetMiniland(characterId))
                 .Returns(new Miniland { MapInstanceId = TestHelpers.Instance.MinilandId });
             mapChangeService = new Mock<IMapChangeService>();
             Handler = new MinilandBellHandler(MinilandProvider.Object, mapChangeService.Object);

@@ -4,10 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
-using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -21,9 +19,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewJobPacketHandlerTests
     {
-        private Character Chara = null!;
         private CharNewJobPacketHandler CharNewJobPacketHandler = null!;
         private ClientSession Session = null!;
+        private CharacterDto ExistingCharacter = null!;
         private const string TestCharacterName = "TestCharacter";
 
         [TestInitialize]
@@ -31,9 +29,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Chara = Session.Character;
-            await Session.SetCharacterAsync(null);
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => Chara);
+            ExistingCharacter = Session.Character.CharacterDto;
+            Session.ClearPlayerEntity();
             CharNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
         }
 
@@ -68,17 +65,15 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsLevel_Async(int level)
         {
-            Chara.Level = (byte)level;
-            CharacterDto character = Chara;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character);
+            ExistingCharacter.Level = (byte)level;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
         }
 
         private async Task CharacterIsAlreadyMartialArtistAsync()
         {
-            Chara.Class = CharacterClassType.MartialArtist;
-            Chara.Level = 80;
-            CharacterDto character = Chara;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(character);
+            ExistingCharacter.Class = CharacterClassType.MartialArtist;
+            ExistingCharacter.Level = 80;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
         }
 
         private async Task CreatingMartialArtistAsync()

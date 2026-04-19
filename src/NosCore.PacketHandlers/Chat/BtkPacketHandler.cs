@@ -9,6 +9,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -49,11 +50,7 @@ namespace NosCore.PacketHandlers.Chat
             }
 
             message = message.Trim();
-            var receiverSession =
-                sessionRegistry.GetCharacter(s =>
-                    s.VisualId == btkPacket.CharacterId);
-
-            if (receiverSession != null)
+            if (sessionRegistry.TryGetCharacter(s => s.VisualId == btkPacket.CharacterId, out var receiverSession))
             {
                 await receiverSession.SendPacketAsync(session.Character.GenerateTalk(message));
                 return;

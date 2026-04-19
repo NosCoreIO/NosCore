@@ -65,9 +65,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .ExecuteAsync();
         }
 
-        private async Task CharacterIsNotInGame()
+        private Task CharacterIsNotInGame()
         {
-            await Session.SetCharacterAsync(null);
+            Session.ClearPlayerEntity();
+            return Task.CompletedTask;
         }
 
         private async Task DeletingCharacterWithInvalidPassword()

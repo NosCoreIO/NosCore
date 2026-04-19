@@ -1,6 +1,12 @@
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
@@ -22,17 +28,17 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     await sessionRegistry.BroadcastPacketAsync(message);
                     break;
                 case ReceiverType.OnlySomeone:
-                    ICharacterEntity? receiverSession;
+                    ClientSession? receiverSession;
 
                     if (postedPacket.ReceiverCharacter!.Name != null)
                     {
-                        receiverSession = sessionRegistry.GetCharacter(s =>
-                            s.Name == postedPacket.ReceiverCharacter.Name);
+                        receiverSession = sessionRegistry.GetSession(s =>
+                            s.Character.Name == postedPacket.ReceiverCharacter.Name);
                     }
                     else
                     {
-                        receiverSession = sessionRegistry.GetCharacter(s =>
-                            s.VisualId == postedPacket.ReceiverCharacter.Id);
+                        receiverSession = sessionRegistry.GetSession(s =>
+                            s.Character.VisualId == postedPacket.ReceiverCharacter.Id);
                     }
 
                     if (receiverSession == null)

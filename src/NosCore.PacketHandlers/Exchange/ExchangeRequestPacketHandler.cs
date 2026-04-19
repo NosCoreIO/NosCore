@@ -5,8 +5,9 @@
 //
 
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -33,19 +34,19 @@ namespace NosCore.PacketHandlers.Exchange
     {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
         {
-            var target = sessionRegistry.GetCharacter(s =>
+            var hasTarget = sessionRegistry.TryGetCharacter(s =>
                 (s.VisualId == packet.VisualId) &&
-                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as Character;
+                (s.MapInstanceId == clientSession.Character.MapInstanceId), out var target);
             ExcClosePacket closeExchange;
 
-            if ((target != null) && ((packet.RequestType == RequestExchangeType.Confirmed) ||
+            if (hasTarget && ((packet.RequestType == RequestExchangeType.Confirmed) ||
                 (packet.RequestType == RequestExchangeType.Cancelled)))
             {
                 logger.Error(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                 return;
             }
 
-            if (clientSession.Character.InShop || (target?.InShop ?? false))
+            if (clientSession.Character.InShop || (hasTarget && target.InShop))
             {
                 logger.Error(logLanguage[LogLanguageKey.PLAYER_IN_SHOP]);
                 return;
@@ -55,24 +56,24 @@ namespace NosCore.PacketHandlers.Exchange
             {
                 case RequestExchangeType.Requested:
                     if (exchangeService.CheckExchange(clientSession.Character.CharacterId) ||
-                        exchangeService.CheckExchange(target?.VisualId ?? 0))
+                        exchangeService.CheckExchange(hasTarget ? target.VisualId : 0))
                     {
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
                             Message = Game18NConstString.TradingWithSomeoneElse,
                             ArgumentType = 1,
-                            Game18NArguments = { target?.Name ?? "" }
+                            Game18NArguments = { hasTarget ? target.Name : "" }
                         });
                         return;
                     }
 
-                    if (target?.ExchangeBlocked ?? true)
+                    if (!hasTarget || target.ExchangeBlocked)
                     {
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
                             Message = Game18NConstString.BlockingTrades,
                             ArgumentType = 1,
-                            Game18NArguments = { target?.Name ?? "" }
+                            Game18NArguments = { hasTarget ? target.Name : "" }
                         });
                         return;
                     }
@@ -119,13 +120,16 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.List:
-                    if (!exchangeService.OpenExchange(clientSession.Character.VisualId, target?.CharacterId ?? 0))
+                    if (!exchangeService.OpenExchange(clientSession.Character.VisualId, hasTarget ? target.CharacterId : 0))
                     {
                         return;
                     }
 
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateServerExcListPacket(null, null, null));
-                    await (target == null ? Task.CompletedTask : target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null)));
+                    if (hasTarget)
+                    {
+                        await target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null));
+                    }
                     return;
 
                 case RequestExchangeType.Declined:
@@ -136,15 +140,18 @@ namespace NosCore.PacketHandlers.Exchange
                         Type = SayColorType.Yellow,
                         Message = Game18NConstString.CancelledTrade,
                         ArgumentType = 1,
-                        Game18NArguments = { target?.Name ?? "" }
+                        Game18NArguments = { hasTarget ? target.Name : "" }
                     });
-                    await (target == null ? Task.CompletedTask : target.SendPacketAsync(new SayiPacket
+                    if (hasTarget)
                     {
-                        VisualType = VisualType.Player,
-                        VisualId = target.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.TradeCancelled2
-                    }));
+                        await target.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = target.CharacterId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.TradeCancelled2
+                        });
+                    }
                     return;
 
                 case RequestExchangeType.Confirmed:
@@ -156,10 +163,8 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var exchangeTarget = sessionRegistry.GetCharacter(s =>
-                        (s.VisualId == targetId.Value) && (s.MapInstance == clientSession.Character.MapInstance));
-
-                    if (exchangeTarget == null)
+                    if (!sessionRegistry.TryGetCharacter(s =>
+                        (s.VisualId == targetId.Value) && (s.MapInstance == clientSession.Character.MapInstance), out var exchangeTarget))
                     {
                         logger.Error(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                         return;
@@ -242,11 +247,12 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var cancelTarget = sessionRegistry.GetCharacter(s => s.VisualId == cancelId.Value);
-
                     closeExchange =
                         exchangeService.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
-                    cancelTarget?.SendPacketAsync(closeExchange);
+                    if (sessionRegistry.TryGetCharacter(s => s.VisualId == cancelId.Value, out var cancelTarget))
+                    {
+                        await cancelTarget.SendPacketAsync(closeExchange);
+                    }
                     await clientSession.SendPacketAsync(closeExchange);
                     return;
 

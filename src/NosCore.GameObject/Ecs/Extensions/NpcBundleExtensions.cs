@@ -21,13 +21,13 @@ public static class NpcBundleExtensions
         {
             VisualType = VisualType.Npc,
             VisualId = npc.VisualId,
-            VNum = npc.VNum.ToString(),
+            VNum = npc.VNum == 0 ? string.Empty : npc.VNum.ToString(),
             PositionX = npc.PositionX,
             PositionY = npc.PositionY,
             Direction = npc.Direction,
             InNonPlayerSubPacket = new InNonPlayerSubPacket
             {
-                Dialog = dialog ?? 0,
+                Dialog = dialog ?? npc.Dialog ?? 0,
                 InAliveSubPacket = new InAliveSubPacket
                 {
                     Hp = npc.MaxHp > 0 ? (int)(npc.Hp / (float)npc.MaxHp * 100) : 100,

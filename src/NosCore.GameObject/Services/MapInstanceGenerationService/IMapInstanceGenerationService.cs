@@ -14,7 +14,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
     {
         Task AddMapInstanceAsync(MapInstance mapInstance);
         Task InitializeAsync();
-        void RemoveMap(Guid guid);
+        Task RemoveMapAsync(Guid guid);
         MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance);
     }
 }

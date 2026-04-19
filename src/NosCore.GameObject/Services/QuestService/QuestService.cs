@@ -10,8 +10,8 @@ using NodaTime;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
@@ -33,8 +33,8 @@ namespace NosCore.GameObject.Services.QuestService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IQuestService
     {
-        public Task RunScriptAsync(Character character) => RunScriptAsync(character, null);
-        public async Task RunScriptAsync(Character character, ScriptClientPacket? packet)
+        public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
+        public async Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet)
         {
             if (character.CurrentScriptId == null) //todo handle other acts
             {
@@ -70,7 +70,6 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 return;
             }
-            character.CurrentScriptId = nextScript.Id;
             character.Script = nextScript;
             await character.SendPacketAsync(new ScriptPacket()
             {

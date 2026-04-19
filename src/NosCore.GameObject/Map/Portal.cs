@@ -8,7 +8,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets.Portals;
 using System;
 
-namespace NosCore.GameObject.Entities.Entities
+namespace NosCore.GameObject.Map
 {
     public class Portal : PortalDto
     {

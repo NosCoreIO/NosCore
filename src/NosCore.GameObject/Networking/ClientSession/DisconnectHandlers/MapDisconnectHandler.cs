@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Networking;
 using System.Threading.Tasks;
 
@@ -21,9 +21,12 @@ public class MapDisconnectHandler : ISessionDisconnectHandler
 
         if (session.Channel != null)
         {
-            session.Character.MapInstance.Sessions.Remove(session.Channel);
+            session.Character.MapInstance?.Sessions.Remove(session.Channel);
         }
 
-        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateOut());
+        if (session.HasPlayerEntity)
+        {
+            await session.Character.MapInstance!.SendPacketAsync(session.Character.GenerateOut());
+        }
     }
 }

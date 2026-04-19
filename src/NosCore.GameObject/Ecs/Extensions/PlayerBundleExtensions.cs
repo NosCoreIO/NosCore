@@ -195,7 +195,7 @@ public static class PlayerBundleExtensions
                     continue;
                 }
 
-                if (sessionRegistry.GetCharacter(s => s.VisualId == member.Item2) is { } groupMember)
+                if (sessionRegistry.TryGetCharacter(s => s.VisualId == member.Item2, out var groupMember))
                 {
                     await groupMember.SendPacketAsync(group.GeneratePinit());
                 }
@@ -222,7 +222,7 @@ public static class PlayerBundleExtensions
             Direction = player.Direction,
             InCharacterSubPacket = new InCharacterSubPacket
             {
-                Authority = player.Authority,
+                Authority = player.Authority >= AuthorityType.Administrator ? AuthorityType.Administrator : AuthorityType.User,
                 Gender = player.Gender,
                 HairStyle = player.HairStyle,
                 HairColor = player.HairColor,
@@ -246,15 +246,15 @@ public static class PlayerBundleExtensions
                 FamilySubPacket = new FamilySubPacket(),
                 FamilyName = null,
                 ReputIco = (byte)(GetDignityIcon(player.Dignity) == 0 ? GetReputationIcon(player.Reputation) : -GetDignityIcon(player.Dignity)),
-                Invisible = player.Invisible,
-                MorphUpgrade = player.MorphUpgrade,
+                Invisible = false,
+                MorphUpgrade = 0,
                 Faction = 0,
-                MorphUpgrade2 = (byte)player.MorphDesign,
+                MorphUpgrade2 = 0,
                 Level = player.Level,
                 FamilyLevel = 0,
                 FamilyIcons = new List<bool> { false, false, false },
                 ArenaWinner = false,
-                Compliment = (short)player.Compliment,
+                Compliment = (short)(player.Authority >= AuthorityType.Moderator ? 500 : player.Compliment),
                 Size = player.Size,
                 HeroLevel = player.HeroLevel
             }
@@ -369,7 +369,8 @@ public static class PlayerBundleExtensions
     {
         return new CInfoPacket
         {
-            Name = player.Name,
+            Name = player.Authority == AuthorityType.Moderator
+                ? $"[{player.GetMessageFromKey(LanguageKey.SUPPORT)}]" + player.Name : player.Name,
             Unknown1 = null,
             GroupId = -1,
             FamilyId = -1,
@@ -381,11 +382,11 @@ public static class PlayerBundleExtensions
             HairColor = player.HairColor,
             Class = player.Class,
             Icon = (byte)(GetDignityIcon(player.Dignity) == 0 ? GetReputationIcon(player.Reputation) : -GetDignityIcon(player.Dignity)),
-            Compliment = (short)player.Compliment,
-            Morph = player.Morph,
-            Invisible = player.Invisible,
+            Compliment = (short)(player.Authority == AuthorityType.Moderator ? 500 : player.Compliment),
+            Morph = 0,
+            Invisible = false,
             FamilyLevel = 0,
-            MorphUpgrade = player.MorphUpgrade,
+            MorphUpgrade = 0,
             ArenaWinner = false
         };
     }
@@ -780,7 +781,7 @@ public static class PlayerBundleExtensions
             Level = player.Level,
             Name = player.Name,
             Gender = player.Gender,
-            Race = 0,
+            Race = player.Race,
             Morph = player.Morph,
             HeroLevel = player.HeroLevel
         };

@@ -8,7 +8,9 @@ using Mapster;
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -26,36 +28,18 @@ namespace NosCore.GameObject.Entities.Extensions
 {
     public static class NonPlayableEntityExtension
     {
-        public static void Initialize(this INonPlayableEntity entity, NpcMonsterDto npcMonster)
-        {
-            entity.NpcMonster = npcMonster;
-            entity.Mp = npcMonster?.MaxMp ?? 0;
-            entity.Hp = npcMonster?.MaxHp ?? 0;
-            entity.PositionX = entity.MapX;
-            entity.PositionY = entity.MapY;
-            entity.IsAlive = true;
-            entity.Level = npcMonster?.Level ?? 0;
-        }
-
-        public static void Initialize(this INonPlayableEntity entity, NpcMonsterDto npcMonster,
+        public static void InitializeShopAndDialog(this NpcComponentBundle bundle,
             ShopDto? shopDto, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto,
             IItemGenerationService itemProvider)
         {
-            entity.NpcMonster = npcMonster;
-            entity.Mp = npcMonster?.MaxMp ?? 0;
-            entity.Hp = npcMonster?.MaxHp ?? 0;
-            entity.Speed = npcMonster?.Speed ?? 0;
-            entity.PositionX = entity.MapX;
-            entity.PositionY = entity.MapY;
-            entity.IsAlive = true;
-
-            if (entity is IRequestableEntity requestableEntity && entity is MapNpc mapNpc)
+            var dialogId = bundle.Dialog ?? 0;
+            if (bundle.Requests.TryGetValue(typeof(INrunEventHandler), out var subject))
             {
                 Task RequestExecAsync(RequestData request)
                 {
-                    return entity.ShowDialogAsync(request, mapNpc.Dialog ?? 0);
+                    return ((INonPlayableEntity)bundle).ShowDialogAsync(request, dialogId);
                 }
-                requestableEntity.Requests[typeof(INrunEventHandler)]?.Select(RequestExecAsync).Subscribe();
+                subject.Select(RequestExecAsync).Subscribe();
             }
 
             if (shopDto == null)
@@ -70,10 +54,11 @@ namespace NosCore.GameObject.Entities.Extensions
                 shopItem.ItemInstance = itemProvider.Create(shopItemGrouping.ItemVNum, -1);
                 shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
             });
-            entity.Shop = shopDto.Adapt<Shop>();
-            entity.Shop.Name = npcTalkDto?.Name ?? new I18NString();
-            entity.Shop.OwnerCharacter = null;
-            entity.Shop.ShopItems = shopItemsList;
+            var shop = shopDto.Adapt<Shop>();
+            shop.Name = npcTalkDto?.Name ?? new I18NString();
+            shop.OwnerCharacter = null;
+            shop.ShopItems = shopItemsList;
+            bundle.Shop = shop;
         }
 
         public static void StopLife(this INonPlayableEntity entity)

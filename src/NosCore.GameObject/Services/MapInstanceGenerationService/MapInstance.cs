@@ -5,15 +5,22 @@
 //
 
 using NodaTime;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Systems;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
@@ -40,9 +47,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMapItemGenerationService _mapItemGenerationService;
         private bool _isSleeping;
         private bool _isSleepingRequest;
-        private ConcurrentDictionary<int, MapMonster> _monsters;
+        private ConcurrentDictionary<int, MonsterComponentBundle> _monsters;
 
-        private ConcurrentDictionary<int, MapNpc> _npcs;
+        private ConcurrentDictionary<int, NpcComponentBundle> _npcs;
+
+        private readonly VisibilitySystem _visibilitySystem;
 
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new();
 
@@ -50,6 +59,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMapChangeService _mapChangeService;
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IHeuristic _distanceCalculator;
+
+        public MapWorld EcsWorld { get; }
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
@@ -63,9 +74,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Map = map;
             MapInstanceId = guid;
             Portals = new List<Portal>();
-            _monsters = new ConcurrentDictionary<int, MapMonster>();
-            _npcs = new ConcurrentDictionary<int, MapNpc>();
-            MapItems = new ConcurrentDictionary<long, MapItem>();
+            _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>();
+            _npcs = new ConcurrentDictionary<int, NpcComponentBundle>();
+            MapItemRequestContexts = new ConcurrentDictionary<long, MapItemRequestContext>();
+            _visibilitySystem = new VisibilitySystem();
             _isSleeping = true;
             _clock = clock;
             LastUnregister = _clock.GetCurrentInstant().Plus(Duration.FromMinutes(-1));
@@ -79,11 +91,47 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 [typeof(IMapInstanceEntranceEventHandler)] = new()
             };
+            EcsWorld = new MapWorld();
         }
 
         public Instant LastUnregister { get; set; }
 
-        public ConcurrentDictionary<long, MapItem> MapItems { get; }
+        public ConcurrentDictionary<long, MapItemRequestContext> MapItemRequestContexts { get; }
+
+        public int MapItemCount => GetMapItemBundles().Count();
+
+        public IEnumerable<MapItemComponentBundle> GetMapItemBundles()
+        {
+            return _visibilitySystem.GetMapItemEntities(EcsWorld)
+                .Select(entity => new MapItemComponentBundle(entity, EcsWorld));
+        }
+
+        public MapItemComponentBundle? TryGetMapItem(long visualId)
+        {
+            foreach (var bundle in GetMapItemBundles())
+            {
+                if (bundle.VisualId == visualId)
+                {
+                    return bundle;
+                }
+            }
+            return null;
+        }
+
+        public bool TryRemoveMapItem(long visualId)
+        {
+            foreach (var entity in _visibilitySystem.GetMapItemEntities(EcsWorld))
+            {
+                var identity = EcsWorld.World.Get<EntityIdentityComponent>(entity);
+                if (identity.VisualId == visualId)
+                {
+                    EcsWorld.DestroyEntity(entity);
+                    MapItemRequestContexts.TryRemove(visualId, out _);
+                    return true;
+                }
+            }
+            return false;
+        }
 
         public bool IsSleeping
         {
@@ -123,12 +171,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstanceType MapInstanceType { get; set; }
 
-        public List<MapMonster> Monsters
+        public List<MonsterComponentBundle> Monsters
         {
             get { return _monsters.Select(s => s.Value).ToList(); }
         }
 
-        public List<MapNpc> Npcs
+        public List<NpcComponentBundle> Npcs
         {
             get { return _npcs.Select(s => s.Value).ToList(); }
         }
@@ -153,22 +201,27 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             GC.SuppressFinalize(this);
         }
 
-        public void Kick()
+        public Task KickAsync()
         {
-            Kick(o => o != null);
+            return KickAsync(_ => true);
         }
 
-        public void Kick(Func<ICharacterEntity, bool> filter)
+        public async Task KickAsync(Func<ClientSession, bool> filter)
         {
-            _sessionRegistry.GetCharacters(filter)
-                .Where(s => !s.IsDisconnecting && s.MapInstanceId == MapInstanceId).ToList()
-                .ForEach(s => s.ChangeMapAsync(_mapChangeService, s.MapId, s.MapX, s.MapY));
+            var sessions = _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId)
+                .Where(s => s.HasPlayerEntity && !s.Character.IsDisconnecting && filter(s))
+                .ToList();
+
+            foreach (var session in sessions)
+            {
+                var character = session.Character;
+                await _mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);
+            }
         }
 
-        public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)
+        public MapItemComponentBundle? PutItem(short amount, IItemInstance inv, ClientSession session)
         {
             var random2 = Guid.NewGuid();
-            MapItem? droppedItem;
             var possibilities = new List<(short X, short Y)>();
 
             for (short x = -1; x < 2; x++)
@@ -208,8 +261,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var newItemInstance = (IItemInstance)inv.Clone();
             newItemInstance.Id = random2;
             newItemInstance.Amount = amount;
-            droppedItem = _mapItemGenerationService.Create(this, newItemInstance, mapX, mapY);
-            MapItems[droppedItem.VisualId] = droppedItem;
+            var droppedItem = _mapItemGenerationService.Create(this, newItemInstance, mapX, mapY);
             inv.Amount -= amount;
             if (inv.Amount == 0)
             {
@@ -219,27 +271,75 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return droppedItem;
         }
 
-        public void LoadMonsters(List<MapMonster> monsters)
+        public void LoadMonsters(List<MapMonsterDto> monsters, List<NpcMonsterDto> npcMonsters)
         {
-            _monsters = new ConcurrentDictionary<int, MapMonster>(monsters.ToDictionary(x => x.MapMonsterId,
-                x =>
+            var entries = new Dictionary<int, MonsterComponentBundle>();
+            foreach (var x in monsters)
+            {
+                var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == x.VNum);
+                if (npcMonster == null)
                 {
-                    x.MapInstanceId = MapInstanceId;
-                    x.MapInstance = this;
-                    return x;
-                }));
+                    continue;
+                }
+
+                var entity = EcsWorld.CreateMonster(
+                    x.MapMonsterId,
+                    npcMonster,
+                    this,
+                    x.MapX, x.MapY, x.Direction,
+                    x.MapX, x.MapY,
+                    x.IsMoving, false, x.IsDisabled);
+                entries[x.MapMonsterId] = new MonsterComponentBundle(entity, EcsWorld);
+            }
+            _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>(entries);
         }
 
-        public void LoadNpcs(List<MapNpc> npcs)
+        public void LoadNpcs(List<MapNpcDto> npcs, List<NpcMonsterDto> npcMonsters)
         {
-            _npcs = new ConcurrentDictionary<int, MapNpc>(npcs.ToDictionary(
-                x => x.MapNpcId,
-                x =>
+            var entries = new Dictionary<int, NpcComponentBundle>();
+            foreach (var x in npcs)
+            {
+                var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == x.VNum);
+                if (npcMonster == null)
                 {
-                    x.MapInstanceId = MapInstanceId;
-                    x.MapInstance = this;
-                    return x;
-                }));
+                    continue;
+                }
+
+                var entity = EcsWorld.CreateNpc(
+                    x.MapNpcId,
+                    npcMonster,
+                    this,
+                    x.MapX, x.MapY, x.Direction,
+                    x.MapX, x.MapY,
+                    x.IsMoving, x.IsDisabled, x.Dialog, x.Effect, x.EffectDelay,
+                    null);
+                entries[x.MapNpcId] = new NpcComponentBundle(entity, EcsWorld);
+            }
+            _npcs = new ConcurrentDictionary<int, NpcComponentBundle>(entries);
+        }
+
+        public NpcComponentBundle? GetNpcById(int mapNpcId) =>
+            _npcs.TryGetValue(mapNpcId, out var n) ? n : null;
+
+        public MonsterComponentBundle? GetMonsterById(int mapMonsterId) =>
+            _monsters.TryGetValue(mapMonsterId, out var m) ? m : null;
+
+        public NpcComponentBundle? FindNpc(Func<NpcComponentBundle, bool> predicate)
+        {
+            foreach (var n in _npcs.Values)
+            {
+                if (predicate(n)) return n;
+            }
+            return null;
+        }
+
+        public MonsterComponentBundle? FindMonster(Func<MonsterComponentBundle, bool> predicate)
+        {
+            foreach (var m in _monsters.Values)
+            {
+                if (predicate(m)) return m;
+            }
+            return null;
         }
 
         public List<IPacket> GetMapItems(RegionType language)
@@ -273,7 +373,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     packets.Add(s.GenerateCharSc());
                 }
             });
-            MapItems.Values.ToList().ForEach(s => packets.Add(s.GenerateIn()));
+            foreach (var mapItem in GetMapItemBundles())
+            {
+                packets.Add(mapItem.GenerateIn());
+            }
             return packets;
         }
 
@@ -312,13 +415,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposing || (Life == null))
+            if (!disposing)
             {
                 return;
             }
 
-            Life.Dispose();
+            Life?.Dispose();
             Life = null;
+            EcsWorld.Dispose();
         }
     }
 }

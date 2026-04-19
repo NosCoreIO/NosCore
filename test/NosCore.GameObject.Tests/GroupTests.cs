@@ -6,27 +6,18 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.DignityService;
-using NosCore.Algorithm.ExperienceService;
-using NosCore.Algorithm.HeroExperienceService;
-using NosCore.Algorithm.HpService;
-using NosCore.Algorithm.JobExperienceService;
-using NosCore.Algorithm.MpService;
-using NosCore.Algorithm.ReputationService;
 using NosCore.Core.Services.IdService;
-using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Group;
-using NosCore.GameObject.Entities.Entities;
-using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.GroupService;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking.SessionGroup;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using NosCore.Tests.Shared.AutoFixture;
 using SpecLight;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests
 {
@@ -34,58 +25,43 @@ namespace NosCore.GameObject.Tests
     public class GroupTests
     {
         private Group Group = null!;
-        private NosCoreFixture Fixture = null!;
+        private List<ClientSession> Sessions = null!;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Fixture = new NosCoreFixture();
-            Group = new Group(GroupType.Group, new Mock<ISessionGroupFactory>().Object)
+            await TestHelpers.ResetAsync();
+            Group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory)
             {
                 GroupId = new IdService<Group>(1).GetNextId()
             };
+            Sessions = new List<ClientSession>();
         }
 
-        private Character CreateCharacter(long id = 1, string name = "TestCharacter")
+        private async Task<ClientSession> CreateCharacterAsync()
         {
-            return new Character(
-                new Mock<IInventoryService>().Object,
-                new Mock<IExchangeService>().Object,
-                new Mock<IItemGenerationService>().Object,
-                new HpService(),
-                new MpService(),
-                new ReputationService(),
-                new DignityService(),
-                new Mock<ISpeedCalculationService>().Object,
-                TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.GameLanguageLocalizer)
-            {
-                CharacterId = id,
-                Name = name,
-                Slot = 1,
-                AccountId = id,
-                MapId = 1,
-                State = CharacterState.Active
-            };
+            var session = await TestHelpers.Instance.GenerateSessionAsync();
+            Sessions.Add(session);
+            return session;
         }
 
         [TestMethod]
-        public void AddingSinglePlayerToGroupShouldNotFormFullGroup()
+        public async Task AddingSinglePlayerToGroupShouldNotFormFullGroup()
         {
-            new Spec("Adding single player to group should not form full group")
-                .When(ASinglePlayerJoins)
+            await new Spec("Adding single player to group should not form full group")
+                .WhenAsync(ASinglePlayerJoins)
                 .Then(GroupShouldNotHave_Members, 2)
-                .Execute();
+                .ExecuteAsync();
         }
 
         [TestMethod]
-        public void RemovingOnlyPlayerShouldLeaveGroupEmpty()
+        public async Task RemovingOnlyPlayerShouldLeaveGroupEmpty()
         {
-            new Spec("Removing only player should leave group empty")
-                .Given(AGroupWithOnePlayer)
+            await new Spec("Removing only player should leave group empty")
+                .GivenAsync(AGroupWithOnePlayer)
                 .When(ThePlayerLeaves)
                 .Then(GroupShouldBeEmpty)
-                .Execute();
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -98,19 +74,20 @@ namespace NosCore.GameObject.Tests
         }
 
         [TestMethod]
-        public void LeaderShouldTransferWhenOriginalLeaderLeaves()
+        public async Task LeaderShouldTransferWhenOriginalLeaderLeaves()
         {
-            new Spec("Leader should transfer when original leader leaves")
-                .Given(AFullGroupWithALeader)
+            await new Spec("Leader should transfer when original leader leaves")
+                .GivenAsync(AFullGroupWithALeader)
                 .Then(GroupShouldBeFullAndHaveALeader)
                 .When(TheLeaderLeaves)
                 .Then(LeadershipShouldTransferToNextMember)
-                .Execute();
+                .ExecuteAsync();
         }
 
-        private void ASinglePlayerJoins()
+        private async Task ASinglePlayerJoins()
         {
-            Group.JoinGroup(CreateCharacter());
+            var session = await CreateCharacterAsync();
+            Group.JoinGroup(session.Character);
         }
 
         private void GroupShouldNotHave_Members(int value)
@@ -118,10 +95,10 @@ namespace NosCore.GameObject.Tests
             Assert.IsFalse(Group.Count == 2);
         }
 
-        private void AGroupWithOnePlayer()
+        private async Task AGroupWithOnePlayer()
         {
-            var entity = CreateCharacter();
-            Group.JoinGroup(entity);
+            var session = await CreateCharacterAsync();
+            Group.JoinGroup(session.Character);
         }
 
         private void ThePlayerLeaves()
@@ -137,7 +114,10 @@ namespace NosCore.GameObject.Tests
 
         private void APetAttemptsToJoin()
         {
-            Group.JoinGroup(new Pet());
+            var pet = new Mock<INamedEntity>();
+            pet.SetupGet(s => s.VisualType).Returns(VisualType.Monster);
+            pet.SetupGet(s => s.VisualId).Returns(1);
+            Group.JoinGroup(pet.Object);
         }
 
         private void GroupShouldRemainEmpty()
@@ -145,11 +125,12 @@ namespace NosCore.GameObject.Tests
             Assert.IsTrue(Group.IsEmpty);
         }
 
-        private void AFullGroupWithALeader()
+        private async Task AFullGroupWithALeader()
         {
             for (var i = 0; i < (long)Group.Type; i++)
             {
-                Group.JoinGroup(CreateCharacter(i + 1, $"TestCharacter{i}"));
+                var session = await CreateCharacterAsync();
+                Group.JoinGroup(session.Character);
             }
         }
 

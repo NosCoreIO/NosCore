@@ -5,7 +5,8 @@
 //
 
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Interfaces;
 using Serilog;
 using System;
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Services.BroadcastService
             }
         }
 
-        public void UpdateCharacter(string channelId, long characterId, Guid? mapInstanceId, ICharacterEntity? character)
+        public void UpdateCharacter(string channelId, long characterId, Guid? mapInstanceId)
         {
             if (_sessionsByChannelId.TryGetValue(channelId, out var session))
             {
@@ -45,7 +46,6 @@ namespace NosCore.GameObject.Services.BroadcastService
 
                 session.CharacterId = characterId;
                 session.MapInstanceId = mapInstanceId;
-                session.Character = character;
                 _channelIdByCharacterId[characterId] = channelId;
             }
         }
@@ -64,9 +64,83 @@ namespace NosCore.GameObject.Services.BroadcastService
             return null;
         }
 
+        public ClientSession? GetSessionByCharacterId(long characterId)
+        {
+            if (_channelIdByCharacterId.TryGetValue(characterId, out var channelId) &&
+                _sessionsByChannelId.TryGetValue(channelId, out var session))
+            {
+                return session.Sender as ClientSession;
+            }
+            return null;
+        }
+
+        public ClientSession? GetSession(Func<ClientSession, bool> predicate)
+        {
+            return _sessionsByChannelId.Values
+                .Select(s => s.Sender as ClientSession)
+                .Where(s => s?.HasSelectedCharacter == true)
+                .FirstOrDefault(s => s != null && predicate(s));
+        }
+
+        public IEnumerable<ClientSession> GetSessions(Func<ClientSession, bool>? predicate = null)
+        {
+            var sessions = _sessionsByChannelId.Values
+                .Select(s => s.Sender as ClientSession)
+                .Where(s => s?.HasSelectedCharacter == true)
+                .Cast<ClientSession>();
+
+            return predicate == null ? sessions : sessions.Where(predicate);
+        }
+
         public IEnumerable<SessionInfo> GetSessionsByMapInstance(Guid mapInstanceId)
         {
             return _sessionsByChannelId.Values.Where(s => s.MapInstanceId == mapInstanceId);
+        }
+
+        public IEnumerable<ClientSession> GetClientSessionsByMapInstance(Guid mapInstanceId)
+        {
+            return _sessionsByChannelId.Values
+                .Where(s => s.MapInstanceId == mapInstanceId)
+                .Select(s => s.Sender as ClientSession)
+                .Where(s => s?.HasPlayerEntity == true)
+                .Cast<ClientSession>();
+        }
+
+        public PlayerComponentBundle GetCharacter(Func<PlayerComponentBundle, bool> predicate)
+        {
+            if (TryGetCharacter(predicate, out var character))
+            {
+                return character;
+            }
+            throw new InvalidOperationException("Character not found");
+        }
+
+        public bool TryGetCharacter(Func<PlayerComponentBundle, bool> predicate, out PlayerComponentBundle character)
+        {
+            foreach (var session in _sessionsByChannelId.Values)
+            {
+                if (session.Sender is ClientSession clientSession && clientSession.HasPlayerEntity)
+                {
+                    var c = clientSession.Character;
+                    if (predicate(c))
+                    {
+                        character = c;
+                        return true;
+                    }
+                }
+            }
+            character = default;
+            return false;
+        }
+
+        public IEnumerable<PlayerComponentBundle> GetCharacters(Func<PlayerComponentBundle, bool>? predicate = null)
+        {
+            var characters = _sessionsByChannelId.Values
+                .Select(s => s.Sender as ClientSession)
+                .Where(s => s?.HasPlayerEntity == true)
+                .Select(s => s!.Character);
+
+            return predicate == null ? characters : characters.Where(predicate);
         }
 
         public IEnumerable<SessionInfo> GetSessionsByGroup(long groupId)
@@ -77,23 +151,6 @@ namespace NosCore.GameObject.Services.BroadcastService
         public IEnumerable<SessionInfo> GetAllSessions()
         {
             return _sessionsByChannelId.Values;
-        }
-
-        public ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool> predicate)
-        {
-            return _sessionsByChannelId.Values
-                .Where(s => s.Character != null)
-                .Select(s => s.Character!)
-                .FirstOrDefault(predicate);
-        }
-
-        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? predicate = null)
-        {
-            var characters = _sessionsByChannelId.Values
-                .Where(s => s.Character != null)
-                .Select(s => s.Character!);
-
-            return predicate == null ? characters : characters.Where(predicate);
         }
 
         public async Task BroadcastPacketAsync(IPacket packet)
@@ -142,16 +199,21 @@ namespace NosCore.GameObject.Services.BroadcastService
         public List<Subscriber> GetConnectedAccounts()
         {
             return _sessionsByChannelId.Values.Select(s =>
-                new Subscriber
+            {
+                var clientSession = s.Sender as ClientSession;
+                return new Subscriber
                 {
                     Name = s.AccountName,
-                    ConnectedCharacter = s.Character == null ? null : new Data.WebApi.Character
-                    {
-                        Name = s.Character.Name!,
-                        Id = s.Character.VisualId,
-                        FriendRequestBlocked = s.Character.FriendRequestBlocked
-                    }
-                }).ToList();
+                    ConnectedCharacter = clientSession?.HasSelectedCharacter == true
+                        ? new Data.WebApi.Character
+                        {
+                            Name = clientSession.Character.Name,
+                            Id = clientSession.Character.CharacterId,
+                            FriendRequestBlocked = clientSession.Character.FriendRequestBlocked
+                        }
+                        : null
+                };
+            }).ToList();
         }
     }
 }

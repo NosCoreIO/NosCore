@@ -82,8 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 AccountName = Session.Account.Name,
                 Disconnect = () => Task.CompletedTask,
                 CharacterId = Session.Character.CharacterId,
-                MapInstanceId = Session.Character.MapInstance.MapInstanceId,
-                Character = Session.Character
+                MapInstanceId = Session.Character.MapInstance.MapInstanceId
             });
         }
 

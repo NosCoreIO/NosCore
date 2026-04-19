@@ -5,7 +5,8 @@
 //
 
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -17,16 +18,20 @@ namespace NosCore.GameObject.Services.BroadcastService
     {
         void Register(SessionInfo sessionInfo);
         void Unregister(string channelId);
-        void UpdateCharacter(string channelId, long characterId, Guid? mapInstanceId, ICharacterEntity? character);
+        void UpdateCharacter(string channelId, long characterId, Guid? mapInstanceId);
 
         IPacketSender? GetSenderByChannelId(string channelId);
         IPacketSender? GetSenderByCharacterId(long characterId);
+        ClientSession? GetSessionByCharacterId(long characterId);
+        ClientSession? GetSession(Func<ClientSession, bool> predicate);
+        IEnumerable<ClientSession> GetSessions(Func<ClientSession, bool>? predicate = null);
         IEnumerable<SessionInfo> GetSessionsByMapInstance(Guid mapInstanceId);
         IEnumerable<SessionInfo> GetSessionsByGroup(long groupId);
         IEnumerable<SessionInfo> GetAllSessions();
-
-        ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool> predicate);
-        IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? predicate = null);
+        IEnumerable<ClientSession> GetClientSessionsByMapInstance(Guid mapInstanceId);
+        PlayerComponentBundle GetCharacter(Func<PlayerComponentBundle, bool> predicate);
+        bool TryGetCharacter(Func<PlayerComponentBundle, bool> predicate, out PlayerComponentBundle character);
+        IEnumerable<PlayerComponentBundle> GetCharacters(Func<PlayerComponentBundle, bool>? predicate = null);
 
         Task BroadcastPacketAsync(IPacket packet);
         Task BroadcastPacketAsync(IPacket packet, string excludeChannelId);
@@ -46,6 +51,5 @@ namespace NosCore.GameObject.Services.BroadcastService
         public long? CharacterId { get; set; }
         public Guid? MapInstanceId { get; set; }
         public long? GroupId { get; set; }
-        public ICharacterEntity? Character { get; set; }
     }
 }

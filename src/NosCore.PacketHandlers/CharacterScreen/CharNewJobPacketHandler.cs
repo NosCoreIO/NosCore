@@ -24,13 +24,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         public override async Task ExecuteAsync(CharNewJobPacket packet, ClientSession clientSession)
         {
-            //TODO add a flag on Account
+            if (clientSession.HasSelectedCharacter)
+            {
+                return;
+            }
+
             if (await characterDao.FirstOrDefaultAsync(s =>
                 (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == configuration.Value.ServerId) &&
                 (s.State == CharacterState.Active)) == null)
             {
-                //Needs at least a level 80 to Create a martial artist
-                //TODO log
                 return;
             }
 

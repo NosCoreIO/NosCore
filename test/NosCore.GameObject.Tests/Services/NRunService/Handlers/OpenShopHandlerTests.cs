@@ -8,7 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -32,7 +33,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private OpenShopEventHandler Handler = null!;
         private ClientSession Session = null!;
-        private MapNpc? Npc;
+        private NpcComponentBundle? Npc;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -86,15 +87,18 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
 
         private void NpcExists()
         {
-            Npc = new MapNpc();
-            Npc.MapNpcId = 1;
-            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
+            var npcMonster = new NpcMonsterDto { NpcMonsterVNum = 1 };
+            var mapInstance = Session.Character.MapInstance;
+            var entity = mapInstance.EcsWorld.CreateNpc(
+                1, npcMonster, mapInstance,
+                0, 0, 0, 0, 0, false, false, null, 0, 0, null);
+            Npc = new NpcComponentBundle(entity, mapInstance.EcsWorld);
         }
 
         private void CheckingConditionWithOpenShopRunner()
         {
             var packet = new NrunPacket { Runner = NrunRunnerType.OpenShop };
-            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!, packet));
+            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!.Value, packet));
         }
 
         private void CheckingConditionWithNullEntity()
@@ -106,7 +110,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         private void CheckingConditionWithTeleportRunner()
         {
             var packet = new NrunPacket { Runner = NrunRunnerType.Teleport };
-            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!, packet));
+            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!.Value, packet));
         }
 
         private async Task ExecutingOpenShop()
@@ -115,12 +119,12 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             {
                 Runner = NrunRunnerType.OpenShop,
                 VisualType = VisualType.Npc,
-                VisualId = Npc!.MapNpcId,
+                VisualId = Npc!.Value.VisualId,
                 Type = 0
             };
             var requestData = new RequestData<Tuple<IAliveEntity, NrunPacket>>(
                 Session,
-                new Tuple<IAliveEntity, NrunPacket>(Npc!, packet));
+                new Tuple<IAliveEntity, NrunPacket>(Npc!.Value, packet));
             await Handler.ExecuteAsync(requestData);
         }
 
@@ -136,7 +140,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
 
         private void SessionShouldRemainValid()
         {
-            Assert.IsNotNull(Session.Character);
+            Assert.IsTrue(Session.HasPlayerEntity);
         }
     }
 }

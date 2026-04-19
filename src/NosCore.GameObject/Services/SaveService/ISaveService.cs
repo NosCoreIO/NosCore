@@ -4,13 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.SaveService
 {
     public interface ISaveService
     {
-        Task SaveAsync(ICharacterEntity character);
+        Task SaveAsync(ClientSession session);
     }
 }

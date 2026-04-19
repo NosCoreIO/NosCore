@@ -5,8 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Core.Services.IdService;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -30,7 +29,6 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
         private DropEventHandler Handler = null!;
         private ClientSession Session = null!;
         private IItemGenerationService ItemProvider = null!;
-        private IIdService<MapItem> IdService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -40,7 +38,6 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new DropEventHandler();
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
-            IdService = new IdService<MapItem>(1);
         }
 
         [TestMethod]
@@ -86,7 +83,8 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
                 .ExecuteAsync();
         }
 
-        private MapItem? DroppedItem;
+        private MapItemComponentBundle? DroppedItem;
+        private long DroppedItemVisualId;
         private IItemInstance? ItemInstance;
         private bool ConditionResult;
 
@@ -94,13 +92,14 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
         {
             ItemInstance = ItemProvider.Create(1012, 10);
             DroppedItem = CreateMapItem(ItemInstance);
+            DroppedItemVisualId = DroppedItem!.Value.VisualId;
         }
 
         private void ItemDroppedOnMap()
         {
             ItemInstance = ItemProvider.Create(1012, 5);
             DroppedItem = CreateMapItem(ItemInstance);
-            Session.Character.MapInstance.MapItems.TryAdd(DroppedItem.VisualId, DroppedItem);
+            DroppedItemVisualId = DroppedItem!.Value.VisualId;
         }
 
         private void CharacterHasEmptyInventory()
@@ -120,17 +119,17 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
 
         private void CheckingCondition()
         {
-            ConditionResult = Handler.Condition(DroppedItem!);
+            ConditionResult = Handler.Condition(DroppedItem!.Value);
         }
 
         private async Task PickingUpItem()
         {
-            var requestData = new RequestData<Tuple<MapItem, GetPacket>>(
+            var requestData = new RequestData<Tuple<MapItemComponentBundle, GetPacket>>(
                 Session,
-                new Tuple<MapItem, GetPacket>(DroppedItem!, new GetPacket
+                new Tuple<MapItemComponentBundle, GetPacket>(DroppedItem!.Value, new GetPacket
                 {
                     PickerId = Session.Character.CharacterId,
-                    VisualId = DroppedItem!.VisualId,
+                    VisualId = DroppedItem!.Value.VisualId,
                     PickerType = VisualType.Player
                 }));
             await Handler.ExecuteAsync(requestData);
@@ -141,11 +140,6 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
             Assert.IsTrue(ConditionResult);
         }
 
-        private void ConditionShouldBeFalse()
-        {
-            Assert.IsFalse(ConditionResult);
-        }
-
         private void ItemShouldBeInInventory()
         {
             var invItem = Session.Character.InventoryService.Values.FirstOrDefault(i => i.ItemInstance.ItemVNum == 1012);
@@ -154,7 +148,7 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
 
         private void ItemShouldBeRemovedFromMap()
         {
-            Assert.IsFalse(Session.Character.MapInstance.MapItems.ContainsKey(DroppedItem!.VisualId));
+            Assert.IsNull(Session.Character.MapInstance.TryGetMapItem(DroppedItemVisualId));
         }
 
         private void ShouldReceiveNotEnoughSpaceMessage()
@@ -162,16 +156,9 @@ namespace NosCore.GameObject.Tests.Services.MapItemGenerationService.Handlers
             Assert.IsTrue(Session.LastPackets.Any(p => p is MsgiPacket msg && msg.Message == Game18NConstString.NotEnoughSpace));
         }
 
-        private MapItem CreateMapItem(IItemInstance item)
+        private MapItemComponentBundle CreateMapItem(IItemInstance item)
         {
-            var mapItem = new MapItem(IdService.GetNextId())
-            {
-                MapInstance = Session.Character.MapInstance,
-                PositionX = 1,
-                PositionY = 1,
-                ItemInstance = item
-            };
-            return mapItem;
+            return TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance, item, 1, 1);
         }
     }
 }

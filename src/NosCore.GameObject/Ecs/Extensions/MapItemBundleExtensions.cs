@@ -18,7 +18,7 @@ public static class MapItemBundleExtensions
         {
             VisualType = VisualType.Object,
             VisualId = item.VisualId,
-            VNum = item.VNum.ToString(),
+            VNum = item.VNum == 0 ? string.Empty : item.VNum.ToString(),
             PositionX = item.PositionX,
             PositionY = item.PositionY,
             InItemSubPacket = new InItemSubPacket

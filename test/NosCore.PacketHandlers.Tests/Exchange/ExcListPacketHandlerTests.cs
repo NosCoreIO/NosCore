@@ -140,8 +140,10 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void ExchangeIsOpenWithTarget()
         {
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
-            ExchangeService.Setup(x => x.GetTargetId(Session.Character.VisualId))
-                .Returns(TargetSession.Character.VisualId);
+            var visualId = Session.Character.VisualId;
+            var targetVisualId = TargetSession.Character.VisualId;
+            ExchangeService.Setup(x => x.GetTargetId(visualId))
+                .Returns(targetVisualId);
             ExchangeService.Setup(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
@@ -189,17 +191,20 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeGoldShouldBeSet()
         {
-            ExchangeService.Verify(x => x.SetGold(Session.Character.CharacterId, 5000, 0), Times.Once);
+            var characterId = Session.Character.CharacterId;
+            ExchangeService.Verify(x => x.SetGold(characterId, 5000, 0), Times.Once);
         }
 
         private void ExchangeShouldBeClosed()
         {
-            ExchangeService.Verify(x => x.CloseExchange(Session.Character.VisualId, ExchangeResultType.Failure), Times.Once);
+            var visualId = Session.Character.VisualId;
+            ExchangeService.Verify(x => x.CloseExchange(visualId, ExchangeResultType.Failure), Times.Once);
         }
 
         private void ItemShouldBeAddedToExchange()
         {
-            ExchangeService.Verify(x => x.AddItems(Session.Character.CharacterId, It.IsAny<InventoryItemInstance>(), 5), Times.Once);
+            var characterId = Session.Character.CharacterId;
+            ExchangeService.Verify(x => x.AddItems(characterId, It.IsAny<InventoryItemInstance>(), 5), Times.Once);
         }
     }
 }

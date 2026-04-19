@@ -6,8 +6,9 @@
 
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Networking;
@@ -24,15 +25,17 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
     public class DropEventHandler : IGetMapItemEventHandler
     {
-        public bool Condition(MapItem item)
+        public bool Condition(MapItemComponentBundle item)
         {
             return (item.ItemInstance!.Item.ItemType != ItemType.Map) && (item.VNum != 1046);
         }
 
-        public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<MapItemComponentBundle, GetPacket>> requestData)
         {
-            var amount = requestData.Data.Item1.Amount;
-            var iteminstance = InventoryItemInstance.Create(requestData.Data.Item1.ItemInstance!,
+            var mapItem = requestData.Data.Item1;
+            var visualId = mapItem.VisualId;
+            var amount = mapItem.Amount;
+            var iteminstance = InventoryItemInstance.Create(mapItem.ItemInstance!,
                 requestData.ClientSession.Character.CharacterId);
             var inv = requestData.ClientSession.Character.InventoryService.AddItemToPocket(iteminstance)?
                 .FirstOrDefault();
@@ -40,10 +43,9 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
             if (inv != null)
             {
                 await requestData.ClientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
-                requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId,
-                    out _);
+                requestData.ClientSession.Character.MapInstance.TryRemoveMapItem(visualId);
                 await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                    requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+                    requestData.ClientSession.Character.GenerateGet(visualId));
                 if (requestData.Data.Item2.PickerType == VisualType.Npc)
                 {
                     await requestData.ClientSession.SendPacketAsync(

@@ -159,9 +159,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Bu kanal bir kaç saniye içinde kapatılacak.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Karakter yüklenmedi.</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>İstemci bağlandı, ID {0}</value>
   </data>

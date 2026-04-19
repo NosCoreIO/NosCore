@@ -10,7 +10,7 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
-            await requestData.ClientSession.Character.ChangeClassAsync(classType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
+            await requestData.ClientSession.ChangeClassAsync(classType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
         }
     }
 }

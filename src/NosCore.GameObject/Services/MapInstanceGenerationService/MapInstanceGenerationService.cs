@@ -11,8 +11,10 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -48,11 +50,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return LoadPortalsAsync(mapInstance, portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 
-        public void RemoveMap(Guid mapInstanceId)
+        public async Task RemoveMapAsync(Guid mapInstanceId)
         {
-            if (mapInstanceRegistry.Unregister(mapInstanceId, out var mapInstance))
+            if (mapInstanceRegistry.Unregister(mapInstanceId, out var mapInstance) && mapInstance != null)
             {
-                mapInstance?.Kick();
+                await mapInstance.KickAsync();
             }
         }
 
@@ -68,10 +70,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 Console.WriteLine(ex.Message);
             }
 
-            var monsters = mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId)
+            var monsters = mapMonsters.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
-            var npcs = mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
+            var npcs = mapNpcs.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
@@ -85,14 +87,21 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                     if (monsters.TryGetValue(map.MapId, out var monster))
                     {
-                        monster.ForEach(s => s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
-                        mapinstance.LoadMonsters(monster);
+                        mapinstance.LoadMonsters(monster, npcMonsters);
                     }
 
                     if (npcs.TryGetValue(map.MapId, out var npc))
                     {
+                        mapinstance.LoadNpcs(npc, npcMonsters);
+
                         npc.ForEach(s =>
                         {
+                            var bundle = mapinstance.GetNpcById(s.MapNpcId);
+                            if (bundle == null)
+                            {
+                                return;
+                            }
+
                             List<ShopItemDto> dtoShopItems = new List<ShopItemDto>();
                             NpcTalkDto? dialog = null;
                             var shop = shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
@@ -101,9 +110,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems, itemProvider);
+                            bundle.Value.InitializeShopAndDialog(shop, dialog, dtoShopItems, itemProvider);
                         });
-                        mapinstance.LoadNpcs(npc);
                     }
                     entranceRunnerService.LoadHandlers(mapinstance);
                     return mapinstance;

@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -46,15 +47,15 @@ namespace NosCore.PacketHandlers.Battle
                 switch (packet.TargetVisualType)
                 {
                     case VisualType.Player:
-                        requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == packet.TargetId);
+                        requestableEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == packet.TargetId, out var target) ? target : null;
                         break;
                     case VisualType.Npc:
                         requestableEntity =
-                            clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == packet.TargetId);
+                            clientSession.Character.MapInstance.FindNpc(s => s.VisualId == packet.TargetId);
                         break;
                     case VisualType.Monster:
                         requestableEntity =
-                            clientSession.Character.MapInstance.Monsters.Find(s => s.VisualId == packet.TargetId);
+                            clientSession.Character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId);
                         break;
                     default:
                         logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
