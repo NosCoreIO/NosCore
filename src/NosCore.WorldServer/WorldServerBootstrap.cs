@@ -128,7 +128,6 @@ namespace NosCore.WorldServer
                 .SingleInstance();
 
             //NosCore.Configuration
-            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHubClient).Assembly)
                 .Where(t => t.Name.EndsWith("HubClient") && t.Name != nameof(ChannelHubClient))
                 .AsImplementedInterfaces()
@@ -170,7 +169,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<WorldDecoder>().AsImplementedInterfaces();
             containerBuilder.RegisterType<WorldEncoder>().AsImplementedInterfaces();
             containerBuilder.Register(x => new List<IRequestFilter>()).As<IEnumerable<IRequestFilter>>();
-            containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<WorldPacketHandlingStrategy>().As<IPacketHandlingStrategy>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(ISessionDisconnectHandler).Assembly)
                 .Where(t => typeof(ISessionDisconnectHandler).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract)
@@ -188,10 +186,6 @@ namespace NosCore.WorldServer
             containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
             containerBuilder.Register<IIdService<MapItemComponentBundle>>(_ => new IdService<MapItemComponentBundle>(100000)).SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-
-            containerBuilder.RegisterAssemblyTypes(typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly)
-                .Where(t => t.Name.EndsWith("Service"))
-                .AsImplementedInterfaces();
 
             containerBuilder.RegisterType<MapInstanceRegistry>().As<IMapInstanceRegistry>().SingleInstance();
             containerBuilder.RegisterType<MinilandRegistry>().As<IMinilandRegistry>().SingleInstance();
@@ -246,6 +240,26 @@ namespace NosCore.WorldServer
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
                         x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
                             x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
+
+                    // Wolverine inspects IServiceCollection at startup to plan handler construction.
+                    // Direct dependencies of Wolverine handlers must be registered here, not only in Autofac —
+                    // Autofac-only registrations are invisible to Wolverine's code generation.
+                    services.AddSingleton<Serilog.ILogger>(_ => Log.Logger);
+                    services.AddSingleton<IClock>(_ => SystemClock.Instance);
+                    services.AddSingleton<NosCore.GameObject.Services.BroadcastService.ISessionRegistry,
+                        NosCore.GameObject.Services.BroadcastService.SessionRegistry>();
+
+                    foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }
+                                 .SelectMany(a => a.GetTypes())
+                                 .Where(t => t.Name.EndsWith("Service") && t.IsClass && !t.IsAbstract))
+                    {
+                        foreach (var iface in implType.GetInterfaces())
+                        {
+                            services.AddTransient(iface, implType);
+                        }
+                        services.AddTransient(implType);
+                    }
+
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.AddHostedService<WorldServer>();
                     services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
