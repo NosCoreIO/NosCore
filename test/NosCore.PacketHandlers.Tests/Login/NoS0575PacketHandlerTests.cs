@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Password = new Sha512Hasher().Hash("test").ToUpper();
+            Password = new Sha512Hasher().Hash("test").ToUpperInvariant();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AuthHttpClient = new Mock<IAuthHub>();
@@ -229,7 +229,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             var encryption = new Sha512Hasher();
             await NoS0575PacketHandler.ExecuteAsync(new NoS0575Packet
             {
-                Password = encryption.Hash("test1"),
+                Password = encryption.Hash("test1").ToUpperInvariant(),
                 Username = Session.Account.Name
             }, Session);
         }
