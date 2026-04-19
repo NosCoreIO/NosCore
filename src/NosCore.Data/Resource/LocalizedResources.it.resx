@@ -571,4 +571,7 @@
   <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
     <value>Tipo req_info non gestito: {0}</value>
   </data>
+  <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
+    <value>Tipo di potenziamento non gestito: {0}</value>
+  </data>
 </root>

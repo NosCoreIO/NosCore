@@ -191,6 +191,14 @@ namespace NosCore.WorldServer
             // "An item with the same key..." runtime errors (see PersistenceModule.MirrorTo
             // comment for the same pattern on the DAO side).
 
+            containerBuilder.RegisterType<NosCore.GameObject.Services.UpgradeService.RandomNumberSource>()
+                .As<NosCore.GameObject.Services.UpgradeService.IRandomNumberSource>().SingleInstance();
+            containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
+                .Where(t => typeof(NosCore.GameObject.Services.UpgradeService.IUpgradeOperation).IsAssignableFrom(t)
+                    && !t.IsInterface && !t.IsAbstract)
+                .AsImplementedInterfaces()
+                .SingleInstance();
+
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();
