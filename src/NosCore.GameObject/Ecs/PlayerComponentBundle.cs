@@ -1,4 +1,3 @@
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs.Attributes;
 using NosCore.GameObject.Ecs.Components;
@@ -107,10 +106,5 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
     public Task SendPacketsAsync(IEnumerable<IPacket?> packets)
     {
         return Sender?.SendPacketsAsync(packets) ?? Task.CompletedTask;
-    }
-
-    public string GetMessageFromKey(LanguageKey languageKey)
-    {
-        return GameLanguageLocalizer[languageKey, Account.Language];
     }
 }

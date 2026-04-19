@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var invisible = character.Invisible;
                 var authority = character.Authority;
 
-                await session.SendPacketAsync(character.GenerateCInfo());
+                await session.SendPacketAsync(character.GenerateCInfo(gameLanguageLocalizer));
                 await session.SendPacketAsync(character.GenerateCMode());
                 await session.SendPacketAsync(character.GenerateEq());
                 await session.SendPacketAsync(character.GenerateEquipment());

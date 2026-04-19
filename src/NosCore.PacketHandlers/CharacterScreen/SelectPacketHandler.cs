@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISessionGroupFactory sessionGroupFactory,
-            ICharacterInitializationService characterInitializationService, IGameLanguageLocalizer gameLanguageLocalizer)
+            ICharacterInitializationService characterInitializationService)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -161,8 +161,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     true,
                     now,
                     now,
-                    0,
-                    gameLanguageLocalizer
+                    0
                 );
 
                 mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);

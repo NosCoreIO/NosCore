@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs;
@@ -28,7 +29,7 @@ namespace NosCore.PacketHandlers.Exchange
 {
     public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
             IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -219,17 +220,17 @@ namespace NosCore.PacketHandlers.Exchange
                         }
 
                         var getSessionData = exchangeService.GetData(clientSession.Character.CharacterId);
-                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold);
+                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
                         clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
 
-                        await exchangeTarget.AddGoldAsync(getSessionData.Gold);
+                        await exchangeTarget.AddGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
                         exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
 
                         var getTargetData = exchangeService.GetData(exchangeTarget.VisualId);
-                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold);
+                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
                         exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
 
-                        await clientSession.Character.AddGoldAsync(getTargetData.Gold);
+                        await clientSession.Character.AddGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
                         clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
                     }
 

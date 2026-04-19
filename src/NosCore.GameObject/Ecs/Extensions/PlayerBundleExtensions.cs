@@ -10,6 +10,7 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
@@ -143,19 +144,21 @@ public static class PlayerBundleExtensions
         return new BlinitPacket { SubPackets = subpackets };
     }
 
-    public static async Task SetReputationAsync(this PlayerComponentBundle player, long reputation)
+    public static async Task SetReputationAsync(this PlayerComponentBundle player, long reputation,
+        IGameLanguageLocalizer localizer)
     {
         player.Reputation = reputation;
         await player.SendPacketAsync(player.GenerateFd());
         await player.SendPacketAsync(player.GenerateSay(
-            player.GetMessageFromKey(LanguageKey.REPUTATION_CHANGED),
+            localizer[LanguageKey.REPUTATION_CHANGED, player.Account.Language],
             SayColorType.Red));
         await player.MapInstance.SendPacketAsync(player.GenerateIn(""));
     }
 
     public static async Task SetLevelAsync(this PlayerComponentBundle player, byte level,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry)
+        IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry,
+        IGameLanguageLocalizer localizer)
     {
         player.Level = level;
         player.LevelXp = 0;
@@ -169,7 +172,7 @@ public static class PlayerBundleExtensions
         var visualId = player.VisualId;
         var authority = player.Authority;
         var supportPrefix = authority == AuthorityType.Moderator
-            ? player.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty;
+            ? localizer[LanguageKey.SUPPORT, player.Account.Language] : string.Empty;
         var inPacket = player.GenerateIn(supportPrefix);
         var eff6 = player.GenerateEff(6);
         var eff198 = player.GenerateEff(198);
@@ -366,12 +369,12 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static CInfoPacket GenerateCInfo(this PlayerComponentBundle player)
+    public static CInfoPacket GenerateCInfo(this PlayerComponentBundle player, IGameLanguageLocalizer localizer)
     {
         return new CInfoPacket
         {
             Name = player.Authority == AuthorityType.Moderator
-                ? $"[{player.GetMessageFromKey(LanguageKey.SUPPORT)}]" + player.Name : player.Name,
+                ? $"[{localizer[LanguageKey.SUPPORT, player.Account.Language]}]" + player.Name : player.Name,
             Unknown1 = null,
             GroupId = -1,
             FamilyId = -1,

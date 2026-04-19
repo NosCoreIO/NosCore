@@ -1,8 +1,6 @@
 using NodaTime;
-using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Ecs.Components;
 
@@ -17,6 +15,5 @@ public record struct PlayerStateComponent(
     bool CanFight,
     Instant LastPortal,
     Instant LastSp,
-    byte VehicleSpeed,
-    IGameLanguageLocalizer GameLanguageLocalizer
+    byte VehicleSpeed
 );

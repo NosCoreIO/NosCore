@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             PubSubHub.Setup(x => x.GetSubscribersAsync())
                 .Returns(Task.FromResult(new List<Subscriber>()));
 
-            Handler = new SetReputationPacketHandler(PubSubHub.Object);
+            Handler = new SetReputationPacketHandler(PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]

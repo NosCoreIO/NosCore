@@ -52,7 +52,8 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .Returns(Task.FromResult(new List<ChannelInfo>()));
 
             Handler = new SetLevelCommandPacketHandler(PubSubHub.Object, ChannelHub.Object,
-                new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), TestHelpers.Instance.SessionRegistry);
+                new ExperienceService(), new JobExperienceService(), new HeroExperienceService(), TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]
