@@ -22,15 +22,20 @@ namespace NosCore.GameObject.Services.GuriRunnerService
 
         public void GuriLaunch(ClientSession clientSession, GuriPacket data)
         {
-            var handlersRequest = new Subject<RequestData<GuriPacket>>();
+            using var handlersRequest = new Subject<RequestData<GuriPacket>>();
+            var subscriptions = new List<IDisposable>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Select(handler.ExecuteAsync).Subscribe();
+                    subscriptions.Add(handlersRequest.Select(handler.ExecuteAsync).Subscribe());
                 }
             });
             handlersRequest.OnNext(new RequestData<GuriPacket>(clientSession, data));
+            foreach (var sub in subscriptions)
+            {
+                sub.Dispose();
+            }
         }
     }
 }

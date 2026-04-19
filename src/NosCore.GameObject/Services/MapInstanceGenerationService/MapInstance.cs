@@ -421,6 +421,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
             Life?.Dispose();
             Life = null;
+            foreach (var subject in Requests.Values)
+            {
+                subject.Dispose();
+            }
+            Requests.Clear();
             EcsWorld.Dispose();
         }
     }

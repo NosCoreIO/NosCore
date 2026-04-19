@@ -24,24 +24,35 @@ namespace NosCore.GameObject.Services.NRunService
         private readonly List<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>
             _handlers = Enumerable.ToList<IEventHandler<Tuple<IAliveEntity, NrunPacket>, Tuple<IAliveEntity, NrunPacket>>>(handlers);
 
-        public Task NRunLaunchAsync(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
+        public async Task NRunLaunchAsync(ClientSession clientSession, Tuple<IAliveEntity, NrunPacket> data)
         {
-            var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
+            using var handlersRequest = new Subject<RequestData<Tuple<IAliveEntity, NrunPacket>>>();
             var taskList = new List<Task>();
+            var subscriptions = new List<IDisposable>();
             _handlers.ForEach(handler =>
             {
                 if (handler.Condition(data))
                 {
-                    handlersRequest.Select(request =>
+                    subscriptions.Add(handlersRequest.Select(request =>
                     {
                         var task = handler.ExecuteAsync(request);
                         taskList.Add(task);
                         return task;
-                    }).Subscribe();
+                    }).Subscribe());
                 }
             });
             handlersRequest.OnNext(new RequestData<Tuple<IAliveEntity, NrunPacket>>(clientSession, data));
-            return Task.WhenAll(taskList);
+            try
+            {
+                await Task.WhenAll(taskList).ConfigureAwait(false);
+            }
+            finally
+            {
+                foreach (var sub in subscriptions)
+                {
+                    sub.Dispose();
+                }
+            }
         }
     }
 }
