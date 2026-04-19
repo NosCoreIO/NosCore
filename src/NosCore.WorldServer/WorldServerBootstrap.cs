@@ -25,6 +25,7 @@ using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Core.I18N;
+using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -367,6 +368,7 @@ namespace NosCore.WorldServer
                     InitializeConfiguration(args, services);
 
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+                    services.AddNosCoreTelemetry("NosCore.WorldServer");
 
                     services.AddI18NLogs();
                     services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));

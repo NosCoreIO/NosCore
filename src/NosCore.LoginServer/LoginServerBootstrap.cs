@@ -21,6 +21,7 @@ using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -199,6 +200,7 @@ namespace NosCore.LoginServer
                     InitializeConfiguration(args, services);
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+                    services.AddNosCoreTelemetry("NosCore.LoginServer");
 
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);
