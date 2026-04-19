@@ -5,10 +5,20 @@
 //
 
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Reactive.Subjects;
+using System.Threading;
 using Arch.Core;
 using NodaTime;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.NRunService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 
@@ -54,69 +64,61 @@ public class MapWorld : IDisposable
 
     public Entity CreateMonster(
         int monsterId,
-        short vNum,
-        Guid mapInstanceId,
+        NpcMonsterDto npcMonster,
+        MapInstance mapInstance,
         short positionX,
         short positionY,
         byte direction,
-        int hp,
-        int maxHp,
-        int mp,
-        int maxMp,
-        short race,
-        byte level,
-        byte heroLevel,
-        byte speed,
-        byte size,
         short firstX,
         short firstY,
         bool isMoving,
-        bool isHostile)
+        bool isHostile,
+        bool isDisabled)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         var entity = World.Create(
             new EntityIdentityComponent(monsterId, VisualType.Monster, 0),
-            new HealthComponent(hp, maxHp, true),
-            new ManaComponent(mp, maxMp),
-            new PositionComponent(positionX, positionY, direction, mapInstanceId),
+            new HealthComponent(npcMonster.MaxHp, npcMonster.MaxHp, true),
+            new ManaComponent(npcMonster.MaxMp, npcMonster.MaxMp),
+            new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
             new VisualComponent(0, 0, 0, 0, false, false, false),
-            new NpcDataComponent(vNum, race, level, heroLevel, speed, size),
+            new NpcDataComponent(npcMonster.NpcMonsterVNum, npcMonster.Race, npcMonster.Level, npcMonster.HeroLevel, npcMonster.Speed, npcMonster.BasicArea),
             new SpawnComponent(firstX, firstY, isMoving, isHostile),
             new EffectComponent(0, 0),
-            new TimingComponent(now, now)
+            new TimingComponent(now, now),
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<IAliveEntity, int>(), null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled)
         );
         return entity;
     }
 
     public Entity CreateNpc(
         int npcId,
-        short vNum,
-        Guid mapInstanceId,
+        NpcMonsterDto npcMonster,
+        MapInstance mapInstance,
         short positionX,
         short positionY,
         byte direction,
-        int hp,
-        int maxHp,
-        int mp,
-        int maxMp,
-        short race,
-        byte level,
-        byte speed,
-        byte size,
         short firstX,
         short firstY,
-        bool isMoving)
+        bool isMoving,
+        bool isDisabled,
+        short? dialog,
+        short effect,
+        short effectDelay,
+        Shop? shop)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         var entity = World.Create(
             new EntityIdentityComponent(npcId, VisualType.Npc, 0),
-            new HealthComponent(hp, maxHp, true),
-            new ManaComponent(mp, maxMp),
-            new PositionComponent(positionX, positionY, direction, mapInstanceId),
+            new HealthComponent(npcMonster.MaxHp, npcMonster.MaxHp, true),
+            new ManaComponent(npcMonster.MaxMp, npcMonster.MaxMp),
+            new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
             new VisualComponent(0, 0, 0, 0, false, false, false),
-            new NpcDataComponent(vNum, race, level, 0, speed, size),
+            new NpcDataComponent(npcMonster.NpcMonsterVNum, npcMonster.Race, npcMonster.Level, 0, npcMonster.Speed, npcMonster.BasicArea),
             new SpawnComponent(firstX, firstY, isMoving, false),
-            new TimingComponent(now, now)
+            new EffectComponent(effect, effectDelay),
+            new TimingComponent(now, now),
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<IAliveEntity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(INrunEventHandler)] = new() }, dialog, isDisabled)
         );
         return entity;
     }

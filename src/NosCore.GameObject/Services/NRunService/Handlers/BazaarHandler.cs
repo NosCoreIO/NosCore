@@ -6,7 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
-using NosCore.GameObject.Map;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
             return (item.Item2.Runner == NrunRunnerType.OpenNosBazaar)
-                && item.Item1 is MapNpc;
+                && item.Item1 is NpcComponentBundle;
         }
 
         public Task ExecuteAsync(RequestData<Tuple<IAliveEntity, NrunPacket>> requestData)

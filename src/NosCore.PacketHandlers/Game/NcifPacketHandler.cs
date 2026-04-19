@@ -33,10 +33,10 @@ namespace NosCore.PacketHandlers.Game
                     entity = sessionRegistry.TryGetCharacter(s => s.VisualId == ncifPacket.TargetId, out var player) ? player : null;
                     break;
                 case VisualType.Monster:
-                    entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);
+                    entity = session.Character.MapInstance.FindMonster(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 case VisualType.Npc:
-                    entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == ncifPacket.TargetId);
+                    entity = session.Character.MapInstance.FindNpc(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],

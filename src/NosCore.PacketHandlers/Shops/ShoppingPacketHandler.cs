@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Shops
                         _ => 1.0,
                     };
                     aliveEntity =
-                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
+                        clientSession.Character.MapInstance.FindNpc(s => s.VisualId == shoppingPacket.VisualId);
                     break;
 
                 default:

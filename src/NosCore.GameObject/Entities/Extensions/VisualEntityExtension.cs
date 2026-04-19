@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Map;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Packets.Enumerations;
@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Entities.Extensions
                 Direction = visualEntity.Direction,
                 InNonPlayerSubPacket = new InNonPlayerSubPacket
                 {
-                    Dialog = visualEntity is MapNpc npc ? npc.Dialog ?? 0 : (short)0,
+                    Dialog = visualEntity is NpcComponentBundle bundle ? bundle.Dialog ?? 0 : (short)0,
                     InAliveSubPacket = new InAliveSubPacket
                     {
                         Mp = (int)(visualEntity.Mp / (float)(visualEntity.NpcMonster?.MaxMp ?? 1) * 100),

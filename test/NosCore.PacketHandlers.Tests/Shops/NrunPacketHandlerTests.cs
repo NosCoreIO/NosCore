@@ -95,13 +95,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void NpcExistsOnMap()
         {
-            var npc = new NosCore.GameObject.Map.MapNpc();
-            npc.MapNpcId = 100;
-            npc.MapId = _session.Character.MapInstance.Map.MapId;
-            npc.MapX = 1;
-            npc.MapY = 1;
-            npc.Initialize(new NosCore.Data.StaticEntities.NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<NosCore.Data.StaticEntities.ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
-            _session.Character.MapInstance.LoadNpcs(new List<NosCore.GameObject.Map.MapNpc> { npc });
+            var npc = new NosCore.Data.Dto.MapNpcDto
+            {
+                MapNpcId = 100,
+                MapId = _session.Character.MapInstance.Map.MapId,
+                MapX = 1,
+                MapY = 1,
+                VNum = 1
+            };
+            _session.Character.MapInstance.LoadNpcs(
+                new List<NosCore.Data.Dto.MapNpcDto> { npc },
+                new List<NosCore.Data.StaticEntities.NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
         }
 
         private void PlayerIsRegistered()

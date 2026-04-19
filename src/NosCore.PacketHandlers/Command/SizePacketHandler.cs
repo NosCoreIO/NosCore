@@ -24,17 +24,17 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task ExecuteAsync(SizePacket sizePacket, ClientSession session)
         {
-            IAliveEntity entity;
+            IAliveEntity? entity;
             switch (sizePacket.VisualType)
             {
                 case VisualType.Player:
                     entity = session.Character;
                     break;
                 case VisualType.Monster:
-                    entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == sizePacket.VisualId)!;
+                    entity = session.Character.MapInstance.FindMonster(s => s.VisualId == sizePacket.VisualId);
                     break;
                 case VisualType.Npc:
-                    entity = session.Character.MapInstance.Npcs.Find(s => s.VisualId == sizePacket.VisualId)!;
+                    entity = session.Character.MapInstance.FindNpc(s => s.VisualId == sizePacket.VisualId);
                     break;
                 default:
                     logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],

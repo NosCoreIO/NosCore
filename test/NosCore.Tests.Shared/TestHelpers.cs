@@ -298,11 +298,6 @@ namespace NosCore.Tests.Shared
             StaticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(Logger, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
-            TypeAdapterConfig<MapNpcDto, GameObject.Map.MapNpc>.NewConfig()
-                .ConstructUsing(src => new GameObject.Map.MapNpc());
-            TypeAdapterConfig<MapMonsterDto, GameObject.Map.MapMonster>.NewConfig()
-                .ConstructUsing(src => new GameObject.Map.MapMonster(new Mock<ISpeedCalculationService>().Object));
-
         }
 
         public async Task<ClientSession> GenerateSessionAsync(List<IPacketHandler>? packetHandlers = null)

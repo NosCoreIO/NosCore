@@ -51,11 +51,11 @@ namespace NosCore.PacketHandlers.Battle
                         break;
                     case VisualType.Npc:
                         requestableEntity =
-                            clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == packet.TargetId);
+                            clientSession.Character.MapInstance.FindNpc(s => s.VisualId == packet.TargetId);
                         break;
                     case VisualType.Monster:
                         requestableEntity =
-                            clientSession.Character.MapInstance.Monsters.Find(s => s.VisualId == packet.TargetId);
+                            clientSession.Character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId);
                         break;
                     default:
                         logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],

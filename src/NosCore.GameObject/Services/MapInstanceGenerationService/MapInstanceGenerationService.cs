@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.BroadcastService;
@@ -69,10 +70,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 Console.WriteLine(ex.Message);
             }
 
-            var monsters = mapMonsters.LoadAll().Adapt<IEnumerable<MapMonster>>().GroupBy(u => u.MapId)
+            var monsters = mapMonsters.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
-            var npcs = mapNpcs.LoadAll().Adapt<IEnumerable<MapNpc>>().GroupBy(u => u.MapId)
+            var npcs = mapNpcs.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
@@ -86,23 +87,17 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                     if (monsters.TryGetValue(map.MapId, out var monster))
                     {
-                        monster.ForEach(s =>
-                        {
-                            var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum);
-                            if (npcMonster != null)
-                            {
-                                s.Initialize(npcMonster);
-                            }
-                        });
-                        mapinstance.LoadMonsters(monster);
+                        mapinstance.LoadMonsters(monster, npcMonsters);
                     }
 
                     if (npcs.TryGetValue(map.MapId, out var npc))
                     {
+                        mapinstance.LoadNpcs(npc, npcMonsters);
+
                         npc.ForEach(s =>
                         {
-                            var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum);
-                            if (npcMonster == null)
+                            var bundle = mapinstance.GetNpcById(s.MapNpcId);
+                            if (bundle == null)
                             {
                                 return;
                             }
@@ -115,9 +110,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            s.Initialize(npcMonster, shop, dialog, dtoShopItems, itemProvider);
+                            bundle.Value.InitializeShopAndDialog(shop, dialog, dtoShopItems, itemProvider);
                         });
-                        mapinstance.LoadNpcs(npc);
                     }
                     entranceRunnerService.LoadHandlers(mapinstance);
                     return mapinstance;

@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Map;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
         public bool Condition(Tuple<IAliveEntity, NrunPacket> item)
         {
             return (item.Item2.Runner == NrunRunnerType.Teleport)
-                && item.Item1 is MapNpc mapNpc
+                && item.Item1 is NpcComponentBundle mapNpc
                 && (((mapNpc.Dialog >= 439) && (mapNpc.Dialog <= 441)) || (mapNpc.Dialog == 11) ||
                     (mapNpc.Dialog == 16) || (mapNpc.Dialog == 9768));
         }

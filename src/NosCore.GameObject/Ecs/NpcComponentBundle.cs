@@ -1,5 +1,6 @@
 using NosCore.GameObject.Ecs.Attributes;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Entities.Interfaces;
 
 namespace NosCore.GameObject.Ecs;
 
@@ -11,8 +12,12 @@ namespace NosCore.GameObject.Ecs;
     typeof(VisualComponent),
     typeof(NpcDataComponent),
     typeof(SpawnComponent),
-    typeof(TimingComponent)
+    typeof(EffectComponent),
+    typeof(TimingComponent),
+    typeof(NpcStateComponent)
 )]
-public ref partial struct NpcComponentBundle
+public readonly partial struct NpcComponentBundle : INonPlayableEntity, IRequestableEntity
 {
+    public short MapX => FirstX;
+    public short MapY => FirstY;
 }
