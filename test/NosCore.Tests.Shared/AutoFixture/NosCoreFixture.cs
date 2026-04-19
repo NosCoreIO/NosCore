@@ -6,11 +6,21 @@
 
 using AutoFixture;
 using AutoFixture.AutoMoq;
+using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Options;
+using Moq;
+using NodaTime;
+using NodaTime.Testing;
+using NosCore.Core.Configuration;
+using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Packets.ClientPackets.Bazaar;
+using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
 
 namespace NosCore.Tests.Shared.AutoFixture
 {
@@ -20,14 +30,26 @@ namespace NosCore.Tests.Shared.AutoFixture
         {
             Customize(new AutoMoqCustomization { ConfigureMembers = true });
 
-            this.Inject(TestHelpers.Instance.Clock);
-            this.Inject(TestHelpers.Instance.CharacterDao);
-            this.Inject(TestHelpers.Instance.AccountDao);
-            this.Inject(TestHelpers.Instance.MateDao);
-            this.Inject(TestHelpers.Instance.MinilandDao);
-            this.Inject(TestHelpers.Instance.LogLanguageLocalizer);
-            this.Inject(TestHelpers.Instance.GameLanguageLocalizer);
-            this.Inject(TestHelpers.Instance.WorldConfiguration);
+            this.Inject<IClock>(new FakeClock(Instant.FromUtc(2021, 01, 01, 01, 01, 01)));
+
+            var logLocalizer = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            logLocalizer.Setup(x => x[It.IsAny<LogLanguageKey>()])
+                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
+            this.Inject(logLocalizer.Object);
+
+            var gameLocalizer = new Mock<IGameLanguageLocalizer>();
+            gameLocalizer.Setup(x => x[It.IsAny<LanguageKey>(), It.IsAny<RegionType>()])
+                .Returns((LanguageKey k, RegionType r) => new LocalizedString($"{k}{r}", $"{k}{r}", false));
+            this.Inject(gameLocalizer.Object);
+
+            this.Inject(Options.Create(new WorldConfiguration
+            {
+                BackpackSize = 2,
+                MaxItemAmount = 999,
+                MaxSpPoints = 10_000,
+                MaxAdditionalSpPoints = 1_000_000,
+                MaxGoldAmount = 999_999_999
+            }));
 
             Customize<ItemDto>(c => c
                 .With(x => x.VNum, () => (short)(this.Create<int>() % 1000 + 1000))

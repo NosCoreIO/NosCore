@@ -27,6 +27,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Hosting.Modules;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
@@ -80,6 +81,8 @@ namespace NosCore.LoginServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
+            containerBuilder.RegisterModule<NetworkingModule>();
+
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
@@ -90,13 +93,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<LoginEncoder>().AsImplementedInterfaces();
 
             containerBuilder.RegisterType<LoginPacketHandlingStrategy>().As<IPacketHandlingStrategy>().SingleInstance();
-            containerBuilder.RegisterType<NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry>().As<NosCore.GameObject.Services.PacketHandlerService.IPacketHandlerRegistry>().SingleInstance();
-            containerBuilder.RegisterType<NosCore.GameObject.Services.CharacterService.CharacterInitializationService>().As<NosCore.GameObject.Services.CharacterService.ICharacterInitializationService>().SingleInstance();
-            containerBuilder.RegisterType<ClientSession>().AsSelf().AsImplementedInterfaces();
             containerBuilder.Register(_ => Enumerable.Empty<ISessionDisconnectHandler>()).As<IEnumerable<ISessionDisconnectHandler>>();
-            containerBuilder.RegisterType<SessionRefHolder>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<NosCore.GameObject.Services.BroadcastService.SessionRegistry>().As<NosCore.GameObject.Services.BroadcastService.ISessionRegistry>().SingleInstance();
-            containerBuilder.RegisterType<NosCore.GameObject.Services.BroadcastService.PacketBroadcaster>().As<NosCore.GameObject.Services.BroadcastService.IPacketBroadcaster>().SingleInstance();
             containerBuilder.RegisterType<NosCore.GameObject.Services.AuthService.AuthCodeService>().As<NosCore.GameObject.Services.AuthService.IAuthCodeService>().SingleInstance();
             containerBuilder.Register(c =>
             {
@@ -106,28 +103,6 @@ namespace NosCore.LoginServer
 
             containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
 
-            containerBuilder.Register(c =>
-            {
-                var lifetimeScope = c.Resolve<ILifetimeScope>();
-                return new PipelineFactory(
-                    c.Resolve<IDecoder>(),
-                    c.Resolve<ISessionRefHolder>(),
-                    c.Resolve<IEnumerable<IRequestFilter>>(),
-                    c.Resolve<IPipelineConfiguration>(),
-                    () => lifetimeScope.Resolve<ClientSession>(),
-                    (package, client) => _ = ((ClientSession)client).HandlePacketAsync(package),
-                    client => _ = ((ClientSession)client).OnDisconnectedAsync(),
-                    c.Resolve<ILogger<PipelineFactory>>(),
-                    c.Resolve<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>()
-                );
-            }).SingleInstance();
-
-            containerBuilder.Register(c => new NetworkManager(
-                c.Resolve<IOptions<ServerConfiguration>>(),
-                c.Resolve<PipelineFactory>(),
-                c.Resolve<ILogger<NetworkManager>>(),
-                c.Resolve<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>()
-            ));
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
             containerBuilder.RegisterType<HubConnectionFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
@@ -184,9 +159,8 @@ namespace NosCore.LoginServer
 
         private static IHost BuildHost(string[] args)
         {
-            return new HostBuilder()
+            return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .UseConsoleLifetime()
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
