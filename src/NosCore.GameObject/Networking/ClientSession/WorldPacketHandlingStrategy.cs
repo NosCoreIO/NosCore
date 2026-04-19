@@ -190,19 +190,14 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
     {
         if (isFromNetwork)
         {
-            await session.AcquirePacketLockAsync();
-        }
-
-        try
-        {
-            await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200));
-        }
-        finally
-        {
-            if (isFromNetwork)
+            using (await session.AcquirePacketLockAsync().ConfigureAwait(false))
             {
-                session.ReleasePacketLock();
+                await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200)).ConfigureAwait(false);
             }
+        }
+        else
+        {
+            await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200)).ConfigureAwait(false);
         }
     }
 }

@@ -5,6 +5,7 @@
 //
 
 using Arch.Core;
+using NosCore.Core.Concurrency;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         IGameLanguageLocalizer? gameLanguageLocalizer = null)
         : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
-        private readonly SemaphoreSlim _handlingPacketLock = new(1, 1);
+        private readonly AsyncLock _handlingPacketLock = new();
         private readonly ILogger _logger = logger;
         private PlayerComponentBundle _characterBundle;
 
@@ -82,15 +83,8 @@ namespace NosCore.GameObject.Networking.ClientSession
             return packetHandlerRegistry.GetPacketAttribute(packetType);
         }
 
-        public Task AcquirePacketLockAsync()
-        {
-            return _handlingPacketLock.WaitAsync();
-        }
-
-        public void ReleasePacketLock()
-        {
-            _handlingPacketLock.Release();
-        }
+        public ValueTask<AsyncLock.Releaser> AcquirePacketLockAsync(CancellationToken ct = default)
+            => _handlingPacketLock.AcquireAsync(ct);
 
         public void InitializeAccount(AccountDto accountDto)
         {
