@@ -159,9 +159,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Kanał zamknie się w krótkim czasie.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Nie załadowano postać!</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Klient podłączony. SessionId: {0}</value>
   </data>

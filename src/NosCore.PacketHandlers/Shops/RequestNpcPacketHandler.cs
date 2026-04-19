@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Shops
             switch (requestNpcPacket.Type)
             {
                 case VisualType.Player:
-                    requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == requestNpcPacket.TargetId);
+                    requestableEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player) ? player : null;
                     break;
                 case VisualType.Npc:
                     requestableEntity =

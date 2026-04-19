@@ -33,9 +33,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class CharRenPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Character Chara = null!;
         private CharRenPacketHandler CharRenPacketHandler = null!;
         private ClientSession Session = null!;
+        private Data.Dto.CharacterDto ExistingCharacter = null!;
         private Mock<IMapChangeService> MapChangeService = null!;
         private const string NewCharacterName = "TestCharacter2";
 
@@ -50,10 +50,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 CharRenPacketHandler
             });
-            Chara = Session.Character;
-            Chara.ShouldRename = true;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character);
-            await Session.SetCharacterAsync(null);
+            ExistingCharacter = Session.Character.CharacterDto;
+            ExistingCharacter.ShouldRename = true;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            Session.ClearPlayerEntity();
         }
 
         [TestMethod]
@@ -97,18 +97,13 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsInGame()
         {
-            var idServer = new IdService<MapItem>(1);
-            await Session.SetCharacterAsync(Chara);
-            Session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
-                    Logger, TestHelpers.Instance.Clock, MapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.DistanceCalculator);
+            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharRenPacketHandler });
         }
 
         private async Task CharacterIsNotFlaggedForRename()
         {
-            Chara.ShouldRename = false;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Chara);
+            ExistingCharacter.ShouldRename = false;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
         }
 
         private async Task RenamingCharacterViaPacket()

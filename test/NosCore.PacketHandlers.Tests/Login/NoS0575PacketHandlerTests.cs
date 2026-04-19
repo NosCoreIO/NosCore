@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Password = new Sha512Hasher().Hash("test");
+            Password = new Sha512Hasher().Hash("test").ToUpper();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AuthHttpClient = new Mock<IAuthHub>();
@@ -173,14 +173,14 @@ namespace NosCore.PacketHandlers.Tests.Login
 
         private void ServerIsAvailable()
         {
-            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer } });
             PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
         }
 
         private void AccountIsAlreadyConnected()
         {
-            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() });
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer } });
             PubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
                 new List<Subscriber>
                     { new() { Name = Session.Account.Name } });
@@ -195,7 +195,7 @@ namespace NosCore.PacketHandlers.Tests.Login
 
         private void ServerIsInMaintenance()
         {
-            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { IsMaintenance = true } });
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer, IsMaintenance = true } });
             PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
         }

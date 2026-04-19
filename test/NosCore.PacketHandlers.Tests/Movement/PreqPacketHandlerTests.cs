@@ -94,6 +94,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
                 .Returns(100);
+            TestHelpers.Instance.Clock.Advance(NodaTime.Duration.FromSeconds(10));
+            Session.Character.LastMove = TestHelpers.Instance.Clock.GetCurrentInstant();
         }
 
         private async Task UsingPortal()

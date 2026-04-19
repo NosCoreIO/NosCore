@@ -158,22 +158,22 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             GC.SuppressFinalize(this);
         }
 
-        public void Kick()
+        public Task KickAsync()
         {
-            Kick(_ => true);
+            return KickAsync(_ => true);
         }
 
-        public void Kick(Func<ClientSession, bool> filter)
+        public Task KickAsync(Func<ClientSession, bool> filter)
         {
             var sessions = _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId)
                 .Where(s => s.HasPlayerEntity && !s.Character.IsDisconnecting && filter(s))
                 .ToList();
 
-            foreach (var session in sessions)
+            return Task.WhenAll(sessions.Select(session =>
             {
                 var character = session.Character;
-                _mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);
-            }
+                return _mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);
+            }));
         }
 
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)

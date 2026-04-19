@@ -84,7 +84,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private async Task RemovingSp()
         {
-            await Service.RemoveSpAsync(Session.Character);
+            await Service.RemoveSpAsync(Session);
         }
 
         private async Task ChangingToVehicle()
@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Morph = 2432,
                 SecondMorph = 0
             };
-            await Service.ChangeVehicleAsync(Session.Character, vehicleItem);
+            await Service.ChangeVehicleAsync(Session, vehicleItem);
         }
 
         private async Task CharacterIsVehicled()
@@ -108,12 +108,12 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Morph = 2432,
                 SecondMorph = 0
             };
-            await Service.ChangeVehicleAsync(Session.Character, vehicleItem);
+            await Service.ChangeVehicleAsync(Session, vehicleItem);
         }
 
         private async Task RemovingVehicle()
         {
-            await Service.RemoveVehicleAsync(Session.Character);
+            await Service.RemoveVehicleAsync(Session);
         }
 
         private void MorphShouldBeReset()

@@ -210,9 +210,6 @@
   <data name="CLIENT_DISCONNECTED" xml:space="preserve">
     <value>Client déconnecté.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Personnage non chargé.</value>
-  </data>
   <data name="ERROR_CHANGE_MAP" xml:space="preserve">
     <value>Erreur lors d'un passage à une map.</value>
   </data>

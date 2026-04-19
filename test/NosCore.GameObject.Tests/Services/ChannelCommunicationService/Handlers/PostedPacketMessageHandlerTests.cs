@@ -111,22 +111,22 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void CharacterIsRegisteredByName()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<ICharacterEntity, bool>>()))
-                .Returns(Session.Character);
+            SessionRegistry.Setup(x => x.GetSession(It.IsAny<System.Func<ClientSession, bool>>()))
+                .Returns(Session);
             Session.LastPackets.Clear();
         }
 
         private void CharacterIsRegisteredById()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<ICharacterEntity, bool>>()))
-                .Returns(Session.Character);
+            SessionRegistry.Setup(x => x.GetSession(It.IsAny<System.Func<ClientSession, bool>>()))
+                .Returns(Session);
             Session.LastPackets.Clear();
         }
 
         private void CharacterIsNotRegistered()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<ICharacterEntity, bool>>()))
-                .Returns((ICharacterEntity?)null);
+            SessionRegistry.Setup(x => x.GetSession(It.IsAny<System.Func<ClientSession, bool>>()))
+                .Returns((ClientSession?)null);
             Session.LastPackets.Clear();
         }
 

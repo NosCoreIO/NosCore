@@ -153,11 +153,11 @@ namespace NosCore.GameObject.Services.MinilandService
                         List<long> friends = (await friendHttpClient.GetFriendsAsync(characterId))
                             .Select(s => s.CharacterId)
                             .ToList();
-                        miniland!.Kick(s => s.Character.CharacterId != characterId && !friends.Contains(s.Character.CharacterId));
+                        await miniland!.KickAsync(s => s.Character.CharacterId != characterId && !friends.Contains(s.Character.CharacterId));
                         break;
                     }
                 default:
-                    miniland!.Kick(s => s.Character.CharacterId != characterId);
+                    await miniland!.KickAsync(s => s.Character.CharacterId != characterId);
                     break;
             }
         }

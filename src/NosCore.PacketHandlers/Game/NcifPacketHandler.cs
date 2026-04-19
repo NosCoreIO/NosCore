@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Game
             switch (ncifPacket.Type)
             {
                 case VisualType.Player:
-                    entity = sessionRegistry.GetCharacter(s => s.VisualId == ncifPacket.TargetId);
+                    entity = sessionRegistry.TryGetCharacter(s => s.VisualId == ncifPacket.TargetId, out var player) ? player : null;
                     break;
                 case VisualType.Monster:
                     entity = session.Character.MapInstance.Monsters.Find(s => s.VisualId == ncifPacket.TargetId);

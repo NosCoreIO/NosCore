@@ -85,8 +85,9 @@ namespace NosCore.PacketHandlers.Tests.Quest
 
         private void QuestServiceShouldBeCalled()
         {
+            var character = Session.Character;
             QuestService.Verify(x => x.RunScriptAsync(
-                Session.Character,
+                character,
                 It.IsAny<ScriptClientPacket>()), Times.Once);
         }
     }

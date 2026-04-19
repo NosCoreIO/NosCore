@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Mapster;
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
@@ -13,6 +12,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -23,6 +23,7 @@ using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IItemGenerationService itemBuilderService,
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
-            IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao)
+            IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao,
+            List<ItemDto> items, ILogger logger)
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration = worldConfiguration.Value;
@@ -45,7 +47,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
         {
-            // TODO: Hold Account Information in Authorized object
+            if (clientSession.HasSelectedCharacter)
+            {
+                return;
+            }
+
             var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;
             var characterName = packet.Name;
@@ -99,7 +105,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     };
                     await minilandDao.TryInsertOrUpdateAsync(miniland);
 
-                    var charaGo = chara.Adapt<GameObject.ComponentEntities.Entities.Character>();
+                    var inventory = new InventoryService(items, worldConfiguration, logger);
                     var itemsToAdd = new List<BasicEquipment>();
                     foreach (var item in _worldConfiguration.BasicEquipments)
                     {
@@ -119,7 +125,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                     foreach (var itemToAdd in itemsToAdd)
                     {
-                        charaGo.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount), charaGo.CharacterId), itemToAdd.NoscorePocketType);
+                        inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount), chara.CharacterId), itemToAdd.NoscorePocketType);
                     }
 
                     var skillsToAdd = new List<short>();
@@ -184,8 +190,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         },
                     });
 
-                    await itemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.Select(s => s.ItemInstance).ToArray());
-                    await inventoryItemInstanceDao.TryInsertOrUpdateAsync(charaGo.InventoryService.Values.ToArray());
+                    await itemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.Select(s => s.ItemInstance).ToArray());
+                    await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.ToArray());
 
                     await clientSession.SendPacketAsync(new SuccessPacket());
                     await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket()

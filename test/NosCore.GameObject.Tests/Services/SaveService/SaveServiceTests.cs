@@ -113,29 +113,30 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
         private async Task SavingCharacter()
         {
-            await Service.SaveAsync(Session.Character);
+            await Service.SaveAsync(Session);
             SaveCompleted = true;
         }
 
         private async Task SavingNonCharacterEntity()
         {
-            var mockEntity = new Mock<ComponentEntities.Interfaces.ICharacterEntity>();
-            await Service.SaveAsync(mockEntity.Object);
+            await Service.SaveAsync(Session);
             SaveCompleted = true;
         }
 
         private async Task GoldShouldBePersisted()
         {
+            var characterId = Session.Character.CharacterId;
             var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c =>
-                c.CharacterId == Session.Character.CharacterId);
+                c.CharacterId == characterId);
             Assert.IsNotNull(character);
             Assert.AreEqual(999999, character.Gold);
         }
 
         private async Task InventoryShouldBePersisted()
         {
+            var characterId = Session.Character.CharacterId;
             var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c =>
-                c.CharacterId == Session.Character.CharacterId);
+                c.CharacterId == characterId);
             Assert.IsNotNull(character);
         }
 

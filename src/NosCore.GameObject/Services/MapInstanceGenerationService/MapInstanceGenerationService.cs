@@ -48,11 +48,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return LoadPortalsAsync(mapInstance, portalDao.Where(s => s.SourceMapId == mapInstance.Map.MapId)?.ToList() ?? new List<PortalDto>());
         }
 
-        public void RemoveMap(Guid mapInstanceId)
+        public async Task RemoveMapAsync(Guid mapInstanceId)
         {
-            if (mapInstanceRegistry.Unregister(mapInstanceId, out var mapInstance))
+            if (mapInstanceRegistry.Unregister(mapInstanceId, out var mapInstance) && mapInstance != null)
             {
-                mapInstance?.Kick();
+                await mapInstance.KickAsync();
             }
         }
 
@@ -85,7 +85,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                     if (monsters.TryGetValue(map.MapId, out var monster))
                     {
-                        monster.ForEach(s => s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!));
+                        monster.ForEach(s =>
+                        {
+                            var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum);
+                            if (npcMonster != null)
+                            {
+                                s.Initialize(npcMonster);
+                            }
+                        });
                         mapinstance.LoadMonsters(monster);
                     }
 
@@ -93,6 +100,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     {
                         npc.ForEach(s =>
                         {
+                            var npcMonster = npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum);
+                            if (npcMonster == null)
+                            {
+                                return;
+                            }
+
                             List<ShopItemDto> dtoShopItems = new List<ShopItemDto>();
                             NpcTalkDto? dialog = null;
                             var shop = shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
@@ -101,7 +114,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            s.Initialize(npcMonsters.Find(o => o.NpcMonsterVNum == s.VNum)!, shop, dialog, dtoShopItems, itemProvider);
+                            s.Initialize(npcMonster, shop, dialog, dtoShopItems, itemProvider);
                         });
                         mapinstance.LoadNpcs(npc);
                     }

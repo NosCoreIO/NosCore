@@ -111,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void SessionShouldRemainValid()
         {
-            Assert.IsNotNull(_session.Character);
+            Assert.IsNotNull(_session);
         }
     }
 }

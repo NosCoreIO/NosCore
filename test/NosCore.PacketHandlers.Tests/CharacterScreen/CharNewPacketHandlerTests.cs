@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.HpService;
@@ -40,7 +39,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class CharNewPacketHandlerTests
     {
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
-        private Character Chara = null!;
         private CharNewPacketHandler CharNewPacketHandler = null!;
         private ClientSession Session = null!;
         private Mock<IMapChangeService> MapChangeService = null!;
@@ -52,12 +50,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.ResetAsync();
             CharNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object);
+                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, TestHelpers.Instance.ItemList, new Mock<ILogger>().Object);
             Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
-            Chara = Session.Character;
             MapChangeService = new Mock<IMapChangeService>();
-            TypeAdapterConfig<CharacterDto, Character>.NewConfig().ConstructUsing(src => Chara);
-            await Session.SetCharacterAsync(null);
+            Session.ClearPlayerEntity();
         }
 
         [TestMethod]
@@ -108,12 +104,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsInGame()
         {
-            var idServer = new IdService<MapItem>(1);
-            await Session.SetCharacterAsync(Chara);
-            Session.Character.MapInstance =
-                new MapInstance(new Map(), new Guid(), true, MapInstanceType.BaseMapInstance,
-                    new MapItemGenerationService(new EventLoaderService<MapItem, Tuple<MapItem, GetPacket>, IGetMapItemEventHandler>(new List<IEventHandler<MapItem, Tuple<MapItem, GetPacket>>>()), idServer),
-                    Logger, TestHelpers.Instance.Clock, MapChangeService.Object, new Mock<ISessionGroupFactory>().Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.DistanceCalculator);
+            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
         }
 
         private async Task CreatingCharacterViaPacket()

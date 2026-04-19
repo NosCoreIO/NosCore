@@ -120,8 +120,9 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void WarehouseHubShouldReceiveCorrectOwnerId()
         {
+            var characterId = Session.Character.CharacterId;
             WarehouseHub.Verify(x => x.AddWarehouseItemAsync(
-                It.Is<WareHouseDepositRequest>(r => r.OwnerId == Session.Character.CharacterId)), Times.Once);
+                It.Is<WareHouseDepositRequest>(r => r.OwnerId == characterId)), Times.Once);
         }
 
         private void WarehouseHubShouldReceiveWarehouseType()

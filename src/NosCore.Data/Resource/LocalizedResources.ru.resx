@@ -193,10 +193,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Работа канала скоро будет завершена.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Персонаж не инициализирован</value>
-    <comment>check</comment>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
     <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>

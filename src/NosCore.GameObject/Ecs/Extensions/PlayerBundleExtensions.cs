@@ -764,15 +764,15 @@ public static class PlayerBundleExtensions
     public static void AddSpPoints(this PlayerComponentBundle player, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
     {
         var newValue = player.SpPoint + spPointToAdd;
-        player.SpPoint = (byte)(newValue > worldConfiguration.Value.MaxSpPoints
-            ? worldConfiguration.Value.MaxSpPoints : newValue);
+        player.SpPoint = newValue > worldConfiguration.Value.MaxSpPoints
+            ? worldConfiguration.Value.MaxSpPoints : newValue;
     }
 
     public static void AddAdditionalSpPoints(this PlayerComponentBundle player, int spPointToAdd, IOptions<WorldConfiguration> worldConfiguration)
     {
         var newValue = player.SpAdditionPoint + spPointToAdd;
-        player.SpAdditionPoint = (byte)(newValue > worldConfiguration.Value.MaxAdditionalSpPoints
-            ? worldConfiguration.Value.MaxAdditionalSpPoints : newValue);
+        player.SpAdditionPoint = newValue > worldConfiguration.Value.MaxAdditionalSpPoints
+            ? worldConfiguration.Value.MaxAdditionalSpPoints : newValue;
     }
 
     public static void RemoveGold(this PlayerComponentBundle player, long gold)

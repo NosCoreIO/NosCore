@@ -133,10 +133,12 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
-            BlacklistHub.Setup(x => x.GetBlacklistedAsync(Session.Character.VisualId))
+            var visualId = Session.Character.VisualId;
+            var targetVisualId = TargetSession.Character.VisualId;
+            BlacklistHub.Setup(x => x.GetBlacklistedAsync(visualId))
                 .Returns(Task.FromResult(new List<CharacterRelationStatus>
                 {
-                    new() { CharacterId = TargetSession.Character.VisualId }
+                    new() { CharacterId = targetVisualId }
                 }));
         }
 

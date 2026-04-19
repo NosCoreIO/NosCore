@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
@@ -175,8 +176,11 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void FriendIsOnSameChannel()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<GameObject.ComponentEntities.Interfaces.ICharacterEntity, bool>>()))
-                .Returns(FriendSession.Character);
+            var friendCharacter = FriendSession.Character;
+            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<PlayerComponentBundle, bool>>()))
+                .Returns(friendCharacter);
+            SessionRegistry.Setup(x => x.TryGetCharacter(It.IsAny<System.Func<PlayerComponentBundle, bool>>(), out friendCharacter))
+                .Returns(true);
         }
 
         private void FriendIsOnDifferentChannel()

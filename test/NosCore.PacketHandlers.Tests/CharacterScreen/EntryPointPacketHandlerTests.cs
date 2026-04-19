@@ -38,9 +38,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AccountName = Session.Account.Name;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
+            Session.ClearPlayerEntity();
             Session.Account = null!;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character);
-            await Session.SetCharacterAsync(null);
             AuthHttpClient = new Mock<IAuthHub>();
             PubSubHub = TestHelpers.Instance.PubSubHub;
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());

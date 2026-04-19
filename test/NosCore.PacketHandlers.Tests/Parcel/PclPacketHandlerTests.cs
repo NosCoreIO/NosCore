@@ -89,7 +89,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
 
         private void NoGiftExists()
         {
-            MailHttpClient.Setup(s => s.GetMails(1, Session.Character.CharacterId, false)).ReturnsAsync(new List<MailData>());
+            var characterId = Session.Character.CharacterId;
+            MailHttpClient.Setup(s => s.GetMails(1, characterId, false)).ReturnsAsync(new List<MailData>());
         }
 
         private void GiftExists()
@@ -105,7 +106,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             };
             ItemInstanceDao.Setup(o => o.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(item);
-            MailHttpClient.Setup(s => s.GetMails(1, Session.Character.CharacterId, false)).ReturnsAsync(new List<MailData> { Mail });
+            var characterId = Session.Character.CharacterId;
+            MailHttpClient.Setup(s => s.GetMails(1, characterId, false)).ReturnsAsync(new List<MailData> { Mail });
         }
 
         private void InventoryIsFull()

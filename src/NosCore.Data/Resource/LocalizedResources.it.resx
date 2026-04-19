@@ -186,10 +186,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>Il canale chiuderà per un momento breve.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Personaggio non inizializzato.</value>
-    <comment>revisionare</comment>
-  </data>
   <data name="CHUNK_FORMAT_INVALID" xml:space="preserve">
     <value>Formato blocco non valido.</value>
   </data>

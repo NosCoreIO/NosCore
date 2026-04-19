@@ -160,10 +160,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>The channel will exit in brief moments.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Character Not loaded</value>
-    <comment>check</comment>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Client connected, SessionId: {0}</value>
   </data>

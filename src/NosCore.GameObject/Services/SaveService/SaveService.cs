@@ -40,6 +40,21 @@ namespace NosCore.GameObject.Services.SaveService
                 var titles = character.Titles;
                 var quests = character.Quests;
 
+                characterDto.Hp = character.Hp;
+                characterDto.Mp = character.Mp;
+                characterDto.Level = character.Level;
+                characterDto.LevelXp = character.LevelXp;
+                characterDto.JobLevel = character.JobLevel;
+                characterDto.JobLevelXp = character.JobLevelXp;
+                characterDto.HeroLevel = character.HeroLevel;
+                characterDto.HeroXp = character.HeroXp;
+                characterDto.Gold = character.Gold;
+                characterDto.Reput = character.Reput;
+                characterDto.Dignity = character.Dignity;
+                characterDto.Compliment = character.Compliment;
+                characterDto.MapX = character.PositionX;
+                characterDto.MapY = character.PositionY;
+
                 await accountDao.TryInsertOrUpdateAsync(account);
                 await characterDao.TryInsertOrUpdateAsync(characterDto);
 

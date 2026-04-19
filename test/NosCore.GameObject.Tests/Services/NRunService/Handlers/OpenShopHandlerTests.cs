@@ -136,7 +136,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
 
         private void SessionShouldRemainValid()
         {
-            Assert.IsNotNull(Session.Character);
+            Assert.IsTrue(Session.HasPlayerEntity);
         }
     }
 }

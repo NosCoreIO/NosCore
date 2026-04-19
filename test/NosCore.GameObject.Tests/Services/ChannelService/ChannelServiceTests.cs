@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
             ChannelHub = new Mock<IChannelHub>();
             SaveService = new Mock<ISaveService>();
 
-            SaveService.Setup(s => s.SaveAsync(It.IsAny<ComponentEntities.Interfaces.ICharacterEntity>()))
+            SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
                 .Returns(Task.CompletedTask);
 
             Service = new GameObject.Services.ChannelService.ChannelService(
@@ -134,7 +134,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
 
         private void CharacterShouldBeSaved()
         {
-            SaveService.Verify(s => s.SaveAsync(Session.Character), Times.Once);
+            SaveService.Verify(s => s.SaveAsync(Session), Times.Once);
         }
 
         private void NoPacketsShouldBeSent()
@@ -145,7 +145,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
 
         private void CharacterShouldNotBeSaved()
         {
-            SaveService.Verify(s => s.SaveAsync(It.IsAny<ComponentEntities.Interfaces.ICharacterEntity>()), Times.Never);
+            SaveService.Verify(s => s.SaveAsync(It.IsAny<ClientSession>()), Times.Never);
         }
     }
 }

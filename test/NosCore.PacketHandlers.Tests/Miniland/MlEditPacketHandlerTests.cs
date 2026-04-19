@@ -76,10 +76,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
             await MinilandProvider.InitializeAsync(Session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
-            var mapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(miniland.MapInstanceId)!;
-            Session.Character.MapInstance = mapInstance;
-            Session2.Character.MapInstance = mapInstance;
-            session3.Character.MapInstance = mapInstance;
+            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(Session, miniland.MapInstanceId);
+            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(Session2, miniland.MapInstanceId);
+            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(session3, miniland.MapInstanceId);
             MlEditPacketHandler = new MlEditPacketHandler(MinilandProvider);
         }
 

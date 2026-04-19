@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Battle
                 switch (packet.TargetVisualType)
                 {
                     case VisualType.Player:
-                        requestableEntity = sessionRegistry.GetCharacter(s => s.VisualId == packet.TargetId);
+                        requestableEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == packet.TargetId, out var target) ? target : null;
                         break;
                     case VisualType.Npc:
                         requestableEntity =

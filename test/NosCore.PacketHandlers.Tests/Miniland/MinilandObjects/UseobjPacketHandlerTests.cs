@@ -163,7 +163,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private void WarehouseHubReturnsEmptyList()
         {
-            _warehouseHubMock.Setup(x => x.GetWarehouseItems(null, _session.Character.CharacterId, WarehouseType.Warehouse, null))
+            var characterId = _session.Character.CharacterId;
+            _warehouseHubMock.Setup(x => x.GetWarehouseItems(null, characterId, WarehouseType.Warehouse, null))
                 .ReturnsAsync(new List<WarehouseLink>());
         }
 

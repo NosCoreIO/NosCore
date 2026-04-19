@@ -32,15 +32,18 @@ namespace NosCore.PacketHandlers.Movement
                 switch (u!.VisualType)
                 {
                     case VisualType.Player:
-                        entity = sessionRegistry.GetCharacter(s => s.VisualId == u.VisualId)!;
-                        if (entity.VisualId != clientSession.Character.VisualId)
+                        if (!sessionRegistry.TryGetCharacter(s => s.VisualId == u.VisualId, out var player))
+                        {
+                            return Task.CompletedTask;
+                        }
+                        if (player.VisualId != clientSession.Character.VisualId)
                         {
                             logger.Error(
                                 logLanguage[LogLanguageKey.DIRECT_ACCESS_OBJECT_DETECTED],
                                 clientSession.Character, sitpacket);
                             return Task.CompletedTask;
                         }
-
+                        entity = player;
                         break;
                     default:
                         logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],

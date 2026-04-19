@@ -26,7 +26,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
     {
         public override async Task ExecuteAsync(CharRenamePacket packet, ClientSession clientSession)
         {
-            // TODO: Hold Account Information in Authorized object
+            if (clientSession.HasSelectedCharacter)
+            {
+                return;
+            }
+
             var accountId = clientSession.Account.AccountId;
             var slot = packet.Slot;
             var characterName = packet.Name;

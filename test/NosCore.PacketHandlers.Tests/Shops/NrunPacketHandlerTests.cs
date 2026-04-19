@@ -114,8 +114,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 AccountName = _session.Account.Name,
                 Disconnect = () => Task.CompletedTask,
                 CharacterId = _session.Character.CharacterId,
-                MapInstanceId = _session.Character.MapInstance.MapInstanceId,
-                Character = _session.Character
+                MapInstanceId = _session.Character.MapInstance.MapInstanceId
             });
         }
 
