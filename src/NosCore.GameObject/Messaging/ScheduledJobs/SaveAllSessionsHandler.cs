@@ -26,7 +26,11 @@ namespace NosCore.GameObject.Messaging.ScheduledJobs
         public async Task Handle(SaveAllSessionsMessage _)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
+<<<<<<< HEAD
             await Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync));
+=======
+            await Task.WhenAll(sessionRegistry.GetCharacters().Select(saveService.SaveAsync));
+>>>>>>> 400adfdd (Swap recurring-jobs infrastructure from Rx-based Clock to Wolverine)
         }
     }
 }
