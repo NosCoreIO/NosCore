@@ -7,15 +7,12 @@
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.EventLoaderService;
-using NosCore.GameObject.Services.EventLoaderService.Handlers;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
@@ -23,6 +20,7 @@ using NosCore.Networking.SessionGroup;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,9 +28,9 @@ using System.Threading.Tasks;
 namespace NosCore.WorldServer
 {
     public class WorldServer(IOptions<WorldConfiguration> worldConfiguration, NetworkManager networkManager,
-            Clock clock, ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
-            IClock nodatimeClock, ISaveService saveService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ILogger<SaveAll> saveAllLogger, Channel channel, IChannelHub channelHubClient,
+            ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
+            ISaveService saveService,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IChannelHub channelHubClient,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         : BackgroundService
     {
@@ -41,10 +39,10 @@ namespace NosCore.WorldServer
             Broadcaster.Initialize(sessionGroupFactory);
             await mapInstanceGeneratorService.InitializeAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
-            AppDomain.CurrentDomain.ProcessExit += (s, e) =>
+            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             {
-                var eventSaveAll = new SaveAll(saveAllLogger, nodatimeClock, saveService, logLanguage, sessionRegistry);
-                _ = eventSaveAll.ExecuteAsync();
+                logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
+                Task.WhenAll(sessionRegistry.GetCharacters().Select(saveService.SaveAsync)).GetAwaiter().GetResult();
                 logger.LogInformation(logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);
             };
@@ -61,7 +59,7 @@ namespace NosCore.WorldServer
                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
-            await Task.WhenAny(connectTask, clock.Run(stoppingToken), networkManager.RunServerAsync());
+            await Task.WhenAny(connectTask, networkManager.RunServerAsync());
         }
     }
 }

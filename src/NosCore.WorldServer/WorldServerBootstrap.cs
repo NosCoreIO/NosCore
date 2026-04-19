@@ -43,6 +43,8 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.GameObject.Messaging;
+using NosCore.GameObject.Messaging.ScheduledJobs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.EventLoaderService;
@@ -68,6 +70,7 @@ using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
+using Wolverine;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -201,7 +204,6 @@ namespace NosCore.WorldServer
 
             //NosCore.GameObject
             containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
-            containerBuilder.RegisterType<Clock>();
             containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
             containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
             containerBuilder.Register<IIdService<MapItem>>(_ => new IdService<MapItem>(100000)).SingleInstance();
@@ -232,7 +234,7 @@ namespace NosCore.WorldServer
 
             containerBuilder
                 .RegisterAssemblyTypes(typeof(ChannelCommunicationMessageHandler<>).Assembly)
-                .Where(t => typeof(IChannelCommunicationMessageHandler<IMessage>).IsAssignableFrom(t))
+                .Where(t => typeof(IChannelCommunicationMessageHandler<NosCore.GameObject.InterChannelCommunication.Messages.IMessage>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
         }
@@ -356,6 +358,7 @@ namespace NosCore.WorldServer
             return new HostBuilder()
                 .UseSerilog()
                 .UseConsoleLifetime()
+                .UseNosCoreWolverine("NosCore.WorldServer", typeof(NoS0575PacketHandler).Assembly)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
@@ -377,6 +380,14 @@ namespace NosCore.WorldServer
                             x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.AddHostedService<WorldServer>();
+                    services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),
+                        TimeSpan.FromMinutes(5)));
+                    services.AddHostedService(sp => new RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>>>(),
+                        TimeSpan.FromMinutes(5)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
