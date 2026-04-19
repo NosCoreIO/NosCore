@@ -224,9 +224,8 @@ namespace NosCore.WorldServer
 
         private static IHost BuildHost(string[] args)
         {
-            return new HostBuilder()
+            return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .UseConsoleLifetime()
                 .UseNosCoreWolverine("NosCore.WorldServer", typeof(NoS0575PacketHandler).Assembly)
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)

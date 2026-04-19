@@ -159,9 +159,8 @@ namespace NosCore.LoginServer
 
         private static IHost BuildHost(string[] args)
         {
-            return new HostBuilder()
+            return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .UseConsoleLifetime()
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
