@@ -212,7 +212,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 {
                     var otherCharacter = s.Character;
                     var prefix = otherCharacter.Authority == AuthorityType.Moderator
-                        ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, otherCharacter.AccountLanguage]}"
+                        ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, otherCharacter.AccountLanguage]}]"
                         : string.Empty;
                     await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
 
