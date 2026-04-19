@@ -57,8 +57,6 @@ namespace NosCore.Tests.Shared.BDD
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             ItemProvider = new ItemGenerationService(
                 DefaultItems,
-                new EventLoaderService<Item, System.Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, System.Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }

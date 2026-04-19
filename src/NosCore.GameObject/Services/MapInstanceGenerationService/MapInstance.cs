@@ -75,7 +75,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>();
             _npcs = new ConcurrentDictionary<int, NpcComponentBundle>();
-            MapItemRequestContexts = new ConcurrentDictionary<long, MapItemRequestContext>();
             _visibilitySystem = new VisibilitySystem();
             _isSleeping = true;
             _clock = clock;
@@ -94,8 +93,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         }
 
         public Instant LastUnregister { get; set; }
-
-        public ConcurrentDictionary<long, MapItemRequestContext> MapItemRequestContexts { get; }
 
         public int MapItemCount => GetMapItemBundles().Count();
 
@@ -125,7 +122,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 if (identity.VisualId == visualId)
                 {
                     EcsWorld.DestroyEntity(entity);
-                    MapItemRequestContexts.TryRemove(visualId, out _);
                     return true;
                 }
             }

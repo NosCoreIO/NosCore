@@ -4,33 +4,36 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Threading.Tasks;
 
-namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
+namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
-    public class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService)
-        : IUseItemEventHandler
+    [UsedImplicitly]
+    public sealed class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService)
     {
-        public bool Condition(Item.Item item) => item.Effect == ItemEffectType.Teleport && item.EffectValue == 2;
-
-        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
+        [UsedImplicitly]
+        public async Task Handle(ItemUsedEvent evt)
         {
-            var session = requestData.ClientSession;
-            var itemInstance = requestData.Data.Item1;
-            var packet = requestData.Data.Item2;
+            var item = evt.InventoryItem.ItemInstance.Item;
+            if (item.Effect != ItemEffectType.Teleport || item.EffectValue != 2)
+            {
+                return;
+            }
+
+            var session = evt.ClientSession;
+            var itemInstance = evt.InventoryItem;
+            var packet = evt.Packet;
 
             var character = session.Character;
             if (character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)

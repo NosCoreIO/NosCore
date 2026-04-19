@@ -84,8 +84,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _itemInstanceDaoMock = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider);

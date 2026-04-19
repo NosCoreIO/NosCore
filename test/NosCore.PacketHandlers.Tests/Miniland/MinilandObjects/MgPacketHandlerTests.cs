@@ -77,8 +77,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _session.Character.MapInstance = mapInstance;
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
             _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider);

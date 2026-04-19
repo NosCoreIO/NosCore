@@ -75,8 +75,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _rmvobjPacketHandler = new RmvobjPacketHandler(_minilandProvider);
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                new EventLoaderService<Item, Tuple<InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                    new List<IEventHandler<Item, Tuple<InventoryItemInstance, UseItemPacket>>>()),
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }

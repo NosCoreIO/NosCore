@@ -4,36 +4,38 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.TransformationService;
-using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using Serilog;
-using System;
-using System.Threading.Tasks;
 
-namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
+namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
-    public class VehicleEventHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ITransformationService transformationService)
-        : IUseItemEventHandler
+    [UsedImplicitly]
+    public sealed class VehicleHandler(
+        ILogger logger,
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+        ITransformationService transformationService)
     {
-        public bool Condition(Item.Item item)
+        [UsedImplicitly]
+        public async Task Handle(ItemUsedEvent evt)
         {
-            return (item.ItemType == ItemType.Special) && (item.Effect == ItemEffectType.Vehicle);
-        }
+            var item = evt.InventoryItem.ItemInstance.Item;
+            if (item.ItemType != ItemType.Special || item.Effect != ItemEffectType.Vehicle)
+            {
+                return;
+            }
 
-        public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
-        {
-            var session = requestData.ClientSession;
-            var itemInstance = requestData.Data.Item1;
-            var packet = requestData.Data.Item2;
+            var session = evt.ClientSession;
+            var itemInstance = evt.InventoryItem;
+            var packet = evt.Packet;
 
             var character = session.Character;
             if (character.InExchangeOrShop)
@@ -43,7 +45,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             }
 
             character = session.Character;
-            if ((packet.Mode == 1) && !character.IsVehicled)
+            if (packet.Mode == 1 && !character.IsVehicled)
             {
                 await session.SendPacketAsync(new DelayPacket
                 {
@@ -55,7 +57,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
             }
 
             character = session.Character;
-            if ((packet.Mode == 2) && !character.IsVehicled)
+            if (packet.Mode == 2 && !character.IsVehicled)
             {
                 await transformationService.ChangeVehicleAsync(session, itemInstance.ItemInstance.Item);
                 return;

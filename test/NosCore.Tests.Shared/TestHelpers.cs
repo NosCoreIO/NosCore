@@ -50,12 +50,10 @@ using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.ItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
-using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.GameObject.Services.QuestService;
@@ -192,8 +190,7 @@ namespace NosCore.Tests.Shared
 
         private async Task GenerateMapInstanceProviderAsync()
         {
-            MapItemProvider = new MapItemGenerationService(new List<IGetMapItemEventHandler>
-                {new DropEventHandler(), new SpChargerEventHandler(Instance.WorldConfiguration), new GoldDropEventHandler(Instance.WorldConfiguration)}, new IdService<GameObject.Ecs.MapItemComponentBundle>(1));
+            MapItemProvider = new MapItemGenerationService(new IdService<GameObject.Ecs.MapItemComponentBundle>(1));
             var map = new Map
             {
                 MapId = 0,
@@ -265,15 +262,7 @@ namespace NosCore.Tests.Shared
 
         public IItemGenerationService GenerateItemProvider()
         {
-            return new ItemGenerationService(ItemList, new EventLoaderService<Item,
-                Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>, IUseItemEventHandler>(
-                new List<IEventHandler<Item,
-                    Tuple<GameObject.Services.InventoryService.InventoryItemInstance, UseItemPacket>>>
-                {
-                    new SpRechargerEventHandler(WorldConfiguration),
-                    new VehicleEventHandler(Logger, Instance.LogLanguageLocalizer, new TransformationService(Instance.Clock, new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new Mock<ILogger>().Object, Instance.LogLanguageLocalizer, WorldConfiguration)),
-                    new WearEventHandler(Logger, Instance.Clock, Instance.LogLanguageLocalizer, WorldConfiguration)
-                }), Logger, Instance.LogLanguageLocalizer);
+            return new ItemGenerationService(ItemList, Logger, Instance.LogLanguageLocalizer);
         }
 
         public void InitDatabase()
@@ -310,7 +299,7 @@ namespace NosCore.Tests.Shared
                 new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                         new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, Logger),
                 new BlInsPackettHandler(BlacklistHttpClient.Object, Logger, Instance.LogLanguageLocalizer),
-                new UseItemPacketHandler(),
+                new UseItemPacketHandler(new Mock<Wolverine.IMessageBus>().Object),
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
                 new SelectPacketHandler(CharacterDao, Logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,

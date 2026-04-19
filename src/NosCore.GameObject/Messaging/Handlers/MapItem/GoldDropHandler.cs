@@ -4,43 +4,41 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.Networking;
-using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Threading.Tasks;
 
-namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
+namespace NosCore.GameObject.Messaging.Handlers.MapItem
 {
-    public class GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
+    [UsedImplicitly]
+    public sealed class GoldDropHandler(IOptions<WorldConfiguration> worldConfiguration)
     {
-        public bool Condition(MapItemComponentBundle item)
+        [UsedImplicitly]
+        public async Task Handle(MapItemPickedUpEvent evt)
         {
-            return item.VNum == 1046;
-        }
+            if (evt.MapItem.VNum != 1046)
+            {
+                return;
+            }
 
-        public async Task ExecuteAsync(RequestData<Tuple<MapItemComponentBundle, GetPacket>> requestData)
-        {
-            var session = requestData.ClientSession;
-            var mapItem = requestData.Data.Item1;
-            var packet = requestData.Data.Item2;
+            var session = evt.ClientSession;
+            var mapItem = evt.MapItem;
             var maxGold = worldConfiguration.Value.MaxGoldAmount;
 
             var character = session.Character;
             if (character.Gold + mapItem.Amount <= maxGold)
             {
-                if (packet.PickerType == VisualType.Npc)
+                if (evt.Packet.PickerType == VisualType.Npc)
                 {
-                    var iconPacket = character.GenerateIcon(1, mapItem.VNum);
-                    await session.SendPacketAsync(iconPacket);
+                    await session.SendPacketAsync(character.GenerateIcon(1, mapItem.VNum));
                 }
 
                 character = session.Character;
@@ -71,14 +69,10 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
             }
 
             character = session.Character;
-            var visualId = mapItem.VisualId;
-            var goldPacket = character.GenerateGold();
             var mapInstance = character.MapInstance;
-            var getPacket = character.GenerateGet(visualId);
-
-            await session.SendPacketAsync(goldPacket);
-            mapInstance.TryRemoveMapItem(visualId);
-            await mapInstance.SendPacketAsync(getPacket);
+            await session.SendPacketAsync(character.GenerateGold());
+            mapInstance.TryRemoveMapItem(mapItem.VisualId);
+            await mapInstance.SendPacketAsync(character.GenerateGet(mapItem.VisualId));
         }
     }
 }
