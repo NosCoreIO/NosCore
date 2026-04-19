@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Autofac;
 using FastMember;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
@@ -47,36 +48,80 @@ public sealed class PersistenceModule : Autofac.Module
             .SingleInstance()
             .AutoActivate();
 
-        var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
-        var assemblyDb = typeof(Account).Assembly.GetTypes();
-
         if (_onDtoTypeRegistered != null)
         {
-            foreach (var t in assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass))
+            foreach (var t in typeof(IStaticDto).Assembly.GetTypes()
+                .Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass))
             {
                 _onDtoTypeRegistered(builder, t);
             }
         }
 
         var registerMethod = typeof(PersistenceModule).GetMethod(nameof(RegisterDatabaseObject), BindingFlags.Public | BindingFlags.Static)!;
-        foreach (var t in assemblyDto.Where(p =>
-            typeof(IDto).IsAssignableFrom(p) &&
-            (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass))
+        foreach (var mapping in DiscoverDaoMappings())
         {
-            var type = assemblyDb.First(tgo =>
-                string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-            var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
-            var typepk = type.GetProperties()
-                .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)?
-                    .FindPrimaryKey()?.Properties.Select(x => x.Name)
-                    .Contains(s.Name) ?? false)
-                .ToArray()[0];
-            registerMethod.MakeGenericMethod(t, type, typepk.PropertyType)
-                .Invoke(null, new[] { builder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
+            registerMethod.MakeGenericMethod(mapping.DtoType, mapping.DbType, mapping.PkType)
+                .Invoke(null, new[] { builder, (object)mapping.IsStatic });
         }
 
         builder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>()
             .As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
+    }
+
+    // Mirror the DAO + DbContext registrations into IServiceCollection so frameworks that
+    // inspect IServiceCollection at startup (Wolverine code-gen, ASP.NET Core's analyzer,
+    // health-check scopes, etc.) can plan handler construction. The runtime IServiceProvider
+    // is still backed by Autofac via AutofacServiceProviderFactory, so resolution semantics
+    // are unchanged — this is a visibility shim, not a second source of truth.
+    public static void MirrorTo(IServiceCollection services)
+    {
+        services.AddTransient<DbContext, NosCoreContext>();
+
+        foreach (var mapping in DiscoverDaoMappings())
+        {
+            var daoType = typeof(Dao<,,>).MakeGenericType(mapping.DbType, mapping.DtoType, mapping.PkType);
+            var idaoType = typeof(IDao<,>).MakeGenericType(mapping.DtoType, mapping.PkType);
+            services.AddSingleton(idaoType, daoType);
+            services.AddSingleton(typeof(IDao<IDto>), daoType);
+            if (mapping.IsStatic)
+            {
+                var listType = typeof(List<>).MakeGenericType(mapping.DtoType);
+                // The runtime IServiceProvider is Autofac-backed and has the populated list;
+                // forwarding here lets Wolverine's planner see the type without duplicating
+                // the load-all + i18n-injection logic.
+                services.AddSingleton(listType, sp => sp.GetRequiredService(listType));
+            }
+        }
+
+        services.AddSingleton<IDao<IItemInstanceDto?, Guid>, Dao<ItemInstance, IItemInstanceDto?, Guid>>();
+    }
+
+    public static IEnumerable<DaoMapping> DiscoverDaoMappings()
+    {
+        var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
+        var assemblyDb = typeof(Account).Assembly.GetTypes();
+        var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
+
+        foreach (var dto in assemblyDto.Where(p =>
+            typeof(IDto).IsAssignableFrom(p) &&
+            (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass))
+        {
+            var db = assemblyDb.FirstOrDefault(tgo =>
+                string.Compare(dto.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+            if (db == null)
+            {
+                continue;
+            }
+            var pk = db.GetProperties()
+                .FirstOrDefault(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(db)?
+                    .FindPrimaryKey()?.Properties.Select(x => x.Name)
+                    .Contains(s.Name) ?? false);
+            if (pk == null)
+            {
+                continue;
+            }
+            yield return new DaoMapping(dto, db, pk.PropertyType, typeof(IStaticDto).IsAssignableFrom(dto));
+        }
     }
 
     public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder builder, bool isStatic)
@@ -125,4 +170,6 @@ public sealed class PersistenceModule : Autofac.Module
             .SingleInstance()
             .AutoActivate();
     }
+
+    public sealed record DaoMapping(Type DtoType, Type DbType, Type PkType, bool IsStatic);
 }
