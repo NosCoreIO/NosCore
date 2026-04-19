@@ -7,20 +7,19 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -30,7 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private NrunPacketHandler _nrunPacketHandler = null!;
         private ClientSession _session = null!;
-        private Mock<INrunService> _nrunServiceMock = null!;
+        private Mock<IMessageBus> _messageBusMock = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -38,58 +37,58 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _nrunServiceMock = new Mock<INrunService>();
+            _messageBusMock = new Mock<IMessageBus>();
             _nrunPacketHandler = new NrunPacketHandler(
                 Logger,
-                _nrunServiceMock.Object,
+                _messageBusMock.Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]
-        public async Task NrunWithNullVisualTypeShouldCallNrunService()
+        public async Task NrunWithNullVisualTypeShouldPublishEvent()
         {
-            await new Spec("Nrun with null visual type should call NRunService")
+            await new Spec("Nrun with null visual type should publish NrunRequestedEvent")
                 .WhenAsync(ExecutingNrunPacketWithNullType)
-                .Then(NrunServiceShouldBeCalled)
+                .Then(MessageBusShouldBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithUnknownVisualTypeShouldNotCallNrunService()
+        public async Task NrunWithUnknownVisualTypeShouldNotPublishEvent()
         {
-            await new Spec("Nrun with unknown visual type should not call NRunService")
+            await new Spec("Nrun with unknown visual type should not publish event")
                 .WhenAsync(ExecutingNrunPacketWithUnknownType)
-                .Then(NrunServiceShouldNotBeCalled)
+                .Then(MessageBusShouldNotBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithNonExistentNpcShouldNotCallNrunService()
+        public async Task NrunWithNonExistentNpcShouldNotPublishEvent()
         {
-            await new Spec("Nrun with non-existent NPC should not call NRunService")
+            await new Spec("Nrun with non-existent NPC should not publish event")
                 .WhenAsync(ExecutingNrunPacketWithNonExistentNpc)
-                .Then(NrunServiceShouldNotBeCalled)
+                .Then(MessageBusShouldNotBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithExistingNpcShouldCallNrunService()
+        public async Task NrunWithExistingNpcShouldPublishEvent()
         {
-            await new Spec("Nrun with existing NPC should call NRunService")
+            await new Spec("Nrun with existing NPC should publish event")
                 .Given(NpcExistsOnMap)
                 .WhenAsync(ExecutingNrunPacketWithNpcType)
-                .Then(NrunServiceShouldBeCalled)
+                .Then(MessageBusShouldBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithExistingPlayerShouldCallNrunService()
+        public async Task NrunWithExistingPlayerShouldPublishEvent()
         {
-            await new Spec("Nrun with existing player should call NRunService")
+            await new Spec("Nrun with existing player should publish event")
                 .Given(PlayerIsRegistered)
                 .WhenAsync(ExecutingNrunPacketWithPlayerType)
-                .Then(NrunServiceShouldBeCalled)
+                .Then(MessageBusShouldBeCalled)
                 .ExecuteAsync();
         }
 
@@ -124,74 +123,69 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private async Task ExecutingNrunPacketWithNpcType()
         {
-            var packet = new NrunPacket
+            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 VisualId = 100,
                 Type = 0
-            };
-            await _nrunPacketHandler.ExecuteAsync(packet, _session);
+            }, _session);
         }
 
         private async Task ExecutingNrunPacketWithPlayerType()
         {
-            var packet = new NrunPacket
+            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = _session.Character.VisualId,
                 Type = 0
-            };
-            await _nrunPacketHandler.ExecuteAsync(packet, _session);
+            }, _session);
         }
 
         private async Task ExecutingNrunPacketWithNullType()
         {
-            var packet = new NrunPacket
+            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
             {
                 VisualType = null,
                 VisualId = 0,
                 Type = 0
-            };
-            await _nrunPacketHandler.ExecuteAsync(packet, _session);
+            }, _session);
         }
 
         private async Task ExecutingNrunPacketWithUnknownType()
         {
-            var packet = new NrunPacket
+            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Monster,
                 VisualId = 1,
                 Type = 0
-            };
-            await _nrunPacketHandler.ExecuteAsync(packet, _session);
+            }, _session);
         }
 
         private async Task ExecutingNrunPacketWithNonExistentNpc()
         {
-            var packet = new NrunPacket
+            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
             {
                 VisualType = VisualType.Npc,
                 VisualId = 99999,
                 Type = 0
-            };
-            await _nrunPacketHandler.ExecuteAsync(packet, _session);
+            }, _session);
         }
 
-        private void NrunServiceShouldBeCalled()
+        private void MessageBusShouldBeCalled()
         {
-            _nrunServiceMock.Verify(
-                x => x.NRunLaunchAsync(
-                    It.IsAny<ClientSession>(),
-                    It.IsAny<Tuple<IAliveEntity, NrunPacket>>()),
+            _messageBusMock.Verify(
+                x => x.PublishAsync(
+                    It.IsAny<NrunRequestedEvent>(),
+                    It.IsAny<DeliveryOptions?>()),
                 Times.Once);
         }
 
-        private void NrunServiceShouldNotBeCalled()
+        private void MessageBusShouldNotBeCalled()
         {
-            _nrunServiceMock.Verify(
-                x => x.NRunLaunchAsync(
-                    It.IsAny<ClientSession>(),
-                    It.IsAny<Tuple<IAliveEntity, NrunPacket>>()),
+            _messageBusMock.Verify(
+                x => x.PublishAsync(
+                    It.IsAny<NrunRequestedEvent>(),
+                    It.IsAny<DeliveryOptions?>()),
                 Times.Never);
         }
     }

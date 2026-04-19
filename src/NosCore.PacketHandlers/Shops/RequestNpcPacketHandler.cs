@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -9,7 +9,6 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -46,7 +45,11 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
+<<<<<<< HEAD
             requestableEntity.Requests[typeof(INrunEventHandler)].OnNext(new RequestData(clientSession));
+=======
+            requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
+>>>>>>> a29926f2 (Migrate NRunService to Wolverine + decouple NPC dialog dictionary key)
             return Task.CompletedTask;
         }
     }

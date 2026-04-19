@@ -13,11 +13,8 @@ using Wolverine;
 
 namespace NosCore.GameObject.Messaging
 {
-<<<<<<< HEAD
     // Hosted service that publishes a fresh instance of TMessage every Interval. Use one registration
     // per recurring job — Wolverine handles the actual handler dispatch, retries, and tracing.
-=======
->>>>>>> 400adfdd (Swap recurring-jobs infrastructure from Rx-based Clock to Wolverine)
     public sealed class RecurringMessagePublisher<TMessage>(
         IMessageBus bus,
         ILogger<RecurringMessagePublisher<TMessage>> logger,

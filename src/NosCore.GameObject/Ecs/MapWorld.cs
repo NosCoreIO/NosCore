@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,7 +17,6 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
@@ -118,7 +117,7 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(INrunEventHandler)] = new() }, dialog, isDisabled)
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled)
         );
         return entity;
     }

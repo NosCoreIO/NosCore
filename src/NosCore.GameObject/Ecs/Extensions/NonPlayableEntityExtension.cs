@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -14,7 +14,6 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.PathFinder.Interfaces;
 using Serilog;
@@ -33,7 +32,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             IItemGenerationService itemProvider)
         {
             var dialogId = bundle.Dialog ?? 0;
-            if (bundle.Requests.TryGetValue(typeof(INrunEventHandler), out var subject))
+            if (bundle.Requests.TryGetValue(typeof(NpcDialogRequestSubject), out var subject))
             {
                 Task RequestExecAsync(RequestData request)
                 {

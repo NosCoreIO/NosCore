@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -58,7 +58,6 @@ using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
-using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -436,8 +435,7 @@ namespace NosCore.Tests.Shared
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerRequestsComponent(
                 new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
                 {
-                    { typeof(IUseItemEventHandler), new System.Reactive.Subjects.Subject<RequestData>() },
-                    { typeof(INrunEventHandler), new System.Reactive.Subjects.Subject<RequestData>() }
+                    { typeof(NpcDialogRequestSubject), new System.Reactive.Subjects.Subject<RequestData>() }
                 }));
             session.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
