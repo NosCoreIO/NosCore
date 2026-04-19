@@ -25,6 +25,7 @@ using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -214,6 +215,7 @@ namespace NosCore.MasterServer
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
+            services.AddNosCoreTelemetry("NosCore.MasterServer", includeAspNetCore: true);
             services.AddAuthentication(config => config.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
             services.AddSignalR(options =>

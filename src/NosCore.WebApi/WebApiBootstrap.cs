@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
+using NosCore.Core.Observability;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -36,6 +37,7 @@ namespace NosCore.WebApi
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
             builder.Services.AddRazorPages();
+            builder.Services.AddNosCoreTelemetry("NosCore.WebApi", includeAspNetCore: true);
             var loginConfiguration = new ApiConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "api.yml" });
             conf.Bind(loginConfiguration);
