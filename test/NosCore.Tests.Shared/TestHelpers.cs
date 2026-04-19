@@ -316,7 +316,7 @@ namespace NosCore.Tests.Shared
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
                 new SelectPacketHandler(CharacterDao, Logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                    new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, new ReputationService(), new DignityService(), Instance.Clock, ItemList, new HpService(), new MpService(), SessionGroupFactory, new CharacterInitializationService(), Instance.GameLanguageLocalizer),
+                    new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), SessionGroupFactory, new CharacterInitializationService(), Instance.GameLanguageLocalizer),
                 new CSkillPacketHandler(Instance.Clock),
                 new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, Logger, ItemInstanceDao, Instance.LogLanguageLocalizer),
                 new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
@@ -416,8 +416,6 @@ namespace NosCore.Tests.Shared
                 now,
                 0,
                 0,
-                new ReputationService(),
-                new DignityService(),
                 Instance.GameLanguageLocalizer
             );
 

@@ -1,6 +1,4 @@
 using NodaTime;
-using NosCore.Algorithm.DignityService;
-using NosCore.Algorithm.ReputationService;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -21,7 +19,5 @@ public record struct PlayerStateComponent(
     Instant LastSp,
     short SpCooldown,
     byte VehicleSpeed,
-    IReputationService ReputationService,
-    IDignityService DignityService,
     IGameLanguageLocalizer GameLanguageLocalizer
 );
