@@ -8,6 +8,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using AutofacSerilogIntegration;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -37,6 +38,8 @@ namespace NosCore.WebApi
             var builder = WebApplication.CreateBuilder(args);
             builder.Services.AddControllers();
             builder.Services.AddRazorPages();
+            builder.Services.AddHealthChecks()
+                .AddDbContextCheck<NosCoreContext>("database");
             builder.Services.AddNosCoreTelemetry("NosCore.WebApi", includeAspNetCore: true);
             var loginConfiguration = new ApiConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "api.yml" });
@@ -82,6 +85,8 @@ namespace NosCore.WebApi
 
             app.MapRazorPages();
             app.MapControllers();
+            app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
+            app.MapHealthChecks("/health/ready").AllowAnonymous();
             app.Run();
         }
     }

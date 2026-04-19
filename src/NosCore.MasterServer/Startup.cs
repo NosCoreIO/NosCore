@@ -14,6 +14,7 @@ using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -225,6 +226,9 @@ namespace NosCore.MasterServer
             {
                 options.PayloadSerializerOptions.Converters.Add(new PolymorphicJsonConverter<IMessage>());
             });
+
+            services.AddHealthChecks()
+                .AddDbContextCheck<NosCoreContext>("database");
             services.AddAuthorization(o =>
                 {
                     o.DefaultPolicy = new AuthorizationPolicyBuilder()
@@ -263,6 +267,8 @@ namespace NosCore.MasterServer
                 endpoints.MapHub<FriendHub>(nameof(FriendHub));
                 endpoints.MapHub<MailHub>(nameof(MailHub));
                 endpoints.MapHub<WarehouseHub>(nameof(WarehouseHub));
+                endpoints.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
+                endpoints.MapHealthChecks("/health/ready").AllowAnonymous();
             });
         }
     }
