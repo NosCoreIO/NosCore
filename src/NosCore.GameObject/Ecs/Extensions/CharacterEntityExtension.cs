@@ -41,6 +41,7 @@ using NosCore.Packets.ServerPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
+using NosCore.Core.I18N;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
@@ -349,28 +350,28 @@ namespace NosCore.GameObject.Ecs.Extensions
             return characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
         }
 
-        public static async Task AddGoldAsync(this ICharacterEntity characterEntity, long gold)
+        public static async Task AddGoldAsync(this ICharacterEntity characterEntity, long gold, IGameLanguageLocalizer localizer)
         {
             characterEntity.Gold += gold;
             await characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
-            await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity));
+            await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity, localizer));
         }
 
-        public static async Task RemoveGoldAsync(this ICharacterEntity characterEntity, long gold)
+        public static async Task RemoveGoldAsync(this ICharacterEntity characterEntity, long gold, IGameLanguageLocalizer localizer)
         {
             characterEntity.Gold -= gold;
             await characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
-            await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity));
+            await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity, localizer));
         }
 
-        private static SayPacket GenerateUpdateGoldSayPacket(ICharacterEntity characterEntity)
+        private static SayPacket GenerateUpdateGoldSayPacket(ICharacterEntity characterEntity, IGameLanguageLocalizer localizer)
         {
             return new SayPacket
             {
                 VisualType = VisualType.Player,
                 VisualId = characterEntity.VisualId,
                 Type = SayColorType.Red,
-                Message = characterEntity.GetMessageFromKey(LanguageKey.UPDATE_GOLD)
+                Message = localizer[LanguageKey.UPDATE_GOLD, characterEntity.AccountLanguage]
             };
         }
 
@@ -463,7 +464,8 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
             Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider)
+            IItemGenerationService itemProvider,
+            IGameLanguageLocalizer localizer)
         {
             if (amount <= 0)
             {
@@ -537,7 +539,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     await characterEntity.SendPacketAsync(new SMemoPacket
                     {
                         Type = SMemoType.FailPlayer,
-                        Message = characterEntity.GetMessageFromKey(LanguageKey.TOO_RICH_SELLER)
+                        Message = localizer[LanguageKey.TOO_RICH_SELLER, characterEntity.AccountLanguage]
                     });
                     return;
                 }

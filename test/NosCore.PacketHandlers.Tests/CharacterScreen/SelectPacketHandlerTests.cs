@@ -63,8 +63,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new HpService(),
                 new MpService(),
                 new Mock<ISessionGroupFactory>().Object,
-                new CharacterInitializationService(),
-                TestHelpers.Instance.GameLanguageLocalizer);
+                new CharacterInitializationService());
         }
 
         [TestMethod]

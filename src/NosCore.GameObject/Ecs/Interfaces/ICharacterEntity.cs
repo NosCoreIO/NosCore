@@ -97,7 +97,5 @@ namespace NosCore.GameObject.Ecs.Interfaces
         Task SendPacketAsync(IPacket packetDefinition);
 
         Task SendPacketsAsync(IEnumerable<IPacket> packetDefinitions);
-
-        string GetMessageFromKey(LanguageKey support);
     }
 }

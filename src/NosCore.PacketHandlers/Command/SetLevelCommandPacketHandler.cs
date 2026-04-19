@@ -7,6 +7,7 @@
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
@@ -26,14 +27,15 @@ namespace NosCore.PacketHandlers.Command
 {
     public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry)
+        IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry,
+        IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<SetLevelCommandPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetLevelCommandPacket levelPacket, ClientSession session)
         {
             if (string.IsNullOrEmpty(levelPacket.Name) || (levelPacket.Name == session.Character.Name))
             {
-                await session.Character.SetLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, sessionRegistry);
+                await session.Character.SetLevelAsync(levelPacket.Level, experienceService, jobExperienceService, heroExperienceService, sessionRegistry, gameLanguageLocalizer);
                 return;
             }
 

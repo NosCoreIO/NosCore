@@ -53,7 +53,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 Logger,
                 BlacklistHub.Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]
