@@ -155,21 +155,21 @@ namespace NosCore.PacketHandlers.Tests.Quest
         private void QuestServiceShouldNotBeCalled()
         {
             QuestService.Verify(x => x.RunScriptAsync(
-                It.IsAny<NosCore.GameObject.ComponentEntities.Entities.Character>(),
+                It.IsAny<NosCore.GameObject.Entities.Entities.Character>(),
                 It.IsAny<ScriptClientPacket>()), Times.Never);
         }
 
         private void QuestServiceShouldBeCalledWithValidate()
         {
             QuestService.Verify(x => x.RunScriptAsync(
-                It.IsAny<NosCore.GameObject.ComponentEntities.Entities.Character>(),
+                It.IsAny<NosCore.GameObject.Entities.Entities.Character>(),
                 It.Is<ScriptClientPacket>(p => p != null && p.Type == QuestActionType.Validate)), Times.Once);
         }
 
         private void QuestServiceShouldBeCalledWithAchieve()
         {
             QuestService.Verify(x => x.RunScriptAsync(
-                It.IsAny<NosCore.GameObject.ComponentEntities.Entities.Character>(),
+                It.IsAny<NosCore.GameObject.Entities.Entities.Character>(),
                 It.Is<ScriptClientPacket>(p => p != null && p.Type == QuestActionType.Achieve)), Times.Once);
         }
 

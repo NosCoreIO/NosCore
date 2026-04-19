@@ -1,6 +1,6 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;

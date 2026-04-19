@@ -5,7 +5,7 @@
 //
 
 using NosCore.Core.Services.IdService;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Services.EventLoaderService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;

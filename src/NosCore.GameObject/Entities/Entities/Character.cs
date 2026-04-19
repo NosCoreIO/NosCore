@@ -13,7 +13,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
@@ -37,7 +37,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NosCore.GameObject.ComponentEntities.Entities
+namespace NosCore.GameObject.Entities.Entities
 {
     public class Character(IInventoryService inventory, IExchangeService exchangeService,
             IItemGenerationService itemProvider,

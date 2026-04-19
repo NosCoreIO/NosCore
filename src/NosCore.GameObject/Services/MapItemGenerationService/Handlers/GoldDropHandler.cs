@@ -6,8 +6,8 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Drops;

@@ -15,7 +15,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -58,7 +58,7 @@ using System.Threading.Tasks;
 using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
-namespace NosCore.GameObject.ComponentEntities.Extensions
+namespace NosCore.GameObject.Entities.Extensions
 {
     public static class CharacterEntityExtension
     {

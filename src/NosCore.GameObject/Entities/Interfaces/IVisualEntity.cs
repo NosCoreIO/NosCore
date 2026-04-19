@@ -8,7 +8,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.Enumerations;
 using System;
 
-namespace NosCore.GameObject.ComponentEntities.Interfaces
+namespace NosCore.GameObject.Entities.Interfaces
 {
     public interface IVisualEntity
     {

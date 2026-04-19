@@ -13,7 +13,7 @@ using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;

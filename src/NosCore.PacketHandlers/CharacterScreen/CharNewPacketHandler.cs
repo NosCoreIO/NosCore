@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     };
                     await minilandDao.TryInsertOrUpdateAsync(miniland);
 
-                    var charaGo = chara.Adapt<GameObject.ComponentEntities.Entities.Character>();
+                    var charaGo = chara.Adapt<GameObject.Entities.Entities.Character>();
                     var itemsToAdd = new List<BasicEquipment>();
                     foreach (var item in _worldConfiguration.BasicEquipments)
                     {

@@ -5,7 +5,7 @@
 //
 
 using NodaTime;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
-namespace NosCore.GameObject.ComponentEntities.Entities
+namespace NosCore.GameObject.Entities.Entities
 {
     public class MapItem(long visualId) : ICountableEntity, IRequestableEntity<Tuple<MapItem, GetPacket>>
     {

@@ -5,7 +5,7 @@
 //
 
 using NosCore.Data.Dto;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Packets.ServerPackets.Miniland;
 using System;
 

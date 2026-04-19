@@ -10,7 +10,7 @@ using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;

@@ -11,7 +11,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;

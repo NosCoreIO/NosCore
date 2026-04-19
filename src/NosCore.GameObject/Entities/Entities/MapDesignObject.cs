@@ -9,7 +9,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ServerPackets.Map;
 using NosCore.Packets.ServerPackets.Miniland;
 
-namespace NosCore.GameObject.ComponentEntities.Entities
+namespace NosCore.GameObject.Entities.Entities
 {
     public class MapDesignObject : MinilandObjectDto
     {

@@ -13,7 +13,7 @@ using Arch.Core;
 using NodaTime;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Components;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
