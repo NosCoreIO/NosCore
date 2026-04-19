@@ -10,6 +10,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;

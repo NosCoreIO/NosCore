@@ -74,7 +74,7 @@ public class MapWorld : IDisposable
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         var entity = World.Create(
-            new EntityIdentityComponent(monsterId, (byte)VisualType.Monster, 0),
+            new EntityIdentityComponent(monsterId, VisualType.Monster, 0),
             new HealthComponent(hp, maxHp, true),
             new ManaComponent(mp, maxMp),
             new PositionComponent(positionX, positionY, direction, mapInstanceId),
@@ -108,7 +108,7 @@ public class MapWorld : IDisposable
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         var entity = World.Create(
-            new EntityIdentityComponent(npcId, (byte)VisualType.Npc, 0),
+            new EntityIdentityComponent(npcId, VisualType.Npc, 0),
             new HealthComponent(hp, maxHp, true),
             new ManaComponent(mp, maxMp),
             new PositionComponent(positionX, positionY, direction, mapInstanceId),
@@ -132,7 +132,7 @@ public class MapWorld : IDisposable
         Guid itemInstanceId)
     {
         var entity = World.Create(
-            new EntityIdentityComponent((int)visualId, (byte)VisualType.Object, 0),
+            new EntityIdentityComponent(visualId, VisualType.Object, 0),
             new PositionComponent(positionX, positionY, 0, mapInstanceId),
             new MapItemDataComponent(vNum, amount, ownerId, droppedAt, itemInstanceId)
         );
@@ -160,8 +160,8 @@ public class MapWorld : IDisposable
         long heroLevelXp,
         long gold,
         long reputation,
-        int dignity,
-        int compliment,
+        short dignity,
+        short compliment,
         GenderType gender,
         HairStyleType hairStyle,
         HairColorType hairColor,
@@ -169,28 +169,52 @@ public class MapWorld : IDisposable
         byte face,
         byte speed,
         AuthorityType authority,
-        bool isGm)
+        bool isGm,
+        int serverId)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         var entity = World.Create(
-            new EntityIdentityComponent(visaulId, (byte)VisualType.Player, characterId),
+            new EntityIdentityComponent(visaulId, VisualType.Player, characterId),
             new HealthComponent(hp, maxHp, true),
             new ManaComponent(mp, maxMp),
             new PositionComponent(positionX, positionY, direction, mapInstanceId),
             new VisualComponent(0, 0, 0, 0, false, false, false),
-            new AppearanceComponent(gender, hairStyle, hairColor, characterClass, face, 10),
+            new AppearanceComponent(gender, hairStyle, hairColor, characterClass, face, 100),
             new ExperienceComponent(level, levelXp, jobLevel, jobLevelXp, heroLevel, heroLevelXp),
             new GoldComponent(gold),
             new ReputationComponent(reputation, dignity, compliment),
             new SpComponent(0, 0, 0),
             new NameComponent(name),
             new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
-            new PlayerComponent(accountId, characterId, isGm),
-            new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority),
+            new PlayerComponent(accountId, characterId, isGm, serverId),
+            new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false, false),
             new TimingComponent(now, now),
             new SpeedComponent(speed)
         );
         return entity;
+    }
+
+    public Entity ClonePlayer(
+        EntityIdentityComponent identity,
+        HealthComponent health,
+        ManaComponent mana,
+        PositionComponent position,
+        VisualComponent visual,
+        AppearanceComponent appearance,
+        ExperienceComponent experience,
+        GoldComponent gold,
+        ReputationComponent reputation,
+        SpComponent sp,
+        NameComponent name,
+        CombatComponent combat,
+        PlayerComponent player,
+        PlayerFlagsComponent playerFlags,
+        TimingComponent timing,
+        SpeedComponent speed,
+        PlayerStateComponent state)
+    {
+        return World.Create(identity, health, mana, position, visual, appearance, experience, gold,
+            reputation, sp, name, combat, player, playerFlags, timing, speed, state);
     }
 
     public void DestroyEntity(Entity entity)

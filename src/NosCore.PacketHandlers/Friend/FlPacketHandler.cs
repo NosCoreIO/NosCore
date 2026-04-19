@@ -20,10 +20,7 @@ namespace NosCore.PacketHandlers.Friend
     {
         public override async Task ExecuteAsync(FlCommandPacket flPacket, ClientSession session)
         {
-            var target =
-                sessionRegistry.GetCharacter(s => s.Name == flPacket.CharacterName);
-
-            if (target == null)
+            if (!sessionRegistry.TryGetCharacter(s => s.Name == flPacket.CharacterName, out var target))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {

@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Inventory
                 if (clientSession.Character.UseSp)
                 {
                     clientSession.Character.LastSp = clock.GetCurrentInstant();
-                    await transformationService.RemoveSpAsync(clientSession.Character);
+                    await transformationService.RemoveSpAsync(clientSession);
                 }
                 else
                 {
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await transformationService.ChangeSpAsync(clientSession.Character);
+                            await transformationService.ChangeSpAsync(clientSession);
                         }
                         else
                         {

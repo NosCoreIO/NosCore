@@ -35,7 +35,7 @@ public class VisibilitySystem
         world.World.Query(in _npcDataQuery, (Entity entity) =>
         {
             var identity = world.World.Get<EntityIdentityComponent>(entity);
-            if (identity.VisualType == (byte)VisualType.Monster)
+            if (identity.VisualType == VisualType.Monster)
             {
                 monsters.Add(entity);
             }
@@ -49,7 +49,7 @@ public class VisibilitySystem
         world.World.Query(in _npcDataQuery, (Entity entity) =>
         {
             var identity = world.World.Get<EntityIdentityComponent>(entity);
-            if (identity.VisualType == (byte)VisualType.Npc)
+            if (identity.VisualType == VisualType.Npc)
             {
                 npcs.Add(entity);
             }

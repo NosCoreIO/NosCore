@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.Packets.Enumerations;
@@ -28,9 +27,10 @@ public class ExchangeDisconnectHandler(IExchangeService exchangeService, ISessio
         }
 
         var closeExchange = exchangeService.CloseExchange(session.Character.VisualId, ExchangeResultType.Failure);
-        if (sessionRegistry.GetCharacter(s => s.VisualId == targetId) is Character target)
+        var targetSender = sessionRegistry.GetSenderByCharacterId(targetId.Value);
+        if (targetSender != null)
         {
-            await target.SendPacketAsync(closeExchange);
+            await targetSender.SendPacketAsync(closeExchange);
         }
     }
 }

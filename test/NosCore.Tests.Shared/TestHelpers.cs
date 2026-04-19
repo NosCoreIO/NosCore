@@ -58,6 +58,11 @@ using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
+using NosCore.GameObject.Services.NRunService;
+using NosCore.GameObject.Services.GuriRunnerService;
+using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.SessionGroup;
@@ -76,7 +81,9 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Character = NosCore.Database.Entities.Character;
 using InventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
@@ -311,15 +318,13 @@ namespace NosCore.Tests.Shared
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
                 new SelectPacketHandler(CharacterDao, Logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                    new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, SessionGroupFactory),
+                    new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, new ReputationService(), new DignityService(), Instance.Clock, ItemList, new HpService(), new MpService(), SessionGroupFactory, new CharacterInitializationService()),
                 new CSkillPacketHandler(Instance.Clock),
                 new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, Logger, ItemInstanceDao, Instance.LogLanguageLocalizer),
                 new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
                 new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, Logger, ItemInstanceDao, Instance.LogLanguageLocalizer)
             };
             var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(handlers);
-            var characterInitializationService = new Mock<ICharacterInitializationService>();
-            characterInitializationService.Setup(s => s.InitializeAsync(It.IsAny<NosCore.GameObject.ComponentEntities.Entities.Character>())).Returns(Task.CompletedTask);
             var session = new ClientSession(
                 Logger,
                 packetHandlerRegistry,
@@ -330,16 +335,12 @@ namespace NosCore.Tests.Shared
                 new WorldPacketHandlingStrategy(Logger, Instance.LogLanguageLocalizer, sessionRefHolder),
                 new List<ISessionDisconnectHandler>(),
                 Instance.SessionRegistry,
-                characterInitializationService.Object,
                 Instance.GameLanguageLocalizer)
             {
                 SessionId = LastId
             };
 
-            var chara = new GameObject.ComponentEntities.Entities.Character(new InventoryService(ItemList, WorldConfiguration, Logger),
-                new ExchangeService(new Mock<IItemGenerationService>().Object, WorldConfiguration, Logger, new ExchangeRequestRegistry(), Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer), new Mock<IItemGenerationService>().Object, new HpService(), new MpService(),
-                new ReputationService(), new DignityService(),
-                new Mock<ISpeedCalculationService>().Object, Instance.SessionRegistry, Instance.GameLanguageLocalizer)
+            var characterDto = new CharacterDto
             {
                 CharacterId = LastId,
                 Name = "TestExistingCharacter" + LastId,
@@ -349,17 +350,105 @@ namespace NosCore.Tests.Shared
                 State = CharacterState.Active,
                 Level = 1,
                 JobLevel = 1,
-                StaticBonusList = new List<StaticBonusDto>(),
-                Titles = new List<TitleDto>()
+                Hp = 100,
+                Mp = 100,
+                Class = CharacterClassType.Adventurer,
+                Gender = GenderType.Male,
+                HairStyle = HairStyleType.HairStyleA,
+                HairColor = HairColorType.Black
             };
-            await CharacterDao.TryInsertOrUpdateAsync(chara);
+            await CharacterDao.TryInsertOrUpdateAsync(characterDto);
             var mockChannel = new Mock<IChannel>();
             mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
             session.RegisterChannel(mockChannel.Object);
             session.InitializeAccount(acc);
-            chara.MapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
-            await session.SetCharacterAsync(chara);
-            session.Character.InitializeGroup(SessionGroupFactory);
+
+            var mapInstance = MapInstanceAccessorService.GetBaseMapById(0)!;
+            var hpService = new HpService();
+            var mpService = new MpService();
+            var maxHp = (int)hpService.GetHp(characterDto.Class, characterDto.Level);
+            var maxMp = (int)mpService.GetMp(characterDto.Class, characterDto.Level);
+
+            var playerEntity = mapInstance.EcsWorld.CreatePlayer(
+                (int)characterDto.CharacterId,
+                characterDto.CharacterId,
+                acc.AccountId,
+                characterDto.Name ?? string.Empty,
+                mapInstance.MapInstanceId,
+                characterDto.MapX,
+                characterDto.MapY,
+                2,
+                characterDto.Hp,
+                maxHp,
+                characterDto.Mp,
+                maxMp,
+                characterDto.Level,
+                characterDto.LevelXp,
+                characterDto.JobLevel,
+                characterDto.JobLevelXp,
+                characterDto.HeroLevel,
+                characterDto.HeroXp,
+                characterDto.Gold,
+                characterDto.Reput,
+                (short)characterDto.Dignity,
+                (short)characterDto.Compliment,
+                characterDto.Gender,
+                characterDto.HairStyle,
+                characterDto.HairColor,
+                characterDto.Class,
+                0,
+                10,
+                acc.Authority,
+                acc.Authority >= AuthorityType.GameMaster,
+                WorldConfiguration.Value.ServerId);
+
+            var now = Instance.Clock.GetCurrentInstant();
+            var group = new GameObject.Services.GroupService.Group(NosCore.Data.Enumerations.Group.GroupType.Group, SessionGroupFactory);
+            var inventoryService = new InventoryService(ItemList, WorldConfiguration, Logger);
+            var playerStateComponent = new GameObject.Ecs.Components.PlayerStateComponent(
+                characterDto,
+                acc,
+                inventoryService,
+                new Mock<IItemGenerationService>().Object,
+                mapInstance,
+                group,
+                null,
+                null,
+                new ConcurrentDictionary<short, NosCore.GameObject.Services.BattleService.CharacterSkill>(),
+                new ConcurrentDictionary<Guid, NosCore.GameObject.Services.QuestService.CharacterQuest>(),
+                new List<QuicklistEntryDto>(),
+                new List<StaticBonusDto>(),
+                new List<TitleDto>(),
+                new ConcurrentDictionary<long, long>(),
+                new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
+                {
+                    { typeof(IUseItemEventHandler), new System.Reactive.Subjects.Subject<RequestData>() },
+                    { typeof(INrunEventHandler), new System.Reactive.Subjects.Subject<RequestData>() }
+                },
+                false,
+                false,
+                false,
+                false,
+                true,
+                now,
+                now,
+                null,
+                0,
+                0,
+                new SemaphoreSlim(1, 1),
+                session.Channel,
+                session,
+                new ReputationService(),
+                new DignityService(),
+                new ConcurrentDictionary<IAliveEntity, int>()
+            );
+
+            mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
+            session.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
+
+            var character = session.Character;
+            group.JoinGroup(character);
+
             session.Account = acc;
             return session;
         }

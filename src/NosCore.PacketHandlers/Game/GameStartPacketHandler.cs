@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -196,7 +197,7 @@ namespace NosCore.PacketHandlers.Game
 
             //            // finfo - friends info
             var mails = await mailHttpClient.GetMails(-1, session.Character.CharacterId, false);
-            await session.Character.GenerateMailAsync(mails);
+            await session.GenerateMailAsync(mails);
 
             await session.SendPacketAsync(session.Character.GenerateTitle());
             int giftcount = mails.Select(s => s.MailDto).Count(mail => !mail.IsSenderCopy && mail.ReceiverId == session.Character.CharacterId && mail.ItemInstanceId != null && !mail.IsOpened);

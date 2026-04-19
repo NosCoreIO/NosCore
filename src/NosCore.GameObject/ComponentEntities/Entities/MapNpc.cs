@@ -4,11 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Mapster;
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.NRunService;
 using NosCore.GameObject.Services.ShopService;
@@ -65,5 +67,32 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         {
             [typeof(INrunEventHandler)] = new()
         };
+
+        public void Initialize(NpcMonsterDto npcMonster, ShopDto? shopDto, NpcTalkDto? dialog, List<ShopItemDto> shopItems, IItemGenerationService itemProvider)
+        {
+            NpcMonster = npcMonster;
+            Hp = npcMonster.MaxHp;
+            Mp = npcMonster.MaxMp;
+            IsAlive = true;
+            PositionX = MapX;
+            PositionY = MapY;
+            Speed = npcMonster.Speed;
+
+            if (shopDto == null)
+            {
+                return;
+            }
+
+            var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
+            foreach (var shopItemDto in shopItems)
+            {
+                var shopItem = shopItemDto.Adapt<ShopItem>();
+                shopItem.ItemInstance = itemProvider.Create(shopItemDto.ItemVNum, -1);
+                shopItemsList[shopItemDto.ShopItemId] = shopItem;
+            }
+            Shop = shopDto.Adapt<Shop>();
+            Shop.Name = dialog?.Name ?? new I18NString();
+            Shop.ShopItems = shopItemsList;
+        }
     }
 }

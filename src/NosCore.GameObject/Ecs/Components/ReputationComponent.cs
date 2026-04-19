@@ -1,3 +1,3 @@
 namespace NosCore.GameObject.Ecs.Components;
 
-public record struct ReputationComponent(long Reputation, int Dignity, int Compliment);
+public record struct ReputationComponent(long Reputation, short Dignity, short Compliment);

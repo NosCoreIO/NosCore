@@ -12,8 +12,8 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
@@ -34,51 +34,62 @@ namespace NosCore.GameObject.Services.TransformationService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration)
         : ITransformationService
     {
-        public async Task RemoveSpAsync(Character character)
+        public async Task RemoveSpAsync(ClientSession session)
         {
+            var character = session.Character;
             character.UseSp = false;
             character.Morph = 0;
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
-            await character.SendPacketAsync(character.GenerateCond());
-            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
             character.SpCooldown = 30;
-            await character.SendPacketAsync(new SayiPacket
+
+            var characterId = character.CharacterId;
+            var spCooldown = character.SpCooldown;
+            var mapInstance = character.MapInstance;
+            var condPacket = session.Character.GenerateCond();
+            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService);
+            var cModePacket = session.Character.GenerateCMode();
+            var statPacket = session.Character.GenerateStat();
+
+            await session.SendPacketAsync(condPacket);
+            await session.SendPacketAsync(levPacket);
+            await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
-                VisualId = character.CharacterId,
+                VisualId = characterId,
                 Type = SayColorType.Red,
                 Message = Game18NConstString.DurationOfSideEffect,
                 ArgumentType = 4,
-                Game18NArguments = { character.SpCooldown }
+                Game18NArguments = { spCooldown }
             });
-            await character.SendPacketAsync(new SdPacket { Cooldown = character.SpCooldown });
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
-            await character.MapInstance.SendPacketAsync(new GuriPacket
+            await session.SendPacketAsync(new SdPacket { Cooldown = spCooldown });
+            await mapInstance.SendPacketAsync(cModePacket);
+            await mapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Dance,
                 Value = 1,
-                EntityId = character.CharacterId
+                EntityId = characterId
             });
-            await character.SendPacketAsync(character.GenerateStat());
+            await session.SendPacketAsync(statPacket);
 
             async Task CoolDown()
             {
-                await character.SendPacketAsync(new SayiPacket
+                await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
+                    VisualId = characterId,
                     Type = SayColorType.Red,
                     Message = Game18NConstString.TransformationSideEffectGone
                 });
-                await character.SendPacketAsync(new SdPacket { Cooldown = 0 });
+                await session.SendPacketAsync(new SdPacket { Cooldown = 0 });
             }
 
-            Observable.Timer(TimeSpan.FromMilliseconds(character.SpCooldown * 1000)).Select(_ => CoolDown()).Subscribe();
+            Observable.Timer(TimeSpan.FromMilliseconds(spCooldown * 1000)).Select(_ => CoolDown()).Subscribe();
         }
 
-        public async Task ChangeSpAsync(Character character)
+        public async Task ChangeSpAsync(ClientSession session)
         {
+            var character = session.Character;
             if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
                 not SpecialistInstance sp)
             {
@@ -86,24 +97,26 @@ namespace NosCore.GameObject.Services.TransformationService
                 return;
             }
 
-            if ((byte)character.ReputIcon < sp.Item.ReputationMinimum)
+            if (character.ReputIconValue < sp.Item.ReputationMinimum)
             {
-                await character.SendPacketAsync(new SayiPacket
+                var characterId = character.CharacterId;
+                await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
+                    VisualId = characterId,
                     Type = SayColorType.Yellow,
                     Message = Game18NConstString.CanNotBeWornReputationLow
                 });
                 return;
             }
 
-            if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
+            var inventoryService = character.InventoryService;
+            if (inventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance is
                     WearableInstance fairy
                 && (sp.Item.Element != 0) && (fairy.Item.Element != sp.Item.Element)
                 && (fairy.Item.Element != sp.Item.SecondaryElement))
             {
-                await character.SendPacketAsync(new MsgiPacket
+                await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.SpecialistAndFairyDifferentElement
@@ -111,27 +124,39 @@ namespace NosCore.GameObject.Services.TransformationService
                 return;
             }
 
+            character = session.Character;
             character.LastSp = clock.GetCurrentInstant();
             character.UseSp = true;
             character.Morph = sp.Item.Morph;
-            character.MorphUpgrade = sp.Upgrade;
-            character.MorphDesign = sp.Design;
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
-            await character.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(196));
-            await character.MapInstance.SendPacketAsync(new GuriPacket
+            character.MorphUpgrade = (byte)sp.Upgrade;
+            character.MorphDesign = (byte)sp.Design;
+
+            var characterId2 = character.CharacterId;
+            var mapInstance = character.MapInstance;
+            var cModePacket = session.Character.GenerateCMode();
+            var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService);
+            var effPacket = session.Character.GenerateEff(196);
+            var spPointPacket = session.Character.GenerateSpPoint(worldConfiguration);
+            var condPacket = session.Character.GenerateCond();
+            var statPacket = session.Character.GenerateStat();
+
+            await mapInstance.SendPacketAsync(cModePacket);
+            await session.SendPacketAsync(levPacket);
+            await mapInstance.SendPacketAsync(effPacket);
+            await mapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Dance,
                 Value = 1,
-                EntityId = character.CharacterId
+                EntityId = characterId2
             });
-            await character.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
-            await character.SendPacketAsync(character.GenerateCond());
-            await character.SendPacketAsync(character.GenerateStat());
+            await session.SendPacketAsync(spPointPacket);
+            await session.SendPacketAsync(condPacket);
+            await session.SendPacketAsync(statPacket);
         }
 
-        public async Task ChangeVehicleAsync(Character character, Item item)
+        public async Task ChangeVehicleAsync(ClientSession session, Item item)
         {
+            var character = session.Character;
             character.IsVehicled = true;
             character.VehicleSpeed = item.Speed;
             character.MorphUpgrade = 0;
@@ -142,23 +167,27 @@ namespace NosCore.GameObject.Services.TransformationService
                     ? item.Morph
                     : item.SecondMorph;
 
-            await character.MapInstance.SendPacketAsync(
-                character.GenerateEff(196));
-            await character.MapInstance.SendPacketAsync(character
-                .GenerateCMode());
-            await character.SendPacketAsync(character.GenerateCond());
+            var mapInstance = character.MapInstance;
+            var effPacket = session.Character.GenerateEff(196);
+            var cModePacket = session.Character.GenerateCMode();
+            var condPacket = session.Character.GenerateCond();
+
+            await mapInstance.SendPacketAsync(effPacket);
+            await mapInstance.SendPacketAsync(cModePacket);
+            await session.SendPacketAsync(condPacket);
         }
 
-        public async Task RemoveVehicleAsync(Character character)
+        public async Task RemoveVehicleAsync(ClientSession session)
         {
+            var character = session.Character;
             if (character.UseSp)
             {
                 var sp = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear);
                 if (sp != null)
                 {
                     character.Morph = sp.ItemInstance.Item.Morph;
-                    character.MorphDesign = sp.ItemInstance.Design;
-                    character.MorphUpgrade = sp.ItemInstance.Upgrade;
+                    character.MorphDesign = (byte)sp.ItemInstance.Design;
+                    character.MorphUpgrade = (byte)sp.ItemInstance.Upgrade;
                 }
                 else
                 {
@@ -172,9 +201,13 @@ namespace NosCore.GameObject.Services.TransformationService
 
             character.IsVehicled = false;
             character.VehicleSpeed = 0;
-            await character.SendPacketAsync(character.GenerateCond());
-            await character.MapInstance.SendPacketAsync(character.GenerateCMode());
+
+            var mapInstance = character.MapInstance;
+            var condPacket = session.Character.GenerateCond();
+            var cModePacket = session.Character.GenerateCMode();
+
+            await session.SendPacketAsync(condPacket);
+            await mapInstance.SendPacketAsync(cModePacket);
         }
     }
 }
-

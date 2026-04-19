@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -35,11 +36,11 @@ namespace NosCore.PacketHandlers.Exchange
 
             var subPacketList = new List<ServerExcListSubPacket?>();
 
-            var target = sessionRegistry.GetCharacter(s =>
+            var hasTarget = sessionRegistry.TryGetCharacter(s =>
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
-                (s.MapInstanceId == clientSession.Character.MapInstanceId)) as GameObject.ComponentEntities.Entities.Character;
+                (s.MapInstanceId == clientSession.Character.MapInstanceId), out var target);
 
-            if ((packet.SubPackets!.Count > 0) && (target != null))
+            if ((packet.SubPackets!.Count > 0) && hasTarget)
             {
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
@@ -90,8 +91,11 @@ namespace NosCore.PacketHandlers.Exchange
             }
 
             exchangeService.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
-            await (target == null ? Task.CompletedTask : target.SendPacketAsync(
-                clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList)));
+            if (hasTarget)
+            {
+                await target.SendPacketAsync(
+                    clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
+            }
         }
     }
 }

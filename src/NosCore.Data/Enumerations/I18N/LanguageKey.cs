@@ -153,6 +153,7 @@ namespace NosCore.Data.Enumerations.I18N
         PUBSUB_CONNECTION_CLOSED,
         PUBSUB_CONNECTION_STARTED,
         PUBSUB_CONNECTION_STOPPED,
+        TRY_REMOVE_FAILED,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]
@@ -184,6 +185,9 @@ namespace NosCore.Data.Enumerations.I18N
         OBJECT_IN_BAZAAR,
         ITEM_GIFTED,
         NOT_IN_FRIENDLIST,
-        SPEAKER
+        SPEAKER,
+        UPDATE_GOLD,
+        REPUTATION_CHANGED,
+        TOO_RICH_SELLER
     }
 }

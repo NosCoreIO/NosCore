@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.Packets.ClientPackets.Quest;
 using System.Threading.Tasks;
 
@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Services.QuestService
 {
     public interface IQuestService
     {
-        Task RunScriptAsync(Character character);
-        Task RunScriptAsync(Character character, ScriptClientPacket? packet);
+        Task RunScriptAsync(ICharacterEntity character);
+        Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
     }
 }

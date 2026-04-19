@@ -39,22 +39,26 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
             };
         }
 
-        private async Task RemoveGoldAndTeleportAsync(ClientSession clientSession, short mapId, long goldToPay, short x1, short x2,
+        private async Task RemoveGoldAndTeleportAsync(ClientSession session, short mapId, long goldToPay, short x1, short x2,
             short y1, short y2)
         {
-            if (clientSession.Character.Gold >= goldToPay)
+            var character = session.Character;
+            if (character.Gold >= goldToPay)
             {
-                await clientSession.Character.RemoveGoldAsync(goldToPay);
-                await mapChangeService.ChangeMapAsync(clientSession,
+                character.RemoveGold(goldToPay);
+                var goldPacket = character.GenerateGold();
+                await session.SendPacketAsync(goldPacket);
+                await mapChangeService.ChangeMapAsync(session,
                     mapId, (short)RandomHelper.Instance.RandomNumber(x1, x2),
                     (short)RandomHelper.Instance.RandomNumber(y1, y2));
                 return;
             }
 
-            await clientSession.SendPacketAsync(new SayiPacket
+            var characterId = character.CharacterId;
+            await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
-                VisualId = clientSession.Character.CharacterId,
+                VisualId = characterId,
                 Type = SayColorType.Yellow,
                 Message = Game18NConstString.NotEnoughGold
             });

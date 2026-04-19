@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Services.NRunService.Handlers
                 return;
             }
 
-            await requestData.ClientSession.Character.ChangeClassAsync(classType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
+            await requestData.ClientSession.ChangeClassAsync(classType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
         }
     }
 }

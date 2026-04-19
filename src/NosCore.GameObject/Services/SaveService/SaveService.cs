@@ -7,8 +7,7 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Entities;
-using NosCore.GameObject.ComponentEntities.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -27,57 +26,59 @@ namespace NosCore.GameObject.Services.SaveService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : ISaveService
     {
-        public async Task SaveAsync(ICharacterEntity chara)
+        public async Task SaveAsync(ClientSession session)
         {
-            if (chara is not Character character)
-            {
-                return;
-            }
-
             try
             {
+                var character = session.Character;
+                var characterId = character.CharacterId;
                 var account = character.Account;
-                await accountDao.TryInsertOrUpdateAsync(account);
+                var characterDto = character.CharacterDto;
+                var quicklistEntries = character.QuicklistEntries;
+                var inventoryService = character.InventoryService;
+                var staticBonusList = character.StaticBonusList;
+                var titles = character.Titles;
+                var quests = character.Quests;
 
-                await characterDao.TryInsertOrUpdateAsync(character);
+                await accountDao.TryInsertOrUpdateAsync(account);
+                await characterDao.TryInsertOrUpdateAsync(characterDto);
 
                 var quicklistEntriesToDelete = quicklistEntriesDao
-                        .Where(i => i.CharacterId == character.VisualId)!.ToList()
-                    .Where(i => character.QuicklistEntries.All(o => o.Id != i.Id)).ToList();
+                        .Where(i => i.CharacterId == characterId)!.ToList()
+                    .Where(i => quicklistEntries.All(o => o.Id != i.Id)).ToList();
                 await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray());
-                await quicklistEntriesDao.TryInsertOrUpdateAsync(character.QuicklistEntries);
+                await quicklistEntriesDao.TryInsertOrUpdateAsync(quicklistEntries);
 
-                // load and concat inventory with equipment
                 var itemsToDelete = inventoryItemInstanceDao
-                        .Where(i => i.CharacterId == character.VisualId)!.ToList()
-                    .Where(i => character.InventoryService.Values.All(o => o.Id != i.Id)).ToList();
+                        .Where(i => i.CharacterId == characterId)!.ToList()
+                    .Where(i => inventoryService.Values.All(o => o.Id != i.Id)).ToList();
 
                 await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray());
                 await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
 
-                await itemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.Select(s => s.ItemInstance).ToArray());
-                await inventoryItemInstanceDao.TryInsertOrUpdateAsync(character.InventoryService.Values.ToArray());
+                await itemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
+                await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray());
 
                 var staticBonusToDelete = staticBonusDao
-                        .Where(i => i.CharacterId == character.VisualId)!.ToList()
-                    .Where(i => character.StaticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
+                        .Where(i => i.CharacterId == characterId)!.ToList()
+                    .Where(i => staticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
                 await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId));
-                await staticBonusDao.TryInsertOrUpdateAsync(character.StaticBonusList);
+                await staticBonusDao.TryInsertOrUpdateAsync(staticBonusList);
 
-                await titleDao.TryInsertOrUpdateAsync(character.Titles);
+                await titleDao.TryInsertOrUpdateAsync(titles);
 
-                var minilandDto = (MinilandDto)minilandProvider.GetMiniland(character.VisualId);
+                var minilandDto = (MinilandDto)minilandProvider.GetMiniland(characterId);
                 await minilandDao.TryInsertOrUpdateAsync(minilandDto);
 
                 var questsToDelete = characterQuestDao
-                        .Where(i => i.CharacterId == character.VisualId)!.ToList()
-                    .Where(i => character.Quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
+                        .Where(i => i.CharacterId == characterId)!.ToList()
+                    .Where(i => quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
                 await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id));
-                await characterQuestDao.TryInsertOrUpdateAsync(character.Quests.Values);
+                await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
             }
             catch (Exception e)
             {
-                logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], character.CharacterId, e);
+                logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId, e);
             }
         }
     }

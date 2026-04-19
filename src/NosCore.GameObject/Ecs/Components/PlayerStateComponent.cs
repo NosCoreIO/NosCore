@@ -1,10 +1,15 @@
 using NodaTime;
+using NosCore.Algorithm.DignityService;
+using NosCore.Algorithm.ReputationService;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.ShopService;
@@ -21,6 +26,7 @@ public record struct PlayerStateComponent(
     CharacterDto CharacterDto,
     AccountDto Account,
     IInventoryService InventoryService,
+    IItemGenerationService ItemProvider,
     MapInstance MapInstance,
     Group? Group,
     Shop? Shop,
@@ -41,6 +47,11 @@ public record struct PlayerStateComponent(
     Instant LastSp,
     Instant? LastGroupRequest,
     short SpCooldown,
+    byte VehicleSpeed,
     SemaphoreSlim HitSemaphore,
-    IChannel? Channel
+    IChannel? Channel,
+    IPacketSender? Sender,
+    IReputationService ReputationService,
+    IDignityService DignityService,
+    ConcurrentDictionary<IAliveEntity, int> HitList
 );

@@ -831,12 +831,11 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         {
             characterEntity.Group!.LeaveGroup(characterEntity);
-            foreach (var member in characterEntity.Group.Keys.Where(s => (s.Item2 != characterEntity.VisualId) || (s.Item1 != VisualType.Player)))
-            {
-                var groupMember = sessionRegistry.GetCharacter(s =>
-                    (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
 
-                if (groupMember == null)
+            foreach (var entry in characterEntity.Group.Values.Where(s =>
+                s.Item2.VisualType == VisualType.Player && s.Item2.VisualId != characterEntity.VisualId))
+            {
+                if (entry.Item2 is not ICharacterEntity groupMember)
                 {
                     continue;
                 }
@@ -1188,11 +1187,13 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
             await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
             await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
             await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
-            var mapSessions = sessionRegistry.GetCharacters(s => s.MapInstance == characterEntity.MapInstance);
+
+            var mapSessions = sessionRegistry.GetClientSessionsByMapInstance(characterEntity.MapInstanceId);
 
             await Task.WhenAll(mapSessions.Select(async s =>
             {
-                if (s.VisualId != characterEntity.VisualId)
+                var characterId = s.Character.CharacterId;
+                if (characterId != characterEntity.VisualId)
                 {
                     await s.SendPacketAsync(characterEntity.GenerateIn(characterEntity.Authority == AuthorityType.Moderator
                         ? characterEntity.GetMessageFromKey(LanguageKey.SUPPORT) : string.Empty));
@@ -1202,12 +1203,12 @@ namespace NosCore.GameObject.ComponentEntities.Extensions
                 await s.SendPacketAsync(characterEntity.GenerateEff(198));
             }));
 
-            foreach (var member in characterEntity.Group!.Keys)
+            foreach (var entry in characterEntity.Group!.Values.Where(s => s.Item2.VisualType == VisualType.Player))
             {
-                var groupMember = sessionRegistry.GetCharacter(s =>
-                    (s.VisualId == member.Item2) && (member.Item1 == VisualType.Player));
-
-                groupMember?.SendPacketAsync(groupMember.Group!.GeneratePinit());
+                if (entry.Item2 is ICharacterEntity groupMember)
+                {
+                    await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit());
+                }
             }
 
             await characterEntity.SendPacketAsync(characterEntity.Group.GeneratePinit());

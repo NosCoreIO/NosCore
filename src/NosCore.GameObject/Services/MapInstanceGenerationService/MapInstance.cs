@@ -7,6 +7,7 @@
 using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Ecs;
@@ -159,14 +160,20 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public void Kick()
         {
-            Kick(o => o != null);
+            Kick(_ => true);
         }
 
-        public void Kick(Func<ICharacterEntity, bool> filter)
+        public void Kick(Func<ClientSession, bool> filter)
         {
-            _sessionRegistry.GetCharacters(filter)
-                .Where(s => !s.IsDisconnecting && s.MapInstanceId == MapInstanceId).ToList()
-                .ForEach(s => s.ChangeMapAsync(_mapChangeService, s.MapId, s.MapX, s.MapY));
+            var sessions = _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId)
+                .Where(s => s.HasPlayerEntity && !s.Character.IsDisconnecting && filter(s))
+                .ToList();
+
+            foreach (var session in sessions)
+            {
+                var character = session.Character;
+                _mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);
+            }
         }
 
         public MapItem? PutItem(short amount, IItemInstance inv, ClientSession session)

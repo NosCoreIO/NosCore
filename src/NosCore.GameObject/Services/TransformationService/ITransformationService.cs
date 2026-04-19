@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using System.Threading.Tasks;
 
@@ -12,12 +12,12 @@ namespace NosCore.GameObject.Services.TransformationService
 {
     public interface ITransformationService
     {
-        Task RemoveSpAsync(Character character);
+        Task RemoveSpAsync(ClientSession session);
 
-        Task ChangeSpAsync(Character character);
+        Task ChangeSpAsync(ClientSession session);
 
-        Task ChangeVehicleAsync(Character character, Item item);
+        Task ChangeVehicleAsync(ClientSession session, Item item);
 
-        Task RemoveVehicleAsync(Character character);
+        Task RemoveVehicleAsync(ClientSession session);
     }
 }

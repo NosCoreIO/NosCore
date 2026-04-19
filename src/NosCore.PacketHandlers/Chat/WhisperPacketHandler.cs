@@ -9,6 +9,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -68,9 +69,6 @@ namespace NosCore.PacketHandlers.Chat
                     Message = message.ToString()
                 });
 
-                var receiverSession =
-                    sessionRegistry.GetCharacter(s => s.Name == receiverName);
-
                 var accounts = await pubSubHub.GetSubscribersAsync();
                 var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == receiverName);
 
@@ -95,7 +93,8 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                speakPacket.Message = receiverSession != null ? speakPacket.Message :
+                var receiverOnSameChannel = sessionRegistry.TryGetCharacter(s => s.Name == receiverName, out _);
+                speakPacket.Message = receiverOnSameChannel ? speakPacket.Message :
                     $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channel.ChannelId}>";
 
                 await pubSubHub.SendMessageAsync(new PostedPacket

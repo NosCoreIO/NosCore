@@ -4,14 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Arch.Core;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
@@ -37,14 +37,26 @@ namespace NosCore.GameObject.Networking.ClientSession
         IPacketHandlingStrategy packetHandlingStrategy,
         IEnumerable<ISessionDisconnectHandler> disconnectHandlers,
         ISessionRegistry sessionRegistry,
-        ICharacterInitializationService characterInitializationService,
         IGameLanguageLocalizer? gameLanguageLocalizer = null)
         : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
         private readonly SemaphoreSlim _handlingPacketLock = new(1, 1);
         private readonly ILogger _logger = logger;
-        private Character? _character;
+        private PlayerComponentBundle _characterBundle;
 
+        public bool HasPlayerEntity => _characterBundle.Entity != default;
+
+        public ref PlayerComponentBundle Character
+        {
+            get
+            {
+                if (_characterBundle.Entity == default)
+                {
+                    throw new InvalidOperationException("Character entity not initialized");
+                }
+                return ref _characterBundle;
+            }
+        }
 
         public bool GameStarted { get; set; }
 
@@ -59,26 +71,6 @@ namespace NosCore.GameObject.Networking.ClientSession
         public AccountDto Account { get; set; } = null!;
 
         public int? WaitForPacketsAmount { get; set; }
-
-        public Character Character
-        {
-            get
-            {
-                if (_character != null && HasSelectedCharacter)
-                {
-                    return _character;
-                }
-
-                if (_character == null)
-                {
-                    _logger.Warning(logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
-                    throw new InvalidOperationException("Character not initialized");
-                }
-
-                _logger.Warning(logLanguage[LogLanguageKey.CHARACTER_NOT_INIT]);
-                throw new InvalidOperationException("Character not selected");
-            }
-        }
 
         public IPacketHandler? GetHandler(Type packetType)
         {
@@ -117,24 +109,25 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
-        public Task SetCharacterAsync(Character? character)
+        public void SetPlayerEntity(Entity entity, MapWorld world)
         {
-            _character = character;
-            HasSelectedCharacter = character != null;
+            _characterBundle = new PlayerComponentBundle(entity, world);
+            HasSelectedCharacter = true;
 
-            if (character == null)
-            {
-                return Task.CompletedTask;
-            }
-
-            character.Account = Account;
-            character.Channel = Channel;
             if (Channel != null)
             {
-                sessionRegistry.UpdateCharacter(Channel.Id, character.CharacterId, character.MapInstanceId, character);
+                sessionRegistry.UpdateCharacter(Channel.Id, _characterBundle.CharacterId, _characterBundle.MapInstance?.MapInstanceId ?? Guid.Empty);
             }
+        }
 
-            return characterInitializationService.InitializeAsync(character);
+        public void ClearPlayerEntity()
+        {
+            if (_characterBundle.Entity != default && _characterBundle.World != null)
+            {
+                _characterBundle.World.DestroyEntity(_characterBundle.Entity);
+            }
+            _characterBundle = default;
+            HasSelectedCharacter = false;
         }
 
         public async Task HandlePacketAsync(NosPackageInfo package)
@@ -155,23 +148,22 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             try
             {
-                if (_character?.IsDisconnecting ?? true)
+                if (!HasSelectedCharacter)
                 {
                     return;
                 }
 
-                if (_character != null)
+                var character = Character;
+                if (character.IsDisconnecting)
                 {
-                    _character.IsDisconnecting = true;
-                    if (_character.Hp < 1)
-                    {
-                        _character.Hp = 1;
-                    }
+                    return;
+                }
 
-                    foreach (var handler in disconnectHandlers)
-                    {
-                        await handler.HandleDisconnectAsync(this);
-                    }
+                character.IsDisconnecting = true;
+
+                foreach (var handler in disconnectHandlers)
+                {
+                    await handler.HandleDisconnectAsync(this);
                 }
             }
             catch (Exception ex)

@@ -137,8 +137,8 @@ namespace NosCore.GameObject.Tests.Services.BroadcastService
             MockSender = new Mock<IPacketSender>();
             Registry.Register(new SessionInfo { ChannelId = TestChannelId, SessionId = 1, Sender = MockSender.Object, AccountName = "Account1", Disconnect = () => Task.CompletedTask });
             Registry.Register(new SessionInfo { ChannelId = TestChannelId2, SessionId = 2, Sender = MockSender.Object, AccountName = "Account2", Disconnect = () => Task.CompletedTask });
-            Registry.UpdateCharacter(TestChannelId, TestCharacterId, TestMapInstanceId, null);
-            Registry.UpdateCharacter(TestChannelId2, TestCharacterId + 1, TestMapInstanceId2, null);
+            Registry.UpdateCharacter(TestChannelId, TestCharacterId, TestMapInstanceId);
+            Registry.UpdateCharacter(TestChannelId2, TestCharacterId + 1, TestMapInstanceId2);
         }
 
         private void UnregisteringSession()
@@ -148,7 +148,7 @@ namespace NosCore.GameObject.Tests.Services.BroadcastService
 
         private void UpdatingCharacter()
         {
-            Registry.UpdateCharacter(TestChannelId, TestCharacterId, TestMapInstanceId, null);
+            Registry.UpdateCharacter(TestChannelId, TestCharacterId, TestMapInstanceId);
         }
 
         private void GettingUnknownCharacterSender()

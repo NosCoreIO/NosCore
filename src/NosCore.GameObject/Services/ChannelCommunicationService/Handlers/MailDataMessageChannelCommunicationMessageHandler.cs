@@ -1,6 +1,12 @@
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
@@ -12,17 +18,18 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(MailData data)
         {
-            var session = sessionRegistry.GetCharacter(s => s.Name == data.ReceiverName);
+            var session = sessionRegistry.GetSession(s => s.Character.Name == data.ReceiverName);
 
             if (session == null)
             {
                 return;
             }
 
+            var character = session.Character;
             if (data.ItemInstance != null)
             {
-                await session.SendPacketAsync(session.GenerateSay(
-                    string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, session.AccountLanguage],
+                await session.SendPacketAsync(character.GenerateSay(
+                    string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, character.AccountLanguage],
                         data.ItemInstance.Amount), SayColorType.Green));
             }
 

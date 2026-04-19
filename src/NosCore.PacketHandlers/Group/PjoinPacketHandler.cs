@@ -10,6 +10,7 @@ using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.ComponentEntities.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -37,11 +38,10 @@ namespace NosCore.PacketHandlers.Group
     {
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
         {
-            var targetSession =
-                sessionRegistry.GetCharacter(s =>
-                    s.VisualId == pjoinPacket.CharacterId);
+            var hasTargetSession = sessionRegistry.TryGetCharacter(s =>
+                s.VisualId == pjoinPacket.CharacterId, out var targetSession);
 
-            if ((targetSession == null) && (pjoinPacket.RequestType != GroupRequestType.Sharing))
+            if (!hasTargetSession && (pjoinPacket.RequestType != GroupRequestType.Sharing))
             {
                 logger.Error(gameLanguageLocalizer[LanguageKey.UNABLE_TO_REQUEST_GROUP,
                     clientSession.Account.Language]);
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (targetSession?.Group?.IsGroupFull ?? true)
+                    if (!hasTargetSession || (targetSession.Group?.IsGroupFull ?? true))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -158,11 +158,8 @@ namespace NosCore.PacketHandlers.Group
                         .Where(s => s.Item2.VisualId != clientSession.Character.CharacterId)
                         .Select(s =>
                         {
-                            var session =
-                                sessionRegistry.GetCharacter(v =>
-                                    v.VisualId == s.Item2.VisualId);
-
-                            if (session == null)
+                            if (!sessionRegistry.TryGetCharacter(v =>
+                                v.VisualId == s.Item2.VisualId, out var session))
                             {
                                 return Task.CompletedTask;
                             }
@@ -188,7 +185,7 @@ namespace NosCore.PacketHandlers.Group
 
                     break;
                 case GroupRequestType.Accepted:
-                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -248,11 +245,12 @@ namespace NosCore.PacketHandlers.Group
 
                     foreach (var member in currentGroup.Values.Where(s => s.Item2 is ICharacterEntity))
                     {
-                        var session =
-                            sessionRegistry.GetCharacter(s =>
-                                s.VisualId == member.Item2.VisualId);
-                        session?.SendPacketAsync(currentGroup.GeneratePinit());
-                        session?.SendPacketsAsync(currentGroup.GeneratePst().Where(p => p.VisualId != session.VisualId));
+                        if (sessionRegistry.TryGetCharacter(s =>
+                            s.VisualId == member.Item2.VisualId, out var session))
+                        {
+                            await session.SendPacketAsync(currentGroup.GeneratePinit());
+                            await session.SendPacketsAsync(currentGroup.GeneratePst().Where(p => p.VisualId != session.VisualId));
+                        }
                     }
 
                     groupIdService.Items[currentGroup.GroupId] = currentGroup;
@@ -261,7 +259,7 @@ namespace NosCore.PacketHandlers.Group
 
                     break;
                 case GroupRequestType.Declined:
-                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -278,7 +276,7 @@ namespace NosCore.PacketHandlers.Group
                     });
                     break;
                 case GroupRequestType.AcceptedShare:
-                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -304,7 +302,7 @@ namespace NosCore.PacketHandlers.Group
                     //TODO: add a way to change respawn points when system will be done
                     break;
                 case GroupRequestType.DeclinedShare:
-                    if (targetSession == null || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }

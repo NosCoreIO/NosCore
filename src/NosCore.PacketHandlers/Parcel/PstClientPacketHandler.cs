@@ -64,7 +64,8 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    var dest = await characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == clientSession.Character.ServerId);
+                    var serverId = clientSession.Character.ServerId;
+                    var dest = await characterDao.FirstOrDefaultAsync(s => s.Name == pstClientPacket.ReceiverName && s.ServerId == serverId);
                     if (dest != null)
                     {
                         await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, clientSession.Character, dest.CharacterId, null, null, null, null, null, false, pstClientPacket.Title, pstClientPacket.Text));

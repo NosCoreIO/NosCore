@@ -27,11 +27,18 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
         {
-            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item.EffectValue, worldConfiguration);
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint(worldConfiguration));
-            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+            var session = requestData.ClientSession;
+            var mapItem = requestData.Data.Item1;
+
+            var character = session.Character;
+            character.AddSpPoints(mapItem.ItemInstance!.Item.EffectValue, worldConfiguration);
+            var spPointPacket = character.GenerateSpPoint(worldConfiguration);
+            var mapInstance = character.MapInstance;
+            var getPacket = character.GenerateGet(mapItem.VisualId);
+
+            await session.SendPacketAsync(spPointPacket);
+            mapInstance.MapItems.TryRemove(mapItem.VisualId, out _);
+            await mapInstance.SendPacketAsync(getPacket);
         }
     }
 }

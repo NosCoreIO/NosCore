@@ -31,34 +31,37 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
+            var session = requestData.ClientSession;
             var itemInstance = requestData.Data.Item1;
             var packet = requestData.Data.Item2;
-            if (requestData.ClientSession.Character.InExchangeOrShop)
+
+            var character = session.Character;
+            if (character.InExchangeOrShop)
             {
                 logger.Error(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
                 return;
             }
 
-            if ((packet.Mode == 1) && !requestData.ClientSession.Character.IsVehicled)
+            character = session.Character;
+            if ((packet.Mode == 1) && !character.IsVehicled)
             {
-                await requestData.ClientSession.SendPacketAsync(new DelayPacket
+                await session.SendPacketAsync(new DelayPacket
                 {
                     Type = DelayPacketType.Locomotion,
                     Delay = 3000,
-                    Packet = requestData.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type,
-                        itemInstance.Slot,
-                        2, 0)
+                    Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
                 });
                 return;
             }
 
-            if ((packet.Mode == 2) && !requestData.ClientSession.Character.IsVehicled)
+            character = session.Character;
+            if ((packet.Mode == 2) && !character.IsVehicled)
             {
-                await transformationService.ChangeVehicleAsync(requestData.ClientSession.Character, itemInstance.ItemInstance.Item);
+                await transformationService.ChangeVehicleAsync(session, itemInstance.ItemInstance.Item);
                 return;
             }
 
-            await transformationService.RemoveVehicleAsync(requestData.ClientSession.Character);
+            await transformationService.RemoveVehicleAsync(session);
         }
     }
 }

@@ -33,21 +33,23 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
 
         public bool Condition(Clock condition) => condition.LastTick.Minus(_lastRun).ToTimeSpan() >= TimeSpan.FromMinutes(5);
 
-        public Task ExecuteAsync(RequestData<Instant> runTime)
+        public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
-            return Task.WhenAll(_sessionRegistry.GetCharacters().Select(session =>
+            var sessions = _sessionRegistry.GetSessions().ToList();
+            foreach (var session in sessions)
             {
-                if (session.StaticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < _clock.GetCurrentInstant()) > 0)
+                var character = session.Character;
+                var staticBonusList = character.StaticBonusList;
+                if (staticBonusList.RemoveAll(s => s.DateEnd != null && s.DateEnd < _clock.GetCurrentInstant()) > 0)
                 {
-                    return session.SendPacketAsync(new MsgiPacket
+                    await session.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.MagicItemExpired
                     });
                 }
-                _lastRun = runTime.Data;
-                return Task.CompletedTask;
-            }));
+            }
+            _lastRun = runTime.Data;
         }
     }
 }

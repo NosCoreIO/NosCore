@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Services.EventLoaderService.Handlers
         public async Task ExecuteAsync(RequestData<Instant> runTime)
         {
             _logger.LogInformation(_logLanguage[LogLanguageKey.SAVING_ALL]);
-            await Task.WhenAll(_sessionRegistry.GetCharacters().Select(session => _saveService.SaveAsync(session)));
+            await Task.WhenAll(_sessionRegistry.GetSessions().Select(session => _saveService.SaveAsync(session)));
 
             _lastRun = runTime.Data;
         }

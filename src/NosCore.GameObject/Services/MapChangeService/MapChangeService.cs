@@ -9,6 +9,9 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -38,11 +41,12 @@ namespace NosCore.GameObject.Services.MapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
         {
-            if (session.Character == null!)
+            if (!session.HasPlayerEntity)
             {
                 return;
             }
 
+            Guid targetMapInstanceId;
             if (mapId != null)
             {
                 var mapInstance = mapInstanceAccessorService.GetBaseMapById((short)mapId);
@@ -54,134 +58,185 @@ namespace NosCore.GameObject.Services.MapChangeService
                     return;
                 }
 
-                session.Character.MapInstance = mapInstance;
+                targetMapInstanceId = mapInstance.MapInstanceId;
+            }
+            else
+            {
+                targetMapInstanceId = session.Character.MapInstanceId;
             }
 
-            mapInstanceAccessorService.GetMapInstance(session.Character.MapInstanceId);
-            await ChangeMapInstanceAsync(session, session.Character.MapInstanceId, mapX, mapY);
+            await ChangeMapInstanceAsync(session, targetMapInstanceId, mapX, mapY);
         }
 
         public async Task ChangeMapInstanceAsync(ClientSession session, Guid mapInstanceId, int? mapX = null, int? mapY = null)
         {
-            if ((session.Character?.MapInstance == null) || session.Character.IsChangingMapInstance)
+            if (!session.HasPlayerEntity)
+            {
+                return;
+            }
+
+            var character = session.Character;
+            if (character.MapInstance == null || character.IsChangingMapInstance)
             {
                 return;
             }
 
             try
             {
-                session.Character.IsChangingMapInstance = true;
+                character.IsChangingMapInstance = true;
 
-                if (session.Channel?.Id != null)
-                {
-                    session.Character.MapInstance.Sessions.Remove(session.Channel);
-                }
-                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(false));
-                session.Character.MapInstance.LastUnregister = clock.GetCurrentInstant();
-                await LeaveMapAsync(session);
-                if (session.Character.MapInstance.Sessions.Count == 0)
-                {
-                    session.Character.MapInstance.IsSleeping = true;
-                }
+                var currentMapInstance = character.MapInstance;
+                var newMapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
+                var characterId = character.CharacterId;
 
-                if (session.Character.IsSitting)
+                if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
-                    session.Character.IsSitting = false;
-                }
-
-                session.Character.MapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
-
-                if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
-                {
-                    session.Character.MapId = session.Character.MapInstance.Map.MapId;
+                    character.MapId = newMapInstance.Map.MapId;
                     if ((mapX != null) && (mapY != null))
                     {
-                        session.Character.MapX = (short)mapX;
-                        session.Character.MapY = (short)mapY;
+                        character.MapX = (short)mapX;
+                        character.MapY = (short)mapY;
                     }
                 }
 
-                if ((mapX != null) && (mapY != null))
+                var oldWorld = character.World;
+                var oldEntity = character.Entity;
+
+                var position = oldWorld.TryGetComponent<PositionComponent>(oldEntity) ?? default;
+                var state = oldWorld.TryGetComponent<PlayerStateComponent>(oldEntity) ?? default;
+
+                var playerEntity = newMapInstance.EcsWorld.ClonePlayer(
+                    oldWorld.TryGetComponent<EntityIdentityComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<HealthComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<ManaComponent>(oldEntity) ?? default,
+                    position with
+                    {
+                        MapInstanceId = newMapInstance.MapInstanceId,
+                        PositionX = mapX != null ? (short)mapX : position.PositionX,
+                        PositionY = mapY != null ? (short)mapY : position.PositionY
+                    },
+                    (oldWorld.TryGetComponent<VisualComponent>(oldEntity) ?? default) with { IsSitting = false },
+                    oldWorld.TryGetComponent<AppearanceComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<ExperienceComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<GoldComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<ReputationComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<SpComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<NameComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<CombatComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerFlagsComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<TimingComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<SpeedComponent>(oldEntity) ?? default,
+                    state with { MapInstance = newMapInstance });
+
+                if (session.Channel?.Id != null)
                 {
-                    session.Character.PositionX = (short)mapX;
-                    session.Character.PositionY = (short)mapY;
+                    currentMapInstance.Sessions.Remove(session.Channel);
+                }
+                await session.SendPacketAsync(currentMapInstance.GenerateCMap(false));
+                currentMapInstance.LastUnregister = clock.GetCurrentInstant();
+                await LeaveMapAsync(session);
+                if (currentMapInstance.Sessions.Count == 0)
+                {
+                    currentMapInstance.IsSleeping = true;
                 }
 
-                await session.SendPacketAsync(session.Character.GenerateCInfo());
-                await session.SendPacketAsync(session.Character.GenerateCMode());
-                await session.SendPacketAsync(session.Character.GenerateEq());
-                await session.SendPacketAsync(session.Character.GenerateEquipment());
-                await session.SendPacketAsync(session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
-                await session.SendPacketAsync(session.Character.GenerateStat());
-                await session.SendPacketAsync(session.Character.GenerateAt());
-                await session.SendPacketAsync(session.Character.GenerateCond());
-                await session.SendPacketAsync(session.Character.MapInstance.GenerateCMap(true));
-                await session.SendPacketAsync(session.Character.GeneratePairy(
-                    session.Character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy,
-                        NoscorePocketType.Wear)?.ItemInstance as WearableInstance));
-                await session.SendPacketsAsync(session.Character.MapInstance.GetMapItems(session.Character.AccountLanguage));
-                await session.SendPacketsAsync(session.Character.MapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
+                session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
+                character = session.Character;
+
+                character.Group?.LeaveGroup(character);
+                character.Group?.JoinGroup(character);
+
+                var fairy = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
+                var group = character.Group;
+                var channelId = character.Channel?.Id;
+                var titInfoPacket = character.GenerateTitInfo();
+                var accountLanguage = character.AccountLanguage;
+                var invisible = character.Invisible;
+                var authority = character.Authority;
+
+                await session.SendPacketAsync(character.GenerateCInfo());
+                await session.SendPacketAsync(character.GenerateCMode());
+                await session.SendPacketAsync(character.GenerateEq());
+                await session.SendPacketAsync(character.GenerateEquipment());
+                await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+                await session.SendPacketAsync(character.GenerateStat());
+                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId));
+                await session.SendPacketAsync(character.GenerateCond());
+                await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
+                await session.SendPacketAsync(character.GeneratePairy(fairy));
+                await session.SendPacketsAsync(newMapInstance.GetMapItems(accountLanguage));
+                await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
 
                 var minilandPortals = minilandProvider
-                    .GetMinilandPortals(session.Character.CharacterId)
+                    .GetMinilandPortals(characterId)
                     .Where(s => s.SourceMapInstanceId == mapInstanceId)
                     .ToList();
-
                 if (minilandPortals.Count > 0)
                 {
                     await session.SendPacketsAsync(minilandPortals.Select(s => s.GenerateGp()));
                 }
 
-                await session.SendPacketAsync(session.Character.Group!.GeneratePinit());
-                if (!session.Character.Group.IsEmpty)
+                if (group != null)
                 {
-                    await session.SendPacketsAsync(session.Character.Group.GeneratePst());
+                    await session.SendPacketAsync(group.GeneratePinit());
+                    if (!group.IsEmpty)
+                    {
+                        await session.SendPacketsAsync(group.GeneratePst());
+                    }
+
+                    if (group.Type == GroupType.Group && group.Count > 1)
+                    {
+                        await newMapInstance.SendPacketAsync(group.GeneratePidx(character));
+                    }
                 }
 
-                if ((session.Character.Group.Type == GroupType.Group) && (session.Character.Group.Count > 1))
-                {
-                    await session.Character.MapInstance.SendPacketAsync(session.Character.Group.GeneratePidx(session.Character));
-                }
-
-                var mapSessions = sessionRegistry.GetCharacters(s =>
-                    (s != session.Character) && (s.MapInstance.MapInstanceId == session.Character.MapInstanceId));
-
+                var mapSessions = sessionRegistry.GetSessions(s =>
+                    s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId);
                 await Task.WhenAll(mapSessions.Select(async s =>
                 {
-                    await session.SendPacketAsync(s.GenerateIn(s.Authority == AuthorityType.Moderator
-                        ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, s.AccountLanguage]}"
-                        : string.Empty));
-                    if (s.Shop == null)
-                    {
-                        return;
-                    }
+                    var otherCharacter = s.Character;
+                    var prefix = otherCharacter.Authority == AuthorityType.Moderator
+                        ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, otherCharacter.AccountLanguage]}"
+                        : string.Empty;
+                    await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
 
-                    await session.SendPacketAsync(s.GeneratePFlag());
-                    await session.SendPacketAsync(s.GenerateShop(session.Account.Language));
+                    var shop = otherCharacter.Shop;
+                    if (shop != null)
+                    {
+                        await session.SendPacketAsync(otherCharacter.GeneratePFlag());
+                        await session.SendPacketAsync(otherCharacter.GenerateShop(session.Account.Language));
+                    }
                 }));
-                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitInfo());
-                session.Character.MapInstance.IsSleeping = false;
-                if (session.Channel?.Id != null)
+
+                await newMapInstance.SendPacketAsync(titInfoPacket);
+                newMapInstance.IsSleeping = false;
+
+                if (channelId != null)
                 {
-                    if (!session.Character.Invisible)
+                    if (!invisible)
                     {
-                        await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(session.Character.Authority == AuthorityType.Moderator
-                                ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, session.Character.AccountLanguage]}]" : string.Empty),
-                            new EveryoneBut(session.Character.Channel!.Id));
+                        var prefix = authority == AuthorityType.Moderator
+                            ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, accountLanguage]}]"
+                            : string.Empty;
+                        await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
                     }
 
-                    session.Character.MapInstance.Sessions.Add(session.Channel);
+                    newMapInstance.Sessions.Add(session.Channel!);
                 }
 
-                session.Character.MapInstance.Requests[typeof(IMapInstanceEntranceEventHandler)]?
-                    .OnNext(new RequestData<MapInstance>(session, session.Character.MapInstance));
+                newMapInstance.Requests[typeof(IMapInstanceEntranceEventHandler)]?
+                    .OnNext(new RequestData<MapInstance>(session, newMapInstance));
 
-                session.Character.IsChangingMapInstance = false;
+                character.IsChangingMapInstance = false;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                logger.Warning(logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
-                session.Character.IsChangingMapInstance = false;
+                logger.Warning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
+                if (session.HasPlayerEntity)
+                {
+                    session.Character.IsChangingMapInstance = false;
+                }
             }
         }
 
@@ -196,9 +251,12 @@ namespace NosCore.GameObject.Services.MapChangeService
 
         private async Task LeaveMapAsync(ClientSession session)
         {
+            var character = session.Character;
+            var outPacket = character.GenerateOut();
+            var mapInstance = character.MapInstance;
+            session.ClearPlayerEntity();
             await session.SendPacketAsync(new MapOutPacket());
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateOut(),
-                new EveryoneBut(session.Channel!.Id));
+            await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(session.Channel!.Id));
         }
 
     }

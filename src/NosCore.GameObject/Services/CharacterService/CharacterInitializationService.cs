@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.ComponentEntities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using System.Threading.Tasks;
@@ -24,11 +24,11 @@ namespace NosCore.GameObject.Services.CharacterService
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
         }
 
-        public Task InitializeAsync(Character character)
+        public Task InitializeAsync(PlayerComponentBundle player)
         {
             if (_minilandService != null && _mapInstanceGeneratorService != null)
             {
-                return _minilandService.InitializeAsync(character, _mapInstanceGeneratorService);
+                return _minilandService.InitializeAsync(player, _mapInstanceGeneratorService);
             }
 
             return Task.CompletedTask;

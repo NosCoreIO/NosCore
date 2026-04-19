@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
         public async Task ExecuteAsync(RequestData<MapInstance> requestData)
         {
             var miniland = minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId)!;
-            if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
+            if (miniland.OwnerId != requestData.ClientSession.Character.CharacterId)
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {

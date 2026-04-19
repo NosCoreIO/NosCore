@@ -7,6 +7,7 @@
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.ComponentEntities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -31,9 +32,11 @@ namespace NosCore.PacketHandlers.Friend
             if (idtorem != null)
             {
                 await friendHttpClient.DeleteAsync(idtorem.CharacterRelationId);
-                var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == fdelPacket.CharacterId);
-                await (targetCharacter == null ? Task.CompletedTask : targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                    pubSubHub)));
+                if (sessionRegistry.TryGetCharacter(s => s.VisualId == fdelPacket.CharacterId, out var targetCharacter))
+                {
+                    await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
+                        pubSubHub));
+                }
 
                 await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient,
                     pubSubHub));

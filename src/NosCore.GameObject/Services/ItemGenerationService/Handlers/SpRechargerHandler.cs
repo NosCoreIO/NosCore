@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.ComponentEntities.Extensions;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -29,18 +30,24 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Handlers
 
         public async Task ExecuteAsync(RequestData<Tuple<InventoryItemInstance, UseItemPacket>> requestData)
         {
-            if (requestData.ClientSession.Character.SpAdditionPoint < worldConfiguration.Value.MaxAdditionalSpPoints)
+            var session = requestData.ClientSession;
+            var character = session.Character;
+
+            if (character.SpAdditionPoint < worldConfiguration.Value.MaxAdditionalSpPoints)
             {
                 var itemInstance = requestData.Data.Item1;
-                requestData.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1,
-                    itemInstance.ItemInstanceId);
-                await requestData.ClientSession.SendPacketAsync(
-                    itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
-                await requestData.ClientSession.Character.AddAdditionalSpPointsAsync(itemInstance.ItemInstance.Item.EffectValue, worldConfiguration);
+                character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+                var pocketChangePacket = itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot);
+                await session.SendPacketAsync(pocketChangePacket);
+
+                character = session.Character;
+                character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue, worldConfiguration);
+                var spPointPacket = character.GenerateSpPoint(worldConfiguration);
+                await session.SendPacketAsync(spPointPacket);
             }
             else
             {
-                await requestData.ClientSession.Character.SendPacketAsync(new MsgiPacket
+                await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.CannotBeUsedExceedsCapacity

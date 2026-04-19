@@ -65,5 +65,15 @@ namespace NosCore.GameObject.ComponentEntities.Entities
         public byte Level { get; set; }
 
         public byte HeroLevel { get; set; }
+
+        public void Initialize(NpcMonsterDto npcMonster)
+        {
+            NpcMonster = npcMonster;
+            Hp = npcMonster.MaxHp;
+            Mp = npcMonster.MaxMp;
+            IsAlive = true;
+            PositionX = MapX;
+            PositionY = MapY;
+        }
     }
 }

@@ -85,6 +85,8 @@ public class ComponentBundleGenerator : IIncrementalGenerator
     private static IncludedComponent? CreateIncludedComponent(INamedTypeSymbol componentSymbol)
     {
         var properties = new List<ComponentProperty>();
+        var typeNamespaces = new HashSet<string>();
+
         foreach (var member in componentSymbol.GetMembers())
         {
             if (member is IPropertySymbol prop && prop.DeclaredAccessibility == Accessibility.Public)
@@ -95,6 +97,8 @@ public class ComponentBundleGenerator : IIncrementalGenerator
                     prop.Type.ToDisplayString(),
                     !prop.IsReadOnly,
                     defaultValue));
+
+                CollectNamespaces(prop.Type, typeNamespaces);
             }
         }
 
@@ -110,7 +114,29 @@ public class ComponentBundleGenerator : IIncrementalGenerator
             componentName,
             shortName,
             fieldName,
-            properties);
+            properties,
+            typeNamespaces);
+    }
+
+    private static void CollectNamespaces(ITypeSymbol type, HashSet<string> namespaces)
+    {
+        if (type is INamedTypeSymbol namedType)
+        {
+            var ns = namedType.ContainingNamespace?.ToDisplayString();
+            if (!string.IsNullOrEmpty(ns) && ns != "System" && !ns.StartsWith("System."))
+            {
+                namespaces.Add(ns);
+            }
+
+            foreach (var typeArg in namedType.TypeArguments)
+            {
+                CollectNamespaces(typeArg, namespaces);
+            }
+        }
+        else if (type is IArrayTypeSymbol arrayType)
+        {
+            CollectNamespaces(arrayType.ElementType, namespaces);
+        }
     }
 
     private static void Execute(Compilation compilation, ImmutableArray<BundleInfo?> bundles, SourceProductionContext context)
@@ -148,6 +174,7 @@ public class ComponentBundleGenerator : IIncrementalGenerator
 
         var namespaces = bundle.Components
             .Select(c => c.Namespace)
+            .Concat(bundle.Components.SelectMany(c => c.TypeNamespaces))
             .Distinct()
             .Where(ns => ns != bundle.Namespace && ns != "Arch.Core" && ns != "NosCore.GameObject.Ecs")
             .OrderBy(ns => ns);
@@ -160,10 +187,10 @@ public class ComponentBundleGenerator : IIncrementalGenerator
         sb.AppendLine();
         sb.AppendLine($"namespace {bundle.Namespace};");
         sb.AppendLine();
-        sb.AppendLine($"public ref partial struct {bundle.Name}");
+        sb.AppendLine($"public partial struct {bundle.Name}");
         sb.AppendLine("{");
 
-        // Generate Entity and World as readonly fields for ref struct
+        // Generate Entity and World as readonly fields
         sb.AppendLine("    public readonly Entity Entity;");
         sb.AppendLine("    public readonly MapWorld World;");
         sb.AppendLine();
@@ -251,14 +278,16 @@ public class ComponentBundleGenerator : IIncrementalGenerator
         public string ShortName { get; }
         public string FieldName { get; }
         public List<ComponentProperty> Properties { get; }
+        public HashSet<string> TypeNamespaces { get; }
 
-        public IncludedComponent(string @namespace, string name, string shortName, string fieldName, List<ComponentProperty> properties)
+        public IncludedComponent(string @namespace, string name, string shortName, string fieldName, List<ComponentProperty> properties, HashSet<string> typeNamespaces)
         {
             Namespace = @namespace;
             Name = name;
             ShortName = shortName;
             FieldName = fieldName;
             Properties = properties;
+            TypeNamespaces = typeNamespaces;
         }
     }
 
