@@ -37,6 +37,7 @@ using NosCore.Data.Resource;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
+using NosCore.Database.Hosting;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Hosting.Modules;
 using NosCore.GameObject.Infastructure;
@@ -103,7 +104,16 @@ namespace NosCore.WorldServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
+            containerBuilder.RegisterModule(new PersistenceModule((b, t) =>
+            {
+                foreach (var tgo in typeof(MapWorld).Assembly.GetTypes().Where(t.IsAssignableFrom))
+                {
+                    b.RegisterType(tgo);
+                    b.RegisterType(typeof(GameObjectMapper<,>).MakeGenericType(t, tgo))
+                        .As(typeof(IGameObjectMapper<>).MakeGenericType(t))
+                        .AutoActivate();
+                }
+            }));
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
@@ -187,8 +197,6 @@ namespace NosCore.WorldServer
             containerBuilder.RegisterType<MinilandRegistry>().As<IMinilandRegistry>().SingleInstance();
             containerBuilder.RegisterType<ExchangeRequestRegistry>().As<IExchangeRequestRegistry>().SingleInstance();
 
-            RegisterDto(containerBuilder);
-
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();
@@ -198,106 +206,6 @@ namespace NosCore.WorldServer
                 .Where(t => typeof(IChannelCommunicationMessageHandler<NosCore.GameObject.InterChannelCommunication.Messages.IMessage>).IsAssignableFrom(t))
                 .SingleInstance()
                 .AsImplementedInterfaces();
-        }
-
-
-        public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
-        where TDb : class
-        where TPk : struct
-        {
-            containerBuilder.RegisterType<Dao<TDb, TDto, TPk>>().As<IDao<IDto>>().As<IDao<TDto, TPk>>().SingleInstance();
-            if (!isStatic)
-            {
-                return;
-            }
-
-            var staticMetaDataAttribute = typeof(TDb).GetCustomAttribute<StaticMetaDataAttribute>();
-            containerBuilder.Register(c =>
-            {
-                var dic = c.Resolve<IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>>>();
-                var items = c.Resolve<IDao<TDto, TPk>>().LoadAll().ToList();
-                var props = StaticDtoExtension.GetI18NProperties(typeof(TDto));
-                if (props.Count > 0)
-                {
-                    var regions = Enum.GetValues(typeof(RegionType));
-                    var accessors = TypeAccessor.Create(typeof(TDto));
-                    Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
-                }
-
-                if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
-                    (staticMetaDataAttribute.EmptyMessage == LogLanguageKey.UNKNOWN))
-                {
-                    if ((staticMetaDataAttribute != null) &&
-                        (staticMetaDataAttribute.LoadedMessage != LogLanguageKey.UNKNOWN))
-                    {
-                        c.Resolve<ILogger>().Information(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.LoadedMessage],
-                            items.Count);
-                    }
-                }
-                else
-                {
-                    c.Resolve<ILogger>()
-                        .Error(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.EmptyMessage]);
-                }
-
-                return items;
-            })
-                .As<List<TDto>>()
-                .SingleInstance()
-                .AutoActivate();
-        }
-
-
-        private static void RegisterDto(ContainerBuilder containerBuilder)
-        {
-            containerBuilder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
-                    x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x.Key ?? "")
-                        .ToDictionary(x => x.Key,
-                            x => x.ToList().ToDictionary(o => o.RegionType, o => o))))
-            .AsImplementedInterfaces()
-            .SingleInstance()
-            .AutoActivate();
-
-            var registerDatabaseObject = typeof(WorldServerBootstrap).GetMethod(nameof(RegisterDatabaseObject));
-            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
-            var assemblyDb = typeof(Account).Assembly.GetTypes();
-
-            var assemblyGo = typeof(MapWorld).Assembly.GetTypes();
-
-            assemblyDto.Where(p => typeof(IDto).IsAssignableFrom(p) && p.IsClass)
-                .ToList()
-                .ForEach(t =>
-                {
-                    assemblyGo.Where(t.IsAssignableFrom).ToList().ForEach(tgo =>
-                    {
-                        containerBuilder.RegisterType(tgo);
-                        containerBuilder
-                            .RegisterType(typeof(GameObjectMapper<,>).MakeGenericType(t, tgo))
-                            .As(typeof(IGameObjectMapper<>).MakeGenericType(t))
-                            .AutoActivate();
-                    });
-                });
-
-            assemblyDto.Where(p =>
-                    typeof(IDto).IsAssignableFrom(p) &&
-                    (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
-                .ToList()
-                .ForEach(t =>
-                {
-                    var type = assemblyDb.First(tgo =>
-                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                        Guid.NewGuid().ToString());
-                    var typepk = type.GetProperties()
-                        .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)?
-                            .FindPrimaryKey()?.Properties.Select(x => x.Name)
-                            .Contains(s.Name) ?? false
-                        ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
-                        new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
-                });
-
-            containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
         }
 
 
