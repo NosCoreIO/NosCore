@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService.Handlers
         public async Task ExecuteAsync(RequestData<MapInstance> requestData)
         {
             var miniland = minilandProvider.GetMinilandFromMapInstanceId(requestData.Data.MapInstanceId)!;
-            if (miniland.CharacterEntity!.VisualId != requestData.ClientSession.Character.CharacterId)
+            if (miniland.OwnerId != requestData.ClientSession.Character.CharacterId)
             {
                 await requestData.ClientSession.SendPacketAsync(new MsgPacket
                 {

@@ -4,22 +4,26 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Extensions;
-using NosCore.GameObject.Services.BroadcastService;
-using NosCore.Networking.SessionGroup;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
-public class GroupDisconnectHandler(ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry) : ISessionDisconnectHandler
+public class GroupDisconnectHandler : ISessionDisconnectHandler
 {
-    public async Task HandleDisconnectAsync(ClientSession session)
+    public Task HandleDisconnectAsync(ClientSession session)
     {
-        if (!session.HasSelectedCharacter || session.Character.Group == null)
+        if (!session.HasSelectedCharacter)
         {
-            return;
+            return Task.CompletedTask;
         }
 
-        await session.Character.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
+        var character = session.Character;
+        if (character.Group == null)
+        {
+            return Task.CompletedTask;
+        }
+
+        character.Group = null;
+        return Task.CompletedTask;
     }
 }

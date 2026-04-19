@@ -109,17 +109,20 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task NoBlockedRelationShouldExist()
         {
+            var characterId = Session.Character.CharacterId;
             var result = await TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
-                Session.Character.CharacterId == s.CharacterId &&
+                characterId == s.CharacterId &&
                 s.RelationType == CharacterRelationType.Blocked);
             Assert.IsNull(result);
         }
 
         private async Task BlockedRelationShouldExist()
         {
+            var characterId = Session.Character.CharacterId;
+            var targetCharacterId = TargetSession!.Character.CharacterId;
             var result = await TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
-                Session.Character.CharacterId == s.CharacterId &&
-                TargetSession!.Character.CharacterId == s.RelatedCharacterId &&
+                characterId == s.CharacterId &&
+                targetCharacterId == s.RelatedCharacterId &&
                 s.RelationType == CharacterRelationType.Blocked);
             Assert.IsNotNull(result);
         }

@@ -7,8 +7,8 @@
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Entities.Entities;
-using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Drops;
@@ -19,19 +19,27 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
     public class SpChargerEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
     {
-        public bool Condition(MapItem item)
+        public bool Condition(MapItemComponentBundle item)
         {
             return (item.ItemInstance!.Item.ItemType == ItemType.Map) &&
                 (item.ItemInstance.Item.Effect == ItemEffectType.SpCharger);
         }
 
-        public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<MapItemComponentBundle, GetPacket>> requestData)
         {
-            await requestData.ClientSession.Character.AddSpPointsAsync(requestData.Data.Item1.ItemInstance!.Item.EffectValue, worldConfiguration);
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateSpPoint(worldConfiguration));
-            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+            var session = requestData.ClientSession;
+            var mapItem = requestData.Data.Item1;
+
+            var character = session.Character;
+            var visualId = mapItem.VisualId;
+            character.AddSpPoints(mapItem.ItemInstance!.Item.EffectValue, worldConfiguration);
+            var spPointPacket = character.GenerateSpPoint(worldConfiguration);
+            var mapInstance = character.MapInstance;
+            var getPacket = character.GenerateGet(visualId);
+
+            await session.SendPacketAsync(spPointPacket);
+            mapInstance.TryRemoveMapItem(visualId);
+            await mapInstance.SendPacketAsync(getPacket);
         }
     }
 }

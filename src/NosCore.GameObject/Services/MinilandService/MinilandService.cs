@@ -11,8 +11,9 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -98,9 +99,10 @@ namespace NosCore.GameObject.Services.MinilandService
             return null;
         }
 
-        public async Task<Miniland> InitializeAsync(Character character, IMapInstanceGeneratorService generator)
+        public async Task<Miniland> InitializeAsync(PlayerComponentBundle player, IMapInstanceGeneratorService generator)
         {
-            var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == character.CharacterId);
+            var characterId = player.CharacterId;
+            var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId);
             if (minilandInfoDto == null)
             {
                 throw new ArgumentException();
@@ -112,19 +114,19 @@ namespace NosCore.GameObject.Services.MinilandService
 
             var minilandInfo = minilandInfoDto.Adapt<Miniland>();
             minilandInfo.MapInstanceId = miniland.MapInstanceId;
-            minilandInfo.CharacterEntity = character;
+            minilandInfo.CharacterName = player.Name;
 
-            minilandRegistry.Register(character.CharacterId, minilandInfo);
+            minilandRegistry.Register(characterId, minilandInfo);
             await generator.AddMapInstanceAsync(miniland);
 
-            var listobjects = character.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
+            var listobjects = player.InventoryService.Values.Where(s => s.Type == NoscorePocketType.Miniland).ToArray();
             var idlist = listobjects.Select(s => s.Id).ToList();
             var minilandObjectsDto = minilandObjectsDao.Where(s => idlist.Contains((Guid)s.InventoryItemInstanceId!))?
                 .ToList() ?? new List<MinilandObjectDto>();
             foreach (var mlobjdto in minilandObjectsDto)
             {
                 var mlobj = mlobjdto.Adapt<MapDesignObject>();
-                AddMinilandObject(mlobj, character.CharacterId,
+                AddMinilandObject(mlobj, characterId,
                     listobjects.First(s => s.Id == mlobjdto.InventoryItemInstanceId));
             }
 
@@ -151,11 +153,11 @@ namespace NosCore.GameObject.Services.MinilandService
                         List<long> friends = (await friendHttpClient.GetFriendsAsync(characterId))
                             .Select(s => s.CharacterId)
                             .ToList();
-                        miniland!.Kick(o => o.VisualId != characterId && !friends.Contains(o.VisualId));
+                        await miniland!.KickAsync(s => s.Character.CharacterId != characterId && !friends.Contains(s.Character.CharacterId));
                         break;
                     }
                 default:
-                    miniland!.Kick(o => o.VisualId != characterId);
+                    await miniland!.KickAsync(s => s.Character.CharacterId != characterId);
                     break;
             }
         }

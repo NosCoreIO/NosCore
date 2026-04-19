@@ -22,13 +22,9 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task ExecuteAsync(TeleportPacket teleportPacket, ClientSession session)
         {
-            var targetSession =
-                sessionRegistry.GetCharacter(s =>
-                    s.Name == teleportPacket.TeleportArgument);
-
             if (!short.TryParse(teleportPacket.TeleportArgument, out var mapId))
             {
-                if (targetSession != null)
+                if (sessionRegistry.TryGetCharacter(s => s.Name == teleportPacket.TeleportArgument, out var targetSession))
                 {
                     return mapChangeService.ChangeMapInstanceAsync(session, targetSession.MapInstanceId, targetSession.MapX,
                         targetSession.MapY);
@@ -37,7 +33,6 @@ namespace NosCore.PacketHandlers.Command
                 logger.Error(gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,
                     session.Account.Language]);
                 return Task.CompletedTask;
-
             }
 
             return mapChangeService.ChangeMapAsync(session, mapId, teleportPacket.MapX, teleportPacket.MapY);

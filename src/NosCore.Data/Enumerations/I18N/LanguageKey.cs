@@ -50,7 +50,6 @@ namespace NosCore.Data.Enumerations.I18N
         DATABASE_INITIALIZED,
         DATABASE_NOT_UPTODATE,
         CLIENT_DISCONNECTED,
-        CHARACTER_NOT_INIT,
         ERROR_CHANGE_MAP,
         AUTH_INCORRECT,
         CLIENT_ARRIVED,

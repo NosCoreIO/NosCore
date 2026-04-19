@@ -1,3 +1,9 @@
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ServerPackets.Parcel;
 using System.Threading.Tasks;
@@ -9,7 +15,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(DeleteMailData data)
         {
-            var session = sessionRegistry.GetCharacter(s => s.VisualId == data.CharacterId);
+            var session = sessionRegistry.GetSession(s => s.Character.VisualId == data.CharacterId);
 
             if (session == null)
             {

@@ -6,8 +6,8 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.GameObject.Entities.Entities;
-using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Drops;
@@ -22,51 +22,63 @@ namespace NosCore.GameObject.Services.MapItemGenerationService.Handlers
 {
     public class GoldDropEventHandler(IOptions<WorldConfiguration> worldConfiguration) : IGetMapItemEventHandler
     {
-        public bool Condition(MapItem item)
+        public bool Condition(MapItemComponentBundle item)
         {
             return item.VNum == 1046;
         }
 
-        public async Task ExecuteAsync(RequestData<Tuple<MapItem, GetPacket>> requestData)
+        public async Task ExecuteAsync(RequestData<Tuple<MapItemComponentBundle, GetPacket>> requestData)
         {
-            // handle gold drop
+            var session = requestData.ClientSession;
+            var mapItem = requestData.Data.Item1;
+            var packet = requestData.Data.Item2;
             var maxGold = worldConfiguration.Value.MaxGoldAmount;
-            if (requestData.ClientSession.Character.Gold + requestData.Data.Item1.Amount <= maxGold)
+
+            var character = session.Character;
+            if (character.Gold + mapItem.Amount <= maxGold)
             {
-                if (requestData.Data.Item2.PickerType == VisualType.Npc)
+                if (packet.PickerType == VisualType.Npc)
                 {
-                    await requestData.ClientSession.SendPacketAsync(
-                        requestData.ClientSession.Character.GenerateIcon(1, requestData.Data.Item1.VNum));
+                    var iconPacket = character.GenerateIcon(1, mapItem.VNum);
+                    await session.SendPacketAsync(iconPacket);
                 }
 
-                requestData.ClientSession.Character.Gold += requestData.Data.Item1.Amount;
+                character = session.Character;
+                character.Gold += mapItem.Amount;
 
-#pragma warning disable NosCoreAnalyzers // For some reason this packet doesn't have the right amount of arguments
-                await requestData.ClientSession.SendPacketAsync(new Sayi2Packet
+#pragma warning disable NosCoreAnalyzers
+                var characterId = character.CharacterId;
+                await session.SendPacketAsync(new Sayi2Packet
                 {
                     VisualType = VisualType.Player,
-                    VisualId = requestData.ClientSession.Character.CharacterId,
+                    VisualId = characterId,
                     Type = SayColorType.Green,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
-                    Game18NArguments = { requestData.Data.Item1.Amount, requestData.Data.Item1.ItemInstance!.Item.Name[requestData.ClientSession.Account.Language] }
+                    Game18NArguments = { mapItem.Amount, mapItem.ItemInstance!.Item.Name[session.Account.Language] }
                 });
 #pragma warning restore NosCoreAnalyzers
             }
             else
             {
-                requestData.ClientSession.Character.Gold = maxGold;
-                await requestData.ClientSession.SendPacketAsync(new MsgiPacket
+                character = session.Character;
+                character.Gold = maxGold;
+                await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.MaxGoldReached
                 });
             }
 
-            await requestData.ClientSession.SendPacketAsync(requestData.ClientSession.Character.GenerateGold());
-            requestData.ClientSession.Character.MapInstance.MapItems.TryRemove(requestData.Data.Item1.VisualId, out _);
-            await requestData.ClientSession.Character.MapInstance.SendPacketAsync(
-                requestData.ClientSession.Character.GenerateGet(requestData.Data.Item1.VisualId));
+            character = session.Character;
+            var visualId = mapItem.VisualId;
+            var goldPacket = character.GenerateGold();
+            var mapInstance = character.MapInstance;
+            var getPacket = character.GenerateGet(visualId);
+
+            await session.SendPacketAsync(goldPacket);
+            mapInstance.TryRemoveMapItem(visualId);
+            await mapInstance.SendPacketAsync(getPacket);
         }
     }
 }

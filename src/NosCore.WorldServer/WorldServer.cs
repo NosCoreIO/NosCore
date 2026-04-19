@@ -42,7 +42,7 @@ namespace NosCore.WorldServer
             AppDomain.CurrentDomain.ProcessExit += (_, _) =>
             {
                 logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
-                Task.WhenAll(sessionRegistry.GetCharacters().Select(saveService.SaveAsync)).GetAwaiter().GetResult();
+                Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync)).GetAwaiter().GetResult();
                 logger.LogInformation(logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
                 Thread.Sleep(30000);
             };

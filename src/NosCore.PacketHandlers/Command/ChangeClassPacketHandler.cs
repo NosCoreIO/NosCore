@@ -12,6 +12,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -33,7 +34,7 @@ namespace NosCore.PacketHandlers.Command
         {
             if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.Character.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
+                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService);
                 return;
             }
 

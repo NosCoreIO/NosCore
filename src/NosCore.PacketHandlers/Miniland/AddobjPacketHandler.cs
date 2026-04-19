@@ -6,8 +6,8 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
-using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;

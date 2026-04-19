@@ -8,7 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Entities.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Networking;
@@ -35,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         private TeleporterHandler Handler = null!;
         private ClientSession Session = null!;
         private Mock<IMapChangeService> MapChangeServiceMock = null!;
-        private MapNpc? Npc;
+        private NpcComponentBundle? Npc;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -116,18 +117,22 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
 
         private void NpcWithTeleportDialog()
         {
-            Npc = new MapNpc();
-            Npc.MapNpcId = 1;
-            Npc.Dialog = 439;
-            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
+            Npc = CreateNpc(dialog: 439);
         }
 
         private void NpcWithInvalidDialog()
         {
-            Npc = new MapNpc();
-            Npc.MapNpcId = 1;
-            Npc.Dialog = 1;
-            Npc.Initialize(new NpcMonsterDto { NpcMonsterVNum = 1 }, null, null, new List<ShopItemDto>(), TestHelpers.Instance.GenerateItemProvider());
+            Npc = CreateNpc(dialog: 1);
+        }
+
+        private NpcComponentBundle CreateNpc(short dialog)
+        {
+            var npcMonster = new NpcMonsterDto { NpcMonsterVNum = 1 };
+            var mapInstance = Session.Character.MapInstance;
+            var entity = mapInstance.EcsWorld.CreateNpc(
+                1, npcMonster, mapInstance,
+                0, 0, 0, 0, 0, false, false, dialog, 0, 0, null);
+            return new NpcComponentBundle(entity, mapInstance.EcsWorld);
         }
 
         private void CharacterHasEnoughGold()
@@ -145,13 +150,13 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
         private void CheckingConditionWithTeleportRunner()
         {
             var packet = new NrunPacket { Runner = NrunRunnerType.Teleport };
-            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!, packet));
+            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!.Value, packet));
         }
 
         private void CheckingConditionWithShopRunner()
         {
             var packet = new NrunPacket { Runner = NrunRunnerType.OpenShop };
-            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!, packet));
+            ConditionResult = Handler.Condition(new Tuple<IAliveEntity, NrunPacket>(Npc!.Value, packet));
         }
 
         private async Task ExecutingTeleport()
@@ -163,7 +168,7 @@ namespace NosCore.GameObject.Tests.Services.NRunService.Handlers
             };
             var requestData = new RequestData<Tuple<IAliveEntity, NrunPacket>>(
                 Session,
-                new Tuple<IAliveEntity, NrunPacket>(Npc!, packet));
+                new Tuple<IAliveEntity, NrunPacket>(Npc!.Value, packet));
             await Handler.ExecuteAsync(requestData);
         }
 

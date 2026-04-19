@@ -57,14 +57,14 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void CharacterIsRegistered()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<ICharacterEntity, bool>>()))
-                .Returns(Session.Character);
+            SessionRegistry.Setup(x => x.GetSessionByCharacterId(It.IsAny<long>()))
+                .Returns(Session);
         }
 
         private void CharacterIsNotRegistered()
         {
-            SessionRegistry.Setup(x => x.GetCharacter(It.IsAny<System.Func<ICharacterEntity, bool>>()))
-                .Returns((ICharacterEntity?)null);
+            SessionRegistry.Setup(x => x.GetSessionByCharacterId(It.IsAny<long>()))
+                .Returns((ClientSession?)null);
         }
 
         private async Task HandlingDisconnectData()
@@ -77,7 +77,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void ShouldDisconnectCharacter()
         {
-            SessionRegistry.Verify(x => x.DisconnectByCharacterIdAsync(Session.Character.CharacterId), Times.Once);
+            var characterId = Session.Character.CharacterId;
+            SessionRegistry.Verify(x => x.DisconnectByCharacterIdAsync(characterId), Times.Once);
         }
 
         private void ShouldNotAttemptDisconnect()

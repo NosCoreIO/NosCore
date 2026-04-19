@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .Returns(10);
 
             MinilandService.Setup(x => x.GetMinilandPortals(It.IsAny<long>()))
-                .Returns(new List<NosCore.GameObject.Entities.Entities.Portal>());
+                .Returns(new List<NosCore.GameObject.Map.Portal>());
 
             Handler = new PreqPacketHandler(
                 TestHelpers.Instance.MapInstanceAccessorService,
@@ -94,6 +94,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
                 .Returns(100);
+            TestHelpers.Instance.Clock.Advance(NodaTime.Duration.FromSeconds(10));
+            Session.Character.LastMove = TestHelpers.Instance.Clock.GetCurrentInstant();
         }
 
         private async Task UsingPortal()

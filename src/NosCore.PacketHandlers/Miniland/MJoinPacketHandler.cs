@@ -24,9 +24,8 @@ namespace NosCore.PacketHandlers.Miniland
     {
         public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
-            var target = sessionRegistry.GetCharacter(s => s.VisualId == mJoinPacket.VisualId);
             var friendList = await friendHttpClient.GetFriendsAsync(session.Character.CharacterId);
-            if (target != null && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
+            if (sessionRegistry.TryGetCharacter(s => s.VisualId == mJoinPacket.VisualId, out var target) && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {
                 var miniland = minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (miniland.State == MinilandState.Open)

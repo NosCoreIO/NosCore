@@ -159,10 +159,6 @@
   <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
     <value>El canal se cerrarÃ¡ en breves momentos.</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Personaje no cargado.</value>
-    <comment>check</comment>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Cliente ha llegado con SessionId = {0}</value>
   </data>

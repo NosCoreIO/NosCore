@@ -223,15 +223,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Character Not loaded.
-        /// </summary>
-        public static string CHARACTER_NOT_INIT {
-            get {
-                return ResourceManager.GetString("CHARACTER_NOT_INIT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Client connected, SessionId: {0}.
         /// </summary>
         public static string CLIENT_ARRIVED {

@@ -4,7 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
@@ -18,7 +19,7 @@ namespace NosCore.GameObject.Services.MinilandService
     {
         Miniland GetMiniland(long character);
         Task<Guid?> DeleteMinilandAsync(long characterId);
-        Task<Miniland> InitializeAsync(Character character, IMapInstanceGeneratorService generatorService);
+        Task<Miniland> InitializeAsync(PlayerComponentBundle player, IMapInstanceGeneratorService generatorService);
         List<Portal> GetMinilandPortals(long characterId);
         Miniland? GetMinilandFromMapInstanceId(Guid mapInstanceId);
         void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);

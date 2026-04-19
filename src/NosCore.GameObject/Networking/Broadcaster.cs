@@ -5,7 +5,6 @@
 //
 
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Entities.Interfaces;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using System;
@@ -60,20 +59,20 @@ namespace NosCore.GameObject.Networking
             ClientSessions.TryAdd(clientSession.SessionId, clientSession);
         }
 
-        public IEnumerable<ICharacterEntity> GetCharacters()
+        public IEnumerable<ClientSession.ClientSession> GetSessions()
         {
-            return GetCharacters(null);
+            return GetSessions(null);
         }
 
-        public IEnumerable<ICharacterEntity> GetCharacters(Func<ICharacterEntity, bool>? func)
+        public IEnumerable<ClientSession.ClientSession> GetSessions(Func<ClientSession.ClientSession, bool>? func)
         {
-            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(s => s.Character);
+            var selection = ClientSessions.Values.Where(s => s.HasSelectedCharacter);
             return func == null ? selection : selection.Where(func);
         }
 
-        public ICharacterEntity? GetCharacter(Func<ICharacterEntity, bool>? func)
+        public ClientSession.ClientSession? GetSession(Func<ClientSession.ClientSession, bool>? func)
         {
-            var selection = ClientSessions.Values.Where(s => s.Character != null!).Select(c => c.Character);
+            var selection = ClientSessions.Values.Where(s => s.HasSelectedCharacter);
             return func == null ? selection.FirstOrDefault() : selection.FirstOrDefault(func);
         }
 
@@ -89,9 +88,10 @@ namespace NosCore.GameObject.Networking
                 {
                     Name = s.Account.Name,
                     Language = s.Account.Language,
-                    ConnectedCharacter = s.Character == null! ? null : new Data.WebApi.Character
+                    ConnectedCharacter = !s.HasSelectedCharacter ? null : new Data.WebApi.Character
                     {
-                        Name = s.Character.Name, Id = s.Character.CharacterId,
+                        Name = s.Character.Name,
+                        Id = s.Character.CharacterId,
                         FriendRequestBlocked = s.Character.FriendRequestBlocked
                     }
                 }).ToList();

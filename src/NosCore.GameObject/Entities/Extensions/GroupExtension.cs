@@ -5,6 +5,8 @@
 //
 
 using NosCore.GameObject.Entities.Interfaces;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ServerPackets.Shop;
 using System.Collections.Generic;
@@ -20,6 +22,16 @@ namespace NosCore.GameObject.Entities.Extensions
             {
                 GroupId = group.Count == 1 ? -1 : group.GroupId,
                 SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { entity.GenerateSubPidx(true) }
+                    : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
+            };
+        }
+
+        public static PidxPacket GeneratePidx(this Group group, PlayerComponentBundle player)
+        {
+            return new PidxPacket
+            {
+                GroupId = group.Count == 1 ? -1 : group.GroupId,
+                SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { player.GenerateSubPidx(true) }
                     : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };
         }

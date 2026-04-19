@@ -195,7 +195,7 @@ public static class PlayerBundleExtensions
                     continue;
                 }
 
-                if (sessionRegistry.GetCharacter(s => s.VisualId == member.Item2) is { } groupMember)
+                if (sessionRegistry.TryGetCharacter(s => s.VisualId == member.Item2, out var groupMember))
                 {
                     await groupMember.SendPacketAsync(group.GeneratePinit());
                 }

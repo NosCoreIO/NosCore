@@ -7,6 +7,7 @@
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -41,10 +42,8 @@ namespace NosCore.PacketHandlers.Group
 
                 if (isLeader)
                 {
-                    var targetsession = sessionRegistry.GetCharacter(s =>
-                        s.VisualId == group.Values.First().Item2.VisualId);
-
-                    if (targetsession == null)
+                    if (!sessionRegistry.TryGetCharacter(s =>
+                        s.VisualId == group.Values.First().Item2.VisualId, out var targetsession))
                     {
                         return;
                     }
@@ -77,11 +76,8 @@ namespace NosCore.PacketHandlers.Group
 
                 foreach (var member in memberList.Where(s => s is ICharacterEntity))
                 {
-                    var targetsession =
-                        sessionRegistry.GetCharacter(s =>
-                            s.VisualId == member.VisualId);
-
-                    if (targetsession == null)
+                    if (!sessionRegistry.TryGetCharacter(s =>
+                            s.VisualId == member.VisualId, out var targetsession))
                     {
                         continue;
                     }

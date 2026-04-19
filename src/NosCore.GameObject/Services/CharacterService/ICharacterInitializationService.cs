@@ -4,13 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.CharacterService
 {
     public interface ICharacterInitializationService
     {
-        Task InitializeAsync(Character character);
+        Task InitializeAsync(PlayerComponentBundle player);
     }
 }

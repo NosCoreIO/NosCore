@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Messaging.ScheduledJobs
         public async Task Handle(SaveAllSessionsMessage _)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
-            await Task.WhenAll(sessionRegistry.GetCharacters().Select(saveService.SaveAsync));
+            await Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync));
         }
     }
 }

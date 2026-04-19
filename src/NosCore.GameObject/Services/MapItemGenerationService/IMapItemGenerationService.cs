@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 
@@ -12,6 +12,6 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
 {
     public interface IMapItemGenerationService
     {
-        MapItem Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY);
+        MapItemComponentBundle Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY);
     }
 }

@@ -160,10 +160,6 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Kanál</value>
   </data>
-  <data name="CHARACTER_NOT_INIT" xml:space="preserve">
-    <value>Charakter se nenačetl</value>
-    <comment>check</comment>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Uživatel se připojil, SessionId: {0} </value>
   </data>

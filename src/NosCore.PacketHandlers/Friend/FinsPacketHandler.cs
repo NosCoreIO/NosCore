@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -27,83 +28,84 @@ namespace NosCore.PacketHandlers.Friend
     {
         public override async Task ExecuteAsync(FinsPacket finsPacket, ClientSession session)
         {
-            var targetCharacter = sessionRegistry.GetCharacter(s => s.VisualId == finsPacket.CharacterId);
-            if (targetCharacter != null)
+            if (!sessionRegistry.TryGetCharacter(s => s.VisualId == finsPacket.CharacterId, out var targetCharacter))
             {
-                var result = await friendHttpClient.AddFriendAsync(new FriendShipRequest
-                { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
+                return;
+            }
 
-                switch (result)
-                {
-                    case LanguageKey.FRIENDLIST_FULL:
-                        await session.Character.SendPacketAsync(new InfoiPacket
-                        {
-                            Message = Game18NConstString.MaxFriendReachedAdd
-                        });
-                        break;
+            var result = await friendHttpClient.AddFriendAsync(new FriendShipRequest
+            { CharacterId = session.Character.CharacterId, FinsPacket = finsPacket });
 
-                    case LanguageKey.BLACKLIST_BLOCKED:
-                        await session.Character.SendPacketAsync(new InfoiPacket
-                        {
-                            Message = Game18NConstString.AlreadyBlacklisted
-                        });
-                        break;
+            switch (result)
+            {
+                case LanguageKey.FRIENDLIST_FULL:
+                    await session.Character.SendPacketAsync(new InfoiPacket
+                    {
+                        Message = Game18NConstString.MaxFriendReachedAdd
+                    });
+                    break;
 
-                    case LanguageKey.ALREADY_FRIEND:
-                        await session.Character.SendPacketAsync(new InfoiPacket
-                        {
-                            Message = Game18NConstString.RegisteredAsFriend
-                        });
-                        break;
+                case LanguageKey.BLACKLIST_BLOCKED:
+                    await session.Character.SendPacketAsync(new InfoiPacket
+                    {
+                        Message = Game18NConstString.AlreadyBlacklisted
+                    });
+                    break;
 
-                    case LanguageKey.FRIEND_REQUEST_BLOCKED:
-                        await session.Character.SendPacketAsync(new Infoi2Packet
-                        {
-                            Message = Game18NConstString.HAsFriendRequestBlocked,
-                            ArgumentType = 1,
-                            Game18NArguments = { targetCharacter.Name! }
-                        });
-                        break;
+                case LanguageKey.ALREADY_FRIEND:
+                    await session.Character.SendPacketAsync(new InfoiPacket
+                    {
+                        Message = Game18NConstString.RegisteredAsFriend
+                    });
+                    break;
 
-                    case LanguageKey.FRIEND_REQUEST_SENT:
-                        await targetCharacter.SendPacketAsync(new Dlgi2Packet
-                        {
-                            Question = Game18NConstString.AskBecomeFriend,
-                            ArgumentType = 1,
-                            Game18NArguments = { session.Character.Name! },
-                            YesPacket = new FinsPacket
-                            { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
-                            NoPacket = new FinsPacket
-                            { Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId }
-                        });
-                        break;
+                case LanguageKey.FRIEND_REQUEST_BLOCKED:
+                    await session.Character.SendPacketAsync(new Infoi2Packet
+                    {
+                        Message = Game18NConstString.HAsFriendRequestBlocked,
+                        ArgumentType = 1,
+                        Game18NArguments = { targetCharacter.Name! }
+                    });
+                    break;
 
-                    case LanguageKey.FRIEND_ADDED:
-                        await session.Character.SendPacketAsync(new InfoiPacket
-                        {
-                            Message = Game18NConstString.Registered
-                        });
-                        await targetCharacter.SendPacketAsync(new InfoiPacket
-                        {
-                            Message = Game18NConstString.Registered
-                        });
+                case LanguageKey.FRIEND_REQUEST_SENT:
+                    await targetCharacter.SendPacketAsync(new Dlgi2Packet
+                    {
+                        Question = Game18NConstString.AskBecomeFriend,
+                        ArgumentType = 1,
+                        Game18NArguments = { session.Character.Name! },
+                        YesPacket = new FinsPacket
+                        { Type = FinsPacketType.Accepted, CharacterId = session.Character.VisualId },
+                        NoPacket = new FinsPacket
+                        { Type = FinsPacketType.Rejected, CharacterId = session.Character.VisualId }
+                    });
+                    break;
 
-                        await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
-                            pubSubHub));
-                        await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient,
-                            channelHttpClient, pubSubHub));
-                        break;
+                case LanguageKey.FRIEND_ADDED:
+                    await session.Character.SendPacketAsync(new InfoiPacket
+                    {
+                        Message = Game18NConstString.Registered
+                    });
+                    await targetCharacter.SendPacketAsync(new InfoiPacket
+                    {
+                        Message = Game18NConstString.Registered
+                    });
 
-                    case LanguageKey.FRIEND_REJECTED:
-                        await targetCharacter.SendPacketAsync(new InfoiPacket
-                        {
-                            Message = Game18NConstString.YouAreBlocked
-                        });
-                        break;
+                    await targetCharacter.SendPacketAsync(await targetCharacter.GenerateFinitAsync(friendHttpClient, channelHttpClient,
+                        pubSubHub));
+                    await session.Character.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient,
+                        channelHttpClient, pubSubHub));
+                    break;
 
-                    default:
-                        throw new ArgumentException();
-                }
+                case LanguageKey.FRIEND_REJECTED:
+                    await targetCharacter.SendPacketAsync(new InfoiPacket
+                    {
+                        Message = Game18NConstString.YouAreBlocked
+                    });
+                    break;
+
+                default:
+                    throw new ArgumentException();
             }
         }
     }

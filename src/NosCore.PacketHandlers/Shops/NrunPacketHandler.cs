@@ -30,10 +30,10 @@ namespace NosCore.PacketHandlers.Shops
             switch (nRunPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = sessionRegistry.GetCharacter(s => s.VisualId == nRunPacket.VisualId);
+                    aliveEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == nRunPacket.VisualId, out var runner) ? runner : null;
                     break;
                 case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == nRunPacket.VisualId);
+                    aliveEntity = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == nRunPacket.VisualId);
                     break;
                 case null:
                     aliveEntity = null;

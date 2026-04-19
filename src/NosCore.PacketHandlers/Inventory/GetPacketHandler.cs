@@ -6,7 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapItemGenerationService;
@@ -28,12 +28,14 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override async Task ExecuteAsync(GetPacket getPacket, ClientSession clientSession)
         {
-            if (!clientSession.Character.MapInstance.MapItems.ContainsKey(getPacket.VisualId))
+            var mapInstance = clientSession.Character.MapInstance;
+            var mapItemNullable = mapInstance.TryGetMapItem(getPacket.VisualId);
+            if (mapItemNullable == null)
             {
                 return;
             }
 
-            var mapItem = clientSession.Character.MapInstance.MapItems[getPacket.VisualId];
+            var mapItem = mapItemNullable.Value;
 
             bool canpick;
             switch (getPacket.PickerType)
@@ -70,10 +72,15 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            mapItem.Requests[typeof(IGetMapItemEventHandler)].OnNext(new RequestData<Tuple<MapItem, GetPacket>>(clientSession,
-                new Tuple<MapItem, GetPacket>(mapItem, getPacket)));
+            if (!mapInstance.MapItemRequestContexts.TryGetValue(mapItem.VisualId, out var context))
+            {
+                return;
+            }
 
-            await Task.WhenAll(mapItem.HandlerTasks);
+            context.PickupSubject.OnNext(new RequestData<Tuple<MapItemComponentBundle, GetPacket>>(clientSession,
+                new Tuple<MapItemComponentBundle, GetPacket>(mapItem, getPacket)));
+
+            await Task.WhenAll(context.HandlerTasks);
         }
     }
 }

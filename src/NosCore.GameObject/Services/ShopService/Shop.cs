@@ -6,7 +6,7 @@
 
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Entities.Entities;
+using NosCore.GameObject.Entities.Interfaces;
 using System.Collections.Concurrent;
 using System.Linq;
 
@@ -18,7 +18,7 @@ namespace NosCore.GameObject.Services.ShopService
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; } = new();
 
-        public Character? OwnerCharacter { get; set; }
+        public ICharacterEntity? OwnerCharacter { get; set; }
         public long Sell { get; internal set; }
 
         public int Size

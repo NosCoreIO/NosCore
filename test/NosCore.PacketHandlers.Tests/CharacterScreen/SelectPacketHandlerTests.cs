@@ -6,10 +6,15 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.DignityService;
+using NosCore.Algorithm.HpService;
+using NosCore.Algorithm.MpService;
+using NosCore.Algorithm.ReputationService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -35,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            await Session.SetCharacterAsync(null);
+            Session.ClearPlayerEntity();
             SelectPacketHandler = new SelectPacketHandler(
                 TestHelpers.Instance.CharacterDao,
                 Logger,
@@ -53,7 +58,15 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 TestHelpers.Instance.WorldConfiguration,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.PubSubHub.Object,
-                new Mock<ISessionGroupFactory>().Object);
+                new ReputationService(),
+                new DignityService(),
+                TestHelpers.Instance.Clock,
+                new List<ItemDto>(),
+                new HpService(),
+                new MpService(),
+                new Mock<ISessionGroupFactory>().Object,
+                new CharacterInitializationService(),
+                TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]

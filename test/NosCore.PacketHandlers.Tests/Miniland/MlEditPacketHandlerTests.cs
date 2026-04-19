@@ -10,10 +10,9 @@ using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.Entities.Entities;
 using NosCore.GameObject.Map;
-using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Miniland;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
@@ -41,8 +40,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestInitialize]
         public async Task SetupAsync()
         {
-            TypeAdapterConfig<MapNpcDto, MapNpc>.NewConfig()
-                .ConstructUsing(src => new MapNpc());
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Session2 = await TestHelpers.Instance.GenerateSessionAsync();
@@ -76,10 +73,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
             await MinilandProvider.InitializeAsync(Session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
-            var mapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(miniland.MapInstanceId)!;
-            Session.Character.MapInstance = mapInstance;
-            Session2.Character.MapInstance = mapInstance;
-            session3.Character.MapInstance = mapInstance;
+            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(Session, miniland.MapInstanceId);
+            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(Session2, miniland.MapInstanceId);
+            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(session3, miniland.MapInstanceId);
             MlEditPacketHandler = new MlEditPacketHandler(MinilandProvider);
         }
 

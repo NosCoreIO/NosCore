@@ -18,13 +18,13 @@ namespace NosCore.GameObject.Services.WarehouseService
     {
         int GetMaxSlots(WarehouseType warehouseType);
 
-        List<WarehouseLink> GetItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot);
+        Task<List<WarehouseLink>> GetItemsAsync(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot);
 
-        List<WarehouseItem> GetWarehouseItems(long ownerId, WarehouseType warehouseType);
+        Task<List<WarehouseItem>> GetWarehouseItemsAsync(long ownerId, WarehouseType warehouseType);
 
-        WarehouseItem? GetItemBySlot(long ownerId, WarehouseType warehouseType, short slot);
+        Task<WarehouseItem?> GetItemBySlotAsync(long ownerId, WarehouseType warehouseType, short slot);
 
-        short? GetFreeSlot(long ownerId, WarehouseType warehouseType);
+        Task<short?> GetFreeSlotAsync(long ownerId, WarehouseType warehouseType);
 
         Task<bool> WithdrawItemAsync(Guid id);
 

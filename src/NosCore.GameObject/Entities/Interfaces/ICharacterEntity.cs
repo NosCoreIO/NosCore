@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Entities.Interfaces
         List<TitleDto> Titles { get; }
 
         bool IsDisconnecting { get; }
-        ScriptDto? Script { get; }
+        ScriptDto? Script { get; set; }
         Guid? CurrentScriptId { get; }
         ConcurrentDictionary<Guid, CharacterQuest> Quests { get; }
         short Compliment { get; }

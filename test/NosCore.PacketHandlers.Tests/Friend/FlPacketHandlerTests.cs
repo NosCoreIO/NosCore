@@ -97,9 +97,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task FriendRelationShouldExist()
         {
+            var characterId = Session.Character.CharacterId;
+            var targetCharacterId = TargetSession!.Character.CharacterId;
             var result = await CharacterRelationDao.FirstOrDefaultAsync(s =>
-                s.CharacterId == Session.Character.CharacterId &&
-                s.RelatedCharacterId == TargetSession!.Character.CharacterId &&
+                s.CharacterId == characterId &&
+                s.RelatedCharacterId == targetCharacterId &&
                 s.RelationType == CharacterRelationType.Friend);
             Assert.IsNotNull(result);
         }

@@ -7,6 +7,7 @@
 using NosCore.Algorithm.DignityService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Entities.Extensions;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Entities.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -30,7 +31,7 @@ namespace NosCore.PacketHandlers.Shops
             switch (shoppingPacket.VisualType)
             {
                 case VisualType.Player:
-                    aliveEntity = sessionRegistry.GetCharacter(s => s.VisualId == shoppingPacket.VisualId);
+                    aliveEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == shoppingPacket.VisualId, out var shopper) ? shopper : null;
                     break;
                 case VisualType.Npc:
 
@@ -43,7 +44,7 @@ namespace NosCore.PacketHandlers.Shops
                         _ => 1.0,
                     };
                     aliveEntity =
-                        clientSession.Character.MapInstance.Npcs.Find(s => s.VisualId == shoppingPacket.VisualId);
+                        clientSession.Character.MapInstance.FindNpc(s => s.VisualId == shoppingPacket.VisualId);
                     break;
 
                 default:
