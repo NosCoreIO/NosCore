@@ -86,7 +86,7 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, isHostile),
             new EffectComponent(0, 0),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<IAliveEntity, int>(), null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled)
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled)
         );
         return entity;
     }
@@ -118,7 +118,7 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<IAliveEntity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(INrunEventHandler)] = new() }, dialog, isDisabled)
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(INrunEventHandler)] = new() }, dialog, isDisabled)
         );
         return entity;
     }
@@ -189,7 +189,7 @@ public class MapWorld : IDisposable
             new ReputationComponent(reputation, dignity, compliment),
             new SpComponent(0, 0, 0),
             new NameComponent(name),
-            new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
+            new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>()),
             new PlayerComponent(accountId, characterId, isGm, serverId),
             new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false, false),
             new TimingComponent(now, now),
@@ -216,10 +216,15 @@ public class MapWorld : IDisposable
         TimingComponent timing,
         SpeedComponent speed,
         PlayerStateComponent state,
-        PlayerNetworkComponent network)
+        PlayerNetworkComponent network,
+        PlayerContextComponent context,
+        PlayerInventoryComponent inventory,
+        PlayerSocialComponent social,
+        PlayerRequestsComponent requests)
     {
         return World.Create(identity, health, mana, position, visual, appearance, experience, gold,
-            reputation, sp, name, combat, player, playerFlags, timing, speed, state, network);
+            reputation, sp, name, combat, player, playerFlags, timing, speed, state, network,
+            context, inventory, social, requests);
     }
 
     public void DestroyEntity(Entity entity)

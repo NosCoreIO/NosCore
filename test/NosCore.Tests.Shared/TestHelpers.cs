@@ -406,22 +406,7 @@ namespace NosCore.Tests.Shared
             var playerStateComponent = new GameObject.Ecs.Components.PlayerStateComponent(
                 characterDto,
                 acc,
-                inventoryService,
-                mapInstance,
-                group,
                 null,
-                null,
-                new ConcurrentDictionary<short, NosCore.GameObject.Services.BattleService.CharacterSkill>(),
-                new ConcurrentDictionary<Guid, NosCore.GameObject.Services.QuestService.CharacterQuest>(),
-                new List<QuicklistEntryDto>(),
-                new List<StaticBonusDto>(),
-                new List<TitleDto>(),
-                new ConcurrentDictionary<long, long>(),
-                new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
-                {
-                    { typeof(IUseItemEventHandler), new System.Reactive.Subjects.Subject<RequestData>() },
-                    { typeof(INrunEventHandler), new System.Reactive.Subjects.Subject<RequestData>() }
-                },
                 false,
                 false,
                 false,
@@ -429,18 +414,32 @@ namespace NosCore.Tests.Shared
                 true,
                 now,
                 now,
-                null,
                 0,
                 0,
-                new SemaphoreSlim(1, 1),
                 new ReputationService(),
                 new DignityService(),
-                Instance.GameLanguageLocalizer,
-                new ConcurrentDictionary<IAliveEntity, int>()
+                Instance.GameLanguageLocalizer
             );
 
             mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerNetworkComponent(session, session.Channel));
+            mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerContextComponent(mapInstance, group, null));
+            mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerInventoryComponent(
+                inventoryService,
+                new ConcurrentDictionary<short, NosCore.GameObject.Services.BattleService.CharacterSkill>(),
+                new ConcurrentDictionary<Guid, NosCore.GameObject.Services.QuestService.CharacterQuest>(),
+                new List<QuicklistEntryDto>(),
+                new List<StaticBonusDto>(),
+                new List<TitleDto>()));
+            mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerSocialComponent(
+                new ConcurrentDictionary<long, long>(),
+                null));
+            mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerRequestsComponent(
+                new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
+                {
+                    { typeof(IUseItemEventHandler), new System.Reactive.Subjects.Subject<RequestData>() },
+                    { typeof(INrunEventHandler), new System.Reactive.Subjects.Subject<RequestData>() }
+                }));
             session.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
             var character = session.Character;

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Arch.Core;
 using NosCore.GameObject.Services.ShopService;
 using System.Collections.Concurrent;
 using System.Threading;
@@ -12,6 +13,8 @@ namespace NosCore.GameObject.Ecs.Interfaces
 {
     public interface IAliveEntity : IVisualEntity
     {
+        Entity Handle { get; }
+
         bool IsSitting { get; set; }
 
         byte Speed { get; }
@@ -54,6 +57,6 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         SemaphoreSlim HitSemaphore { get; }
 
-        ConcurrentDictionary<IAliveEntity, int> HitList { get; }
+        ConcurrentDictionary<Entity, int> HitList { get; }
     }
 }

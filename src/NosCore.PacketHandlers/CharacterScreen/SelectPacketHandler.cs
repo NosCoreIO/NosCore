@@ -155,22 +155,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var playerStateComponent = new PlayerStateComponent(
                     characterDto,
                     clientSession.Account,
-                    inventoryService,
-                    mapInstance,
-                    group,
-                    null,
                     script,
-                    new ConcurrentDictionary<short, CharacterSkill>(),
-                    new ConcurrentDictionary<Guid, CharacterQuest>(),
-                    new List<QuicklistEntryDto>(),
-                    new List<StaticBonusDto>(),
-                    new List<TitleDto>(),
-                    new ConcurrentDictionary<long, long>(),
-                    new Dictionary<Type, Subject<RequestData>>
-                    {
-                        { typeof(IUseItemEventHandler), new Subject<RequestData>() },
-                        { typeof(INrunEventHandler), new Subject<RequestData>() }
-                    },
                     false,
                     false,
                     false,
@@ -178,18 +163,32 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     true,
                     now,
                     now,
-                    null,
                     0,
                     0,
-                    new SemaphoreSlim(1, 1),
                     reputationService,
                     dignityService,
-                    gameLanguageLocalizer,
-                    new ConcurrentDictionary<IAliveEntity, int>()
+                    gameLanguageLocalizer
                 );
 
                 mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerNetworkComponent(clientSession, clientSession.Channel));
+                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerContextComponent(mapInstance, group, null));
+                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerInventoryComponent(
+                    inventoryService,
+                    new ConcurrentDictionary<short, CharacterSkill>(),
+                    new ConcurrentDictionary<Guid, CharacterQuest>(),
+                    new List<QuicklistEntryDto>(),
+                    new List<StaticBonusDto>(),
+                    new List<TitleDto>()));
+                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerSocialComponent(
+                    new ConcurrentDictionary<long, long>(),
+                    null));
+                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerRequestsComponent(
+                    new Dictionary<Type, Subject<RequestData>>
+                    {
+                        { typeof(IUseItemEventHandler), new Subject<RequestData>() },
+                        { typeof(INrunEventHandler), new Subject<RequestData>() }
+                    }));
                 clientSession.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
                 var character = clientSession.Character;
