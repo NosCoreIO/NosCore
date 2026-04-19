@@ -176,7 +176,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateEquipment());
                 await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
                 await session.SendPacketAsync(character.GenerateStat());
-                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId));
+                await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music));
                 await session.SendPacketAsync(character.GenerateCond());
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
