@@ -28,7 +28,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.GroupService;
-using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapInstanceAccessService;

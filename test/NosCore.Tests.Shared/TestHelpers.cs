@@ -59,7 +59,6 @@ using NosCore.GameObject.Services.MapItemGenerationService.Handlers;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.GameObject.Services.NRunService;
-using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Ecs.Interfaces;

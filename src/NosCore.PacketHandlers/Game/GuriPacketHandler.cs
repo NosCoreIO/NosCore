@@ -5,19 +5,19 @@
 //
 
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.GuriRunnerService;
 using NosCore.Packets.ClientPackets.UI;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GuriPacketHandler(IGuriRunnerService guriProvider) : PacketHandler<GuriPacket>, IWorldPacketHandler
+    public class GuriPacketHandler(IMessageBus messageBus) : PacketHandler<GuriPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(GuriPacket guriPacket, ClientSession session)
         {
-            guriProvider.GuriLaunch(session, guriPacket);
-            return Task.CompletedTask;
+            return messageBus.PublishAsync(new GuriPacketReceivedEvent(session, guriPacket)).AsTask();
         }
     }
 }
