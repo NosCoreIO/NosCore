@@ -246,8 +246,6 @@ namespace NosCore.WorldServer
                     // Autofac-only registrations are invisible to Wolverine's code generation.
                     services.AddSingleton<Serilog.ILogger>(_ => Log.Logger);
                     services.AddSingleton<IClock>(_ => SystemClock.Instance);
-                    services.AddSingleton<NosCore.GameObject.Services.BroadcastService.ISessionRegistry,
-                        NosCore.GameObject.Services.BroadcastService.SessionRegistry>();
 
                     foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }
                                  .SelectMany(a => a.GetTypes())
@@ -259,6 +257,9 @@ namespace NosCore.WorldServer
                         }
                         services.AddTransient(implType);
                     }
+
+                    NosCore.Database.Hosting.PersistenceModule.MirrorTo(services);
+                    NosCore.GameObject.Messaging.WolverineDependencyRegistrar.RegisterDependencies(services);
 
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.AddHostedService<WorldServer>();
