@@ -5,6 +5,7 @@
 //
 
 using AutoFixture;
+using NodaTime;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
@@ -16,7 +17,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Services.BazaarService;
-using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.AutoFixture;
 using SpecLight;
 using System;
@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests
 
             var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             BazaarItemsHolder = new BazaarRegistry(MockBzDao.Object, MockItemDao.Object, mockCharacterDao.Object);
-            BazaarController = new BazaarHub(new BazaarService(BazaarItemsHolder, MockBzDao.Object, MockItemDao.Object, TestHelpers.Instance.Clock));
+            BazaarController = new BazaarHub(new BazaarService(BazaarItemsHolder, MockBzDao.Object, MockItemDao.Object, Fixture.Create<IClock>()));
             MockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
             MockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
