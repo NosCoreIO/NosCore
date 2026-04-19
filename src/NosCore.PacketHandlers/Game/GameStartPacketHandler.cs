@@ -120,8 +120,10 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
             await session.SendPacketAsync(new PclearPacket());
 
-            //            Session.SendPacket(Session.Character.GeneratePinit());
-            //            Session.SendPackets(Session.Character.GeneratePst());
+            // Group init even for solo players — the client expects pinit + a self-row pst
+            // so its party UI is in a known state for later joins/leaves.
+            await session.SendPacketAsync(session.Character.Group!.GeneratePinit());
+            await session.SendPacketsAsync(session.Character.Group.GeneratePst());
 
             //            Session.SendPacket("zzim");
             await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)

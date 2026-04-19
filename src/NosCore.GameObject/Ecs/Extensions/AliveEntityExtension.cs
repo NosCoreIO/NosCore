@@ -99,8 +99,12 @@ namespace NosCore.GameObject.Ecs.Extensions
                 VisualId = aliveEntity.VisualId,
                 Level = aliveEntity.Level,
                 HeroLvl = aliveEntity.HeroLevel,
-                HpPercentage = (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100),
-                MpPercentage = (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100),
+                HpPercentage = aliveEntity.MaxHp > 0
+                    ? (int)(aliveEntity.Hp / (float)aliveEntity.MaxHp * 100)
+                    : 0,
+                MpPercentage = aliveEntity.MaxMp > 0
+                    ? (int)(aliveEntity.Mp / (float)aliveEntity.MaxMp * 100)
+                    : 0,
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
                 BuffIds = null
