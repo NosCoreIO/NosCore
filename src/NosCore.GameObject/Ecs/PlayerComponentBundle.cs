@@ -1,5 +1,3 @@
-using NosCore.Algorithm.DignityService;
-using NosCore.Algorithm.ReputationService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs.Attributes;
@@ -7,7 +5,6 @@ using NosCore.GameObject.Ecs.Components;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.Enumerations;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -110,10 +107,10 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
 
     public string? Prefix => null;
 
-    ReputationType ICharacterEntity.ReputIcon => ReputationService.GetLevelFromReputation(Reputation);
-    DignityType ICharacterEntity.DignityIcon => DignityService.GetLevelFromDignity(Dignity);
+    ReputationType ICharacterEntity.ReputIcon => ReputationLevels.FromReputation(Reputation);
+    DignityType ICharacterEntity.DignityIcon => DignityLevels.FromDignity(Dignity);
 
-    public int ReputIconValue => (int)ReputationService.GetLevelFromReputation(Reputation);
+    public int ReputIconValue => (int)ReputationLevels.FromReputation(Reputation);
 
     public Task SendPacketAsync(IPacket? packet)
     {

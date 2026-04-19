@@ -58,8 +58,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 TestHelpers.Instance.WorldConfiguration,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.PubSubHub.Object,
-                new ReputationService(),
-                new DignityService(),
                 TestHelpers.Instance.Clock,
                 new List<ItemDto>(),
                 new HpService(),

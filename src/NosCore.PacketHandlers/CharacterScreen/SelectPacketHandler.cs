@@ -58,7 +58,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IPubSubHub pubSubHub, IReputationService reputationService, IDignityService dignityService, IClock clock,
+            IPubSubHub pubSubHub, IClock clock,
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
@@ -165,8 +165,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     now,
                     0,
                     0,
-                    reputationService,
-                    dignityService,
                     gameLanguageLocalizer
                 );
 
