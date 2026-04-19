@@ -6,6 +6,7 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -17,6 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Arch" Version="2.1.0-beta" />
     <PackageReference Include="NosCore.Algorithm" Version="2.0.0" />
     <PackageReference Include="System.Reactive" Version="6.1.0" />
     <PackageReference Include="WolverineFx" Version="5.31.1" />
@@ -31,5 +33,11 @@
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
   </ItemGroup>
-  
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\tools\NosCore.EcsGenerator\NosCore.EcsGenerator.csproj"
+        OutputItemType="Analyzer"
+        ReferenceOutputAssembly="false" />
+  </ItemGroup>
+
 </Project>
