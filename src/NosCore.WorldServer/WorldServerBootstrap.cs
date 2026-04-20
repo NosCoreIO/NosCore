@@ -182,33 +182,14 @@ namespace NosCore.WorldServer
             }).As<IPipelineConfiguration>().SingleInstance();
 
 
-            //NosCore.GameObject
-            containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
-            containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
-            containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
-            containerBuilder.Register<IIdService<MapItemComponentBundle>>(_ => new IdService<MapItemComponentBundle>(100000)).SingleInstance();
-            containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-
-            containerBuilder.RegisterType<MapInstanceRegistry>().As<IMapInstanceRegistry>().SingleInstance();
-            containerBuilder.RegisterType<MinilandRegistry>().As<IMinilandRegistry>().SingleInstance();
-            containerBuilder.RegisterType<ExchangeRequestRegistry>().As<IExchangeRequestRegistry>().SingleInstance();
-
-            // Combat pipeline. Catalog + HitQueue are singletons because they hold
-            // per-target channels / pre-indexed lookup tables. Everything else is
-            // stateless so we keep them transient to play nicely with handler lifetimes.
-            containerBuilder.RegisterType<RandomProvider>().As<IRandomProvider>().SingleInstance();
-            containerBuilder.RegisterType<NpcCombatCatalog>().As<INpcCombatCatalog>().SingleInstance();
-            containerBuilder.RegisterType<HitQueue>().As<IHitQueue>().SingleInstance();
-            containerBuilder.RegisterType<AggroService>().As<IAggroService>().SingleInstance();
-            containerBuilder.RegisterType<BuffService>().As<IBuffService>().SingleInstance();
-            containerBuilder.RegisterType<PathfindingService>().As<IPathfindingService>().SingleInstance();
-            containerBuilder.RegisterType<MonsterAi>().As<IMonsterAi>().SingleInstance();
-            containerBuilder.RegisterType<DamageCalculator>().As<IDamageCalculator>();
-            containerBuilder.RegisterType<SkillResolver>().As<ISkillResolver>();
-            containerBuilder.RegisterType<TargetResolver>().As<ITargetResolver>();
-            containerBuilder.RegisterType<BattleStatsProvider>().As<IBattleStatsProvider>();
-            containerBuilder.RegisterType<RewardService>().As<IRewardService>();
-            containerBuilder.RegisterType<GameObject.Services.BattleService.BattleService>().As<IBattleService>();
+            // IIdService / pathfinder heuristic / session + map registries / hub clients /
+            // combat pipeline are all registered in IServiceCollection by
+            // WolverineDependencyRegistrar.RegisterDependencies so Wolverine can see them
+            // at codegen time. AutofacServiceProviderFactory.Populate() copies those
+            // registrations into the Autofac container at host-build, which is why they
+            // aren't duplicated here — registering them on both sides would produce the
+            // "An item with the same key..." runtime errors (see PersistenceModule.MirrorTo
+            // comment for the same pattern on the DAO side).
 
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
@@ -260,28 +241,17 @@ namespace NosCore.WorldServer
                         x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
                             x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
 
-                    // Wolverine inspects IServiceCollection at startup to plan handler construction.
-                    // Direct dependencies of Wolverine handlers must be registered here, not only in Autofac —
-                    // Autofac-only registrations are invisible to Wolverine's code generation.
+                    // Cross-cutting singletons that don't belong to any module. Logger is
+                    // wired here because it needs a captured Log.Logger reference; IClock
+                    // because SystemClock is an external NodaTime type with no container-
+                    // friendly constructor.
                     services.AddSingleton<Serilog.ILogger>(_ => Log.Logger);
                     services.AddSingleton<IClock>(_ => SystemClock.Instance);
 
-                    // Combat pipeline MSDI mirrors. Wolverine's code generation walks
-                    // IServiceCollection, so each direct dependency of a Wolverine handler
-                    // must be visible here in addition to the Autofac registrations above.
-                    services.AddSingleton<IRandomProvider, RandomProvider>();
-                    services.AddSingleton<INpcCombatCatalog, NpcCombatCatalog>();
-                    services.AddSingleton<IHitQueue, HitQueue>();
-                    services.AddSingleton<IAggroService, AggroService>();
-                    services.AddSingleton<IBuffService, BuffService>();
-                    services.AddSingleton<IPathfindingService, PathfindingService>();
-                    services.AddSingleton<IMonsterAi, MonsterAi>();
-                    services.AddTransient<IDamageCalculator, DamageCalculator>();
-                    services.AddTransient<ISkillResolver, SkillResolver>();
-                    services.AddTransient<ITargetResolver, TargetResolver>();
-                    services.AddTransient<IBattleStatsProvider, BattleStatsProvider>();
-                    services.AddTransient<IRewardService, RewardService>();
-                    services.AddTransient<IBattleService, GameObject.Services.BattleService.BattleService>();
+                    // ID services, session/map registries, hub clients, pathfinder and the
+                    // combat pipeline live behind a single registrar. Registering them once
+                    // in IServiceCollection — Autofac populates from it — keeps Wolverine
+                    // codegen and Autofac runtime resolution on the same view of the world.
 
                     foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }
                                  .SelectMany(a => a.GetTypes())
