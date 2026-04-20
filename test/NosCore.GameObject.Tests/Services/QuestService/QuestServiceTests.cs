@@ -9,6 +9,7 @@ using Moq;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
+using NosCore.GameObject.Services.QuestService.Handlers;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
@@ -109,7 +110,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 QuestObjectives,
                 Logger,
                 TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer,
+                new IQuestTypeHandler[]
+                {
+                    new HuntQuestHandler(),
+                    new NumberOfKillQuestHandler(),
+                    new GoToQuestHandler(),
+                });
         }
 
         [TestMethod]

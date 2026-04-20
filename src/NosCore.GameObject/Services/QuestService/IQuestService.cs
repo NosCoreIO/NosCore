@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.ClientPackets.Quest;
 using System.Threading.Tasks;
@@ -14,5 +15,6 @@ namespace NosCore.GameObject.Services.QuestService
     {
         Task RunScriptAsync(ICharacterEntity character);
         Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
+        Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob);
     }
 }

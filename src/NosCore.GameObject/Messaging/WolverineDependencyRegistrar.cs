@@ -93,6 +93,14 @@ public static class WolverineDependencyRegistrar
             services.AddTransient(impl);
         }
 
+        foreach (var impl in gameObjectAssembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
+            .Where(t => typeof(Services.QuestService.IQuestTypeHandler).IsAssignableFrom(t)))
+        {
+            services.AddTransient(typeof(Services.QuestService.IQuestTypeHandler), impl);
+            services.AddTransient(impl);
+        }
+
         var suffixes = new[] { "Service", "Provider", "Resolver", "Calculator", "Catalog", "Queue", "Ai" };
         foreach (var impl in gameObjectAssembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
