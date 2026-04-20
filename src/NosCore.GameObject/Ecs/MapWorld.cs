@@ -112,7 +112,10 @@ public class MapWorld : IDisposable
             new HealthComponent(npcMonster.MaxHp, npcMonster.MaxHp, true),
             new ManaComponent(npcMonster.MaxMp, npcMonster.MaxMp),
             new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
-            new VisualComponent(0, 0, 0, 0, false, false, false),
+            // NPCs are dialogue/shop targets, not combat targets — NoAttack=true (parameter 5).
+            // Without this an upgrade NPC like Smith Malcolm can be killed via UseSkill packets,
+            // breaking the n_run flow and corrupting save state.
+            new VisualComponent(0, 0, 0, 0, true, false, false),
             new NpcDataComponent(npcMonster.NpcMonsterVNum, npcMonster.Race, npcMonster.Level, 0, npcMonster.Speed, 10),
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),

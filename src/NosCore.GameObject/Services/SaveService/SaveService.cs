@@ -70,10 +70,25 @@ namespace NosCore.GameObject.Services.SaveService
                         .Where(i => i.CharacterId == characterId)!.ToList()
                     .Where(i => inventoryService.Values.All(o => o.Id != i.Id)).ToList();
 
+                // Inventory delete order: child rows first, then parent ItemInstance rows.
                 await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray());
                 await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
 
-                await itemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
+                // Inventory insert order: parent ItemInstance rows first so the FK on
+                // InventoryItemInstance.ItemInstanceId resolves on insert. The DAO swallows
+                // exceptions and returns false on failure, so we MUST check the result —
+                // otherwise a silent failure on the ItemInstance insert cascades into a
+                // confusing FK-violation error on the InventoryItemInstance insert that
+                // follows. Skipping the child insert keeps the failure mode loud and
+                // localized to the actual broken layer.
+                var itemInstancesSaved = await itemInstanceDao
+                    .TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
+                if (!itemInstancesSaved)
+                {
+                    logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId,
+                        new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."));
+                    return;
+                }
                 await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray());
 
                 var staticBonusToDelete = staticBonusDao

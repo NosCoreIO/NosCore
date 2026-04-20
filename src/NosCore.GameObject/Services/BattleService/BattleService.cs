@@ -18,34 +18,45 @@ public class BattleService : IBattleService
 {
     public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
     {
+        if ((origin.Hp <= 0) || (target.Hp <= 0))
+        {
+            await Cancel(origin, target);
+            return;
+        }
+
+        if (origin.NoAttack)
+        {
+            await Cancel(origin, target);
+            // CANT_ATTACK
+            return;
+        }
+
+        // NPCs and other non-combat entities expose NoAttack=true; treat them as
+        // un-targetable. Without this an upgrade NPC like Smith Malcolm could be
+        // killed via UseSkill packets, breaking the n_run flow.
+        if (target.NoAttack)
+        {
+            await Cancel(origin, target);
+            return;
+        }
+
+        if (arguments is { MapX: not null, MapY: not null })
+        {
+            //todo check max distance
+            origin.PositionX = arguments.MapX.Value;
+            origin.PositionY = arguments.MapY.Value;
+        }
+
+        var skillResult = await GetSkill(origin, arguments.SkillId);
+        var damage = await CalculateDamage(origin, target);
+
+        // The semaphore lifetime is scoped strictly to the HP-mutation block so the early-
+        // return paths above never hit a stray Release(). Previously the try/finally covered
+        // the whole method including the early returns, which produced a SemaphoreFullException
+        // whenever a guard short-circuited (e.g. NoAttack or already-dead origin/target).
+        await target.HitSemaphore.WaitAsync();
         try
         {
-            if ((origin.Hp <= 0) || (target.Hp <= 0))
-            {
-                await Cancel(origin, target);
-                return;
-            }
-
-            if (origin.NoAttack)
-            {
-                await Cancel(origin, target);
-                // CANT_ATTACK
-                return;
-            }
-
-            if (arguments is { MapX: not null, MapY: not null })
-            {
-                //todo check max distance
-                origin.PositionX = arguments.MapX.Value;
-                origin.PositionY = arguments.MapY.Value;
-            }
-
-            var skillResult = await GetSkill(origin, arguments.SkillId);
-
-            var damage = await CalculateDamage(origin, target);
-
-            await target.HitSemaphore.WaitAsync();
-
             var targetIsAlive = true;
             var newHp = target.Hp - damage.Damage;
             var uselessDamage = 0;
