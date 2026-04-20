@@ -69,9 +69,34 @@ public sealed class SkillResolver : ISkillResolver
         if (mob == null) return null;
 
         var resolvedSkill = ResolveNpcSkill(mob, castId);
-        if (resolvedSkill == null) return null;
+        if (resolvedSkill != null)
+        {
+            return BuildInfo(resolvedSkill, null, castId);
+        }
 
-        return BuildInfo(resolvedSkill, null, castId);
+        // No skill in the catalog and no BasicSkill vnum — but the monster still
+        // needs to hit. The overwhelming majority of low-level mobs fall here
+        // (melee wolf, rat, etc.) so we synthesise a minimal basic-attack SkillInfo
+        // from the monster's raw stats. Type/AttackClass match OpenNos Monster.AttackClass
+        // semantics (0 melee, 1 ranged, 2 magic), Range/Cooldown come from the
+        // NpcMonsterDto itself, and Damage comes from the min/max hit range via
+        // CombatStats — not via skill BCards.
+        return new SkillInfo(
+            SkillVnum: 0,
+            CastId: 0,
+            Cooldown: mob.BasicCooldown,
+            AttackAnimation: 0,
+            CastEffect: 0,
+            Effect: 0,
+            Type: mob.AttackClass,
+            HitType: TargetHitType.SingleTargetHit,
+            Range: mob.BasicRange,
+            TargetRange: mob.BasicArea,
+            TargetType: 1,
+            Element: mob.Element,
+            Duration: 0,
+            MpCost: 0,
+            BCards: System.Array.Empty<BCardDto>());
     }
 
     private SkillDto? ResolveNpcSkill(NpcMonsterDto mob, long castId)
