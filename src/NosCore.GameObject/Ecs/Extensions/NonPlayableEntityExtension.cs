@@ -16,7 +16,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ShopService;
+using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using Serilog;
 using System;
 using System.Collections.Concurrent;
@@ -35,9 +38,32 @@ namespace NosCore.GameObject.Ecs.Extensions
             var dialogId = bundle.Dialog ?? 0;
             if (bundle.Requests.TryGetValue(typeof(NpcDialogRequestSubject), out var subject))
             {
+                var visualId = bundle.VisualId;
+                // OpenNos parity: clicking an NPC with a dialog sends npc_req back so the
+                // client opens the dialog (which may itself have a "Buy" button that fires
+                // n_run to reach ShoppingPacketHandler). An NPC with a shop but NO dialog
+                // (grocers, weapon sellers, Malcolm Mix) must open the shop directly —
+                // otherwise the server replies npc_req ... 0 and the client does nothing.
                 Task RequestExecAsync(RequestData request)
                 {
-                    return ((INonPlayableEntity)bundle).ShowDialogAsync(request, dialogId);
+                    if (dialogId != 0)
+                    {
+                        return ((INonPlayableEntity)bundle).ShowDialogAsync(request, dialogId);
+                    }
+                    if (bundle.Shop != null)
+                    {
+                        return request.ClientSession.HandlePacketsAsync(new[]
+                        {
+                            new ShoppingPacket
+                            {
+                                VisualType = VisualType.Npc,
+                                VisualId = visualId,
+                                ShopType = 0,
+                                Unknown = 0
+                            }
+                        });
+                    }
+                    return Task.CompletedTask;
                 }
                 subject.Select(RequestExecAsync).Subscribe();
             }

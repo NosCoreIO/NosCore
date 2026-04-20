@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<ILogger>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<ILogger>().Object);
             var skill = MakeSkill() with
             {
                 SkillVnum = 7,
@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<ILogger>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<ILogger>().Object);
             var skill = MakeSkill() with { Duration = 100, BCards = new[] { new BCardDto { Type = 3 } } };
 
             await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object, new Mock<ILogger>().Object);
+            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object, new Mock<IRegenerationService>().Object, new Mock<ILogger>().Object);
         }
 
         private class MutableDamage

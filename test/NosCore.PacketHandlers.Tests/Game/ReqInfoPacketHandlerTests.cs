@@ -4,10 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -69,24 +73,63 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task NpcReqInfoIsLoggedAndIgnoredUntilSubsystemLands()
+        public async Task NpcReqInfoRepliesWithEInfoForNpcOnTheMap()
         {
-            // EInfoPacketType has no Npc value in NosCore.Packets yet, and the e_info shape
-            // for NPCs is item-oriented in the schema. Documented as a no-op + warning until
-            // the packets repo grows the NPC variant.
-            await new Spec("req_info on an Npc target is a logged no-op (e_info NPC variant not wired)")
+            await new Spec("req_info 5 on an NPC present on the current map replies with e_info 2 ...")
+                .Given(NpcIsOnMap)
                 .WhenAsync(RequestingNpcInfo)
-                .Then(NoTcInfoShouldBeSent)
+                .Then(EInfoNpcMonsterPacketShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task MateReqInfoIsLoggedAndIgnoredUntilSubsystemLands()
+        public async Task NpcReqInfoForUnknownTargetEmitsNothing()
         {
-            await new Spec("req_info on a Mate target is a logged no-op (mate subsystem not implemented)")
+            await new Spec("req_info 5 on an unknown NPC visualId emits nothing")
+                .WhenAsync(RequestingNpcInfo)
+                .Then(NoEInfoNpcMonsterPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MateReqInfoIsQuietNoOpUntilSubsystemLands()
+        {
+            // No runtime mate collection on ICharacterEntity; the handler logs at Debug
+            // and returns without a packet. Keeps the WARN logs clean for the usual npc
+            // right-click spam without pretending mates work.
+            await new Spec("req_info 6 on a Mate target is a quiet no-op (mate subsystem not implemented)")
                 .WhenAsync(RequestingMateInfo)
                 .Then(NoTcInfoShouldBeSent)
                 .ExecuteAsync();
+        }
+
+        // --- Givens ---
+
+        private void NpcIsOnMap()
+        {
+            Session.Character.MapInstance.LoadNpcs(
+                new List<MapNpcDto>
+                {
+                    new()
+                    {
+                        MapNpcId = 100,
+                        MapId = Session.Character.MapInstance.Map.MapId,
+                        MapX = 2,
+                        MapY = 2,
+                        VNum = 1,
+                    }
+                },
+                new List<NpcMonsterDto>
+                {
+                    new()
+                    {
+                        NpcMonsterVNum = 1,
+                        Level = 3,
+                        MaxHp = 100,
+                        MaxMp = 50,
+                        Name = new I18NString(),
+                    }
+                });
         }
 
         // --- Whens ---
@@ -117,7 +160,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             await Handler.ExecuteAsync(new ReqInfoPacket
             {
                 ReqType = ReqInfoType.NpcInfo,
-                TargetVNum = 1,
+                TargetVNum = 100,
             }, Session);
         }
 
@@ -139,5 +182,11 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void NoTcInfoShouldBeSent() =>
             Assert.IsFalse(Session.LastPackets.Any(p => p is TcInfoPacket));
+
+        private void EInfoNpcMonsterPacketShouldBeSent() =>
+            Assert.IsTrue(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket pkt && pkt.NpcMonsterVNum == 1 && pkt.Level == 3));
+
+        private void NoEInfoNpcMonsterPacketShouldBeSent() =>
+            Assert.IsFalse(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket));
     }
 }

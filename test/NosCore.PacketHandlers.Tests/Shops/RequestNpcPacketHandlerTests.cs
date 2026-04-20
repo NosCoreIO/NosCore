@@ -4,19 +4,28 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.DignityService;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -32,7 +41,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             Broadcaster.Reset();
             await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            // Register ShoppingPacketHandler so the shop-no-dialog branch can dispatch
+            // a ShoppingPacket through HandlePacketsAsync and we can observe the n_inv.
+            var shoppingHandler = new ShoppingPacketHandler(
+                Logger,
+                new Mock<IDignityService>().Object,
+                TestHelpers.Instance.LogLanguageLocalizer,
+                TestHelpers.Instance.SessionRegistry);
+            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
@@ -67,9 +83,22 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task RequestNpcOnShopWithNoDialogOpensShopDirectly()
+        {
+            // OpenNos parity: grocer/weapon NPCs have a Shop but Dialog=0 — clicking them
+            // must open the shop tab directly instead of replying with npc_req ... 0 (a
+            // no-op on the client). Regression from #271bad47 era.
+            await new Spec("req_npc on a shop-only NPC opens the shop (n_inv) without a dialog round-trip")
+                .Given(ShopOnlyNpcExistsOnMap)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(NInvPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
         private void NpcWithDialogExistsOnMap()
         {
-            var npc = new NosCore.Data.Dto.MapNpcDto
+            var npc = new MapNpcDto
             {
                 MapNpcId = 100,
                 Dialog = 100,
@@ -79,8 +108,41 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 VNum = 1
             };
             _session.Character.MapInstance.LoadNpcs(
-                new List<NosCore.Data.Dto.MapNpcDto> { npc },
-                new List<NosCore.Data.StaticEntities.NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+                new List<MapNpcDto> { npc },
+                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+        }
+
+        private void ShopOnlyNpcExistsOnMap()
+        {
+            var npc = new MapNpcDto
+            {
+                MapNpcId = 100,
+                Dialog = 0,
+                MapId = _session.Character.MapInstance.Map.MapId,
+                MapX = 1,
+                MapY = 1,
+                VNum = 1
+            };
+            _session.Character.MapInstance.LoadNpcs(
+                new List<MapNpcDto> { npc },
+                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+            var bundle = _session.Character.MapInstance.GetNpcById(100)!.Value;
+            bundle.InitializeShopAndDialog(
+                new ShopDto { ShopId = 1, MapNpcId = 100, MenuType = 0, ShopType = 0 },
+                null,
+                new List<ShopItemDto>
+                {
+                    new() { ShopItemId = 1, ShopId = 1, ItemVNum = 1012, Slot = 0, Type = 0 }
+                },
+                TestHelpers.Instance.GenerateItemProvider());
+        }
+
+        private void NInvPacketShouldBeSent()
+        {
+            // ShoppingPacketHandler emits the n_inv; if the dialog-first branch fires
+            // instead we won't see it on the session.
+            Assert.IsTrue(_session.LastPackets.Any(p => p is NInvPacket),
+                "expected an n_inv packet after clicking a shop-only NPC");
         }
 
         private async Task ExecutingRequestNpcPacketWithNpcType()

@@ -18,17 +18,16 @@ using Serilog;
 namespace NosCore.PacketHandlers.Game
 {
     // Handles the client req_info packet (right-click on a player/npc/mate to open the
-    // info card). Mirrors OpenNos's BasicPacketHandler.ReqInfo (BasicPacketHandler.cs:703):
+    // info card). Mirrors OpenNos's BasicPacketHandler.ReqInfo:
     //
     //   case PlayerInfo (1)  -> reply with tc_info built from the targeted player
-    //   case NpcInfo (5)     -> reply with e_info for the npc monster (NOT YET — needs
-    //                           an EInfoPacketType.Npc value in NosCore.Packets and an
-    //                           NPC-shaped e_info packet variant)
-    //   case MateInfo (6)    -> reply with e_info for the mate (NOT YET — mate subsystem
-    //                           is not implemented in NosCore)
+    //   case NpcInfo (5)     -> reply with e_info 10 ... for the npc monster
+    //   case MateInfo (6)    -> reply with e_info 10 ... for the mate
     //
-    // The Npc and Mate branches log a warning and no-op for now so the gap is observable
-    // when a player triggers them.
+    // NpcInfo and MateInfo share the same 26-field e_info subtype-10 layout in OpenNos
+    // (EInfoNpcMonsterPacket from NosCore.Packets). The mate subsystem isn't wired in
+    // NosCore yet, so MateInfo is logged at Debug and no-ops until a character's runtime
+    // mate list exists.
     public sealed class ReqInfoPacketHandler(ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry)
@@ -46,13 +45,18 @@ namespace NosCore.PacketHandlers.Game
                     return;
 
                 case ReqInfoType.NpcInfo:
+                    var npc = session.Character.MapInstance.FindNpc(n => n.VisualId == packet.TargetVNum);
+                    if (npc is null || npc.Value.NpcMonster is null)
+                    {
+                        return;
+                    }
+                    await session.SendPacketAsync(npc.Value.NpcMonster.GenerateNpcInfo(session.Character.AccountLanguage));
+                    return;
+
                 case ReqInfoType.MateInfo:
-                    // Both reply with an e_info packet in OpenNos (see Mate.cs:157 and
-                    // NpcMonster.cs:45). NosCore.Packets's EInfoPacket schema is item-
-                    // oriented (no NPC/Mate variant), so honoring this requires either a
-                    // packets-repo bump (add EInfoPacketType.Npc/Mate plus the NPC stat
-                    // fields) or a raw-string emission. Logging until then.
-                    logger.Warning(logLanguage[LogLanguageKey.UNHANDLED_REQINFO_TYPE], packet.ReqType);
+                    // No runtime Mates collection on ICharacterEntity yet; skip quietly
+                    // instead of spamming WARN until the mate subsystem lands.
+                    logger.Debug("req_info MateInfo received for {Target} but mate subsystem is not wired", packet.TargetVNum);
                     return;
 
                 default:
