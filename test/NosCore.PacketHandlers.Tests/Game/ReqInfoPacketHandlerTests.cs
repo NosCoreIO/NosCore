@@ -133,10 +133,13 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task MapEntityInfoReqWithoutVisualIdIsQuietNoOp()
+        public async Task MateInfoReqWithoutMateVNumIsMateLookupNoOp()
         {
-            await new Spec("req_info 6 without a VisualId (MateVNum absent) is a quiet no-op")
-                .WhenAsync(RequestingMapInfoWithMissingVisualId)
+            // `req_info 6 <mateTransportId>` single-arg form routes to the mate-lookup
+            // branch. OpenNos looks the mate up in Character.Mates; NosCore has no runtime
+            // Mate collection yet so this no-ops, same as OpenNos's null-mate path.
+            await new Spec("req_info 6 <mateTransportId> no-ops until the mate subsystem lands")
+                .WhenAsync(RequestingMateInfoForUnknownTransportId)
                 .Then(NoEInfoNpcMonsterPacketShouldBeSent)
                 .ExecuteAsync();
         }
@@ -248,10 +251,10 @@ namespace NosCore.PacketHandlers.Tests.Game
             MateVNum = 2848,
         });
 
-        private Task RequestingMapInfoWithMissingVisualId() => ExecuteAsync(new ReqInfoPacket
+        private Task RequestingMateInfoForUnknownTransportId() => ExecuteAsync(new ReqInfoPacket
         {
             ReqType = ReqInfoType.MateInfo,
-            TargetVNum = (long)VisualType.Monster,
+            TargetVNum = 12345,
             MateVNum = null,
         });
 

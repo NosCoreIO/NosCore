@@ -65,7 +65,14 @@ namespace NosCore.PacketHandlers.Game
                     return;
 
                 case ReqInfoType.MateInfo:
-                    await HandleMapEntityInfoAsync(packet, session).ConfigureAwait(false);
+                    if (packet.MateVNum.HasValue)
+                    {
+                        await HandleMapEntityInfoAsync(packet, session).ConfigureAwait(false);
+                    }
+                    else
+                    {
+                        await HandleMateInfoAsync(packet, session).ConfigureAwait(false);
+                    }
                     return;
 
                 default:
@@ -79,13 +86,8 @@ namespace NosCore.PacketHandlers.Game
         // VisualId of the clicked entity on the current map.
         private async Task HandleMapEntityInfoAsync(ReqInfoPacket packet, ClientSession session)
         {
-            if (!packet.MateVNum.HasValue)
-            {
-                return;
-            }
-
             var visualType = (VisualType)(int)packet.TargetVNum;
-            var visualId = packet.MateVNum.Value;
+            var visualId = packet.MateVNum!.Value;
             NpcMonsterDto? template = null;
             switch (visualType)
             {
@@ -108,6 +110,19 @@ namespace NosCore.PacketHandlers.Game
             }
 
             await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage)).ConfigureAwait(false);
+        }
+
+        // `req_info 6 <mateTransportId>` (single-arg form) — mate / partner info card.
+        // OpenNos BasicPacketHandler looks up Session.Character.Mates by MateTransportId and
+        // calls mate.GenerateEInfo. NosCore has no runtime Mates collection on the character
+        // yet (see Database/Entities/Mate.cs), so we log the miss and no-op — OpenNos also
+        // no-ops when the lookup returns null, so this keeps byte-for-byte parity until the
+        // mate subsystem lands.
+        private Task HandleMateInfoAsync(ReqInfoPacket packet, ClientSession session)
+        {
+            logger.Debug("req_info 6 <mateTransportId={TransportId}> received but mate subsystem is not wired",
+                packet.TargetVNum);
+            return Task.CompletedTask;
         }
     }
 }
