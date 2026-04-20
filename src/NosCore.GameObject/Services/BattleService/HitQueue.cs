@@ -29,6 +29,7 @@ public sealed class HitQueue(
     IDamageCalculator damageCalculator,
     IBattleStatsProvider statsProvider,
     IBuffService buffService,
+    IRegenerationService regenerationService,
     ILogger logger) : IHitQueue, ISingletonService
 {
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
@@ -147,6 +148,15 @@ public sealed class HitQueue(
             // credit for more than the target actually had.
             var credited = damage.Damage - overkill;
             target.HitList.AddOrUpdate(request.Origin.Handle, credited, (_, existing) => existing + credited);
+
+            // Players get a 4s "no standing regen" grace after being hit — matches
+            // OpenNos HealthHPLoad which zeros the standing rate until LastDefence
+            // is 4s in the past. Monster damage doesn't need tracking; they don't
+            // regen.
+            if (target is ICharacterEntity hurtCharacter)
+            {
+                regenerationService.NotifyDamaged(hurtCharacter.CharacterId);
+            }
 
             // Skill BCards that don't describe damage (i.e. stat modifiers) become a
             // buff on the target lasting the skill's Duration. Fire-and-forget is fine:

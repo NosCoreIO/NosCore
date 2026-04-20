@@ -108,17 +108,24 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // Matches OpenNos TargetHit: the target bar HP % refreshes off the SuPacket
-        // that was already broadcast; we just need to push a fresh StatPacket to the
-        // target character so their personal HUD bar (top-left HP/MP) tracks damage
-        // in real time. No extra `st` broadcast — OpenNos doesn't send one after hits.
-        private static Task BroadcastStatusAsync(IAliveEntity target)
+        // Two packets refresh the UI after a hit:
+        //   * StPacket broadcast — the selected-target portrait at the top of every
+        //     client's screen reads off `st`. SuPacket's HpPercentage animates the
+        //     damage float but doesn't reliably update the portrait for monster
+        //     targets (empirically the bar stays frozen at 100/100 until the player
+        //     re-selects the mob). Broadcasting st to the map keeps every spectator
+        //     who has this target selected in sync.
+        //   * StatPacket unicast — the attacked character's own top-left HP/MP HUD
+        //     is driven by `stat`, matching OpenNos TargetHit's
+        //     `Broadcast(null, GenerateStat(), OnlySomeone, Target)`.
+        private static async Task BroadcastStatusAsync(IAliveEntity target)
         {
+            if (target.MapInstance == null) return;
+            await target.MapInstance.SendPacketAsync(target.GenerateStatInfo()).ConfigureAwait(false);
             if (target is PlayerComponentBundle player)
             {
-                return player.SendPacketAsync(player.GenerateStat());
+                await player.SendPacketAsync(player.GenerateStat()).ConfigureAwait(false);
             }
-            return Task.CompletedTask;
         }
 
         private static Task BroadcastHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, HitOutcome outcome)

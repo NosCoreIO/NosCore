@@ -18,11 +18,11 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Per-class, per-posture regen rates from OpenNos CharacterHelper.HpHealth /
-// HpHealthStand / MpHealth / MpHealthStand. Sitting regen ticks every 1500ms,
-// standing every 2000ms (OpenNos default cadence). Standing regen is gated on
-// not having used a skill / taken damage in the last 4s, but we keep it
-// unconditional here for v1 — skill cooldown enforcement already discourages
-// spam, and tracking LastDefence would require a new ECS component.
+// HpHealthStand / MpHealth / MpHealthStand. Sitting regen ticks every 1500ms
+// unconditionally; standing regen ticks every 2000ms AND is gated on
+// "no damage taken for the last 4 seconds" — matches OpenNos HealthHPLoad
+// which returns 0 while LastDefence is within 4s of now. Without the gate
+// the HP bar refilled itself in the middle of combat.
 public sealed class RegenerationService(
     ISessionRegistry sessionRegistry,
     IClock clock,
@@ -30,6 +30,7 @@ public sealed class RegenerationService(
 {
     private static readonly Duration SittingInterval = Duration.FromMilliseconds(1500);
     private static readonly Duration StandingInterval = Duration.FromMilliseconds(2000);
+    private static readonly Duration StandingDefenceGrace = Duration.FromSeconds(4);
 
     // HpHealth[class] sitting rate; HpHealthStand[class] standing rate.
     // Index matches CharacterClassType numeric value (Adventurer=0, Swordsman=1,
@@ -39,9 +40,13 @@ public sealed class RegenerationService(
     private static readonly int[] MpSittingRate = { 10, 30, 50, 80, 30 };
     private static readonly int[] MpStandingRate = { 8, 10, 20, 40, 10 };
 
-    // Per-character last-regen timestamps. Concurrent because map-life-loops for
-    // different maps can tick their players in parallel.
     private readonly ConcurrentDictionary<long, Instant> _lastRegen = new();
+    private readonly ConcurrentDictionary<long, Instant> _lastDefence = new();
+
+    public void NotifyDamaged(long characterId)
+    {
+        _lastDefence[characterId] = clock.GetCurrentInstant();
+    }
 
     public async Task TickAsync(MapInstance mapInstance)
     {
@@ -58,11 +63,31 @@ public sealed class RegenerationService(
                 var interval = character.IsSitting ? SittingInterval : StandingInterval;
                 var last = _lastRegen.GetOrAdd(character.CharacterId, now);
                 if (now - last < interval) continue;
-                _lastRegen[character.CharacterId] = now;
 
                 var classIndex = Math.Clamp((int)character.Class, 0, HpSittingRate.Length - 1);
-                var hpRate = character.IsSitting ? HpSittingRate[classIndex] : HpStandingRate[classIndex];
-                var mpRate = character.IsSitting ? MpSittingRate[classIndex] : MpStandingRate[classIndex];
+                int hpRate, mpRate;
+                if (character.IsSitting)
+                {
+                    hpRate = HpSittingRate[classIndex];
+                    mpRate = MpSittingRate[classIndex];
+                }
+                else
+                {
+                    // Standing regen only kicks in once 4s have elapsed since the
+                    // last incoming hit. Before that the rates are zero so the bars
+                    // stay put while you're being swung at.
+                    if (_lastDefence.TryGetValue(character.CharacterId, out var lastDefence)
+                        && now - lastDefence < StandingDefenceGrace)
+                    {
+                        _lastRegen[character.CharacterId] = now;
+                        continue;
+                    }
+
+                    hpRate = HpStandingRate[classIndex];
+                    mpRate = MpStandingRate[classIndex];
+                }
+
+                _lastRegen[character.CharacterId] = now;
 
                 var changed = false;
                 if (character.Hp < character.MaxHp && hpRate > 0)
