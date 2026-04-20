@@ -103,13 +103,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                             List<ShopItemDto> dtoShopItems = new List<ShopItemDto>();
                             NpcTalkDto? dialog = null;
-                            var shop = shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
-                            if (shop != null)
+                            var shopsOfNpc = shopDtos.Where(o => o.MapNpcId == s.MapNpcId).ToList();
+                            if (shopsOfNpc.Count > 0)
                             {
-                                dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
+                                var shopIds = shopsOfNpc.Select(sh => sh.ShopId).ToHashSet();
+                                dtoShopItems = shopItems!.Where(si => shopIds.Contains(si!.ShopId))!.ToList()!;
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            bundle.Value.InitializeShopAndDialog(shop, dialog, dtoShopItems, itemProvider);
+                            bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider);
                         });
                     }
                     return mapinstance;

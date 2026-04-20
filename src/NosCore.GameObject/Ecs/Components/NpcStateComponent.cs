@@ -17,6 +17,7 @@ public record struct NpcStateComponent(
     SemaphoreSlim HitSemaphore,
     ConcurrentDictionary<Entity, int> HitList,
     Shop? Shop,
+    Dictionary<int, Shop>? Shops,
     IDisposable? Life,
     Dictionary<Type, Subject<RequestData>> Requests,
     short? Dialog,

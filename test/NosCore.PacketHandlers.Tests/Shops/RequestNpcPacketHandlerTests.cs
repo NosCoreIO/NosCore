@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
             var bundle = _session.Character.MapInstance.GetNpcById(100)!.Value;
             bundle.InitializeShopAndDialog(
-                new ShopDto { ShopId = 1, MapNpcId = 100, MenuType = 0, ShopType = 0 },
+                new List<ShopDto> { new() { ShopId = 1, MapNpcId = 100, MenuType = 0, ShopType = 0 } },
                 null,
                 new List<ShopItemDto>
                 {

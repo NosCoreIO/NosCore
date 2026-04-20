@@ -24,6 +24,7 @@ using Serilog;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -32,18 +33,13 @@ namespace NosCore.GameObject.Ecs.Extensions
     public static class NonPlayableEntityExtension
     {
         public static void InitializeShopAndDialog(this NpcComponentBundle bundle,
-            ShopDto? shopDto, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto,
+            IReadOnlyList<ShopDto> shopDtos, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto,
             IItemGenerationService itemProvider)
         {
             var dialogId = bundle.Dialog ?? 0;
             if (bundle.Requests.TryGetValue(typeof(NpcDialogRequestSubject), out var subject))
             {
                 var visualId = bundle.VisualId;
-                // OpenNos parity: clicking an NPC with a dialog sends npc_req back so the
-                // client opens the dialog (which may itself have a "Buy" button that fires
-                // n_run to reach ShoppingPacketHandler). An NPC with a shop but NO dialog
-                // (grocers, weapon sellers, Malcolm Mix) must open the shop directly —
-                // otherwise the server replies npc_req ... 0 and the client does nothing.
                 Task RequestExecAsync(RequestData request)
                 {
                     if (dialogId != 0)
@@ -68,26 +64,29 @@ namespace NosCore.GameObject.Ecs.Extensions
                 subject.Select(RequestExecAsync).Subscribe();
             }
 
-            if (shopDto == null)
+            if (shopDtos.Count == 0)
             {
                 return;
             }
 
-            var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
-            Parallel.ForEach(shopItemsDto, shopItemGrouping =>
+            var shops = new Dictionary<int, Shop>();
+            foreach (var shopDto in shopDtos)
             {
-                var shopItem = shopItemGrouping.Adapt<ShopItem>();
-                shopItem.ItemInstance = itemProvider.Create(shopItemGrouping.ItemVNum, -1);
-                shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
-            });
-            var shop = shopDto.Adapt<Shop>();
-            // NosCore's Shop schema has no Name column (OpenNos stores it on Shop directly);
-            // we borrow the dialog title when present, and otherwise fall back to the NPC
-            // monster's own name so the shop banner isn't a literal "NONAME".
-            shop.Name = npcTalkDto?.Name ?? bundle.NpcMonster?.Name ?? new I18NString();
-            shop.OwnerCharacter = null;
-            shop.ShopItems = shopItemsList;
-            bundle.Shop = shop;
+                var shopItemsList = new ConcurrentDictionary<int, ShopItem>();
+                foreach (var shopItemDto in shopItemsDto.Where(si => si.ShopId == shopDto.ShopId))
+                {
+                    var shopItem = shopItemDto.Adapt<ShopItem>();
+                    shopItem.ItemInstance = itemProvider.Create(shopItemDto.ItemVNum, -1);
+                    shopItemsList[shopItemDto.ShopItemId] = shopItem;
+                }
+                var shop = shopDto.Adapt<Shop>();
+                shop.Name = npcTalkDto?.Name ?? bundle.NpcMonster?.Name ?? new I18NString();
+                shop.OwnerCharacter = null;
+                shop.ShopItems = shopItemsList;
+                shops[shop.ShopId] = shop;
+            }
+            bundle.Shops = shops;
+            bundle.Shop = shops.Values.First();
         }
 
         public static void StopLife(this INonPlayableEntity entity)

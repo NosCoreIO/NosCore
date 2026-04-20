@@ -86,7 +86,7 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, isHostile),
             new EffectComponent(0, 0),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled),
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
@@ -124,7 +124,7 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled),
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())

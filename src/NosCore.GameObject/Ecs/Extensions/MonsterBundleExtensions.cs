@@ -35,7 +35,6 @@ public static class MonsterBundleExtensions
                 },
                 SpawnEffect = (SpawnEffectType)1,
                 IsSitting = monster.IsSitting,
-                Unknow7 = 1,
             }
         };
     }

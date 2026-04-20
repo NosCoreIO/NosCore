@@ -7,6 +7,7 @@
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets.Quest;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.QuestService
@@ -14,6 +15,8 @@ namespace NosCore.GameObject.Services.QuestService
     public class CharacterQuest : CharacterQuestDto
     {
         public Quest Quest { get; set; } = null!;
+
+        public ConcurrentDictionary<System.Guid, int> ObjectiveProgress { get; } = new();
 
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
@@ -23,14 +26,17 @@ namespace NosCore.GameObject.Services.QuestService
         public QuestSubPacket GenerateQuestSubPacket(bool showDialog)
         {
             var objectives = new List<QuestObjectiveSubPacket>();
+            var totalRequired = 0;
             var questCount = 0;
             foreach (var objective in Quest.QuestObjectives)
             {
-                //todo add objective
-                objectives.Add(new QuestObjectiveSubPacket()
+                var maxCount = (short)(objective.SecondData ?? 0);
+                var currentCount = (short)(ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var c) ? c : 0);
+                totalRequired += maxCount;
+                objectives.Add(new QuestObjectiveSubPacket
                 {
-                    CurrentCount = 0,
-                    MaxCount = 5,
+                    CurrentCount = currentCount,
+                    MaxCount = maxCount,
                     IsFinished = questCount == 0 ? CompletedOn != null : (bool?)null
                 });
                 questCount++;
@@ -41,7 +47,7 @@ namespace NosCore.GameObject.Services.QuestService
                 QuestId = QuestId,
                 InfoId = QuestId,
                 GoalType = Quest.QuestType,
-                ObjectiveCount = 5,
+                ObjectiveCount = (byte)totalRequired,
                 ShowDialog = showDialog,
                 QuestObjectiveSubPackets = objectives
             };
