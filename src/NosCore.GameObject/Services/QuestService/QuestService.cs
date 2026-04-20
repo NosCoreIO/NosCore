@@ -29,7 +29,8 @@ namespace NosCore.GameObject.Services.QuestService
     public class QuestService(List<ScriptDto> scripts,
             IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
             List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IEnumerable<IQuestTypeHandler> questTypeHandlers)
         : IQuestService
     {
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
@@ -243,74 +244,28 @@ namespace NosCore.GameObject.Services.QuestService
             return true;
         }
 
-        public async Task<bool> ValidateQuestAsync(ICharacterEntity character, short questId)
+        public Task<bool> ValidateQuestAsync(ICharacterEntity character, short questId)
         {
-            var isValid = false;
             var characterQuest = character.Quests.Values.FirstOrDefault(s => s.QuestId == questId);
-            switch (characterQuest?.Quest.QuestType)
+            if (characterQuest is null)
             {
-                case QuestType.Hunt:
-                    break;
-                case QuestType.SpecialCollect:
-                    break;
-                case QuestType.CollectInRaid:
-                    break;
-                case QuestType.Brings:
-                    break;
-                case QuestType.CaptureWithoutGettingTheMonster:
-                    break;
-                case QuestType.Capture:
-                    break;
-                case QuestType.TimesSpace:
-                    break;
-                case QuestType.Product:
-                    break;
-                case QuestType.NumberOfKill:
-                    break;
-                case QuestType.TargetReput:
-                    break;
-                case QuestType.TsPoint:
-                    break;
-                case QuestType.Dialog1:
-                    break;
-                case QuestType.CollectInTs:
-                    break;
-                case QuestType.Required:
-                    break;
-                case QuestType.Wear:
-                    break;
-                case QuestType.Needed:
-                    break;
-                case QuestType.Collect:
-                    break;
-                case QuestType.TransmitGold:
-                    break;
-                case QuestType.GoTo:
-                    isValid = (character.MapX <= (characterQuest.Quest.TargetX ?? 0) + 5 && character.MapX >= (characterQuest.Quest.TargetX ?? 0) - 5)
-                        && (character.MapY <= (characterQuest.Quest.TargetY ?? 0) + 5 && character.MapY >= (characterQuest.Quest.TargetY ?? 0) - 5)
-                        && (character.MapId == (characterQuest.Quest.TargetMap ?? 0));
-                    if (isValid)
-                    {
-                        await character.SendPacketAsync(characterQuest.Quest.GenerateTargetOffPacket());
-                    }
-                    break;
-                case QuestType.CollectMapEntity:
-                    break;
-                case QuestType.Use:
-                    break;
-                case QuestType.Dialog2:
-                    break;
-                case QuestType.UnKnow:
-                    break;
-                case QuestType.Inspect:
-                    break;
-                case QuestType.WinRaid:
-                    break;
-                case QuestType.FlowerQuest:
-                    break;
+                return Task.FromResult(false);
             }
 
-            return isValid;
+            var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == characterQuest.Quest.QuestType);
+            return handler?.ValidateAsync(character, characterQuest) ?? Task.FromResult(false);
+        }
+
+        public Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob)
+        {
+            var tasks = character.Quests.Values
+                .Where(q => q.CompletedOn is null)
+                .Select(q =>
+                {
+                    var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == q.Quest.QuestType);
+                    return handler?.OnMonsterKilledAsync(character, mob, q) ?? Task.CompletedTask;
+                });
+            return Task.WhenAll(tasks);
         }
     }
 }

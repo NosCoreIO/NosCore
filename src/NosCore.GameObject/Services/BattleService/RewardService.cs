@@ -10,12 +10,10 @@ using System.Threading.Tasks;
 using Arch.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.QuestService;
-using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
 using Serilog;
 
@@ -31,6 +29,7 @@ public sealed class RewardService(
     IItemGenerationService itemGenerationService,
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
+    IQuestService questService,
     ILogger logger) : IRewardService
 {
     // Gold item vnum. The GoldDropHandler already treats vnum 1046 as the "gold"
@@ -71,54 +70,24 @@ public sealed class RewardService(
         AwardExperience(victim, mob, totalDamage);
         SpawnDrops(victim, mob, mapInstance);
         SpawnGold(victim, mob, mapInstance);
-        _ = ProgressKillQuestsAsync(victim, mob);
+        _ = ProgressQuestsAsync(victim, mob);
 
         victim.HitList.Clear();
         _ = killer;
         return Task.CompletedTask;
     }
 
-    private static async Task ProgressKillQuestsAsync(IAliveEntity victim, NpcMonsterDto mob)
+    private Task ProgressQuestsAsync(IAliveEntity victim, NpcMonsterDto mob)
     {
+        var tasks = new List<Task>();
         foreach (var (handle, _) in victim.HitList)
         {
-            if (!TryFindCharacter(victim, handle, out var character))
+            if (TryFindCharacter(victim, handle, out var character))
             {
-                continue;
-            }
-
-            var updated = false;
-            foreach (var questKv in character.Quests)
-            {
-                var quest = questKv.Value;
-                if (quest.CompletedOn != null)
-                {
-                    continue;
-                }
-                if (quest.Quest.QuestType != QuestType.Hunt && quest.Quest.QuestType != QuestType.NumberOfKill)
-                {
-                    continue;
-                }
-                foreach (var objective in quest.Quest.QuestObjectives)
-                {
-                    if (objective.FirstData != mob.NpcMonsterVNum)
-                    {
-                        continue;
-                    }
-                    var required = objective.SecondData ?? 0;
-                    var current = quest.ObjectiveProgress.AddOrUpdate(objective.QuestObjectiveId, 1, (_, existing) => existing + 1);
-                    if (current > required && required > 0)
-                    {
-                        quest.ObjectiveProgress[objective.QuestObjectiveId] = required;
-                    }
-                    updated = true;
-                }
-                if (updated)
-                {
-                    await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-                }
+                tasks.Add(questService.OnMonsterKilledAsync(character, mob));
             }
         }
+        return Task.WhenAll(tasks);
     }
 
     private static void AwardExperience(IAliveEntity victim, NpcMonsterDto mob, int totalDamage)
