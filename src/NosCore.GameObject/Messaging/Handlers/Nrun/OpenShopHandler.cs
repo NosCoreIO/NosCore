@@ -4,34 +4,41 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
-using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
+using Serilog;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class OpenShopHandler
+    public sealed class OpenShopHandler(ILogger logger)
     {
         [UsedImplicitly]
         public Task Handle(NrunRequestedEvent evt)
         {
-            if (evt.Packet.Runner != NrunRunnerType.OpenShop || evt.Target == null)
+            if (evt.Packet.Runner != NrunRunnerType.ProbabilityUIs || evt.Target is not NpcComponentBundle)
             {
                 return Task.CompletedTask;
             }
 
-            return evt.ClientSession.HandlePacketsAsync(new[]
+            var raw = (byte)(evt.Packet.Type ?? 0);
+            if (!Enum.IsDefined(typeof(WindowType), raw))
             {
-                new ShoppingPacket
-                {
-                    VisualType = evt.Packet.VisualType ?? 0,
-                    VisualId = evt.Packet.VisualId ?? 0,
-                    ShopType = evt.Packet.Type ?? 0,
-                    Unknown = 0
-                }
+                logger.Warning(
+                    "n_run ProbabilityUIs requested unknown WindowType={Raw} (NPC visualId={VisualId}); extend WindowType or add a mapping",
+                    raw,
+                    evt.Target is NpcComponentBundle npc ? npc.VisualId : 0L);
+                return Task.CompletedTask;
+            }
+
+            return evt.ClientSession.SendPacketAsync(new WopenPacket
+            {
+                Type = (WindowType)raw,
             });
         }
     }

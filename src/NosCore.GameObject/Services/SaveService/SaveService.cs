@@ -22,7 +22,7 @@ namespace NosCore.GameObject.Services.SaveService
             IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao,
-            IDao<CharacterQuestDto, Guid> characterQuestDao, ILogger logger,
+            IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<RespawnDto, long> respawnDao, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : ISaveService
     {
@@ -85,8 +85,9 @@ namespace NosCore.GameObject.Services.SaveService
                     .TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
                 if (!itemInstancesSaved)
                 {
-                    logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId,
-                        new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."));
+                    logger.Error(
+                        new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
                     return;
                 }
                 await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray());
@@ -107,10 +108,12 @@ namespace NosCore.GameObject.Services.SaveService
                     .Where(i => quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
                 await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id));
                 await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
+
+                await respawnDao.TryInsertOrUpdateAsync(character.Respawns);
             }
             catch (Exception e)
             {
-                logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId, e);
+                logger.Error(e, logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
             }
         }
     }

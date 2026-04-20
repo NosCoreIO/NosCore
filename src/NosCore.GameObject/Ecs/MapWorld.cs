@@ -16,6 +16,7 @@ using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.Enumerations;
@@ -85,7 +86,10 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, isHostile),
             new EffectComponent(0, 0),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled)
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled),
+            new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
+            new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
         );
         return entity;
     }
@@ -120,7 +124,10 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled)
+            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled),
+            new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
+            new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
         );
         return entity;
     }
@@ -192,6 +199,7 @@ public class MapWorld : IDisposable
             new SpComponent(0, 0, 0),
             new NameComponent(name),
             new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>()),
+            new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new PlayerComponent(accountId, characterId, isGm, serverId),
             new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false),
             new TimingComponent(now, now),
@@ -213,6 +221,7 @@ public class MapWorld : IDisposable
         SpComponent sp,
         NameComponent name,
         CombatComponent combat,
+        BuffStateComponent buffs,
         PlayerComponent player,
         PlayerFlagsComponent playerFlags,
         TimingComponent timing,
@@ -225,7 +234,7 @@ public class MapWorld : IDisposable
         PlayerRequestsComponent requests)
     {
         return World.Create(identity, health, mana, position, visual, appearance, experience, gold,
-            reputation, sp, name, combat, player, playerFlags, timing, speed, state, network,
+            reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
             context, inventory, social, requests);
     }
 

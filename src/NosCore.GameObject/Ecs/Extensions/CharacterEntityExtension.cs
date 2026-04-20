@@ -168,19 +168,16 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
         }
 
-        public static SkillPacket GenerateSki(this ICharacterEntity characterEntity)
+        public static SkiPacket GenerateSki(this ICharacterEntity characterEntity)
         {
             List<CharacterSkill> characterSkills = characterEntity.Skills.Values.OrderBy(s => s.Skill?.CastId).ToList();
-            var packet = new SkillPacket
+            var spStarter = characterSkills.FirstOrDefault()?.SkillVNum ?? 0;
+            return new SkiPacket
             {
-                MainSkill = !characterEntity.UseSp ? 201 + 20 * (byte)characterEntity.Class : characterSkills.ElementAt(0).SkillVNum,
-                SecondarySkill = !characterEntity.UseSp ? 200 + 20 * (byte)characterEntity.Class : characterSkills.ElementAt(0).SkillVNum,
-                Skills = characterSkills.Select(x => new SubSkillPacket()
-                {
-                    VNum = x.SkillVNum
-                }).ToList()
+                PrimarySkillVnum = (short)(!characterEntity.UseSp ? 201 + 20 * (byte)characterEntity.Class : spStarter),
+                SecondarySkillVnum = (short)(!characterEntity.UseSp ? 200 + 20 * (byte)characterEntity.Class : spStarter),
+                SkillVnums = characterSkills.Select(x => (short)x.SkillVNum).ToList(),
             };
-            return packet;
         }
 
         public static IEnumerable<QSlotPacket> GenerateQuicklist(this ICharacterEntity characterEntity)

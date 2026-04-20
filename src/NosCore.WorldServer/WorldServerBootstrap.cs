@@ -47,12 +47,14 @@ using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.ScheduledJobs;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.PathfindingService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
@@ -180,16 +182,14 @@ namespace NosCore.WorldServer
             }).As<IPipelineConfiguration>().SingleInstance();
 
 
-            //NosCore.GameObject
-            containerBuilder.RegisterType<OctileDistanceHeuristic>().As<IHeuristic>();
-            containerBuilder.RegisterType<SessionGroupFactory>().As<ISessionGroupFactory>().SingleInstance();
-            containerBuilder.Register<IIdService<Group>>(_ => new IdService<Group>(1)).SingleInstance();
-            containerBuilder.Register<IIdService<MapItemComponentBundle>>(_ => new IdService<MapItemComponentBundle>(100000)).SingleInstance();
-            containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-
-            containerBuilder.RegisterType<MapInstanceRegistry>().As<IMapInstanceRegistry>().SingleInstance();
-            containerBuilder.RegisterType<MinilandRegistry>().As<IMinilandRegistry>().SingleInstance();
-            containerBuilder.RegisterType<ExchangeRequestRegistry>().As<IExchangeRequestRegistry>().SingleInstance();
+            // IIdService / pathfinder heuristic / session + map registries / hub clients /
+            // combat pipeline are all registered in IServiceCollection by
+            // WolverineDependencyRegistrar.RegisterDependencies so Wolverine can see them
+            // at codegen time. AutofacServiceProviderFactory.Populate() copies those
+            // registrations into the Autofac container at host-build, which is why they
+            // aren't duplicated here — registering them on both sides would produce the
+            // "An item with the same key..." runtime errors (see PersistenceModule.MirrorTo
+            // comment for the same pattern on the DAO side).
 
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
@@ -241,14 +241,22 @@ namespace NosCore.WorldServer
                         x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
                             x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
 
-                    // Wolverine inspects IServiceCollection at startup to plan handler construction.
-                    // Direct dependencies of Wolverine handlers must be registered here, not only in Autofac —
-                    // Autofac-only registrations are invisible to Wolverine's code generation.
+                    // Cross-cutting singletons that don't belong to any module. Logger is
+                    // wired here because it needs a captured Log.Logger reference; IClock
+                    // because SystemClock is an external NodaTime type with no container-
+                    // friendly constructor.
                     services.AddSingleton<Serilog.ILogger>(_ => Log.Logger);
                     services.AddSingleton<IClock>(_ => SystemClock.Instance);
 
-                    foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }
-                                 .SelectMany(a => a.GetTypes())
+                    // ID services, session/map registries, hub clients, pathfinder and the
+                    // combat pipeline live behind a single registrar. Registering them once
+                    // in IServiceCollection — Autofac populates from it — keeps Wolverine
+                    // codegen and Autofac runtime resolution on the same view of the world.
+
+                    // Scan the Algorithm package for *Service classes. GameObject-side
+                    // *Service/*Queue/*Ai/etc. are handled by the registrar below
+                    // with lifetime driven off the ISingletonService marker.
+                    foreach (var implType in typeof(IExperienceService).Assembly.GetTypes()
                                  .Where(t => t.Name.EndsWith("Service") && t.IsClass && !t.IsAbstract))
                     {
                         foreach (var iface in implType.GetInterfaces())

@@ -33,9 +33,8 @@ public static class NpcBundleExtensions
                     Hp = npc.MaxHp > 0 ? (int)(npc.Hp / (float)npc.MaxHp * 100) : 100,
                     Mp = npc.MaxMp > 0 ? (int)(npc.Mp / (float)npc.MaxMp * 100) : 100
                 },
+                SpawnEffect = (SpawnEffectType)1,
                 IsSitting = npc.IsSitting,
-                SpawnEffect = SpawnEffectType.NoEffect,
-                Unknow1 = 2
             }
         };
     }

@@ -6,6 +6,7 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -23,10 +24,22 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
+            // Self-targeting short-circuit (mirrors SetLevel/SetHeroLevel/SetReputation): when no
+            // Name is given, or the Name matches us, mutate locally and skip the cross-channel
+            // PubSub round-trip. The previous implementation always went through PubSub but used
+            // raw `goldPacket.Name` (null) for the receiver lookup, which never matched and made
+            // bare `$Gold N` fail with UnknownCharacter.
+            if (string.IsNullOrEmpty(goldPacket.Name) || goldPacket.Name == session.Character.Name)
+            {
+                session.Character.Gold = goldPacket.Gold;
+                await session.SendPacketAsync(session.Character.GenerateGold());
+                return;
+            }
+
             var data = new StatData
             {
                 ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name ?? session.Character.Name },
+                Character = new Character { Name = goldPacket.Name },
                 Data = goldPacket.Gold
             };
 

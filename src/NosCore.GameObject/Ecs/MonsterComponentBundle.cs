@@ -14,7 +14,10 @@ namespace NosCore.GameObject.Ecs;
     typeof(SpawnComponent),
     typeof(EffectComponent),
     typeof(TimingComponent),
-    typeof(NpcStateComponent)
+    typeof(NpcStateComponent),
+    typeof(BuffStateComponent),
+    typeof(AggroComponent),
+    typeof(SkillCooldownComponent)
 )]
 public readonly partial struct MonsterComponentBundle : INonPlayableEntity
 {

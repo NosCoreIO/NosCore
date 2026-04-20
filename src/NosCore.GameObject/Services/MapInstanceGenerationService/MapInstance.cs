@@ -15,6 +15,7 @@ using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
@@ -58,12 +59,16 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMapChangeService _mapChangeService;
         private readonly ISessionRegistry _sessionRegistry;
         private readonly IHeuristic _distanceCalculator;
+        private readonly IMonsterAi? _monsterAi;
+        private readonly IBuffService? _buffService;
+        private readonly IRegenerationService? _regenerationService;
 
         public MapWorld EcsWorld { get; }
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
+            IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -85,6 +90,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _mapChangeService = mapChangeService;
             _sessionRegistry = sessionRegistry;
             _distanceCalculator = distanceCalculator;
+            _monsterAi = monsterAi;
+            _buffService = buffService;
+            _regenerationService = regenerationService;
             EcsWorld = new MapWorld();
         }
 
@@ -390,8 +398,32 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         return;
                     }
 
-                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_distanceCalculator, _clock, _logger)));
+                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
                     await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_distanceCalculator, _clock, _logger)));
+
+                    // Buff expiration: drop any buff whose ExpiresAt is past. Done
+                    // per-map so the tick rate matches the life loop (400ms) which is
+                    // fine for buffs since their Duration is measured in deciseconds.
+                    if (_buffService != null)
+                    {
+                        foreach (var monster in Monsters) await _buffService.TickAsync(monster).ConfigureAwait(false);
+                        foreach (var npc in Npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
+                        foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
+                        {
+                            if (session.HasPlayerEntity)
+                            {
+                                await _buffService.TickAsync(session.Character).ConfigureAwait(false);
+                            }
+                        }
+                    }
+
+                    // HP/MP regen for connected players on this map — matches OpenNos
+                    // Character regen block (sitting 1.5s cadence, standing 2s). The
+                    // service throttles internally so calling each 400ms tick is safe.
+                    if (_regenerationService != null)
+                    {
+                        await _regenerationService.TickAsync(this).ConfigureAwait(false);
+                    }
                 }
                 catch (Exception e)
                 {

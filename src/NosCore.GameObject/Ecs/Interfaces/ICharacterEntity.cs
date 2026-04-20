@@ -68,6 +68,8 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         List<QuicklistEntryDto> QuicklistEntries { get; set; }
 
+        List<RespawnDto> Respawns { get; set; }
+
         ConcurrentDictionary<short, CharacterSkill> Skills { get; }
 
         long Gold { get; set; }

@@ -26,14 +26,18 @@ namespace NosCore.Parser
                 var key = default(ConsoleKeyInfo);
 
                 var folder = Console.ReadLine();
+                var inputRedirected = Console.IsInputRedirected;
                 logger.Information(
                     $"{logLanguage[LogLanguageKey.PARSE_ALL]} [Y/n]");
-                key = Console.ReadKey(true);
+                if (!inputRedirected)
+                {
+                    key = Console.ReadKey(true);
+                }
 
                 factory.SetFolder(folder!);
                 await factory.ImportPacketsAsync();
 
-                if (key.KeyChar != 'n')
+                if (inputRedirected || key.KeyChar != 'n')
                 {
                     await factory.ImportAccountsAsync();
                     await factory.ImportMapsAsync();

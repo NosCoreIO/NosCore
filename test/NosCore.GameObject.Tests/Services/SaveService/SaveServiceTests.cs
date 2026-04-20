@@ -48,6 +48,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             var quicklistEntriesDao = new Dao<QuicklistEntry, QuicklistEntryDto, Guid>(Logger, ContextBuilder);
             var titleDao = new Dao<Title, TitleDto, Guid>(Logger, ContextBuilder);
             var characterQuestDao = new Dao<CharacterQuest, CharacterQuestDto, Guid>(Logger, ContextBuilder);
+            var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(Logger, ContextBuilder);
 
             var minilandService = new Mock<IMinilandService>();
             minilandService.Setup(s => s.GetMiniland(It.IsAny<long>()))
@@ -64,6 +65,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 minilandService.Object,
                 titleDao,
                 characterQuestDao,
+                respawnDao,
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }

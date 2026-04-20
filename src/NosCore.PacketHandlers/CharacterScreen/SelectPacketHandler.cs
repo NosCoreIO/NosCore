@@ -30,9 +30,11 @@ using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking.SessionGroup;
+using Wolverine;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Core.I18N;
@@ -53,12 +55,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
-            IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<RespawnDto, long> respawnDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISessionGroupFactory sessionGroupFactory,
-            ICharacterInitializationService characterInitializationService)
+            ICharacterInitializationService characterInitializationService, IMessageBus messageBus)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -114,6 +116,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var maxHp = (int)hpService.GetHp(characterDto.Class, characterDto.Level);
                 var maxMp = (int)mpService.GetMp(characterDto.Class, characterDto.Level);
                 var authority = clientSession.Account.Authority;
+
+                // If the character was persisted at 0 HP (died right before a crash /
+                // disconnect-on-death), we load them in that state, then at the end of
+                // this handler we publish EntityDiedEvent to replay the normal revival
+                // flow — equivalent to declining the revive dialog. This keeps death
+                // semantics in one place (PlayerRevivalHandler) instead of hard-coding
+                // a "wake up at 1 HP" fallback here.
+                var wasDeadOnLoad = characterDto.Hp <= 0;
 
                 var playerEntity = mapInstance.EcsWorld.CreatePlayer(
                     (int)characterId,
@@ -173,7 +183,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new ConcurrentDictionary<Guid, CharacterQuest>(),
                     new List<QuicklistEntryDto>(),
                     new List<StaticBonusDto>(),
-                    new List<TitleDto>()));
+                    new List<TitleDto>(),
+                    new List<RespawnDto>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerSocialComponent(
                     new ConcurrentDictionary<long, long>(),
                     null));
@@ -218,10 +229,22 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<StaticBonusDto>();
                 character.Titles = titleDao
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<TitleDto>();
+                character.Respawns = respawnDao
+                    .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
 
                 await characterInitializationService.InitializeAsync(character);
 
                 await clientSession.SendPacketAsync(new OkPacket());
+
+                // Character was persisted at 0 HP (died then disconnected). Replay the
+                // death flow in ResumeInPlace mode — the decline-dialog equivalent:
+                // we already loaded them at their saved position, so the handler just
+                // needs to refill (Hp=Mp=1) and push the revive/stat packets. Killer
+                // is null because there's no in-session attacker to credit.
+                if (wasDeadOnLoad)
+                {
+                    await messageBus.PublishAsync(new EntityDiedEvent(character, null, RevivalMode.ResumeInPlace)).ConfigureAwait(false);
+                }
             }
             catch (Exception ex)
             {

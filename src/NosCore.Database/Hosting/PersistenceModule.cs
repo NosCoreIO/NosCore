@@ -73,6 +73,14 @@ public sealed class PersistenceModule : Autofac.Module
     // health-check scopes, etc.) can plan handler construction. The runtime IServiceProvider
     // is still backed by Autofac via AutofacServiceProviderFactory, so resolution semantics
     // are unchanged — this is a visibility shim, not a second source of truth.
+    //
+    // Note: we deliberately do NOT mirror the open IDao<IDto> facet here. PersistenceModule.Load
+    // registers each Dao<TDb,TDto,TPk> as both IDao<IDto> and IDao<TDto,TPk> in Autofac. If we
+    // mirror the IDao<IDto> facet too, Populate(services) reflows it into Autofac as a SECOND
+    // registration, and Resolve<IEnumerable<IDao<IDto>>>().ToDictionary(by DTO type) blows up
+    // with "An item with the same key has already been added" when the i18n dictionary is
+    // built. Wolverine handlers want typed IDao<TDto,TPk>, not the IDto aggregation, so the
+    // typed registration alone is sufficient for code-gen visibility.
     public static void MirrorTo(IServiceCollection services)
     {
         services.AddTransient<DbContext, NosCoreContext>();
@@ -82,7 +90,6 @@ public sealed class PersistenceModule : Autofac.Module
             var daoType = typeof(Dao<,,>).MakeGenericType(mapping.DbType, mapping.DtoType, mapping.PkType);
             var idaoType = typeof(IDao<,>).MakeGenericType(mapping.DtoType, mapping.PkType);
             services.AddSingleton(idaoType, daoType);
-            services.AddSingleton(typeof(IDao<IDto>), daoType);
             if (mapping.IsStatic)
             {
                 var listType = typeof(List<>).MakeGenericType(mapping.DtoType);

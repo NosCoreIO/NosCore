@@ -120,9 +120,9 @@ namespace NosCore.Parser
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
                     {
-                        Console.Title = Title;
+                        try { Console.Title = Title; } catch { /* redirected/non-interactive console */ }
                     }
 
                     InitializeConfiguration(args, services);

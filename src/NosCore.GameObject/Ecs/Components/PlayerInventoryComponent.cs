@@ -20,4 +20,5 @@ public record struct PlayerInventoryComponent(
     ConcurrentDictionary<Guid, CharacterQuest> Quests,
     List<QuicklistEntryDto> QuicklistEntries,
     List<StaticBonusDto> StaticBonusList,
-    List<TitleDto> Titles);
+    List<TitleDto> Titles,
+    List<RespawnDto> Respawns);

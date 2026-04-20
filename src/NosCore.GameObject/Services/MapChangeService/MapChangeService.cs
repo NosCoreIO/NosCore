@@ -113,6 +113,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var sp = oldWorld.TryGetComponent<SpComponent>(oldEntity) ?? default;
                 var nameComp = oldWorld.TryGetComponent<NameComponent>(oldEntity) ?? default;
                 var combat = oldWorld.TryGetComponent<CombatComponent>(oldEntity) ?? default;
+                var buffs = oldWorld.TryGetComponent<BuffStateComponent>(oldEntity) ?? default;
                 var playerComp = oldWorld.TryGetComponent<PlayerComponent>(oldEntity) ?? default;
                 var playerFlags = oldWorld.TryGetComponent<PlayerFlagsComponent>(oldEntity) ?? default;
                 var timing = oldWorld.TryGetComponent<TimingComponent>(oldEntity) ?? default;
@@ -154,6 +155,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     sp,
                     nameComp,
                     combat,
+                    buffs,
                     playerComp,
                     playerFlags,
                     timing,

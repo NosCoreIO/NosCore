@@ -107,6 +107,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                     : 0,
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
+                MaxHp = aliveEntity.MaxHp,
+                MaxMp = aliveEntity.MaxMp,
                 BuffIds = null
             };
         }

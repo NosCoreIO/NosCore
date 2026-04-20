@@ -37,7 +37,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             ILogger logger, IMapInstanceRegistry mapInstanceRegistry,
             IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator)
+            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator,
+            NosCore.GameObject.Services.BattleService.IMonsterAi monsterAi,
+            NosCore.GameObject.Services.BattleService.IBuffService buffService,
+            NosCore.GameObject.Services.BattleService.IRegenerationService regenerationService)
         : IMapInstanceGeneratorService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -100,13 +103,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                             List<ShopItemDto> dtoShopItems = new List<ShopItemDto>();
                             NpcTalkDto? dialog = null;
-                            var shop = shopDtos.Find(o => o.MapNpcId == s.MapNpcId);
-                            if (shop != null)
+                            var shopsOfNpc = shopDtos.Where(o => o.MapNpcId == s.MapNpcId).ToList();
+                            if (shopsOfNpc.Count > 0)
                             {
-                                dtoShopItems = shopItems!.Where(o => o.ShopId == shop.ShopId)!.ToList();
+                                var shopIds = shopsOfNpc.Select(sh => sh.ShopId).ToHashSet();
+                                dtoShopItems = shopItems!.Where(si => shopIds.Contains(si!.ShopId))!.ToList()!;
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            bundle.Value.InitializeShopAndDialog(shop, dialog, dtoShopItems, itemProvider);
+                            bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider);
                         });
                     }
                     return mapinstance;
@@ -120,7 +124,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock, mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator);
+            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock,
+                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, monsterAi, buffService, regenerationService);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)

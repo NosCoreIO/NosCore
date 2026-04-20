@@ -252,7 +252,10 @@ namespace NosCore.Tests.Shared
                 MapItemProvider,
                 MapNpcDao,
                 MapMonsterDao, PortalDao, ShopItemDao, Logger,
-                mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, SessionGroupFactory, SessionRegistry, GenerateItemProvider(), Instance.DistanceCalculator);
+                mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, SessionGroupFactory, SessionRegistry, GenerateItemProvider(), Instance.DistanceCalculator,
+                new Mock<NosCore.GameObject.Services.BattleService.IMonsterAi>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IRegenerationService>().Object);
             await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, Logger, Clock, mapChangeService, SessionGroupFactory, SessionRegistry, Instance.DistanceCalculator));
@@ -302,7 +305,7 @@ namespace NosCore.Tests.Shared
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
                 new SelectPacketHandler(CharacterDao, Logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
-                    new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), SessionGroupFactory, new CharacterInitializationService()),
+                    new Mock<IDao<RespawnDto, long>>().Object, new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), SessionGroupFactory, new CharacterInitializationService(), new Mock<Wolverine.IMessageBus>().Object),
                 new CSkillPacketHandler(Instance.Clock),
                 new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, Logger, ItemInstanceDao, Instance.LogLanguageLocalizer),
                 new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
@@ -412,7 +415,8 @@ namespace NosCore.Tests.Shared
                 new ConcurrentDictionary<Guid, NosCore.GameObject.Services.QuestService.CharacterQuest>(),
                 new List<QuicklistEntryDto>(),
                 new List<StaticBonusDto>(),
-                new List<TitleDto>()));
+                new List<TitleDto>(),
+                new List<RespawnDto>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerSocialComponent(
                 new ConcurrentDictionary<long, long>(),
                 null));

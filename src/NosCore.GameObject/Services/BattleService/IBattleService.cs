@@ -1,8 +1,18 @@
-﻿using NosCore.GameObject.Ecs.Interfaces;
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.BattleService
 {
+    // Entry point for anything that wants to inflict damage. Same signature for
+    // character → monster, character → character (PvP), monster → character and
+    // pet → monster — the implementation routes to the per-target hit queue so
+    // concurrent attackers don't race on HP/HitList state.
     public interface IBattleService
     {
         Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments);

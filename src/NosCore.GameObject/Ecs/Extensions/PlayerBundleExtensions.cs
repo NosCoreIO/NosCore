@@ -381,7 +381,7 @@ public static class PlayerBundleExtensions
             // No family system yet; OpenNos sends "{familyId} {name}({rank})" or "-1 -" when none.
             Family = "-1 -",
             ReputationIco = (ExtendedReputationType)GetReputationIcon(player.Reputation),
-            DignityIco = (CharacterDignity)Math.Abs(GetDignityIcon(player.Dignity)),
+            DignityIco = (CharacterDignity)GetDignityIcon(player.Dignity),
             HaveWeapon = weapon != null ? 1 : 0,
             WeaponRare = weapon?.Rare ?? 0,
             WeaponUpgrade = weapon?.Upgrade ?? 0,
@@ -516,17 +516,20 @@ public static class PlayerBundleExtensions
         };
     }
 
+    // Matches OpenNos Character.GetDignityIco ordering: Dignity 0 → 1 (Basic), stepping up
+    // with each loss threshold. OpenNos tops out at 7 for <= -1000 but NosCore.Packets's
+    // CharacterDignity enum only defines 1..6, so we collapse the worst two tiers to 6
+    // (StupidMinded) — otherwise tc_info fails validation with "Invalid Enum value".
     private static int GetDignityIcon(int dignity)
     {
         return dignity switch
         {
-            < -1000 => 1,
-            <= -800 => 2,
-            <= -600 => 3,
+            <= -800 => 6,
+            <= -600 => 5,
             <= -400 => 4,
-            <= -200 => 5,
-            <= -100 => 6,
-            _ => 7
+            <= -200 => 3,
+            <= -100 => 2,
+            _ => 1
         };
     }
 
@@ -661,8 +664,15 @@ public static class PlayerBundleExtensions
             VisualId = player.VisualId,
             FairyMoveType = fairy == null ? 0 : 4,
             Element = fairy?.Item?.Element ?? 0,
-            ElementRate = fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0,
-            Morph = fairy?.Item?.Morph ?? 0 + (isBuffed ? 5 : 0)
+            // `??` has LOWER precedence than `+`, so the naive
+            // `fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0` groups as
+            // `(fairy?.ElementRate + fairy?.Item?.ElementRate) ?? 0` — and int? + int? is
+            // null when either side is null, so a fairy with no Item fallback drops to 0
+            // instead of keeping the character's ElementRate. Same precedence trap on
+            // Morph: `Morph ?? 0 + (isBuffed ? 5 : 0)` parsed as `Morph ?? (0 + 5)`, which
+            // applied the +5 buff only when Morph was null (i.e. never in practice).
+            ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
+            Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? 5 : 0)
         };
     }
 
@@ -763,6 +773,8 @@ public static class PlayerBundleExtensions
             MpPercentage = (int)(player.Mp / (float)player.MaxMp * 100),
             CurrentHp = player.Hp,
             CurrentMp = player.Mp,
+            MaxHp = player.MaxHp,
+            MaxMp = player.MaxMp,
             BuffIds = null
         };
     }
