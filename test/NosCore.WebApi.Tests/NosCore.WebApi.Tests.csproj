@@ -1,11 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>MSTEST0001;MSTEST0037;MSTEST0044;NU1701</NoWarn>
   </PropertyGroup>
 
@@ -14,16 +11,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="10.0.0">
+    <PackageReference Include="coverlet.msbuild">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="4.2.1" />
-    <PackageReference Include="MSTest.TestFramework" Version="4.2.1" />
-    <PackageReference Include="SpecLight" Version="1.0.71" />
-    <PackageReference Include="AutoFixture" Version="4.18.1" />
-    <PackageReference Include="AutoFixture.AutoMoq" Version="4.18.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <PackageReference Include="SpecLight" />
+    <PackageReference Include="AutoFixture" />
+    <PackageReference Include="AutoFixture.AutoMoq" />
     <ProjectReference Include="..\..\src\NosCore.MasterServer\NosCore.MasterServer.csproj" />
     <ProjectReference Include="..\..\src\NosCore.WebApi\NosCore.WebApi.csproj" />
     <ProjectReference Include="..\..\src\NosCore.WorldServer\NosCore.WorldServer.csproj" />
@@ -32,7 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Analyzers" Version="2.0.0">
+    <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

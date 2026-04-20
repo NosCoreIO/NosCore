@@ -1,12 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <NoWarn>ASPDEPR008</NoWarn>
     <InvariantGlobalization>false</InvariantGlobalization>
     <SelfContained>false</SelfContained>
@@ -25,20 +22,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
-    <PackageReference Include="FastExpressionCompiler" Version="5.4.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.6" />
-    <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="10.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.6" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="10.0.0" />
-    <PackageReference Include="System.Reactive" Version="6.1.0" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="FastExpressionCompiler" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <PackageReference Include="Microsoft.AspNetCore.Authorization" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
+    <PackageReference Include="Serilog.Extensions.Logging" />
+    <PackageReference Include="System.Reactive" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Analyzers" Version="2.0.0">
+    <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

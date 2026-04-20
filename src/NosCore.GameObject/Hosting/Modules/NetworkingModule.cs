@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Autofac;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -36,15 +38,16 @@ public sealed class NetworkingModule : Module
         builder.Register(c =>
         {
             var lifetimeScope = c.Resolve<ILifetimeScope>();
+            var logger = c.Resolve<ILogger<PipelineFactory>>();
             return new PipelineFactory(
                 c.Resolve<IDecoder>(),
                 c.Resolve<ISessionRefHolder>(),
                 c.Resolve<IEnumerable<IRequestFilter>>(),
                 c.Resolve<IPipelineConfiguration>(),
                 () => lifetimeScope.Resolve<ClientSession>(),
-                (package, client) => _ = ((ClientSession)client).HandlePacketAsync(package),
-                client => _ = ((ClientSession)client).OnDisconnectedAsync(),
-                c.Resolve<ILogger<PipelineFactory>>(),
+                (package, client) => _ = DispatchPacketAsync((ClientSession)client, package, logger),
+                client => _ = DispatchDisconnectAsync((ClientSession)client, logger),
+                logger,
                 c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()
             );
         }).SingleInstance();
@@ -55,5 +58,29 @@ public sealed class NetworkingModule : Module
             c.Resolve<ILogger<NetworkManager>>(),
             c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()
         ));
+    }
+
+    private static async Task DispatchPacketAsync(ClientSession session, NosPackageInfo package, ILogger logger)
+    {
+        try
+        {
+            await session.HandlePacketAsync(package);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unhandled exception while processing packet for session {SessionId}", session.SessionId);
+        }
+    }
+
+    private static async Task DispatchDisconnectAsync(ClientSession session, ILogger logger)
+    {
+        try
+        {
+            await session.OnDisconnectedAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Unhandled exception while disconnecting session {SessionId}", session.SessionId);
+        }
     }
 }

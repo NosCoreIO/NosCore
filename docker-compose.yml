@@ -1,9 +1,7 @@
-version: '3.7'
-
 services:
   db:
     container_name: noscore-db
-    image: postgres:12.0-alpine
+    image: postgres:17.2-alpine3.21
     restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
@@ -28,7 +26,7 @@ services:
       - 1337
     networks:
       - noscore-network
- 
+
   master:
     container_name: noscore-master
     environment:
@@ -43,11 +41,11 @@ services:
       - 5000:5000
     expose:
       - 5432
-    networks: 
+    networks:
       - noscore-network
     volumes:
       - ./build/net10.0/linux-musl-x64:/app/build/net10.0
-      - ./configuration/:/app/build/configuration   
+      - ./configuration/:/app/build/configuration
 
   world:
     container_name: noscore-world
@@ -67,12 +65,12 @@ services:
       - 1337:1337
     expose:
       - 5432
-    networks: 
+    networks:
       - noscore-network
     volumes:
       - ./build/net10.0/linux-musl-x64:/app/build/net10.0
-      - ./configuration/:/app/build/configuration   
-      
+      - ./configuration/:/app/build/configuration
+
   login:
     container_name: noscore-login
     environment:
@@ -88,11 +86,11 @@ services:
       - 4000:4000
     expose:
       - 5432
-    networks: 
+    networks:
       - noscore-network
     volumes:
       - ./build/net10.0/linux-musl-x64:/app/build/net10.0
-      - ./configuration/:/app/build/configuration   
+      - ./configuration/:/app/build/configuration
 
 networks:
   noscore-network:

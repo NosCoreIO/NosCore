@@ -1,12 +1,9 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
-    <LangVersion>preview</LangVersion>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <InvariantGlobalization>false</InvariantGlobalization>
     <SelfContained>false</SelfContained>
   </PropertyGroup>
@@ -24,15 +21,15 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="9.1.0" />
-    <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.6" />
-    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.6" />
+    <PackageReference Include="Autofac" />
+    <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Analyzers" Version="2.0.0">
+    <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
