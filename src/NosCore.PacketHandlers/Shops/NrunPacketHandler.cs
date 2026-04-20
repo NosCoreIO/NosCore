@@ -4,53 +4,56 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
-using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class NrunPacketHandler(ILogger logger, IMessageBus messageBus,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
+    public class NrunPacketHandler(
+            ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ISessionRegistry sessionRegistry,
+            IEnumerable<INrunEventHandler> handlers)
         : PacketHandler<NrunPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(NrunPacket nRunPacket, ClientSession clientSession)
+        public override Task ExecuteAsync(NrunPacket packet, ClientSession session)
         {
-            var forceNull = false;
-            IAliveEntity? aliveEntity;
-            switch (nRunPacket.VisualType)
+            var handler = handlers.FirstOrDefault(h => h.Runner == packet.Runner);
+            if (handler is null)
             {
-                case VisualType.Player:
-                    aliveEntity = sessionRegistry.TryGetCharacter(s => s.VisualId == nRunPacket.VisualId, out var runner) ? runner : null;
-                    break;
-                case VisualType.Npc:
-                    aliveEntity = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == nRunPacket.VisualId);
-                    break;
-                case null:
-                    aliveEntity = null;
-                    forceNull = true;
-                    break;
-                default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], nRunPacket.Type);
-                    return Task.CompletedTask;
-            }
-
-            if (aliveEntity == null && !forceNull)
-            {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                logger.Debug("Unhandled n_run runner {Runner}", packet.Runner);
                 return Task.CompletedTask;
             }
 
-            return messageBus.PublishAsync(new NrunRequestedEvent(clientSession, aliveEntity, nRunPacket)).AsTask();
+            IAliveEntity? target;
+            switch (packet.VisualType)
+            {
+                case VisualType.Player:
+                    target = sessionRegistry.TryGetCharacter(s => s.VisualId == packet.VisualId, out var runner) ? runner : null;
+                    break;
+                case VisualType.Npc:
+                    target = session.Character.MapInstance.FindNpc(s => s.VisualId == packet.VisualId);
+                    break;
+                case null:
+                    target = null;
+                    break;
+                default:
+                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.Type);
+                    return Task.CompletedTask;
+            }
+
+            return handler.HandleAsync(session, target, packet);
         }
     }
 }

@@ -7,19 +7,20 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Npcs;
+using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Wolverine;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -29,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private NrunPacketHandler _nrunPacketHandler = null!;
         private ClientSession _session = null!;
-        private Mock<IMessageBus> _messageBusMock = null!;
+        private Mock<INrunEventHandler> _fakeHandlerMock = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -37,58 +38,62 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _messageBusMock = new Mock<IMessageBus>();
+            _fakeHandlerMock = new Mock<INrunEventHandler>();
+            _fakeHandlerMock.SetupGet(h => h.Runner).Returns(NrunRunnerType.ChangeClass);
+            _fakeHandlerMock
+                .Setup(h => h.HandleAsync(It.IsAny<ClientSession>(), It.IsAny<IAliveEntity?>(), It.IsAny<NrunPacket>()))
+                .Returns(Task.CompletedTask);
             _nrunPacketHandler = new NrunPacketHandler(
                 Logger,
-                _messageBusMock.Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                new[] { _fakeHandlerMock.Object });
         }
 
         [TestMethod]
-        public async Task NrunWithNullVisualTypeShouldPublishEvent()
+        public async Task NrunWithNullVisualTypeInvokesHandler()
         {
-            await new Spec("Nrun with null visual type should publish NrunRequestedEvent")
+            await new Spec("Nrun with null visual type invokes the matching handler")
                 .WhenAsync(ExecutingNrunPacketWithNullType)
-                .Then(MessageBusShouldBeCalled)
+                .Then(HandlerShouldBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithUnknownVisualTypeShouldNotPublishEvent()
+        public async Task NrunWithUnknownVisualTypeDoesNotInvokeHandler()
         {
-            await new Spec("Nrun with unknown visual type should not publish event")
+            await new Spec("Nrun with unknown visual type does not invoke the handler")
                 .WhenAsync(ExecutingNrunPacketWithUnknownType)
-                .Then(MessageBusShouldNotBeCalled)
+                .Then(HandlerShouldNotBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithNonExistentNpcShouldNotPublishEvent()
+        public async Task NrunWithoutRegisteredRunnerDoesNotInvokeHandler()
         {
-            await new Spec("Nrun with non-existent NPC should not publish event")
-                .WhenAsync(ExecutingNrunPacketWithNonExistentNpc)
-                .Then(MessageBusShouldNotBeCalled)
+            await new Spec("Nrun with a runner no handler declares is silently dropped")
+                .WhenAsync(ExecutingNrunPacketWithUnregisteredRunner)
+                .Then(HandlerShouldNotBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithExistingNpcShouldPublishEvent()
+        public async Task NrunWithExistingNpcInvokesHandler()
         {
-            await new Spec("Nrun with existing NPC should publish event")
+            await new Spec("Nrun with existing NPC invokes the matching handler")
                 .Given(NpcExistsOnMap)
                 .WhenAsync(ExecutingNrunPacketWithNpcType)
-                .Then(MessageBusShouldBeCalled)
+                .Then(HandlerShouldBeCalled)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NrunWithExistingPlayerShouldPublishEvent()
+        public async Task NrunWithExistingPlayerInvokesHandler()
         {
-            await new Spec("Nrun with existing player should publish event")
+            await new Spec("Nrun with existing player invokes the matching handler")
                 .Given(PlayerIsRegistered)
                 .WhenAsync(ExecutingNrunPacketWithPlayerType)
-                .Then(MessageBusShouldBeCalled)
+                .Then(HandlerShouldBeCalled)
                 .ExecuteAsync();
         }
 
@@ -121,72 +126,31 @@ namespace NosCore.PacketHandlers.Tests.Shops
             });
         }
 
-        private async Task ExecutingNrunPacketWithNpcType()
+        private Task ExecutingNrunPacketWithNpcType() => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = VisualType.Npc, VisualId = 100, Type = 0 }, _session);
+
+        private Task ExecutingNrunPacketWithPlayerType() => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = VisualType.Player, VisualId = _session.Character.VisualId, Type = 0 }, _session);
+
+        private Task ExecutingNrunPacketWithNullType() => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = null, VisualId = 0, Type = 0 }, _session);
+
+        private Task ExecutingNrunPacketWithUnknownType() => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = VisualType.Monster, VisualId = 1, Type = 0 }, _session);
+
+        private Task ExecutingNrunPacketWithUnregisteredRunner() => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.OpenProduction, VisualType = null, VisualId = 0, Type = 0 }, _session);
+
+        private void HandlerShouldBeCalled()
         {
-            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
-            {
-                VisualType = VisualType.Npc,
-                VisualId = 100,
-                Type = 0
-            }, _session);
+            _fakeHandlerMock.Verify(h => h.HandleAsync(
+                It.IsAny<ClientSession>(), It.IsAny<IAliveEntity?>(), It.IsAny<NrunPacket>()), Times.Once);
         }
 
-        private async Task ExecutingNrunPacketWithPlayerType()
+        private void HandlerShouldNotBeCalled()
         {
-            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = _session.Character.VisualId,
-                Type = 0
-            }, _session);
-        }
-
-        private async Task ExecutingNrunPacketWithNullType()
-        {
-            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
-            {
-                VisualType = null,
-                VisualId = 0,
-                Type = 0
-            }, _session);
-        }
-
-        private async Task ExecutingNrunPacketWithUnknownType()
-        {
-            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
-            {
-                VisualType = VisualType.Monster,
-                VisualId = 1,
-                Type = 0
-            }, _session);
-        }
-
-        private async Task ExecutingNrunPacketWithNonExistentNpc()
-        {
-            await _nrunPacketHandler.ExecuteAsync(new NrunPacket
-            {
-                VisualType = VisualType.Npc,
-                VisualId = 99999,
-                Type = 0
-            }, _session);
-        }
-
-        private void MessageBusShouldBeCalled()
-        {
-            _messageBusMock.Verify(
-                x => x.PublishAsync(
-                    It.IsAny<NrunRequestedEvent>(),
-                    It.IsAny<DeliveryOptions?>()),
-                Times.Once);
-        }
-
-        private void MessageBusShouldNotBeCalled()
-        {
-            _messageBusMock.Verify(
-                x => x.PublishAsync(
-                    It.IsAny<NrunRequestedEvent>(),
-                    It.IsAny<DeliveryOptions?>()),
-                Times.Never);
+            _fakeHandlerMock.Verify(h => h.HandleAsync(
+                It.IsAny<ClientSession>(), It.IsAny<IAliveEntity?>(), It.IsAny<NrunPacket>()), Times.Never);
         }
     }
 }

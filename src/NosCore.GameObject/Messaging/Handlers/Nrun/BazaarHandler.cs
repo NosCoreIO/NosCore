@@ -10,24 +10,27 @@ using JetBrains.Annotations;
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class BazaarHandler(IClock clock)
+    public sealed class BazaarHandler(IClock clock) : INrunEventHandler
     {
-        [UsedImplicitly]
-        public Task Handle(NrunRequestedEvent evt)
+        public NrunRunnerType Runner => NrunRunnerType.OpenNosBazaar;
+
+        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (evt.Packet.Runner != NrunRunnerType.OpenNosBazaar || evt.Target is not NpcComponentBundle)
+            if (target is not NpcComponentBundle)
             {
                 return Task.CompletedTask;
             }
 
-            var medalBonus = evt.ClientSession.Character.StaticBonusList.FirstOrDefault(s =>
+            var medalBonus = session.Character.StaticBonusList.FirstOrDefault(s =>
                 s.StaticBonusType == StaticBonusType.BazaarMedalGold ||
                 s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             var medal = medalBonus != null
@@ -40,7 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                     ? 720
                     : medalBonus.DateEnd.Value.Minus(clock.GetCurrentInstant()).ToTimeSpan().TotalHours)
                 : 0;
-            return evt.ClientSession.SendPacketAsync(new WopenPacket
+            return session.SendPacketAsync(new WopenPacket
             {
                 Type = WindowType.NosBazaar,
                 Unknown = medal,

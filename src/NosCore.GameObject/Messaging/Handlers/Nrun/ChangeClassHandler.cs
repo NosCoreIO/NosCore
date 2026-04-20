@@ -13,7 +13,9 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
@@ -31,19 +33,17 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         IExperienceService experienceService,
         IJobExperienceService jobExperienceService,
         IHeroExperienceService heroExperienceService,
-        NosCore.GameObject.Services.ItemGenerationService.IItemGenerationService itemProvider)
+        NosCore.GameObject.Services.ItemGenerationService.IItemGenerationService itemProvider) : INrunEventHandler
     {
-        [UsedImplicitly]
-        public async Task Handle(NrunRequestedEvent evt)
+        public NrunRunnerType Runner => NrunRunnerType.ChangeClass;
+
+        public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (evt.Packet.Runner != NrunRunnerType.ChangeClass
-                || evt.Packet.Type is null or <= 0 or >= 4
-                || evt.Target == null)
+            if (packet.Type is null or <= 0 or >= 4 || target == null)
             {
                 return;
             }
 
-            var session = evt.ClientSession;
             if (session.Character.Class != (byte)CharacterClassType.Adventurer)
             {
                 return;
@@ -78,7 +78,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
-            var classType = (CharacterClassType)(evt.Packet.Type ?? 0);
+            var classType = (CharacterClassType)(packet.Type ?? 0);
             if ((CharacterClassType)session.Character.Class == classType)
             {
                 logger.Error(languageLocalizer[LogLanguageKey.CANT_CHANGE_SAME_CLASS]);

@@ -12,6 +12,7 @@ using NosCore.Core.Services.IdService;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
+using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
@@ -82,8 +83,17 @@ public static class WolverineDependencyRegistrar
         // *Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai.
         // New classes can add a suffix here if they want auto-discovery, or they
         // can be registered explicitly above.
-        var suffixes = new[] { "Service", "Provider", "Resolver", "Calculator", "Catalog", "Queue", "Ai" };
         var gameObjectAssembly = typeof(WolverineDependencyRegistrar).Assembly;
+
+        foreach (var impl in gameObjectAssembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
+            .Where(t => typeof(INrunEventHandler).IsAssignableFrom(t)))
+        {
+            services.AddTransient(typeof(INrunEventHandler), impl);
+            services.AddTransient(impl);
+        }
+
+        var suffixes = new[] { "Service", "Provider", "Resolver", "Calculator", "Catalog", "Queue", "Ai" };
         foreach (var impl in gameObjectAssembly.GetTypes()
             .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
             .Where(t => suffixes.Any(suffix => t.Name.EndsWith(suffix))))
