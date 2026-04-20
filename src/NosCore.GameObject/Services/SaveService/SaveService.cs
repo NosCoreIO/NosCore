@@ -12,6 +12,7 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +23,9 @@ namespace NosCore.GameObject.Services.SaveService
             IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao,
-            IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<RespawnDto, long> respawnDao, ILogger logger,
+            IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
+            IDao<RespawnDto, long> respawnDao, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : ISaveService
     {
@@ -108,6 +111,34 @@ namespace NosCore.GameObject.Services.SaveService
                     .Where(i => quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
                 await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id));
                 await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
+
+                var liveObjectives = quests.Values.SelectMany(q =>
+                    q.ObjectiveProgress.Select(kv => new CharacterQuestObjectiveDto
+                    {
+                        Id = Guid.NewGuid(),
+                        CharacterQuestId = q.Id,
+                        QuestObjectiveId = kv.Key,
+                        Count = kv.Value
+                    })).ToList();
+                var liveQuestIds = quests.Values.Select(q => q.Id).ToHashSet();
+                var existingObjectives = characterQuestObjectiveDao
+                    .Where(o => liveQuestIds.Contains(o.CharacterQuestId))?.ToList() ?? new List<CharacterQuestObjectiveDto>();
+                var liveObjectiveKeys = liveObjectives
+                    .Select(o => (o.CharacterQuestId, o.QuestObjectiveId)).ToHashSet();
+                var objectivesToDelete = existingObjectives
+                    .Where(o => !liveObjectiveKeys.Contains((o.CharacterQuestId, o.QuestObjectiveId)))
+                    .Select(o => o.Id).ToList();
+                foreach (var live in liveObjectives)
+                {
+                    var match = existingObjectives.FirstOrDefault(o =>
+                        o.CharacterQuestId == live.CharacterQuestId && o.QuestObjectiveId == live.QuestObjectiveId);
+                    if (match != null)
+                    {
+                        live.Id = match.Id;
+                    }
+                }
+                await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete);
+                await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives);
 
                 await respawnDao.TryInsertOrUpdateAsync(character.Respawns);
             }
