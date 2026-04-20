@@ -8,7 +8,6 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
-using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
@@ -21,23 +20,21 @@ using Serilog;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
-    // Player-specific death handling. Monster deaths are handled by MonsterRespawnHandler;
-    // for players we give them a short "death pose" window, warp them back to a respawn
-    // point, refill vitals, and tell the client to play the resurrect animation via
-    // RevivePacket. The flow matches the auto-respawn behaviour from the OpenNos
-    // revive dialog's "return to town" option — a dialog for pick-your-destination can
-    // be layered on later without changing this handler's contract.
+    // Player-specific death handling. Matches OpenNos ServerManager.ReviveFirstPosition
+    // (the "return to town" branch of the revive dialog — which is also what you get
+    // when the dialog times out / the player disconnects while dead):
+    //   * 3s death pose (Normal mode only — ResumeInPlace skips this since the client
+    //     just finished logging in and there's nothing to play a pose over)
+    //   * Hp = Mp = 1 (not a full refill — you come back weak, like OpenNos)
+    //   * Warp to the character's saved respawn map (characterDto.MapId/X/Y) which is
+    //     the "saved location" the user returns to after declining the dialog
+    //   * RevivePacket + StatPacket to refresh the HUD
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(
         ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService,
         ILogger logger)
     {
-        // Default respawn point — Nosville town spawn. A later iteration can read a
-        // per-character "home" or nearest save point instead of this constant.
-        private const short RespawnMapId = 1;
-        private const short RespawnX = 78;
-        private const short RespawnY = 114;
         private static readonly TimeSpan DeathPose = TimeSpan.FromSeconds(3);
 
         [UsedImplicitly]
@@ -51,32 +48,43 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             try
             {
-                // Let the client play the death animation + show the DiePacket
-                // result before we start teleporting. 3s matches the standard
-                // NosTale death pose duration.
-                await Task.Delay(DeathPose).ConfigureAwait(false);
+                if (evt.RevivalMode == RevivalMode.Normal)
+                {
+                    // Let the client play the death pose before we warp anywhere.
+                    await Task.Delay(DeathPose).ConfigureAwait(false);
+                }
 
-                // Restore vitals on the current entity so the map-change clone inherits
-                // a living state and the downstream broadcasts (InPacket, StatPacket)
-                // don't show a corpse with full HP. We flip the underlying ECS flag
-                // explicitly since HP-setters don't sync IsAlive (see HitQueue for the
-                // same reason).
-                evt.Victim.Hp = evt.Victim.MaxHp;
-                evt.Victim.Mp = evt.Victim.MaxMp;
+                // OpenNos ReviveFirstPosition: coming back from a decline is deliberately
+                // expensive — you get the bare minimum HP/MP and have to heal up.
+                evt.Victim.Hp = 1;
+                evt.Victim.Mp = 1;
                 SetAlive(evt.Victim, true);
 
-                await mapChangeService.ChangeMapAsync(session, RespawnMapId, RespawnX, RespawnY).ConfigureAwait(false);
+                if (evt.RevivalMode == RevivalMode.Normal)
+                {
+                    // Normal death → warp to the character's saved respawn (their
+                    // persisted MapId/MapX/MapY). Matches the "return to town" dialog
+                    // default. ResumeInPlace intentionally skips the warp — the char
+                    // is already at their saved position from the login-time CreatePlayer.
+                    await mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY).ConfigureAwait(false);
+                }
 
-                // RevivePacket tells the client "you're coming back" — used to swap the
-                // revive dialog back to normal HUD and play the resurrect effect.
-                // VisualId stays the same; Data = 0 is the normal revive (no lives
-                // counter, non-instance context).
                 await session.SendPacketAsync(new RevivePacket
                 {
                     VisualType = VisualType.Player,
                     VisualId = character.VisualId,
                     Data = 0,
                 }).ConfigureAwait(false);
+
+                if (session.HasPlayerEntity)
+                {
+                    var refreshed = session.Character;
+                    await session.SendPacketAsync(refreshed.GenerateStat()).ConfigureAwait(false);
+                    if (refreshed.MapInstance != null)
+                    {
+                        await refreshed.MapInstance.SendPacketAsync(refreshed.GenerateCond()).ConfigureAwait(false);
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -84,9 +92,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             }
         }
 
-        // PlayerComponentBundle's IsAlive setter routes through ECS; the IAliveEntity
-        // interface doesn't expose it, so we down-cast to the concrete bundle types
-        // the combat pipeline deals with.
+        // PlayerComponentBundle's IsAlive setter routes through ECS; IAliveEntity doesn't
+        // expose it, so we down-cast to the bundle types the combat pipeline uses.
         private static void SetAlive(IAliveEntity entity, bool alive)
         {
             switch (entity)
