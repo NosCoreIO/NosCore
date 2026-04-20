@@ -540,4 +540,7 @@
   <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
     <value>PubSub bağlantısı durduruldu.</value>
   </data>
+  <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
+    <value>Bilinmeyen req_info türü: {0}</value>
+  </data>
 </root>

@@ -353,6 +353,62 @@ public static class PlayerBundleExtensions
         };
     }
 
+    // Mirrors OpenNos's Character.GenerateReqInfo (Character.cs:3433). Returns the tc_info
+    // packet sent in response to a client req_info on a player target — the right-click
+    // info card showing class, level, equipped gear rare/upgrade, faction, PvP stats, etc.
+    // Family / talent / Act4 fields default to 0 because those subsystems aren't wired in
+    // NosCore yet; once they are, populate from the corresponding character state.
+    public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player)
+    {
+        var inv = player.InventoryService;
+        var weapon = (inv.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)
+            ?.ItemInstance) as WearableInstance;
+        var secondary = (inv.LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)
+            ?.ItemInstance) as WearableInstance;
+        var armor = (inv.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)
+            ?.ItemInstance) as WearableInstance;
+        var fairy = (inv.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)
+            ?.ItemInstance) as WearableInstance;
+
+        return new TcInfoPacket
+        {
+            Level = player.Level,
+            Name = player.Name,
+            Element = (ElementType)(fairy?.Item?.Element ?? 0),
+            ElementRate = fairy?.Item?.ElementRate ?? 0,
+            Class = player.Class,
+            Gender = player.Gender,
+            // No family system yet; OpenNos sends "{familyId} {name}({rank})" or "-1 -" when none.
+            Family = "-1 -",
+            ReputationIco = (ExtendedReputationType)GetReputationIcon(player.Reputation),
+            DignityIco = (CharacterDignity)Math.Abs(GetDignityIcon(player.Dignity)),
+            HaveWeapon = weapon != null ? 1 : 0,
+            WeaponRare = weapon?.Rare ?? 0,
+            WeaponUpgrade = weapon?.Upgrade ?? 0,
+            HaveSecondary = secondary != null ? 1 : 0,
+            SecondaryRare = secondary?.Rare ?? 0,
+            SecondaryUpgrade = secondary?.Upgrade ?? 0,
+            HaveArmor = armor != null ? 1 : 0,
+            ArmorRare = armor?.Rare ?? 0,
+            ArmorUpgrade = armor?.Upgrade ?? 0,
+            Act4Kill = 0,
+            Act4Dead = 0,
+            Reputation = player.Reputation,
+            Morph = 0,
+            TalentWin = 0,
+            TalentLose = 0,
+            TalentSurrender = 0,
+            MasterPoints = 0,
+            Compliments = player.Compliment,
+            Act4Points = 0,
+            IsPvpPrimary = false,
+            IsPvpSecondary = false,
+            IsPvpArmor = false,
+            HeroLevel = player.HeroLevel,
+            Biography = string.Empty,
+        };
+    }
+
     public static AtPacket GenerateAt(this PlayerComponentBundle player, short mapId, int music = 0)
     {
         return new AtPacket

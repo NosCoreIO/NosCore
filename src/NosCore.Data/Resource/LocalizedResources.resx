@@ -598,4 +598,7 @@
   <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
     <value>PubSub connection stopped.</value>
   </data>
+  <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
+    <value>Unhandled req_info type: {0}</value>
+  </data>
 </root>
