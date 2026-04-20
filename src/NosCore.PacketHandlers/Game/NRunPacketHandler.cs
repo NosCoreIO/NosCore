@@ -70,6 +70,14 @@ namespace NosCore.PacketHandlers.Game
 
             respawnService.SetRespawnPoint(character, character.MapInstance.Map.MapId,
                 npc.Value.PositionX, npc.Value.PositionY);
+
+#pragma warning disable CS0618 // MsgPacket is obsolete; msgi replacement blocked on a Game18NConstString for RESPAWNLOCATION_CHANGED.
+            await session.SendPacketAsync(new MsgPacket
+            {
+                Type = MessageType.Default,
+                Message = "Your respawn location has been changed."
+            }).ConfigureAwait(false);
+#pragma warning restore CS0618
         }
     }
 }
