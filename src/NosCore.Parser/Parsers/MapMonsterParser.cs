@@ -23,11 +23,9 @@ namespace NosCore.Parser.Parsers
         public async Task InsertMapMonsterAsync(List<string[]> packetList)
         {
             short map = 0;
-            var mobMvPacketsList = packetList.Where(o => o[0].Equals("mv") && o[1].Equals("3"))
-                .Select(currentPacket => Convert.ToInt32(currentPacket[2])).Distinct().ToList();
             var monsters = new List<MapMonsterDto>();
             var mapMonsterdb = mapMonsterDao.LoadAll().ToList();
-            var npcMonsterdb = npcMonsterDao.LoadAll().ToList();
+            var npcMonsterdb = npcMonsterDao.LoadAll().ToDictionary(n => n.NpcMonsterVNum);
 
             foreach (var currentPacket in packetList.Where(o => (o.Length > 7 && o[0].Equals("in") && (o[1] == "3") && long.Parse(o[3]) <= 20000) || o[0].Equals("at")))
             {
@@ -37,20 +35,25 @@ namespace NosCore.Parser.Parsers
                     continue;
                 }
 
+                var vnum = short.Parse(currentPacket[2]);
+                if (!npcMonsterdb.TryGetValue(vnum, out var npcMonster))
+                {
+                    continue;
+                }
+
                 var monster = new MapMonsterDto
                 {
                     MapId = map,
-                    VNum = short.Parse(currentPacket[2]),
+                    VNum = vnum,
                     MapMonsterId = int.Parse(currentPacket[3]),
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
                     Direction = (byte)(currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
                     IsDisabled = false,
-                    IsMoving = mobMvPacketsList.Contains(int.Parse(currentPacket[3]))
+                    IsMoving = npcMonster.CanWalk
                 };
 
-                if ((npcMonsterdb.FirstOrDefault(s => s.NpcMonsterVNum.Equals(monster.VNum)) == null)
-                    || (mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
+                if ((mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
                     || (monsters.Count(i => i.MapMonsterId == monster.MapMonsterId) != 0))
                 {
                     continue;

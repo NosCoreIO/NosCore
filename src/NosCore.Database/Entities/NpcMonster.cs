@@ -32,6 +32,8 @@ namespace NosCore.Database.Entities
 
         public byte AttackClass { get; set; }
 
+        public bool CanWalk { get; set; }
+
         public byte AttackUpgrade { get; set; }
 
         public byte BasicArea { get; set; }

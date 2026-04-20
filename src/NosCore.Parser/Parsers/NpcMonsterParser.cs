@@ -98,6 +98,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Xp, chunk => ImportXp(chunk))
                 .Field(x => x.JobXp, chunk => ImportJxp(chunk))
                 .Field(x => x.IsHostile, chunk => chunk["PREATT"][0][2] != "0")
+                .Field(x => x.CanWalk, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 1) == 0)
                 .Field(x => x.NoticeRange, chunk => Convert.ToByte(chunk["PREATT"][0][4]))
                 .Field(x => x.Speed, chunk => Convert.ToByte(chunk["PREATT"][0][5]))
                 .Field(x => x.RespawnTime, chunk => Convert.ToInt32(chunk["PREATT"][0][6]))

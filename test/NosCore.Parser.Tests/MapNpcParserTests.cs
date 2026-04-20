@@ -52,9 +52,9 @@ namespace NosCore.Parser.Tests
                 .Setup(x => x.LoadAll())
                 .Returns(new List<NpcMonsterDto>
                 {
-                    new() { NpcMonsterVNum = 1 },
-                    new() { NpcMonsterVNum = 2 },
-                    new() { NpcMonsterVNum = 100 }
+                    new() { NpcMonsterVNum = 1, CanWalk = true },
+                    new() { NpcMonsterVNum = 2, CanWalk = true },
+                    new() { NpcMonsterVNum = 100, CanWalk = true }
                 });
 
             _npcTalkDaoMock
