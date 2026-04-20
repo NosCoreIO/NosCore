@@ -4,9 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Battle;
@@ -28,7 +30,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             // the same EntityDiedEvent.
             var registry = new Mock<ISessionRegistry>();
             var mapChange = new Mock<IMapChangeService>();
-            var handler = new PlayerRevivalHandler(registry.Object, mapChange.Object, new Mock<ILogger>().Object);
+            var handler = new PlayerRevivalHandler(registry.Object, mapChange.Object, new List<RespawnMapTypeDto>(), new Mock<ILogger>().Object);
 
             var victim = new Mock<IAliveEntity>();
             victim.SetupGet(v => v.VisualType).Returns(VisualType.Monster);
@@ -48,7 +50,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             registry.Setup(r => r.GetSessionByCharacterId(It.IsAny<long>()))
                 .Returns((NosCore.GameObject.Networking.ClientSession.ClientSession?)null);
             var mapChange = new Mock<IMapChangeService>();
-            var handler = new PlayerRevivalHandler(registry.Object, mapChange.Object, new Mock<ILogger>().Object);
+            var handler = new PlayerRevivalHandler(registry.Object, mapChange.Object, new List<RespawnMapTypeDto>(), new Mock<ILogger>().Object);
 
             var victim = new Mock<ICharacterEntity>();
             victim.SetupGet(v => v.VisualType).Returns(VisualType.Player);

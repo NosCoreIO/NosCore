@@ -13,7 +13,6 @@ using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
-using NosCore.Data.ServerPackets.Entities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -762,9 +761,9 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static StPacketFull GenerateStatInfo(this PlayerComponentBundle player)
+    public static StPacket GenerateStatInfo(this PlayerComponentBundle player)
     {
-        return new StPacketFull
+        return new StPacket
         {
             Type = VisualType.Player,
             VisualId = player.VisualId,

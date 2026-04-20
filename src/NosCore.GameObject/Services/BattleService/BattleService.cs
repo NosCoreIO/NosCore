@@ -14,6 +14,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using Serilog;
 using Wolverine;
@@ -97,10 +98,12 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (outcome.Killed)
             {
-                // Death broadcast: DiePacket tells the client who killed whom so it
-                // plays the death animation + records the kill. Published before the
-                // Wolverine event so handlers can assume the client already saw it.
-                if (target.MapInstance != null)
+                // Players get a DiePacket so the client plays the death pose + revive
+                // dialog. Monsters don't — OpenNos MapMonster.MonsterLife emits only the
+                // closing su (alive=0, hp%=0) for natural kills and the client drives the
+                // collapse animation from that alone. MonsterRespawnHandler ships the
+                // OutPacket a moment later to clear the sprite.
+                if (target.MapInstance != null && target.VisualType == VisualType.Player)
                 {
                     await target.MapInstance.SendPacketAsync(new DiePacket
                     {

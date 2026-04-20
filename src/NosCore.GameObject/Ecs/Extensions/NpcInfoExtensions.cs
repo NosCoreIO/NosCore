@@ -24,7 +24,6 @@ public static class NpcInfoExtensions
     // fields and falls back to defaults (Level=0, HP=100/100) in the target info card.
     public static EInfoNpcMonsterPacket GenerateNpcInfo(this NpcMonsterDto npc, RegionType language)
     {
-        var name = npc.Name is null ? string.Empty : npc.Name[language];
         return new EInfoNpcMonsterPacket
         {
             SubType = 10,
@@ -51,20 +50,15 @@ public static class NpcInfoExtensions
             DarkResistance = npc.DarkResistance,
             MaxHp = npc.MaxHp,
             MaxMp = npc.MaxMp,
-            Unknown = -1,
-            Name = (name ?? string.Empty).Replace(' ', '^'),
         };
     }
 
-    // Mate.GenerateEInfo reuses the monster's stat block with the mate's own level/name.
-    // Same subtype=10 as NpcMonster.GenerateEInfo — OpenNos reuses the discriminator.
     public static EInfoNpcMonsterPacket GenerateMateInfo(this MateDto mate, NpcMonsterDto npcMonster)
     {
         var packet = npcMonster.GenerateNpcInfo(RegionType.EN);
         packet.Level = mate.Level;
         packet.MaxHp = npcMonster.MaxHp;
         packet.MaxMp = npcMonster.MaxMp;
-        packet.Name = (mate.Name ?? string.Empty).Replace(' ', '^');
         return packet;
     }
 }

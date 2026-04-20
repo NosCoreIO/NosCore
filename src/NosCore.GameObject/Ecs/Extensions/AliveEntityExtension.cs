@@ -6,7 +6,6 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations;
-using NosCore.Data.ServerPackets.Entities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -92,9 +91,9 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static StPacketFull GenerateStatInfo(this IAliveEntity aliveEntity)
+        public static StPacket GenerateStatInfo(this IAliveEntity aliveEntity)
         {
-            return new StPacketFull
+            return new StPacket
             {
                 Type = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
