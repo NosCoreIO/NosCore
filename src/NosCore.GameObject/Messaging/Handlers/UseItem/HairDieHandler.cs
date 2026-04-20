@@ -24,7 +24,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
-            if (item.Effect != ItemEffectType.ApplyHairDie)
+            var isColor = item.Effect == ItemEffectType.ApplyHairDie;
+            var isStyle = item.Effect == ItemEffectType.ApplyHairStyle;
+            if (!isColor && !isStyle)
             {
                 return;
             }
@@ -35,12 +37,22 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var next = item.EffectValue == 99
-                ? (byte)RandomHelper.Instance.RandomNumber(0, 128)
-                : (byte)item.EffectValue;
-            session.Character.HairColor = Enum.IsDefined(typeof(HairColorType), next)
-                ? (HairColorType)next
-                : HairColorType.DarkPurple;
+            if (isColor)
+            {
+                var next = item.EffectValue == 99
+                    ? (byte)RandomHelper.Instance.RandomNumber(0, 128)
+                    : (byte)item.EffectValue;
+                session.Character.HairColor = Enum.IsDefined(typeof(HairColorType), next)
+                    ? (HairColorType)next
+                    : HairColorType.DarkPurple;
+            }
+            else
+            {
+                var next = (byte)item.EffectValue;
+                session.Character.HairStyle = Enum.IsDefined(typeof(HairStyleType), next)
+                    ? (HairStyleType)next
+                    : HairStyleType.HairStyleA;
+            }
 
             await session.SendPacketAsync(session.Character.GenerateEq());
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(string.Empty));
