@@ -6,6 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations;
+using NosCore.Data.ServerPackets.Entities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -91,9 +92,9 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static StPacket GenerateStatInfo(this IAliveEntity aliveEntity)
+        public static StPacketFull GenerateStatInfo(this IAliveEntity aliveEntity)
         {
-            return new StPacket
+            return new StPacketFull
             {
                 Type = aliveEntity.VisualType,
                 VisualId = aliveEntity.VisualId,
@@ -107,6 +108,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                     : 0,
                 CurrentHp = aliveEntity.Hp,
                 CurrentMp = aliveEntity.Mp,
+                MaxHp = aliveEntity.MaxHp,
+                MaxMp = aliveEntity.MaxMp,
                 BuffIds = null
             };
         }

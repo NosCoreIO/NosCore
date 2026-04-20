@@ -13,15 +13,21 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class NpcInfoExtensions
 {
-    // Builds the e_info response for a req_info 5 (NPC) or req_info 6 (mate). OpenNos's
-    // NpcMonster.GenerateEInfo / Mate.GenerateEInfo emit the same 26-field subtype-10 layout
-    // — EInfoNpcMonsterPacket in NosCore.Packets mirrors that shape verbatim. The name is
-    // space-collapsed to '^' because the client tokenises on space.
+    // Builds the e_info response for a req_info 5 (NPC) or req_info 6 (monster/mate).
+    // OpenNos's NpcMonster.GenerateEInfo AND Mate.GenerateEInfo both emit:
+    //   `e_info 10 <vnum> <level> <element> <attackClass> <elementRate> <atkUp>
+    //    <dmgMin> <dmgMax> <concentrate> <critChance> <critRate> <defUp> <closeDef>
+    //    <defDodge> <distDef> <distDodge> <magicDef> <fire> <water> <light> <dark>
+    //    <maxHp> <maxMp> -1 <name>`
+    // — the leading 10 is the format discriminator and the trailing -1 is a constant
+    // the client expects before the name field. Without either, the client can't align
+    // fields and falls back to defaults (Level=0, HP=100/100) in the target info card.
     public static EInfoNpcMonsterPacket GenerateNpcInfo(this NpcMonsterDto npc, RegionType language)
     {
         var name = npc.Name is null ? string.Empty : npc.Name[language];
         return new EInfoNpcMonsterPacket
         {
+            SubType = 10,
             NpcMonsterVNum = npc.NpcMonsterVNum,
             Level = npc.Level,
             Element = npc.Element,
@@ -45,12 +51,13 @@ public static class NpcInfoExtensions
             DarkResistance = npc.DarkResistance,
             MaxHp = npc.MaxHp,
             MaxMp = npc.MaxMp,
+            Unknown = -1,
             Name = (name ?? string.Empty).Replace(' ', '^'),
         };
     }
 
-    // Mate.GenerateEInfo reuses the monster's stat block with the mate's own level/name,
-    // so we start from the underlying NpcMonster shape and patch in mate-specific fields.
+    // Mate.GenerateEInfo reuses the monster's stat block with the mate's own level/name.
+    // Same subtype=10 as NpcMonster.GenerateEInfo — OpenNos reuses the discriminator.
     public static EInfoNpcMonsterPacket GenerateMateInfo(this MateDto mate, NpcMonsterDto npcMonster)
     {
         var packet = npcMonster.GenerateNpcInfo(RegionType.EN);

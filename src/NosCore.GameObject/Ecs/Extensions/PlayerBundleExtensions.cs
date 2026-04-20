@@ -13,6 +13,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.ServerPackets.Entities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -761,9 +762,9 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static StPacket GenerateStatInfo(this PlayerComponentBundle player)
+    public static StPacketFull GenerateStatInfo(this PlayerComponentBundle player)
     {
-        return new StPacket
+        return new StPacketFull
         {
             Type = VisualType.Player,
             VisualId = player.VisualId,
@@ -773,6 +774,8 @@ public static class PlayerBundleExtensions
             MpPercentage = (int)(player.Mp / (float)player.MaxMp * 100),
             CurrentHp = player.Hp,
             CurrentMp = player.Mp,
+            MaxHp = player.MaxHp,
+            MaxMp = player.MaxMp,
             BuffIds = null
         };
     }

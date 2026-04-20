@@ -11,13 +11,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
-using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     {
         private ReqInfoPacketHandler Handler = null!;
         private ClientSession Session = null!;
+        private List<NpcMonsterDto> NpcMonsters = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -49,16 +50,29 @@ namespace NosCore.PacketHandlers.Tests.Game
                 MapInstanceId = Session.Character.MapInstance.MapInstanceId,
             });
 
+            NpcMonsters = new List<NpcMonsterDto>
+            {
+                new()
+                {
+                    NpcMonsterVNum = 303,
+                    Level = 35,
+                    MaxHp = 1360,
+                    MaxMp = 630,
+                    Name = new I18NString(),
+                },
+            };
+
             Handler = new ReqInfoPacketHandler(
                 new Mock<ILogger>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                NpcMonsters);
         }
 
         [TestMethod]
         public async Task PlayerReqInfoRepliesWithTcInfoForTheTargetedCharacter()
         {
-            await new Spec("req_info on a player target replies with tc_info")
+            await new Spec("req_info 1 <characterId> replies with tc_info for the targeted player")
                 .WhenAsync(RequestingPlayerInfoForSelf)
                 .Then(TcInfoPacketShouldBeSent)
                 .ExecuteAsync();
@@ -67,85 +81,78 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task PlayerReqInfoForUnknownTargetEmitsNothing()
         {
-            await new Spec("req_info on an unknown player visualId emits nothing")
+            await new Spec("req_info 1 <unknownId> emits nothing")
                 .WhenAsync(RequestingPlayerInfoForUnknownVisualId)
                 .Then(NoTcInfoShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NpcReqInfoRepliesWithEInfoForNpcOnTheMap()
+        public async Task NpcInfoReqResolvesTemplateByVNumFromTheGlobalCatalog()
         {
-            await new Spec("req_info 5 on an NPC present on the current map replies with e_info 2 ...")
+            // Official wire: `req_info 5 303` -> `e_info 10 303 35 ...`. Type 5 is a static
+            // catalog lookup on the NpcMonster VNum, NOT a lookup on entities currently on
+            // the map — so the reply comes back even if no such NPC is spawned nearby.
+            await new Spec("req_info 5 <npcMonsterVNum> replies with e_info for the catalog entry")
+                .WhenAsync(RequestingNpcInfoByVNum)
+                .Then(EInfoForVNum303ShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NpcInfoReqForUnknownVNumEmitsNothing()
+        {
+            await new Spec("req_info 5 <unknownVNum> emits nothing")
+                .WhenAsync(RequestingNpcInfoForUnknownVNum)
+                .Then(NoEInfoNpcMonsterPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MapEntityInfoReqResolvesNpcByVisualIdOnCurrentMap()
+        {
+            // Official wire: `req_info 6 2 <mapNpcVisualId>` -> `e_info 10 <npcVNum> ...`.
+            // Type 6 is live-map lookup discriminated by VisualType in TargetVNum and the
+            // VisualId in MateVNum.
+            await new Spec("req_info 6 2 <mapNpcVisualId> replies with e_info for the npc on the current map")
                 .Given(NpcIsOnMap)
-                .WhenAsync(RequestingNpcInfo)
-                .Then(EInfoNpcMonsterPacketShouldBeSent)
+                .WhenAsync(RequestingMapInfoForNpc)
+                .Then(EInfoForVNum909ShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task NpcReqInfoForUnknownTargetEmitsNothing()
+        public async Task MapEntityInfoReqResolvesMonsterByVisualIdOnCurrentMap()
         {
-            await new Spec("req_info 5 on an unknown NPC visualId emits nothing")
-                .WhenAsync(RequestingNpcInfo)
-                .Then(NoEInfoNpcMonsterPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task MateReqInfoForUnsupportedVisualTypeIsQuietNoOp()
-        {
-            // `req_info 6 <visualType> <visualId>` with an unknown discriminator (e.g. 1 =
-            // player, 10 = mate-when-wired) is logged at Debug and drops.
-            await new Spec("req_info 6 with unsupported visualType is a quiet no-op")
-                .WhenAsync(RequestingMateInfoWithMateVNum)
-                .Then(NoEInfoNpcMonsterPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task MateReqInfoFallsBackToMonsterLookupWhenMateVNumAbsent()
-        {
-            // Observed in NosCore's client revision: right-clicking a monster emits
-            // `req_info 6` with MateVNum unset. OpenNos stock routes this through the
-            // default branch (tc_info / no-op); we instead look the monster up on the
-            // current MapInstance and reply with e_info subtype-10 so the info card
-            // populates for mobs.
-            await new Spec("req_info 6 with MateVNum absent and a monster on the map emits e_info")
+            // Official wire: `req_info 6 3 <mapMonsterVisualId>` -> `e_info 10 <vnum> ...`.
+            await new Spec("req_info 6 3 <mapMonsterVisualId> replies with e_info for the monster on the current map")
                 .Given(MonsterIsOnMap)
-                .WhenAsync(RequestingMateInfoForMonster)
-                .Then(EInfoNpcMonsterPacketShouldBeSent)
+                .WhenAsync(RequestingMapInfoForMonster)
+                .Then(EInfoForVNum25ShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MapEntityInfoReqWithoutVisualIdIsQuietNoOp()
+        {
+            await new Spec("req_info 6 without a VisualId (MateVNum absent) is a quiet no-op")
+                .WhenAsync(RequestingMapInfoWithMissingVisualId)
+                .Then(NoEInfoNpcMonsterPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MapEntityInfoReqForUnsupportedVisualTypeIsQuietNoOp()
+        {
+            // VisualType.Player via req_info 6 is currently unwired — the handler drops at
+            // Debug level instead of spamming WARN.
+            await new Spec("req_info 6 1 <playerId> is a quiet no-op (player branch not wired)")
+                .WhenAsync(RequestingMapInfoForPlayer)
+                .Then(NoEInfoNpcMonsterPacketShouldBeSent)
                 .ExecuteAsync();
         }
 
         // --- Givens ---
-
-        private void MonsterIsOnMap()
-        {
-            Session.Character.MapInstance.LoadMonsters(
-                new List<MapMonsterDto>
-                {
-                    new()
-                    {
-                        MapMonsterId = 300,
-                        MapId = Session.Character.MapInstance.Map.MapId,
-                        MapX = 3,
-                        MapY = 3,
-                        VNum = 1,
-                    }
-                },
-                new List<NpcMonsterDto>
-                {
-                    new()
-                    {
-                        NpcMonsterVNum = 1,
-                        Level = 3,
-                        MaxHp = 100,
-                        MaxMp = 50,
-                        Name = new I18NString(),
-                    }
-                });
-        }
 
         private void NpcIsOnMap()
         {
@@ -154,21 +161,48 @@ namespace NosCore.PacketHandlers.Tests.Game
                 {
                     new()
                     {
-                        MapNpcId = 100,
+                        MapNpcId = 73680,
                         MapId = Session.Character.MapInstance.Map.MapId,
-                        MapX = 2,
-                        MapY = 2,
-                        VNum = 1,
+                        MapX = 34,
+                        MapY = 122,
+                        VNum = 909,
                     }
                 },
                 new List<NpcMonsterDto>
                 {
                     new()
                     {
-                        NpcMonsterVNum = 1,
-                        Level = 3,
-                        MaxHp = 100,
-                        MaxMp = 50,
+                        NpcMonsterVNum = 909,
+                        Level = 71,
+                        MaxHp = 21450,
+                        MaxMp = 1863,
+                        Name = new I18NString(),
+                    }
+                });
+        }
+
+        private void MonsterIsOnMap()
+        {
+            Session.Character.MapInstance.LoadMonsters(
+                new List<MapMonsterDto>
+                {
+                    new()
+                    {
+                        MapMonsterId = 2848,
+                        MapId = Session.Character.MapInstance.Map.MapId,
+                        MapX = 3,
+                        MapY = 3,
+                        VNum = 25,
+                    }
+                },
+                new List<NpcMonsterDto>
+                {
+                    new()
+                    {
+                        NpcMonsterVNum = 25,
+                        Level = 2,
+                        MaxHp = 175,
+                        MaxMp = 15,
                         Name = new I18NString(),
                     }
                 });
@@ -176,59 +210,62 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         // --- Whens ---
 
-        private async Task RequestingPlayerInfoForSelf()
+        private Task RequestingPlayerInfoForSelf() => ExecuteAsync(new ReqInfoPacket
         {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ReqInfoPacket
-            {
-                ReqType = ReqInfoType.PlayerInfo,
-                TargetVNum = Session.Character.VisualId,
-            }, Session);
-        }
+            ReqType = ReqInfoType.PlayerInfo,
+            TargetVNum = Session.Character.VisualId,
+        });
 
-        private async Task RequestingPlayerInfoForUnknownVisualId()
+        private Task RequestingPlayerInfoForUnknownVisualId() => ExecuteAsync(new ReqInfoPacket
         {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ReqInfoPacket
-            {
-                ReqType = ReqInfoType.PlayerInfo,
-                TargetVNum = 99999,
-            }, Session);
-        }
+            ReqType = ReqInfoType.PlayerInfo,
+            TargetVNum = 99999,
+        });
 
-        private async Task RequestingNpcInfo()
+        private Task RequestingNpcInfoByVNum() => ExecuteAsync(new ReqInfoPacket
         {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ReqInfoPacket
-            {
-                ReqType = ReqInfoType.NpcInfo,
-                TargetVNum = 100,
-            }, Session);
-        }
+            ReqType = ReqInfoType.NpcInfo,
+            TargetVNum = 303,
+        });
 
-        private async Task RequestingMateInfoWithMateVNum()
+        private Task RequestingNpcInfoForUnknownVNum() => ExecuteAsync(new ReqInfoPacket
         {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ReqInfoPacket
-            {
-                ReqType = ReqInfoType.MateInfo,
-                TargetVNum = 1,
-                MateVNum = 1,
-            }, Session);
-        }
+            ReqType = ReqInfoType.NpcInfo,
+            TargetVNum = 99999,
+        });
 
-        private async Task RequestingMateInfoForMonster()
+        private Task RequestingMapInfoForNpc() => ExecuteAsync(new ReqInfoPacket
         {
-            // Observed wire layout from a live session: `req_info 6 3 <mapMonsterId>` —
-            // TargetVNum carries the VisualType discriminator (3 = Monster), MateVNum
-            // carries the VisualId.
+            ReqType = ReqInfoType.MateInfo,
+            TargetVNum = (long)VisualType.Npc,
+            MateVNum = 73680,
+        });
+
+        private Task RequestingMapInfoForMonster() => ExecuteAsync(new ReqInfoPacket
+        {
+            ReqType = ReqInfoType.MateInfo,
+            TargetVNum = (long)VisualType.Monster,
+            MateVNum = 2848,
+        });
+
+        private Task RequestingMapInfoWithMissingVisualId() => ExecuteAsync(new ReqInfoPacket
+        {
+            ReqType = ReqInfoType.MateInfo,
+            TargetVNum = (long)VisualType.Monster,
+            MateVNum = null,
+        });
+
+        private Task RequestingMapInfoForPlayer() => ExecuteAsync(new ReqInfoPacket
+        {
+            ReqType = ReqInfoType.MateInfo,
+            TargetVNum = (long)VisualType.Player,
+            MateVNum = (int)Session.Character.VisualId,
+        });
+
+        private Task ExecuteAsync(ReqInfoPacket packet)
+        {
             Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ReqInfoPacket
-            {
-                ReqType = ReqInfoType.MateInfo,
-                TargetVNum = (long)VisualType.Monster,
-                MateVNum = 300,
-            }, Session);
+            return Handler.ExecuteAsync(packet, Session);
         }
 
         // --- Thens ---
@@ -239,8 +276,14 @@ namespace NosCore.PacketHandlers.Tests.Game
         private void NoTcInfoShouldBeSent() =>
             Assert.IsFalse(Session.LastPackets.Any(p => p is TcInfoPacket));
 
-        private void EInfoNpcMonsterPacketShouldBeSent() =>
-            Assert.IsTrue(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket pkt && pkt.NpcMonsterVNum == 1 && pkt.Level == 3));
+        private void EInfoForVNum303ShouldBeSent() =>
+            Assert.IsTrue(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket pkt && pkt.NpcMonsterVNum == 303 && pkt.Level == 35));
+
+        private void EInfoForVNum909ShouldBeSent() =>
+            Assert.IsTrue(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket pkt && pkt.NpcMonsterVNum == 909 && pkt.Level == 71));
+
+        private void EInfoForVNum25ShouldBeSent() =>
+            Assert.IsTrue(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket pkt && pkt.NpcMonsterVNum == 25 && pkt.Level == 2));
 
         private void NoEInfoNpcMonsterPacketShouldBeSent() =>
             Assert.IsFalse(Session.LastPackets.Any(p => p is EInfoNpcMonsterPacket));

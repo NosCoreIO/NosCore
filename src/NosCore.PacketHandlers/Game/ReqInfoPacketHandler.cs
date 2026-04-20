@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -19,23 +21,24 @@ using Serilog;
 
 namespace NosCore.PacketHandlers.Game
 {
-    // Handles the client req_info packet (right-click on a player/npc/monster/mate to open
-    // the info card). Mirrors OpenNos's BasicPacketHandler.ReqInfo but adapted for the
-    // wire shape NosCore's client actually emits (observed from a live session):
+    // Handles the client `req_info` packet. Dispatch mirrors the official NosTale wire
+    // shape captured from a live session (OpenNos routed the same way):
     //
-    //   req_info 1 <characterId>              -> tc_info for the targeted player
-    //   req_info 5 <npcMonsterVNum>           -> e_info for the npc template (OpenNos stock)
-    //   req_info 6 <visualType> <visualId>    -> e_info for the npc/monster on the map
+    //   req_info 1 <characterId>                    -> tc_info for the targeted player
+    //   req_info 5 <npcMonsterVNum>                 -> e_info for the NPC monster TEMPLATE
+    //                                                   (static catalog lookup, not map-scoped)
+    //   req_info 6 <visualType> <visualId>          -> e_info for the LIVE entity on the
+    //                                                   current map. TargetVNum is the
+    //                                                   VisualType discriminator (1/2/3/…)
+    //                                                   and MateVNum carries the VisualId.
     //
-    // NosCore.Packets parses the type-6 wire layout into (ReqType=6, TargetVNum=visualType,
-    // MateVNum=visualId) — the field names are misleading; "TargetVNum" is actually the
-    // VisualType discriminator (1/2/3/…) and "MateVNum" is the VisualId. OpenNos stock
-    // only supports mates under type 6, but the NosCore client reuses 6 for any entity,
-    // so we dispatch on VisualType and use the same EInfoNpcMonsterPacket shape for both
-    // NPCs and monsters (they share the NpcMonsterDto template).
+    // Type 6 is not mate-only — it's "info for any map entity"; the VisualType field picks
+    // between player/npc/monster/mate. For NPC (2) and monster (3) branches we use the same
+    // NpcMonsterDto template the in-packet carries.
     public sealed class ReqInfoPacketHandler(ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry,
+            List<NpcMonsterDto> npcMonsters)
         : PacketHandler<ReqInfoPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ReqInfoPacket packet, ClientSession session)
@@ -45,21 +48,24 @@ namespace NosCore.PacketHandlers.Game
                 case ReqInfoType.PlayerInfo:
                     if (sessionRegistry.TryGetCharacter(s => s.VisualId == packet.TargetVNum, out var target))
                     {
-                        await session.SendPacketAsync(target.GenerateReqInfo());
+                        await session.SendPacketAsync(target.GenerateReqInfo()).ConfigureAwait(false);
                     }
                     return;
 
                 case ReqInfoType.NpcInfo:
-                    var npc = session.Character.MapInstance.FindNpc(n => n.VisualId == packet.TargetVNum);
-                    if (npc is null || npc.Value.NpcMonster is null)
+                    // Static catalog lookup by NpcMonsterVNum — the client passes a VNum, not
+                    // a map-scoped VisualId, because this request is used for tooltip/info
+                    // on any NPC the client knows about (shop menus, inventory hover, etc).
+                    var template = npcMonsters.FirstOrDefault(n => n.NpcMonsterVNum == (short)packet.TargetVNum);
+                    if (template is null)
                     {
                         return;
                     }
-                    await session.SendPacketAsync(npc.Value.NpcMonster.GenerateNpcInfo(session.Character.AccountLanguage));
+                    await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage)).ConfigureAwait(false);
                     return;
 
                 case ReqInfoType.MateInfo:
-                    await HandleEntityInfoAsync(packet, session);
+                    await HandleMapEntityInfoAsync(packet, session).ConfigureAwait(false);
                     return;
 
                 default:
@@ -68,10 +74,10 @@ namespace NosCore.PacketHandlers.Game
             }
         }
 
-        // Type 6: `req_info 6 <visualType> <visualId>`. TargetVNum carries the visual-type
-        // discriminator; MateVNum carries the VisualId of the clicked entity. Look up the
-        // template based on visual type and emit e_info.
-        private async Task HandleEntityInfoAsync(ReqInfoPacket packet, ClientSession session)
+        // `req_info 6 <visualType> <visualId>` — live-map entity lookup. TargetVNum is the
+        // VisualType byte (1 player, 2 npc, 3 monster, 9 pet/mate) and MateVNum is the
+        // VisualId of the clicked entity on the current map.
+        private async Task HandleMapEntityInfoAsync(ReqInfoPacket packet, ClientSession session)
         {
             if (!packet.MateVNum.HasValue)
             {
@@ -101,7 +107,7 @@ namespace NosCore.PacketHandlers.Game
                 return;
             }
 
-            await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage));
+            await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage)).ConfigureAwait(false);
         }
     }
 }

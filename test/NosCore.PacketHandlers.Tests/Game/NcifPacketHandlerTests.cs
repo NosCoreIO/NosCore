@@ -13,6 +13,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.Battle;
+using NosCore.Data.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -82,8 +83,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .And(MonsterIsOnMap)
                 .WhenAsync(RequestingMonsterStatInfo)
                 .Then(StInfoPacketShouldBeSent)
-                .And(LastStPacketShouldHaveType_, VisualType.Monster)
-                .And(LastStPacketShouldHaveHpPercentage_, 100)
+                .And(LastStPacketFullShouldHaveType_, VisualType.Monster)
+                .And(LastStPacketFullShouldHaveHpPercentage_, 100)
                 .ExecuteAsync();
         }
 
@@ -95,7 +96,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .And(NpcIsOnMap)
                 .WhenAsync(RequestingNpcStatInfo)
                 .Then(StInfoPacketShouldBeSent)
-                .And(LastStPacketShouldHaveType_, VisualType.Npc)
+                .And(LastStPacketFullShouldHaveType_, VisualType.Npc)
                 .ExecuteAsync();
         }
 
@@ -109,8 +110,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .And(CharacterMaxHpAndMaxMpAreZero)
                 .WhenAsync(RequestingPlayerStatInfo)
                 .Then(StInfoPacketShouldBeSent)
-                .And(LastStPacketShouldHaveHpPercentage_, 0)
-                .And(LastStPacketShouldHaveMpPercentage_, 0)
+                .And(LastStPacketFullShouldHaveHpPercentage_, 0)
+                .And(LastStPacketFullShouldHaveMpPercentage_, 0)
                 .ExecuteAsync();
         }
 
@@ -123,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .Given(CharacterIsOnMap)
                 .WhenAsync(RequestingOwnStatInfo)
                 .Then(StInfoPacketShouldBeSent)
-                .And(LastStPacketShouldHaveType_, VisualType.Player)
+                .And(LastStPacketFullShouldHaveType_, VisualType.Player)
                 .ExecuteAsync();
         }
 
@@ -132,7 +133,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             // Dropped items use VisualType.Object — they are not statful entities,
             // so the handler should fall through to the default UNKNOWN branch
-            // and emit no StPacket. Documents the current contract.
+            // and emit no StPacketFull. Documents the current contract.
             await new Spec("Object type (dropped item) is rejected — items are not statful")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(RequestingObjectStatInfo)
@@ -207,24 +208,24 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void StInfoPacketShouldBeSent()
         {
-            Assert.IsTrue(Session.LastPackets.Any(p => p is StPacket));
+            Assert.IsTrue(Session.LastPackets.Any(p => p is StPacketFull));
         }
 
         private void NoStInfoPacketShouldBeSent()
         {
-            Assert.IsFalse(Session.LastPackets.Any(p => p is StPacket));
+            Assert.IsFalse(Session.LastPackets.Any(p => p is StPacketFull));
         }
 
-        private StPacket LastStPacket() => Session.LastPackets.OfType<StPacket>().Last();
+        private StPacketFull LastStPacketFull() => Session.LastPackets.OfType<StPacketFull>().Last();
 
-        private void LastStPacketShouldHaveType_(VisualType expected) =>
-            Assert.AreEqual(expected, LastStPacket().Type);
+        private void LastStPacketFullShouldHaveType_(VisualType expected) =>
+            Assert.AreEqual(expected, LastStPacketFull().Type);
 
-        private void LastStPacketShouldHaveHpPercentage_(int expected) =>
-            Assert.AreEqual(expected, LastStPacket().HpPercentage);
+        private void LastStPacketFullShouldHaveHpPercentage_(int expected) =>
+            Assert.AreEqual(expected, LastStPacketFull().HpPercentage);
 
-        private void LastStPacketShouldHaveMpPercentage_(int expected) =>
-            Assert.AreEqual(expected, LastStPacket().MpPercentage);
+        private void LastStPacketFullShouldHaveMpPercentage_(int expected) =>
+            Assert.AreEqual(expected, LastStPacketFull().MpPercentage);
 
         private void MonsterIsOnMap()
         {
