@@ -85,8 +85,9 @@ namespace NosCore.GameObject.Services.SaveService
                     .TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
                 if (!itemInstancesSaved)
                 {
-                    logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId,
-                        new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."));
+                    logger.Error(
+                        new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
                     return;
                 }
                 await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray());
@@ -110,7 +111,7 @@ namespace NosCore.GameObject.Services.SaveService
             }
             catch (Exception e)
             {
-                logger.Error(logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId, e);
+                logger.Error(e, logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
             }
         }
     }

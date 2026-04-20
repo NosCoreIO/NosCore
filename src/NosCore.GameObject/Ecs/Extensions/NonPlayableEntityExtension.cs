@@ -55,7 +55,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                 shopItemsList[shopItemGrouping.ShopItemId] = shopItem;
             });
             var shop = shopDto.Adapt<Shop>();
-            shop.Name = npcTalkDto?.Name ?? new I18NString();
+            // NosCore's Shop schema has no Name column (OpenNos stores it on Shop directly);
+            // we borrow the dialog title when present, and otherwise fall back to the NPC
+            // monster's own name so the shop banner isn't a literal "NONAME".
+            shop.Name = npcTalkDto?.Name ?? bundle.NpcMonster?.Name ?? new I18NString();
             shop.OwnerCharacter = null;
             shop.ShopItems = shopItemsList;
             bundle.Shop = shop;

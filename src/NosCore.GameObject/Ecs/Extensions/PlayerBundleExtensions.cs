@@ -381,7 +381,7 @@ public static class PlayerBundleExtensions
             // No family system yet; OpenNos sends "{familyId} {name}({rank})" or "-1 -" when none.
             Family = "-1 -",
             ReputationIco = (ExtendedReputationType)GetReputationIcon(player.Reputation),
-            DignityIco = (CharacterDignity)Math.Abs(GetDignityIcon(player.Dignity)),
+            DignityIco = (CharacterDignity)GetDignityIcon(player.Dignity),
             HaveWeapon = weapon != null ? 1 : 0,
             WeaponRare = weapon?.Rare ?? 0,
             WeaponUpgrade = weapon?.Upgrade ?? 0,
@@ -516,17 +516,20 @@ public static class PlayerBundleExtensions
         };
     }
 
+    // Matches OpenNos Character.GetDignityIco ordering: Dignity 0 → 1 (Basic), stepping up
+    // with each loss threshold. OpenNos tops out at 7 for <= -1000 but NosCore.Packets's
+    // CharacterDignity enum only defines 1..6, so we collapse the worst two tiers to 6
+    // (StupidMinded) — otherwise tc_info fails validation with "Invalid Enum value".
     private static int GetDignityIcon(int dignity)
     {
         return dignity switch
         {
-            < -1000 => 1,
-            <= -800 => 2,
-            <= -600 => 3,
+            <= -800 => 6,
+            <= -600 => 5,
             <= -400 => 4,
-            <= -200 => 5,
-            <= -100 => 6,
-            _ => 7
+            <= -200 => 3,
+            <= -100 => 2,
+            _ => 1
         };
     }
 
