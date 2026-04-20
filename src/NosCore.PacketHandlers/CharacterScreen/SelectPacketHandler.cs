@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
-            IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<RespawnDto, long> respawnDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
@@ -183,7 +183,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new ConcurrentDictionary<Guid, CharacterQuest>(),
                     new List<QuicklistEntryDto>(),
                     new List<StaticBonusDto>(),
-                    new List<TitleDto>()));
+                    new List<TitleDto>(),
+                    new List<RespawnDto>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerSocialComponent(
                     new ConcurrentDictionary<long, long>(),
                     null));
@@ -228,6 +229,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<StaticBonusDto>();
                 character.Titles = titleDao
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<TitleDto>();
+                character.Respawns = respawnDao
+                    .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
 
                 await characterInitializationService.InitializeAsync(character);
 

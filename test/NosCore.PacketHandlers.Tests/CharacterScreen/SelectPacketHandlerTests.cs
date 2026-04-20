@@ -52,6 +52,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                 new Mock<IDao<TitleDto, Guid>>().Object,
                 new Mock<IDao<CharacterQuestDto, Guid>>().Object,
+                new Mock<IDao<RespawnDto, long>>().Object,
                 new Mock<IDao<ScriptDto, Guid>>().Object,
                 new List<QuestDto>(),
                 new List<QuestObjectiveDto>(),

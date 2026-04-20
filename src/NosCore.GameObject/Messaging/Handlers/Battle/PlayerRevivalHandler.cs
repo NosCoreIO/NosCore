@@ -5,22 +5,18 @@
 //
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NosCore.Data.Enumerations.Interaction;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.Helpers;
 using Serilog;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
@@ -29,7 +25,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     public sealed class PlayerRevivalHandler(
         ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService,
-        List<RespawnMapTypeDto> respawnMapTypes,
+        IRespawnService respawnService,
         ILogger logger)
     {
         private static readonly TimeSpan DeathPose = TimeSpan.FromSeconds(3);
@@ -56,10 +52,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
                 if (evt.RevivalMode == RevivalMode.Normal)
                 {
-                    // Character MapId/X/Y is the LAST saved position (i.e. where they died),
-                    // so warping there would drop them back on the mob. Route to the default
-                    // town spawn instead, jittered like OpenNos ReviveFirstPosition.
-                    var (mapId, x, y) = ResolveRespawn();
+                    var deathMapId = character.MapInstance?.Map.MapId ?? character.MapId;
+                    var respawnMapTypeId = respawnService.ResolveRespawnMapTypeId(deathMapId);
+                    var (mapId, x, y) = respawnService.GetRespawnLocation(character, respawnMapTypeId);
                     await mapChangeService.ChangeMapAsync(session, mapId, x, y).ConfigureAwait(false);
                 }
 
@@ -94,17 +89,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 case MonsterComponentBundle m: m.IsAlive = alive; break;
                 case NpcComponentBundle n: n.IsAlive = alive; break;
             }
-        }
-
-        private (short MapId, short X, short Y) ResolveRespawn()
-        {
-            var defaultAct1 = respawnMapTypes.FirstOrDefault(r => r.RespawnMapTypeId == (long)RespawnType.DefaultAct1);
-            var mapId = defaultAct1?.MapId ?? (short)1;
-            var baseX = defaultAct1?.DefaultX ?? (short)80;
-            var baseY = defaultAct1?.DefaultY ?? (short)116;
-            var x = (short)(baseX + RandomHelper.Instance.RandomNumber(-3, 4));
-            var y = (short)(baseY + RandomHelper.Instance.RandomNumber(-3, 4));
-            return (mapId, x, y);
         }
     }
 }
