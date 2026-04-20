@@ -26,10 +26,14 @@ namespace NosCore.GameObject.Services.UpgradeService;
 
 // Common skeleton for every UpgradePacketType variant (sum, rarify, cellon, sp upgrade, ...).
 //
-// The flow is identical: validate slots are present and not bound elsewhere, charge the player
-// gold + materials, roll for success, mutate or destroy items, then emit the standard pocket
-// refresh + animation + result message. Subclasses fill in the variant-specific bits via the
-// abstract hooks below.
+// The flow is identical: validate slots, charge gold + materials, roll for an UpgradeOutcome,
+// apply the outcome (success / failure / fixed), then emit the standard pocket refresh +
+// animation + result message. Subclasses fill in the variant-specific bits via the hooks below.
+//
+// Outcome model is 3-way (Success / Failure / Fixed) to match OpenNos's equipment upgrade
+// behavior where a "Fix" roll permanently locks the item without changing its upgrade level.
+// The default DetermineOutcome implementation reduces to a binary success/failure roll —
+// subclasses that need 3-way (EquipmentUpgrade) override it.
 //
 // Concurrency: per-session packet handling is already serialized in WorldPacketHandlingStrategy
 // (see AcquirePacketLockAsync), so two upgrade packets from the same client cannot run in
@@ -53,14 +57,20 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
         }
 
         var packets = new List<IPacket>();
-        var succeeded = random.NextDouble() < GetSuccessRate(ctx);
-        if (succeeded)
+        var roll = random.NextDouble();
+        var outcome = DetermineOutcome(roll, ctx);
+
+        switch (outcome)
         {
-            ApplySuccess(ctx);
-        }
-        else
-        {
-            ApplyFailure(session, ctx);
+            case UpgradeOutcome.Success:
+                ApplySuccess(ctx);
+                break;
+            case UpgradeOutcome.Failure:
+                ApplyFailure(session, ctx);
+                break;
+            case UpgradeOutcome.Fixed:
+                ApplyFixed(session, ctx);
+                break;
         }
 
         ConsumeMaterials(session, ctx, packets);
@@ -73,11 +83,11 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
             Argument = 1,
             SecondArgument = 0,
             EntityId = session.Character.CharacterId,
-            Value = (uint?)(succeeded ? SuccessAnimationValue : FailureAnimationValue),
+            Value = (uint?)AnimationValueFor(outcome),
         });
-        packets.Add(BuildResultMessage(session, succeeded));
+        packets.Add(BuildResultMessage(session, outcome));
         packets.Add(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
-        packets.AddRange(BuildPocketRefresh(ctx, succeeded));
+        packets.AddRange(BuildPocketRefresh(ctx, outcome));
 
         return packets;
     }
@@ -86,28 +96,53 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
     protected abstract UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet);
 
-    protected abstract double GetSuccessRate(UpgradeContext ctx);
-
     protected abstract void ApplySuccess(UpgradeContext ctx);
 
     protected abstract void ApplyFailure(ClientSession session, UpgradeContext ctx);
+
+    // Default Fixed handler is a no-op; subclasses that emit Fixed outcomes (EquipmentUpgrade)
+    // override this to set IsFixed on the wearable.
+    protected virtual void ApplyFixed(ClientSession session, UpgradeContext ctx) { }
 
     protected abstract Game18NConstString SuccessMessage { get; }
 
     protected abstract Game18NConstString FailureMessage { get; }
 
+    // Override only if you emit Fixed outcomes; default mirrors FailureMessage so the call-site
+    // doesn't need to special-case the absence.
+    protected virtual Game18NConstString FixedMessage => FailureMessage;
+
+    // Default 2-way roll using GetSuccessRate. Subclasses with 3-way roll bands
+    // (EquipmentUpgrade with upfix/upfail) override this directly.
+    protected virtual UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx) =>
+        roll < GetSuccessRate(ctx) ? UpgradeOutcome.Success : UpgradeOutcome.Failure;
+
+    // Convenience hook for the common 2-way case. Operations that override DetermineOutcome
+    // wholesale don't need to implement this; throw to make that explicit.
+    protected virtual double GetSuccessRate(UpgradeContext ctx) =>
+        throw new NotImplementedException("Override DetermineOutcome or GetSuccessRate.");
+
     protected virtual int SuccessAnimationValue => 1324;
 
     protected virtual int FailureAnimationValue => 1332;
 
-    protected virtual IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, bool succeeded) =>
+    // The "fix" animation is the same as failure on the wire (no special client-side art for it).
+    protected virtual int FixedAnimationValue => FailureAnimationValue;
+
+    protected virtual IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome) =>
         Enumerable.Empty<IPacket>();
 
-    // Slots that are consumed regardless of outcome (e.g. sum's target slot, cellon's stone).
-    // Default no-op; subclasses override when they have such slots.
+    // Slots that are consumed regardless of outcome (e.g. sum's target slot).
     protected virtual void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx) { }
 
     // -- Helpers ----------------------------------------------------------------
+
+    private int AnimationValueFor(UpgradeOutcome outcome) => outcome switch
+    {
+        UpgradeOutcome.Success => SuccessAnimationValue,
+        UpgradeOutcome.Fixed => FixedAnimationValue,
+        _ => FailureAnimationValue,
+    };
 
     private static bool CanAfford(ClientSession session, UpgradeContext ctx, out InfoiPacket rejection)
     {
@@ -155,11 +190,16 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
         }
     }
 
-    private SayiPacket BuildResultMessage(ClientSession session, bool succeeded) => new()
+    private SayiPacket BuildResultMessage(ClientSession session, UpgradeOutcome outcome) => new()
     {
         VisualType = VisualType.Player,
         VisualId = session.Character.CharacterId,
-        Type = succeeded ? SayColorType.Green : SayColorType.Red,
-        Message = succeeded ? SuccessMessage : FailureMessage,
+        Type = outcome == UpgradeOutcome.Success ? SayColorType.Green : SayColorType.Red,
+        Message = outcome switch
+        {
+            UpgradeOutcome.Success => SuccessMessage,
+            UpgradeOutcome.Fixed => FixedMessage,
+            _ => FailureMessage,
+        },
     };
 }

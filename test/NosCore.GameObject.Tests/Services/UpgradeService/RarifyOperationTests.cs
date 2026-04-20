@@ -24,12 +24,19 @@ using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
+    // Locks in the OpenNos-faithful rarify behavior:
+    //   - NOT a "+1" — it's a probability-band reroll where the new Rare is chosen by
+    //     walking the bands from rare8 down. The first band the roll falls into wins.
+    //   - Bands (out of 100): rare8=1, rare7=2, rare6=3, rare5=5, rare4=10, rare3=15,
+    //     rare2=30, rare1=40, rare0=60.
+    //   - Materials: Cellon (1014) × 5 + Gold 500. Protected adds Scroll (1218) × 1
+    //     which clamps the new Rare so it never drops below the original.
     [TestClass]
     public class RarifyOperationTests
     {
         private const short ArmorVNum = 1;
-        private const short RedStellarVNum = 1024;
-        private const short BlueStellarVNum = 1025;
+        private const short CellonVNum = 1014;
+        private const short ScrollVNum = 1218;
 
         private ClientSession _session = null!;
         private Mock<IRandomNumberSource> _random = null!;
@@ -50,48 +57,63 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
-        public async Task SuccessIncrementsRarityAndChargesRedStellarAndGold()
+        public async Task LowRollLandsOnHighestRareAndIsCountedAsSuccess()
         {
-            await new Spec("Successful rarify increments rarity, consumes red stellar, charges gold")
+            // Roll 0.005 → rnd=0.5 → falls in rare8 band (< 1). New Rare = 8.
+            await new Spec("Roll inside the rare8 band rarifies up to 8")
                 .Given(WearableAtRarity_, (sbyte)0)
-                .And(StellarsInInventory)
+                .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
-                .And(NextRollWillSucceed)
+                .And(NextRollWillBe_, 0.005)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
-                .Then(WearableRarityShouldBe_, (sbyte)1)
-                .And(RedStellarRemainingShouldBe_, (short)1)
-                .And(BlueStellarRemainingShouldBe_, (short)2)
-                .And(GoldShouldBe_, 95_000L)
+                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .And(CellonRemainingShouldBe_, (short)95)
+                .And(GoldShouldBe_, 99_500L)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task UnprotectedFailureResetsRarityToZero()
+        public async Task RollLandingOnLowerRareIsCountedAsFailure()
         {
-            // rarity 3 -> success rate 0.50; roll 0.95 fails -> rare reset to 0.
-            await new Spec("Unprotected failure resets rare to 0")
-                .Given(WearableAtRarity_, (sbyte)3)
-                .And(StellarsInInventory)
-                .And(CharacterHasGold_, 200_000L)
-                .And(NextRollWillFail)
+            // Roll 0.50 → rnd=50 → first band rnd<60 is rare0. New Rare = 0.
+            // Original was 5 → demoted: counts as Failure but still writes the new value.
+            await new Spec("Roll that lands on a lower rare than original demotes the wearable")
+                .Given(WearableAtRarity_, (sbyte)5)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.50)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
                 .Then(WearableRarityShouldBe_, (sbyte)0)
-                .And(RedStellarRemainingShouldBe_, (short)1)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ProtectedFailureKeepsRarityButConsumesBlueStellar()
+        public async Task ProtectedScrollClampsNewRareAtOriginal()
         {
-            await new Spec("Protected failure keeps rarity and consumes one blue stellar")
-                .Given(WearableAtRarity_, (sbyte)3)
-                .And(StellarsInInventory)
-                .And(CharacterHasGold_, 200_000L)
-                .And(NextRollWillFail)
+            // Roll 0.50 → would land on rare0; with protection the new rare is clamped
+            // to original (5). Scroll is consumed.
+            await new Spec("Protected scroll prevents rare from dropping below original")
+                .Given(WearableAtRarity_, (sbyte)5)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.50)
                 .WhenAsync(ProtectedRarifyIsExecuted)
-                .Then(WearableRarityShouldBe_, (sbyte)3)
-                .And(RedStellarRemainingShouldBe_, (short)2)
-                .And(BlueStellarRemainingShouldBe_, (short)1)
+                .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(ScrollShouldHaveBeenConsumed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ProtectedScrollStillAllowsImprovementToHigherRare()
+        {
+            // Roll 0.005 → rare8 band; protection doesn't clamp upward, only downward.
+            await new Spec("Protected scroll still allows the rare to improve")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.005)
+                .WhenAsync(ProtectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)8)
                 .ExecuteAsync();
         }
 
@@ -100,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await new Spec("Rarify at +8 cap is rejected with no charges")
                 .Given(WearableAtRarity_, (sbyte)8)
-                .And(StellarsInInventory)
+                .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
                 .Then(NoPacketsShouldHaveBeenReturned)
@@ -111,13 +133,24 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task NegativeRarityIsRejectedSilently()
         {
-            // Items can have negative rarity (cursed) — those aren't rarifiable.
-            await new Spec("Rarify on negative-rarity item is rejected")
+            await new Spec("Cursed (negative-rarity) item cannot be rarified")
                 .Given(WearableAtRarity_, (sbyte)-1)
-                .And(StellarsInInventory)
+                .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
                 .Then(NoPacketsShouldHaveBeenReturned)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ProtectedWithoutScrollIsRejected()
+        {
+            await new Spec("Protected rarify with no scroll in inventory rejects with InfoiPacket")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(CellonInInventoryNoScroll)
+                .And(CharacterHasGold_, 100_000L)
+                .WhenAsync(ProtectedRarifyIsExecuted)
+                .Then(SingleRejectionPacketShouldBeReturned)
                 .ExecuteAsync();
         }
 
@@ -137,28 +170,27 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _session.Character.InventoryService[_wearable.ItemInstanceId] = _wearable;
         }
 
-        private void StellarsInInventory()
+        private void MaterialsInInventory()
         {
-            var red = InventoryItemInstance.Create(
-                new ItemInstanceForTest(RedStellarVNum) { Amount = 2 },
-                _session.Character.CharacterId);
-            red.Slot = 0;
-            red.Type = NoscorePocketType.Main;
-            _session.Character.InventoryService[red.ItemInstanceId] = red;
+            AddStack(CellonVNum, 100, slot: 0);
+            AddStack(ScrollVNum, 5, slot: 1);
+        }
 
-            var blue = InventoryItemInstance.Create(
-                new ItemInstanceForTest(BlueStellarVNum) { Amount = 2 },
+        private void CellonInInventoryNoScroll() => AddStack(CellonVNum, 100, slot: 0);
+
+        private void AddStack(short vnum, short amount, short slot)
+        {
+            var inst = InventoryItemInstance.Create(
+                new ItemInstanceForTest(vnum) { Amount = amount },
                 _session.Character.CharacterId);
-            blue.Slot = 1;
-            blue.Type = NoscorePocketType.Main;
-            _session.Character.InventoryService[blue.ItemInstanceId] = blue;
+            inst.Slot = slot;
+            inst.Type = NoscorePocketType.Main;
+            _session.Character.InventoryService[inst.ItemInstanceId] = inst;
         }
 
         private void CharacterHasGold_(long gold) => _session.Character.Gold = gold;
 
-        private void NextRollWillSucceed() => _random.Setup(r => r.NextDouble()).Returns(0.0);
-
-        private void NextRollWillFail() => _random.Setup(r => r.NextDouble()).Returns(0.95);
+        private void NextRollWillBe_(double roll) => _random.Setup(r => r.NextDouble()).Returns(roll);
 
         // --- Whens ---
 
@@ -181,17 +213,18 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
                 .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Rare);
 
-        private void RedStellarRemainingShouldBe_(short expected) =>
-            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(RedStellarVNum));
+        private void CellonRemainingShouldBe_(short expected) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));
 
-        private void BlueStellarRemainingShouldBe_(short expected) =>
-            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(BlueStellarVNum));
+        private void ScrollShouldHaveBeenConsumed() =>
+            Assert.AreEqual(4, _session.Character.InventoryService.CountItem(ScrollVNum));
 
         private void GoldShouldBe_(long expected) => Assert.AreEqual(expected, _session.Character.Gold);
 
         private void NoPacketsShouldHaveBeenReturned() => Assert.AreEqual(0, _result?.Count ?? 0);
 
-        // Tiny stand-in so we don't need the full ItemGenerationService just to put a stack of stellars in inventory.
+        private void SingleRejectionPacketShouldBeReturned() => Assert.AreEqual(1, _result?.Count ?? 0);
+
         private sealed class ItemInstanceForTest(short vnum) : NosCore.Data.Dto.ItemInstanceDto, IItemInstance
         {
             public new Guid Id { get; set; } = Guid.NewGuid();

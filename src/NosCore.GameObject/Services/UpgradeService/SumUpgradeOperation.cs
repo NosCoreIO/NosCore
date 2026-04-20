@@ -117,11 +117,11 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
         session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Target!.ItemInstanceId);
     }
 
-    protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, bool succeeded)
+    protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
         yield return ((InventoryItemInstance?)null).GeneratePocketChange(
             (PocketType)ctx.Target!.Type, ctx.Target.Slot);
-        yield return succeeded
+        yield return outcome == UpgradeOutcome.Success
             ? ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot)
             : ((InventoryItemInstance?)null).GeneratePocketChange(
                 (PocketType)ctx.Source.Type, ctx.Source.Slot);
