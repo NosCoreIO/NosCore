@@ -6,28 +6,33 @@
 
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 
 namespace NosCore.PacketHandlers.Game
 {
-    // Handles the client req_info packet (right-click on a player/npc/mate to open the
-    // info card). Mirrors OpenNos's BasicPacketHandler.ReqInfo:
+    // Handles the client req_info packet (right-click on a player/npc/monster/mate to open
+    // the info card). Mirrors OpenNos's BasicPacketHandler.ReqInfo but adapted for the
+    // wire shape NosCore's client actually emits (observed from a live session):
     //
-    //   case PlayerInfo (1)  -> reply with tc_info built from the targeted player
-    //   case NpcInfo (5)     -> reply with e_info 10 ... for the npc monster
-    //   case MateInfo (6)    -> reply with e_info 10 ... for the mate
+    //   req_info 1 <characterId>              -> tc_info for the targeted player
+    //   req_info 5 <npcMonsterVNum>           -> e_info for the npc template (OpenNos stock)
+    //   req_info 6 <visualType> <visualId>    -> e_info for the npc/monster on the map
     //
-    // NpcInfo and MateInfo share the same 26-field e_info subtype-10 layout in OpenNos
-    // (EInfoNpcMonsterPacket from NosCore.Packets). The mate subsystem isn't wired in
-    // NosCore yet, so MateInfo is logged at Debug and no-ops until a character's runtime
-    // mate list exists.
+    // NosCore.Packets parses the type-6 wire layout into (ReqType=6, TargetVNum=visualType,
+    // MateVNum=visualId) — the field names are misleading; "TargetVNum" is actually the
+    // VisualType discriminator (1/2/3/…) and "MateVNum" is the VisualId. OpenNos stock
+    // only supports mates under type 6, but the NosCore client reuses 6 for any entity,
+    // so we dispatch on VisualType and use the same EInfoNpcMonsterPacket shape for both
+    // NPCs and monsters (they share the NpcMonsterDto template).
     public sealed class ReqInfoPacketHandler(ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry)
@@ -54,15 +59,49 @@ namespace NosCore.PacketHandlers.Game
                     return;
 
                 case ReqInfoType.MateInfo:
-                    // No runtime Mates collection on ICharacterEntity yet; skip quietly
-                    // instead of spamming WARN until the mate subsystem lands.
-                    logger.Debug("req_info MateInfo received for {Target} but mate subsystem is not wired", packet.TargetVNum);
+                    await HandleEntityInfoAsync(packet, session);
                     return;
 
                 default:
                     logger.Warning(logLanguage[LogLanguageKey.UNHANDLED_REQINFO_TYPE], packet.ReqType);
                     return;
             }
+        }
+
+        // Type 6: `req_info 6 <visualType> <visualId>`. TargetVNum carries the visual-type
+        // discriminator; MateVNum carries the VisualId of the clicked entity. Look up the
+        // template based on visual type and emit e_info.
+        private async Task HandleEntityInfoAsync(ReqInfoPacket packet, ClientSession session)
+        {
+            if (!packet.MateVNum.HasValue)
+            {
+                return;
+            }
+
+            var visualType = (VisualType)(int)packet.TargetVNum;
+            var visualId = packet.MateVNum.Value;
+            NpcMonsterDto? template = null;
+            switch (visualType)
+            {
+                case VisualType.Npc:
+                    var npcLookup = session.Character.MapInstance.FindNpc(n => n.VisualId == visualId);
+                    template = npcLookup?.NpcMonster;
+                    break;
+                case VisualType.Monster:
+                    var monsterLookup = session.Character.MapInstance.FindMonster(m => m.VisualId == visualId);
+                    template = monsterLookup?.NpcMonster;
+                    break;
+                default:
+                    logger.Debug("req_info 6 for unsupported visualType={VisualType} visualId={VisualId}", visualType, visualId);
+                    return;
+            }
+
+            if (template is null)
+            {
+                return;
+            }
+
+            await session.SendPacketAsync(template.GenerateNpcInfo(session.Character.AccountLanguage));
         }
     }
 }

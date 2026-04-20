@@ -26,8 +26,8 @@
     <PackageReference Include="Autofac" Version="9.1.0" />
     <PackageReference Include="BCrypt.Net-Core" Version="1.6.0" />
     <PackageReference Include="FastExpressionCompiler" Version="5.4.1" />
-    <PackageReference Include="JsonPatch.Net" Version="4.0.1" />
-    <PackageReference Include="Mapster" Version="7.4.0" />
+    <PackageReference Include="JsonPatch.Net" Version="5.0.2" />
+    <PackageReference Include="Mapster" Version="10.0.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
@@ -39,7 +39,7 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.0" />
     <PackageReference Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.15.0-beta.1" />
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.0" />
-    <PackageReference Include="NosCore.Dao" Version="4.0.4" />
+    <PackageReference Include="NosCore.Dao" Version="4.0.5" />
     <PackageReference Include="NosCore.Networking" Version="7.0.0" />
     <PackageReference Include="NosCore.PathFinder" Version="2.1.0" />
     <PackageReference Include="NosCore.Shared" Version="6.0.0" />
