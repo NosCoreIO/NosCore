@@ -85,8 +85,14 @@ namespace NosCore.GameObject.Services.BattleService
                 return;
             }
 
+            // Order matters: OpenNos ships stat-to-target BEFORE the SuPacket so the
+            // client HUD bar settles to the new HP before the damage floater animates.
+            // Swapping the order makes the bar appear "frozen" even though the packet
+            // arrived — the client paints the floater first, re-reads its cached HP
+            // for the bar, then finally applies the stat update out-of-band.
+            await SendTargetStatAsync(target).ConfigureAwait(false);
             await BroadcastHitAsync(origin, target, skill, outcome).ConfigureAwait(false);
-            await BroadcastStatusAsync(target).ConfigureAwait(false);
+            await BroadcastTargetInfoAsync(target).ConfigureAwait(false);
             await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed)).ConfigureAwait(false);
 
             if (outcome.Killed)
@@ -108,24 +114,29 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // Two packets refresh the UI after a hit:
-        //   * StPacket broadcast — the selected-target portrait at the top of every
-        //     client's screen reads off `st`. SuPacket's HpPercentage animates the
-        //     damage float but doesn't reliably update the portrait for monster
-        //     targets (empirically the bar stays frozen at 100/100 until the player
-        //     re-selects the mob). Broadcasting st to the map keeps every spectator
-        //     who has this target selected in sync.
-        //   * StatPacket unicast — the attacked character's own top-left HP/MP HUD
-        //     is driven by `stat`, matching OpenNos TargetHit's
-        //     `Broadcast(null, GenerateStat(), OnlySomeone, Target)`.
-        private static async Task BroadcastStatusAsync(IAliveEntity target)
+        // The attacked character's own top-left HP/MP HUD reads off `stat`. OpenNos
+        // emits this unicast to just the target (`ReceiverType.OnlySomeone`) BEFORE
+        // the SuPacket — BattleEntity.TargetHit builds GenerateStat, broadcasts it to
+        // only the target, then broadcasts SuPacket to the whole map. We mirror that
+        // order so the client settles the bar before animating damage.
+        private static Task SendTargetStatAsync(IAliveEntity target)
         {
-            if (target.MapInstance == null) return;
-            await target.MapInstance.SendPacketAsync(target.GenerateStatInfo()).ConfigureAwait(false);
             if (target is PlayerComponentBundle player)
             {
-                await player.SendPacketAsync(player.GenerateStat()).ConfigureAwait(false);
+                return player.SendPacketAsync(player.GenerateStat());
             }
+            return Task.CompletedTask;
+        }
+
+        // StPacket broadcast — the selected-target portrait at the top of every
+        // client's screen reads off `st`. SuPacket's HpPercentage animates the damage
+        // floater but doesn't reliably update the target portrait for monsters (the
+        // bar stays at 100/100 until the player re-selects). Broadcasting `st` after
+        // the hit keeps every spectator who has this target selected in sync.
+        private static Task BroadcastTargetInfoAsync(IAliveEntity target)
+        {
+            if (target.MapInstance == null) return Task.CompletedTask;
+            return target.MapInstance.SendPacketAsync(target.GenerateStatInfo());
         }
 
         private static Task BroadcastHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, HitOutcome outcome)
