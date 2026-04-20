@@ -8,9 +8,10 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
@@ -19,24 +20,24 @@ using NosCore.Shared.Helpers;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class TeleporterHandler(IMapChangeService mapChangeService)
+    public sealed class TeleporterHandler(IMapChangeService mapChangeService) : INrunEventHandler
     {
-        [UsedImplicitly]
-        public Task Handle(NrunRequestedEvent evt)
+        public NrunRunnerType Runner => NrunRunnerType.Teleport;
+
+        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (evt.Packet.Runner != NrunRunnerType.Teleport
-                || evt.Target is not NpcComponentBundle mapNpc
+            if (target is not NpcComponentBundle mapNpc
                 || !((mapNpc.Dialog >= 439 && mapNpc.Dialog <= 441) || mapNpc.Dialog == 11
                     || mapNpc.Dialog == 16 || mapNpc.Dialog == 9768))
             {
                 return Task.CompletedTask;
             }
 
-            return evt.Packet.Type switch
+            return packet.Type switch
             {
-                1 => RemoveGoldAndTeleportAsync(evt.ClientSession, 20, 1000, 7, 11, 90, 94),
-                2 => RemoveGoldAndTeleportAsync(evt.ClientSession, 145, 2000, 11, 15, 108, 112),
-                _ => RemoveGoldAndTeleportAsync(evt.ClientSession, 1, 0, 77, 82, 113, 119),
+                1 => RemoveGoldAndTeleportAsync(session, 20, 1000, 7, 11, 90, 94),
+                2 => RemoveGoldAndTeleportAsync(session, 145, 2000, 11, 15, 108, 112),
+                _ => RemoveGoldAndTeleportAsync(session, 1, 0, 77, 82, 113, 119),
             };
         }
 

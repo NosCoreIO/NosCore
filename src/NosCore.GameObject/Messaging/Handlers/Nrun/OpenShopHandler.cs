@@ -8,7 +8,9 @@ using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using Serilog;
@@ -16,27 +18,28 @@ using Serilog;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class OpenShopHandler(ILogger logger)
+    public sealed class OpenShopHandler(ILogger logger) : INrunEventHandler
     {
-        [UsedImplicitly]
-        public Task Handle(NrunRequestedEvent evt)
+        public NrunRunnerType Runner => NrunRunnerType.ProbabilityUIs;
+
+        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (evt.Packet.Runner != NrunRunnerType.ProbabilityUIs || evt.Target is not NpcComponentBundle)
+            if (target is not NpcComponentBundle npc)
             {
                 return Task.CompletedTask;
             }
 
-            var raw = (byte)(evt.Packet.Type ?? 0);
+            var raw = (byte)(packet.Type ?? 0);
             if (!Enum.IsDefined(typeof(WindowType), raw))
             {
                 logger.Warning(
                     "n_run ProbabilityUIs requested unknown WindowType={Raw} (NPC visualId={VisualId}); extend WindowType or add a mapping",
                     raw,
-                    evt.Target is NpcComponentBundle npc ? npc.VisualId : 0L);
+                    npc.VisualId);
                 return Task.CompletedTask;
             }
 
-            return evt.ClientSession.SendPacketAsync(new WopenPacket
+            return session.SendPacketAsync(new WopenPacket
             {
                 Type = (WindowType)raw,
             });

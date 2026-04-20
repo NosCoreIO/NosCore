@@ -5,38 +5,24 @@
 //
 
 using System.Threading.Tasks;
-using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Infastructure;
+using JetBrains.Annotations;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Serilog;
 
-namespace NosCore.PacketHandlers.Game
+namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
-    public sealed class NRunPacketHandler(
-            ILogger logger,
-            IRespawnService respawnService)
-        : PacketHandler<NrunPacket>, IWorldPacketHandler
+    [UsedImplicitly]
+    public sealed class SetPlaceOfRevivalHandler(IRespawnService respawnService) : INrunEventHandler
     {
-        public override async Task ExecuteAsync(NrunPacket packet, ClientSession session)
-        {
-            switch (packet.Runner)
-            {
-                case NrunRunnerType.SetPlaceOfRevival:
-                    await HandleSetPlaceOfRevivalAsync(packet, session).ConfigureAwait(false);
-                    return;
+        public NrunRunnerType Runner => NrunRunnerType.SetPlaceOfRevival;
 
-                default:
-                    logger.Debug("Unhandled n_run runner {Runner}", packet.Runner);
-                    return;
-            }
-        }
-
-        private async Task HandleSetPlaceOfRevivalAsync(NrunPacket packet, ClientSession session)
+        public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             if (packet.Type == 2)
             {
@@ -55,23 +41,15 @@ namespace NosCore.PacketHandlers.Game
             }
 
             var character = session.Character;
-            if (packet.VisualType != VisualType.Npc
-                || !packet.VisualId.HasValue
-                || character.MapInstance == null)
-            {
-                return;
-            }
-
-            var npc = character.MapInstance.FindNpc(n => n.VisualId == packet.VisualId.Value);
-            if (npc is null)
+            if (target is not NpcComponentBundle npc || character.MapInstance == null)
             {
                 return;
             }
 
             respawnService.SetRespawnPoint(character, character.MapInstance.Map.MapId,
-                npc.Value.PositionX, npc.Value.PositionY);
+                npc.PositionX, npc.PositionY);
 
-#pragma warning disable CS0618 // MsgPacket is obsolete; msgi replacement blocked on a Game18NConstString for RESPAWNLOCATION_CHANGED.
+#pragma warning disable CS0618
             await session.SendPacketAsync(new MsgPacket
             {
                 Type = MessageType.Default,
