@@ -21,6 +21,12 @@ namespace NosCore.GameObject.Messaging
             return builder.UseWolverine(opts =>
             {
                 opts.ServiceName = serviceName;
+                // Disable conventional handler discovery — Wolverine otherwise crawls every
+                // loaded assembly looking for handlers and IWolverineExtension impls, which
+                // produces a flood of "To disable automatic Wolverine extension finding..."
+                // notices for native runtime DLLs (sni.dll, System.Data.SqlClient, etc.).
+                // We then explicitly include only the assemblies that actually carry handlers.
+                opts.Discovery.DisableConventionalDiscovery();
                 opts.Discovery.IncludeAssembly(typeof(WolverineHostExtensions).Assembly);
                 foreach (var asm in handlerAssemblies)
                 {
