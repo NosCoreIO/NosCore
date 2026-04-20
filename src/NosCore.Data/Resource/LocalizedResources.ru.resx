@@ -549,4 +549,7 @@
   <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
     <value>Соединение PubSub остановлено.</value>
   </data>
+  <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
+    <value>Неизвестный тип req_info: {0}</value>
+  </data>
 </root>

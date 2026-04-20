@@ -153,6 +153,7 @@ namespace NosCore.Data.Enumerations.I18N
         PUBSUB_CONNECTION_CLOSED,
         PUBSUB_CONNECTION_STARTED,
         PUBSUB_CONNECTION_STOPPED,
+        UNHANDLED_REQINFO_TYPE,
     }
 
     [SuppressMessage("ReSharper", "InconsistentNaming")]

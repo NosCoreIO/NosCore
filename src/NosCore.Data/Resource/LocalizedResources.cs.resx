@@ -524,4 +524,7 @@
   <data name="PUBSUB_CONNECTION_STOPPED" xml:space="preserve">
     <value>Připojení PubSub zastaveno.</value>
   </data>
+  <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
+    <value>Neznámý typ req_info: {0}</value>
+  </data>
 </root>
