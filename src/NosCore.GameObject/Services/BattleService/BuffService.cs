@@ -124,12 +124,12 @@ public sealed class BuffService(IClock clock) : IBuffService
         return buffs != null && buffs.ContainsKey(cardId);
     }
 
-    public Task<IReadOnlyList<BuffInstance>> TickAsync(IAliveEntity target)
+    public async Task<IReadOnlyList<BuffInstance>> TickAsync(IAliveEntity target)
     {
         var buffs = ResolveState(target);
         if (buffs == null || buffs.IsEmpty)
         {
-            return Task.FromResult(EmptyExpired);
+            return EmptyExpired;
         }
 
         var now = clock.GetCurrentInstant();
@@ -142,7 +142,23 @@ public sealed class BuffService(IClock clock) : IBuffService
             }
         }
 
-        return Task.FromResult<IReadOnlyList<BuffInstance>>(expired);
+        // Notify the client for each expired card so icons disappear from the HUD.
+        // BfePacket is unicast to the target's map since the effect was map-visible
+        // (BfPacket is broadcast the same way on apply).
+        if (expired.Count > 0 && target.MapInstance != null)
+        {
+            foreach (var buff in expired)
+            {
+                await target.MapInstance.SendPacketAsync(new BfePacket
+                {
+                    VisualType = target.VisualType,
+                    VisualId = target.VisualId,
+                    CardId = buff.CardId,
+                }).ConfigureAwait(false);
+            }
+        }
+
+        return expired;
     }
 
     // BuffStateComponent lives on the target's ECS world; walking through the bundle
