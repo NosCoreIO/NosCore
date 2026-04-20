@@ -19,6 +19,7 @@ using NosCore.PacketHandlers.Game;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Player;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;

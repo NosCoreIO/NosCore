@@ -18,7 +18,7 @@ namespace NosCore.GameObject.Services.SkillService
     {
         public async Task LoadSkill(ICharacterEntity character)
         {
-            var characterSkills = characterSkillDao.Where(x => x.CharacterId == character.VisualId).Adapt<List<CharacterSkill>>();
+            var characterSkills = characterSkillDao.Where(x => x.CharacterId == character.VisualId).Adapt<List<CharacterSkill>>() ?? new List<CharacterSkill>();
             var skillToUse = skills.Where(x => characterSkills.Select(s => s.SkillVNum).Contains(x.SkillVNum));
             character.Skills.Clear();
             foreach (var characterSkill in characterSkills)
