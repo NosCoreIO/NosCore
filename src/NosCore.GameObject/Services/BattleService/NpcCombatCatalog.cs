@@ -8,13 +8,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Infastructure;
 
 namespace NosCore.GameObject.Services.BattleService;
 
 // Immutable lookup tables built once at construction. NosCore.Data keeps the
 // navigation collections internal, so bootstrap pulls the rows out of their DAOs and
 // hands us flat lists which we bucket by foreign-key vnum.
-public sealed class NpcCombatCatalog : INpcCombatCatalog
+public sealed class NpcCombatCatalog : INpcCombatCatalog, ISingletonService
 {
     private static readonly IReadOnlyList<NpcMonsterSkillDto> EmptyNpcSkills = Array.Empty<NpcMonsterSkillDto>();
     private static readonly IReadOnlyList<DropDto> EmptyDrops = Array.Empty<DropDto>();

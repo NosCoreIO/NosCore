@@ -4,19 +4,19 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NosCore.Core;
 using NosCore.Core.Services.IdService;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Services.PathfindingService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.PathFinder.Heuristic;
@@ -72,22 +72,37 @@ public static class WolverineDependencyRegistrar
             services.AddSingleton(hubType);
         }
 
-        // Combat pipeline. Catalog, HitQueue, AggroService, BuffService and the AI
-        // hold per-map or per-target state — all singletons. Damage/skill/target
-        // resolvers and the battle orchestrator are stateless so transient is fine
-        // and avoids accidentally sharing a partial cast's state between handlers.
-        services.AddSingleton<IRandomProvider, RandomProvider>();
-        services.AddSingleton<INpcCombatCatalog, NpcCombatCatalog>();
-        services.AddSingleton<IHitQueue, HitQueue>();
-        services.AddSingleton<IAggroService, AggroService>();
-        services.AddSingleton<IBuffService, BuffService>();
-        services.AddSingleton<IPathfindingService, PathfindingService>();
-        services.AddSingleton<IMonsterAi, MonsterAi>();
-        services.AddTransient<IDamageCalculator, DamageCalculator>();
-        services.AddTransient<ISkillResolver, SkillResolver>();
-        services.AddTransient<ITargetResolver, TargetResolver>();
-        services.AddTransient<IBattleStatsProvider, BattleStatsProvider>();
-        services.AddTransient<IRewardService, RewardService>();
-        services.AddTransient<IBattleService, BattleService>();
+        // Convention-based scan for the rest of the game-object services. Naming
+        // tells us WHAT a class is, not HOW to resolve it — so lifetime comes from
+        // the ISingletonService marker interface (implemented by classes that own
+        // shared state: caches, queues, per-entity maps). Everything else is
+        // transient so short-lived handlers don't accidentally share mutable state.
+        //
+        // Matched suffixes cover the vocabulary we actually use across the codebase:
+        // *Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai.
+        // New classes can add a suffix here if they want auto-discovery, or they
+        // can be registered explicitly above.
+        var suffixes = new[] { "Service", "Provider", "Resolver", "Calculator", "Catalog", "Queue", "Ai" };
+        var gameObjectAssembly = typeof(WolverineDependencyRegistrar).Assembly;
+        foreach (var impl in gameObjectAssembly.GetTypes()
+            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
+            .Where(t => suffixes.Any(suffix => t.Name.EndsWith(suffix))))
+        {
+            var lifetime = typeof(ISingletonService).IsAssignableFrom(impl)
+                ? ServiceLifetime.Singleton
+                : ServiceLifetime.Transient;
+
+            foreach (var iface in impl.GetInterfaces()
+                .Where(i => i != typeof(ISingletonService) && !IsSystemInterface(i)))
+            {
+                services.Add(new ServiceDescriptor(iface, impl, lifetime));
+            }
+            services.Add(new ServiceDescriptor(impl, impl, lifetime));
+        }
     }
+
+    // Filter out framework interfaces (IDisposable, IAsyncDisposable, IEquatable, …)
+    // so the scan only registers domain-facing contracts.
+    private static bool IsSystemInterface(Type iface)
+        => iface.Namespace?.StartsWith("System", StringComparison.Ordinal) == true;
 }

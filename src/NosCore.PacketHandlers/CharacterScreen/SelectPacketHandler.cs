@@ -115,6 +115,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var maxMp = (int)mpService.GetMp(characterDto.Class, characterDto.Level);
                 var authority = clientSession.Account.Authority;
 
+                // OpenNos behaviour: if the character was persisted with 0 HP (died right
+                // before disconnect / crash / save-on-death) come back at 1 HP instead of
+                // a zombie-alive state. Without this the client loads the corpse pose,
+                // can't move, and the revive flow never fires because the server never
+                // considered them "killed this session".
+                var loadedHp = characterDto.Hp > 0 ? characterDto.Hp : 1;
+                var loadedMp = characterDto.Mp > 0 ? characterDto.Mp : 1;
+
                 var playerEntity = mapInstance.EcsWorld.CreatePlayer(
                     (int)characterId,
                     characterId,
@@ -124,9 +132,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     characterDto.MapX,
                     characterDto.MapY,
                     2,
-                    characterDto.Hp,
+                    loadedHp,
                     maxHp,
-                    characterDto.Mp,
+                    loadedMp,
                     maxMp,
                     characterDto.Level,
                     characterDto.LevelXp,

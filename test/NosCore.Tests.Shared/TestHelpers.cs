@@ -254,7 +254,8 @@ namespace NosCore.Tests.Shared
                 MapMonsterDao, PortalDao, ShopItemDao, Logger,
                 mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, SessionGroupFactory, SessionRegistry, GenerateItemProvider(), Instance.DistanceCalculator,
                 new Mock<NosCore.GameObject.Services.BattleService.IMonsterAi>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IRegenerationService>().Object);
             await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, Logger, Clock, mapChangeService, SessionGroupFactory, SessionRegistry, Instance.DistanceCalculator));

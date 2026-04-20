@@ -253,8 +253,10 @@ namespace NosCore.WorldServer
                     // in IServiceCollection — Autofac populates from it — keeps Wolverine
                     // codegen and Autofac runtime resolution on the same view of the world.
 
-                    foreach (var implType in new[] { typeof(IInventoryService).Assembly, typeof(IExperienceService).Assembly }
-                                 .SelectMany(a => a.GetTypes())
+                    // Scan the Algorithm package for *Service classes. GameObject-side
+                    // *Service/*Queue/*Ai/etc. are handled by the registrar below
+                    // with lifetime driven off the ISingletonService marker.
+                    foreach (var implType in typeof(IExperienceService).Assembly.GetTypes()
                                  .Where(t => t.Name.EndsWith("Service") && t.IsClass && !t.IsAbstract))
                     {
                         foreach (var iface in implType.GetInterfaces())

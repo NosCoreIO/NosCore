@@ -15,6 +15,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.PathfindingService;
 using NosCore.Networking;
@@ -44,7 +45,7 @@ public sealed class MonsterAi(
     INpcCombatCatalog catalog,
     IRandomProvider random,
     IClock clock,
-    ILogger logger) : IMonsterAi
+    ILogger logger) : IMonsterAi, ISingletonService
 {
     // Cached path per monster entity — invalidated when the target moves far enough
     // that JPS's result is no longer useful.

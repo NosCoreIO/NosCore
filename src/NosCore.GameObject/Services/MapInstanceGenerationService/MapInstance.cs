@@ -61,13 +61,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IHeuristic _distanceCalculator;
         private readonly IMonsterAi? _monsterAi;
         private readonly IBuffService? _buffService;
+        private readonly IRegenerationService? _regenerationService;
 
         public MapWorld EcsWorld { get; }
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
-            IMonsterAi? monsterAi = null, IBuffService? buffService = null)
+            IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -91,6 +92,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _distanceCalculator = distanceCalculator;
             _monsterAi = monsterAi;
             _buffService = buffService;
+            _regenerationService = regenerationService;
             EcsWorld = new MapWorld();
         }
 
@@ -413,6 +415,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 await _buffService.TickAsync(session.Character).ConfigureAwait(false);
                             }
                         }
+                    }
+
+                    // HP/MP regen for connected players on this map — matches OpenNos
+                    // Character regen block (sitting 1.5s cadence, standing 2s). The
+                    // service throttles internally so calling each 400ms tick is safe.
+                    if (_regenerationService != null)
+                    {
+                        await _regenerationService.TickAsync(this).ConfigureAwait(false);
                     }
                 }
                 catch (Exception e)

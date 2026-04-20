@@ -12,6 +12,7 @@ using Arch.Core;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Enumerations;
 using Serilog;
 
@@ -28,7 +29,7 @@ public sealed class HitQueue(
     IDamageCalculator damageCalculator,
     IBattleStatsProvider statsProvider,
     IBuffService buffService,
-    ILogger logger) : IHitQueue
+    ILogger logger) : IHitQueue, ISingletonService
 {
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
 

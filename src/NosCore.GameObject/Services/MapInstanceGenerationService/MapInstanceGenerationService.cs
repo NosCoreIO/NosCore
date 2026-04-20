@@ -39,7 +39,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator,
             NosCore.GameObject.Services.BattleService.IMonsterAi monsterAi,
-            NosCore.GameObject.Services.BattleService.IBuffService buffService)
+            NosCore.GameObject.Services.BattleService.IBuffService buffService,
+            NosCore.GameObject.Services.BattleService.IRegenerationService regenerationService)
         : IMapInstanceGeneratorService
     {
         public Task AddMapInstanceAsync(MapInstance mapInstance)
@@ -123,7 +124,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
             return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock,
-                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, monsterAi, buffService);
+                mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, monsterAi, buffService, regenerationService);
         }
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)

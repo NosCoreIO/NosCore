@@ -7,6 +7,8 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -84,6 +86,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await BroadcastHitAsync(origin, target, skill, outcome).ConfigureAwait(false);
+            await BroadcastStatusAsync(target).ConfigureAwait(false);
             await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed)).ConfigureAwait(false);
 
             if (outcome.Killed)
@@ -103,6 +106,19 @@ namespace NosCore.GameObject.Services.BattleService
                 }
                 await messageBus.PublishAsync(new EntityDiedEvent(target, origin)).ConfigureAwait(false);
             }
+        }
+
+        // Matches OpenNos TargetHit: the target bar HP % refreshes off the SuPacket
+        // that was already broadcast; we just need to push a fresh StatPacket to the
+        // target character so their personal HUD bar (top-left HP/MP) tracks damage
+        // in real time. No extra `st` broadcast — OpenNos doesn't send one after hits.
+        private static Task BroadcastStatusAsync(IAliveEntity target)
+        {
+            if (target is PlayerComponentBundle player)
+            {
+                return player.SendPacketAsync(player.GenerateStat());
+            }
+            return Task.CompletedTask;
         }
 
         private static Task BroadcastHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, HitOutcome outcome)
