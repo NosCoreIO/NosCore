@@ -113,8 +113,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 TestHelpers.Instance.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
-                    new HuntQuestHandler(),
-                    new NumberOfKillQuestHandler(),
+                    new HuntQuestHandler(TestHelpers.Instance.Clock),
+                    new NumberOfKillQuestHandler(TestHelpers.Instance.Clock),
                     new GoToQuestHandler(),
                 });
         }
@@ -209,6 +209,26 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             await new Spec("Validate non-existent quest should fail")
                 .WhenAsync(ValidatingNonExistentQuest)
                 .Then(ValidationShouldFail)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingRequiredMobsShouldCompleteHuntQuest()
+        {
+            await new Spec("Killing the last required mob should mark quest CompletedOn")
+                .Given(CharacterHasHuntQuestWithOneKillRemaining)
+                .WhenAsync(KillingTheRequiredMob)
+                .Then(QuestShouldBeMarkedCompleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingEarlyMobsShouldNotCompleteHuntQuest()
+        {
+            await new Spec("Killing a mob before target count should not complete quest")
+                .Given(CharacterHasHuntQuestNeedingFiveKills)
+                .WhenAsync(KillingOneMob)
+                .Then(QuestShouldStillBeIncomplete)
                 .ExecuteAsync();
         }
 
@@ -378,6 +398,76 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void ValidationShouldFail()
         {
             Assert.IsFalse(ValidateResult);
+        }
+
+        private CharacterQuest _trackedQuest = null!;
+        private const short TargetMobVNum = 42;
+
+        private void CharacterHasHuntQuestWithOneKillRemaining()
+        {
+            var objective = new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(),
+                FirstData = TargetMobVNum,
+                SecondData = 5
+            };
+            var quest = new Quest
+            {
+                QuestId = 10,
+                QuestType = QuestType.Hunt,
+                QuestObjectives = new List<QuestObjectiveDto> { objective }
+            };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 10,
+                Quest = quest,
+                CompletedOn = null
+            };
+            _trackedQuest.ObjectiveProgress[objective.QuestObjectiveId] = 4;
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private void CharacterHasHuntQuestNeedingFiveKills()
+        {
+            var objective = new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(),
+                FirstData = TargetMobVNum,
+                SecondData = 5
+            };
+            var quest = new Quest
+            {
+                QuestId = 11,
+                QuestType = QuestType.Hunt,
+                QuestObjectives = new List<QuestObjectiveDto> { objective }
+            };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 11,
+                Quest = quest,
+                CompletedOn = null
+            };
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private async Task KillingTheRequiredMob()
+        {
+            await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
+        }
+
+        private async Task KillingOneMob()
+        {
+            await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
+        }
+
+        private void QuestShouldBeMarkedCompleted()
+        {
+            Assert.IsNotNull(_trackedQuest.CompletedOn);
+        }
+
+        private void QuestShouldStillBeIncomplete()
+        {
+            Assert.IsNull(_trackedQuest.CompletedOn);
         }
     }
 }
