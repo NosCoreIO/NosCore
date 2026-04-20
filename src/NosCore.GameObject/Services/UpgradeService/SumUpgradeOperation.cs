@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -19,22 +20,30 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
-// Sum upgrade combines two wearable items: the new upgrade level becomes
-// (source.Upgrade + target.Upgrade + 1) on success. Combined upgrade must stay below 6 —
-// anything higher would land at 7+ which the game caps. The four elemental resistances of
-// source and target are summed when the operation succeeds. Target is consumed either way;
-// source is destroyed on failure. Sand (vnum 1027) and gold are charged regardless.
+// Sum upgrade combines two wearables into one with combined upgrade level + summed
+// elemental resistances. Modeled on OpenNos's WearableInstance.Sum (lines 609-665).
+//
+// Slot restriction: both items must occupy the SAME equipment slot AND that slot must be
+// Boots or Gloves — those are the only equipment types Nostale lets you sum-resist on.
+//
+// Cost tables are indexed by source.Upgrade (NOT combined level — that's the success-rate
+// table). Numbers ported from OpenNos:
+//   upsuccess[combined]: { 100, 100, 85, 70, 50, 20 }
+//   goldprice[source]:   { 1500, 3000, 6000, 12000, 24000, 48000 }
+//   sand[source]:        { 5, 10, 15, 20, 25, 30 }
+//
+// On success: source.Upgrade += target.Upgrade + 1; resistances are summed.
+// On failure: BOTH source and target are destroyed.
+// Sand and gold are charged regardless.
 [UsedImplicitly]
 public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
     : UpgradeOperation(random, localizer)
 {
     public const short SandVNum = 1027;
 
-    // Index by source.Upgrade + target.Upgrade. Combined level >= 6 is rejected upfront.
-    // Numbers from the legacy server config; if you tune these update SumUpgradeOperationTests.
-    private static readonly double[] SuccessRateByLevelSum = { 1.00, 1.00, 0.90, 0.80, 0.50, 0.20 };
-    private static readonly long[] GoldCostByLevelSum = { 500, 1500, 3000, 6000, 12000, 24000 };
-    private static readonly short[] SandCostByLevelSum = { 1, 2, 3, 4, 5, 6 };
+    private static readonly double[] SuccessRateByCombinedLevel = { 1.00, 1.00, 0.85, 0.70, 0.50, 0.20 };
+    private static readonly long[] GoldCostBySourceLevel = { 1500, 3000, 6000, 12000, 24000, 48000 };
+    private static readonly short[] SandCostBySourceLevel = { 5, 10, 15, 20, 25, 30 };
 
     public override UpgradePacketType Kind => UpgradePacketType.SumResistance;
 
@@ -59,8 +68,17 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             return null;
         }
 
-        var combinedLevel = s.Upgrade + t.Upgrade;
-        if (combinedLevel >= SuccessRateByLevelSum.Length)
+        // Both must be the same slot type AND that slot must be Boots or Gloves.
+        // Mirrors OpenNos WearableInstance.Sum lines 623-625.
+        if (s.Item.EquipmentSlot != t.Item.EquipmentSlot
+            || (s.Item.EquipmentSlot != EquipmentType.Boots
+                && s.Item.EquipmentSlot != EquipmentType.Gloves))
+        {
+            return null;
+        }
+
+        if (s.Upgrade >= SandCostBySourceLevel.Length
+            || s.Upgrade + t.Upgrade >= SuccessRateByCombinedLevel.Length)
         {
             return null;
         }
@@ -68,13 +86,13 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
         return new UpgradeContext(
             Source: source,
             Target: target,
-            GoldCost: GoldCostByLevelSum[combinedLevel],
-            MaterialCosts: new[] { new MaterialCost(SandVNum, SandCostByLevelSum[combinedLevel]) },
-            ExtraData: combinedLevel);
+            GoldCost: GoldCostBySourceLevel[s.Upgrade],
+            MaterialCosts: new[] { new MaterialCost(SandVNum, SandCostBySourceLevel[s.Upgrade]) },
+            ExtraData: s.Upgrade + t.Upgrade);
     }
 
     protected override double GetSuccessRate(UpgradeContext ctx) =>
-        SuccessRateByLevelSum[(int)ctx.ExtraData!];
+        SuccessRateByCombinedLevel[(int)ctx.ExtraData!];
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {

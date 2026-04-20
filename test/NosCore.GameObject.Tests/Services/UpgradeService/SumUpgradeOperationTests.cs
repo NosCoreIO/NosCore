@@ -51,6 +51,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task SuccessUpgradesSourceAndConsumesTargetAndSandAndGold()
         {
+            // Source upgrade 0 → goldprice[0]=1500, sand[0]=5, success rate at sum=0 is 1.00.
             await new Spec("Successful sum upgrades source, consumes target, sand and gold")
                 .Given(SourceAndTargetWearablesArePlaced)
                 .And(EnoughSandIsInInventory)
@@ -59,15 +60,16 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .WhenAsync(SumIsExecuted)
                 .Then(SourceUpgradeShouldBe_, (byte)1)
                 .And(TargetSlotShouldBeEmpty)
-                .And(SandShouldHaveBeenConsumed)
-                .And(GoldShouldBe_, 99_500L)
+                .And(SandShouldHaveBeenConsumed_, (short)5)
+                .And(GoldShouldBe_, 98_500L)
                 .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task FailureDestroysSourceAndConsumesTargetAndChargesCosts()
         {
-            // sum 1+1=2 has 0.90 success rate; roll 0.95 lands on failure.
+            // Source upgrade 1 → goldprice[1]=3000, sand[1]=10. Combined 1+1=2 → success rate 0.85.
+            // Roll 0.95 lands on failure.
             await new Spec("Failed sum destroys source, consumes target, still charges costs")
                 .Given(SourceAtUpgrade_AndTargetAtUpgrade_, (byte)1, (byte)1)
                 .And(EnoughSandIsInInventory)
@@ -76,8 +78,34 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .WhenAsync(SumIsExecuted)
                 .Then(SourceSlotShouldBeEmpty)
                 .And(TargetSlotShouldBeEmpty)
-                .And(SandShouldHaveBeenConsumed_, (short)3)
+                .And(SandShouldHaveBeenConsumed_, (short)10)
                 .And(GoldShouldBe_, 97_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ArmorPairIsRejectedSilentlyBecauseSumIsRestrictedToBootsAndGloves()
+        {
+            await new Spec("Armor + Armor sum is rejected (slot must be Boots or Gloves)")
+                .Given(SourceAndTargetArmorWearablesArePlaced)
+                .And(EnoughSandIsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .WhenAsync(SumIsExecuted)
+                .Then(NoPacketsShouldHaveBeenReturned)
+                .And(GoldShouldBe_, 100_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BootsPlusGlovesIsRejectedSilentlyBecauseSlotsMustMatch()
+        {
+            await new Spec("Boots + Gloves sum is rejected (slot must match)")
+                .Given(SourceBootsAndTargetGlovesArePlaced)
+                .And(EnoughSandIsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .WhenAsync(SumIsExecuted)
+                .Then(NoPacketsShouldHaveBeenReturned)
+                .And(GoldShouldBe_, 100_000L)
                 .ExecuteAsync();
         }
 
@@ -129,8 +157,26 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void SourceAtUpgrade_AndTargetAtUpgrade_(byte sourceUpgrade, byte targetUpgrade)
         {
             var inv = _session.Character.InventoryService;
-            _source = MakeWearableInstance(slot: 0, ArmorVNum, upgrade: sourceUpgrade);
-            _target = MakeWearableInstance(slot: 1, ArmorVNum, upgrade: targetUpgrade);
+            _source = MakeWearableInstance(slot: 0, ArmorVNum, upgrade: sourceUpgrade, EquipmentType.Boots);
+            _target = MakeWearableInstance(slot: 1, ArmorVNum, upgrade: targetUpgrade, EquipmentType.Boots);
+            inv[_source.ItemInstanceId] = _source;
+            inv[_target.ItemInstanceId] = _target;
+        }
+
+        private void SourceAndTargetArmorWearablesArePlaced()
+        {
+            var inv = _session.Character.InventoryService;
+            _source = MakeWearableInstance(slot: 0, ArmorVNum, upgrade: 0, EquipmentType.Armor);
+            _target = MakeWearableInstance(slot: 1, ArmorVNum, upgrade: 0, EquipmentType.Armor);
+            inv[_source.ItemInstanceId] = _source;
+            inv[_target.ItemInstanceId] = _target;
+        }
+
+        private void SourceBootsAndTargetGlovesArePlaced()
+        {
+            var inv = _session.Character.InventoryService;
+            _source = MakeWearableInstance(slot: 0, ArmorVNum, upgrade: 0, EquipmentType.Boots);
+            _target = MakeWearableInstance(slot: 1, ArmorVNum, upgrade: 0, EquipmentType.Gloves);
             inv[_source.ItemInstanceId] = _source;
             inv[_target.ItemInstanceId] = _target;
         }
@@ -195,9 +241,16 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         // --- Helpers ---
 
-        private InventoryItemInstance MakeWearableInstance(short slot, short vnum, byte upgrade)
+        private InventoryItemInstance MakeWearableInstance(short slot, short vnum, byte upgrade,
+            EquipmentType equipmentSlot)
         {
-            var item = new Item { VNum = vnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor };
+            var item = new Item
+            {
+                VNum = vnum,
+                Type = NoscorePocketType.Equipment,
+                ItemType = ItemType.Armor,
+                EquipmentSlot = equipmentSlot,
+            };
             var wearable = new WearableInstance(item, new Mock<Serilog.ILogger>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer)
             {

@@ -12,7 +12,9 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
@@ -33,6 +35,15 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.Character.Gold = goldPacket.Gold;
                 await session.SendPacketAsync(session.Character.GenerateGold());
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.GoldAward,
+                    ArgumentType = 4,
+                    Game18NArguments = { goldPacket.Gold },
+                });
                 return;
             }
 
