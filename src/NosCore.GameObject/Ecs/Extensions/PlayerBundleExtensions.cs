@@ -664,8 +664,15 @@ public static class PlayerBundleExtensions
             VisualId = player.VisualId,
             FairyMoveType = fairy == null ? 0 : 4,
             Element = fairy?.Item?.Element ?? 0,
-            ElementRate = fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0,
-            Morph = fairy?.Item?.Morph ?? 0 + (isBuffed ? 5 : 0)
+            // `??` has LOWER precedence than `+`, so the naive
+            // `fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0` groups as
+            // `(fairy?.ElementRate + fairy?.Item?.ElementRate) ?? 0` — and int? + int? is
+            // null when either side is null, so a fairy with no Item fallback drops to 0
+            // instead of keeping the character's ElementRate. Same precedence trap on
+            // Morph: `Morph ?? 0 + (isBuffed ? 5 : 0)` parsed as `Morph ?? (0 + 5)`, which
+            // applied the +5 buff only when Morph was null (i.e. never in practice).
+            ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
+            Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? 5 : 0)
         };
     }
 
