@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Arch.Core;
@@ -13,7 +12,6 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
-using NosCore.GameObject.Services.QuestService;
 using NosCore.Shared.Helpers;
 using Serilog;
 
@@ -29,7 +27,6 @@ public sealed class RewardService(
     IItemGenerationService itemGenerationService,
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
-    IQuestService questService,
     ILogger logger) : IRewardService
 {
     // Gold item vnum. The GoldDropHandler already treats vnum 1046 as the "gold"
@@ -70,24 +67,10 @@ public sealed class RewardService(
         AwardExperience(victim, mob, totalDamage);
         SpawnDrops(victim, mob, mapInstance);
         SpawnGold(victim, mob, mapInstance);
-        _ = ProgressQuestsAsync(victim, mob);
 
         victim.HitList.Clear();
         _ = killer;
         return Task.CompletedTask;
-    }
-
-    private Task ProgressQuestsAsync(IAliveEntity victim, NpcMonsterDto mob)
-    {
-        var tasks = new List<Task>();
-        foreach (var (handle, _) in victim.HitList)
-        {
-            if (TryFindCharacter(victim, handle, out var character))
-            {
-                tasks.Add(questService.OnMonsterKilledAsync(character, mob));
-            }
-        }
-        return Task.WhenAll(tasks);
     }
 
     private static void AwardExperience(IAliveEntity victim, NpcMonsterDto mob, int totalDamage)
