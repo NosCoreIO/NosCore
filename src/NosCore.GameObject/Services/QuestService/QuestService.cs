@@ -52,21 +52,23 @@ namespace NosCore.GameObject.Services.QuestService
                 await Task.Delay(TimeSpan.FromSeconds(2));
             }
 
+            var previousScript = character.Script;
             if (packet != null)
             {
                 if (!await CheckScriptStateAsync(packet, character))
                 {
                     return;
                 }
-                if (packet.Type == QuestActionType.Achieve)
+            }
+
+            if (previousScript != null)
+            {
+                await character.SendPacketAsync(new ScriptPacket
                 {
-                    var quest = character.Quests.Values.FirstOrDefault(s => s.Quest.QuestId == packet.FirstArgument);
-                    if (quest != null)
-                    {
-                        quest.CompletedOn = clock.GetCurrentInstant();
-                        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-                    }
-                }
+                    Zero = 0,
+                    ScriptId = previousScript.ScriptId,
+                    ScriptStepId = previousScript.ScriptStepId
+                });
             }
 
             var orderedScripts = scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
