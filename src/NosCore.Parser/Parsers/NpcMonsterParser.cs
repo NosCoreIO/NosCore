@@ -76,82 +76,163 @@ namespace NosCore.Parser.Parsers
         }
 
 
-        public async Task InsertNpcMonstersAsync(string folder)
+        public FluentParserBuilder<NpcMonsterDto> BuildParser(string folder)
         {
-            _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
-            _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
-            var parser = FluentParserBuilder<NpcMonsterDto>.Create(folder + _fileNpcId, "#========================================================", 1)
-                .Field(x => x.NpcMonsterVNum, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
-                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
-                .Field(x => x.Level, chunk => Level(chunk))
-                .Field(x => x.HeroXp, chunk => ImportXp(chunk) / 25)
-                .Field(x => x.Race, chunk => Convert.ToByte(chunk["RACE"][0][2]))
-                .Field(x => x.RaceType, chunk => Convert.ToByte(chunk["RACE"][0][3]))
-                .Field(x => x.Element, chunk => Convert.ToByte(chunk["ATTRIB"][0][2]))
-                .Field(x => x.ElementRate, chunk => Convert.ToInt16(chunk["ATTRIB"][0][3]))
-                .Field(x => x.FireResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][4]))
-                .Field(x => x.WaterResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][5]))
-                .Field(x => x.LightResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][6]))
-                .Field(x => x.DarkResistance, chunk => Convert.ToInt16(chunk["ATTRIB"][0][7]))
-                .Field(x => x.MaxHp, chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)])
-                .Field(x => x.MaxMp, chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + (Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]))
-                .Field(x => x.Xp, chunk => ImportXp(chunk))
-                .Field(x => x.JobXp, chunk => ImportJxp(chunk))
-                .Field(x => x.IsHostile, chunk => chunk["PREATT"][0][2] != "0")
-                .Field(x => x.CanWalk, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 1) == 0)
-                .Field(x => x.CanCollect, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 2) != 0)
-                .Field(x => x.CantDebuff, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 4) != 0)
-                .Field(x => x.CanCatch, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 8) != 0)
-                .Field(x => x.DisappearAfterSeconds, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 16) != 0)
-                .Field(x => x.DisappearAfterHitting, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 32) != 0)
-                .Field(x => x.HasMode, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 64) != 0)
-                .Field(x => x.DisappearAfterSecondsMana, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 128) != 0)
-                .Field(x => x.OnDefenseOnlyOnce, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 256) != 0)
-                .Field(x => x.HasDash, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 512) != 0)
-                .Field(x => x.RegenerateHpOverTime, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 1024) != 0)
-                .Field(x => x.CantVoke, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 2048) != 0)
-                .Field(x => x.DontDrainHpAfterSeconds, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 268435456) != 0)
-                .Field(x => x.CantTargetInfo, chunk => (Convert.ToInt64(chunk["ETC"][0][2]) & 2147483648L) != 0)
-                .Field(x => x.AlwaysActive, chunk => chunk["MODE"][0][26] != "0")
-                .Field(x => x.Limiter, chunk => Convert.ToByte(chunk["MODE"][0][27]))
-                .Field(x => x.HpThreshold, chunk => Convert.ToInt16(chunk["MODE"][0][28]))
-                .Field(x => x.RangeThreshold, chunk => Convert.ToInt16(chunk["MODE"][0][29]))
-                .Field(x => x.CModeVNum, chunk => Convert.ToInt16(chunk["MODE"][0][30]))
-                .Field(x => x.CellMinRange, chunk => Convert.ToByte(chunk["MODE"][0][31]))
-                .Field(x => x.Midgard, chunk => Convert.ToInt32(chunk["MODE"][0][32]))
-                .Field(x => x.NoticeRange, chunk => Convert.ToByte(chunk["PREATT"][0][4]))
-                .Field(x => x.Speed, chunk => Convert.ToByte(chunk["PREATT"][0][5]))
-                .Field(x => x.RespawnTime, chunk => Convert.ToInt32(chunk["PREATT"][0][6]))
-                .Field(x => x.CloseDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18))
-                .Field(x => x.DistanceDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 3 + 17))
-                .Field(x => x.MagicDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13))
-                .Field(x => x.DefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31))
-                .Field(x => x.DistanceDefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31))
-                .Field(x => x.AttackClass, chunk => Convert.ToByte(chunk["ZSKILL"][0][2]))
-                .Field(x => x.BasicRange, chunk => Convert.ToByte(chunk["ZSKILL"][0][3]))
-                .Field(x => x.BasicArea, chunk => Convert.ToByte(chunk["ZSKILL"][0][5]))
-                .Field(x => x.BasicCooldown, chunk => Convert.ToInt16(chunk["ZSKILL"][0][6]))
-                .Field(x => x.AttackUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["WINFO"][0][4]))
-                .Field(x => x.DefenceUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["AINFO"][0][3]))
-                .Field(x => x.BasicSkill, chunk => Convert.ToInt16(chunk["EFF"][0][2]))
-                .Field(x => x.VNumRequired, chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4]))
-                .Field(x => x.AmountRequired, chunk => Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0"))
-                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk))
-                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk))
-                .Field(x => x.Concentrate, chunk => ImportConcentrate(chunk))
-                .Field(x => x.CriticalChance, chunk => ImportCriticalChance(chunk))
-                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk))
-                .Field(x => x.NpcMonsterSkill, chunk => ImportNpcMonsterSkill(chunk))
-                .Field(x => x.BCards, chunk => ImportBCards(chunk))
-                .Field(x => x.Drop, chunk => ImportDrops(chunk))
-                .Field(x => x.MonsterType, chunk => ImportMonsterType(chunk))
+            return FluentParserBuilder<NpcMonsterDto>.Create(folder + _fileNpcId, "#========================================================", 1)
+                .Field(x => x.NpcMonsterVNum, "VNUM", 0, 2, s => Convert.ToInt16(s), "Monster vnum")
+                .Field(x => x.NameI18NKey, "NAME", 0, 2, s => s, "Localization key (zts##e)")
+                .Field(x => x.Race, "RACE", 0, 2, s => Convert.ToByte(s), "Race group (plant, animal, monster, dragon, …)")
+                .Field(x => x.RaceType, "RACE", 0, 3, s => Convert.ToByte(s), "Subtype within the race group")
+                .Field(x => x.Element, "ATTRIB", 0, 2, s => Convert.ToByte(s), "Primary elemental alignment")
+                .Field(x => x.ElementRate, "ATTRIB", 0, 3, s => Convert.ToInt16(s), "Element rate %")
+                .Field(x => x.FireResistance, "ATTRIB", 0, 4, s => Convert.ToInt16(s), "Fire resistance")
+                .Field(x => x.WaterResistance, "ATTRIB", 0, 5, s => Convert.ToInt16(s), "Water resistance")
+                .Field(x => x.LightResistance, "ATTRIB", 0, 6, s => Convert.ToInt16(s), "Light resistance")
+                .Field(x => x.DarkResistance, "ATTRIB", 0, 7, s => Convert.ToInt16(s), "Dark resistance")
+                .Field(x => x.IsHostile, "PREATT", 0, 2, s => s != "0", "Non-zero means the mob aggroes on sight")
+                .Field(x => x.NoticeRange, "PREATT", 0, 4, s => Convert.ToByte(s), "Aggro radius in cells")
+                .Field(x => x.Speed, "PREATT", 0, 5, s => Convert.ToByte(s), "Movement speed")
+                .Field(x => x.RespawnTime, "PREATT", 0, 6, s => Convert.ToInt32(s), "Respawn delay, deciseconds")
+                .Field(x => x.BasicSkill, "EFF", 0, 2, s => Convert.ToInt16(s), "Basic on-attack effect id")
+                .Field(x => x.AttackClass, "ZSKILL", 0, 2, s => Convert.ToByte(s), "Attack class (melee/ranged/magic)")
+                .Field(x => x.BasicRange, "ZSKILL", 0, 3, s => Convert.ToByte(s), "Basic attack range in cells")
+                .Field(x => x.BasicArea, "ZSKILL", 0, 5, s => Convert.ToByte(s), "Basic attack area-of-effect radius")
+                .Field(x => x.BasicCooldown, "ZSKILL", 0, 6, s => Convert.ToInt16(s), "Basic attack cooldown, deciseconds")
+                .Field(x => x.CanWalk, "ETC", 0, 2, s => (Convert.ToInt64(s) & 1) == 0, "ETC bit 0 clear -> can walk")
+                .Field(x => x.CanCollect, "ETC", 0, 2, s => (Convert.ToInt64(s) & 2) != 0, "ETC bit 1 -> harvestable")
+                .Field(x => x.CantDebuff, "ETC", 0, 2, s => (Convert.ToInt64(s) & 4) != 0, "ETC bit 2 -> immune to debuffs")
+                .Field(x => x.CanCatch, "ETC", 0, 2, s => (Convert.ToInt64(s) & 8) != 0, "ETC bit 3 -> catchable (mate)")
+                .Field(x => x.DisappearAfterSeconds, "ETC", 0, 2, s => (Convert.ToInt64(s) & 16) != 0, "ETC bit 4 -> despawns on a timer")
+                .Field(x => x.DisappearAfterHitting, "ETC", 0, 2, s => (Convert.ToInt64(s) & 32) != 0, "ETC bit 5 -> despawns after a hit")
+                .Field(x => x.HasMode, "ETC", 0, 2, s => (Convert.ToInt64(s) & 64) != 0, "ETC bit 6 -> uses a MODE")
+                .Field(x => x.DisappearAfterSecondsMana, "ETC", 0, 2, s => (Convert.ToInt64(s) & 128) != 0, "ETC bit 7 -> despawns when mana empties")
+                .Field(x => x.OnDefenseOnlyOnce, "ETC", 0, 2, s => (Convert.ToInt64(s) & 256) != 0, "ETC bit 8 -> defensive AI fires once")
+                .Field(x => x.HasDash, "ETC", 0, 2, s => (Convert.ToInt64(s) & 512) != 0, "ETC bit 9 -> has a dash skill")
+                .Field(x => x.RegenerateHpOverTime, "ETC", 0, 2, s => (Convert.ToInt64(s) & 1024) != 0, "ETC bit 10 -> passive HP regen")
+                .Field(x => x.CantVoke, "ETC", 0, 2, s => (Convert.ToInt64(s) & 2048) != 0, "ETC bit 11 -> immune to voke")
+                .Field(x => x.DontDrainHpAfterSeconds, "ETC", 0, 2, s => (Convert.ToInt64(s) & 268435456) != 0, "ETC bit 28 -> skips HP drain over time")
+                .Field(x => x.CantTargetInfo, "ETC", 0, 2, s => (Convert.ToInt64(s) & 2147483648L) != 0, "ETC bit 31 -> hidden from target-info UI")
+                .Field(x => x.AlwaysActive, "MODE", 0, 26, s => s != "0", "Mode always active when non-zero")
+                .Field(x => x.Limiter, "MODE", 0, 27, s => Convert.ToByte(s), "Mode limiter")
+                .Field(x => x.HpThreshold, "MODE", 0, 28, s => Convert.ToInt16(s), "HP% threshold that swaps the mode / item vnum")
+                .Field(x => x.RangeThreshold, "MODE", 0, 29, s => Convert.ToInt16(s), "Range threshold for mode swap")
+                .Field(x => x.CModeVNum, "MODE", 0, 30, s => Convert.ToInt16(s), "c_mode vnum (transform target)")
+                .Field(x => x.CellMinRange, "MODE", 0, 31, s => Convert.ToByte(s), "Minimum cells before the mode engages")
+                .Field(x => x.Midgard, "MODE", 0, 32, s => Convert.ToInt32(s), "Midgard-specific data")
+                .Field(x => x.Level, chunk => Level(chunk),
+                    source: "LEVEL[0]", description: "Parsed by Level(chunk) helper")
+                .Field(x => x.HeroXp, chunk => ImportXp(chunk) / 25,
+                    source: "EXP[0] / 25", description: "Hero-level XP award, scaled down from XP")
+                .Field(x => x.MaxHp, chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)],
+                    source: "HP/MP[0] + basicHp[Level]", description: "Override HP plus level-based baseline")
+                .Field(x => x.MaxMp, chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + (Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]),
+                    source: "HP/MP[1] + basic(Primary|Secondary)Mp[Level]", description: "Override MP plus level-based baseline, branch on Race")
+                .Field(x => x.Xp, chunk => ImportXp(chunk),
+                    source: "EXP[0]", description: "Base XP award")
+                .Field(x => x.JobXp, chunk => ImportJxp(chunk),
+                    source: "EXP[1]", description: "Base job XP award")
+                .Field(x => x.CloseDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18),
+                    source: "ARMOR[0] formula", description: "(armorLvl-1)*2 + 18")
+                .Field(x => x.DistanceDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 3 + 17),
+                    source: "ARMOR[0] formula", description: "(armorLvl-1)*3 + 17")
+                .Field(x => x.MagicDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13),
+                    source: "ARMOR[0] formula", description: "(armorLvl-1)*2 + 13")
+                .Field(x => x.DefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31),
+                    source: "ARMOR[0] formula", description: "(armorLvl-1)*5 + 31")
+                .Field(x => x.DistanceDefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31),
+                    source: "ARMOR[0] formula", description: "(armorLvl-1)*5 + 31")
+                .Field(x => x.AttackUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["WINFO"][0][4]),
+                    source: "WINFO[0] or WINFO[2] (gated by LoadUnknownData)", description: "Weapon upgrade level")
+                .Field(x => x.DefenceUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["AINFO"][0][3]),
+                    source: "WINFO[0] or AINFO[1] (gated by LoadUnknownData)", description: "Armor upgrade level")
+                .Field(x => x.VNumRequired, chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4]),
+                    source: "SETTING[2] or PETINFO[0]", description: "VNum of the item required to tame/interact")
+                .Field(x => x.AmountRequired, chunk => Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0"),
+                    source: "SETTING[2] or PETINFO[1]", description: "Amount of the required item")
+                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk),
+                    source: "WEAPON[varies]", description: "Min attack damage")
+                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk),
+                    source: "WEAPON[varies]", description: "Max attack damage")
+                .Field(x => x.Concentrate, chunk => ImportConcentrate(chunk),
+                    source: "WEAPON[varies]", description: "Hit rate")
+                .Field(x => x.CriticalChance, chunk => ImportCriticalChance(chunk),
+                    source: "WEAPON[varies]", description: "Critical hit chance")
+                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk),
+                    source: "WEAPON[varies]", description: "Critical hit damage multiplier")
+                .Field(x => x.NpcMonsterSkill, chunk => ImportNpcMonsterSkill(chunk),
+                    source: "SKILL[0..14]", description: "Up to 5 NpcMonsterSkill entries (vnum/chance/force triples)")
+                .Field(x => x.BCards, chunk => ImportBCards(chunk),
+                    source: "BASIC + CARD + MODE", description: "BCards from BASIC (10 groups of 5), CARD (4 groups), MODE (5 groups)")
+                .Field(x => x.Drop, chunk => ImportDrops(chunk),
+                    source: "ITEM[varies] + merged DropDao catalog", description: "20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO")
+                .Field(x => x.MonsterType, chunk => ImportMonsterType(chunk),
+                    source: "LoadUnknownData + RACE[0,1]", description: "Categorisation (Mate/Normal/Trap/Unknown)")
                 .Field(x => x.NoAggresiveIcon, chunk =>
                 {
                     var unknowndata = LoadUnknownData(chunk);
                     return (unknowndata == -2147483616 || unknowndata == -2147483647 || unknowndata == -2147483646)
                         && (Convert.ToByte(chunk["RACE"][0][2]) == 8) && (Convert.ToByte(chunk["RACE"][0][3]) == 0);
-                })
-                .Build(_logger, _logLanguage);
+                }, source: "LoadUnknownData + RACE[0,1]", description: "Talkable / trap entities: suppress the aggressive icon")
+                .Describe("ETC", "32-bit flag word stored as a decimal integer. Each bit flips a named gameplay behaviour; only a subset is documented in NSgtd.")
+                .Describe("MODE", "4 BCard groups of 5 + 7 mode-meta columns; AlwaysActive onwards is meta.")
+                .Doc("LEVEL", 2, "monsterLevel", "Base monster level.")
+                .Doc("HP/MP", 2, "monsterMaxHpBonus", "Additive HP bonus on top of the level-derived baseline.")
+                .Doc("HP/MP", 3, "monsterMaxMpBonus", "Additive MP bonus on top of the level-derived baseline.")
+                .Doc("EXP", 2, "monsterXpBonus", "XP awarded on kill.")
+                .Doc("EXP", 3, "monsterJobXpBonus", "Job XP awarded on kill.")
+                .Doc("SETTING", 2, "iconID", "Target-info avatar index (NSip).")
+                .Doc("SETTING", 3, "spawnMobOrColor", "When hostility>20000, the vnum of the mob this NPC spawns; otherwise a color.")
+                .Doc("SETTING", 4, "amountOrItem", "Required item vnum (tame/interact) or spawn count.")
+                .Doc("SETTING", 5, "spriteSize", "Sprite scale.")
+                .Doc("SETTING", 6, "cellSize", "Collision cell footprint.")
+                .Doc("SETTING", 7, "unknown0", "Always 0.")
+                .Doc("ETC", 3, "unknown1")
+                .Doc("ETC", 4, "isPercentileDmg", "Damage output is expressed as a % of the target's max HP.")
+                .Doc("ETC", 5, "canOnlyBeDmgedByJajamaruLastSkill", "Only damageable by the final Jajamaru skill.")
+                .Doc("ETC", 6, "unknown2", "Always 0.")
+                .Doc("ETC", 7, "visibleOnMinimapAsGreenDot")
+                .Doc("ETC", 8, "unknown3")
+                .Doc("ETC", 9, "isValhallaPartner")
+                .Doc("PETINFO", 2, "petInfoVal1", "Role unclear; first PETINFO column.")
+                .Doc("PETINFO", 3, "petInfoVal2")
+                .Doc("PETINFO", 4, "petInfoVal3")
+                .Doc("PETINFO", 5, "petInfoVal4")
+                .Doc("EFF", 3, "effIdConstantly", "Constantly-running aura effect id.")
+                .Doc("EFF", 4, "effIdOnDeath", "Effect id played on death.")
+                .Doc("ZSKILL", 4, "hitChance", "Basic-attack hit chance (unused by the parser).")
+                .Doc("ZSKILL", 7, "dashSpeed", "Speed used when dashing.")
+                .Doc("ZSKILL", 8, "unknown4")
+                .Doc("WINFO", 2, "winfoAttType", "Attack-type override for ARMOR/WEAPON derivation (1 => special path).")
+                .Doc("WINFO", 3, "unknown5")
+                .Doc("WINFO", 4, "weaponGrade", "Weapon grade; used as AttackUpgrade when WINFO[0]!=1.")
+                .Doc("WEAPON", 2, "weaponLvl")
+                .Doc("WEAPON", 3, "weaponRange")
+                .Doc("WEAPON", 4, "weaponDmgMin")
+                .Doc("WEAPON", 5, "weaponDmgMax")
+                .Doc("WEAPON", 6, "weaponHitRate")
+                .Doc("WEAPON", 7, "weaponCritChance")
+                .Doc("WEAPON", 8, "weaponCritDmg")
+                .Doc("AINFO", 2, "ainfoDefType", "Defence-type override for ARMOR derivation.")
+                .Doc("AINFO", 3, "armorGrade", "Armor grade; used as DefenceUpgrade when WINFO[0]!=1.")
+                .Doc("ARMOR", 2, "armorLvl", "Armor level — all Close/Distance/Magic defence + dodge are derived from this.")
+                .Doc("ARMOR", 3, "meleeDef", "Stored in .dat but we recompute from armorLvl.")
+                .Doc("ARMOR", 4, "rangedDef", "Stored in .dat but we recompute from armorLvl.")
+                .Doc("ARMOR", 5, "magicDef", "Stored in .dat but we recompute from armorLvl.")
+                .Doc("ARMOR", 6, "dodge", "Stored in .dat but we recompute from armorLvl.")
+                .Doc("SKILL", 2, "skill1Vnum", "First skill vnum.")
+                .Doc("SKILL", 3, "skill1Chance", "Cast chance % for skill 1.")
+                .Doc("SKILL", 4, "skill1Force", "Priority force for skill 1; groups 2-5 repeat at cols 5/8/11/14.")
+                .Doc("PARTNER", 2, "partnerUnused", "PARTNER block is always 20 zeros in vanilla; unused.")
+                .Doc("BASIC", 2, "basicBCard1Vnum", "First BASIC BCard vnum; 10 groups of 5 (cols 2..51) repeat the vnum/val1/val2/sub/target pattern.")
+                .Doc("CARD", 2, "cardBCard1Vnum", "First CARD BCard vnum; 4 groups of 5 (cols 2..21) repeat the pattern. CARD slot 2 = death-trigger BCards.")
+                .Doc("ITEM", 2, "drop1Vnum", "First drop vnum; 20 groups of 3 (cols 2..61) repeat the vnum/chance/amount triple.");
+        }
+
+        public async Task InsertNpcMonstersAsync(string folder)
+        {
+            _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
+            _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
+            var parser = BuildParser(folder).Build(_logger, _logLanguage);
             var monsters = (await parser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters);
             await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));

@@ -37,74 +37,123 @@ namespace NosCore.Parser.Parsers
         //#========================================================
         private readonly string _itemCardDto = $"{Path.DirectorySeparatorChar}Item.dat";
 
+        public FluentParserBuilder<ItemDto> BuildParser(string folder)
+        {
+            return FluentParserBuilder<ItemDto>.Create(folder + _itemCardDto, "END", 1)
+                .Field(x => x.VNum, "VNUM", 0, 2, s => Convert.ToInt16(s), "Item vnum")
+                .Field(x => x.Price, "VNUM", 0, 3, s => Convert.ToInt64(s), "NPC shop sell price")
+                .Field(x => x.ReputPrice, chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt64(chunk["VNUM"][0][3]) : 0,
+                    source: "FLAG[20] + VNUM[1]", description: "Reputation price when FLAG[20] is set")
+                .Field(x => x.NameI18NKey, "NAME", 0, 2, s => s, "Localization key (zts##e)")
+                .Field(x => x.Type, chunk => ImportType(chunk),
+                    source: "FLAG[25] + DATA[0] + INDEX[0,1]",
+                    description: "Pocket type: FLAG[25]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map")
+                .Field(x => x.ItemType, chunk => ImportItemType(chunk),
+                    source: "INDEX[0,1]", description: "ItemType composite enum")
+                .Field(x => x.ItemSubType, "INDEX", 0, 4, s => Convert.ToByte(s), "Subtype within item category")
+                .Field(x => x.EquipmentSlot, chunk => ImportEquipmentType(chunk),
+                    source: "INDEX[3]", description: "Equipment slot")
+                .Field(x => x.Morph, chunk => ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ? Convert.ToInt16(chunk["INDEX"][0][5]) :
+                    ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default,
+                    source: "INDEX[3] + INDEX[5]", description: "Morph id (partner skin) or effect value")
+                .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]),
+                    source: "TYPE[1] (fairy override: 15)", description: "Class restriction bitmask")
+                .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "FLAG bit 23 (unknown)")
+                .Field(x => x.Flag7, "FLAG", 0, 23, s => s == "1", "FLAG bit 22 (unknown)")
+                .Field(x => x.IsHeroic, "FLAG", 0, 22, s => s == "1", "Heroic item")
+                .Field(x => x.Flag6, "FLAG", 0, 20, s => s == "1", "FLAG bit 19 (unknown)")
+                .Field(x => x.Sex, chunk => chunk["FLAG"][0][18] == "1" ? (byte)1 : chunk["FLAG"][0][17] == "1" ? (byte)2 : (byte)0,
+                    source: "FLAG[16] + FLAG[17]", description: "Gender restriction: 1=female, 2=male, 0=any")
+                .Field(x => x.IsColored, "FLAG", 0, 16, s => s == "1", "Uses design slot for color")
+                .Field(x => x.RequireBinding, "FLAG", 0, 15, s => s == "1", "Binds to character on use/equip")
+                .Field(x => x.Flag4, "FLAG", 0, 14, s => s == "1", "FLAG bit 13 (unknown)")
+                .Field(x => x.Flag3, "FLAG", 0, 13, s => s == "1", "FLAG bit 12 (unknown)")
+                .Field(x => x.Flag2, "FLAG", 0, 12, s => s == "1", "FLAG bit 11 (set on mounts + raid items + partner equipment)")
+                .Field(x => x.Flag1, "FLAG", 0, 11, s => s == "1", "FLAG bit 10 (unknown)")
+                .Field(x => x.Flag9, "FLAG", 0, 10, s => s == "1", "FLAG bit 9 (appears on beads, medals, raid seals)")
+                .Field(x => x.IsWarehouse, "FLAG", 0, 9, s => s == "1", "Can be stored in the account warehouse")
+                .Field(x => x.IsMinilandActionable, "FLAG", 0, 8, s => s == "1", "Miniland-actionable object")
+                .Field(x => x.IsTradable, "FLAG", 0, 7, s => s == "0", "Inverted: dat=0 -> tradable")
+                .Field(x => x.IsDroppable, "FLAG", 0, 6, s => s == "0", "Inverted: dat=0 -> droppable")
+                .Field(x => x.IsSoldable, "FLAG", 0, 5, s => s == "0", "Inverted: dat=0 -> soldable")
+                .Field(x => x.LevelMinimum, chunk => ImportLevelMinimum(chunk),
+                    source: "DATA[varies]", description: "Minimum level to equip/use, per-ItemType")
+                .Field(x => x.BCards, chunk => ImportBCards(chunk),
+                    source: "BUFF[0..24]", description: "Up to 5 BCard groups (5 fields each)")
+                .Field(x => x.Effect, chunk => ImportEffect(chunk),
+                    source: "DATA[varies] per ItemType", description: "ItemEffectType enum")
+                .Field(x => x.EffectValue, chunk => ImportEffectValue(chunk),
+                    source: "DATA[varies] per ItemType", description: "Effect numeric argument")
+                .Field(x => x.FireResistance, chunk => ImportResistance(chunk, ElementType.Fire),
+                    source: "DATA[7] or DATA[15]", description: "Fire resistance; SP uses DATA[15], others DATA[7]")
+                .Field(x => x.DarkResistance, chunk => ImportResistance(chunk, ElementType.Dark),
+                    source: "DATA[11] or DATA[18]", description: "Dark resistance; SP uses DATA[18]")
+                .Field(x => x.LightResistance, chunk => ImportResistance(chunk, ElementType.Light),
+                    source: "DATA[9] or DATA[17]", description: "Light resistance; SP uses DATA[17]")
+                .Field(x => x.WaterResistance, chunk => ImportResistance(chunk, ElementType.Water),
+                    source: "DATA[8] or DATA[16]", description: "Water resistance; SP uses DATA[16]")
+                .Field(x => x.Hp, chunk => ImportHp(chunk), source: "DATA[varies]", description: "Hp bonus on equip")
+                .Field(x => x.Mp, chunk => ImportMp(chunk), source: "DATA[varies]", description: "Mp bonus on equip")
+                .Field(x => x.MinilandObjectPoint, chunk => ImportMinilandObjectPoint(chunk),
+                    source: "DATA[2] (miniland only)", description: "Miniland point value")
+                .Field(x => x.Width, chunk => ImportWidth(chunk),
+                    source: "DATA[3] (miniland only)", description: "Miniland object footprint width")
+                .Field(x => x.Height, chunk => ImportHeight(chunk),
+                    source: "DATA[4] (miniland only)", description: "Miniland object footprint height")
+                .Field(x => x.DefenceDodge, chunk => ImportDefenceDodge(chunk),
+                    source: "DATA[varies]", description: "Dodge chance")
+                .Field(x => x.CloseDefence, chunk => ImportCloseDefence(chunk),
+                    source: "DATA[varies]", description: "Melee defence")
+                .Field(x => x.DistanceDefence, chunk => ImportDistanceDefence(chunk),
+                    source: "DATA[varies]", description: "Ranged defence")
+                .Field(x => x.MagicDefence, chunk => ImportMagicDefence(chunk),
+                    source: "DATA[varies]", description: "Magic defence")
+                .Field(x => x.BasicUpgrade, chunk => ImportBasicUpgrade(chunk),
+                    source: "DATA[varies]", description: "Base upgrade level")
+                .Field(x => x.WaitDelay, chunk => ImportWaitDelay(chunk),
+                    source: "DATA[varies]", description: "Cooldown / use delay")
+                .Field(x => x.ElementRate, chunk => ImportElementRate(chunk),
+                    source: "DATA[varies]", description: "Element rate %")
+                .Field(x => x.Speed, chunk => ImportSpeed(chunk),
+                    source: "DATA[varies]", description: "Movement speed bonus / vehicle speed")
+                .Field(x => x.SpType, chunk => ImportSpType(chunk),
+                    source: "DATA[varies] (SP only)", description: "SP transformation type")
+                .Field(x => x.LevelJobMinimum, chunk => ImportLevelJobMinimum(chunk),
+                    source: "DATA[varies]", description: "Minimum job level to use/equip")
+                .Field(x => x.ReputationMinimum, chunk => ImportReputationMinimum(chunk),
+                    source: "DATA[varies]", description: "Minimum reputation tier")
+                .Field(x => x.ItemValidTime, chunk => ImportItemValidTime(chunk),
+                    source: "DATA[varies]", description: "Expiration duration in seconds")
+                .Field(x => x.Element, chunk => ImportElement(chunk),
+                    source: "DATA[varies]", description: "Primary elemental alignment")
+                .Field(x => x.MaxCellonLvl, chunk => ImportMaxCellonLvl(chunk),
+                    source: "DATA[varies]", description: "Max cellon level")
+                .Field(x => x.MaxCellon, chunk => ImportMaxCellon(chunk),
+                    source: "DATA[varies]", description: "Max cellons slotted")
+                .Field(x => x.DistanceDefenceDodge, chunk => ImportDistanceDefenceDodge(chunk),
+                    source: "DATA[varies]", description: "Ranged dodge chance")
+                .Field(x => x.MaximumAmmo, chunk => ImportMaximumAmmo(chunk),
+                    source: "DATA[varies]", description: "Max ammo")
+                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk),
+                    source: "DATA[varies]", description: "Critical hit chance")
+                .Field(x => x.CriticalLuckRate, chunk => ImportCriticalLuckRate(chunk),
+                    source: "DATA[varies]", description: "Critical luck multiplier")
+                .Field(x => x.HitRate, chunk => ImportHitRate(chunk),
+                    source: "DATA[varies]", description: "Hit rate")
+                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk),
+                    source: "DATA[varies]", description: "Max weapon damage")
+                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk),
+                    source: "DATA[varies]", description: "Min weapon damage")
+                .Describe("FLAG", "25 boolean bits. FLAG[25] identifies raid-inventory items (seals, boxes, chests, drops).")
+                .Doc("FLAG", 17, "FemaleOnly", "Set together with FLAG[18]=0 to mark a female-only item; rolled up into Sex.")
+                .Doc("FLAG", 18, "MaleOnly", "Set together with FLAG[17]=0 to mark a male-only item; rolled up into Sex.")
+                .Doc("FLAG", 25, "RaidItem", "Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket.")
+                .Doc("FLAG", 26, "UnknownLastBit");
+        }
+
         public async Task ParseAsync(string folder)
         {
-            var parser = FluentParserBuilder<ItemDto>.Create(folder + _itemCardDto, "END", 1)
-                .Field(x => x.VNum, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
-                .Field(x => x.Price, chunk => Convert.ToInt64(chunk["VNUM"][0][3]))
-                .Field(x => x.ReputPrice, chunk => chunk["FLAG"][0][21] == "1" ? Convert.ToInt64(chunk["VNUM"][0][3]) : 0)
-                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
-                .Field(x => x.Type, chunk => ImportType(chunk))
-                .Field(x => x.ItemType, chunk => ImportItemType(chunk))
-                .Field(x => x.ItemSubType, chunk => Convert.ToByte(chunk["INDEX"][0][4]))
-                .Field(x => x.EquipmentSlot, chunk => ImportEquipmentType(chunk))
-                .Field(x => x.Morph, chunk => ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ? Convert.ToInt16(chunk["INDEX"][0][5]) :
-                    ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default)
-                .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]))
-                .Field(x => x.Flag8, chunk => chunk["FLAG"][0][24] == "1")
-                .Field(x => x.Flag7, chunk => chunk["FLAG"][0][23] == "1")
-                .Field(x => x.IsHeroic, chunk => chunk["FLAG"][0][22] == "1")
-                .Field(x => x.Flag6, chunk => chunk["FLAG"][0][20] == "1")
-                .Field(x => x.Sex, chunk => chunk["FLAG"][0][18] == "1" ? (byte)1 : chunk["FLAG"][0][17] == "1" ? (byte)2 : (byte)0)
-                .Field(x => x.IsColored, chunk => chunk["FLAG"][0][16] == "1")
-                .Field(x => x.RequireBinding, chunk => chunk["FLAG"][0][15] == "1")
-                .Field(x => x.Flag4, chunk => chunk["FLAG"][0][14] == "1")
-                .Field(x => x.Flag3, chunk => chunk["FLAG"][0][13] == "1")
-                .Field(x => x.Flag2, chunk => chunk["FLAG"][0][12] == "1")
-                .Field(x => x.Flag1, chunk => chunk["FLAG"][0][11] == "1")
-                .Field(x => x.Flag9, chunk => chunk["FLAG"][0][10] == "1")
-                .Field(x => x.IsWarehouse, chunk => chunk["FLAG"][0][9] == "1")
-                .Field(x => x.IsMinilandActionable, chunk => chunk["FLAG"][0][8] == "1")
-                .Field(x => x.IsTradable, chunk => chunk["FLAG"][0][7] == "0")
-                .Field(x => x.IsDroppable, chunk => chunk["FLAG"][0][6] == "0")
-                .Field(x => x.IsSoldable, chunk => chunk["FLAG"][0][5] == "0")
-                .Field(x => x.LevelMinimum, chunk => ImportLevelMinimum(chunk))
-                .Field(x => x.BCards, chunk => ImportBCards(chunk))
-                .Field(x => x.Effect, chunk => ImportEffect(chunk))
-                .Field(x => x.EffectValue, chunk => ImportEffectValue(chunk))
-                .Field(x => x.FireResistance, chunk => ImportResistance(chunk, ElementType.Fire))
-                .Field(x => x.DarkResistance, chunk => ImportResistance(chunk, ElementType.Dark))
-                .Field(x => x.LightResistance, chunk => ImportResistance(chunk, ElementType.Light))
-                .Field(x => x.WaterResistance, chunk => ImportResistance(chunk, ElementType.Water))
-                .Field(x => x.Hp, chunk => ImportHp(chunk))
-                .Field(x => x.Mp, chunk => ImportMp(chunk))
-                .Field(x => x.MinilandObjectPoint, chunk => ImportMinilandObjectPoint(chunk))
-                .Field(x => x.Width, chunk => ImportWidth(chunk))
-                .Field(x => x.Height, chunk => ImportHeight(chunk))
-                .Field(x => x.DefenceDodge, chunk => ImportDefenceDodge(chunk))
-                .Field(x => x.CloseDefence, chunk => ImportCloseDefence(chunk))
-                .Field(x => x.DistanceDefence, chunk => ImportDistanceDefence(chunk))
-                .Field(x => x.MagicDefence, chunk => ImportMagicDefence(chunk))
-                .Field(x => x.BasicUpgrade, chunk => ImportBasicUpgrade(chunk))
-                .Field(x => x.WaitDelay, chunk => ImportWaitDelay(chunk))
-                .Field(x => x.ElementRate, chunk => ImportElementRate(chunk))
-                .Field(x => x.Speed, chunk => ImportSpeed(chunk))
-                .Field(x => x.SpType, chunk => ImportSpType(chunk))
-                .Field(x => x.LevelJobMinimum, chunk => ImportLevelJobMinimum(chunk))
-                .Field(x => x.ReputationMinimum, chunk => ImportReputationMinimum(chunk))
-                .Field(x => x.ItemValidTime, chunk => ImportItemValidTime(chunk))
-                .Field(x => x.Element, chunk => ImportElement(chunk))
-                .Field(x => x.MaxCellonLvl, chunk => ImportMaxCellonLvl(chunk))
-                .Field(x => x.MaxCellon, chunk => ImportMaxCellon(chunk))
-                .Field(x => x.DistanceDefenceDodge, chunk => ImportDistanceDefenceDodge(chunk))
-                .Field(x => x.MaximumAmmo, chunk => ImportMaximumAmmo(chunk))
-                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk))
-                .Field(x => x.CriticalLuckRate, chunk => ImportCriticalLuckRate(chunk))
-                .Field(x => x.HitRate, chunk => ImportHitRate(chunk))
-                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk))
-                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk))
-                .Build(logger, logLanguage);
-
+            var parser = BuildParser(folder).Build(logger, logLanguage);
             var items = (await parser.GetDtosAsync()).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {

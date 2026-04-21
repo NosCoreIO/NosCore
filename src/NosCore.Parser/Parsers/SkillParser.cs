@@ -42,9 +42,9 @@ namespace NosCore.Parser.Parsers
         //#=========================================================
         private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}Skill.dat";
 
-        public async Task InsertSkillsAsync(string folder)
+        public FluentParserBuilder<SkillDto> BuildParser(string folder)
         {
-            var parser = FluentParserBuilder<SkillDto>.Create(folder + _fileCardDat, "#=========================================================", 1)
+            return FluentParserBuilder<SkillDto>.Create(folder + _fileCardDat, "#=========================================================", 1)
                 .Field(x => x.SkillVNum, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
                 .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
                 .Field(x => x.SkillType, chunk => Convert.ToByte(chunk["TYPE"][0][2]))
@@ -74,8 +74,12 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.MinimumSwordmanLevel, chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0)
                 .Field(x => x.MinimumArcherLevel, chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0)
                 .Field(x => x.MinimumMagicianLevel, chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0)
-                .Field(x => x.LevelMinimum, chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0)
-                .Build(logger, logLanguage);
+                .Field(x => x.LevelMinimum, chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0);
+        }
+
+        public async Task InsertSkillsAsync(string folder)
+        {
+            var parser = BuildParser(folder).Build(logger, logLanguage);
             var skills = await parser.GetDtosAsync();
 
             foreach (var skill in skills.Where(s => s.Class > 31))

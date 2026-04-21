@@ -37,20 +37,25 @@ namespace NosCore.Parser.Parsers
         //#========================================================
         private readonly string _fileCardDat = $"{Path.DirectorySeparatorChar}Card.dat";
 
+        public FluentParserBuilder<CardDto> BuildParser(string folder)
+        {
+            return FluentParserBuilder<CardDto>.Create(folder + _fileCardDat, "END", 1)
+                .Field(x => x.CardId, "VNUM", 0, 2, s => Convert.ToInt16(s), "Card vnum")
+                .Field(x => x.NameI18NKey, "NAME", 0, 2, s => s, "Localization key (zts##e)")
+                .Field(x => x.Level, "GROUP", 0, 3, s => Convert.ToByte(s), "Card level tier")
+                .Field(x => x.EffectId, "EFFECT", 0, 2, s => Convert.ToInt32(s), "Visual effect id")
+                .Field(x => x.BuffType, "STYLE", 0, 3, s => (BCardType.CardType)Convert.ToByte(s), "Buff type from STYLE column 3")
+                .Field(x => x.Duration, "TIME", 0, 2, s => Convert.ToInt32(s), "Duration in deciseconds")
+                .Field(x => x.Delay, "TIME", 0, 3, s => Convert.ToInt32(s), "Activation delay")
+                .Field(x => x.TimeoutBuff, "LAST", 0, 2, s => Convert.ToInt16(s), "Follow-up buff id when card expires")
+                .Field(x => x.TimeoutBuffChance, "LAST", 0, 3, s => Convert.ToByte(s), "% chance the follow-up buff fires")
+                .Field(x => x.BCards, chunk => AddBCards(chunk),
+                    source: "1ST + 2ST (5 groups of 6)", description: "Up to 5 BCards, first 3 from 1ST then 2 from 2ST");
+        }
+
         public async Task InsertCardsAsync(string folder)
         {
-            var parser = FluentParserBuilder<CardDto>.Create(folder + _fileCardDat, "END", 1)
-                .Field(x => x.CardId, chunk => Convert.ToInt16(chunk["VNUM"][0][2]))
-                .Field(x => x.NameI18NKey, chunk => chunk["NAME"][0][2])
-                .Field(x => x.Level, chunk => Convert.ToByte(chunk["GROUP"][0][3]))
-                .Field(x => x.EffectId, chunk => Convert.ToInt32(chunk["EFFECT"][0][2]))
-                .Field(x => x.BuffType, chunk => (BCardType.CardType)Convert.ToByte(chunk["STYLE"][0][3]))
-                .Field(x => x.Duration, chunk => Convert.ToInt32(chunk["TIME"][0][2]))
-                .Field(x => x.Delay, chunk => Convert.ToInt32(chunk["TIME"][0][3]))
-                .Field(x => x.BCards, chunk => AddBCards(chunk))
-                .Field(x => x.TimeoutBuff, chunk => Convert.ToInt16(chunk["LAST"][0][2]))
-                .Field(x => x.TimeoutBuffChance, chunk => Convert.ToByte(chunk["LAST"][0][3]))
-                .Build(logger, logLanguage);
+            var parser = BuildParser(folder).Build(logger, logLanguage);
             var cards = (await parser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             await cardDao.TryInsertOrUpdateAsync(cards);
             await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
