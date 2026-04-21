@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
@@ -30,7 +31,8 @@ namespace NosCore.GameObject.Services.QuestService
             IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
             List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IEnumerable<IQuestTypeHandler> questTypeHandlers)
+            IEnumerable<IQuestTypeHandler> questTypeHandlers,
+            Wolverine.IMessageBus messageBus)
         : IQuestService
     {
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
@@ -268,7 +270,7 @@ namespace NosCore.GameObject.Services.QuestService
                 await handler.OnMonsterKilledAsync(character, mob, quest);
                 if (quest.CompletedOn != null)
                 {
-                    await ChainNextQuestAsync(character, quest);
+                    await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
                 }
             }
         }
@@ -278,31 +280,12 @@ namespace NosCore.GameObject.Services.QuestService
             foreach (var quest in character.Quests.Values.Where(q => q.CompletedOn is null).ToList())
             {
                 var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
-                if (handler == null)
-                {
-                    continue;
-                }
-                if (!await handler.ValidateAsync(character, quest))
+                if (handler == null || !await handler.ValidateAsync(character, quest))
                 {
                     continue;
                 }
                 quest.CompletedOn = clock.GetCurrentInstant();
-                await character.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.QuestComplete
-                });
-                await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-                await character.SendPacketAsync(character.GenerateQuestPacket());
-                await ChainNextQuestAsync(character, quest);
-            }
-        }
-
-        private async Task ChainNextQuestAsync(ICharacterEntity character, CharacterQuest quest)
-        {
-            if (quest.Quest.NextQuestId.HasValue)
-            {
-                await AddQuestAsync(character, QuestActionType.Achieve, quest.Quest.NextQuestId.Value);
+                await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
             }
         }
     }

@@ -7,6 +7,7 @@
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.ClientPackets.Quest;
+using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.QuestService
@@ -17,5 +18,6 @@ namespace NosCore.GameObject.Services.QuestService
         Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
         Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob);
         Task OnCharacterMovedAsync(ICharacterEntity character);
+        Task<bool> AddQuestAsync(ICharacterEntity character, QuestActionType type, short questId);
     }
 }

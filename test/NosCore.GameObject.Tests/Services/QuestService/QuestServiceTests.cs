@@ -116,7 +116,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     new HuntQuestHandler(TestHelpers.Instance.Clock),
                     new NumberOfKillQuestHandler(TestHelpers.Instance.Clock),
                     new GoToQuestHandler(),
-                });
+                },
+                new Mock<Wolverine.IMessageBus>().Object);
         }
 
         [TestMethod]

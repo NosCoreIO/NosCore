@@ -11,7 +11,6 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
@@ -44,19 +43,10 @@ public abstract class KillQuestHandlerBase(IClock clock) : IQuestTypeHandler
 
         await character.SendPacketAsync(quest.GenerateQstiPacket(false));
 
-        if (!IsComplete(quest))
+        if (IsComplete(quest))
         {
-            return;
+            quest.CompletedOn = clock.GetCurrentInstant();
         }
-
-        quest.CompletedOn = clock.GetCurrentInstant();
-        await character.SendPacketAsync(new MsgiPacket
-        {
-            Type = MessageType.Default,
-            Message = Game18NConstString.QuestComplete
-        });
-        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-        await character.SendPacketAsync(character.GenerateQuestPacket());
     }
 
     private static bool IsComplete(CharacterQuest quest)
