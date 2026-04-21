@@ -7,11 +7,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
@@ -30,6 +32,7 @@ namespace NosCore.GameObject.Services.BattleService
         ITargetResolver targetResolver,
         IHitQueue hitQueue,
         IMessageBus messageBus,
+        ISessionRegistry sessionRegistry,
         ILogger logger) : IBattleService
     {
         public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -98,20 +101,28 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (outcome.Killed)
             {
-                // Players get a DiePacket so the client plays the death pose + revive
-                // dialog. Monsters don't — OpenNos MapMonster.MonsterLife emits only the
-                // closing su (alive=0, hp%=0) for natural kills and the client drives the
-                // collapse animation from that alone. MonsterRespawnHandler ships the
-                // OutPacket a moment later to clear the sprite.
+                // DiePacket plays the collapsed death pose on other spectators' screens.
+                // We deliberately skip the victim — they get the dialog/stat flow from
+                // PlayerRevivalHandler, and their own client drives the death pose off
+                // the closing su (alive=0, hp%=0). Monsters don't get a DiePacket at
+                // all; the su alone is enough and sending an OutPacket would cut the
+                // collapse animation short.
                 if (target.MapInstance != null && target.VisualType == VisualType.Player)
                 {
-                    await target.MapInstance.SendPacketAsync(new DiePacket
+                    var diePacket = new DiePacket
                     {
                         VisualType = target.VisualType,
                         VisualId = target.VisualId,
                         TargetVisualType = origin.VisualType,
                         TargetId = origin.VisualId,
-                    }).ConfigureAwait(false);
+                    };
+                    var victimCharacterId = target is ICharacterEntity victim ? victim.CharacterId : 0L;
+                    foreach (var spectator in sessionRegistry
+                        .GetClientSessionsByMapInstance(target.MapInstance.MapInstanceId)
+                        .Where(s => s.HasSelectedCharacter && s.Character.CharacterId != victimCharacterId))
+                    {
+                        await spectator.SendPacketAsync(diePacket).ConfigureAwait(false);
+                    }
                 }
                 await messageBus.PublishAsync(new EntityDiedEvent(target, origin)).ConfigureAwait(false);
             }
@@ -166,6 +177,8 @@ namespace NosCore.GameObject.Services.BattleService
                 Damage = (uint)outcome.Damage,
                 HitMode = outcome.HitMode,
                 SkillTypeMinusOne = (int)skill.Type - 1,
+                TargetCurrentHp = target.Hp,
+                TargetMaxHp = target.MaxHp,
             };
             return target.MapInstance.SendPacketAsync(packet);
         }

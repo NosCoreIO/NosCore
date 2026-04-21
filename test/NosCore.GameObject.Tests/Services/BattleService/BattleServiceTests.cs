@@ -47,6 +47,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _targetResolver.Object,
                 _hitQueue.Object,
                 _bus.Object,
+                new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
                 new Mock<ILogger>().Object);
         }
 
