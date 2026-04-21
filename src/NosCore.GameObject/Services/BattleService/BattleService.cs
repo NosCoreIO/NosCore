@@ -213,16 +213,25 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // NPCs and other non-combat entities expose NoAttack=true; treat them as
-        // un-targetable. Without this an upgrade NPC (Smith Malcolm, etc.) could be
-        // killed via a crafted UseSkill packet, breaking the n_run flow. The origin
-        // check covers the same property for sleeping/vehicled/disabled attackers.
+        // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction
+        // rule below is what decides who's on whose side. Characters and NPCs are
+        // allies — players can't kill a shop NPC via a crafted UseSkill packet, and
+        // guards never friendly-fire a player — so any ally pairing bails first.
+        // Monsters are opposing-faction to both and are free to hit either.
         private static bool CanAttack(IAliveEntity origin, IAliveEntity target)
         {
             if (!origin.IsAlive || !target.IsAlive) return false;
             if (origin.NoAttack) return false;
             if (target.NoAttack) return false;
+            if (AreAllies(origin, target)) return false;
             return true;
+        }
+
+        private static bool AreAllies(IAliveEntity a, IAliveEntity b)
+        {
+            var aAlly = a.VisualType == VisualType.Player || a.VisualType == VisualType.Npc;
+            var bAlly = b.VisualType == VisualType.Player || b.VisualType == VisualType.Npc;
+            return aAlly && bAlly;
         }
 
         private static async Task CancelAsync(IAliveEntity origin, IAliveEntity target)

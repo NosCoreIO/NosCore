@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.PathfindingService;
 using NosCore.Networking;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -27,10 +28,10 @@ namespace NosCore.GameObject.Services.BattleService;
 // Aggro-driven AI for both monsters and NPCs (guards). Each tick (called from
 // MapInstance's life loop every 400ms) does four things in order, matching OpenNos
 // MonsterLife:
-//   1. Proximity aggro: hostile entities scan NoticeRange for enemies and pick one
-//      up as their target if they don't already have one. Monsters target nearby
-//      players; NPCs target nearby monsters of a different race (guard faction
-//      rule).
+//   1. Proximity aggro: hostile entities scan NoticeRange for enemies and pick the
+//      closest. Two-faction rule — NPCs and players are same-side, monsters the
+//      other: NPCs target monsters only, monsters target whichever of player/NPC
+//      is closer.
 //   2. Skill selection: 20% chance to pick a random cooldown-ready NpcMonsterSkill.
 //   3. Attack: if the target is in range for the chosen skill (or BasicRange for
 //      the basic attack), enqueue a Hit via IBattleService and stamp the cooldown.
@@ -74,8 +75,6 @@ public sealed class MonsterAi(
 
             if (!aggro.HasTarget)
             {
-                // No target. Return-home if we've wandered off spawn during a previous
-                // chase. Otherwise yield to the caller's random-wander fallback.
                 return await TryReturnHomeAsync(entity).ConfigureAwait(false);
             }
 
@@ -93,7 +92,6 @@ public sealed class MonsterAi(
 
             var chosenSkill = PickSkill(entity, distance);
 
-            // Skill in range → attack. Falls through to basic attack if no skill chosen.
             if (chosenSkill != null && distance <= chosenSkill.SkillRange)
             {
                 await AttackAsync(entity, target, chosenSkill.CastId, chosenSkill.CooldownMs).ConfigureAwait(false);
@@ -106,11 +104,6 @@ public sealed class MonsterAi(
                 return true;
             }
 
-            // Stationary entities (e.g. guards on duty, cantWalk mobs) attack in range
-            // only — they don't chase. Out-of-range targets just sit unaddressed.
-            if (!entity.NpcMonster.CanWalk) return true;
-
-            // Out of range → pursue.
             await StepTowardAsync(entity, target).ConfigureAwait(false);
             return true;
         }
@@ -121,17 +114,33 @@ public sealed class MonsterAi(
         }
     }
 
-    // Returns the closest qualifying enemy within NoticeRange. Two pools:
-    //   - Players on the map (the historical monster→player target set)
-    //   - Other-race monsters on the map (so guard NPCs target hostile mobs without
-    //     needing a faction table — same race = friendly).
-    // Whichever pool yields the closer alive enemy wins. Same predicate as OpenNos:
-    // alive + in range. Pets/summons not yet handled.
+    // Returns the closest qualifying enemy within NoticeRange. Two-faction rule:
+    // NPCs and players are on one side, monsters on the other. NPCs scan the
+    // monster pool; monsters scan both players and NPCs and just take the closest,
+    // no player preference.
     private IAliveEntity? DetectNearbyEnemy(INonPlayableEntity entity)
     {
         var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (byte)1);
         IAliveEntity? best = null;
         var bestDistance = double.MaxValue;
+
+        if (entity.VisualType == VisualType.Npc)
+        {
+            foreach (var monster in entity.MapInstance.Monsters)
+            {
+                if (!monster.IsAlive || monster.NpcMonster == null) continue;
+                var d = distanceCalculator.GetDistance(
+                    (entity.PositionX, entity.PositionY),
+                    (monster.PositionX, monster.PositionY));
+                if (d > range) continue;
+                if (d < bestDistance)
+                {
+                    bestDistance = d;
+                    best = monster;
+                }
+            }
+            return best;
+        }
 
         foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
         {
@@ -148,30 +157,24 @@ public sealed class MonsterAi(
                 best = player;
             }
         }
-
-        foreach (var monster in entity.MapInstance.Monsters)
+        foreach (var npc in entity.MapInstance.Npcs)
         {
-            if (!monster.IsAlive || monster.NpcMonster == null) continue;
-            // Same-race entities are considered the same faction — guards don't
-            // attack other guards, mandras don't attack other mandras. This also
-            // prevents a monster from picking itself.
-            if (monster.NpcMonster.Race == entity.NpcMonster.Race) continue;
+            if (!npc.IsAlive || npc.NpcMonster == null) continue;
             var d = distanceCalculator.GetDistance(
                 (entity.PositionX, entity.PositionY),
-                (monster.PositionX, monster.PositionY));
+                (npc.PositionX, npc.PositionY));
             if (d > range) continue;
             if (d < bestDistance)
             {
                 bestDistance = d;
-                best = monster;
+                best = npc;
             }
         }
-
         return best;
     }
 
-    // Resolves the cached aggro target by visual id. Walks both players and
-    // monsters because either pool could have produced the target.
+    // Resolves the cached aggro target by visual id. Walks all three pools
+    // (players, monsters, NPCs) because any of them can be an aggro target.
     private IAliveEntity? ResolveTarget(INonPlayableEntity entity, long visualId)
     {
         foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
@@ -184,6 +187,10 @@ public sealed class MonsterAi(
         foreach (var monster in entity.MapInstance.Monsters)
         {
             if (monster.VisualId == visualId) return monster;
+        }
+        foreach (var npc in entity.MapInstance.Npcs)
+        {
+            if (npc.VisualId == visualId) return npc;
         }
         return null;
     }
@@ -239,9 +246,10 @@ public sealed class MonsterAi(
         }
     }
 
-    // Pursuit: use the cached path if the target hasn't moved much, else replan via
-    // JPS. Step by `Speed / 2` cells at a time so fast entities catch up faster, and
-    // rate-limit by timetowalk = 2000 / speed ms. Based on OpenNos Move().
+    // Pursuit: cache JPS path, re-plan when the target moved or the path ran out.
+    // Consume `Speed / 2` cells per tick — the 400ms life-loop cadence is already
+    // the rate limit (matches OpenNos MapMonster.Move which broadcasts the same
+    // multi-cell batch per MonsterLife tick).
     private async Task StepTowardAsync(INonPlayableEntity entity, IAliveEntity target)
     {
         var cache = _pathCache.GetValueOrDefault(entity.Handle);
@@ -263,18 +271,11 @@ public sealed class MonsterAi(
 
         if (cache.Path.Count == 0) return;
 
-        var now = clock.GetCurrentInstant();
         var speed = (int)Math.Max((byte)1, entity.NpcMonster!.Speed);
-        var timeToWalkMs = 2000.0 / speed;
-        var sinceLast = (now - cache.LastStepAt).TotalMilliseconds;
-        if (sinceLast < timeToWalkMs) return;
-
-        // Take speed/2 steps in one go (bounded by path length) — the client
-        // interpolates, and this keeps packet rate bounded when entities are fast.
         var stepCount = Math.Min(cache.Path.Count, Math.Max(1, speed / 2));
         var dest = cache.Path[stepCount - 1];
         cache.Path.RemoveRange(0, stepCount);
-        _pathCache[entity.Handle] = cache with { LastStepAt = now };
+        _pathCache[entity.Handle] = cache with { LastStepAt = clock.GetCurrentInstant() };
 
         if (!entity.MapInstance.Map.IsWalkable((short)dest.Item1, (short)dest.Item2)) return;
 
@@ -285,7 +286,7 @@ public sealed class MonsterAi(
 
     private async Task<bool> TryReturnHomeAsync(INonPlayableEntity entity)
     {
-        if (!entity.NpcMonster!.CanWalk) return false;
+        if (!entity.IsMoving) return false;
 
         // INonPlayableEntity exposes the spawn cell via its MapX/MapY interface
         // members (see NpcComponentBundle / MonsterComponentBundle partial impls).

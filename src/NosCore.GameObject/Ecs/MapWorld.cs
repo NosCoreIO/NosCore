@@ -120,10 +120,11 @@ public class MapWorld : IDisposable
             new HealthComponent(npcMonster.MaxHp, npcMonster.MaxHp, true),
             new ManaComponent(npcMonster.MaxMp, npcMonster.MaxMp),
             new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
-            // NPCs are dialogue/shop targets, not combat targets — NoAttack=true (parameter 5).
-            // Without this an upgrade NPC like Smith Malcolm can be killed via UseSkill packets,
-            // breaking the n_run flow and corrupting save state.
-            new VisualComponent(0, 0, 0, 0, true, false, false),
+            // NoAttack is strictly a "locked/untargetable" state flag here (the faction
+            // rule in BattleService.CanAttack is what actually protects NPCs from
+            // players — NPCs and players are allies). NPCs default to unlocked so
+            // monsters can land hits on them.
+            new VisualComponent(0, 0, 0, 0, false, false, false),
             new NpcDataComponent(npcMonster.NpcMonsterVNum, npcMonster.Race, npcMonster.Level, 0, npcMonster.Speed, 10),
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),
