@@ -146,6 +146,17 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
+            // Claim the quest before awaiting reward application so a concurrent
+            // qt spam can't pass the CompletedOn == null check twice.
+            lock (charQuest)
+            {
+                if (charQuest.CompletedOn != null)
+                {
+                    return false;
+                }
+                charQuest.CompletedOn = clock.GetCurrentInstant();
+            }
+
             foreach (var link in questQuestRewards.Where(l => l.QuestId == questId))
             {
                 var reward = questRewards.FirstOrDefault(r => r.QuestRewardId == link.QuestRewardId);
@@ -155,7 +166,6 @@ namespace NosCore.GameObject.Services.QuestService
                 }
             }
 
-            charQuest.CompletedOn = clock.GetCurrentInstant();
             await character.SendPacketAsync(character.GenerateQuestPacket());
             await messageBus.PublishAsync(new QuestCompletedEvent(character, charQuest));
             return true;
