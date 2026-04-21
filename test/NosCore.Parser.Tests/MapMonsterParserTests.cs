@@ -124,32 +124,6 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task MapMonsterParser_SetsIsMovingFromNpcMonsterCanWalk()
-        {
-            _npcMonsterDaoMock
-                .Setup(x => x.LoadAll())
-                .Returns(new List<NpcMonsterDto>
-                {
-                    new() { NpcMonsterVNum = 1, CanWalk = true },
-                    new() { NpcMonsterVNum = 2, CanWalk = false }
-                });
-
-            var packets = new List<string[]>
-            {
-                new[] { "at", "1", "1", "50", "50", "2", "0", "0", "0" },
-                new[] { "in", "3", "1", "1001", "100", "100", "2", "100", "0" },
-                new[] { "in", "3", "2", "1002", "110", "110", "3", "100", "0" }
-            };
-
-            var parser = new MapMonsterParser(_mapMonsterDaoMock.Object, _npcMonsterDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
-            await parser.InsertMapMonsterAsync(packets);
-
-            Assert.AreEqual(2, _savedMonsters.Count);
-            Assert.IsTrue(_savedMonsters.Single(m => m.VNum == 1).IsMoving);
-            Assert.IsFalse(_savedMonsters.Single(m => m.VNum == 2).IsMoving);
-        }
-
-        [TestMethod]
         public async Task MapMonsterParser_HandlesEmptyPacketList()
         {
             var packets = new List<string[]>();

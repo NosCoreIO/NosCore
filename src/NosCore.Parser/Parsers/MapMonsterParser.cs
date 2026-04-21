@@ -49,8 +49,7 @@ namespace NosCore.Parser.Parsers
                     MapX = short.Parse(currentPacket[4]),
                     MapY = short.Parse(currentPacket[5]),
                     Direction = (byte)(currentPacket[6] == string.Empty ? 0 : byte.Parse(currentPacket[6])),
-                    IsDisabled = false,
-                    IsMoving = npcMonster.CanWalk
+                    IsDisabled = false
                 };
 
                 if ((mapMonsterdb.FirstOrDefault(s => s.MapMonsterId.Equals(monster.MapMonsterId)) != null)
