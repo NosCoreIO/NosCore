@@ -60,6 +60,20 @@ namespace NosCore.Database.Entities
 
         public bool CantTargetInfo { get; set; }
 
+        public bool AlwaysActive { get; set; }
+
+        public byte Limiter { get; set; }
+
+        public short HpThreshold { get; set; }
+
+        public short RangeThreshold { get; set; }
+
+        public short CModeVNum { get; set; }
+
+        public byte CellMinRange { get; set; }
+
+        public int Midgard { get; set; }
+
         public byte AttackUpgrade { get; set; }
 
         public byte BasicArea { get; set; }

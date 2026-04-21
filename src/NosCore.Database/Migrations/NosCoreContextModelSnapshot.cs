@@ -1846,6 +1846,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("BasicSkill")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("AlwaysActive")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("CanCatch")
                         .HasColumnType("boolean");
 
@@ -1864,7 +1867,13 @@ namespace NosCore.Database.Migrations
                     b.Property<bool>("CantVoke")
                         .HasColumnType("boolean");
 
+                    b.Property<byte>("CellMinRange")
+                        .HasColumnType("smallint");
+
                     b.Property<short>("CloseDefence")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CModeVNum")
                         .HasColumnType("smallint");
 
                     b.Property<short>("Concentrate")
@@ -1933,11 +1942,17 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("HeroXp")
                         .HasColumnType("integer");
 
+                    b.Property<short>("HpThreshold")
+                        .HasColumnType("smallint");
+
                     b.Property<bool>("IsHostile")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsPercent")
                         .HasColumnType("boolean");
+
+                    b.Property<byte>("Limiter")
+                        .HasColumnType("smallint");
 
                     b.Property<bool>("OnDefenseOnlyOnce")
                         .HasColumnType("boolean");
@@ -1963,6 +1978,9 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("MaxMp")
                         .HasColumnType("integer");
 
+                    b.Property<int>("Midgard")
+                        .HasColumnType("integer");
+
                     b.Property<byte>("MonsterType")
                         .HasColumnType("smallint");
 
@@ -1981,6 +1999,9 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("smallint");
 
                     b.Property<byte>("RaceType")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("RangeThreshold")
                         .HasColumnType("smallint");
 
                     b.Property<int>("RespawnTime")
