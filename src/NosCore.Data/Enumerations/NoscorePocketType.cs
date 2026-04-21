@@ -16,6 +16,8 @@ namespace NosCore.Data.Enumerations
         Miniland = PocketType.Miniland,
         Specialist = PocketType.Specialist,
         Costume = PocketType.Costume,
-        Wear = 8
+        Wear = 8,
+        Mount = 9,
+        Raid = 10,
     }
 }

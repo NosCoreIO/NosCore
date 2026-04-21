@@ -31,6 +31,8 @@ namespace NosCore.GameObject.Services.InventoryService
                 NoscorePocketType.Specialist => 45 + Expensions[pocket],
                 NoscorePocketType.Costume => 60 + Expensions[pocket],
                 NoscorePocketType.Wear => 17,
+                NoscorePocketType.Mount => 20 + Expensions[pocket],
+                NoscorePocketType.Raid => 63 + Expensions[pocket],
                 _ => configuration.Value.BackpackSize + Expensions[pocket]
             });
         }
@@ -44,6 +46,8 @@ namespace NosCore.GameObject.Services.InventoryService
             { NoscorePocketType.Main, 0 },
             { NoscorePocketType.Specialist, 0 },
             { NoscorePocketType.Wear, 0 },
+            { NoscorePocketType.Mount, 0 },
+            { NoscorePocketType.Raid, 0 },
         };
 
         public InventoryItemInstance? LoadBySlotAndType(short slot, NoscorePocketType type)

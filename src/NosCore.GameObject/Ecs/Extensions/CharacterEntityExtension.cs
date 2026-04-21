@@ -64,10 +64,12 @@ namespace NosCore.GameObject.Ecs.Extensions
             var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket?>() };
             var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket?>() };
             var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv9 = new InvPacket { Type = (PocketType)NoscorePocketType.Mount, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv10 = new InvPacket { Type = (PocketType)NoscorePocketType.Raid, IvnSubPackets = new List<IvnSubPacket?>() };
 
             if (characterEntity.InventoryService == null)
             {
-                return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
+                return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
             }
 
             foreach (var inv in characterEntity.InventoryService.Select(s => s.Value))
@@ -156,6 +158,20 @@ namespace NosCore.GameObject.Ecs.Extensions
 
                         break;
 
+                    case NoscorePocketType.Mount:
+                        inv9.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
+                    case NoscorePocketType.Raid:
+                        inv10.IvnSubPackets.Add(new IvnSubPacket
+                        {
+                            Slot = inv.Slot, VNum = inv.ItemInstance.ItemVNum, RareAmount = inv.ItemInstance.Amount
+                        });
+                        break;
+
                     case NoscorePocketType.Wear:
                         break;
                     default:
@@ -165,7 +181,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 }
             }
 
-            return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7 };
+            return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
         }
 
         public static SkiPacket GenerateSki(this ICharacterEntity characterEntity)

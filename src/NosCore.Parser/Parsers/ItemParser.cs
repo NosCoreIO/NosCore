@@ -492,6 +492,12 @@ namespace NosCore.Parser.Parsers
 
         private NoscorePocketType ImportType(Dictionary<string, string[][]> chunks)
         {
+            if (chunks["FLAG"][0][26] == "1") return NoscorePocketType.Raid;
+            if (chunks["DATA"][0][2] == "1000" && chunks["INDEX"][0][3] == "4")
+            {
+                return NoscorePocketType.Mount;
+            }
+
             return Convert.ToByte(chunks["INDEX"][0][2]) switch
             {
                 4 => NoscorePocketType.Equipment,
