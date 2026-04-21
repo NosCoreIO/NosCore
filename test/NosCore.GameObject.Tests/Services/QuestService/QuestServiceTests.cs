@@ -113,11 +113,14 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 TestHelpers.Instance.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
-                    new HuntQuestHandler(TestHelpers.Instance.Clock),
-                    new NumberOfKillQuestHandler(TestHelpers.Instance.Clock),
+                    new HuntQuestHandler(),
+                    new NumberOfKillQuestHandler(),
                     new GoToQuestHandler(),
                 },
-                new Mock<Wolverine.IMessageBus>().Object);
+                new Mock<Wolverine.IMessageBus>().Object,
+                new List<QuestRewardDto>(),
+                new List<QuestQuestRewardDto>(),
+                new Mock<GameObject.Services.ItemGenerationService.IItemGenerationService>().Object);
         }
 
         [TestMethod]
@@ -463,11 +466,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
         private void QuestShouldBeMarkedCompleted()
         {
-            Assert.IsNotNull(_trackedQuest.CompletedOn);
+            Assert.IsTrue(_trackedQuest.AreObjectivesComplete());
+            Assert.IsNull(_trackedQuest.CompletedOn);
         }
 
         private void QuestShouldStillBeIncomplete()
         {
+            Assert.IsFalse(_trackedQuest.AreObjectivesComplete());
             Assert.IsNull(_trackedQuest.CompletedOn);
         }
     }

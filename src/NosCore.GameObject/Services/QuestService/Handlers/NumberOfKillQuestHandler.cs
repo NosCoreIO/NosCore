@@ -5,13 +5,12 @@
 //
 
 using JetBrains.Annotations;
-using NodaTime;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
 [UsedImplicitly]
-public sealed class NumberOfKillQuestHandler(IClock clock) : KillQuestHandlerBase(clock)
+public sealed class NumberOfKillQuestHandler : KillQuestHandlerBase
 {
     public override QuestType QuestType => QuestType.NumberOfKill;
 }

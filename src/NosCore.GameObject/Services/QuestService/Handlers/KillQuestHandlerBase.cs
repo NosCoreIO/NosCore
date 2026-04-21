@@ -4,9 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Linq;
 using System.Threading.Tasks;
-using NodaTime;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -14,7 +12,7 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-public abstract class KillQuestHandlerBase(IClock clock) : IQuestTypeHandler
+public abstract class KillQuestHandlerBase : IQuestTypeHandler
 {
     public abstract QuestType QuestType { get; }
 
@@ -42,24 +40,5 @@ public abstract class KillQuestHandlerBase(IClock clock) : IQuestTypeHandler
         }
 
         await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-
-        if (IsComplete(quest))
-        {
-            quest.CompletedOn = clock.GetCurrentInstant();
-        }
-    }
-
-    private static bool IsComplete(CharacterQuest quest)
-    {
-        return quest.Quest.QuestObjectives.All(objective =>
-        {
-            var required = objective.SecondData ?? 0;
-            if (required <= 0)
-            {
-                return true;
-            }
-            var current = quest.ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var c) ? c : 0;
-            return current >= required;
-        });
     }
 }

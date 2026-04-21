@@ -13,6 +13,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
@@ -32,7 +33,10 @@ namespace NosCore.GameObject.Services.QuestService
             List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IEnumerable<IQuestTypeHandler> questTypeHandlers,
-            Wolverine.IMessageBus messageBus)
+            Wolverine.IMessageBus messageBus,
+            List<QuestRewardDto> questRewards,
+            List<QuestQuestRewardDto> questQuestRewards,
+            Services.ItemGenerationService.IItemGenerationService itemBuilderService)
         : IQuestService
     {
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
@@ -119,6 +123,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 "q_complete" => await ValidateQuestAsync(character, script.Argument1 ?? 0),
                 "quest" => await AddQuestAsync(character, type, script.Argument1 ?? 0),
+                "q_pay" => await QPayAsync(character, script.Argument1 ?? 0),
                 "time" => await TimeAsync(script.Argument1 ?? 0),
                 "targetoff" => await TargetOffPacketAsync(script.Argument1 ?? 0, character),
                 "web" => true,
@@ -127,11 +132,73 @@ namespace NosCore.GameObject.Services.QuestService
                 "opendual" => true,
 
                 "move" => false, //todo handle
-                "q_pay" => false, //todo handle
                 "target" => false,  //todo handle
                 "run" => true,  //todo handle
                 _ => false,
             };
+        }
+
+        private async Task<bool> QPayAsync(ICharacterEntity character, short questId)
+        {
+            var charQuest = character.Quests.Values.FirstOrDefault(q => q.QuestId == questId && q.CompletedOn == null);
+            if (charQuest == null || !charQuest.AreObjectivesComplete())
+            {
+                return false;
+            }
+
+            foreach (var link in questQuestRewards.Where(l => l.QuestId == questId))
+            {
+                var reward = questRewards.FirstOrDefault(r => r.QuestRewardId == link.QuestRewardId);
+                if (reward != null)
+                {
+                    await ApplyRewardAsync(character, reward);
+                }
+            }
+
+            charQuest.CompletedOn = clock.GetCurrentInstant();
+            await character.SendPacketAsync(character.GenerateQuestPacket());
+            await messageBus.PublishAsync(new QuestCompletedEvent(character, charQuest));
+            return true;
+        }
+
+        private async Task ApplyRewardAsync(ICharacterEntity character, QuestRewardDto reward)
+        {
+            var amount = Math.Max(1, reward.Amount);
+            switch ((Data.Enumerations.Quest.QuestRewardType)reward.RewardType)
+            {
+                case Data.Enumerations.Quest.QuestRewardType.Gold:
+                case Data.Enumerations.Quest.QuestRewardType.BaseGoldByAmount:
+                case Data.Enumerations.Quest.QuestRewardType.CapturedGold:
+                case Data.Enumerations.Quest.QuestRewardType.UnknowGold:
+                    character.Gold += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.Exp:
+                case Data.Enumerations.Quest.QuestRewardType.PercentExp:
+                    character.LevelXp += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.JobExp:
+                case Data.Enumerations.Quest.QuestRewardType.PercentJobExp:
+                    character.JobLevelXp += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.Reput:
+                    character.Reput += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.EtcMainItem:
+                case Data.Enumerations.Quest.QuestRewardType.WearItem:
+                    var item = itemBuilderService.Create((short)reward.Data, (short)amount, (sbyte)reward.Rarity, reward.Upgrade, reward.Design);
+                    var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.VisualId));
+                    if (added != null)
+                    {
+                        foreach (var inv in added)
+                        {
+                            await character.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+                        }
+                    }
+                    break;
+                default:
+                    logger.Warning("Unhandled quest reward type {Type}", reward.RewardType);
+                    break;
+            }
         }
 
         private async Task<bool> TimeAsync(short delay)
