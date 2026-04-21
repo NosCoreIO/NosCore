@@ -74,7 +74,8 @@ namespace NosCore.GameObject.Services.MinilandService
                 return miniland;
             }
 
-            throw new ArgumentException();
+            throw new InvalidOperationException(
+                $"No Miniland registered for character {characterId}. InitializeAsync should have registered one at login — a missing registration means login didn't complete.");
         }
 
         public async Task<Guid?> DeleteMinilandAsync(long characterId)
@@ -105,7 +106,8 @@ namespace NosCore.GameObject.Services.MinilandService
             var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId);
             if (minilandInfoDto == null)
             {
-                throw new ArgumentException();
+                throw new InvalidOperationException(
+                    $"No Miniland row for character {characterId}. CharNewPacketHandler inserts one on creation — a missing row means the character predates that flow and needs a manual backfill.");
             }
 
             var map = maps.First(s => s.MapId == 20001);
