@@ -16,5 +16,6 @@ namespace NosCore.GameObject.Services.QuestService
         Task RunScriptAsync(ICharacterEntity character);
         Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
         Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob);
+        Task OnCharacterMovedAsync(ICharacterEntity character);
     }
 }
