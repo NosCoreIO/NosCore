@@ -13,7 +13,7 @@ using NosCore.Packets.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
     [UsedImplicitly]
-    public sealed class QuestChainHandler(IQuestService questService)
+    public sealed class OnQuestCompletedHandler(IQuestService questService)
     {
         [UsedImplicitly]
         public async Task Handle(QuestCompletedEvent evt)

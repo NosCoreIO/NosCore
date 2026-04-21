@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
     // to QuestService so CompletedOn + the UI packet trio + QuestCompletedEvent
     // all run through the same, ordered path the kill flow uses.
     [UsedImplicitly]
-    public sealed class GoToQuestMovementHandler(
+    public sealed class OnCharacterMovedHandler(
         IQuestService questService,
         IEnumerable<IQuestTypeHandler> questTypeHandlers)
     {
