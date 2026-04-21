@@ -40,8 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 DistanceCalculator.Object,
                 Logger,
                 TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                new Mock<NosCore.GameObject.Services.QuestService.IQuestService>().Object);
+                TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]

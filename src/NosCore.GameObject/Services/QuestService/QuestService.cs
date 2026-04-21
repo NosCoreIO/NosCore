@@ -270,23 +270,28 @@ namespace NosCore.GameObject.Services.QuestService
                 await handler.OnMonsterKilledAsync(character, mob, quest);
                 if (quest.CompletedOn != null)
                 {
-                    await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
+                    await NotifyQuestCompletedAsync(character, quest);
                 }
             }
         }
 
-        public async Task OnCharacterMovedAsync(ICharacterEntity character)
+        // Send the UI packet trio synchronously in the fixed order the client
+        // expects (QuestComplete message, final objective snapshot, quest list),
+        // THEN publish the domain event for decoupled subscribers like
+        // QuestChainHandler (NextQuestId) or future reward/achievement hooks.
+        // Wolverine does not guarantee subscriber dispatch ordering, so the
+        // packet sequence has to live here rather than in a subscriber — the
+        // client crashes on out-of-order quest packets.
+        private async Task NotifyQuestCompletedAsync(ICharacterEntity character, CharacterQuest quest)
         {
-            foreach (var quest in character.Quests.Values.Where(q => q.CompletedOn is null).ToList())
+            await character.SendPacketAsync(new MsgiPacket
             {
-                var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
-                if (handler == null || !await handler.ValidateAsync(character, quest))
-                {
-                    continue;
-                }
-                quest.CompletedOn = clock.GetCurrentInstant();
-                await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
-            }
+                Type = MessageType.Default,
+                Message = Game18NConstString.QuestComplete
+            });
+            await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+            await character.SendPacketAsync(character.GenerateQuestPacket());
+            await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
         }
     }
 }

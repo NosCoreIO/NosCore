@@ -10,7 +10,6 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Movement;
@@ -22,7 +21,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IQuestService questService)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
         // this is used to avoid network issue to be counted as speed hack.
@@ -64,8 +63,6 @@ namespace NosCore.PacketHandlers.Movement
 
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
-
-            await questService.OnCharacterMovedAsync(session.Character);
         }
     }
 }
