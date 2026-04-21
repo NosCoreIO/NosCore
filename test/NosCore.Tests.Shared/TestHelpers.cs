@@ -298,7 +298,7 @@ namespace NosCore.Tests.Shared
             var sessionRefHolder = new SessionRefHolder();
             var handlers = packetHandlers ?? new List<IPacketHandler>
             {
-                new CharNewPacketHandler(CharacterDao, MinilandDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
+                new CharNewPacketHandler(CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                         new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, Logger),
                 new BlInsPackettHandler(BlacklistHttpClient.Object, Logger, Instance.LogLanguageLocalizer),
                 new UseItemPacketHandler(new Mock<Wolverine.IMessageBus>().Object),

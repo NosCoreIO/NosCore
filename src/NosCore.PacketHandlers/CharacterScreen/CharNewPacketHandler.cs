@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class CharNewPacketHandler(IDao<CharacterDto, long> characterDao, IDao<MinilandDto, Guid> minilandDao,
+    public class CharNewPacketHandler(IDao<CharacterDto, long> characterDao,
             IItemGenerationService itemBuilderService,
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
@@ -129,16 +129,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         State = CharacterState.Active
                     };
                     chara = await characterDao.TryInsertOrUpdateAsync(chara);
-
-                    var miniland = new MinilandDto
-                    {
-                        MinilandId = Guid.NewGuid(),
-                        State = MinilandState.Open,
-                        MinilandMessage = ((short)Game18NConstString.Welcome).ToString(),
-                        OwnerId = chara.CharacterId,
-                        WelcomeMusicInfo = 3800
-                    };
-                    await minilandDao.TryInsertOrUpdateAsync(miniland);
 
                     var inventory = new InventoryService(items, worldConfiguration, logger);
                     var origin = ResolveStarterOrigin(@class, _worldConfiguration.AllClassAvailableOnCreate);
