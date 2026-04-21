@@ -8,7 +8,6 @@
 
 # Special Thanks for Contributions #
 <p align="left">
-<a href="https://aws.amazon.com"><img height="100px" src="https://chiefit.me/wp-content/uploads/2019/06/Amazon-Web-Services_logo835x396.png"/></a>
 <a href="https://www.navicat.com"><img height="100px" src="https://user-images.githubusercontent.com/35202750/207230064-dcf23adc-9e96-4481-9a53-cd212f5bd60e.png"/></a>
 </p>
 
@@ -20,20 +19,16 @@
 <a href='https://ko-fi.com/A3562BQV' target='_blank'><img height='46' style='border:0px;height:46px;' src='https://az743702.vo.msecnd.net/cdn/kofi3.png?v=0' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a> 
 <a href='https://www.patreon.com/bePatron?u=6503887' target='_blank'><img height='46' style='border:0px;height:46px;' src='https://c5.patreon.com/external/logo/become_a_patron_button@2x.png' border='0' alt='Become a Patron!' /></a>
 
-## Achtung! ##
+## Warning! ##
 We are not responsible of any damages caused by bad usage of our source. Please before asking questions or installing this source read this readme and also do a research, google is your friend. If you mess up when installing our source because you didnt follow it, we will laugh at you. A lot.
 
 ## Instructions to contribute ##
 
 ### Disclaimer ###
-This project not for commercial use. The emulator itself is proof of concept.
+This project is a community project not for commercial use. The emulator itself is proof of concept of our idea to try out anything what's not possible on original servers. The result is to learn and program together for prove the study.
 
 ### Legal ###
 This Website and Project is in no way affiliated with, authorized, maintained, sponsored or endorsed by Gameforge or any of its affiliates or subsidiaries. This is an independent and unofficial server for educational use ONLY. Using the Project might be against the TOS.
-# Instructions to contribute #
-
-## Disclaimer ##
-This project is a community project not for commercial use. The emulator itself is proof of concept of our idea to try out anything what's not possible on original servers. The result is to learn and program together for prove the study. 
 
 ### Contribution is only possible with Visual Studio 2026 ###
 We recommend usage of : 
