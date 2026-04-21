@@ -292,10 +292,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                 })));
         }
 
-        public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity)
+        public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity, bool showDialog = false)
         {
             return new QstlistPacket(visualEntity.Quests.Values
-                .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(true)).ToList());
+                .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(showDialog)).ToList());
         }
 
         public static InEquipmentSubPacket GetEquipmentSubPacket(this ICharacterEntity visualEntity) => new()

@@ -238,7 +238,7 @@ namespace NosCore.GameObject.Services.QuestService
                 Quest = quest,
                 QuestId = quest.QuestId
             });
-            await character.SendPacketAsync(character.GenerateQuestPacket());
+            await character.SendPacketAsync(character.GenerateQuestPacket(showDialog: true));
             if (quest.TargetMap != null)
             {
                 await character.SendPacketAsync(quest.GenerateTargetPacket());
