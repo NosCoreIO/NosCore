@@ -59,6 +59,7 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.MapY = character.PositionY;
                 characterDto.SpPoint = character.SpPoint;
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
+                characterDto.CurrentScriptId = character.CurrentScriptId;
 
                 await accountDao.TryInsertOrUpdateAsync(account);
                 await characterDao.TryInsertOrUpdateAsync(characterDto);
