@@ -175,6 +175,40 @@ namespace NosCore.Database.Entities
 
         public int GiveDamagePercentage { get; set; }
 
+        public bool IsPercentileDmg { get; set; }
+
+        public bool CanOnlyBeDmgedByJajamaruLastSkill { get; set; }
+
+        public bool VisibleOnMinimapAsGreenDot { get; set; }
+
+        public bool IsValhallaPartner { get; set; }
+
+        public short EffectIdConstantly { get; set; }
+
+        public short EffectIdOnDeath { get; set; }
+
+        public int PetInfoVal1 { get; set; }
+
+        public int PetInfoVal2 { get; set; }
+
+        public int PetInfoVal3 { get; set; }
+
+        public int PetInfoVal4 { get; set; }
+
+        public short IconId { get; set; }
+
+        public int SpawnMobOrColor { get; set; }
+
+        public sbyte SpriteSize { get; set; }
+
+        public byte CellSize { get; set; }
+
+        public byte GroupAttack { get; set; }
+
+        public byte BasicHitChance { get; set; }
+
+        public byte DashSpeed { get; set; }
+
         public virtual ICollection<BCard> BCards { get; set; }
     }
 }
