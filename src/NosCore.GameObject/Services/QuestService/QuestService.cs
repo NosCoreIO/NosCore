@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 await character.SendPacketAsync(new ScriptPacket
                 {
-                    Zero = 0,
+                    Unknown = 0,
                     ScriptId = previousScript.ScriptId,
                     ScriptStepId = previousScript.ScriptStepId
                 });
