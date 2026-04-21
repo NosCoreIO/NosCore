@@ -35,6 +35,10 @@ public class MapWorld : IDisposable
 
     public T? TryGetComponent<T>(Entity entity) where T : struct
     {
+        if (!World.IsAlive(entity))
+        {
+            return null;
+        }
         if (World.Has<T>(entity))
         {
             return World.Get<T>(entity);
@@ -49,7 +53,7 @@ public class MapWorld : IDisposable
 
     public bool HasComponent<T>(Entity entity) where T : struct
     {
-        return World.Has<T>(entity);
+        return World.IsAlive(entity) && World.Has<T>(entity);
     }
 
     public void AddComponent<T>(Entity entity, T component) where T : struct
