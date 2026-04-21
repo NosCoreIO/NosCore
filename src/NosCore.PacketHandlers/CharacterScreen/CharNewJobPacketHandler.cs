@@ -29,24 +29,47 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if (await characterDao.FirstOrDefaultAsync(s =>
-                (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == configuration.Value.ServerId) &&
-                (s.State == CharacterState.Active)) == null)
+            var targetClass = MapJobClass(packet.JobClass);
+            if (targetClass == null)
             {
                 return;
             }
 
-            if (await characterDao.FirstOrDefaultAsync(s =>
-                (s.AccountId == clientSession.Account.AccountId) &&
-                (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active)) != null)
+            if (targetClass == CharacterClassType.MartialArtist)
             {
-                //If already a martial artist, can't Create another
-                //TODO log
-                return;
-            }
-            //todo add cooldown for recreate 30days
+                var alreadyMartialArtist = await characterDao.FirstOrDefaultAsync(s =>
+                    (s.AccountId == clientSession.Account.AccountId) &&
+                    (s.Class == CharacterClassType.MartialArtist) && (s.State == CharacterState.Active));
+                if (alreadyMartialArtist != null)
+                {
+                    return;
+                }
 
-            await clientSession.HandlePacketsAsync(new[] { packet.Adapt<CharNewPacket>() });
+                if (!configuration.Value.AllClassAvailableOnCreate)
+                {
+                    var hasLevel80 = await characterDao.FirstOrDefaultAsync(s =>
+                        (s.Level >= 80) && (s.AccountId == clientSession.Account.AccountId) && (s.ServerId == configuration.Value.ServerId) &&
+                        (s.State == CharacterState.Active));
+                    if (hasLevel80 == null)
+                    {
+                        return;
+                    }
+                    //todo add cooldown for recreate 30days
+                }
+            }
+
+            var forwarded = packet.Adapt<CharNewPacket>();
+            forwarded.TargetClass = (byte)targetClass.Value;
+            await clientSession.HandlePacketsAsync(new[] { forwarded });
         }
+
+        private static CharacterClassType? MapJobClass(byte? jobClass) => jobClass switch
+        {
+            1 => CharacterClassType.MartialArtist,
+            2 => CharacterClassType.Swordsman,
+            3 => CharacterClassType.Archer,
+            4 => CharacterClassType.Mage,
+            _ => null
+        };
     }
 }

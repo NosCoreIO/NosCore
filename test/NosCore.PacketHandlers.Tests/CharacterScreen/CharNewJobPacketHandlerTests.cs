@@ -80,7 +80,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             await CharNewJobPacketHandler.ExecuteAsync(new CharNewJobPacket
             {
-                Name = TestCharacterName
+                Name = TestCharacterName,
+                JobClass = 1
             }, Session);
         }
 

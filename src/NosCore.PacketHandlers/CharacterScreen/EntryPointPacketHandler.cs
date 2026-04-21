@@ -138,7 +138,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
 
             // load characterlist packet for each character in Character
-            await clientSession.SendPacketAsync(new ClistStartPacket { Type = 0 });
+            await clientSession.SendPacketAsync(new ClistStartPacket { Type = (byte)(configuration.Value.AllClassAvailableOnCreate ? 1 : 0) });
             foreach (var character in characters!)
             {
                 var equipment = new WearableInstance?[16];

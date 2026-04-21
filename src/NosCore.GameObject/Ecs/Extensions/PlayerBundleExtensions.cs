@@ -982,20 +982,10 @@ public static class ClientSessionMailExtensions
         character.Hp = character.MaxHp;
         character.Mp = character.MaxMp;
 
-        var itemsToAdd = new List<BasicEquipment>();
-        foreach (var (key, _) in worldConfiguration.Value.BasicEquipments)
-        {
-            switch (key)
-            {
-                case nameof(CharacterClassType.Adventurer) when classType == CharacterClassType.Adventurer:
-                case nameof(CharacterClassType.Archer) when classType == CharacterClassType.Archer:
-                case nameof(CharacterClassType.Mage) when classType == CharacterClassType.Mage:
-                case nameof(CharacterClassType.MartialArtist) when classType == CharacterClassType.MartialArtist:
-                case nameof(CharacterClassType.Swordsman) when classType == CharacterClassType.Swordsman:
-                    itemsToAdd.AddRange(worldConfiguration.Value.BasicEquipments[key]);
-                    break;
-            }
-        }
+        var itemsToAdd = worldConfiguration.Value.BasicEquipments.TryGetValue(classType.ToString(), out var byOrigin)
+            && byOrigin.TryGetValue(StarterOrigin.CreateAndUpgrade, out var pack)
+            ? pack
+            : new List<BasicEquipment>();
 
         foreach (var itemToAdd in itemsToAdd)
         {

@@ -45,6 +45,41 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public const string Nameregex =
             @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$";
 
+        private static byte ResolveCreationLevel(CharacterClassType @class, bool allClassAvailable)
+        {
+            if (allClassAvailable && @class != CharacterClassType.Adventurer)
+            {
+                return 80;
+            }
+            return @class switch
+            {
+                CharacterClassType.Adventurer => 1,
+                CharacterClassType.MartialArtist => 81,
+                _ => 56
+            };
+        }
+
+        private static StarterOrigin ResolveStarterOrigin(CharacterClassType @class, bool allClassAvailable)
+        {
+            if (@class == CharacterClassType.Adventurer)
+            {
+                return StarterOrigin.CreateAndUpgrade;
+            }
+            return allClassAvailable ? StarterOrigin.Create80 : StarterOrigin.Create56;
+        }
+
+        private static List<TItem> ResolvePack<TItem>(
+            Dictionary<string, Dictionary<StarterOrigin, List<TItem>>> packs,
+            CharacterClassType @class,
+            StarterOrigin origin,
+            List<TItem> fallback)
+        {
+            return packs.TryGetValue(@class.ToString(), out var byOrigin)
+                && byOrigin.TryGetValue(origin, out var list)
+                ? list
+                : fallback;
+        }
+
         public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
         {
             if (clientSession.HasSelectedCharacter)
@@ -69,9 +104,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         (s.Name == characterName) && (s.State == CharacterState.Active) && (s.ServerId == _worldConfiguration.ServerId));
                 if (character == null)
                 {
-                    var level = (byte)(packet.IsMartialArtist ? 81 : 1);
-                    var @class = packet.IsMartialArtist ? CharacterClassType.MartialArtist
-                        : CharacterClassType.Adventurer;
+                    var @class = (CharacterClassType)(packet.TargetClass ?? (byte)CharacterClassType.Adventurer);
+                    var level = ResolveCreationLevel(@class, _worldConfiguration.AllClassAvailableOnCreate);
+                    var jobLevel = (byte)(@class == CharacterClassType.Adventurer ? 1 : 50);
                     var chara = new CharacterDto
                     {
                         Class = @class,
@@ -79,7 +114,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         HairColor = packet.HairColor,
                         HairStyle = packet.HairStyle,
                         Hp = (int)hpService.GetHp(@class, level),
-                        JobLevel = 1,
+                        JobLevel = jobLevel,
                         Level = level,
                         MapId = 1,
                         MapX = (short)RandomHelper.Instance.RandomNumber(78, 81),
@@ -106,44 +141,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     await minilandDao.TryInsertOrUpdateAsync(miniland);
 
                     var inventory = new InventoryService(items, worldConfiguration, logger);
-                    var itemsToAdd = new List<BasicEquipment>();
-                    foreach (var item in _worldConfiguration.BasicEquipments)
-                    {
-                        switch (item.Key)
-                        {
-                            case nameof(CharacterClassType.Adventurer) when @class != CharacterClassType.Adventurer:
-                            case nameof(CharacterClassType.Archer) when @class != CharacterClassType.Archer:
-                            case nameof(CharacterClassType.Mage) when @class != CharacterClassType.Mage:
-                            case nameof(CharacterClassType.MartialArtist) when @class != CharacterClassType.MartialArtist:
-                            case nameof(CharacterClassType.Swordsman) when @class != CharacterClassType.Swordsman:
-                                break;
-                            default:
-                                itemsToAdd.AddRange(_worldConfiguration.BasicEquipments[item.Key]);
-                                break;
-                        }
-                    }
+                    var origin = ResolveStarterOrigin(@class, _worldConfiguration.AllClassAvailableOnCreate);
+                    var itemsToAdd = ResolvePack(_worldConfiguration.BasicEquipments, @class, origin, new List<BasicEquipment>());
 
                     foreach (var itemToAdd in itemsToAdd)
                     {
-                        inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount), chara.CharacterId), itemToAdd.NoscorePocketType);
+                        inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount, itemToAdd.Rare, itemToAdd.Upgrade), chara.CharacterId), itemToAdd.NoscorePocketType);
                     }
 
-                    var skillsToAdd = new List<short>();
-                    foreach (var skill in _worldConfiguration.BasicSkills)
-                    {
-                        switch (skill.Key)
-                        {
-                            case nameof(CharacterClassType.Adventurer) when @class != CharacterClassType.Adventurer:
-                            case nameof(CharacterClassType.Archer) when @class != CharacterClassType.Archer:
-                            case nameof(CharacterClassType.Mage) when @class != CharacterClassType.Mage:
-                            case nameof(CharacterClassType.MartialArtist) when @class != CharacterClassType.MartialArtist:
-                            case nameof(CharacterClassType.Swordsman) when @class != CharacterClassType.Swordsman:
-                                break;
-                            default:
-                                skillsToAdd.AddRange(_worldConfiguration.BasicSkills[skill.Key]);
-                                break;
-                        }
-                    }
+                    var skillsToAdd = ResolvePack(_worldConfiguration.BasicSkills, @class, origin, new List<short>());
 
                     foreach (var skillToAdd in skillsToAdd)
                     {
