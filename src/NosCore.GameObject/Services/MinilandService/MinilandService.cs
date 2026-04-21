@@ -106,8 +106,14 @@ namespace NosCore.GameObject.Services.MinilandService
             var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId);
             if (minilandInfoDto == null)
             {
-                throw new InvalidOperationException(
-                    $"No Miniland row for character {characterId}. CharNewPacketHandler inserts one on creation — a missing row means the character predates that flow and needs a manual backfill.");
+                minilandInfoDto = await minilandDao.TryInsertOrUpdateAsync(new MinilandDto
+                {
+                    MinilandId = Guid.NewGuid(),
+                    State = MinilandState.Open,
+                    MinilandMessage = ((short)Game18NConstString.Welcome).ToString(),
+                    OwnerId = characterId,
+                    WelcomeMusicInfo = 3800
+                });
             }
 
             var map = maps.First(s => s.MapId == 20001);
