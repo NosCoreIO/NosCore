@@ -155,7 +155,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 character.IsDisconnecting = true;
 
-                foreach (var handler in disconnectHandlers)
+                foreach (var handler in disconnectHandlers.OrderBy(h => h.Order))
                 {
                     await handler.HandleDisconnectAsync(this);
                 }

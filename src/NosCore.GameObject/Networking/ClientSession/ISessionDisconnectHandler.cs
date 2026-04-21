@@ -10,5 +10,7 @@ namespace NosCore.GameObject.Networking.ClientSession;
 
 public interface ISessionDisconnectHandler
 {
+    int Order => 0;
+
     Task HandleDisconnectAsync(ClientSession session);
 }

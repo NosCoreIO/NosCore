@@ -13,6 +13,8 @@ namespace NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
 public class MinilandDisconnectHandler(IMinilandService minilandService, IMapInstanceGeneratorService mapInstanceGeneratorService) : ISessionDisconnectHandler
 {
+    public int Order => 100;
+
     public async Task HandleDisconnectAsync(ClientSession session)
     {
         if (!session.HasSelectedCharacter)
