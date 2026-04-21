@@ -119,12 +119,15 @@ namespace NosCore.Parser.Parsers.Generic
                 sb.AppendLine("| Column | Status | Name | Type | Description |");
                 sb.AppendLine("|---:|---|---|---|---|");
                 var covered = new HashSet<int>();
-                var parsedRows = sectionFields?.Select(f => (Col: f.Column ?? -1,
+                var parsedRows = (sectionFields?.Select(f => (Col: f.Column ?? -1,
                     Status: "Parsed", Name: f.PropertyName, Type: f.PropertyTypeName,
-                    Desc: f.Description ?? "")) ?? Enumerable.Empty<(int, string, string, string, string)>();
-                var docRows = sectionDocs?.Select(d => (Col: d.Column,
-                    Status: "NonParsed", Name: d.Name, Type: "",
-                    Desc: d.Description ?? "")) ?? Enumerable.Empty<(int, string, string, string, string)>();
+                    Desc: f.Description ?? "")) ?? Enumerable.Empty<(int, string, string, string, string)>()).ToList();
+                var parsedCols = new HashSet<int>(parsedRows.Where(r => r.Col >= 0).Select(r => r.Col));
+                var docRows = sectionDocs?
+                    .Where(d => !parsedCols.Contains(d.Column))
+                    .Select(d => (Col: d.Column,
+                        Status: "NonParsed", Name: d.Name, Type: "",
+                        Desc: d.Description ?? "")) ?? Enumerable.Empty<(int, string, string, string, string)>();
                 var namedRows = parsedRows.Concat(docRows).ToList();
                 foreach (var row in namedRows) { if (row.Col >= 0) covered.Add(row.Col); }
 

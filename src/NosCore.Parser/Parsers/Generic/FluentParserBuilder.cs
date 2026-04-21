@@ -58,20 +58,41 @@ namespace NosCore.Parser.Parsers.Generic
             return this;
         }
 
-        // Legacy lambda-based field. No column info captured — doc generator marks it
-        // as "computed" unless the caller also passes a `source` summary.
         public FluentParserBuilder<T> Field<TProperty>(
             Expression<Func<T, TProperty>> propertyExpression,
             Func<Dictionary<string, string[][]>, object?> extractor,
             string? source = null,
             string? description = null)
         {
+            return Field(propertyExpression, extractor, Array.Empty<(string, int, int)>(), source, description);
+        }
+
+        public FluentParserBuilder<T> Field<TProperty>(
+            Expression<Func<T, TProperty>> propertyExpression,
+            Func<Dictionary<string, string[][]>, object?> extractor,
+            (string Section, int Row, int Column)[] reads,
+            string? source = null,
+            string? description = null)
+        {
             var propertyName = GetPropertyName(propertyExpression);
             _actionList[propertyName] = extractor;
-            _fields.Add(new DatFieldMetadata(
-                propertyName, typeof(TProperty).Name,
-                Section: null, Row: null, Column: null,
-                Source: source, Description: description));
+            if (reads.Length == 0)
+            {
+                _fields.Add(new DatFieldMetadata(
+                    propertyName, typeof(TProperty).Name,
+                    Section: null, Row: null, Column: null,
+                    Source: source, Description: description));
+            }
+            else
+            {
+                foreach (var (section, row, column) in reads)
+                {
+                    _fields.Add(new DatFieldMetadata(
+                        propertyName, typeof(TProperty).Name,
+                        section, row, column,
+                        Source: source, Description: description));
+                }
+            }
             return this;
         }
 

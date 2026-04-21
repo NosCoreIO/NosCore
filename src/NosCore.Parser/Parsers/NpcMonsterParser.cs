@@ -120,59 +120,86 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.CellMinRange, "MODE", 0, 31, s => Convert.ToByte(s), "Minimum cells before the mode engages")
                 .Field(x => x.Midgard, "MODE", 0, 32, s => Convert.ToInt32(s), "Midgard-specific data")
                 .Field(x => x.Level, chunk => Level(chunk),
-                    source: "LEVEL[0]", description: "Parsed by Level(chunk) helper")
+                    reads: new[] { ("LEVEL", 0, 2) },
+                    source: "LEVEL[2]", description: "Parsed by Level(chunk) helper")
                 .Field(x => x.HeroXp, chunk => ImportXp(chunk) / 25,
-                    source: "EXP[0] / 25", description: "Hero-level XP award, scaled down from XP")
+                    reads: new[] { ("EXP", 0, 2), ("LEVEL", 0, 2) },
+                    source: "EXP[2] / 25", description: "Hero-level XP award, scaled down from XP")
                 .Field(x => x.MaxHp, chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)],
-                    source: "HP/MP[0] + basicHp[Level]", description: "Override HP plus level-based baseline")
+                    reads: new[] { ("HP/MP", 0, 2), ("LEVEL", 0, 2) },
+                    source: "HP/MP[2] + basicHp[Level]", description: "Override HP plus level-based baseline")
                 .Field(x => x.MaxMp, chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + (Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]),
-                    source: "HP/MP[1] + basic(Primary|Secondary)Mp[Level]", description: "Override MP plus level-based baseline, branch on Race")
+                    reads: new[] { ("HP/MP", 0, 3), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "HP/MP[3] + basic(Primary|Secondary)Mp[Level]", description: "Override MP plus level-based baseline, branch on Race")
                 .Field(x => x.Xp, chunk => ImportXp(chunk),
-                    source: "EXP[0]", description: "Base XP award")
+                    reads: new[] { ("EXP", 0, 2), ("LEVEL", 0, 2) },
+                    source: "EXP[2]", description: "Base XP award")
                 .Field(x => x.JobXp, chunk => ImportJxp(chunk),
-                    source: "EXP[1]", description: "Base job XP award")
+                    reads: new[] { ("EXP", 0, 3), ("LEVEL", 0, 2) },
+                    source: "EXP[3]", description: "Base job XP award")
                 .Field(x => x.CloseDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18),
-                    source: "ARMOR[0] formula", description: "(armorLvl-1)*2 + 18")
+                    reads: new[] { ("ARMOR", 0, 2) },
+                    source: "ARMOR[2] formula", description: "(armorLvl-1)*2 + 18")
                 .Field(x => x.DistanceDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 3 + 17),
-                    source: "ARMOR[0] formula", description: "(armorLvl-1)*3 + 17")
+                    reads: new[] { ("ARMOR", 0, 2) },
+                    source: "ARMOR[2] formula", description: "(armorLvl-1)*3 + 17")
                 .Field(x => x.MagicDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13),
-                    source: "ARMOR[0] formula", description: "(armorLvl-1)*2 + 13")
+                    reads: new[] { ("ARMOR", 0, 2) },
+                    source: "ARMOR[2] formula", description: "(armorLvl-1)*2 + 13")
                 .Field(x => x.DefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31),
-                    source: "ARMOR[0] formula", description: "(armorLvl-1)*5 + 31")
+                    reads: new[] { ("ARMOR", 0, 2) },
+                    source: "ARMOR[2] formula", description: "(armorLvl-1)*5 + 31")
                 .Field(x => x.DistanceDefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31),
-                    source: "ARMOR[0] formula", description: "(armorLvl-1)*5 + 31")
+                    reads: new[] { ("ARMOR", 0, 2) },
+                    source: "ARMOR[2] formula", description: "(armorLvl-1)*5 + 31")
                 .Field(x => x.AttackUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["WINFO"][0][4]),
-                    source: "WINFO[0] or WINFO[2] (gated by LoadUnknownData)", description: "Weapon upgrade level")
+                    reads: new[] { ("WINFO", 0, 2), ("WINFO", 0, 4), ("ETC", 0, 2) },
+                    source: "WINFO[2] or WINFO[4] (gated by LoadUnknownData)", description: "Weapon upgrade level")
                 .Field(x => x.DefenceUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["AINFO"][0][3]),
-                    source: "WINFO[0] or AINFO[1] (gated by LoadUnknownData)", description: "Armor upgrade level")
+                    reads: new[] { ("WINFO", 0, 2), ("AINFO", 0, 3), ("ETC", 0, 2) },
+                    source: "WINFO[2] or AINFO[3] (gated by LoadUnknownData)", description: "Armor upgrade level")
                 .Field(x => x.VNumRequired, chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4]),
-                    source: "SETTING[2] or PETINFO[0]", description: "VNum of the item required to tame/interact")
+                    reads: new[] { ("SETTING", 0, 4), ("PETINFO", 0, 2), ("ETC", 0, 2) },
+                    source: "SETTING[4] or PETINFO[2]", description: "VNum of the item required to tame/interact")
                 .Field(x => x.AmountRequired, chunk => Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0"),
-                    source: "SETTING[2] or PETINFO[1]", description: "Amount of the required item")
+                    reads: new[] { ("SETTING", 0, 4), ("PETINFO", 0, 3), ("ETC", 0, 2) },
+                    source: "SETTING[4] or PETINFO[3]", description: "Amount of the required item")
                 .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk),
-                    source: "WEAPON[varies]", description: "Min attack damage")
+                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 3), ("WEAPON", 0, 4), ("LEVEL", 0, 2) },
+                    source: "WEAPON[2..4]", description: "Min attack damage")
                 .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk),
-                    source: "WEAPON[varies]", description: "Max attack damage")
+                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 3), ("WEAPON", 0, 4), ("WEAPON", 0, 5), ("LEVEL", 0, 2) },
+                    source: "WEAPON[2..5]", description: "Max attack damage")
                 .Field(x => x.Concentrate, chunk => ImportConcentrate(chunk),
-                    source: "WEAPON[varies]", description: "Hit rate")
+                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 3), ("WEAPON", 0, 6) },
+                    source: "WEAPON[2,3,6]", description: "Hit rate")
                 .Field(x => x.CriticalChance, chunk => ImportCriticalChance(chunk),
-                    source: "WEAPON[varies]", description: "Critical hit chance")
+                    reads: new[] { ("WEAPON", 0, 3), ("WEAPON", 0, 7) },
+                    source: "WEAPON[3,7]", description: "Critical hit chance")
                 .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk),
-                    source: "WEAPON[varies]", description: "Critical hit damage multiplier")
+                    reads: new[] { ("WEAPON", 0, 3), ("WEAPON", 0, 8) },
+                    source: "WEAPON[3,8]", description: "Critical hit damage multiplier")
                 .Field(x => x.NpcMonsterSkill, chunk => ImportNpcMonsterSkill(chunk),
-                    source: "SKILL[0..14]", description: "Up to 5 NpcMonsterSkill entries (vnum/chance/force triples)")
+                    reads: Enumerable.Range(2, 15).Select(c => ("SKILL", 0, c)).Append(("VNUM", 0, 2)).ToArray(),
+                    source: "VNUM[2] + SKILL[2..16]", description: "Up to 5 NpcMonsterSkill entries (vnum/chance/force triples)")
                 .Field(x => x.BCards, chunk => ImportBCards(chunk),
-                    source: "BASIC + CARD + MODE", description: "BCards from BASIC (10 groups of 5), CARD (4 groups), MODE (5 groups)")
+                    reads: Enumerable.Range(2, 50).Select(c => ("BASIC", 0, c))
+                        .Concat(Enumerable.Range(2, 20).Select(c => ("CARD", 0, c)))
+                        .Append(("VNUM", 0, 2)).ToArray(),
+                    source: "VNUM[2] + BASIC[2..51] + CARD[2..21]", description: "BCards from BASIC (10 groups of 5) and CARD (4 groups of 5)")
                 .Field(x => x.Drop, chunk => ImportDrops(chunk),
-                    source: "ITEM[varies] + merged DropDao catalog", description: "20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO")
+                    reads: Enumerable.Range(2, 60).Select(c => ("ITEM", 0, c)).Append(("VNUM", 0, 2)).ToArray(),
+                    source: "VNUM[2] + ITEM[2..61] + merged DropDao catalog", description: "20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO")
                 .Field(x => x.MonsterType, chunk => ImportMonsterType(chunk),
-                    source: "LoadUnknownData + RACE[0,1]", description: "Categorisation (Mate/Normal/Trap/Unknown)")
+                    reads: new[] { ("VNUM", 0, 2), ("ETC", 0, 2), ("RACE", 0, 2), ("RACE", 0, 3) },
+                    source: "VNUM[2] + ETC[2] + RACE[2,3]", description: "Categorisation (Mate/Normal/Trap/Unknown)")
                 .Field(x => x.NoAggresiveIcon, chunk =>
                 {
                     var unknowndata = LoadUnknownData(chunk);
                     return (unknowndata == -2147483616 || unknowndata == -2147483647 || unknowndata == -2147483646)
                         && (Convert.ToByte(chunk["RACE"][0][2]) == 8) && (Convert.ToByte(chunk["RACE"][0][3]) == 0);
-                }, source: "LoadUnknownData + RACE[0,1]", description: "Talkable / trap entities: suppress the aggressive icon")
+                }, reads: new[] { ("ETC", 0, 2), ("RACE", 0, 2), ("RACE", 0, 3) },
+                source: "ETC[2] + RACE[2,3]", description: "Talkable / trap entities: suppress the aggressive icon")
                 .Describe("ETC", "32-bit flag word stored as a decimal integer. Each bit flips a named gameplay behaviour; only a subset is documented in NSgtd.")
                 .Describe("MODE", "4 BCard groups of 5 + 7 mode-meta columns; AlwaysActive onwards is meta.")
                 .Doc("LEVEL", 2, "monsterLevel", "Base monster level.")
