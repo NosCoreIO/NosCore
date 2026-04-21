@@ -34,6 +34,32 @@ namespace NosCore.Database.Entities
 
         public bool CanWalk { get; set; }
 
+        public bool CanCollect { get; set; }
+
+        public bool CantDebuff { get; set; }
+
+        public bool CanCatch { get; set; }
+
+        public bool DisappearAfterSeconds { get; set; }
+
+        public bool DisappearAfterHitting { get; set; }
+
+        public bool HasMode { get; set; }
+
+        public bool DisappearAfterSecondsMana { get; set; }
+
+        public bool OnDefenseOnlyOnce { get; set; }
+
+        public bool HasDash { get; set; }
+
+        public bool RegenerateHpOverTime { get; set; }
+
+        public bool CantVoke { get; set; }
+
+        public bool DontDrainHpAfterSeconds { get; set; }
+
+        public bool CantTargetInfo { get; set; }
+
         public byte AttackUpgrade { get; set; }
 
         public byte BasicArea { get; set; }

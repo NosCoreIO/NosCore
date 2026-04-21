@@ -1846,7 +1846,22 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("BasicSkill")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("CanCatch")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CanCollect")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("CanWalk")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CantDebuff")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CantTargetInfo")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("CantVoke")
                         .HasColumnType("boolean");
 
                     b.Property<short>("CloseDefence")
@@ -1876,11 +1891,23 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("DefenceUpgrade")
                         .HasColumnType("smallint");
 
+                    b.Property<bool>("DisappearAfterHitting")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("DisappearAfterSeconds")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("DisappearAfterSecondsMana")
+                        .HasColumnType("boolean");
+
                     b.Property<short>("DistanceDefence")
                         .HasColumnType("smallint");
 
                     b.Property<short>("DistanceDefenceDodge")
                         .HasColumnType("smallint");
+
+                    b.Property<bool>("DontDrainHpAfterSeconds")
+                        .HasColumnType("boolean");
 
                     b.Property<byte>("Element")
                         .HasColumnType("smallint");
@@ -1894,6 +1921,12 @@ namespace NosCore.Database.Migrations
                     b.Property<int>("GiveDamagePercentage")
                         .HasColumnType("integer");
 
+                    b.Property<bool>("HasDash")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("HasMode")
+                        .HasColumnType("boolean");
+
                     b.Property<byte>("HeroLevel")
                         .HasColumnType("smallint");
 
@@ -1904,6 +1937,12 @@ namespace NosCore.Database.Migrations
                         .HasColumnType("boolean");
 
                     b.Property<bool>("IsPercent")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("OnDefenseOnlyOnce")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("RegenerateHpOverTime")
                         .HasColumnType("boolean");
 
                     b.Property<int>("JobXp")
