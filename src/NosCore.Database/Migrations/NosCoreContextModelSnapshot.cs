@@ -1984,6 +1984,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("SkillVNum")
                         .HasColumnType("smallint");
 
+                    b.Property<byte>("Force")
+                        .HasColumnType("smallint");
+
                     b.HasKey("NpcMonsterSkillId");
 
                     b.HasIndex("NpcMonsterVNum");

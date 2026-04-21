@@ -242,6 +242,7 @@ namespace NosCore.Parser.Parsers
                 {
                     SkillVNum = vnum,
                     Rate = Convert.ToInt16(chunk["SKILL"][0][i + 1]),
+                    Force = Convert.ToByte(chunk["SKILL"][0][i + 2]),
                     NpcMonsterVNum = monstervnum
                 });
             }
