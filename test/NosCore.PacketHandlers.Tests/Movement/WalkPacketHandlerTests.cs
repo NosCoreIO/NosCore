@@ -40,7 +40,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 DistanceCalculator.Object,
                 Logger,
                 TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer,
+                new Mock<Wolverine.IMessageBus>().Object);
         }
 
         [TestMethod]

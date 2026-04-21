@@ -270,7 +270,7 @@ namespace NosCore.GameObject.Services.QuestService
                 await handler.OnMonsterKilledAsync(character, mob, quest);
                 if (quest.CompletedOn != null)
                 {
-                    await NotifyQuestCompletedAsync(character, quest);
+                    await CompleteQuestAsync(character, quest);
                 }
             }
         }
@@ -282,8 +282,9 @@ namespace NosCore.GameObject.Services.QuestService
         // Wolverine does not guarantee subscriber dispatch ordering, so the
         // packet sequence has to live here rather than in a subscriber — the
         // client crashes on out-of-order quest packets.
-        private async Task NotifyQuestCompletedAsync(ICharacterEntity character, CharacterQuest quest)
+        public async Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest)
         {
+            quest.CompletedOn ??= clock.GetCurrentInstant();
             await character.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,

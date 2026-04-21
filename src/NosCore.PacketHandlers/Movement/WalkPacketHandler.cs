@@ -9,6 +9,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
@@ -17,11 +18,12 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.I18N;
 using Serilog;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.PacketHandlers.Movement
 {
     public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
         : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
         // this is used to avoid network issue to be counted as speed hack.
@@ -63,6 +65,12 @@ namespace NosCore.PacketHandlers.Movement
 
             session.Character.PositionX = walkPacket.XCoordinate;
             session.Character.PositionY = walkPacket.YCoordinate;
+
+            await messageBus.PublishAsync(new CharacterMovedEvent(
+                session.Character,
+                session.Character.MapX,
+                session.Character.MapY,
+                session.Character.MapId));
         }
     }
 }
