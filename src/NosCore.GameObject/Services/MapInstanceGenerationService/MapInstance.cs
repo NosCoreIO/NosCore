@@ -399,7 +399,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
 
                     await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
-                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_distanceCalculator, _clock, _logger)));
+                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
 
                     // Buff expiration: drop any buff whose ExpiresAt is past. Done
                     // per-map so the tick rate matches the life loop (400ms) which is
