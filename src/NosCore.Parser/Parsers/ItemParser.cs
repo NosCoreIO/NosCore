@@ -617,7 +617,7 @@ namespace NosCore.Parser.Parsers
                 4264 => ItemEffectType.Heroic,
                 4262 => ItemEffectType.RandomHeroic,
                 var x when x == 287 || x == 4240 || x == 4194 || x == 4106 => ItemEffectType.Undefined,
-                var x when x == 185 || x == 302 || x == 882 || x == 942 || x == 999 => ItemEffectType.BoxEffect,
+                var x when item.ItemType == ItemType.Box && item.ItemSubType == 3 => ItemEffectType.BoxEffect,
                 1245 => ItemEffectType.CraftedSpRecharger,
                 var x when x == 1246 || x == 9020 || x == 1247 || x == 9021 || x == 1248 || x == 9022 || x == 1249 || x == 9023 => ItemEffectType.BuffPotions,
                 var x when x == 5130 || x == 9072 => ItemEffectType.PetSpaceUpgrade,
