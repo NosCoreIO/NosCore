@@ -295,7 +295,8 @@ namespace NosCore.Parser.Parsers
                     IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
                     FirstData = (short)((first > 0 ? first : -first) / 4),
                     SecondData = (short)(int.Parse(chunk["CARD"][0][5 * i + 4]) / 4),
-                    ThirdData = (short)(int.Parse(chunk["CARD"][0][5 * i + 6]) / 4)
+                    ThirdData = (short)(int.Parse(chunk["CARD"][0][5 * i + 6]) / 4),
+                    Slot = (byte)(i + 1)
                 };
                 monstercards.Add(itemCard);
 

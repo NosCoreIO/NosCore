@@ -24,6 +24,7 @@ public sealed class NpcCombatCatalog : INpcCombatCatalog, ISingletonService
     private readonly IReadOnlyDictionary<short, IReadOnlyList<NpcMonsterSkillDto>> _skillsByMob;
     private readonly IReadOnlyDictionary<short, IReadOnlyList<DropDto>> _dropsByMob;
     private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _bcardsByMob;
+    private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _deathBCardsByMob;
     private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _bcardsBySkill;
 
     public NpcCombatCatalog(
@@ -45,6 +46,11 @@ public sealed class NpcCombatCatalog : INpcCombatCatalog, ISingletonService
             .GroupBy(b => b.NpcMonsterVNum!.Value)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
 
+        _deathBCardsByMob = bCards
+            .Where(b => b.NpcMonsterVNum.HasValue && b.Slot == 2)
+            .GroupBy(b => b.NpcMonsterVNum!.Value)
+            .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
+
         _bcardsBySkill = bCards
             .Where(b => b.SkillVNum.HasValue)
             .GroupBy(b => b.SkillVNum!.Value)
@@ -59,6 +65,9 @@ public sealed class NpcCombatCatalog : INpcCombatCatalog, ISingletonService
 
     public IReadOnlyList<BCardDto> GetNpcBCards(short npcMonsterVnum)
         => _bcardsByMob.TryGetValue(npcMonsterVnum, out var list) ? list : EmptyBCards;
+
+    public IReadOnlyList<BCardDto> GetDeathBCards(short npcMonsterVnum)
+        => _deathBCardsByMob.TryGetValue(npcMonsterVnum, out var list) ? list : EmptyBCards;
 
     public IReadOnlyList<BCardDto> GetSkillBCards(short skillVnum)
         => _bcardsBySkill.TryGetValue(skillVnum, out var list) ? list : EmptyBCards;
