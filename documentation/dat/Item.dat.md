@@ -1,4 +1,4 @@
-﻿# Item.dat
+# Item.dat
 
 ```text
 	FLAG	0	0	0	{IsSoldable}	{IsDroppable}	{IsTradable}	{IsMinilandActionable}	{IsWarehouse}	{Flag9}	{Flag1}	{Flag2}	{Flag3}	{Flag4}	{RequireBinding}	{IsColored}	{FemaleOnly}	{MaleOnly}	0	{Flag6}	0	{IsHeroic}	{Flag7}	{Flag8}	{RaidItem}	{UnknownLastBit}
@@ -36,7 +36,7 @@
 | 22 | Parsed | IsHeroic | Boolean | Heroic item |
 | 23 | Parsed | Flag7 | Boolean | FLAG bit 22 (unknown) |
 | 24 | Parsed | Flag8 | Boolean | FLAG bit 23 (unknown) |
-| 25 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops â€” routed to the Raid pocket. |
+| 25 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket. |
 | 26 | NonParsed | UnknownLastBit |  |  |
 
 ## INDEX

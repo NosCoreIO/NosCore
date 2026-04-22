@@ -56,9 +56,11 @@ namespace NosCore.Parser.Tests
             }
 
             var existing = File.Exists(path) ? File.ReadAllText(path) : string.Empty;
-            Assert.AreEqual(existing, md,
+            Assert.AreEqual(Normalize(existing), Normalize(md),
                 $"{builder.FileName}.md snapshot mismatch. Run with UPDATE_SNAPSHOTS=1 to regenerate.");
         }
+
+        private static string Normalize(string text) => text.Replace("\r\n", "\n");
 
         private static IDao<TDto, TKey> Mock<TDto, TKey>() where TDto : class => new Mock<IDao<TDto, TKey>>().Object;
         private static ILogger Logger() => new Mock<ILogger>().Object;

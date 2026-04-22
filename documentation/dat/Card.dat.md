@@ -1,4 +1,4 @@
-﻿# Card.dat
+# Card.dat
 
 ```text
 	EFFECT	{EffectId}

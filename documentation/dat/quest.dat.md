@@ -1,4 +1,4 @@
-﻿# quest.dat
+# quest.dat
 
 ```text
 ```

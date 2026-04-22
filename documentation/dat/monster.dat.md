@@ -1,4 +1,4 @@
-﻿# monster.dat
+# monster.dat
 
 ```text
 	AINFO	{ainfoDefType}	{DefenceUpgrade}
@@ -351,7 +351,7 @@
 | 2 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
 | 2 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
 | 2 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
-| 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, â€¦) |
+| 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, …) |
 | 3 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
 | 3 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 3 | Parsed | RaceType | Byte | Subtype within the race group |

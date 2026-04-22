@@ -1,4 +1,4 @@
-﻿# Skill.dat
+# Skill.dat
 
 ```text
 ```
