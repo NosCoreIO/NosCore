@@ -17,8 +17,6 @@ namespace NosCore.Database.Entities
     {
         public bool IsDisabled { get; set; }
 
-        public bool IsMoving { get; set; }
-
         public virtual Map Map { get; set; } = null!;
 
         public short MapId { get; set; }

@@ -221,11 +221,17 @@ public class ComponentBundleGenerator : IIncrementalGenerator
         var duplicateProperties = new HashSet<string>(
             propertyOccurrences.Where(kv => kv.Value > 1).Select(kv => kv.Key));
 
-        // Generate implicit conversion operators
-        sb.AppendLine("    // Implicit conversion operators");
         foreach (var component in bundle.Components)
         {
-            sb.AppendLine($"    public static implicit operator {component.Name}({bundle.Name} bundle) => bundle.World.TryGetComponent<{component.Name}>(bundle.Entity) ?? default;");
+            sb.AppendLine($"    public static implicit operator {component.Name}({bundle.Name} bundle)");
+            sb.AppendLine("    {");
+            sb.AppendLine($"        var __value = bundle.World.TryGetComponent<{component.Name}>(bundle.Entity);");
+            sb.AppendLine("        if (__value == null)");
+            sb.AppendLine("        {");
+            sb.AppendLine($"            throw new global::System.InvalidOperationException($\"{component.Name} missing on entity {{bundle.Entity}}\");");
+            sb.AppendLine("        }");
+            sb.AppendLine("        return __value.Value;");
+            sb.AppendLine("    }");
         }
         sb.AppendLine();
 

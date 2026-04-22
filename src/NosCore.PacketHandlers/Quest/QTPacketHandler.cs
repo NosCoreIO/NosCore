@@ -20,28 +20,17 @@ namespace NosCore.PacketHandlers.Quest
     {
         public override async Task ExecuteAsync(QtPacket qtPacket, ClientSession session)
         {
-            var charQuest = session.Character.Quests.FirstOrDefault(q => q.Value.QuestId == qtPacket.Data);
-            if (charQuest.Equals(new KeyValuePair<Guid, CharacterQuest>()))
-            {
-                return;
-            }
-
             switch (qtPacket.Type)
             {
                 case QuestActionType.Validate:
-                    await questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
-                    {
-                        Type = QuestActionType.Validate,
-                        FirstArgument = session.Character.Script.Argument1,
-                        SecondArgument = session.Character.Script.ScriptId,
-                        ThirdArgument = session.Character.Script.ScriptStepId,
-                    });
-                    break;
-
                 case QuestActionType.Achieve:
-                    await questProvider.RunScriptAsync(session.Character, session.Character.Script == null ? null : new ScriptClientPacket
+                    if (session.Character.Script == null)
                     {
-                        Type = QuestActionType.Achieve,
+                        return;
+                    }
+                    await questProvider.RunScriptAsync(session.Character, new ScriptClientPacket
+                    {
+                        Type = qtPacket.Type,
                         FirstArgument = session.Character.Script.Argument1,
                         SecondArgument = session.Character.Script.ScriptId,
                         ThirdArgument = session.Character.Script.ScriptStepId,
@@ -49,8 +38,16 @@ namespace NosCore.PacketHandlers.Quest
                     break;
 
                 case QuestActionType.GiveUp:
+                    var charQuest = session.Character.Quests.FirstOrDefault(q => q.Value.QuestId == qtPacket.Data);
+                    if (charQuest.Equals(new KeyValuePair<Guid, CharacterQuest>()))
+                    {
+                        return;
+                    }
                     session.Character.Quests.TryRemove(charQuest.Key, out var questToRemove);
-                    questToRemove?.GenerateQstiPacket(false);
+                    if (questToRemove != null)
+                    {
+                        await session.SendPacketAsync(questToRemove.GenerateQstiPacket(false));
+                    }
                     break;
             }
         }

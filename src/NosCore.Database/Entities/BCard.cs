@@ -45,5 +45,7 @@ namespace NosCore.Database.Entities
         public bool IsLevelScaled { get; set; }
 
         public bool IsLevelDivided { get; set; }
+
+        public byte Slot { get; set; }
     }
 }

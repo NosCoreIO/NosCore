@@ -9,6 +9,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets.Quest;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NosCore.GameObject.Services.QuestService
 {
@@ -23,21 +24,37 @@ namespace NosCore.GameObject.Services.QuestService
             return new QstiPacket(GenerateQuestSubPacket(showDialog));
         }
 
+        public bool AreObjectivesComplete()
+        {
+            if (!IsCountableObjective(Quest.QuestType))
+            {
+                return CompletedOn != null;
+            }
+            return Quest.QuestObjectives.All(o =>
+            {
+                var required = o.SecondData ?? 0;
+                if (required <= 0) return true;
+                return ObjectiveProgress.TryGetValue(o.QuestObjectiveId, out var c) && c >= required;
+            });
+        }
+
         public QuestSubPacket GenerateQuestSubPacket(bool showDialog)
         {
             var objectives = new List<QuestObjectiveSubPacket>();
-            var totalRequired = 0;
             var questCount = 0;
+            var complete = AreObjectivesComplete();
             foreach (var objective in Quest.QuestObjectives)
             {
-                var maxCount = (short)(objective.SecondData ?? 0);
-                var currentCount = (short)(ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var c) ? c : 0);
-                totalRequired += maxCount;
+                var maxCount = IsCountableObjective(Quest.QuestType) ? (short)(objective.SecondData ?? 0) : (short)0;
+                var currentCount = IsCountableObjective(Quest.QuestType)
+                    && ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var c)
+                    ? (short)c
+                    : (short)0;
                 objectives.Add(new QuestObjectiveSubPacket
                 {
                     CurrentCount = currentCount,
                     MaxCount = maxCount,
-                    IsFinished = questCount == 0 ? CompletedOn != null : (bool?)null
+                    IsFinished = questCount == 0 ? complete : (bool?)null
                 });
                 questCount++;
             }
@@ -47,11 +64,18 @@ namespace NosCore.GameObject.Services.QuestService
                 QuestId = QuestId,
                 InfoId = QuestId,
                 GoalType = Quest.QuestType,
-                ObjectiveCount = (byte)totalRequired,
+                ObjectiveCount = 5,
                 ShowDialog = showDialog,
                 QuestObjectiveSubPackets = objectives
             };
         }
+
+        private static bool IsCountableObjective(Packets.Enumerations.QuestType type) => type switch
+        {
+            Packets.Enumerations.QuestType.Hunt => true,
+            Packets.Enumerations.QuestType.NumberOfKill => true,
+            _ => false
+        };
 
     }
 

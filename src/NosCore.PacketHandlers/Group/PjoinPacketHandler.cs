@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (!hasTargetSession || (targetSession.Group?.IsGroupFull ?? true))
+                    if (!hasTargetSession || targetSession.Group.IsGroupFull)
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if ((targetSession.Group!.Count > 1) && (clientSession.Character.Group!.Count > 1))
+                    if ((targetSession.Group.Count > 1) && (clientSession.Character.Group.Count > 1))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Group
                     clientSession.Character.GroupRequestCharacterIds.TryAdd(pjoinPacket.CharacterId, pjoinPacket.CharacterId);
                     clientSession.Character.LastGroupRequest = clock.GetCurrentInstant();
 
-                    if (((clientSession.Character.Group!.Count == 1) ||
+                    if (((clientSession.Character.Group.Count == 1) ||
                             (clientSession.Character.Group.Type == GroupType.Group))
                         && ((targetSession.Group.Count == 1) || (targetSession.Group.Type == GroupType.Group)))
                     {
@@ -143,7 +143,7 @@ namespace NosCore.PacketHandlers.Group
                     break;
                 case GroupRequestType.Sharing:
 
-                    if (clientSession.Character.Group!.Count == 1)
+                    if (clientSession.Character.Group.Count == 1)
                     {
                         return;
                     }
@@ -191,12 +191,12 @@ namespace NosCore.PacketHandlers.Group
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
 
-                    if ((clientSession.Character.Group!.Count > 1) && (targetSession.Group?.Count > 1))
+                    if ((clientSession.Character.Group.Count > 1) && (targetSession.Group.Count > 1))
                     {
                         return;
                     }
 
-                    if (clientSession.Character.Group.IsGroupFull || (targetSession.Group?.IsGroupFull ?? true))
+                    if (clientSession.Character.Group.IsGroupFull || targetSession.Group.IsGroupFull)
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -218,7 +218,7 @@ namespace NosCore.PacketHandlers.Group
                     {
                         if (targetSession.Group.Type == GroupType.Group)
                         {
-                            clientSession.Character.JoinGroup(targetSession.Group!);
+                            clientSession.Character.JoinGroup(targetSession.Group);
                         }
                     }
                     else
@@ -280,7 +280,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (clientSession.Character.Group!.Count == 1)
+                    if (clientSession.Character.Group.Count == 1)
                     {
                         return;
                     }

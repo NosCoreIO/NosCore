@@ -47,11 +47,6 @@ namespace NosCore.PacketHandlers.Game
 
             session.GameStarted = true;
 
-            if (session.Character.CurrentScriptId == null)
-            {
-                _ = questProvider.RunScriptAsync(session.Character);
-            }
-
             if (worldConfiguration.Value.WorldInformation)
             {
                 await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
@@ -76,6 +71,11 @@ namespace NosCore.PacketHandlers.Game
             else
             {
                 await mapChangeService.ChangeMapAsync(session);
+            }
+
+            if (session.Character.CurrentScriptId == null)
+            {
+                _ = questProvider.RunScriptAsync(session.Character);
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Game
 
             // Group init even for solo players — the client expects pinit + a self-row pst
             // so its party UI is in a known state for later joins/leaves.
-            await session.SendPacketAsync(session.Character.Group!.GeneratePinit());
+            await session.SendPacketAsync(session.Character.Group.GeneratePinit());
             await session.SendPacketsAsync(session.Character.Group.GeneratePst());
 
             //            Session.SendPacket("zzim");

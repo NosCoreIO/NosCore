@@ -53,12 +53,21 @@ namespace NosCore.Core.Configuration
 
         public int MaxAdditionalSpPoints { get; set; }
 
-#pragma warning disable CA2227 // Collection properties should be read only
-        public Dictionary<string, List<BasicEquipment>> BasicEquipments { get; set; } = new();
+        public bool AllClassAvailableOnCreate { get; set; }
 
-        public Dictionary<string, List<short>> BasicSkills { get; set; } = new();
+#pragma warning disable CA2227 // Collection properties should be read only
+        public Dictionary<string, Dictionary<StarterOrigin, List<BasicEquipment>>> BasicEquipments { get; set; } = new();
+
+        public Dictionary<string, Dictionary<StarterOrigin, List<short>>> BasicSkills { get; set; } = new();
 
 #pragma warning restore CA2227 // Collection properties should be read only
+    }
+
+    public enum StarterOrigin : byte
+    {
+        CreateAndUpgrade,
+        Create56,
+        Create80
     }
 
     public class BasicEquipment
@@ -68,5 +77,9 @@ namespace NosCore.Core.Configuration
         public short Amount { get; set; }
 
         public NoscorePocketType NoscorePocketType { get; set; }
+
+        public sbyte Rare { get; set; }
+
+        public byte Upgrade { get; set; }
     }
 }

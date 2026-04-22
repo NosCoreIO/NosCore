@@ -80,10 +80,9 @@ namespace NosCore.GameObject.Services.MapChangeService
                 return;
             }
 
+            character.IsChangingMapInstance = true;
             try
             {
-                character.IsChangingMapInstance = true;
-
                 var currentMapInstance = character.MapInstance;
                 var newMapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
                 var characterId = character.CharacterId;
@@ -170,8 +169,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;
 
-                character.Group?.LeaveGroup(character);
-                character.Group?.JoinGroup(character);
+                character.Group.LeaveGroup(character);
+                character.Group.JoinGroup(character);
 
                 var fairy = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
                 var group = character.Group;
@@ -240,6 +239,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (channelId != null)
                 {
+                    newMapInstance.Sessions.Add(session.Channel!);
                     if (!invisible)
                     {
                         var prefix = authority == AuthorityType.Moderator
@@ -247,17 +247,16 @@ namespace NosCore.GameObject.Services.MapChangeService
                             : string.Empty;
                         await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
                     }
-
-                    newMapInstance.Sessions.Add(session.Channel!);
                 }
 
                 await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance));
-
-                character.IsChangingMapInstance = false;
             }
             catch (Exception ex)
             {
                 logger.Warning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
+            }
+            finally
+            {
                 if (session.HasPlayerEntity)
                 {
                     session.Character.IsChangingMapInstance = false;
@@ -279,9 +278,10 @@ namespace NosCore.GameObject.Services.MapChangeService
             var character = session.Character;
             var outPacket = character.GenerateOut();
             var mapInstance = character.MapInstance;
+            var channelId = session.Channel!.Id;
+            await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(channelId));
             session.ClearPlayerEntity();
             await session.SendPacketAsync(new MapOutPacket());
-            await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(session.Channel!.Id));
         }
 
     }

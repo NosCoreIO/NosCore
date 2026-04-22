@@ -58,7 +58,15 @@ namespace NosCore.Parser
                 builder => builder.UseNpgsql(parserConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();
             Logger.GetLoggerConfiguration().CreateLogger();
-            Logger.PrintHeader(ConsoleText);
+            try
+            {
+                Logger.PrintHeader(ConsoleText);
+            }
+            catch (System.IO.IOException)
+            {
+                // No attached console (e.g. CLI invocation from a shell with redirected stdout) —
+                // skip the banner rather than crashing on Console.WindowWidth.
+            }
             CultureInfo.DefaultThreadCurrentCulture = new(parserConfiguration.Language.ToString());
         }
 
@@ -100,18 +108,22 @@ namespace NosCore.Parser
 
         public static async Task Main(string[] args)
         {
+            var cli = ParserCliOptions.Parse(args);
             try
             {
-                await BuildHost(args).RunAsync();
+                await BuildHost(args, cli).RunAsync();
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                Console.ReadLine();
+                if (!cli.HasFolder)
+                {
+                    Console.ReadLine();
+                }
             }
         }
 
-        private static IHost BuildHost(string[] args)
+        private static IHost BuildHost(string[] args, ParserCliOptions cli)
         {
             return new HostBuilder()
                 .UseSerilog()
@@ -127,6 +139,7 @@ namespace NosCore.Parser
 
                     InitializeConfiguration(args, services);
 
+                    services.AddSingleton(cli);
                     services.AddI18NLogs();
                     services.AddLogging(builder => builder.AddFilter("Microsoft", LogLevel.Warning));
                     services.Configure<ConsoleLifetimeOptions>(o => o.SuppressStatusMessages = true);

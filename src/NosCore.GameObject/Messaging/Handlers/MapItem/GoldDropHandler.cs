@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                     Type = SayColorType.Green,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
-                    Game18NArguments = { mapItem.Amount, mapItem.ItemInstance!.Item.Name[session.Account.Language] }
+                    Game18NArguments = { mapItem.Amount, mapItem.VNum }
                 });
 #pragma warning restore NosCoreAnalyzers
             }

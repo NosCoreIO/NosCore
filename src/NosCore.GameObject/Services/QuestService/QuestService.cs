@@ -12,11 +12,15 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
@@ -30,37 +34,38 @@ namespace NosCore.GameObject.Services.QuestService
             IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
             List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IEnumerable<IQuestTypeHandler> questTypeHandlers)
+            IEnumerable<IQuestTypeHandler> questTypeHandlers,
+            Wolverine.IMessageBus messageBus,
+            List<QuestRewardDto> questRewards,
+            List<QuestQuestRewardDto> questQuestRewards,
+            Services.ItemGenerationService.IItemGenerationService itemBuilderService)
         : IQuestService
     {
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
         public async Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet)
         {
-            if (character.CurrentScriptId == null) //todo handle other acts
+            if (character.CurrentScriptId == null && worldConfiguration.Value.SceneOnCreate)
             {
-                if (worldConfiguration.Value.SceneOnCreate)
-                {
-                    await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
-                    await Task.Delay(TimeSpan.FromSeconds(71));
-                }
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
             }
 
+            var previousScript = character.Script;
             if (packet != null)
             {
                 if (!await CheckScriptStateAsync(packet, character))
                 {
                     return;
                 }
-                if (packet.Type == QuestActionType.Achieve)
+            }
+
+            if (previousScript != null)
+            {
+                await character.SendPacketAsync(new ScriptPacket
                 {
-                    var quest = character.Quests.Values.FirstOrDefault(s => s.Quest.QuestId == packet.FirstArgument);
-                    if (quest != null)
-                    {
-                        quest.CompletedOn = clock.GetCurrentInstant();
-                        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-                    }
-                }
+                    Unknown = 0,
+                    ScriptId = previousScript.ScriptId,
+                    ScriptStepId = previousScript.ScriptStepId
+                });
             }
 
             var orderedScripts = scripts.OrderBy(s => s.ScriptId).ThenBy(s => s.ScriptStepId).ToList();
@@ -117,6 +122,7 @@ namespace NosCore.GameObject.Services.QuestService
             {
                 "q_complete" => await ValidateQuestAsync(character, script.Argument1 ?? 0),
                 "quest" => await AddQuestAsync(character, type, script.Argument1 ?? 0),
+                "q_pay" => await QPayAsync(character, script.Argument1 ?? 0),
                 "time" => await TimeAsync(script.Argument1 ?? 0),
                 "targetoff" => await TargetOffPacketAsync(script.Argument1 ?? 0, character),
                 "web" => true,
@@ -125,11 +131,120 @@ namespace NosCore.GameObject.Services.QuestService
                 "opendual" => true,
 
                 "move" => false, //todo handle
-                "q_pay" => false, //todo handle
                 "target" => false,  //todo handle
                 "run" => true,  //todo handle
                 _ => false,
             };
+        }
+
+        private async Task<bool> QPayAsync(ICharacterEntity character, short questId)
+        {
+            var charQuest = character.Quests.Values.FirstOrDefault(q => q.QuestId == questId && q.CompletedOn == null);
+            if (charQuest == null || !charQuest.AreObjectivesComplete())
+            {
+                return false;
+            }
+
+            var rewardsForQuest = questQuestRewards
+                .Where(l => l.QuestId == questId)
+                .Select(l => questRewards.FirstOrDefault(r => r.QuestRewardId == l.QuestRewardId))
+                .Where(r => r != null)
+                .Cast<QuestRewardDto>()
+                .ToList();
+
+            // Bail out BEFORE claiming CompletedOn if any item reward won't fit;
+            // otherwise the quest turns in but the reward is dropped on the floor.
+            foreach (var reward in rewardsForQuest)
+            {
+                var type = (Data.Enumerations.Quest.QuestRewardType)reward.RewardType;
+                if (type is Data.Enumerations.Quest.QuestRewardType.EtcMainItem
+                    or Data.Enumerations.Quest.QuestRewardType.WearItem
+                    && !character.InventoryService.CanAddItem((short)reward.Data))
+                {
+                    await character.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.NotEnoughSpace
+                    });
+                    return false;
+                }
+            }
+
+            // Claim the quest before awaiting reward application so a concurrent
+            // qt spam can't pass the CompletedOn == null check twice.
+            lock (charQuest)
+            {
+                if (charQuest.CompletedOn != null)
+                {
+                    return false;
+                }
+                charQuest.CompletedOn = clock.GetCurrentInstant();
+            }
+
+            foreach (var reward in rewardsForQuest)
+            {
+                await ApplyRewardAsync(character, reward);
+            }
+
+            await character.SendPacketAsync(character.GenerateQuestPacket());
+            await messageBus.PublishAsync(new QuestCompletedEvent(character, charQuest));
+            return true;
+        }
+
+        private async Task ApplyRewardAsync(ICharacterEntity character, QuestRewardDto reward)
+        {
+            var amount = Math.Max(1, reward.Amount);
+            switch ((Data.Enumerations.Quest.QuestRewardType)reward.RewardType)
+            {
+                case Data.Enumerations.Quest.QuestRewardType.Gold:
+                case Data.Enumerations.Quest.QuestRewardType.BaseGoldByAmount:
+                case Data.Enumerations.Quest.QuestRewardType.CapturedGold:
+                case Data.Enumerations.Quest.QuestRewardType.UnknowGold:
+                    character.Gold += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.Exp:
+                case Data.Enumerations.Quest.QuestRewardType.PercentExp:
+                    character.LevelXp += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.JobExp:
+                case Data.Enumerations.Quest.QuestRewardType.PercentJobExp:
+                    character.JobLevelXp += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.Reput:
+                    character.Reput += (long)reward.Data * amount;
+                    break;
+                case Data.Enumerations.Quest.QuestRewardType.EtcMainItem:
+                case Data.Enumerations.Quest.QuestRewardType.WearItem:
+                    var item = itemBuilderService.Create((short)reward.Data, (short)amount, (sbyte)reward.Rarity, reward.Upgrade, reward.Design);
+                    if (item == null)
+                    {
+                        logger.Warning("Quest reward skipped: invalid item vnum {VNum} for character {CharacterId}",
+                            reward.Data, character.CharacterId);
+                        break;
+                    }
+                    var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.VisualId));
+                    if (added == null || added.Count == 0)
+                    {
+                        logger.Warning("Quest reward lost: inventory full for item {VNum}x{Amount} character {CharacterId}",
+                            reward.Data, amount, character.CharacterId);
+                        await character.SendPacketAsync(new SayiPacket
+                        {
+                            VisualType = VisualType.Player,
+                            VisualId = character.VisualId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.NotEnoughSpace
+                        });
+                        break;
+                    }
+                    foreach (var inv in added)
+                    {
+                        await character.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+                    }
+                    break;
+                default:
+                    logger.Warning("Unhandled quest reward type {Type}", reward.RewardType);
+                    break;
+            }
         }
 
         private async Task<bool> TimeAsync(short delay)
@@ -236,7 +351,7 @@ namespace NosCore.GameObject.Services.QuestService
                 Quest = quest,
                 QuestId = quest.QuestId
             });
-            await character.SendPacketAsync(character.GenerateQuestPacket());
+            await character.SendPacketAsync(character.GenerateQuestPacket(showDialog: true));
             if (quest.TargetMap != null)
             {
                 await character.SendPacketAsync(quest.GenerateTargetPacket());
@@ -256,16 +371,48 @@ namespace NosCore.GameObject.Services.QuestService
             return handler?.ValidateAsync(character, characterQuest) ?? Task.FromResult(false);
         }
 
-        public Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob)
+        public async Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob)
         {
-            var tasks = character.Quests.Values
-                .Where(q => q.CompletedOn is null)
-                .Select(q =>
+            foreach (var quest in character.Quests.Values.Where(q => q.CompletedOn is null).ToList())
+            {
+                var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
+                if (handler == null)
                 {
-                    var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == q.Quest.QuestType);
-                    return handler?.OnMonsterKilledAsync(character, mob, q) ?? Task.CompletedTask;
-                });
-            return Task.WhenAll(tasks);
+                    continue;
+                }
+                await handler.OnMonsterKilledAsync(character, mob, quest);
+                if (quest.CompletedOn != null)
+                {
+                    await CompleteQuestAsync(character, quest);
+                }
+            }
+        }
+
+        // Send the UI packet trio synchronously in the fixed order the client
+        // expects (QuestComplete message, final objective snapshot, quest list),
+        // THEN publish the domain event for decoupled subscribers like
+        // QuestChainHandler (NextQuestId) or future reward/achievement hooks.
+        // Wolverine does not guarantee subscriber dispatch ordering, so the
+        // packet sequence has to live here rather than in a subscriber — the
+        // client crashes on out-of-order quest packets.
+        public async Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest)
+        {
+            bool firstCompletion;
+            lock (quest)
+            {
+                firstCompletion = quest.CompletedOn == null;
+                quest.CompletedOn ??= clock.GetCurrentInstant();
+            }
+            if (!firstCompletion) return;
+
+            await character.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.QuestComplete
+            });
+            await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+            await character.SendPacketAsync(character.GenerateQuestPacket());
+            await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
         }
     }
 }

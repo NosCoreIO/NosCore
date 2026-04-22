@@ -61,10 +61,10 @@ namespace NosCore.PacketHandlers.Group
                 foreach (var member in group.Values.Where(s => s.Item2 is ICharacterEntity))
                 {
                     var character = member.Item2 as ICharacterEntity;
-                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group!.GeneratePinit()));
+                    await (character == null ? Task.CompletedTask : character.SendPacketAsync(character.Group.GeneratePinit()));
                 }
 
-                await clientSession.SendPacketAsync(clientSession.Character.Group!.GeneratePinit());
+                await clientSession.SendPacketAsync(clientSession.Character.Group.GeneratePinit());
                 await clientSession.Character.MapInstance.SendPacketAsync(
                     clientSession.Character.Group.GeneratePidx(clientSession.Character));
             }
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Group
                     });
 
                     await targetsession.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
-                    await targetsession.SendPacketAsync(targetsession.Group!.GeneratePinit());
+                    await targetsession.SendPacketAsync(targetsession.Group.GeneratePinit());
                     await targetsession.MapInstance.SendPacketAsync(targetsession.Group.GeneratePidx(targetsession));
                 }
 

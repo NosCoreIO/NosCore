@@ -32,6 +32,48 @@ namespace NosCore.Database.Entities
 
         public byte AttackClass { get; set; }
 
+        public bool CanWalk { get; set; }
+
+        public bool CanCollect { get; set; }
+
+        public bool CantDebuff { get; set; }
+
+        public bool CanCatch { get; set; }
+
+        public bool DisappearAfterSeconds { get; set; }
+
+        public bool DisappearAfterHitting { get; set; }
+
+        public bool HasMode { get; set; }
+
+        public bool DisappearAfterSecondsMana { get; set; }
+
+        public bool OnDefenseOnlyOnce { get; set; }
+
+        public bool HasDash { get; set; }
+
+        public bool RegenerateHpOverTime { get; set; }
+
+        public bool CantVoke { get; set; }
+
+        public bool DontDrainHpAfterSeconds { get; set; }
+
+        public bool CantTargetInfo { get; set; }
+
+        public bool AlwaysActive { get; set; }
+
+        public byte Limiter { get; set; }
+
+        public short HpThreshold { get; set; }
+
+        public short RangeThreshold { get; set; }
+
+        public short CModeVNum { get; set; }
+
+        public byte CellMinRange { get; set; }
+
+        public int Midgard { get; set; }
+
         public byte AttackUpgrade { get; set; }
 
         public byte BasicArea { get; set; }
@@ -132,6 +174,40 @@ namespace NosCore.Database.Entities
         public int TakeDamages { get; set; }
 
         public int GiveDamagePercentage { get; set; }
+
+        public bool IsPercentileDmg { get; set; }
+
+        public bool CanOnlyBeDmgedByJajamaruLastSkill { get; set; }
+
+        public bool VisibleOnMinimapAsGreenDot { get; set; }
+
+        public bool IsValhallaPartner { get; set; }
+
+        public short EffectIdConstantly { get; set; }
+
+        public short EffectIdOnDeath { get; set; }
+
+        public int PetInfoVal1 { get; set; }
+
+        public int PetInfoVal2 { get; set; }
+
+        public int PetInfoVal3 { get; set; }
+
+        public int PetInfoVal4 { get; set; }
+
+        public short IconId { get; set; }
+
+        public int SpawnMobOrColor { get; set; }
+
+        public sbyte SpriteSize { get; set; }
+
+        public byte CellSize { get; set; }
+
+        public byte GroupAttack { get; set; }
+
+        public byte BasicHitChance { get; set; }
+
+        public byte DashSpeed { get; set; }
 
         public virtual ICollection<BCard> BCards { get; set; }
     }

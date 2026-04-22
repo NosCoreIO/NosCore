@@ -21,5 +21,7 @@ public interface INpcCombatCatalog
 
     IReadOnlyList<BCardDto> GetNpcBCards(short npcMonsterVnum);
 
+    IReadOnlyList<BCardDto> GetDeathBCards(short npcMonsterVnum);
+
     IReadOnlyList<BCardDto> GetSkillBCards(short skillVnum);
 }

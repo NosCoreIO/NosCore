@@ -4,16 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Arch.Core;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// Consumes a dead target's HitList and distributes rewards (XP / gold / drops) to each
-// attacker proportional to the damage they dealt. Player-only rewards are filtered out
-// for monster attackers — a monster killing another monster gives nothing. The HitList
-// is cleared here so a re-used entity (respawn) starts fresh.
 public interface IRewardService
 {
-    Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer);
+    Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer, IReadOnlyDictionary<Entity, int> hitSnapshot);
 }

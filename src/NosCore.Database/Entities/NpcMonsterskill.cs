@@ -23,5 +23,7 @@ namespace NosCore.Database.Entities
         public virtual Skill Skill { get; set; } = null!;
 
         public short SkillVNum { get; set; }
+
+        public byte Force { get; set; }
     }
 }

@@ -74,7 +74,8 @@ namespace NosCore.GameObject.Services.MinilandService
                 return miniland;
             }
 
-            throw new ArgumentException();
+            throw new InvalidOperationException(
+                $"No Miniland registered for character {characterId}. InitializeAsync should have registered one at login — a missing registration means login didn't complete.");
         }
 
         public async Task<Guid?> DeleteMinilandAsync(long characterId)
@@ -105,7 +106,20 @@ namespace NosCore.GameObject.Services.MinilandService
             var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId);
             if (minilandInfoDto == null)
             {
-                throw new ArgumentException();
+                minilandInfoDto = await minilandDao.TryInsertOrUpdateAsync(new MinilandDto
+                {
+                    MinilandId = Guid.NewGuid(),
+                    State = MinilandState.Open,
+                    MinilandMessage = ((short)Game18NConstString.Welcome).ToString(),
+                    OwnerId = characterId,
+                    WelcomeMusicInfo = 3800
+                });
+                if (minilandInfoDto == null)
+                {
+                    minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId)
+                        ?? throw new InvalidOperationException(
+                            $"Miniland row for character {characterId} could not be created or re-read after upsert failure.");
+                }
             }
 
             var map = maps.First(s => s.MapId == 20001);

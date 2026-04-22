@@ -35,26 +35,277 @@ MaxGoldAmount: 1000000000
 MaxBankGoldAmount: 100000000000
 MaxSpPoints: 10000
 MaxAdditionalSpPoints: 1000000
+AllClassAvailableOnCreate: false
+# BasicEquipments / BasicSkills are keyed first by class name, then by starter origin:
+#   CreateAndUpgrade : Adventurer creation (lvl 1) and Adventurer -> specialist upgrade
+#   Create56         : specialist direct-create on normal server
+#   Create80         : any class direct-create when AllClassAvailableOnCreate=true
 BasicEquipments:
   Adventurer:
-  - VNum: 1
-    Amount: 1
-    NoscorePocketType: 8
-  - VNum: 8
-    Amount: 1
-    NoscorePocketType: 8
-  - VNum: 12
-    Amount: 1
-    NoscorePocketType: 8
-  "*":
-  - VNum: 2024
-    Amount: 10
-    NoscorePocketType: 2
-  - VNum: 2081
-    Amount: 1
-    NoscorePocketType: 2
+    CreateAndUpgrade:
+    - VNum: 1
+      Amount: 1
+      NoscorePocketType: 8
+    - VNum: 8
+      Amount: 1
+      NoscorePocketType: 8
+    - VNum: 12
+      Amount: 1
+      NoscorePocketType: 8
+    - VNum: 2024
+      Amount: 10
+      NoscorePocketType: 2
+    - VNum: 2081
+      Amount: 1
+      NoscorePocketType: 2
+  Swordsman:
+    CreateAndUpgrade: []
+    Create56:
+    - VNum: 901
+      Amount: 1
+      NoscorePocketType: 0
+      Upgrade: 5
+    - VNum: 902
+      Amount: 1
+      NoscorePocketType: 0
+      Upgrade: 5
+    - VNum: 884
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 885
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 886
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 887
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4833
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4834
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4870
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4989
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4995
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4996
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4997
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4998
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 2082
+      Amount: 100
+      NoscorePocketType: 2
+    Create80: []
+  Archer:
+    CreateAndUpgrade: []
+    Create56:
+    - VNum: 903
+      Amount: 1
+      NoscorePocketType: 0
+      Upgrade: 5
+    - VNum: 904
+      Amount: 1
+      NoscorePocketType: 0
+      Upgrade: 5
+    - VNum: 884
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 885
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 886
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 887
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4833
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4834
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4870
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4989
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4995
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4996
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4997
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4998
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 2083
+      Amount: 100
+      NoscorePocketType: 2
+    Create80: []
+  Mage:
+    CreateAndUpgrade: []
+    Create56:
+    - VNum: 905
+      Amount: 1
+      NoscorePocketType: 0
+      Upgrade: 5
+    - VNum: 906
+      Amount: 1
+      NoscorePocketType: 0
+      Upgrade: 5
+    - VNum: 884
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 885
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 886
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 887
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4833
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4834
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4870
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4989
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4995
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4996
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4997
+      Amount: 1
+      NoscorePocketType: 0
+    - VNum: 4998
+      Amount: 1
+      NoscorePocketType: 0
+    Create80: []
+  MartialArtist:
+    Create80: []
 BasicSkills:
   Adventurer:
-  - 200
-  - 201
-  - 209
+    CreateAndUpgrade:
+    - 200
+    - 201
+    - 209
+  Swordsman:
+    CreateAndUpgrade: []
+    Create56:
+    - 220
+    - 221
+    - 222
+    - 223
+    - 224
+    - 225
+    - 226
+    - 227
+    - 228
+    - 229
+    - 230
+    - 231
+    - 232
+    - 233
+    - 234
+    - 235
+    - 22
+    - 25
+    - 29
+    - 38
+    - 41
+    - 46
+    - 50
+    - 53
+    - 57
+    Create80: []
+  Archer:
+    CreateAndUpgrade: []
+    Create56:
+    - 240
+    - 241
+    - 242
+    - 243
+    - 244
+    - 245
+    - 246
+    - 247
+    - 248
+    - 249
+    - 250
+    - 251
+    - 252
+    - 253
+    - 254
+    - 255
+    - 256
+    - 236
+    - 21
+    - 26
+    - 29
+    - 37
+    - 41
+    - 46
+    - 50
+    - 53
+    - 57
+    - 60
+    Create80: []
+  Mage:
+    CreateAndUpgrade: []
+    Create56:
+    - 260
+    - 261
+    - 262
+    - 263
+    - 264
+    - 265
+    - 266
+    - 267
+    - 268
+    - 269
+    - 270
+    - 271
+    - 272
+    - 273
+    - 274
+    - 275
+    - 276
+    - 277
+    - 237
+    - 30
+    - 37
+    - 42
+    - 46
+    - 50
+    - 53
+    - 58
+    Create80: []
+  MartialArtist:
+    Create80: []

@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            if ((clientSession.Character.Group != null) && (clientSession.Character.Group?.Type != GroupType.Group))
+            if (clientSession.Character.Group.Type != GroupType.Group)
             {
                 await clientSession.SendPacketAsync(new SayiPacket
                 {

@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
         [UsedImplicitly]
         public Task Handle(EntityDiedEvent evt)
         {
-            return rewardService.DistributeAsync(evt.Victim, evt.Killer);
+            return rewardService.DistributeAsync(evt.Victim, evt.Killer, evt.HitSnapshot);
         }
     }
 }

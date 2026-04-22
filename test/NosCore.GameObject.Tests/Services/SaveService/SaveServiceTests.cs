@@ -8,7 +8,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Networking.ClientSession;
@@ -19,6 +21,9 @@ using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.SaveService
@@ -30,6 +35,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private ClientSession Session = null!;
         private ISaveService Service = null!;
         private IItemGenerationService ItemProvider = null!;
+        private IDao<CharacterQuestObjectiveDto, Guid> CharacterQuestObjectiveDao = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -47,7 +53,9 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             var staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(Logger, ContextBuilder);
             var quicklistEntriesDao = new Dao<QuicklistEntry, QuicklistEntryDto, Guid>(Logger, ContextBuilder);
             var titleDao = new Dao<Title, TitleDto, Guid>(Logger, ContextBuilder);
-            var characterQuestDao = new Dao<CharacterQuest, CharacterQuestDto, Guid>(Logger, ContextBuilder);
+            var characterQuestDao = new Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>(Logger, ContextBuilder);
+            var characterQuestObjectiveDao = new Dao<Database.Entities.CharacterQuestObjective, CharacterQuestObjectiveDto, Guid>(Logger, ContextBuilder);
+            CharacterQuestObjectiveDao = characterQuestObjectiveDao;
             var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(Logger, ContextBuilder);
 
             var minilandService = new Mock<IMinilandService>();
@@ -65,6 +73,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 minilandService.Object,
                 titleDao,
                 characterQuestDao,
+                characterQuestObjectiveDao,
                 respawnDao,
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer);
@@ -88,6 +97,70 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .WhenAsync(SavingCharacter)
                 .ThenAsync(InventoryShouldBePersisted)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingQuestObjectiveProgressShouldRoundTrip()
+        {
+            await new Spec("Quest objective progress should persist across reloads")
+                .GivenAsync(CharacterHasQuestWithProgress)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(ObjectiveProgressShouldBePersisted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UpdatingObjectiveProgressShouldOverwrite()
+        {
+            await new Spec("Updating quest objective should overwrite the earlier count")
+                .GivenAsync(CharacterHasQuestWithProgress)
+                .WhenAsync(SavingCharacter)
+                .GivenAsync(ProgressAdvances)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(ObjectiveProgressShouldReflectLatestCount)
+                .ExecuteAsync();
+        }
+
+        private Guid _trackedCharacterQuestId;
+        private Guid _trackedObjectiveId;
+
+        private async Task CharacterHasQuestWithProgress()
+        {
+            _trackedCharacterQuestId = Guid.NewGuid();
+            _trackedObjectiveId = Guid.NewGuid();
+            var cq = new GameObject.Services.QuestService.CharacterQuest
+            {
+                Id = _trackedCharacterQuestId,
+                CharacterId = Session.Character.VisualId,
+                QuestId = 1500,
+                Quest = new GameObject.Services.QuestService.Quest { QuestId = 1500, QuestObjectives = new List<QuestObjectiveDto>() }
+            };
+            cq.ObjectiveProgress[_trackedObjectiveId] = 2;
+            Session.Character.Quests = new ConcurrentDictionary<Guid, GameObject.Services.QuestService.CharacterQuest>(
+                new[] { new KeyValuePair<Guid, GameObject.Services.QuestService.CharacterQuest>(_trackedCharacterQuestId, cq) });
+        }
+
+        private async Task ProgressAdvances()
+        {
+            Session.Character.Quests[_trackedCharacterQuestId].ObjectiveProgress[_trackedObjectiveId] = 5;
+        }
+
+        private async Task ObjectiveProgressShouldBePersisted()
+        {
+            var rows = CharacterQuestObjectiveDao
+                .Where(o => o.CharacterQuestId == _trackedCharacterQuestId)!
+                .ToList();
+            Assert.AreEqual(1, rows.Count);
+            Assert.AreEqual(2, rows[0].Count);
+        }
+
+        private async Task ObjectiveProgressShouldReflectLatestCount()
+        {
+            var rows = CharacterQuestObjectiveDao
+                .Where(o => o.CharacterQuestId == _trackedCharacterQuestId)!
+                .ToList();
+            Assert.AreEqual(1, rows.Count);
+            Assert.AreEqual(5, rows[0].Count);
         }
 
         [TestMethod]

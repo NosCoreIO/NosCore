@@ -13,7 +13,6 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapItemGenerationService;
-using NosCore.GameObject.Services.QuestService;
 using NosCore.Shared.Helpers;
 using Serilog;
 
@@ -29,19 +28,16 @@ public sealed class RewardService(
     IItemGenerationService itemGenerationService,
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
-    IQuestService questService,
     ILogger logger) : IRewardService
 {
     // Gold item vnum. The GoldDropHandler already treats vnum 1046 as the "gold"
     // map item — we keep the same number so both systems stay in sync.
     private const short GoldVNum = 1046;
 
-    public Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer)
+    public Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
         if (victim is not INonPlayableEntity npc)
         {
-            // Killing a player in PvP is handled elsewhere (dignity loss etc.).
-            // We only distribute the monster-kill rewards here for now.
             victim.HitList.Clear();
             return Task.CompletedTask;
         }
@@ -60,39 +56,25 @@ public sealed class RewardService(
             return Task.CompletedTask;
         }
 
-        var totalDamage = victim.HitList.Values.Sum();
+        var totalDamage = hitSnapshot.Values.Sum();
         if (totalDamage <= 0)
         {
             victim.HitList.Clear();
             return Task.CompletedTask;
         }
 
-        AwardExperience(victim, mob, totalDamage);
+        AwardExperience(victim, mob, totalDamage, hitSnapshot);
         SpawnDrops(victim, mob, mapInstance);
         SpawnGold(victim, mob, mapInstance);
-        _ = ProgressQuestsAsync(victim, mob);
 
         victim.HitList.Clear();
         _ = killer;
         return Task.CompletedTask;
     }
 
-    private Task ProgressQuestsAsync(IAliveEntity victim, NpcMonsterDto mob)
+    private static void AwardExperience(IAliveEntity victim, NpcMonsterDto mob, int totalDamage, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
-        var tasks = new List<Task>();
-        foreach (var (handle, _) in victim.HitList)
-        {
-            if (TryFindCharacter(victim, handle, out var character))
-            {
-                tasks.Add(questService.OnMonsterKilledAsync(character, mob));
-            }
-        }
-        return Task.WhenAll(tasks);
-    }
-
-    private static void AwardExperience(IAliveEntity victim, NpcMonsterDto mob, int totalDamage)
-    {
-        foreach (var (handle, damage) in victim.HitList)
+        foreach (var (handle, damage) in hitSnapshot)
         {
             if (!TryFindCharacter(victim, handle, out var character))
             {

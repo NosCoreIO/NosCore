@@ -41,11 +41,10 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}quest.dat";
         private Dictionary<short, QuestRewardDto>? _questRewards;
 
-        public async Task ImportQuestsAsync(string folder)
+        public FluentParserBuilder<QuestDto> BuildParser(string folder)
         {
-            _questRewards = questRewardDao.LoadAll().ToDictionary(x => x.QuestRewardId, x => x);
-
-            var parser = FluentParserBuilder<QuestDto>.Create(folder + _fileQuestDat, "END", 0)
+            _questRewards ??= questRewardDao.LoadAll().ToDictionary(x => x.QuestRewardId, x => x);
+            return FluentParserBuilder<QuestDto>.Create(folder + _fileQuestDat, "END", 0)
                 .Field(x => x.QuestId, chunk => Convert.ToInt16(chunk["VNUM"][0][1]))
                 .Field(x => x.QuestType, chunk => (QuestType)Enum.Parse(typeof(QuestType), chunk["VNUM"][0][2]))
                 .Field(x => x.AutoFinish, chunk => chunk["VNUM"][0][3] == "1")
@@ -59,12 +58,16 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.TargetX, chunk => chunk["TARGET"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][1]))
                 .Field(x => x.TargetY, chunk => chunk["TARGET"][0][2] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][2]))
                 .Field(x => x.TargetMap, chunk => chunk["TARGET"][0][3] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][3]))
-                .Field(x => x.StartDialogId, chunk => chunk["TARGET"][0][1] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][1]))
-                .Field(x => x.EndDialogId, chunk => chunk["TARGET"][0][2] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][2]))
+                .Field(x => x.StartDialogId, chunk => chunk["TALK"][0][1] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][1]))
+                .Field(x => x.EndDialogId, chunk => chunk["TALK"][0][2] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][2]))
                 .Field(x => x.NextQuestId, chunk => chunk["LINK"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["LINK"][0][1]))
                 .Field(x => x.QuestQuestReward, chunk => ImportQuestQuestRewards(chunk))
-                .Field(x => x.QuestObjective, chunk => ImportQuestObjectives(chunk))
-                .Build(logger, logLanguage);
+                .Field(x => x.QuestObjective, chunk => ImportQuestObjectives(chunk));
+        }
+
+        public async Task ImportQuestsAsync(string folder)
+        {
+            var parser = BuildParser(folder).Build(logger, logLanguage);
             var quests = await parser.GetDtosAsync();
 
             await questDao.TryInsertOrUpdateAsync(quests);

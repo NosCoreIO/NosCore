@@ -47,6 +47,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _targetResolver.Object,
                 _hitQueue.Object,
                 _bus.Object,
+                new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
                 new Mock<ILogger>().Object);
         }
 
@@ -78,7 +79,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SingleTargetSkillEnqueuesOneHit()
         {
             var origin = new FakeEntity { Hp = 100 };
-            var target = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
             var skill = MakeSkill(TargetHitType.SingleTargetHit);
 
             _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(skill);
@@ -95,9 +96,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task AoeSkillEnqueuesPerTarget()
         {
             var origin = new FakeEntity { Hp = 100 };
-            var t1 = new FakeEntity { Hp = 100 };
-            var t2 = new FakeEntity { Hp = 100 };
-            var t3 = new FakeEntity { Hp = 100 };
+            var t1 = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var t2 = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var t3 = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
             var skill = MakeSkill(TargetHitType.AoeTargetHit);
 
             _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(skill);
@@ -115,7 +116,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task KillPublishesEntityDiedEvent()
         {
             var origin = new FakeEntity { Hp = 100 };
-            var target = new FakeEntity { Hp = 1 };
+            var target = new FakeEntity { Hp = 1, VisualType = VisualType.Monster };
             var skill = MakeSkill(TargetHitType.SingleTargetHit);
 
             _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(skill);
@@ -171,7 +172,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             public Shop? Shop { get; set; }
             public SemaphoreSlim HitSemaphore { get; } = new(1, 1);
             public ConcurrentDictionary<Entity, int> HitList { get; } = new();
-            public VisualType VisualType => VisualType.Player;
+            public VisualType VisualType { get; set; } = VisualType.Player;
             public short VNum => 0;
             public long VisualId { get; set; }
             public byte Direction { get; set; }

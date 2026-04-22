@@ -238,7 +238,7 @@ public static class PlayerBundleExtensions
                     Mp = player.MaxMp > 0 ? (int)(player.Mp / (float)player.MaxMp * 100) : 100
                 },
                 IsSitting = player.IsSitting,
-                GroupId = player.Group?.GroupId ?? -1,
+                GroupId = player.Group.Count == 1 ? -1 : player.Group.GroupId,
                 Fairy = 0,
                 FairyElement = 0,
                 Unknown = 0,
@@ -982,20 +982,10 @@ public static class ClientSessionMailExtensions
         character.Hp = character.MaxHp;
         character.Mp = character.MaxMp;
 
-        var itemsToAdd = new List<BasicEquipment>();
-        foreach (var (key, _) in worldConfiguration.Value.BasicEquipments)
-        {
-            switch (key)
-            {
-                case nameof(CharacterClassType.Adventurer) when classType == CharacterClassType.Adventurer:
-                case nameof(CharacterClassType.Archer) when classType == CharacterClassType.Archer:
-                case nameof(CharacterClassType.Mage) when classType == CharacterClassType.Mage:
-                case nameof(CharacterClassType.MartialArtist) when classType == CharacterClassType.MartialArtist:
-                case nameof(CharacterClassType.Swordsman) when classType == CharacterClassType.Swordsman:
-                    itemsToAdd.AddRange(worldConfiguration.Value.BasicEquipments[key]);
-                    break;
-            }
-        }
+        var itemsToAdd = worldConfiguration.Value.BasicEquipments.TryGetValue(classType.ToString(), out var byOrigin)
+            && byOrigin.TryGetValue(StarterOrigin.CreateAndUpgrade, out var pack)
+            ? pack
+            : new List<BasicEquipment>();
 
         foreach (var itemToAdd in itemsToAdd)
         {

@@ -9,85 +9,65 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
-using NosCore.GameObject.Services.BattleService;
-using NosCore.GameObject.Services.BroadcastService;
-using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
-using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ClientPackets.Event;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Serilog;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
+    // Player death flow: zero HP/MP, apply the dignity penalty, broadcast the
+    // refreshed stats, then ask the client which revive branch to take via a `dlgi`
+    // dialog. The client routes the yes/no answer back as a `revival` client packet,
+    // which RevivalPacketHandler turns into the actual tp + revive + stat sequence.
+    //
+    // Dialog text id depends on level:
+    //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
+    //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power (item 1012).
+    //
+    // TODO: post-revive protection (card 684, ~30s invuln) isn't granted — the
+    // buff/card application layer isn't wired up yet. See death.txt line 6352.
     [UsedImplicitly]
-    public sealed class PlayerRevivalHandler(
-        ISessionRegistry sessionRegistry,
-        IMapChangeService mapChangeService,
-        IRespawnService respawnService,
-        ILogger logger)
+    public sealed class PlayerRevivalHandler(ILogger logger)
     {
-        private static readonly TimeSpan DeathPose = TimeSpan.FromSeconds(3);
+        // Canonical NosTale fork default for dignity penalty on death.
+        private const short DignityLossPerDeath = 50;
+        private const short DignityFloor = -1000;
 
         [UsedImplicitly]
         public async Task Handle(EntityDiedEvent evt)
         {
             if (evt.Victim.VisualType != VisualType.Player) return;
-            if (evt.Victim is not ICharacterEntity character) return;
-
-            var session = sessionRegistry.GetSessionByCharacterId(character.CharacterId);
-            if (session == null) return;
+            if (evt.Victim is not PlayerComponentBundle player) return;
 
             try
             {
-                if (evt.RevivalMode == RevivalMode.Normal)
-                {
-                    await Task.Delay(DeathPose).ConfigureAwait(false);
-                }
+                player.IsAlive = false;
+                player.Hp = 0;
+                player.Mp = 0;
 
-                evt.Victim.Hp = 1;
-                evt.Victim.Mp = 1;
-                SetAlive(evt.Victim, true);
+                player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
 
-                if (evt.RevivalMode == RevivalMode.Normal)
-                {
-                    var deathMapId = character.MapInstance?.Map.MapId ?? character.MapId;
-                    var respawnMapTypeId = respawnService.ResolveRespawnMapTypeId(deathMapId);
-                    var (mapId, x, y) = respawnService.GetRespawnLocation(character, respawnMapTypeId);
-                    await mapChangeService.ChangeMapAsync(session, mapId, x, y).ConfigureAwait(false);
-                }
+                await player.SendPacketAsync(player.GenerateStat()).ConfigureAwait(false);
+                await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
 
-                await session.SendPacketAsync(new RevivePacket
+                var question = player.Level > 20
+                    ? Game18NConstString.ContinueHereTenSeeds
+                    : Game18NConstString.ContinueHereFree;
+
+                await player.SendPacketAsync(new DlgiPacket
                 {
-                    VisualType = VisualType.Player,
-                    VisualId = character.VisualId,
-                    Data = 0,
+                    YesPacket = new RevivalPacket { Type = 0 },
+                    NoPacket = new RevivalPacket { Type = 1 },
+                    Question = question,
                 }).ConfigureAwait(false);
-
-                if (session.HasPlayerEntity)
-                {
-                    var refreshed = session.Character;
-                    await session.SendPacketAsync(refreshed.GenerateStat()).ConfigureAwait(false);
-                    if (refreshed.MapInstance != null)
-                    {
-                        await refreshed.MapInstance.SendPacketAsync(refreshed.GenerateCond()).ConfigureAwait(false);
-                    }
-                }
             }
             catch (Exception ex)
             {
-                logger.Warning(ex, "Player revival failed for {CharacterId}", character.CharacterId);
-            }
-        }
-
-        private static void SetAlive(IAliveEntity entity, bool alive)
-        {
-            switch (entity)
-            {
-                case PlayerComponentBundle p: p.IsAlive = alive; break;
-                case MonsterComponentBundle m: m.IsAlive = alive; break;
-                case NpcComponentBundle n: n.IsAlive = alive; break;
+                logger.Warning(ex, "PlayerRevivalHandler failed for {CharacterId}", player.CharacterId);
             }
         }
     }

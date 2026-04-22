@@ -113,10 +113,14 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 TestHelpers.Instance.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
-                    new HuntQuestHandler(),
-                    new NumberOfKillQuestHandler(),
+                    new HuntQuestHandler(Logger),
+                    new NumberOfKillQuestHandler(Logger),
                     new GoToQuestHandler(),
-                });
+                },
+                new Mock<Wolverine.IMessageBus>().Object,
+                new List<QuestRewardDto>(),
+                new List<QuestQuestRewardDto>(),
+                new Mock<GameObject.Services.ItemGenerationService.IItemGenerationService>().Object);
         }
 
         [TestMethod]
@@ -209,6 +213,26 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             await new Spec("Validate non-existent quest should fail")
                 .WhenAsync(ValidatingNonExistentQuest)
                 .Then(ValidationShouldFail)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingRequiredMobsShouldCompleteHuntObjectives()
+        {
+            await new Spec("Killing the last required mob should complete hunt objectives")
+                .Given(CharacterHasHuntQuestWithOneKillRemaining)
+                .WhenAsync(KillingTheRequiredMob)
+                .Then(ObjectivesShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingEarlyMobsShouldNotCompleteHuntObjectives()
+        {
+            await new Spec("Killing a mob before target count should not complete hunt objectives")
+                .Given(CharacterHasHuntQuestNeedingFiveKills)
+                .WhenAsync(KillingOneMob)
+                .Then(ObjectivesShouldBeIncomplete)
                 .ExecuteAsync();
         }
 
@@ -378,6 +402,78 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void ValidationShouldFail()
         {
             Assert.IsFalse(ValidateResult);
+        }
+
+        private CharacterQuest _trackedQuest = null!;
+        private const short TargetMobVNum = 42;
+
+        private void CharacterHasHuntQuestWithOneKillRemaining()
+        {
+            var objective = new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(),
+                FirstData = TargetMobVNum,
+                SecondData = 5
+            };
+            var quest = new Quest
+            {
+                QuestId = 10,
+                QuestType = QuestType.Hunt,
+                QuestObjectives = new List<QuestObjectiveDto> { objective }
+            };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 10,
+                Quest = quest,
+                CompletedOn = null
+            };
+            _trackedQuest.ObjectiveProgress[objective.QuestObjectiveId] = 4;
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private void CharacterHasHuntQuestNeedingFiveKills()
+        {
+            var objective = new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(),
+                FirstData = TargetMobVNum,
+                SecondData = 5
+            };
+            var quest = new Quest
+            {
+                QuestId = 11,
+                QuestType = QuestType.Hunt,
+                QuestObjectives = new List<QuestObjectiveDto> { objective }
+            };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 11,
+                Quest = quest,
+                CompletedOn = null
+            };
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private async Task KillingTheRequiredMob()
+        {
+            await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
+        }
+
+        private async Task KillingOneMob()
+        {
+            await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
+        }
+
+        private void ObjectivesShouldBeComplete()
+        {
+            Assert.IsTrue(_trackedQuest.AreObjectivesComplete());
+            Assert.IsNull(_trackedQuest.CompletedOn);
+        }
+
+        private void ObjectivesShouldBeIncomplete()
+        {
+            Assert.IsFalse(_trackedQuest.AreObjectivesComplete());
+            Assert.IsNull(_trackedQuest.CompletedOn);
         }
     }
 }

@@ -1,14 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
-    <LangVersion>preview</LangVersion>
     <UseNETCoreGenerator>true</UseNETCoreGenerator>
-    <Nullable>enable</Nullable>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 
-    <!-- Enable output of generated files back into our Generated directory -->
     <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
     <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
@@ -40,12 +36,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="JetBrains.Annotations" Version="2025.2.4" />
-    <PackageReference Include="Mapster" Version="10.0.7" />
-    <PackageReference Include="Mapster.JsonNet" Version="10.0.7" />
-    <PackageReference Include="NosCore.FastMember" Version="1.5.0" />
-    <PackageReference Include="NosCore.Packets" Version="16.4.0" />
-    <PackageReference Include="NodaTime" Version="3.3.1" />
+    <PackageReference Include="JetBrains.Annotations" />
+    <PackageReference Include="Mapster" />
+    <PackageReference Include="Mapster.JsonNet" />
+    <PackageReference Include="NosCore.FastMember" />
+    <PackageReference Include="NosCore.Packets" />
+    <PackageReference Include="NodaTime" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="Resource\LocalizedResources.Designer.cs">
@@ -77,7 +73,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="NosCore.Analyzers" Version="2.0.0">
+    <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

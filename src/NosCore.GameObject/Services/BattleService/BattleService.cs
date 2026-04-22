@@ -7,11 +7,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
@@ -30,6 +32,7 @@ namespace NosCore.GameObject.Services.BattleService
         ITargetResolver targetResolver,
         IHitQueue hitQueue,
         IMessageBus messageBus,
+        ISessionRegistry sessionRegistry,
         ILogger logger) : IBattleService
     {
         public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -98,20 +101,28 @@ namespace NosCore.GameObject.Services.BattleService
 
             if (outcome.Killed)
             {
-                // Players get a DiePacket so the client plays the death pose + revive
-                // dialog. Monsters don't — OpenNos MapMonster.MonsterLife emits only the
-                // closing su (alive=0, hp%=0) for natural kills and the client drives the
-                // collapse animation from that alone. MonsterRespawnHandler ships the
-                // OutPacket a moment later to clear the sprite.
+                // DiePacket plays the collapsed death pose on other spectators' screens.
+                // We deliberately skip the victim — they get the dialog/stat flow from
+                // PlayerRevivalHandler, and their own client drives the death pose off
+                // the closing su (alive=0, hp%=0). Monsters don't get a DiePacket at
+                // all; the su alone is enough and sending an OutPacket would cut the
+                // collapse animation short.
                 if (target.MapInstance != null && target.VisualType == VisualType.Player)
                 {
-                    await target.MapInstance.SendPacketAsync(new DiePacket
+                    var diePacket = new DiePacket
                     {
                         VisualType = target.VisualType,
                         VisualId = target.VisualId,
                         TargetVisualType = origin.VisualType,
                         TargetId = origin.VisualId,
-                    }).ConfigureAwait(false);
+                    };
+                    var victimCharacterId = target is ICharacterEntity victim ? victim.CharacterId : 0L;
+                    foreach (var spectator in sessionRegistry
+                        .GetClientSessionsByMapInstance(target.MapInstance.MapInstanceId)
+                        .Where(s => s.HasSelectedCharacter && s.Character.CharacterId != victimCharacterId))
+                    {
+                        await spectator.SendPacketAsync(diePacket).ConfigureAwait(false);
+                    }
                 }
                 await messageBus.PublishAsync(new EntityDiedEvent(target, origin)).ConfigureAwait(false);
             }
@@ -166,6 +177,8 @@ namespace NosCore.GameObject.Services.BattleService
                 Damage = (uint)outcome.Damage,
                 HitMode = outcome.HitMode,
                 SkillTypeMinusOne = (int)skill.Type - 1,
+                TargetCurrentHp = target.Hp,
+                TargetMaxHp = target.MaxHp,
             };
             return target.MapInstance.SendPacketAsync(packet);
         }
@@ -174,14 +187,12 @@ namespace NosCore.GameObject.Services.BattleService
         {
             if (origin is not ICharacterEntity character) return;
 
-            // Fire-and-forget: cooldown ends server-side at the same moment the client
-            // re-enables the skill. We catch exceptions to avoid tearing down the orchestrator
-            // on a disconnected character.
             _ = Task.Run(async () =>
             {
                 try
                 {
                     await Task.Delay(skill.Cooldown * 100).ConfigureAwait(false);
+                    if (character.IsDisconnecting) return;
                     await character.SendPacketAsync(new SkillResetPacket { CastId = skill.CastId }).ConfigureAwait(false);
                 }
                 catch (Exception ex)
@@ -200,16 +211,25 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // NPCs and other non-combat entities expose NoAttack=true; treat them as
-        // un-targetable. Without this an upgrade NPC (Smith Malcolm, etc.) could be
-        // killed via a crafted UseSkill packet, breaking the n_run flow. The origin
-        // check covers the same property for sleeping/vehicled/disabled attackers.
+        // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction
+        // rule below is what decides who's on whose side. Characters and NPCs are
+        // allies — players can't kill a shop NPC via a crafted UseSkill packet, and
+        // guards never friendly-fire a player — so any ally pairing bails first.
+        // Monsters are opposing-faction to both and are free to hit either.
         private static bool CanAttack(IAliveEntity origin, IAliveEntity target)
         {
             if (!origin.IsAlive || !target.IsAlive) return false;
             if (origin.NoAttack) return false;
             if (target.NoAttack) return false;
+            if (AreAllies(origin, target)) return false;
             return true;
+        }
+
+        private static bool AreAllies(IAliveEntity a, IAliveEntity b)
+        {
+            var aAlly = a.VisualType == VisualType.Player || a.VisualType == VisualType.Npc;
+            var bAlly = b.VisualType == VisualType.Player || b.VisualType == VisualType.Npc;
+            return aAlly && bAlly;
         }
 
         private static async Task CancelAsync(IAliveEntity origin, IAliveEntity target)

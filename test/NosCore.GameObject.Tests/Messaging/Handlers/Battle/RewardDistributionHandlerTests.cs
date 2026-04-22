@@ -4,7 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using Arch.Core;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -23,12 +26,14 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             var rewards = new Mock<IRewardService>();
             var handler = new RewardDistributionHandler(rewards.Object);
 
-            var victim = new Mock<IAliveEntity>().Object;
+            var victimMock = new Mock<IAliveEntity>();
+            victimMock.SetupGet(v => v.HitList).Returns(new ConcurrentDictionary<Entity, int>());
+            var victim = victimMock.Object;
             var killer = new Mock<IAliveEntity>().Object;
 
             await handler.Handle(new EntityDiedEvent(victim, killer));
 
-            rewards.Verify(r => r.DistributeAsync(victim, killer), Times.Once);
+            rewards.Verify(r => r.DistributeAsync(victim, killer, It.IsAny<IReadOnlyDictionary<Entity, int>>()), Times.Once);
         }
     }
 }

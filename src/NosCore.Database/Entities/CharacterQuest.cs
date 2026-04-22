@@ -6,11 +6,17 @@
 
 using NodaTime;
 using NosCore.Database.Entities.Base;
+using System.Collections.Generic;
 
 namespace NosCore.Database.Entities
 {
     public class CharacterQuest : SynchronizableBaseEntity
     {
+        public CharacterQuest()
+        {
+            CharacterQuestObjective = new HashSet<CharacterQuestObjective>();
+        }
+
         public virtual Character Character { get; set; } = null!;
 
         public long CharacterId { get; set; }
@@ -20,5 +26,7 @@ namespace NosCore.Database.Entities
         public short QuestId { get; set; }
 
         public Instant? CompletedOn { get; set; }
+
+        public virtual ICollection<CharacterQuestObjective> CharacterQuestObjective { get; set; }
     }
 }

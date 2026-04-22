@@ -33,7 +33,7 @@ public static class MonsterBundleExtensions
                     Hp = monster.MaxHp > 0 ? (int)(monster.Hp / (float)monster.MaxHp * 100) : 100,
                     Mp = monster.MaxMp > 0 ? (int)(monster.Mp / (float)monster.MaxMp * 100) : 100
                 },
-                SpawnEffect = (SpawnEffectType)1,
+                SpawnEffect = SpawnEffectType.Summon,
                 IsSitting = monster.IsSitting,
             }
         };

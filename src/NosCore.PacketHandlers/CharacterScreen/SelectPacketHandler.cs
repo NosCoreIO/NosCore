@@ -55,7 +55,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quickListEntriesDao, IDao<TitleDto, Guid> titleDao,
-            IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<RespawnDto, long> respawnDao,
+            IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
+            IDao<RespawnDto, long> respawnDao,
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
@@ -213,14 +215,22 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     character.Mp = character.MaxMp;
                 }
 
-                var daoQuests = characterQuestDao
-                    .Where(s => s.CharacterId == characterId) ?? new List<CharacterQuestDto>();
+                var daoQuests = (characterQuestDao
+                    .Where(s => s.CharacterId == characterId) ?? new List<CharacterQuestDto>()).ToList();
+                var daoQuestIds = daoQuests.Select(q => q.Id).ToHashSet();
+                var daoObjectives = characterQuestObjectiveDao
+                    .Where(o => daoQuestIds.Contains(o.CharacterQuestId))?.ToList()
+                    ?? new List<CharacterQuestObjectiveDto>();
                 character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
                     {
                         var charquest = x.Adapt<CharacterQuest>();
                         charquest.Quest = quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
                         charquest.Quest.QuestObjectives =
                             questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
+                        foreach (var progress in daoObjectives.Where(o => o.CharacterQuestId == charquest.Id))
+                        {
+                            charquest.ObjectiveProgress[progress.QuestObjectiveId] = progress.Count;
+                        }
                         return charquest;
                     }));
                 character.QuicklistEntries = quickListEntriesDao

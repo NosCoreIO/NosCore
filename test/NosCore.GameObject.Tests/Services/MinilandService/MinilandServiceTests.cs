@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
         {
             await new Spec("Getting non-existent miniland should throw")
                 .When(GettingNonExistentMiniland).Catch(out var exception)
-                .Then(ShouldThrowArgumentException_, exception)
+                .Then(ShouldThrowInvalidOperationException_, exception)
                 .ExecuteAsync();
         }
 
@@ -197,9 +197,9 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             Assert.AreEqual(InitializedMiniland!.MapInstanceId, RetrievedMiniland.MapInstanceId);
         }
 
-        private void ShouldThrowArgumentException_(Lazy<Exception> exception)
+        private void ShouldThrowInvalidOperationException_(Lazy<Exception> exception)
         {
-            Assert.IsInstanceOfType(exception.Value, typeof(ArgumentException));
+            Assert.IsInstanceOfType(exception.Value, typeof(InvalidOperationException));
         }
 
         private void StateShouldBeOpen()

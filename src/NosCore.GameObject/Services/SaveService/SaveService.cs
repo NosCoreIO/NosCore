@@ -12,6 +12,7 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -22,7 +23,9 @@ namespace NosCore.GameObject.Services.SaveService
             IDao<StaticBonusDto, long> staticBonusDao,
             IDao<QuicklistEntryDto, Guid> quicklistEntriesDao, IDao<MinilandDto, Guid> minilandDao,
             IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao,
-            IDao<CharacterQuestDto, Guid> characterQuestDao, IDao<RespawnDto, long> respawnDao, ILogger logger,
+            IDao<CharacterQuestDto, Guid> characterQuestDao,
+            IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
+            IDao<RespawnDto, long> respawnDao, ILogger logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : ISaveService
     {
@@ -56,6 +59,7 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.MapY = character.PositionY;
                 characterDto.SpPoint = character.SpPoint;
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
+                characterDto.CurrentScriptId = character.CurrentScriptId;
 
                 await accountDao.TryInsertOrUpdateAsync(account);
                 await characterDao.TryInsertOrUpdateAsync(characterDto);
@@ -107,7 +111,56 @@ namespace NosCore.GameObject.Services.SaveService
                         .Where(i => i.CharacterId == characterId)!.ToList()
                     .Where(i => quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
                 await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id));
-                await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
+                var questsSaved = await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
+                if (!questsSaved)
+                {
+                    logger.Error(
+                        new InvalidOperationException("CharacterQuest upsert failed; skipping objective upsert to avoid FK cascade."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    return;
+                }
+
+                var liveObjectives = quests.Values.SelectMany(q =>
+                    q.ObjectiveProgress.Select(kv => new CharacterQuestObjectiveDto
+                    {
+                        Id = Guid.NewGuid(),
+                        CharacterQuestId = q.Id,
+                        QuestObjectiveId = kv.Key,
+                        Count = kv.Value
+                    })).ToList();
+                var liveQuestIds = quests.Values.Select(q => q.Id).ToHashSet();
+                var existingObjectives = characterQuestObjectiveDao
+                    .Where(o => liveQuestIds.Contains(o.CharacterQuestId))?.ToList() ?? new List<CharacterQuestObjectiveDto>();
+                var liveObjectiveKeys = liveObjectives
+                    .Select(o => (o.CharacterQuestId, o.QuestObjectiveId)).ToHashSet();
+                var objectivesToDelete = existingObjectives
+                    .Where(o => !liveObjectiveKeys.Contains((o.CharacterQuestId, o.QuestObjectiveId)))
+                    .Select(o => o.Id).ToList();
+                foreach (var live in liveObjectives)
+                {
+                    var match = existingObjectives.FirstOrDefault(o =>
+                        o.CharacterQuestId == live.CharacterQuestId && o.QuestObjectiveId == live.QuestObjectiveId);
+                    if (match != null)
+                    {
+                        live.Id = match.Id;
+                    }
+                }
+                var objectivesDeleted = await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete);
+                if (objectivesDeleted == null)
+                {
+                    logger.Error(
+                        new InvalidOperationException("CharacterQuestObjective delete failed; skipping objective upsert to avoid orphaned-row conflicts on next save."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    return;
+                }
+                var objectivesSaved = await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives);
+                if (!objectivesSaved)
+                {
+                    logger.Error(
+                        new InvalidOperationException("CharacterQuestObjective upsert failed; quest progress will reset on reconnect."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    return;
+                }
 
                 await respawnDao.TryInsertOrUpdateAsync(character.Respawns);
             }

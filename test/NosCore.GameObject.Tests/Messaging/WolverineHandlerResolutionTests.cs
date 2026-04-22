@@ -83,10 +83,16 @@ namespace NosCore.GameObject.Tests.Messaging
             {
                 return true;
             }
-            // Open-generic registration covers all closed instantiations.
-            if (t.IsGenericType && registered.Contains(t.GetGenericTypeDefinition()))
+            if (t.IsGenericType)
             {
-                return true;
+                if (registered.Contains(t.GetGenericTypeDefinition()))
+                {
+                    return true;
+                }
+                if (t.GetGenericTypeDefinition() == typeof(IEnumerable<>) && registered.Contains(t.GetGenericArguments()[0]))
+                {
+                    return true;
+                }
             }
             return false;
         }

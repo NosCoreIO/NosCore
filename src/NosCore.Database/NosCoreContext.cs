@@ -52,6 +52,8 @@ namespace NosCore.Database
 
         public virtual DbSet<CharacterQuest>? CharacterQuest { get; set; }
 
+        public virtual DbSet<CharacterQuestObjective>? CharacterQuestObjective { get; set; }
+
         public virtual DbSet<CharacterRelation>? CharacterRelation { get; set; }
 
         public virtual DbSet<CharacterSkill>? CharacterSkill { get; set; }
@@ -621,6 +623,22 @@ namespace NosCore.Database
                 .WithOne(e => e.Quest)
                 .HasForeignKey(e => e.QuestId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CharacterQuest>()
+                .HasMany(e => e.CharacterQuestObjective)
+                .WithOne(e => e.CharacterQuest)
+                .HasForeignKey(e => e.CharacterQuestId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CharacterQuestObjective>()
+                .HasOne(e => e.QuestObjective)
+                .WithMany(e => e.CharacterQuestObjective)
+                .HasForeignKey(e => e.QuestObjectiveId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<CharacterQuestObjective>()
+                .HasIndex(e => new { e.CharacterQuestId, e.QuestObjectiveId })
+                .IsUnique();
 
             modelBuilder.Entity<QuestQuestReward>()
                 .HasOne(e => e.Quest)

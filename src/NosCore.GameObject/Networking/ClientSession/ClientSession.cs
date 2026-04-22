@@ -45,7 +45,10 @@ namespace NosCore.GameObject.Networking.ClientSession
         private readonly ILogger _logger = logger;
         private PlayerComponentBundle _characterBundle;
 
-        public bool HasPlayerEntity => _characterBundle.Entity != default;
+        public bool HasPlayerEntity =>
+            _characterBundle.Entity != default
+            && _characterBundle.World != null
+            && _characterBundle.World.World.IsAlive(_characterBundle.Entity);
 
         public ref PlayerComponentBundle Character
         {
@@ -54,6 +57,18 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (_characterBundle.Entity == default)
                 {
                     throw new InvalidOperationException("Character entity not initialized");
+                }
+                if (_characterBundle.World == null || !_characterBundle.World.World.IsAlive(_characterBundle.Entity))
+                {
+                    // Entity handle still looks valid but the underlying chunk is gone —
+                    // happens if the map world was disposed, or the entity was destroyed
+                    // without ClearPlayerEntity running. Reading components would silently
+                    // return default structs with null reference fields (see the
+                    // PlayerComponentBundle -> PlayerStateComponent implicit cast that
+                    // swallows a null TryGetComponent with `?? default`), so NREs fire
+                    // downstream instead of here. Fail fast so the caller can disconnect
+                    // or rehydrate the session.
+                    throw new InvalidOperationException("Character entity handle is stale (destroyed or in a disposed world)");
                 }
                 return ref _characterBundle;
             }
@@ -155,7 +170,9 @@ namespace NosCore.GameObject.Networking.ClientSession
 
                 character.IsDisconnecting = true;
 
-                foreach (var handler in disconnectHandlers)
+                foreach (var handler in disconnectHandlers
+                    .OrderBy(h => h.Order)
+                    .ThenBy(h => h.GetType().FullName, StringComparer.Ordinal))
                 {
                     await handler.HandleDisconnectAsync(this);
                 }
@@ -166,6 +183,12 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             finally
             {
+                // Destroy the ECS entity so it doesn't linger in the map world as a
+                // zombie bundle. Without this the session's Arch.Entity handle stays
+                // live in memory — any later lookup produces a bundle whose
+                // PlayerStateComponent resolves to default (CharacterDto = null) and
+                // NREs on the first property read.
+                ClearPlayerEntity();
                 if (Channel != null)
                 {
                     sessionRegistry.Unregister(Channel.Id);

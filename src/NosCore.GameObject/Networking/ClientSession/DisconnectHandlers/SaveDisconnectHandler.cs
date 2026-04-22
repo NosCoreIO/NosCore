@@ -11,6 +11,8 @@ namespace NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 
 public class SaveDisconnectHandler(ISaveService saveService) : ISessionDisconnectHandler
 {
+    public int Order => 0;
+
     public async Task HandleDisconnectAsync(ClientSession session)
     {
         if (!session.HasSelectedCharacter)

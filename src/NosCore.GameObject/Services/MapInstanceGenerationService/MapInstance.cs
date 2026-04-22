@@ -122,8 +122,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             foreach (var entity in _visibilitySystem.GetMapItemEntities(EcsWorld))
             {
-                var identity = EcsWorld.World.Get<EntityIdentityComponent>(entity);
-                if (identity.VisualId == visualId)
+                var identity = EcsWorld.TryGetComponent<EntityIdentityComponent>(entity);
+                if (identity?.VisualId == visualId)
                 {
                     EcsWorld.DestroyEntity(entity);
                     return true;
@@ -285,7 +285,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     this,
                     x.MapX, x.MapY, x.Direction,
                     x.MapX, x.MapY,
-                    x.IsMoving, false, x.IsDisabled);
+                    npcMonster.CanWalk, false, x.IsDisabled);
                 entries[x.MapMonsterId] = new MonsterComponentBundle(entity, EcsWorld);
             }
             _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>(entries);
@@ -399,7 +399,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
 
                     await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
-                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_distanceCalculator, _clock, _logger)));
+                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
 
                     // Buff expiration: drop any buff whose ExpiresAt is past. Done
                     // per-map so the tick rate matches the life loop (400ms) which is
@@ -440,6 +440,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 return;
             }
+
+            Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
+            Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
 
             Life?.Dispose();
             Life = null;

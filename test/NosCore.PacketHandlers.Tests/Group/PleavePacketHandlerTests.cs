@@ -176,19 +176,19 @@ namespace NosCore.PacketHandlers.Tests.Group
 
         private void Session_ShouldBeAlone(int value)
         {
-            Assert.IsTrue((Sessions[value].Character.Group != null) && (Sessions[value].Character.Group!.Count == 1));
+            Assert.IsTrue(Sessions[value].Character.Group.Count == 1);
         }
 
         private void Session_ShouldBeLeader(int value)
         {
-            Assert.IsTrue(Sessions[value].Character.Group!
+            Assert.IsTrue(Sessions[value].Character.Group
                 .IsGroupLeader(Sessions[value].Character.CharacterId));
         }
 
         private void BothSessionsShouldBeAlone()
         {
-            Assert.IsTrue((Sessions[0].Character.Group!.Count == 1)
-                && (Sessions[1].Character.Group!.Count == 1));
+            Assert.IsTrue((Sessions[0].Character.Group.Count == 1)
+                && (Sessions[1].Character.Group.Count == 1));
         }
     }
 }
