@@ -76,7 +76,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 || (itemInstance.ItemInstance.Item.Sex != 0 &&
                     ((itemInstance.ItemInstance.Item.Sex >> (byte)session.Character.Gender) & 1) != 1)
                 || (itemInstance.ItemInstance.Item.Class != 0 &&
-                    ((itemInstance.ItemInstance.Item.Class >> (byte)session.Character.Class) & 1) != 1))
+                    ((itemInstance.ItemInstance.Item.Class >> (byte)session.Character.Class) & 1) != 1)
+                || (itemInstance.ItemInstance.Item.ReputationMinimum > 0 &&
+                    session.Character.ReputIconValue < itemInstance.ItemInstance.Item.ReputationMinimum))
             {
                 await session.SendPacketAsync(new SayiPacket
                 {

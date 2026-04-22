@@ -94,13 +94,10 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         // Elemental damage layer. See `ComputeElementalDamage` for the full pipeline.
         var elementalDamage = ComputeElementalDamage(attacker, defender, skill, baseDamage);
 
-        // Critical hit roll. Never applies to pure-magic type 2. The crit rate buff
-        // scaling caps at 3x damage so late-game criticals don't explode unbounded.
         var isCritical = false;
         if (skill.Type != 2 && random.NextDouble() * 100 <= context.MainCritChance)
         {
-            var critMultiplier = Math.Min(3.0, context.MainCritHit / 100.0);
-            baseDamage += (int)(baseDamage * critMultiplier);
+            baseDamage += (int)(baseDamage * (context.MainCritHit / 100.0));
             isCritical = true;
         }
 
@@ -231,35 +228,19 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         _ => 0.0,
     };
 
-    // Elemental damage port. Attackers with no element (skill.Element == 0) still get a
-    // small elementalBoost remap so elemental stats aren't pointless on neutral skills.
-    // Skills with an element that doesn't match the attacker's element deal zero ele.
     private static int ComputeElementalDamage(CombatStats attacker, CombatStats defender, SkillInfo skill, int baseDamage)
     {
-        if (attacker.Element == 0 && skill.Element == 0) return 0;
-
-        var attackElement = attacker.Element;
-        if (skill.Element != 0 && skill.Element != attacker.Element)
+        if (skill.Element == 0)
+        {
+            return 0;
+        }
+        if (skill.Element != attacker.Element)
         {
             return 0;
         }
 
+        var attackElement = attacker.Element;
         var elementalBoost = ElementalBoost[Math.Min(attackElement, (byte)4), Math.Min(defender.Element, (byte)4)];
-        if (skill.Element == 0)
-        {
-            // Neutral-skill remap: big matchups flatten to small bonuses (you're not
-            // meant to one-shot with a neutral skill just because you outmatch element).
-            elementalBoost = elementalBoost switch
-            {
-                0.5 => 0.0,
-                1.0 => 0.05,
-                1.3 => 0.15,
-                1.5 => 0.15,
-                2.0 => 0.2,
-                3.0 => 0.2,
-                _ => elementalBoost,
-            };
-        }
 
         var monsterResistance = attackElement switch
         {

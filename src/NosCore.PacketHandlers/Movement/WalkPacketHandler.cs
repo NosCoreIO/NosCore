@@ -53,6 +53,13 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
+            if (session.Character.MapInstance.Map.IsBlockedZone(
+                    session.Character.PositionX, session.Character.PositionY,
+                    walkPacket.XCoordinate, walkPacket.YCoordinate))
+            {
+                return;
+            }
+
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel!.Id));
 

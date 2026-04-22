@@ -98,9 +98,6 @@ public sealed class RewardService(
             var jobXp = (long)(mob.JobXp * share);
             var heroXp = (long)(mob.HeroXp * share);
 
-            // SP card XP uses the mob's JobXp, scaled by an SP-level multiplier that
-            // front-loads early growth (OpenNos Character.cs:5230). We leave the
-            // "is SP equipped / UseSp on" check to ExperienceProgressionService.
             var spXp = 0L;
             if (player.UseSp)
             {
@@ -111,6 +108,10 @@ public sealed class RewardService(
                 {
                     var multiplier = spInstance.SpLevel < 10 ? 10 : spInstance.SpLevel < 19 ? 5 : 1;
                     spXp = (long)(mob.JobXp * share * multiplier);
+                    if (spInstance.SpLevel > 19)
+                    {
+                        jobXp /= 2;
+                    }
                 }
             }
 
