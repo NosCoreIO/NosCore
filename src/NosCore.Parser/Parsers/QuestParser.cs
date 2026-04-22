@@ -58,8 +58,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.TargetX, chunk => chunk["TARGET"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][1]))
                 .Field(x => x.TargetY, chunk => chunk["TARGET"][0][2] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][2]))
                 .Field(x => x.TargetMap, chunk => chunk["TARGET"][0][3] == "-1" ? (short?)null : Convert.ToInt16(chunk["TARGET"][0][3]))
-                .Field(x => x.StartDialogId, chunk => chunk["TARGET"][0][1] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][1]))
-                .Field(x => x.EndDialogId, chunk => chunk["TARGET"][0][2] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][2]))
+                .Field(x => x.StartDialogId, chunk => chunk["TALK"][0][1] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][1]))
+                .Field(x => x.EndDialogId, chunk => chunk["TALK"][0][2] == "-1" ? (int?)null : Convert.ToInt32(chunk["TALK"][0][2]))
                 .Field(x => x.NextQuestId, chunk => chunk["LINK"][0][1] == "-1" ? (short?)null : Convert.ToInt16(chunk["LINK"][0][1]))
                 .Field(x => x.QuestQuestReward, chunk => ImportQuestQuestRewards(chunk))
                 .Field(x => x.QuestObjective, chunk => ImportQuestObjectives(chunk));

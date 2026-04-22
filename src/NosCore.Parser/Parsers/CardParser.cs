@@ -70,21 +70,27 @@ namespace NosCore.Parser.Parsers
             {
                 var key = (j > 2) ? "2ST" : "1ST";
                 var i = (j > 2) ? j - 3 : j;
-
-                if ((chunks[key][0][2 + i * 6] == "-1") || (chunks[key][0][2 + i * 6] == "0"))
+                var row = chunks[key][0];
+                var lastCol = i * 6 + 7;
+                if (row.Length <= lastCol)
                 {
                     continue;
                 }
 
-                var first = int.Parse(chunks[key][0][i * 6 + 6]);
+                if ((row[2 + i * 6] == "-1") || (row[2 + i * 6] == "0"))
+                {
+                    continue;
+                }
+
+                var first = int.Parse(row[i * 6 + 6]);
                 list.Add(new BCardDto
                 {
                     CardId = Convert.ToInt16(chunks["VNUM"][0][2]),
-                    Type = byte.Parse(chunks[key][0][2 + i * 6]),
-                    SubType = (byte)((Convert.ToByte(chunks[key][0][3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
+                    Type = byte.Parse(row[2 + i * 6]),
+                    SubType = (byte)((Convert.ToByte(row[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
                     FirstData = (first > 0 ? first : -first) / 4,
-                    SecondData = int.Parse(chunks[key][0][7 + i * 6]) / 4,
-                    ThirdData = int.Parse(chunks[key][0][5 + i * 6]),
+                    SecondData = int.Parse(row[7 + i * 6]) / 4,
+                    ThirdData = int.Parse(row[5 + i * 6]),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = Math.Abs(first % 4) == 2
                 });

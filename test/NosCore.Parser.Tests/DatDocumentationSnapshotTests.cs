@@ -48,7 +48,16 @@ namespace NosCore.Parser.Tests
             var md = DatDocumentationGenerator.Generate(builder);
             var path = DocumentationPaths.For(builder.FileName + ".md");
             Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-            File.WriteAllText(path, md);
+
+            if (Environment.GetEnvironmentVariable("UPDATE_SNAPSHOTS") == "1")
+            {
+                File.WriteAllText(path, md);
+                return;
+            }
+
+            var existing = File.Exists(path) ? File.ReadAllText(path) : string.Empty;
+            Assert.AreEqual(existing, md,
+                $"{builder.FileName}.md snapshot mismatch. Run with UPDATE_SNAPSHOTS=1 to regenerate.");
         }
 
         private static IDao<TDto, TKey> Mock<TDto, TKey>() where TDto : class => new Mock<IDao<TDto, TKey>>().Object;

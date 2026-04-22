@@ -4,11 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
@@ -37,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<INpcCombatCatalog>().Object,
                 new Mock<IRandomProvider>().Object,
                 new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
+                new Dictionary<short, SkillDto>(),
                 new Mock<ILogger>().Object);
 
             Assert.IsNotNull(ai);

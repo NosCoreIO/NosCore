@@ -187,14 +187,12 @@ namespace NosCore.GameObject.Services.BattleService
         {
             if (origin is not ICharacterEntity character) return;
 
-            // Fire-and-forget: cooldown ends server-side at the same moment the client
-            // re-enables the skill. We catch exceptions to avoid tearing down the orchestrator
-            // on a disconnected character.
             _ = Task.Run(async () =>
             {
                 try
                 {
                     await Task.Delay(skill.Cooldown * 100).ConfigureAwait(false);
+                    if (character.IsDisconnecting) return;
                     await character.SendPacketAsync(new SkillResetPacket { CastId = skill.CastId }).ConfigureAwait(false);
                 }
                 catch (Exception ex)

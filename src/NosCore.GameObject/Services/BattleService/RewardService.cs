@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Arch.Core;
@@ -33,12 +34,10 @@ public sealed class RewardService(
     // map item — we keep the same number so both systems stay in sync.
     private const short GoldVNum = 1046;
 
-    public Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer)
+    public Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
         if (victim is not INonPlayableEntity npc)
         {
-            // Killing a player in PvP is handled elsewhere (dignity loss etc.).
-            // We only distribute the monster-kill rewards here for now.
             victim.HitList.Clear();
             return Task.CompletedTask;
         }
@@ -57,14 +56,14 @@ public sealed class RewardService(
             return Task.CompletedTask;
         }
 
-        var totalDamage = victim.HitList.Values.Sum();
+        var totalDamage = hitSnapshot.Values.Sum();
         if (totalDamage <= 0)
         {
             victim.HitList.Clear();
             return Task.CompletedTask;
         }
 
-        AwardExperience(victim, mob, totalDamage);
+        AwardExperience(victim, mob, totalDamage, hitSnapshot);
         SpawnDrops(victim, mob, mapInstance);
         SpawnGold(victim, mob, mapInstance);
 
@@ -73,9 +72,9 @@ public sealed class RewardService(
         return Task.CompletedTask;
     }
 
-    private static void AwardExperience(IAliveEntity victim, NpcMonsterDto mob, int totalDamage)
+    private static void AwardExperience(IAliveEntity victim, NpcMonsterDto mob, int totalDamage, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
-        foreach (var (handle, damage) in victim.HitList)
+        foreach (var (handle, damage) in hitSnapshot)
         {
             if (!TryFindCharacter(victim, handle, out var character))
             {

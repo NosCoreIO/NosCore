@@ -114,6 +114,12 @@ namespace NosCore.GameObject.Services.MinilandService
                     OwnerId = characterId,
                     WelcomeMusicInfo = 3800
                 });
+                if (minilandInfoDto == null)
+                {
+                    minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId)
+                        ?? throw new InvalidOperationException(
+                            $"Miniland row for character {characterId} could not be created or re-read after upsert failure.");
+                }
             }
 
             var map = maps.First(s => s.MapId == 20001);

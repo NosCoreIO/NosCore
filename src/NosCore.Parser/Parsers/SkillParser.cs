@@ -90,8 +90,8 @@ namespace NosCore.Parser.Parsers
                 {
                     skill.LevelMinimum = skill.Class switch
                     {
-                        8 => (byte)(skillscount - 1 * 10),
-                        9 => (byte)(skillscount - 4 * 4),
+                        8 => (byte)(skillscount - (1 * 10)),
+                        9 => (byte)(skillscount - (4 * 4)),
                         16 => (byte)skillscount switch
                         {
                             6 => 20,
@@ -101,7 +101,7 @@ namespace NosCore.Parser.Parsers
                             2 => 3,
                             _ => 0
                         },
-                        _ => (byte)(skillscount - 5 * 4)
+                        _ => (byte)(skillscount - (5 * 4))
                     };
 
                 }

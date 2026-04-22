@@ -122,8 +122,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             foreach (var entity in _visibilitySystem.GetMapItemEntities(EcsWorld))
             {
-                var identity = EcsWorld.World.Get<EntityIdentityComponent>(entity);
-                if (identity.VisualId == visualId)
+                var identity = EcsWorld.TryGetComponent<EntityIdentityComponent>(entity);
+                if (identity?.VisualId == visualId)
                 {
                     EcsWorld.DestroyEntity(entity);
                     return true;
@@ -440,6 +440,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 return;
             }
+
+            Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
+            Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
 
             Life?.Dispose();
             Life = null;

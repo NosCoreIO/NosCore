@@ -34,6 +34,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var character = session.Character;
 
             var gift = itemProvider.Create((short)item.EffectValue, 1);
+            if (gift == null) return;
+
             var added = character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(gift, character.CharacterId))?.FirstOrDefault();
             if (added == null)

@@ -47,11 +47,6 @@ namespace NosCore.PacketHandlers.Game
 
             session.GameStarted = true;
 
-            if (session.Character.CurrentScriptId == null)
-            {
-                _ = questProvider.RunScriptAsync(session.Character);
-            }
-
             if (worldConfiguration.Value.WorldInformation)
             {
                 await session.SendPacketAsync(session.Character.GenerateSay("-------------------[NosCore]---------------",
@@ -76,6 +71,11 @@ namespace NosCore.PacketHandlers.Game
             else
             {
                 await mapChangeService.ChangeMapAsync(session);
+            }
+
+            if (session.Character.CurrentScriptId == null)
+            {
+                _ = questProvider.RunScriptAsync(session.Character);
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());

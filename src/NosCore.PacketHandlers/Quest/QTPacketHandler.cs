@@ -44,7 +44,10 @@ namespace NosCore.PacketHandlers.Quest
                         return;
                     }
                     session.Character.Quests.TryRemove(charQuest.Key, out var questToRemove);
-                    questToRemove?.GenerateQstiPacket(false);
+                    if (questToRemove != null)
+                    {
+                        await session.SendPacketAsync(questToRemove.GenerateQstiPacket(false));
+                    }
                     break;
             }
         }

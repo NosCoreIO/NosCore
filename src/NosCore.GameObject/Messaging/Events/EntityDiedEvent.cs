@@ -4,14 +4,27 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
+using System.Linq;
+using Arch.Core;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
-    // Published once per kill. The reward handler converts HitList contributions to XP /
-    // gold / drops; AI handlers clear aggro and schedule respawns; the revival handler
-    // branches on `RevivalMode` to decide whether to warp or refill in place.
-    public sealed record EntityDiedEvent(IAliveEntity Victim, IAliveEntity? Killer, RevivalMode RevivalMode = RevivalMode.Normal);
+    public sealed record EntityDiedEvent(
+        IAliveEntity Victim,
+        IAliveEntity? Killer,
+        IReadOnlyDictionary<Entity, int> HitSnapshot,
+        RevivalMode RevivalMode = RevivalMode.Normal)
+    {
+        public EntityDiedEvent(IAliveEntity victim, IAliveEntity? killer, RevivalMode revivalMode = RevivalMode.Normal)
+            : this(victim, killer, SnapshotHits(victim), revivalMode) { }
+
+        private static IReadOnlyDictionary<Entity, int> SnapshotHits(IAliveEntity victim)
+            => victim.HitList is { } list
+                ? list.ToArray().ToDictionary(kv => kv.Key, kv => kv.Value)
+                : new Dictionary<Entity, int>();
+    }
 
     // Normal = in-session death → town warp after the death-pose delay (OpenNos
     // default when the revive dialog's "return to town" option is picked / the

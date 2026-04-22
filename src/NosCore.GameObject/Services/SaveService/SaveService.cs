@@ -145,13 +145,21 @@ namespace NosCore.GameObject.Services.SaveService
                         live.Id = match.Id;
                     }
                 }
-                await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete);
+                var objectivesDeleted = await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete);
+                if (objectivesDeleted == null)
+                {
+                    logger.Error(
+                        new InvalidOperationException("CharacterQuestObjective delete failed; skipping objective upsert to avoid orphaned-row conflicts on next save."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    return;
+                }
                 var objectivesSaved = await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives);
                 if (!objectivesSaved)
                 {
                     logger.Error(
                         new InvalidOperationException("CharacterQuestObjective upsert failed; quest progress will reset on reconnect."),
                         logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    return;
                 }
 
                 await respawnDao.TryInsertOrUpdateAsync(character.Respawns);

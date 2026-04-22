@@ -54,6 +54,10 @@ namespace NosCore.Parser
 
         private async Task RunNonInteractiveAsync(string folder, CancellationToken stoppingToken)
         {
+            if (!Directory.Exists(folder))
+            {
+                throw new DirectoryNotFoundException($"Folder not found: {folder}");
+            }
             logger.Information("Parsing non-interactively from {Folder}", folder);
             factory.SetFolder(folder);
             await factory.ImportPacketsAsync().ConfigureAwait(false);

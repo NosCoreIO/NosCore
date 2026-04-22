@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Arch.Core;
 using NodaTime;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
@@ -41,17 +42,59 @@ namespace NosCore.GameObject.Services.BattleService;
 // When the aggro leash expires (aggroService.Current returns HasTarget=false), the
 // AI pathfinds back to FirstX/FirstY (for entities that walk), matching OpenNos
 // RemoveTarget behaviour.
-public sealed class MonsterAi(
-    IBattleService battleService,
-    IAggroService aggroService,
-    IPathfindingService pathfindingService,
-    ISessionRegistry sessionRegistry,
-    IHeuristic distanceCalculator,
-    INpcCombatCatalog catalog,
-    IRandomProvider random,
-    IClock clock,
-    ILogger logger) : IMonsterAi, ISingletonService
+public sealed class MonsterAi : IMonsterAi, ISingletonService
 {
+    private readonly IBattleService battleService;
+    private readonly IAggroService aggroService;
+    private readonly IPathfindingService pathfindingService;
+    private readonly ISessionRegistry sessionRegistry;
+    private readonly IHeuristic distanceCalculator;
+    private readonly INpcCombatCatalog catalog;
+    private readonly IRandomProvider random;
+    private readonly IClock clock;
+    private readonly ILogger logger;
+    private readonly IReadOnlyDictionary<short, SkillDto> skillsByVnum;
+
+    public MonsterAi(
+        IBattleService battleService,
+        IAggroService aggroService,
+        IPathfindingService pathfindingService,
+        ISessionRegistry sessionRegistry,
+        IHeuristic distanceCalculator,
+        INpcCombatCatalog catalog,
+        IRandomProvider random,
+        IClock clock,
+        List<SkillDto> skills,
+        ILogger logger)
+        : this(battleService, aggroService, pathfindingService, sessionRegistry, distanceCalculator,
+            catalog, random, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger)
+    {
+    }
+
+    public MonsterAi(
+        IBattleService battleService,
+        IAggroService aggroService,
+        IPathfindingService pathfindingService,
+        ISessionRegistry sessionRegistry,
+        IHeuristic distanceCalculator,
+        INpcCombatCatalog catalog,
+        IRandomProvider random,
+        IClock clock,
+        IReadOnlyDictionary<short, SkillDto> skillsByVnum,
+        ILogger logger)
+    {
+        this.battleService = battleService;
+        this.aggroService = aggroService;
+        this.pathfindingService = pathfindingService;
+        this.sessionRegistry = sessionRegistry;
+        this.distanceCalculator = distanceCalculator;
+        this.catalog = catalog;
+        this.random = random;
+        this.clock = clock;
+        this.skillsByVnum = skillsByVnum;
+        this.logger = logger;
+    }
+
     // Cached path per entity — invalidated when the target moves far enough that
     // JPS's result is no longer useful.
     private readonly ConcurrentDictionary<Entity, CachedPath> _pathCache = new();
@@ -90,17 +133,21 @@ public sealed class MonsterAi(
                 (entity.PositionX, entity.PositionY),
                 (target.PositionX, target.PositionY));
 
-            var chosenSkill = PickSkill(entity, distance);
+            var chosenSkill = PickSkill(entity);
 
             if (chosenSkill != null && distance <= chosenSkill.SkillRange)
             {
-                await AttackAsync(entity, target, chosenSkill.CastId, chosenSkill.CooldownMs).ConfigureAwait(false);
+                await AttackAsync(entity, target, chosenSkill).ConfigureAwait(false);
                 return true;
             }
             if (chosenSkill == null && distance <= Math.Max(1, (int)entity.NpcMonster.BasicRange))
             {
-                var basicCooldownMs = Math.Max(200, entity.NpcMonster.BasicCooldown * 100);
-                await AttackAsync(entity, target, 0, basicCooldownMs).ConfigureAwait(false);
+                var basic = new ChosenSkill(
+                    SkillVnum: 0,
+                    CastId: 0,
+                    SkillRange: Math.Max(1, (int)entity.NpcMonster.BasicRange),
+                    CooldownMs: Math.Max(200, entity.NpcMonster.BasicCooldown * 100));
+                await AttackAsync(entity, target, basic).ConfigureAwait(false);
                 return true;
             }
 
@@ -120,13 +167,16 @@ public sealed class MonsterAi(
     // no player preference.
     private IAliveEntity? DetectNearbyEnemy(INonPlayableEntity entity)
     {
+        var map = entity.MapInstance;
+        if (map == null) return null;
+
         var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (byte)1);
         IAliveEntity? best = null;
         var bestDistance = double.MaxValue;
 
         if (entity.VisualType == VisualType.Npc)
         {
-            foreach (var monster in entity.MapInstance.Monsters)
+            foreach (var monster in map.Monsters)
             {
                 if (!monster.IsAlive || monster.NpcMonster == null) continue;
                 var d = distanceCalculator.GetDistance(
@@ -157,7 +207,7 @@ public sealed class MonsterAi(
                 best = player;
             }
         }
-        foreach (var npc in entity.MapInstance.Npcs)
+        foreach (var npc in map.Npcs)
         {
             if (!npc.IsAlive || npc.NpcMonster == null) continue;
             var d = distanceCalculator.GetDistance(
@@ -177,6 +227,9 @@ public sealed class MonsterAi(
     // (players, monsters, NPCs) because any of them can be an aggro target.
     private IAliveEntity? ResolveTarget(INonPlayableEntity entity, long visualId)
     {
+        var map = entity.MapInstance;
+        if (map == null) return null;
+
         foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
         {
             if (session.HasPlayerEntity && session.Character.VisualId == visualId)
@@ -184,11 +237,11 @@ public sealed class MonsterAi(
                 return session.Character;
             }
         }
-        foreach (var monster in entity.MapInstance.Monsters)
+        foreach (var monster in map.Monsters)
         {
             if (monster.VisualId == visualId) return monster;
         }
-        foreach (var npc in entity.MapInstance.Npcs)
+        foreach (var npc in map.Npcs)
         {
             if (npc.VisualId == visualId) return npc;
         }
@@ -198,51 +251,57 @@ public sealed class MonsterAi(
     // 20% chance per tick to roll one of the entity's cooldown-ready skills. When a
     // skill is selected it's only used if in range; otherwise the AI falls through to
     // either basic attack or pursuit. Matches OpenNos RandomNumber(0, 10) > 8 check.
-    private ChosenSkill? PickSkill(INonPlayableEntity entity, int distance)
+    private ChosenSkill? PickSkill(INonPlayableEntity entity)
     {
         if (random.Next(0, 10) < 8) return null;
+        var map = entity.MapInstance;
+        if (map == null) return null;
+
         var skills = catalog.GetSkills(entity.NpcMonster!.NpcMonsterVNum);
         if (skills.Count == 0) return null;
 
-        var cooldowns = entity.MapInstance.EcsWorld.TryGetComponent<SkillCooldownComponent>(entity.Handle);
+        var cooldowns = map.EcsWorld.TryGetComponent<SkillCooldownComponent>(entity.Handle);
         if (cooldowns == null) return null;
 
         var now = clock.GetCurrentInstant();
-        // Shuffle for randomness without sorting the whole list.
         foreach (var sk in skills.OrderBy(_ => random.Next(0, 100)))
         {
             if (cooldowns.Value.NextUsableAt.TryGetValue(sk.SkillVNum, out var readyAt) && readyAt > now)
             {
                 continue;
             }
-            // We can't resolve the SkillDto here (no injected dict) — caller uses CastId
-            // through SkillResolver which already handles NpcMonsterSkill → SkillDto.
-            // Range/cooldown default values cover the resolver's output for basic calls.
+            if (!skillsByVnum.TryGetValue(sk.SkillVNum, out var dto))
+            {
+                continue;
+            }
             return new ChosenSkill(
-                SkillVnum: sk.SkillVNum,
-                CastId: 0,
-                SkillRange: Math.Max(1, (int)entity.NpcMonster.BasicRange),
-                CooldownMs: 2000);
+                SkillVnum: dto.SkillVNum,
+                CastId: dto.CastId,
+                SkillRange: Math.Max(1, (int)dto.Range),
+                CooldownMs: Math.Max(200, dto.Cooldown * 100));
         }
         return null;
     }
 
-    private async Task AttackAsync(INonPlayableEntity entity, IAliveEntity target, long castId, int cooldownMs)
+    private async Task AttackAsync(INonPlayableEntity entity, IAliveEntity target, ChosenSkill skill)
     {
-        var cooldowns = entity.MapInstance.EcsWorld.TryGetComponent<SkillCooldownComponent>(entity.Handle);
+        var map = entity.MapInstance;
+        if (map == null) return;
+
+        var cooldowns = map.EcsWorld.TryGetComponent<SkillCooldownComponent>(entity.Handle);
         var now = clock.GetCurrentInstant();
         if (cooldowns != null &&
-            cooldowns.Value.NextUsableAt.TryGetValue(0, out var readyAt) &&
+            cooldowns.Value.NextUsableAt.TryGetValue(skill.SkillVnum, out var readyAt) &&
             readyAt > now)
         {
             return;
         }
 
-        await battleService.Hit(entity, target, new HitArguments { SkillId = castId }).ConfigureAwait(false);
+        await battleService.Hit(entity, target, new HitArguments { SkillId = skill.CastId }).ConfigureAwait(false);
 
         if (cooldowns != null)
         {
-            cooldowns.Value.NextUsableAt[0] = now.Plus(Duration.FromMilliseconds(cooldownMs));
+            cooldowns.Value.NextUsableAt[skill.SkillVnum] = now.Plus(Duration.FromMilliseconds(skill.CooldownMs));
         }
     }
 
@@ -252,6 +311,11 @@ public sealed class MonsterAi(
     // multi-cell batch per MonsterLife tick).
     private async Task StepTowardAsync(INonPlayableEntity entity, IAliveEntity target)
     {
+        if (entity.NpcMonster?.CanWalk != true) return;
+
+        var map = entity.MapInstance;
+        if (map == null) return;
+
         var cache = _pathCache.GetValueOrDefault(entity.Handle);
         var targetMoved = cache == null
             || cache.TargetX != target.PositionX
@@ -259,7 +323,7 @@ public sealed class MonsterAi(
 
         if (cache == null || targetMoved || cache.Path.Count == 0)
         {
-            var pathfinder = pathfindingService.ForMap(entity.MapInstance.Map);
+            var pathfinder = pathfindingService.ForMap(map.Map);
             var path = pathfinder.FindPath(
                     (entity.PositionX, entity.PositionY),
                     (target.PositionX, target.PositionY))
@@ -277,16 +341,19 @@ public sealed class MonsterAi(
         cache.Path.RemoveRange(0, stepCount);
         _pathCache[entity.Handle] = cache with { LastStepAt = clock.GetCurrentInstant() };
 
-        if (!entity.MapInstance.Map.IsWalkable((short)dest.Item1, (short)dest.Item2)) return;
+        if (!map.Map.IsWalkable((short)dest.Item1, (short)dest.Item2)) return;
 
         entity.PositionX = (short)dest.Item1;
         entity.PositionY = (short)dest.Item2;
-        await entity.MapInstance.SendPacketAsync(entity.GenerateMove(entity.PositionX, entity.PositionY)).ConfigureAwait(false);
+        await map.SendPacketAsync(entity.GenerateMove(entity.PositionX, entity.PositionY)).ConfigureAwait(false);
     }
 
     private async Task<bool> TryReturnHomeAsync(INonPlayableEntity entity)
     {
         if (!entity.IsMoving) return false;
+
+        var map = entity.MapInstance;
+        if (map == null) return false;
 
         // INonPlayableEntity exposes the spawn cell via its MapX/MapY interface
         // members (see NpcComponentBundle / MonsterComponentBundle partial impls).
@@ -296,7 +363,7 @@ public sealed class MonsterAi(
             return false;
         }
 
-        var pathfinder = pathfindingService.ForMap(entity.MapInstance.Map);
+        var pathfinder = pathfindingService.ForMap(map.Map);
         var path = pathfinder.FindPath(
                 (entity.PositionX, entity.PositionY),
                 (entity.MapX, entity.MapY))
@@ -307,7 +374,7 @@ public sealed class MonsterAi(
         var step = path[0];
         entity.PositionX = (short)step.Item1;
         entity.PositionY = (short)step.Item2;
-        await entity.MapInstance.SendPacketAsync(entity.GenerateMove(entity.PositionX, entity.PositionY)).ConfigureAwait(false);
+        await map.SendPacketAsync(entity.GenerateMove(entity.PositionX, entity.PositionY)).ConfigureAwait(false);
         return true;
     }
 

@@ -44,14 +44,9 @@ namespace NosCore.GameObject.Services.QuestService
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
         public async Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet)
         {
-            if (character.CurrentScriptId == null) //todo handle other acts
+            if (character.CurrentScriptId == null && worldConfiguration.Value.SceneOnCreate)
             {
-                if (worldConfiguration.Value.SceneOnCreate)
-                {
-                    await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
-                    await Task.Delay(TimeSpan.FromSeconds(71));
-                }
-                await Task.Delay(TimeSpan.FromSeconds(2));
+                await character.SendPacketAsync(new ScenePacket { SceneId = 40 });
             }
 
             var previousScript = character.Script;
