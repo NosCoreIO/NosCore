@@ -4,14 +4,19 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.Networking;
+using NosCore.Packets;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -19,31 +24,34 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.MapItem
 {
     [UsedImplicitly]
-    public sealed class GoldDropHandler(IOptions<WorldConfiguration> worldConfiguration)
+    public sealed class GoldDropHandler(IOptions<WorldConfiguration> worldConfiguration, List<ItemDto> items)
     {
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
         {
-            if (evt.MapItem.VNum != 1046)
+            if (evt.VNum != 1046)
             {
                 return;
             }
 
             var session = evt.ClientSession;
-            var mapItem = evt.MapItem;
             var maxGold = worldConfiguration.Value.MaxGoldAmount;
-
             var character = session.Character;
-            if (character.Gold + mapItem.Amount <= maxGold)
+            var visualId = evt.VisualId;
+            var amount = evt.Amount;
+            var vnum = evt.VNum;
+
+            if (character.Gold + amount <= maxGold)
             {
                 if (evt.Packet.PickerType == VisualType.Npc)
                 {
-                    await session.SendPacketAsync(character.GenerateIcon(1, mapItem.VNum));
+                    await session.SendPacketAsync(character.GenerateIcon(1, vnum));
                 }
 
                 character = session.Character;
-                character.Gold += mapItem.Amount;
+                character.Gold += amount;
 
+                var goldName = items.First(i => i.VNum == vnum).Name[session.Account.Language];
 #pragma warning disable NosCoreAnalyzers
                 var characterId = character.CharacterId;
                 await session.SendPacketAsync(new Sayi2Packet
@@ -53,7 +61,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                     Type = SayColorType.Green,
                     Message = Game18NConstString.ItemReceived,
                     ArgumentType = 9,
-                    Game18NArguments = { mapItem.Amount, mapItem.VNum }
+                    Game18NArguments = new Game18NArguments(2) { amount, goldName }
                 });
 #pragma warning restore NosCoreAnalyzers
             }
@@ -71,8 +79,14 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             character = session.Character;
             var mapInstance = character.MapInstance;
             await session.SendPacketAsync(character.GenerateGold());
-            mapInstance.TryRemoveMapItem(mapItem.VisualId);
-            await mapInstance.SendPacketAsync(character.GenerateGet(mapItem.VisualId));
+            mapInstance.TryRemoveMapItem(visualId);
+            await mapInstance.SendPacketAsync(character.GenerateGet(visualId));
+            await session.SendPacketAsync(new CancelPacket
+            {
+                Type = CancelPacketType.CancelPicking,
+                TargetId = visualId,
+                Unknow = -1
+            });
         }
     }
 }
