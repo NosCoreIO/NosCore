@@ -238,7 +238,7 @@ public static class PlayerBundleExtensions
                     Mp = player.MaxMp > 0 ? (int)(player.Mp / (float)player.MaxMp * 100) : 100
                 },
                 IsSitting = player.IsSitting,
-                GroupId = player.Group?.GroupId ?? -1,
+                GroupId = player.Group.Count == 1 ? -1 : player.Group.GroupId,
                 Fairy = 0,
                 FairyElement = 0,
                 Unknown = 0,

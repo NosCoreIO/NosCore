@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
-            if (!session.Character.Group!.IsEmpty)
+            if (!session.Character.Group.IsEmpty)
             {
                 await session.SendPacketAsync(new SayiPacket
                 {

@@ -20,7 +20,7 @@ namespace NosCore.PacketHandlers.Group
     {
         public override Task ExecuteAsync(GroupTalkPacket groupTalkPacket, ClientSession clientSession)
         {
-            if (clientSession.Character.Group!.Count == 1)
+            if (clientSession.Character.Group.Count == 1)
             {
                 return Task.CompletedTask;
             }

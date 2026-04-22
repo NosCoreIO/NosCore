@@ -425,7 +425,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         public static async Task LeaveGroupAsync(this ICharacterEntity characterEntity,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         {
-            characterEntity.Group!.LeaveGroup(characterEntity);
+            characterEntity.Group.LeaveGroup(characterEntity);
 
             foreach (var entry in characterEntity.Group.Values.Where(s =>
                 s.Item2.VisualType == VisualType.Player && s.Item2.VisualId != characterEntity.VisualId))
@@ -446,7 +446,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     });
                 }
 
-                await groupMember.SendPacketAsync(groupMember.Group!.GeneratePinit());
+                await groupMember.SendPacketAsync(groupMember.Group.GeneratePinit());
             }
 
             characterEntity.Group = new Group(GroupType.Group, sessionGroupFactory);

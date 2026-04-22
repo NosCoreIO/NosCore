@@ -228,21 +228,21 @@ namespace NosCore.PacketHandlers.Tests.Group
 
         private void BothSessionsShouldBeInSameGroup()
         {
-            Assert.IsTrue((Sessions[0].Character.Group!.Count > 1)
-                && (Sessions[1].Character.Group!.Count > 1)
-                && (Sessions[0].Character.Group!.GroupId
-                    == Sessions[1].Character.Group!.GroupId));
+            Assert.IsTrue((Sessions[0].Character.Group.Count > 1)
+                && (Sessions[1].Character.Group.Count > 1)
+                && (Sessions[0].Character.Group.GroupId
+                    == Sessions[1].Character.Group.GroupId));
         }
 
         private void Session_ShouldNotJoinGroup(int value)
         {
-            Assert.IsTrue(Sessions[3].Character.Group!.Count == 1);
+            Assert.IsTrue(Sessions[3].Character.Group.Count == 1);
         }
 
         private void BothSessionsShouldBeAlone()
         {
-            Assert.IsTrue((Sessions[0].Character.Group!.Count == 1)
-                && (Sessions[1].Character.Group!.Count == 1));
+            Assert.IsTrue((Sessions[0].Character.Group.Count == 1)
+                && (Sessions[1].Character.Group.Count == 1));
         }
 
         private void LastGroupRequestShouldNotBeNull()

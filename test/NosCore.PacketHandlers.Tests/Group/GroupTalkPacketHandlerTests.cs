@@ -169,26 +169,26 @@ namespace NosCore.PacketHandlers.Tests.Group
 
         private void NoSpkPacketShouldBeSent()
         {
-            var packet = _sessions[0].Character.Group!.LastPackets.FirstOrDefault(s => s is SpeakPacket);
+            var packet = _sessions[0].Character.Group.LastPackets.FirstOrDefault(s => s is SpeakPacket);
             Assert.IsNull(packet);
         }
 
         private void SpkPacketShouldBeSentToGroup()
         {
-            var packet = _sessions[0].Character.Group!.LastPackets.FirstOrDefault(s => s is SpeakPacket);
+            var packet = _sessions[0].Character.Group.LastPackets.FirstOrDefault(s => s is SpeakPacket);
             Assert.IsNotNull(packet);
         }
 
         private void SpkPacketShouldHaveGroupSpeakType()
         {
-            var packet = (SpeakPacket?)_sessions[0].Character.Group!.LastPackets.FirstOrDefault(s => s is SpeakPacket);
+            var packet = (SpeakPacket?)_sessions[0].Character.Group.LastPackets.FirstOrDefault(s => s is SpeakPacket);
             Assert.IsNotNull(packet);
             Assert.AreEqual(SpeakType.Group, packet.SpeakType);
         }
 
         private void SpkPacketShouldContainCorrectMessage()
         {
-            var packet = (SpeakPacket?)_sessions[0].Character.Group!.LastPackets.FirstOrDefault(s => s is SpeakPacket);
+            var packet = (SpeakPacket?)_sessions[0].Character.Group.LastPackets.FirstOrDefault(s => s is SpeakPacket);
             Assert.IsNotNull(packet);
             Assert.AreEqual("Test Message 123", packet.Message);
         }

@@ -169,8 +169,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;
 
-                character.Group?.LeaveGroup(character);
-                character.Group?.JoinGroup(character);
+                character.Group.LeaveGroup(character);
+                character.Group.JoinGroup(character);
 
                 var fairy = character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
                 var group = character.Group;

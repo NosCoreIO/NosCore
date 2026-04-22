@@ -166,7 +166,7 @@ namespace NosCore.PacketHandlers.Battle
                 Data = 0,
             }).ConfigureAwait(false);
 
-            await session.SendPacketAsync(character.Group!.GeneratePinit()).ConfigureAwait(false);
+            await session.SendPacketAsync(character.Group.GeneratePinit()).ConfigureAwait(false);
             await session.SendPacketAsync(character.GenerateStat()).ConfigureAwait(false);
         }
     }
