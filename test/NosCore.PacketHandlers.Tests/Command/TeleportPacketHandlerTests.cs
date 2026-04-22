@@ -74,6 +74,69 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TeleportingToPlayerForwardsTargetMapXYNotSelfPosition()
+        {
+            await new Spec("Teleport-to-player forwards the target's MapX/MapY (not the caller's)")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnlineAtMapXY_, (short)77, (short)88)
+                .And(CallerIsAtDifferentPosition_, (short)10, (short)10)
+                .WhenAsync(TeleportingToPlayer)
+                .Then(MapChangeInstanceCalledWithCoords_, 77, 88)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TeleportingToMapByIdForwardsPacketMapXYCoordinates()
+        {
+            await new Spec("Teleport-by-map-id forwards the packet's MapX/MapY to ChangeMapAsync")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(TeleportingToMapByIdAt_, (short)50, (short)50)
+                .Then(MapChangeByIdCalledWithMapAndCoords_, (short)1, (short)50, (short)50)
+                .ExecuteAsync();
+        }
+
+        private void TargetIsOnlineAtMapXY_(short x, short y)
+        {
+            TargetSession.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            TargetSession.Character.MapX = x;
+            TargetSession.Character.MapY = y;
+        }
+
+        private void CallerIsAtDifferentPosition_(short x, short y)
+        {
+            Session.Character.MapX = x;
+            Session.Character.MapY = y;
+        }
+
+        private async Task TeleportingToMapByIdAt_(short x, short y)
+        {
+            await Handler.ExecuteAsync(new TeleportPacket
+            {
+                TeleportArgument = "1",
+                MapX = x,
+                MapY = y,
+            }, Session);
+        }
+
+        private void MapChangeInstanceCalledWithCoords_(int expectedX, int expectedY)
+        {
+            MapChangeService.Verify(x => x.ChangeMapInstanceAsync(
+                Session,
+                It.IsAny<System.Guid>(),
+                It.Is<int?>(v => v == expectedX),
+                It.Is<int?>(v => v == expectedY)), Times.Once);
+        }
+
+        private void MapChangeByIdCalledWithMapAndCoords_(short expectedMapId, short expectedX, short expectedY)
+        {
+            MapChangeService.Verify(x => x.ChangeMapAsync(
+                Session,
+                It.Is<short?>(v => v == expectedMapId),
+                It.Is<short?>(v => v == expectedX),
+                It.Is<short?>(v => v == expectedY)), Times.Once);
+        }
+
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;

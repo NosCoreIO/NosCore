@@ -24,13 +24,6 @@ using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
-    // Locks in the OpenNos-faithful rarify behavior:
-    //   - NOT a "+1" — it's a probability-band reroll where the new Rare is chosen by
-    //     walking the bands from rare8 down. The first band the roll falls into wins.
-    //   - Bands (out of 100): rare8=1, rare7=2, rare6=3, rare5=5, rare4=10, rare3=15,
-    //     rare2=30, rare1=40, rare0=60.
-    //   - Materials: Cellon (1014) × 5 + Gold 500. Protected adds Scroll (1218) × 1
-    //     which clamps the new Rare so it never drops below the original.
     [TestClass]
     public class RarifyOperationTests
     {
@@ -59,61 +52,73 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task LowRollLandsOnHighestRareAndIsCountedAsSuccess()
         {
-            // Roll 0.005 → rnd=0.5 → falls in rare8 band (< 1). New Rare = 8.
-            await new Spec("Roll inside the rare8 band rarifies up to 8")
+            await new Spec("Roll inside the rare7 band rarifies up to 7")
                 .Given(WearableAtRarity_, (sbyte)0)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
-                .And(NextRollWillBe_, 0.005)
+                .And(NextRollWillBe_, 0.02)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
-                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .Then(WearableRarityShouldBe_, (sbyte)7)
                 .And(CellonRemainingShouldBe_, (short)95)
                 .And(GoldShouldBe_, 99_500L)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task RollLandingOnLowerRareIsCountedAsFailure()
+        public async Task RollOutsideAllBandsDestroysTheItem()
         {
-            // Roll 0.50 → rnd=50 → first band rnd<60 is rare0. New Rare = 0.
-            // Original was 5 → demoted: counts as Failure but still writes the new value.
-            await new Spec("Roll that lands on a lower rare than original demotes the wearable")
+            await new Spec("Roll that matches no rare band destroys the wearable (unprotected)")
                 .Given(WearableAtRarity_, (sbyte)5)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
                 .And(NextRollWillBe_, 0.50)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
-                .Then(WearableRarityShouldBe_, (sbyte)0)
+                .Then(SourceSlotShouldBeEmpty)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ProtectedScrollClampsNewRareAtOriginal()
+        public async Task ProtectedScrollAbsorbsNoBandMatchAndKeepsOriginalRare()
         {
-            // Roll 0.50 → would land on rare0; with protection the new rare is clamped
-            // to original (5). Scroll is consumed.
-            await new Spec("Protected scroll prevents rare from dropping below original")
+            await new Spec("Protected scroll absorbs a no-band-match roll; item kept at original rare")
                 .Given(WearableAtRarity_, (sbyte)5)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
                 .And(NextRollWillBe_, 0.50)
                 .WhenAsync(ProtectedRarifyIsExecuted)
                 .Then(WearableRarityShouldBe_, (sbyte)5)
+                .And(WearableShouldNotBeFixed)
                 .And(ScrollShouldHaveBeenConsumed)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ProtectedScrollStillAllowsImprovementToHigherRare()
+        public async Task ProtectedScrollSkipsBandsThatWouldDowngrade()
         {
-            // Roll 0.005 → rare8 band; protection doesn't clamp upward, only downward.
-            await new Spec("Protected scroll still allows the rare to improve")
-                .Given(WearableAtRarity_, (sbyte)0)
+            await new Spec("Protected scroll allows improvement bands (rare7 with originalRare=5)")
+                .Given(WearableAtRarity_, (sbyte)5)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
-                .And(NextRollWillBe_, 0.005)
+                .And(NextRollWillBe_, 0.02)
                 .WhenAsync(ProtectedRarifyIsExecuted)
-                .Then(WearableRarityShouldBe_, (sbyte)8)
+                .Then(WearableRarityShouldBe_, (sbyte)7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SuccessResetsRarityDrivenStatsViaSetRarityPoint()
+        {
+            await new Spec("Successful rarify re-rolls the rarity-driven stats via SetRarityPoint")
+                .Given(WearableAtRarity_, (sbyte)0)
+                .And(SourceWearableHasPreExistingDefenseStats)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.02)
+                .WhenAsync(UnprotectedRarifyIsExecuted)
+                .Then(WearableRarityShouldBe_, (sbyte)7)
+                .And(CloseDefenceShouldBe_, (short)0)
+                .And(DistanceDefenceShouldBe_, (short)0)
+                .And(MagicDefenceShouldBe_, (short)0)
                 .ExecuteAsync();
         }
 
@@ -158,7 +163,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void WearableAtRarity_(sbyte rare)
         {
-            var item = new Item { VNum = ArmorVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor };
+            var item = new Item
+            {
+                VNum = ArmorVNum,
+                Type = NoscorePocketType.Equipment,
+                ItemType = ItemType.Armor,
+                EquipmentSlot = EquipmentType.Armor,
+            };
             var wearable = new WearableInstance(item, new Mock<Serilog.ILogger>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer)
             {
@@ -168,6 +179,14 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _wearable.Slot = 0;
             _wearable.Type = NoscorePocketType.Equipment;
             _session.Character.InventoryService[_wearable.ItemInstanceId] = _wearable;
+        }
+
+        private void SourceWearableHasPreExistingDefenseStats()
+        {
+            var wearable = (WearableInstance)_wearable.ItemInstance;
+            wearable.CloseDefence = 50;
+            wearable.DistanceDefence = 50;
+            wearable.MagicDefence = 50;
         }
 
         private void MaterialsInInventory()
@@ -212,6 +231,25 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void WearableRarityShouldBe_(sbyte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
                 .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Rare);
+
+        private void WearableShouldNotBeFixed() =>
+            Assert.AreNotEqual(true, ((WearableInstance)_session.Character.InventoryService
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).IsFixed);
+
+        private void SourceSlotShouldBeEmpty() =>
+            Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));
+
+        private void CloseDefenceShouldBe_(short expected) =>
+            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).CloseDefence);
+
+        private void DistanceDefenceShouldBe_(short expected) =>
+            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).DistanceDefence);
+
+        private void MagicDefenceShouldBe_(short expected) =>
+            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).MagicDefence);
 
         private void CellonRemainingShouldBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));

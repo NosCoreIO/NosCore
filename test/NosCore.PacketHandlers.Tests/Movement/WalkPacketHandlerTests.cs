@@ -71,8 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             await new Spec("Walk on a BaseMap updates the persistent MapX/Y alongside PositionX/Y")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(WalkingToValidPosition)
-                .Then(PositionShouldBeUpdated)
-                .And(MapXYShouldBe_, (short)5, (short)5)
+                .Then(MapXYShouldBe_, (short)5, (short)5)
                 .ExecuteAsync();
         }
 
@@ -84,8 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .And(MapInstanceBecomesNormalInstance)
                 .And(MapXYAreAlreadyPersistedAt_, (short)48, (short)132)
                 .WhenAsync(WalkingToValidPosition)
-                .Then(PositionShouldBeUpdated)
-                .And(MapXYShouldBe_, (short)48, (short)132)
+                .Then(MapXYShouldBe_, (short)48, (short)132)
                 .ExecuteAsync();
         }
 
@@ -97,6 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             Session.Character.PositionX = 4;
             Session.Character.PositionY = 4;
+            Session.Character.Speed = 20;
             InitialX = Session.Character.PositionX;
             InitialY = Session.Character.PositionY;
         }

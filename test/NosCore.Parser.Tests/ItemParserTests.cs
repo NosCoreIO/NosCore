@@ -287,5 +287,117 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1, _savedItems.Count);
             Assert.AreEqual(NoscorePocketType.Main, _savedItems[0].Type);
         }
+
+        [TestMethod]
+        public async Task ItemParser_WeaponLevelMinimumComesFromFirstDataField()
+        {
+            var content = CreateItemData(
+                vnum: 1,
+                indexType: 4,
+                indexSubType: 0,
+                indexItemType: 4,
+                equipmentSlot: 0,
+                typeClass: 1,
+                data: "15\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(1, _savedItems.Count);
+            Assert.AreEqual(ItemType.Weapon, _savedItems[0].ItemType);
+            Assert.AreEqual(15, _savedItems[0].LevelMinimum);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_ArmorLevelMinimumComesFromFirstDataField()
+        {
+            var content = CreateItemData(
+                vnum: 2,
+                indexType: 4,
+                indexSubType: 1,
+                indexItemType: 0,
+                equipmentSlot: 1,
+                typeClass: 1,
+                data: "42\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(1, _savedItems.Count);
+            Assert.AreEqual(ItemType.Armor, _savedItems[0].ItemType);
+            Assert.AreEqual(42, _savedItems[0].LevelMinimum);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_VNum5119OverridesEffectToSpeedBooster()
+        {
+            var content = CreateItemData(vnum: 5119);
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(1, _savedItems.Count);
+            Assert.AreEqual(ItemEffectType.SpeedBooster, _savedItems[0].Effect);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_AmuletVNumsOverrideEffectAndEffectValue()
+        {
+            var content = CreateItemData(vnum: 282) + "\n#========================================================\n" +
+                          CreateItemData(vnum: 180) + "\n#========================================================\n" +
+                          CreateItemData(vnum: 181);
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(3, _savedItems.Count);
+            var v282 = _savedItems.First(i => i.VNum == 282);
+            var v180 = _savedItems.First(i => i.VNum == 180);
+            var v181 = _savedItems.First(i => i.VNum == 181);
+            Assert.AreEqual(ItemEffectType.RedAmulet, v282.Effect);
+            Assert.AreEqual(3, v282.EffectValue);
+            Assert.AreEqual(ItemEffectType.AttackAmulet, v180.Effect);
+            Assert.AreEqual(ItemEffectType.DefenseAmulet, v181.Effect);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_VNumRange4101to4105OverridesEquipmentSlotToMainWeapon()
+        {
+            var content = CreateItemData(vnum: 4101, indexType: 4, equipmentSlot: 10) + "\n#========================================================\n" +
+                          CreateItemData(vnum: 4105, indexType: 4, equipmentSlot: 11);
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(2, _savedItems.Count);
+            foreach (var item in _savedItems)
+            {
+                Assert.AreEqual(EquipmentType.MainWeapon, item.EquipmentSlot);
+            }
+        }
+
+        [TestMethod]
+        public async Task ItemParser_ConsumableLevelMinimumFallbackIsZeroEvenWhenDataHasValue()
+        {
+            var content = CreateItemData(
+                vnum: 3,
+                indexType: 9,
+                indexSubType: 0,
+                indexItemType: 0,
+                equipmentSlot: -1,
+                data: "0\t0\t99\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
+            CreateTestFile(content);
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(1, _savedItems.Count);
+            Assert.AreEqual(0, _savedItems[0].LevelMinimum);
+        }
     }
 }

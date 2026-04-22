@@ -7,16 +7,21 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
+using Serilog;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.MinilandService
@@ -134,6 +139,102 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 .WhenAsync(DeletingNonExistentMiniland)
                 .Then(DeleteShouldReturnNull)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GetMinilandPortalsReturnsNosvilleAndOldNosvilleEntries()
+        {
+            await new Spec("GetMinilandPortals returns two entries: Nosville(1)->miniland and OldNosville(145)->miniland")
+                .GivenAsync(MinilandAndBothBaseMapsAreRegisteredOnIsolatedService)
+                .When(RequestingMinilandPortals)
+                .Then(PortalListShouldHaveCount_, 2)
+                .And(NosvillePortalIsWiredCorrectly)
+                .And(OldNosvillePortalIsWiredCorrectly)
+                .ExecuteAsync();
+        }
+
+        private Mock<IMapInstanceAccessorService>? _isolatedAccessor;
+        private IMinilandService? _isolatedService;
+        private MapInstance? _nosvilleInstance;
+        private MapInstance? _oldNosvilleInstance;
+        private MapInstance? _minilandInstance;
+        private List<NosCore.GameObject.Map.Portal>? _returnedPortals;
+
+        private async Task MinilandAndBothBaseMapsAreRegisteredOnIsolatedService()
+        {
+            var mapNosville = new NosCore.GameObject.Map.Map { MapId = 1, NameI18NKey = "nosville", Data = new byte[] { } };
+            var mapOldNosville = new NosCore.GameObject.Map.Map { MapId = 145, NameI18NKey = "oldnosville", Data = new byte[] { } };
+            var mapMiniland = new NosCore.GameObject.Map.Map { MapId = 20001, NameI18NKey = "miniland", Data = new byte[] { } };
+
+            var clock = TestHelpers.Instance.Clock;
+            var logger = new Mock<ILogger>().Object;
+            var sessionGroupFactory = TestHelpers.Instance.SessionGroupFactory;
+            var mapItemProvider = TestHelpers.Instance.MapItemProvider!;
+            var mapChangeService = new Mock<GameObject.Services.MapChangeService.IMapChangeService>().Object;
+
+            _nosvilleInstance = new MapInstance(mapNosville, Guid.NewGuid(), false,
+                MapInstanceType.BaseMapInstance, mapItemProvider, logger, clock,
+                mapChangeService, sessionGroupFactory, TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.DistanceCalculator);
+            _oldNosvilleInstance = new MapInstance(mapOldNosville, Guid.NewGuid(), false,
+                MapInstanceType.BaseMapInstance, mapItemProvider, logger, clock,
+                mapChangeService, sessionGroupFactory, TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.DistanceCalculator);
+            _minilandInstance = new MapInstance(mapMiniland, Guid.NewGuid(), false,
+                MapInstanceType.NormalInstance, mapItemProvider, logger, clock,
+                mapChangeService, sessionGroupFactory, TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.DistanceCalculator);
+
+            _isolatedAccessor = new Mock<IMapInstanceAccessorService>();
+            _isolatedAccessor.Setup(a => a.GetBaseMapById(1)).Returns(_nosvilleInstance);
+            _isolatedAccessor.Setup(a => a.GetBaseMapById(145)).Returns(_oldNosvilleInstance);
+            _isolatedAccessor.Setup(a => a.GetMapInstance(_minilandInstance.MapInstanceId)).Returns(_minilandInstance);
+
+            var registry = new MinilandRegistry();
+            registry.Register(Session.Character.CharacterId, new Miniland
+            {
+                MinilandId = Guid.NewGuid(),
+                OwnerId = Session.Character.CharacterId,
+                MapInstanceId = _minilandInstance.MapInstanceId,
+            });
+
+            _isolatedService = new GameObject.Services.MinilandService.MinilandService(
+                _isolatedAccessor.Object,
+                FriendHttpClient.Object,
+                new List<MapDto> { mapMiniland },
+                TestHelpers.Instance.MinilandDao,
+                TestHelpers.Instance.MinilandObjectDao,
+                registry);
+            await Task.CompletedTask;
+        }
+
+        private void RequestingMinilandPortals()
+        {
+            _returnedPortals = _isolatedService!.GetMinilandPortals(Session.Character.CharacterId);
+        }
+
+        private void PortalListShouldHaveCount_(int expected) =>
+            Assert.AreEqual(expected, _returnedPortals!.Count);
+
+        private void NosvillePortalIsWiredCorrectly()
+        {
+            var p = _returnedPortals!.FirstOrDefault(x => x.SourceMapId == 1);
+            Assert.IsNotNull(p);
+            Assert.AreEqual(48, p.SourceX);
+            Assert.AreEqual(132, p.SourceY);
+            Assert.AreEqual(_nosvilleInstance!.MapInstanceId, p.SourceMapInstanceId);
+            Assert.AreEqual(_minilandInstance!.MapInstanceId, p.DestinationMapInstanceId);
+            Assert.AreEqual(20001, p.DestinationMapId);
+        }
+
+        private void OldNosvillePortalIsWiredCorrectly()
+        {
+            var p = _returnedPortals!.FirstOrDefault(x => x.SourceMapId == 145);
+            Assert.IsNotNull(p);
+            Assert.AreEqual(9, p.SourceX);
+            Assert.AreEqual(171, p.SourceY);
+            Assert.AreEqual(_oldNosvilleInstance!.MapInstanceId, p.SourceMapInstanceId);
+            Assert.AreEqual(_minilandInstance!.MapInstanceId, p.DestinationMapInstanceId);
         }
 
         private Miniland? InitializedMiniland;

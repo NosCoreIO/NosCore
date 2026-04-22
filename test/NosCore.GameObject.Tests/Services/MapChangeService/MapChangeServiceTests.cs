@@ -88,6 +88,49 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ChangingToBaseMapInstanceUpdatesMapId()
+        {
+            await new Spec("Changing to a BaseMap instance overwrites character.MapId with the new map id")
+                .Given(CharacterIsOnMap)
+                .And(CharacterMapIdIsPinnedTo_, (short)42)
+                .WhenAsync(ChangingToBaseMap1)
+                .Then(CharacterMapIdShouldBe_, (short)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ChangingToNonBaseInstanceKeepsMapIdUnchanged()
+        {
+            await new Spec("Changing to a non-base instance leaves character.MapId at its previous base-map value")
+                .Given(CharacterIsOnMap)
+                .And(CharacterMapIdIsPinnedTo_, (short)42)
+                .WhenAsync(ChangingToMinilandInstance)
+                .Then(CharacterMapIdShouldBe_, (short)42)
+                .ExecuteAsync();
+        }
+
+        private void CharacterMapIdIsPinnedTo_(short mapId)
+        {
+            Session.Character.MapId = mapId;
+        }
+
+        private async Task ChangingToBaseMap1()
+        {
+            var map1 = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            await Service.ChangeMapInstanceAsync(Session, map1.MapInstanceId, 10, 10);
+        }
+
+        private async Task ChangingToMinilandInstance()
+        {
+            await Service.ChangeMapInstanceAsync(Session, TestHelpers.Instance.MinilandId, 5, 8);
+        }
+
+        private void CharacterMapIdShouldBe_(short expected)
+        {
+            Assert.AreEqual(expected, Session.Character.MapId);
+        }
+
         private short OriginalMapId;
         private bool OperationCompleted;
 

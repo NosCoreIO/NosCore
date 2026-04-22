@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking;
@@ -81,6 +82,61 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Then(GoldShouldIncrease)
                 .And(ItemShouldBeRemoved)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SellingRejectsOnPriceAmountOverflow()
+        {
+            await new Spec("Selling rejects silently when price*amount would overflow long")
+                .Given(CharacterHasExtremePricedItem)
+                .WhenAsync(SellingTwoOfSlotZero)
+                .Then(GoldShouldNotIncrease)
+                .And(ItemShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SellingRejectsWhenSaleWouldBreachMaxGold()
+        {
+            await new Spec("Selling rejects with MaxGoldReached when the payout would exceed MaxGoldAmount")
+                .Given(CharacterHasSoldableItems)
+                .And(CharacterIsAtMaxGold)
+                .WhenAsync(SellingItem)
+                .Then(ShouldReceiveMaxGoldReachedMessage)
+                .And(ItemShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasExtremePricedItem()
+        {
+            var items = new List<ItemDto>
+            {
+                new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ItemType = ItemType.Sell, Price = long.MaxValue }
+            };
+            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 5), 0),
+                NoscorePocketType.Etc, 0);
+            Session.Character.MapInstance = InstanceProvider.GetBaseMapById(1)!;
+        }
+
+        private async Task SellingTwoOfSlotZero()
+        {
+            await SellPacketHandler.ExecuteAsync(
+                new SellPacket { Slot = 0, Amount = 2, Data = (short)NoscorePocketType.Etc },
+                Session);
+        }
+
+        private void CharacterIsAtMaxGold()
+        {
+            Session.Character.Gold = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount;
+        }
+
+        private void ShouldReceiveMaxGoldReachedMessage()
+        {
+            var packet = Session.LastPackets.OfType<NosCore.Packets.ServerPackets.UI.MsgiPacket>()
+                .FirstOrDefault(m => m.Message == Game18NConstString.MaxGoldReached);
+            Assert.IsNotNull(packet);
         }
 
         private void CharacterIsInShop()

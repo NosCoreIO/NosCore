@@ -147,6 +147,20 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SuccessAddsBothTargetInstanceAndTargetBaseItemResistance()
+        {
+            await new Spec("Sum success adds target.FireResistance + target.Item.FireResistance onto source")
+                .Given(TargetWithInstanceResistance_AndBaseItemResistance_, (short)3, (short)5)
+                .And(EnoughSandIsInInventory)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillSucceed)
+                .WhenAsync(SumIsExecuted)
+                .Then(SourceUpgradeShouldBe_, (byte)1)
+                .And(SourceFireResistanceShouldBe_, (short)8)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void SourceAndTargetWearablesArePlaced()
@@ -177,6 +191,17 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             var inv = _session.Character.InventoryService;
             _source = MakeWearableInstance(slot: 0, ArmorVNum, upgrade: 0, EquipmentType.Boots);
             _target = MakeWearableInstance(slot: 1, ArmorVNum, upgrade: 0, EquipmentType.Gloves);
+            inv[_source.ItemInstanceId] = _source;
+            inv[_target.ItemInstanceId] = _target;
+        }
+
+        private void TargetWithInstanceResistance_AndBaseItemResistance_(short instance, short baseItem)
+        {
+            var inv = _session.Character.InventoryService;
+            _source = MakeWearableInstance(slot: 0, ArmorVNum, upgrade: 0, EquipmentType.Boots);
+            _target = MakeWearableInstance(slot: 1, ArmorVNum, upgrade: 0, EquipmentType.Boots);
+            ((WearableInstance)_target.ItemInstance).FireResistance = instance;
+            ((WearableInstance)_target.ItemInstance).Item.FireResistance = baseItem;
             inv[_source.ItemInstanceId] = _source;
             inv[_target.ItemInstanceId] = _target;
         }
@@ -216,6 +241,10 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void SourceUpgradeShouldBe_(byte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
                 .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Upgrade);
+
+        private void SourceFireResistanceShouldBe_(short expected) =>
+            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).FireResistance);
 
         private void TargetSlotShouldBeEmpty() =>
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(1, NoscorePocketType.Equipment));

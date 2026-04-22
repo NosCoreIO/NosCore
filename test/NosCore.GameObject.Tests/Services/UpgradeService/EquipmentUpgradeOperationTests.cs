@@ -106,9 +106,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task ProtectedFailureRollConsumesScrollButDoesNotLockTheItem()
         {
-            // Upgrade 5, low-rare: roll 0.50 is in the Failure band. Protected variant
-            // converts it to ProtectedSave (scroll absorbs) — item stays intact and is NOT
-            // locked (matches OpenNos line 836 where IsFixed is NOT written on this branch).
             await new Spec("Protected failure consumes the scroll and leaves the wearable unlocked")
                 .Given(WearableAtUpgrade_, (byte)5)
                 .And(MaterialsInInventory)
@@ -124,10 +121,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task HighRareFailureBandFiresBeforeFixedBand()
         {
-            // Rare >= 8 reorders the roll: Failure is checked FIRST, then Fixed. Per OpenNos
-            // line 822-858: at Upgrade 2, upfail=60 / upfix=70 → rnd in [0,60) fails,
-            // [60,70) fixes, [70,100) succeeds. roll 0.55 (rnd=55) must land in Failure,
-            // not Fixed — regressing to the low-rare order would silently inflip these bands.
             await new Spec("Rare>=8 at +2 with roll 0.55 destroys the item (Failure, not Fixed)")
                 .Given(HighRareWearableAtUpgrade_, (byte)2)
                 .And(MaterialsInInventory)
@@ -141,7 +134,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task HighRareFixedBandFiresBetweenFailureAndSuccess()
         {
-            // Same Rare>=8, Upgrade 2 setup: roll 0.65 (rnd=65) is in [60,70) → Fixed.
             await new Spec("Rare>=8 at +2 with roll 0.65 locks the item (Fixed band)")
                 .Given(HighRareWearableAtUpgrade_, (byte)2)
                 .And(MaterialsInInventory)
@@ -156,7 +148,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task HighRareSuccessBandFiresAboveFixed()
         {
-            // Same Rare>=8, Upgrade 2 setup: roll 0.75 (rnd=75) is >=70 → Success (Upgrade 3).
             await new Spec("Rare>=8 at +2 with roll 0.75 succeeds (above the upfix band)")
                 .Given(HighRareWearableAtUpgrade_, (byte)2)
                 .And(MaterialsInInventory)
@@ -171,9 +162,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task HighRareProtectedFailureConsumesScrollButDoesNotLockTheItem()
         {
-            // Rare>=8 + Protected + Failure roll → ProtectedSave. Scroll consumed, item
-            // survives, IsFixed stays false. The high-rare branch must also route Failure
-            // to ProtectedSave, not to Fixed (that would permanently brick the item).
             await new Spec("Rare>=8 protected failure roll consumes scroll without locking the item")
                 .Given(HighRareWearableAtUpgrade_, (byte)2)
                 .And(MaterialsInInventory)
@@ -218,13 +206,14 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task FixedItemsCannotBeUpgraded()
         {
-            await new Spec("A wearable with IsFixed=true is rejected upfront")
+            await new Spec("A wearable with IsFixed=true is rejected upfront with a sayi + shop_end")
                 .Given(WearableAtUpgrade_, (byte)2)
                 .And(WearableIsLocked)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 100_000L)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
-                .Then(NoPacketsShouldHaveBeenReturned)
+                .Then(GoldShouldBe_, 100_000L)
+                .And(TwoRejectionPacketsShouldBeReturned)
                 .ExecuteAsync();
         }
 
@@ -242,9 +231,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         // --- Givens ---
 
-        private void WearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, rare: 0);
+        private void WearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, 0);
 
-        private void HighRareWearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, rare: 8);
+        private void HighRareWearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, 8);
 
         private void PlaceWearable(byte upgrade, sbyte rare)
         {
@@ -343,6 +332,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void NoPacketsShouldHaveBeenReturned() => Assert.AreEqual(0, _result?.Count ?? 0);
 
         private void SingleRejectionPacketShouldBeReturned() => Assert.AreEqual(1, _result?.Count ?? 0);
+
+        private void TwoRejectionPacketsShouldBeReturned() => Assert.AreEqual(2, _result?.Count ?? 0);
 
         private sealed class ItemInstanceForTest(short vnum) : NosCore.Data.Dto.ItemInstanceDto, IItemInstance
         {
