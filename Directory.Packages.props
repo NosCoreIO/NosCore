@@ -44,7 +44,7 @@
     <PackageVersion Include="NosCore.Analyzers" Version="2.0.0" />
     <PackageVersion Include="NosCore.Dao" Version="4.0.5" />
     <PackageVersion Include="NosCore.FastMember" Version="1.5.0" />
-    <PackageVersion Include="NosCore.Networking" Version="7.0.0" />
+    <PackageVersion Include="NosCore.Networking" Version="7.1.0" />
     <PackageVersion Include="NosCore.Packets" Version="16.8.1" />
     <PackageVersion Include="NosCore.PathFinder" Version="2.1.0" />
     <PackageVersion Include="NosCore.Shared" Version="6.0.0" />
