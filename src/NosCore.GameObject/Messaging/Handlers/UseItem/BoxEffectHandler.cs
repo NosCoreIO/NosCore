@@ -46,8 +46,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     r.OriginalItemVNum == boxVNum
                     && r.MinimumOriginalItemRare <= boxRare
                     && r.MaximumOriginalItemRare >= boxRare
-                    && r.OriginalItemDesign == boxDesign)
+                    && r.OriginalItemDesign == boxDesign
+                    && r.Probability > 0)
                 ?? Enumerable.Empty<RollGeneratedItemDto>())
+                .OrderBy(r => r.ItemGeneratedVNum)
                 .ToList();
 
             if (pool.Count == 0)
@@ -73,16 +75,18 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     break;
                 }
             }
-            chosen ??= pool.Last();
+            if (chosen == null) return;
 
             var reward = itemProvider.Create(
                 chosen.ItemGeneratedVNum,
                 chosen.ItemGeneratedAmount,
                 chosen.IsRareRandom ? (sbyte)boxRare : (sbyte)0,
                 chosen.ItemGeneratedUpgrade);
+            if (reward == null) return;
+
             var added = character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(reward, character.CharacterId))?.FirstOrDefault();
-            if (added == null)
+                InventoryItemInstance.Create(reward, character.CharacterId));
+            if (added == null || added.Count == 0)
             {
                 await session.SendPacketAsync(new SayiPacket
                 {
@@ -94,7 +98,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            await session.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
+            foreach (var inv in added)
+            {
+                await session.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            }
             await session.SendPacketAsync(new RdiPacket
             {
                 ItemVNum = chosen.ItemGeneratedVNum,

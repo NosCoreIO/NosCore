@@ -14,11 +14,12 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking;
+using Serilog;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
     [UsedImplicitly]
-    public sealed class DeathBCardHandler(INpcCombatCatalog catalog)
+    public sealed class DeathBCardHandler(INpcCombatCatalog catalog, ILogger logger)
     {
         [UsedImplicitly]
         public async Task Handle(EntityDiedEvent evt)
@@ -52,10 +53,21 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             if (!changed) return;
 
-            await killer.SendPacketAsync(killer.GenerateStat()).ConfigureAwait(false);
-            if (killer.MapInstance != null)
+            // HP mutation above is already committed. Make the notifications
+            // best-effort — if Wolverine retries the handler after a send
+            // failure we'd double-apply the damage/heal.
+            try
             {
-                await killer.MapInstance.SendPacketAsync(killer.GenerateStatInfo()).ConfigureAwait(false);
+                await killer.SendPacketAsync(killer.GenerateStat()).ConfigureAwait(false);
+                if (killer.MapInstance != null)
+                {
+                    await killer.MapInstance.SendPacketAsync(killer.GenerateStatInfo()).ConfigureAwait(false);
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Warning(ex, "Failed to broadcast death-BCard stat update for character {CharacterId}",
+                    killer.CharacterId);
             }
         }
     }

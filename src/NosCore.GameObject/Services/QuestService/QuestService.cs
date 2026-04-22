@@ -17,8 +17,10 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
@@ -148,6 +150,31 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
+            var rewardsForQuest = questQuestRewards
+                .Where(l => l.QuestId == questId)
+                .Select(l => questRewards.FirstOrDefault(r => r.QuestRewardId == l.QuestRewardId))
+                .Where(r => r != null)
+                .Cast<QuestRewardDto>()
+                .ToList();
+
+            // Bail out BEFORE claiming CompletedOn if any item reward won't fit;
+            // otherwise the quest turns in but the reward is dropped on the floor.
+            foreach (var reward in rewardsForQuest)
+            {
+                var type = (Data.Enumerations.Quest.QuestRewardType)reward.RewardType;
+                if (type is Data.Enumerations.Quest.QuestRewardType.EtcMainItem
+                    or Data.Enumerations.Quest.QuestRewardType.WearItem
+                    && !character.InventoryService.CanAddItem((short)reward.Data))
+                {
+                    await character.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.NotEnoughSpace
+                    });
+                    return false;
+                }
+            }
+
             // Claim the quest before awaiting reward application so a concurrent
             // qt spam can't pass the CompletedOn == null check twice.
             lock (charQuest)
@@ -159,13 +186,9 @@ namespace NosCore.GameObject.Services.QuestService
                 charQuest.CompletedOn = clock.GetCurrentInstant();
             }
 
-            foreach (var link in questQuestRewards.Where(l => l.QuestId == questId))
+            foreach (var reward in rewardsForQuest)
             {
-                var reward = questRewards.FirstOrDefault(r => r.QuestRewardId == link.QuestRewardId);
-                if (reward != null)
-                {
-                    await ApplyRewardAsync(character, reward);
-                }
+                await ApplyRewardAsync(character, reward);
             }
 
             await character.SendPacketAsync(character.GenerateQuestPacket());
@@ -198,13 +221,29 @@ namespace NosCore.GameObject.Services.QuestService
                 case Data.Enumerations.Quest.QuestRewardType.EtcMainItem:
                 case Data.Enumerations.Quest.QuestRewardType.WearItem:
                     var item = itemBuilderService.Create((short)reward.Data, (short)amount, (sbyte)reward.Rarity, reward.Upgrade, reward.Design);
-                    var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.VisualId));
-                    if (added != null)
+                    if (item == null)
                     {
-                        foreach (var inv in added)
+                        logger.Warning("Quest reward skipped: invalid item vnum {VNum} for character {CharacterId}",
+                            reward.Data, character.CharacterId);
+                        break;
+                    }
+                    var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.VisualId));
+                    if (added == null || added.Count == 0)
+                    {
+                        logger.Warning("Quest reward lost: inventory full for item {VNum}x{Amount} character {CharacterId}",
+                            reward.Data, amount, character.CharacterId);
+                        await character.SendPacketAsync(new SayiPacket
                         {
-                            await character.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
-                        }
+                            VisualType = VisualType.Player,
+                            VisualId = character.VisualId,
+                            Type = SayColorType.Yellow,
+                            Message = Game18NConstString.NotEnoughSpace
+                        });
+                        break;
+                    }
+                    foreach (var inv in added)
+                    {
+                        await character.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
                     }
                     break;
                 default:
@@ -363,7 +402,14 @@ namespace NosCore.GameObject.Services.QuestService
         // client crashes on out-of-order quest packets.
         public async Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest)
         {
-            quest.CompletedOn ??= clock.GetCurrentInstant();
+            bool firstCompletion;
+            lock (quest)
+            {
+                firstCompletion = quest.CompletedOn == null;
+                quest.CompletedOn ??= clock.GetCurrentInstant();
+            }
+            if (!firstCompletion) return;
+
             await character.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,

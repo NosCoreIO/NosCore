@@ -9,8 +9,11 @@ services:
       - POSTGRES_DB=noscore
     ports:
       - 5432:5432
+    # PG17 cannot read a PG12 data directory. A dedicated path forces a clean
+    # init on upgrade — existing developers just rename ./postgres out of the
+    # way (or dump+restore) and let PG17 initialise ./postgres17 from scratch.
     volumes:
-      - ./postgres:/var/lib/postgresql/data
+      - ./postgres17:/var/lib/postgresql/data
     networks:
       - noscore-network
 

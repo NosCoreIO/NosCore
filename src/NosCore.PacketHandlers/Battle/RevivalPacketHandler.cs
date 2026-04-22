@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Battle
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedOfPowerVNum = 1012;
-        private const short SeedsRequired = 10;
+        private const short SeedsRequired = 5;
         private const long ArenaReviveCost = 100;
 
         public override async Task ExecuteAsync(RevivalPacket packet, ClientSession session)
@@ -48,6 +48,7 @@ namespace NosCore.PacketHandlers.Battle
             if (!session.HasPlayerEntity) return;
             var character = session.Character;
             if (character.IsAlive) return;
+            character.IsAlive = true;
 
             try
             {
@@ -56,11 +57,14 @@ namespace NosCore.PacketHandlers.Battle
                     case 0: await ReviveInPlaceAsync(session).ConfigureAwait(false); break;
                     case 1: await ReviveAtSavePointAsync(session).ConfigureAwait(false); break;
                     case 2: await ReviveInArenaAsync(session).ConfigureAwait(false); break;
-                    default: return;
+                    default:
+                        character.IsAlive = false;
+                        return;
                 }
             }
             catch (Exception ex)
             {
+                character.IsAlive = false;
                 logger.Warning(ex, "Revival failed for character {CharacterId} type {Type}",
                     character.CharacterId, packet.Type);
             }

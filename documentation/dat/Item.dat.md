@@ -1,6 +1,6 @@
-# Item.dat
+﻿# Item.dat
 
-```
+```text
 	FLAG	0	0	0	{IsSoldable}	{IsDroppable}	{IsTradable}	{IsMinilandActionable}	{IsWarehouse}	{Flag9}	{Flag1}	{Flag2}	{Flag3}	{Flag4}	{RequireBinding}	{IsColored}	{FemaleOnly}	{MaleOnly}	0	{Flag6}	0	{IsHeroic}	{Flag7}	{Flag8}	{RaidItem}	{UnknownLastBit}
 	INDEX	0	0	{ItemSubType}
 	NAME	{NameI18NKey}
@@ -8,6 +8,7 @@
 ```
 
 ## FLAG
+
 25 boolean bits. FLAG[25] identifies raid-inventory items (seals, boxes, chests, drops).
 
 | Column | Status | Name | Type | Description |
@@ -35,10 +36,11 @@
 | 22 | Parsed | IsHeroic | Boolean | Heroic item |
 | 23 | Parsed | Flag7 | Boolean | FLAG bit 22 (unknown) |
 | 24 | Parsed | Flag8 | Boolean | FLAG bit 23 (unknown) |
-| 25 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket. |
+| 25 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops â€” routed to the Raid pocket. |
 | 26 | NonParsed | UnknownLastBit |  |  |
 
 ## INDEX
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Unknown |  |  |  |
@@ -46,17 +48,20 @@
 | 4 | Parsed | ItemSubType | Byte | Subtype within item category |
 
 ## NAME
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | NameI18NKey | String | Localization key (zts##e) |
 
 ## VNUM
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | VNum | Int16 | Item vnum |
 | 3 | Parsed | Price | Int64 | NPC shop sell price |
 
 ## Computed / multi-section fields
+
 | DTO property | Type | Source | Description |
 |---|---|---|---|
 | BasicUpgrade | Byte | DATA[varies] | Base upgrade level |

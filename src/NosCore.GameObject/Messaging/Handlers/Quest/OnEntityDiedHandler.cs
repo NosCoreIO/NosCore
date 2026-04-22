@@ -4,8 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using System.Threading.Tasks;
 using Arch.Core;
 using JetBrains.Annotations;
@@ -15,6 +14,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Shared.Enumerations;
+using Serilog;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
     // the reward distributor uses so the quest logic never has to be called
     // from BattleService or RewardService directly.
     [UsedImplicitly]
-    public sealed class OnEntityDiedHandler(IQuestService questService)
+    public sealed class OnEntityDiedHandler(IQuestService questService, ILogger logger)
     {
         [UsedImplicitly]
         public async Task Handle(EntityDiedEvent evt)
@@ -34,20 +34,24 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             }
 
             var mob = npc.NpcMonster;
-            // Snapshot before iterating: RewardDistributionHandler subscribes
-            // to the same event and clears HitList at the end of its run;
-            // Wolverine doesn't guarantee subscriber ordering, so work off a
-            // copy rather than the live dictionary.
-            var hits = evt.Victim.HitList.ToArray();
-            var tasks = new List<Task>();
-            foreach (var (handle, _) in hits)
+            // Process contributors independently so one failure doesn't abort
+            // the rest; Wolverine would retry the whole event and double-count
+            // the contributors that already succeeded.
+            foreach (var (handle, _) in evt.HitSnapshot)
             {
-                if (TryFindCharacter(evt.Victim, handle, out var character))
+                if (!TryFindCharacter(evt.Victim, handle, out var character))
                 {
-                    tasks.Add(questService.OnMonsterKilledAsync(character, mob));
+                    continue;
+                }
+                try
+                {
+                    await questService.OnMonsterKilledAsync(character, mob).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.Warning(ex, "Failed to progress kill quest for character {CharacterId}", character.VisualId);
                 }
             }
-            await Task.WhenAll(tasks);
         }
 
         private static bool TryFindCharacter(IAliveEntity victim, Entity handle, out ICharacterEntity character)

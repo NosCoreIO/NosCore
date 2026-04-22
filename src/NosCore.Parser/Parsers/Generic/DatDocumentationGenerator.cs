@@ -59,7 +59,7 @@ namespace NosCore.Parser.Parsers.Generic
             // documented-not-read columns); the per-section tables below
             // carry the description so we don't need a separate References block.
             var shape = new StringBuilder();
-            shape.AppendLine("```");
+            shape.AppendLine("```text");
             foreach (var section in orderedSections)
             {
                 shape.Append('\t').Append(section);
@@ -110,6 +110,7 @@ namespace NosCore.Parser.Parsers.Generic
                 }
 
                 sb.Append("## ").AppendLine(section);
+                sb.AppendLine();
                 if (notesBySection.TryGetValue(section, out var notes))
                 {
                     foreach (var note in notes) sb.AppendLine(note);
@@ -153,6 +154,7 @@ namespace NosCore.Parser.Parsers.Generic
             if (computed.Count > 0)
             {
                 sb.AppendLine("## Computed / multi-section fields");
+                sb.AppendLine();
                 sb.AppendLine("| DTO property | Type | Source | Description |");
                 sb.AppendLine("|---|---|---|---|");
                 foreach (var f in computed.OrderBy(f => f.PropertyName))

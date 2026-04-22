@@ -1,6 +1,6 @@
-# monster.dat
+﻿# monster.dat
 
-```
+```text
 	AINFO	{ainfoDefType}	{DefenceUpgrade}
 	ARMOR	{CloseDefence}	{meleeDef}	{rangedDef}	{magicDef}	{dodge}
 	ATTRIB	{Element}	{ElementRate}	{FireResistance}	{WaterResistance}	{LightResistance}	{DarkResistance}
@@ -27,12 +27,14 @@
 ```
 
 ## AINFO
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | NonParsed | ainfoDefType |  | Defence-type override for ARMOR derivation. |
 | 3 | Parsed | DefenceUpgrade | Byte | Armor upgrade level |
 
 ## ARMOR
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | CloseDefence | Int16 | (armorLvl-1)*2 + 18 |
@@ -46,6 +48,7 @@
 | 6 | NonParsed | dodge |  | Stored in .dat but we recompute from armorLvl. |
 
 ## ATTRIB
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | Element | Byte | Primary elemental alignment |
@@ -56,6 +59,7 @@
 | 7 | Parsed | DarkResistance | Int16 | Dark resistance |
 
 ## BASIC
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | BCards | ICollection`1 | BCards from BASIC (10 groups of 5) and CARD (4 groups of 5) |
@@ -110,6 +114,7 @@
 | 51 | Parsed | BCards | ICollection`1 | BCards from BASIC (10 groups of 5) and CARD (4 groups of 5) |
 
 ## CARD
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | BCards | ICollection`1 | BCards from BASIC (10 groups of 5) and CARD (4 groups of 5) |
@@ -134,6 +139,7 @@
 | 21 | Parsed | BCards | ICollection`1 | BCards from BASIC (10 groups of 5) and CARD (4 groups of 5) |
 
 ## EFF
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | BasicSkill | Int16 | Basic on-attack effect id |
@@ -141,6 +147,7 @@
 | 4 | Parsed | EffectIdOnDeath | Int16 | Effect id played on death |
 
 ## ETC
+
 32-bit flag word stored as a decimal integer. Each bit flips a named gameplay behaviour; only a subset is documented in NSgtd.
 
 | Column | Status | Name | Type | Description |
@@ -174,6 +181,7 @@
 | 9 | Parsed | IsValhallaPartner | Boolean | Marks Valhalla raid partner mobs |
 
 ## EXP
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | HeroXp | Int32 | Hero-level XP award, scaled down from XP |
@@ -181,12 +189,14 @@
 | 3 | Parsed | JobXp | Int32 | Base job XP award |
 
 ## HP/MP
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | MaxHp | Int32 | Override HP plus level-based baseline |
 | 3 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
 
 ## ITEM
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | Drop | ICollection`1 | 20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO |
@@ -251,6 +261,7 @@
 | 61 | Parsed | Drop | ICollection`1 | 20 group drops, vnum/chance/amount triples, merged with the per-monster drop DAO |
 
 ## LEVEL
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
@@ -263,6 +274,7 @@
 | 2 | Parsed | Xp | Int32 | Base XP award |
 
 ## MODE
+
 4 BCard groups of 5 + 7 mode-meta columns; AlwaysActive onwards is meta.
 
 | Column | Status | Name | Type | Description |
@@ -300,16 +312,19 @@
 | 32 | Parsed | Midgard | Int32 | Midgard-specific data |
 
 ## NAME
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | NameI18NKey | String | Localization key (zts##e) |
 
 ## PARTNER
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | NonParsed | partnerUnused |  | PARTNER block is always 20 zeros in vanilla; unused. |
 
 ## PETINFO
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | PetInfoVal1 | Int32 | Pet stat factor 1 (collectable: tries; teleporter: itemVnum; mate: HP/melee factor) |
@@ -320,6 +335,7 @@
 | 5 | Parsed | PetInfoVal4 | Int32 | Pet stat factor 4 (collectable: dance duration; mate: level threshold) |
 
 ## PREATT
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | IsHostile | Boolean | Non-zero means the mob aggroes on sight |
@@ -329,17 +345,19 @@
 | 6 | Parsed | RespawnTime | Int32 | Respawn delay, deciseconds |
 
 ## RACE
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
 | 2 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
 | 2 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
-| 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, …) |
+| 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, â€¦) |
 | 3 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
 | 3 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 3 | Parsed | RaceType | Byte | Subtype within the race group |
 
 ## SETTING
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | IconId | Int16 | Target-info avatar index (NSip) |
@@ -351,6 +369,7 @@
 | 7 | NonParsed | unknown0 |  | Always 0. |
 
 ## SKILL
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | NpcMonsterSkill | ICollection`1 | Up to 5 NpcMonsterSkill entries (vnum/chance/force triples) |
@@ -370,6 +389,7 @@
 | 16 | Parsed | NpcMonsterSkill | ICollection`1 | Up to 5 NpcMonsterSkill entries (vnum/chance/force triples) |
 
 ## VNUM
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | BCards | ICollection`1 | BCards from BASIC (10 groups of 5) and CARD (4 groups of 5) |
@@ -379,6 +399,7 @@
 | 2 | Parsed | NpcMonsterVNum | Int16 | Monster vnum |
 
 ## WEAPON
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | Concentrate | Int16 | Hit rate |
@@ -397,6 +418,7 @@
 | 8 | Parsed | CriticalRate | Int16 | Critical hit damage multiplier |
 
 ## WINFO
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | AttackUpgrade | Byte | Weapon upgrade level |
@@ -405,6 +427,7 @@
 | 4 | Parsed | AttackUpgrade | Byte | Weapon upgrade level |
 
 ## ZSKILL
+
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | AttackClass | Byte | Attack class (melee/ranged/magic) |

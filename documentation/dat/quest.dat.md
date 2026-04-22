@@ -1,9 +1,10 @@
-# quest.dat
+﻿# quest.dat
 
-```
+```text
 ```
 
 ## Computed / multi-section fields
+
 | DTO property | Type | Source | Description |
 |---|---|---|---|
 | AutoFinish | Boolean |  |  |
