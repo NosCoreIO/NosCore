@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
                 .Then(WearableUpgradeShouldBe_, (byte)1)
                 .And(WearableShouldNotBeFixed)
-                .And(CellonRemainingShouldBe_, (short)180)
+                .And(CellonRemainingShouldBe_, (short)980)
                 .And(SmallGemRemainingShouldBe_, (short)9)
                 .And(GoldShouldBe_, 99_500L)
                 .ExecuteAsync();
@@ -195,7 +195,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void MaterialsInInventory()
         {
-            AddStack(CellonVNum, 200, slot: 0);
+            AddStack(CellonVNum, 1000, slot: 0);
             AddStack(SmallGemVNum, 10, slot: 1);
             AddStack(FullGemVNum, 10, slot: 2);
             AddStack(ScrollVNum, 5, slot: 3);
@@ -203,7 +203,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void CellonAndGemInInventoryNoScroll()
         {
-            AddStack(CellonVNum, 200, slot: 0);
+            AddStack(CellonVNum, 1000, slot: 0);
             AddStack(SmallGemVNum, 10, slot: 1);
         }
 
