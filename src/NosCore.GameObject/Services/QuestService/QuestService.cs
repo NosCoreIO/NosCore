@@ -38,7 +38,8 @@ namespace NosCore.GameObject.Services.QuestService
             Wolverine.IMessageBus messageBus,
             List<QuestRewardDto> questRewards,
             List<QuestQuestRewardDto> questQuestRewards,
-            Services.ItemGenerationService.IItemGenerationService itemBuilderService)
+            Services.ItemGenerationService.IItemGenerationService itemBuilderService,
+            Services.ExperienceService.IExperienceProgressionService experienceProgression)
         : IQuestService
     {
         public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
@@ -103,6 +104,12 @@ namespace NosCore.GameObject.Services.QuestService
             }
 
             if (scriptId == null || scriptStepId == null)
+            {
+                return false;
+            }
+
+            var current = character.Script;
+            if (current == null || current.ScriptId != scriptId || current.ScriptStepId != scriptStepId)
             {
                 return false;
             }
@@ -204,11 +211,17 @@ namespace NosCore.GameObject.Services.QuestService
                     break;
                 case Data.Enumerations.Quest.QuestRewardType.Exp:
                 case Data.Enumerations.Quest.QuestRewardType.PercentExp:
-                    character.LevelXp += (long)reward.Data * amount;
+                    if (character is Ecs.PlayerComponentBundle xpPlayer)
+                    {
+                        await experienceProgression.AddExperienceAsync(xpPlayer, (long)reward.Data * amount, 0, 0, 0, 0);
+                    }
                     break;
                 case Data.Enumerations.Quest.QuestRewardType.JobExp:
                 case Data.Enumerations.Quest.QuestRewardType.PercentJobExp:
-                    character.JobLevelXp += (long)reward.Data * amount;
+                    if (character is Ecs.PlayerComponentBundle jobPlayer)
+                    {
+                        await experienceProgression.AddExperienceAsync(jobPlayer, 0, (long)reward.Data * amount, 0, 0, 0);
+                    }
                     break;
                 case Data.Enumerations.Quest.QuestRewardType.Reput:
                     character.Reput += (long)reward.Data * amount;
@@ -307,8 +320,8 @@ namespace NosCore.GameObject.Services.QuestService
             var quest = questDto.Adapt<Quest>();
             quest.QuestObjectives = questObjectives.Where(s => s.QuestId == questId).ToList();
 
-            if (character.Quests.Where(s => s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
-                (character.Quests.Where(s => s.Value.CompletedOn == null).Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
+            if (character.Quests.Where(s => s.Value.ObjectivesCompletedOn == null && s.Value.CompletedOn == null).Any(q => !q.Value.Quest.IsSecondary) ||
+                (character.Quests.Where(s => s.Value.ObjectivesCompletedOn == null && s.Value.CompletedOn == null).Where(q => q.Value.Quest.QuestType != QuestType.WinRaid).ToList().Count >= 5 &&
                     quest.QuestType != QuestType.WinRaid))
             {
                 return false;
@@ -373,37 +386,34 @@ namespace NosCore.GameObject.Services.QuestService
 
         public async Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob)
         {
-            foreach (var quest in character.Quests.Values.Where(q => q.CompletedOn is null).ToList())
+            foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())
             {
                 var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
                 if (handler == null)
                 {
                     continue;
                 }
+                var wasComplete = quest.AreObjectivesComplete();
                 await handler.OnMonsterKilledAsync(character, mob, quest);
-                if (quest.CompletedOn != null)
+                var isComplete = quest.AreObjectivesComplete();
+                if (!wasComplete && isComplete)
                 {
                     await CompleteQuestAsync(character, quest);
                 }
             }
         }
 
-        // Send the UI packet trio synchronously in the fixed order the client
-        // expects (QuestComplete message, final objective snapshot, quest list),
-        // THEN publish the domain event for decoupled subscribers like
-        // QuestChainHandler (NextQuestId) or future reward/achievement hooks.
-        // Wolverine does not guarantee subscriber dispatch ordering, so the
-        // packet sequence has to live here rather than in a subscriber — the
-        // client crashes on out-of-order quest packets.
         public async Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest)
         {
-            bool firstCompletion;
-            lock (quest)
+            quest.ObjectivesCompletedOn ??= clock.GetCurrentInstant();
+
+            var hasQPayStep = scripts.Any(s =>
+                string.Equals(s.StepType, "q_pay", System.StringComparison.OrdinalIgnoreCase)
+                && s.Argument1 == quest.QuestId);
+            if (!hasQPayStep)
             {
-                firstCompletion = quest.CompletedOn == null;
                 quest.CompletedOn ??= clock.GetCurrentInstant();
             }
-            if (!firstCompletion) return;
 
             await character.SendPacketAsync(new MsgiPacket
             {
@@ -411,7 +421,15 @@ namespace NosCore.GameObject.Services.QuestService
                 Message = Game18NConstString.QuestComplete
             });
             await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-            await character.SendPacketAsync(character.GenerateQuestPacket());
+
+            var currentStep = character.Script;
+            if (currentStep != null
+                && string.Equals(currentStep.StepType, "q_complete", System.StringComparison.OrdinalIgnoreCase)
+                && currentStep.Argument1 == quest.QuestId)
+            {
+                await RunScriptAsync(character);
+            }
+
             await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
         }
     }

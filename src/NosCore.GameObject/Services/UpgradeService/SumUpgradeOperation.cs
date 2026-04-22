@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -13,9 +14,12 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Networking;
+using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.UpgradeService;
@@ -94,15 +98,18 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
     protected override double GetSuccessRate(UpgradeContext ctx) =>
         SuccessRateByCombinedLevel[(int)ctx.ExtraData!];
 
+    // OpenNos WearableInstance.cs:643-646 adds BOTH the target's accumulated (instance) resistance
+    // AND its base-item resistance — a fresh pair of boots with Item.FireResistance=5 contributes
+    // 5 to the fire total even if its accumulated instance resistance is 0.
     protected override void ApplySuccess(UpgradeContext ctx)
     {
         var source = (WearableInstance)ctx.Source.ItemInstance!;
         var target = (WearableInstance)ctx.Target!.ItemInstance!;
 
-        source.DarkResistance = (short)((source.DarkResistance ?? 0) + (target.DarkResistance ?? 0));
-        source.LightResistance = (short)((source.LightResistance ?? 0) + (target.LightResistance ?? 0));
-        source.FireResistance = (short)((source.FireResistance ?? 0) + (target.FireResistance ?? 0));
-        source.WaterResistance = (short)((source.WaterResistance ?? 0) + (target.WaterResistance ?? 0));
+        source.DarkResistance  = (short)((source.DarkResistance  ?? 0) + (target.DarkResistance  ?? 0) + target.Item.DarkResistance);
+        source.LightResistance = (short)((source.LightResistance ?? 0) + (target.LightResistance ?? 0) + target.Item.LightResistance);
+        source.FireResistance  = (short)((source.FireResistance  ?? 0) + (target.FireResistance  ?? 0) + target.Item.FireResistance);
+        source.WaterResistance = (short)((source.WaterResistance ?? 0) + (target.WaterResistance ?? 0) + target.Item.WaterResistance);
         source.Upgrade = (byte)(source.Upgrade + target.Upgrade + 1);
     }
 
@@ -117,13 +124,53 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
         session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Target!.ItemInstanceId);
     }
 
+    // OpenNos Sum effect pattern (WearableInstance.cs 651/658/662):
+    //   - Player-only  : guri 19 1 <charId> 1324 (success) / 1332 (failure) — sparkle animation
+    //   - Broadcast    : guri 6  1 <charId>                                — ground-burst explosion
+    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
+        UpgradeOutcome outcome, List<IPacket> playerPackets)
+    {
+        playerPackets.Add(new GuriPacket
+        {
+            Type = GuriPacketType.AfterSumming,
+            Argument = 1,
+            SecondArgument = 0,
+            EntityId = session.Character.CharacterId,
+            Value = (uint)(outcome == UpgradeOutcome.Success ? 1324 : 1332),
+        });
+        await session.Character.MapInstance.SendPacketAsync(new GuriPacket
+        {
+            Type = GuriPacketType.CharacterAnimation,
+            Argument = 1,
+            SecondArgument = 0,
+            EntityId = session.Character.CharacterId,
+        }).ConfigureAwait(false);
+    }
+
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
         yield return ((InventoryItemInstance?)null).GeneratePocketChange(
             (PocketType)ctx.Target!.Type, ctx.Target.Slot);
-        yield return outcome == UpgradeOutcome.Success
-            ? ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot)
-            : ((InventoryItemInstance?)null).GeneratePocketChange(
+        if (outcome == UpgradeOutcome.Success)
+        {
+            yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
+            // OpenNos WearableInstance.cs:648 pdti 10 popup announcing the combined upgrade level.
+            // Type=10 (ResistanceFused), RecipeAmount=1, Slot=27 are fixed values from OpenNos.
+            var source = (WearableInstance)ctx.Source.ItemInstance!;
+            yield return new PdtiPacket
+            {
+                Type = PdtiPacketType.ResistanceFused,
+                Vnum = source.ItemVNum,
+                RecipeAmount = 1,
+                Slot = 27,
+                ItemUpgrade = source.Upgrade,
+                Rare = 0,
+            };
+        }
+        else
+        {
+            yield return ((InventoryItemInstance?)null).GeneratePocketChange(
                 (PocketType)ctx.Source.Type, ctx.Source.Slot);
+        }
     }
 }

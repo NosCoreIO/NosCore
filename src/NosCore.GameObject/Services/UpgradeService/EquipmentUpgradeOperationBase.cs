@@ -5,15 +5,20 @@
 //
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Shop;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.UpgradeService;
@@ -67,12 +72,47 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.UpgradeSuccessful;
 
-    protected override Game18NConstString FailureMessage =>
-        IsProtected ? Game18NConstString.UpgradeFailedButProtected : Game18NConstString.UpgradeFailed;
+    // Unprotected failure: the item was destroyed. Protected failure uses ProtectedSaveMessage
+    // below; we reserve FailureMessage for the unprotected destruction path.
+    protected override Game18NConstString FailureMessage => Game18NConstString.UpgradeFailed;
 
-    // Fixed outcome leaves the item unchanged (just locked); reuse the failure message so
-    // players see "upgrade failed" framing.
-    protected override Game18NConstString FixedMessage => Game18NConstString.UpgradeFailed;
+    // Fixed is the distinct upfix-band outcome (IsFixed=true, item preserved but locked).
+    // OpenNos uses "UPGRADE_FIXED"; NosCore's enum ships with `ItemFixedLevel` ("Level X locked").
+    protected override Game18NConstString FixedMessage => Game18NConstString.ItemFixedLevel;
+
+    // ProtectedSave: scroll absorbed a failure roll. OpenNos sends different keys for say vs msg
+    // ("SCROLL_PROTECT_USED" + "UPGRADE_FAILED_ITEM_SAVED"); NosCore overrides SayMessageFor for
+    // that split. Default here returns the "item saved" copy used in the dialog.
+    protected override Game18NConstString ProtectedSaveMessage => Game18NConstString.ItemSurvivedWithProtection;
+
+    // Say vs Msg split for ProtectedSave: say = "scroll used", msg = "item saved".
+    protected override Game18NConstString SayMessageFor(UpgradeOutcome outcome) =>
+        outcome == UpgradeOutcome.ProtectedSave
+            ? Game18NConstString.ProtectionScrollUsed
+            : base.SayMessageFor(outcome);
+
+    // OpenNos line 711: if IsFixed, emit ITEM_IS_FIXED say + shop_end 1 instead of silently
+    // rejecting. That lets the player see why the operation did nothing.
+    protected override IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet)
+    {
+        var source = session.Character.InventoryService
+            .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+        if (source?.ItemInstance is not WearableInstance wearable || wearable.IsFixed != true)
+        {
+            return null;
+        }
+        return new IPacket[]
+        {
+            new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = session.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.ItemFixedLevel,
+            },
+            new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow },
+        };
+    }
 
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
@@ -83,7 +123,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             return null;
         }
 
-        if (wearable.Upgrade >= MaxUpgradeLevel || wearable.IsFixed == true)
+        if (wearable.Upgrade >= MaxUpgradeLevel)
         {
             return null;
         }
@@ -114,12 +154,30 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             ExtraData: new EquipmentUpgradeRollData(level, isHighRare));
     }
 
-    // 3-way roll per OpenNos: Fixed band first, then Failure band, else Success.
+    // 3-way roll. OpenNos splits by rarity tier (WearableInstance.cs:822 vs :859):
+    //   - Low-rare (Rare < 8): band order is  upfix → upfail → Success  (cumulative).
+    //   - High-rare (Rare ≥ 8): band order is upfail → upfix → Success  (NOT cumulative: at
+    //     upfail=50/upfix=50 upgrade 0 you get 50% fail and 50% fixed, never success).
+    // Protected variant: a Failure-band roll is absorbed by the scroll → ProtectedSave (does NOT
+    // lock the item; OpenNos specifically skips the IsFixed write on this branch).
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
         var data = (EquipmentUpgradeRollData)ctx.ExtraData!;
         var upfix = (data.IsHighRare ? HighRareUpfix : LowRareUpfix)[data.Level] / 100.0;
         var upfail = (data.IsHighRare ? HighRareUpfail : LowRareUpfail)[data.Level] / 100.0;
+
+        if (data.IsHighRare)
+        {
+            if (roll < upfail)
+            {
+                return IsProtected ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
+            }
+            if (roll < upfix)
+            {
+                return UpgradeOutcome.Fixed;
+            }
+            return UpgradeOutcome.Success;
+        }
 
         if (roll < upfix)
         {
@@ -127,9 +185,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         }
         if (roll < upfix + upfail)
         {
-            // Protected variant turns Failure into a no-op (scroll absorbs the destruction).
-            // The scroll itself is still consumed via the MaterialCosts path.
-            return IsProtected ? UpgradeOutcome.Fixed : UpgradeOutcome.Failure;
+            return IsProtected ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
         }
         return UpgradeOutcome.Success;
     }
@@ -150,6 +206,29 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     {
         var wearable = (WearableInstance)ctx.Source.ItemInstance!;
         wearable.IsFixed = true;
+    }
+
+    // OpenNos UpgradeItem effect pattern (WearableInstance.cs 834/841/848/863/878/885):
+    //   - Success        → broadcast eff 3005 (green sparks)
+    //   - Fixed          → broadcast eff 3004 (neutral poof)
+    //   - ProtectedSave  → broadcast eff 3004 (scroll absorbs)
+    //   - Failure        → no effect (silent destruction)
+    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
+        UpgradeOutcome outcome, List<IPacket> playerPackets)
+    {
+        var effectId = outcome switch
+        {
+            UpgradeOutcome.Success => 3005,
+            UpgradeOutcome.Fixed => 3004,
+            UpgradeOutcome.ProtectedSave => 3004,
+            _ => (int?)null,
+        };
+        if (effectId is null)
+        {
+            return;
+        }
+        await session.Character.MapInstance
+            .SendPacketAsync(session.Character.GenerateEff(effectId.Value)).ConfigureAwait(false);
     }
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)

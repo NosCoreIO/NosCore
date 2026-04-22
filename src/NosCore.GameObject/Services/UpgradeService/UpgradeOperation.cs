@@ -45,6 +45,12 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
     public async Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet)
     {
+        var earlyReject = TryReject(session, packet);
+        if (earlyReject is not null)
+        {
+            return earlyReject;
+        }
+
         var ctx = TryPrepareContext(session, packet);
         if (ctx is null)
         {
@@ -71,21 +77,19 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
             case UpgradeOutcome.Fixed:
                 ApplyFixed(session, ctx);
                 break;
+            case UpgradeOutcome.ProtectedSave:
+                ApplyProtectedSave(session, ctx);
+                break;
         }
 
         ConsumeMaterials(session, ctx, packets);
         ConsumeFixedSlots(session, ctx);
         await session.Character.RemoveGoldAsync(ctx.GoldCost, localizer).ConfigureAwait(false);
 
-        packets.Add(new GuriPacket
-        {
-            Type = GuriPacketType.AfterSumming,
-            Argument = 1,
-            SecondArgument = 0,
-            EntityId = session.Character.CharacterId,
-            Value = (uint?)AnimationValueFor(outcome),
-        });
-        packets.Add(BuildResultMessage(session, outcome));
+        await EmitOutcomeEffectsAsync(session, ctx, outcome, packets).ConfigureAwait(false);
+
+        packets.Add(BuildSay(session, ctx, outcome, SayMessageFor(outcome)));
+        packets.Add(BuildMsgi(ctx, outcome, MsgMessageFor(outcome)));
         packets.Add(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
         packets.AddRange(BuildPocketRefresh(ctx, outcome));
 
@@ -93,6 +97,11 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     }
 
     // -- Hooks -----------------------------------------------------------------
+
+    // Pre-operation validation that needs to emit a player-visible rejection message. Returns
+    // null to continue to TryPrepareContext, or a packet list that is returned directly.
+    // Equipment uses it for the "ItemIsFixed" path where OpenNos sends a say + shop_end.
+    protected virtual IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet) => null;
 
     protected abstract UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet);
 
@@ -104,6 +113,10 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     // override this to set IsFixed on the wearable.
     protected virtual void ApplyFixed(ClientSession session, UpgradeContext ctx) { }
 
+    // ProtectedSave is a failure roll absorbed by a scroll. Default: no item mutation; materials
+    // and gold are still consumed by the outer skeleton.
+    protected virtual void ApplyProtectedSave(ClientSession session, UpgradeContext ctx) { }
+
     protected abstract Game18NConstString SuccessMessage { get; }
 
     protected abstract Game18NConstString FailureMessage { get; }
@@ -111,6 +124,9 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     // Override only if you emit Fixed outcomes; default mirrors FailureMessage so the call-site
     // doesn't need to special-case the absence.
     protected virtual Game18NConstString FixedMessage => FailureMessage;
+
+    // Override for operations that emit ProtectedSave; default falls back to FailureMessage.
+    protected virtual Game18NConstString ProtectedSaveMessage => FailureMessage;
 
     // Default 2-way roll using GetSuccessRate. Subclasses with 3-way roll bands
     // (EquipmentUpgrade with upfix/upfail) override this directly.
@@ -122,27 +138,32 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     protected virtual double GetSuccessRate(UpgradeContext ctx) =>
         throw new NotImplementedException("Override DetermineOutcome or GetSuccessRate.");
 
-    protected virtual int SuccessAnimationValue => 1324;
-
-    protected virtual int FailureAnimationValue => 1332;
-
-    // The "fix" animation is the same as failure on the wire (no special client-side art for it).
-    protected virtual int FixedAnimationValue => FailureAnimationValue;
-
     protected virtual IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome) =>
         Enumerable.Empty<IPacket>();
 
     // Slots that are consumed regardless of outcome (e.g. sum's target slot).
     protected virtual void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx) { }
 
+    // Emit visual effects for the roll outcome. Equipment/Rarify broadcast `eff 3004/3005` to
+    // the map and emit nothing to the player; Sum overrides to emit the `guri 19 ... 1324/1332`
+    // sparkle animation to the player and broadcast a `guri 6` ground explosion. Default: nothing.
+    protected virtual Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
+        UpgradeOutcome outcome, List<IPacket> playerPackets) => Task.CompletedTask;
+
     // -- Helpers ----------------------------------------------------------------
 
-    private int AnimationValueFor(UpgradeOutcome outcome) => outcome switch
+    // OpenNos sends distinct say vs msg keys for the ProtectedSave case: say "SCROLL_PROTECT_USED"
+    // + msg "UPGRADE_FAILED_ITEM_SAVED". The hooks below are split so subclasses can diverge.
+    protected virtual Game18NConstString SayMessageFor(UpgradeOutcome outcome) => outcome switch
     {
-        UpgradeOutcome.Success => SuccessAnimationValue,
-        UpgradeOutcome.Fixed => FixedAnimationValue,
-        _ => FailureAnimationValue,
+        UpgradeOutcome.Success => SuccessMessage,
+        UpgradeOutcome.Fixed => FixedMessage,
+        UpgradeOutcome.ProtectedSave => ProtectedSaveMessage,
+        _ => FailureMessage,
     };
+
+    protected virtual Game18NConstString MsgMessageFor(UpgradeOutcome outcome) =>
+        SayMessageFor(outcome);
 
     private static bool CanAfford(ClientSession session, UpgradeContext ctx, out InfoiPacket rejection)
     {
@@ -190,16 +211,21 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
         }
     }
 
-    private SayiPacket BuildResultMessage(ClientSession session, UpgradeOutcome outcome) => new()
+    protected virtual SayiPacket BuildSay(ClientSession session, UpgradeContext ctx,
+        UpgradeOutcome outcome, Game18NConstString message) => new()
     {
         VisualType = VisualType.Player,
         VisualId = session.Character.CharacterId,
         Type = outcome == UpgradeOutcome.Success ? SayColorType.Green : SayColorType.Red,
-        Message = outcome switch
-        {
-            UpgradeOutcome.Success => SuccessMessage,
-            UpgradeOutcome.Fixed => FixedMessage,
-            _ => FailureMessage,
-        },
+        Message = message,
+    };
+
+    // Default MsgiPacket has no args; subclasses override for i18n messages that take a
+    // parameter (e.g. Rarify's GambleSuccessful passes the new rare as %d).
+    protected virtual MsgiPacket BuildMsgi(UpgradeContext ctx, UpgradeOutcome outcome,
+        Game18NConstString message) => new()
+    {
+        Type = MessageType.Default,
+        Message = message,
     };
 }

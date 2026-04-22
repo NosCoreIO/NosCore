@@ -104,18 +104,84 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
-        public async Task ProtectedFailureRollIsConvertedToFixedNoOpAndConsumesScroll()
+        public async Task ProtectedFailureRollConsumesScrollButDoesNotLockTheItem()
         {
-            // Upgrade 5: roll 0.50 would be a Failure for unprotected; protected absorbs it
-            // (treated as Fixed-like no-op) and consumes the scroll.
-            await new Spec("Protected failure roll consumes scroll, leaves wearable but locks it")
+            // Upgrade 5, low-rare: roll 0.50 is in the Failure band. Protected variant
+            // converts it to ProtectedSave (scroll absorbs) — item stays intact and is NOT
+            // locked (matches OpenNos line 836 where IsFixed is NOT written on this branch).
+            await new Spec("Protected failure consumes the scroll and leaves the wearable unlocked")
                 .Given(WearableAtUpgrade_, (byte)5)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 1_000_000L)
                 .And(NextRollWillBe_, 0.50)
                 .WhenAsync(ProtectedUpgradeIsExecuted)
                 .Then(WearableUpgradeShouldBe_, (byte)5)
+                .And(WearableShouldNotBeFixed)
+                .And(ScrollShouldHaveBeenConsumed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task HighRareFailureBandFiresBeforeFixedBand()
+        {
+            // Rare >= 8 reorders the roll: Failure is checked FIRST, then Fixed. Per OpenNos
+            // line 822-858: at Upgrade 2, upfail=60 / upfix=70 → rnd in [0,60) fails,
+            // [60,70) fixes, [70,100) succeeds. roll 0.55 (rnd=55) must land in Failure,
+            // not Fixed — regressing to the low-rare order would silently inflip these bands.
+            await new Spec("Rare>=8 at +2 with roll 0.55 destroys the item (Failure, not Fixed)")
+                .Given(HighRareWearableAtUpgrade_, (byte)2)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.55)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(SourceSlotShouldBeEmpty)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task HighRareFixedBandFiresBetweenFailureAndSuccess()
+        {
+            // Same Rare>=8, Upgrade 2 setup: roll 0.65 (rnd=65) is in [60,70) → Fixed.
+            await new Spec("Rare>=8 at +2 with roll 0.65 locks the item (Fixed band)")
+                .Given(HighRareWearableAtUpgrade_, (byte)2)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.65)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)2)
                 .And(WearableShouldBeFixed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task HighRareSuccessBandFiresAboveFixed()
+        {
+            // Same Rare>=8, Upgrade 2 setup: roll 0.75 (rnd=75) is >=70 → Success (Upgrade 3).
+            await new Spec("Rare>=8 at +2 with roll 0.75 succeeds (above the upfix band)")
+                .Given(HighRareWearableAtUpgrade_, (byte)2)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.75)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)3)
+                .And(WearableShouldNotBeFixed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task HighRareProtectedFailureConsumesScrollButDoesNotLockTheItem()
+        {
+            // Rare>=8 + Protected + Failure roll → ProtectedSave. Scroll consumed, item
+            // survives, IsFixed stays false. The high-rare branch must also route Failure
+            // to ProtectedSave, not to Fixed (that would permanently brick the item).
+            await new Spec("Rare>=8 protected failure roll consumes scroll without locking the item")
+                .Given(HighRareWearableAtUpgrade_, (byte)2)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.55)
+                .WhenAsync(ProtectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)2)
+                .And(WearableShouldNotBeFixed)
                 .And(ScrollShouldHaveBeenConsumed)
                 .ExecuteAsync();
         }
@@ -176,13 +242,18 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         // --- Givens ---
 
-        private void WearableAtUpgrade_(byte upgrade)
+        private void WearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, rare: 0);
+
+        private void HighRareWearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, rare: 8);
+
+        private void PlaceWearable(byte upgrade, sbyte rare)
         {
             var item = new Item { VNum = ArmorVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor };
             var wearable = new WearableInstance(item, new Mock<Serilog.ILogger>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer)
             {
                 Upgrade = upgrade,
+                Rare = rare,
             };
             _wearable = InventoryItemInstance.Create(wearable, _session.Character.CharacterId);
             _wearable.Slot = 0;
