@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Ecs.Interfaces;
-using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -46,15 +45,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
-        public async Task OtherRunnerTypesAreIgnored()
-        {
-            await new Spec("UpgradeItem handler ignores other runner types")
-                .WhenAsync(NrunBazaarIsHandled)
-                .Then(NoWopenShouldHaveBeenSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task NullTargetIsIgnored()
         {
             await new Spec("UpgradeItem handler ignores events with null target")
@@ -63,19 +53,25 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task RunnerPropertyMatchesUpgradeItem()
+        {
+            await new Spec("UpgradeItemHandler declares NrunRunnerType.UpgradeItem")
+                .Then(RunnerShouldBeUpgradeItem)
+                .ExecuteAsync();
+        }
+
+        private void RunnerShouldBeUpgradeItem() =>
+            Assert.AreEqual(NrunRunnerType.UpgradeItem, _handler.Runner);
+
         private Task NrunUpgradeItemIsHandled() =>
-            _handler.Handle(new NrunRequestedEvent(_session,
+            _handler.HandleAsync(_session,
                 new Mock<IAliveEntity>().Object,
-                new NrunPacket { Runner = NrunRunnerType.UpgradeItem }));
+                new NrunPacket { Runner = NrunRunnerType.UpgradeItem });
 
         private Task NrunUpgradeItemWithNullTargetIsHandled() =>
-            _handler.Handle(new NrunRequestedEvent(_session, null,
-                new NrunPacket { Runner = NrunRunnerType.UpgradeItem }));
-
-        private Task NrunBazaarIsHandled() =>
-            _handler.Handle(new NrunRequestedEvent(_session,
-                new Mock<IAliveEntity>().Object,
-                new NrunPacket { Runner = NrunRunnerType.OpenNosBazaar }));
+            _handler.HandleAsync(_session, null,
+                new NrunPacket { Runner = NrunRunnerType.UpgradeItem });
 
         private void WopenWithType_ShouldHaveBeenSent(WindowType expected)
         {

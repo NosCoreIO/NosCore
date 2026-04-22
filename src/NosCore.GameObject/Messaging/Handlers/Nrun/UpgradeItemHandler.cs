@@ -6,30 +6,29 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
-    // n_run 2 — basic upgrade NPC. Opens the equipment-upgrade window so the client can
-    // then send up_gr packets that UpgradePacketHandler dispatches into IUpgradeOperation.
     [UsedImplicitly]
-    public sealed class UpgradeItemHandler
+    public sealed class UpgradeItemHandler : INrunEventHandler
     {
-        [UsedImplicitly]
-        public Task Handle(NrunRequestedEvent evt)
+        public NrunRunnerType Runner => NrunRunnerType.UpgradeItem;
+
+        public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (evt.Packet.Runner != NrunRunnerType.UpgradeItem || evt.Target == null)
+            if (target == null)
             {
                 return Task.CompletedTask;
             }
 
-            return evt.ClientSession.SendPacketAsync(new WopenPacket
+            return session.SendPacketAsync(new WopenPacket
             {
                 Type = WindowType.UpgradeItem,
-                Unknown = 0,
-                Unknown2 = 0,
             });
         }
     }
