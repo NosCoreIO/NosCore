@@ -110,6 +110,41 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SuccessfulEquipBindsTheItemToTheCharacter()
+        {
+            await new Spec("Successful equip sets BoundCharacterId to the character's id (needed for resale / rebind gates)")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(ItemShouldBeBoundToCharacter)
+                .And(NoCanNotWearPacketSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SuccessfulEquipWithValidTimeStampsItemDeleteTime()
+        {
+            await new Spec("Item with ItemValidTime > 0 gets an ItemDeleteTime stamped on successful equip (countdown starts on bind)")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(ItemHasValidTime_, 3600)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(ItemDeleteTimeShouldBeSet)
+                .ExecuteAsync();
+        }
+
+        private void ItemHasValidTime_(int seconds)
+        {
+            _item.ItemInstance.Item.ItemValidTime = seconds;
+        }
+
+        private void ItemShouldBeBoundToCharacter() =>
+            Assert.AreEqual(_session.Character.CharacterId, _item.ItemInstance.BoundCharacterId);
+
+        private void ItemDeleteTimeShouldBeSet() =>
+            Assert.IsNotNull(_item.ItemInstance.ItemDeleteTime);
+
         private void ItemInInventoryOfType_(ItemType itemType)
         {
             var item = new Item
