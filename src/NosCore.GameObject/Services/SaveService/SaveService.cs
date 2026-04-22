@@ -7,6 +7,7 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
@@ -55,8 +56,13 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.Reput = character.Reput;
                 characterDto.Dignity = character.Dignity;
                 characterDto.Compliment = character.Compliment;
-                characterDto.MapX = character.PositionX;
-                characterDto.MapY = character.PositionY;
+                // MapX/Y is the last BaseMap position; keep it if we're saving off a BaseMap
+                // so miniland-exit can restore it.
+                if (character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
+                {
+                    characterDto.MapX = character.PositionX;
+                    characterDto.MapY = character.PositionY;
+                }
                 characterDto.SpPoint = character.SpPoint;
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
                 characterDto.CurrentScriptId = character.CurrentScriptId;

@@ -10,6 +10,7 @@ using Moq;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
@@ -170,6 +171,64 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .WhenAsync(SavingNonCharacterEntity)
                 .Then(NoExceptionShouldBeThrown)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingOnBaseMapPersistsPositionAsMapXY()
+        {
+            await new Spec("Saving while on a BaseMap writes PositionX/Y to MapX/Y")
+                .GivenAsync(CharacterIsOnBaseMap)
+                .And(CharacterPositionIs_, (short)50, (short)60)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedMapXYShouldBe_, (short)50, (short)60)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingInsideMinilandKeepsPreviousMapXYValue()
+        {
+            await new Spec("Saving while on a non-base instance preserves the previously persisted MapX/Y")
+                .GivenAsync(CharacterIsOnBaseMapAtPosition_, (short)48, (short)132)
+                .WhenAsync(SavingCharacter)
+                .Given(CharacterIsNowInsideAMinilandAtPosition_, (short)5, (short)8)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedMapXYShouldBe_, (short)48, (short)132)
+                .ExecuteAsync();
+        }
+
+        private async Task CharacterIsOnBaseMap()
+        {
+            Session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
+        }
+
+        private async Task CharacterIsOnBaseMapAtPosition_(short x, short y)
+        {
+            Session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
+            Session.Character.PositionX = x;
+            Session.Character.PositionY = y;
+        }
+
+        private void CharacterPositionIs_(short x, short y)
+        {
+            Session.Character.PositionX = x;
+            Session.Character.PositionY = y;
+        }
+
+        private void CharacterIsNowInsideAMinilandAtPosition_(short x, short y)
+        {
+            Session.Character.MapInstance.MapInstanceType = MapInstanceType.NormalInstance;
+            Session.Character.PositionX = x;
+            Session.Character.PositionY = y;
+        }
+
+        private async Task PersistedMapXYShouldBe_(short expectedX, short expectedY)
+        {
+            var characterId = Session.Character.CharacterId;
+            var persisted = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c =>
+                c.CharacterId == characterId);
+            Assert.IsNotNull(persisted);
+            Assert.AreEqual(expectedX, persisted.MapX);
+            Assert.AreEqual(expectedY, persisted.MapY);
         }
 
         private bool SaveCompleted;

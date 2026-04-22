@@ -6,22 +6,30 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Networking;
+using NosCore.Packets;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetGoldCommandPacketHandler(IPubSubHub pubSubHub)
+    public class SetGoldCommandPacketHandler(IPubSubHub pubSubHub, List<ItemDto> items)
         : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
+        private const short GoldVNum = 1046;
+
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             // Self-targeting short-circuit (mirrors SetLevel/SetHeroLevel/SetReputation): when no
@@ -33,6 +41,18 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.Character.Gold = goldPacket.Gold;
                 await session.SendPacketAsync(session.Character.GenerateGold());
+                var goldName = items.First(i => i.VNum == GoldVNum).Name[session.Account.Language];
+#pragma warning disable NosCoreAnalyzers
+                await session.SendPacketAsync(new Sayi2Packet
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.ItemReceived,
+                    ArgumentType = 9,
+                    Game18NArguments = new Game18NArguments(2) { goldPacket.Gold, goldName },
+                });
+#pragma warning restore NosCoreAnalyzers
                 return;
             }
 

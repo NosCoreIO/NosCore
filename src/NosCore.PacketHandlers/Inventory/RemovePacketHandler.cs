@@ -22,6 +22,11 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
+            if (clientSession.Character.InExchangeOrShop)
+            {
+                return;
+            }
+
             var inventory =
                 clientSession.Character.InventoryService.LoadBySlotAndType((short)removePacket.InventorySlot,
                     NoscorePocketType.Wear);

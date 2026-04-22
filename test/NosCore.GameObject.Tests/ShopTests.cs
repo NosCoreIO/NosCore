@@ -114,6 +114,46 @@ namespace NosCore.GameObject.Tests
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task BuyingRejectsWhenPriceTimesAmountWouldOverflowLong()
+        {
+            await new Spec("Buying at extreme unit price * amount rejects silently instead of wrapping to a negative total")
+                .Given(CharacterHasGold_, 9_999_999_999L)
+                .WhenAsync(AttemptingToBuyTwoOfExtremePricedItemAsync)
+                .Then(NoPacketShouldBeSent)
+                .And(GoldShouldBeUnchangedAt_, 9_999_999_999L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingRejectsWhenReputPriceTimesAmountWouldOverflowLong()
+        {
+            await new Spec("Buying at extreme unit reput price * amount rejects silently")
+                .Given(CharacterHasReputation_, 9_999_999_999L)
+                .WhenAsync(AttemptingToBuyTwoOfExtremeReputPricedItemAsync)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private async Task AttemptingToBuyTwoOfExtremePricedItemAsync()
+        {
+            var itemBuilder = CreateItemBuilder(price: long.MaxValue);
+            var shop = CreateShop(itemBuilder, amount: 5);
+            await Session.Character.BuyAsync(shop, 0, 2, TestHelpers.Instance.WorldConfiguration, itemBuilder, TestHelpers.Instance.GameLanguageLocalizer);
+        }
+
+        private async Task AttemptingToBuyTwoOfExtremeReputPricedItemAsync()
+        {
+            var itemBuilder = CreateItemBuilder(price: 0, reputPrice: long.MaxValue);
+            var shop = CreateShop(itemBuilder, amount: 5);
+            await Session.Character.BuyAsync(shop, 0, 2, TestHelpers.Instance.WorldConfiguration, itemBuilder, TestHelpers.Instance.GameLanguageLocalizer);
+        }
+
+        private void GoldShouldBeUnchangedAt_(long expected)
+        {
+            Assert.AreEqual(expected, Session.Character.Gold);
+        }
+
         private Shop CreateShop(ItemGenerationService itemBuilder, short amount = -1, long? price = null, byte slot = 0)
         {
             var list = new ConcurrentDictionary<int, ShopItem>();

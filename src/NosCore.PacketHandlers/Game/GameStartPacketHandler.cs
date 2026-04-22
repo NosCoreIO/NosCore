@@ -22,6 +22,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -76,6 +77,14 @@ namespace NosCore.PacketHandlers.Game
             if (session.Character.CurrentScriptId == null)
             {
                 _ = questProvider.RunScriptAsync(session.Character);
+            }
+            else if (session.Character.Script is { } currentStep)
+            {
+                await session.SendPacketAsync(new ScriptPacket
+                {
+                    ScriptId = currentStep.ScriptId,
+                    ScriptStepId = currentStep.ScriptStepId,
+                });
             }
 
             //            Session.SendPacket(Session.Character.GenerateSki());

@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
         [UsedImplicitly]
         public async Task Handle(CharacterMovedEvent evt)
         {
-            foreach (var quest in evt.Character.Quests.Values.Where(q => q.CompletedOn is null).ToList())
+            foreach (var quest in evt.Character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())
             {
                 if (quest.Quest.QuestType != QuestType.GoTo)
                 {

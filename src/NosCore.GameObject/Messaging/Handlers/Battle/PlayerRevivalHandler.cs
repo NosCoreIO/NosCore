@@ -51,6 +51,15 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
                 player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
 
+                if (evt.Killer is PlayerComponentBundle killer && killer.CharacterId != player.CharacterId
+                    && player.Reput >= 50000)
+                {
+                    var transfer = player.Level * 50L;
+                    player.Reput -= transfer;
+                    killer.Reput += transfer;
+                    await killer.SendPacketAsync(killer.GenerateFd()).ConfigureAwait(false);
+                }
+
                 await player.SendPacketAsync(player.GenerateStat()).ConfigureAwait(false);
                 await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
 

@@ -601,4 +601,7 @@
   <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
     <value>Unhandled req_info type: {0}</value>
   </data>
+  <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
+    <value>Unhandled upgrade type: {0}</value>
+  </data>
 </root>

@@ -26,28 +26,21 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
         {
-            var mapItem = evt.MapItem;
-            if (mapItem.ItemInstance!.Item.ItemType == ItemType.Map || mapItem.VNum == 1046)
+            var item = evt.ItemInstance;
+            if (item == null || item.Item.ItemType == ItemType.Map || evt.VNum == 1046)
             {
                 return;
             }
 
             var session = evt.ClientSession;
-            var visualId = mapItem.VisualId;
-            var amount = mapItem.Amount;
-            var itemInstance = InventoryItemInstance.Create(mapItem.ItemInstance, session.Character.CharacterId);
+            var visualId = evt.VisualId;
+            var amount = evt.Amount;
+            var itemInstance = InventoryItemInstance.Create(item, session.Character.CharacterId);
             var inv = session.Character.InventoryService.AddItemToPocket(itemInstance)?.FirstOrDefault();
 
             if (inv != null)
             {
                 await session.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
-                session.Character.MapInstance.TryRemoveMapItem(visualId);
-                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateGet(visualId));
-                if (evt.Packet.PickerType == VisualType.Npc)
-                {
-                    await session.SendPacketAsync(session.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
-                }
-
                 await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,
@@ -57,6 +50,9 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                     ArgumentType = 2,
                     Game18NArguments = { inv.ItemInstance.ItemVNum.ToString(), amount }
                 });
+                await session.SendPacketAsync(session.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
+                session.Character.MapInstance.TryRemoveMapItem(visualId);
+                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateGet(visualId));
 
                 if (session.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {

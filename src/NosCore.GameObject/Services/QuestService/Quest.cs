@@ -19,6 +19,8 @@ namespace NosCore.GameObject.Services.QuestService
 
         public ConcurrentDictionary<System.Guid, int> ObjectiveProgress { get; } = new();
 
+        public NodaTime.Instant? ObjectivesCompletedOn { get; set; }
+
         public QstiPacket GenerateQstiPacket(bool showDialog)
         {
             return new QstiPacket(GenerateQuestSubPacket(showDialog));
@@ -28,7 +30,7 @@ namespace NosCore.GameObject.Services.QuestService
         {
             if (!IsCountableObjective(Quest.QuestType))
             {
-                return CompletedOn != null;
+                return ObjectivesCompletedOn != null;
             }
             return Quest.QuestObjectives.All(o =>
             {
@@ -74,6 +76,15 @@ namespace NosCore.GameObject.Services.QuestService
         {
             Packets.Enumerations.QuestType.Hunt => true,
             Packets.Enumerations.QuestType.NumberOfKill => true,
+            Packets.Enumerations.QuestType.Capture => true,
+            Packets.Enumerations.QuestType.CaptureWithoutGettingTheMonster => true,
+            Packets.Enumerations.QuestType.Brings => true,
+            Packets.Enumerations.QuestType.Product => true,
+            Packets.Enumerations.QuestType.TsPoint => true,
+            Packets.Enumerations.QuestType.CollectInTs => true,
+            Packets.Enumerations.QuestType.Required => true,
+            Packets.Enumerations.QuestType.Collect => true,
+            Packets.Enumerations.QuestType.TransmitGold => true,
             _ => false
         };
 

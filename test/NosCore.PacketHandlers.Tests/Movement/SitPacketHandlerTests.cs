@@ -24,6 +24,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
     {
         private SitPacketHandler Handler = null!;
         private ClientSession Session = null!;
+        private ClientSession OtherSession = null!;
         private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
@@ -32,6 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             await TestHelpers.ResetAsync();
             Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
+            OtherSession = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new SitPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
@@ -57,6 +59,98 @@ namespace NosCore.PacketHandlers.Tests.Movement
                 .Then(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task SittingSelfTogglesIsSittingOn()
+        {
+            await new Spec("Sitting self flips IsSitting from false to true")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsStanding)
+                .WhenAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SittingSelfTwiceTogglesIsSittingBackOff()
+        {
+            await new Spec("Calling sit twice stands the character back up")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsStanding)
+                .WhenAsync(SittingWithOwnCharacter)
+                .AndAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AttemptingToSitAnotherPlayerDoesNotFlipTheirState()
+        {
+            await new Spec("A sit packet targeting a different player's VisualId does not flip their sit state")
+                .Given(CharacterIsOnMap)
+                .And(OtherPlayerIsStanding)
+                .WhenAsync(SittingOtherPlayer)
+                .Then(OtherPlayerIsSittingShouldBe_, false)
+                .And(IsSittingShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NonExistentPlayerIdIsSilentlyIgnored()
+        {
+            await new Spec("Sit packet targeting a VisualId not in the session registry is ignored")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsStanding)
+                .WhenAsync(SittingOnUnknownVisualId)
+                .Then(IsSittingShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsStanding()
+        {
+            Session.Character.IsSitting = false;
+        }
+
+        private void OtherPlayerIsStanding()
+        {
+            OtherSession.Character.IsSitting = false;
+        }
+
+        private async Task SittingOtherPlayer()
+        {
+            await Handler.ExecuteAsync(new SitPacket
+            {
+                Users = new List<SitSubPacket?>
+                {
+                    new SitSubPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = OtherSession.Character.VisualId
+                    }
+                }
+            }, Session);
+        }
+
+        private async Task SittingOnUnknownVisualId()
+        {
+            await Handler.ExecuteAsync(new SitPacket
+            {
+                Users = new List<SitSubPacket?>
+                {
+                    new SitSubPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = 999999
+                    }
+                }
+            }, Session);
+        }
+
+        private void IsSittingShouldBe_(bool expected) =>
+            Assert.AreEqual(expected, Session.Character.IsSitting);
+
+        private void OtherPlayerIsSittingShouldBe_(bool expected) =>
+            Assert.AreEqual(expected, OtherSession.Character.IsSitting);
 
         private void CharacterIsOnMap()
         {

@@ -550,4 +550,7 @@
   <data name="UNHANDLED_REQINFO_TYPE" xml:space="preserve">
     <value>Nicht behandelter req_info Typ: {0}</value>
   </data>
+  <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
+    <value>Unbekannter Aufrüstungstyp: {0}</value>
+  </data>
 </root>

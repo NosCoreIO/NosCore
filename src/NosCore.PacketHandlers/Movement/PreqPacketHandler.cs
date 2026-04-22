@@ -61,6 +61,11 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
+            if (!IsPortalAccessible(portal.Type))
+            {
+                return;
+            }
+
             session.Character.LastPortal = clock.GetCurrentInstant();
 
             if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
@@ -76,5 +81,19 @@ namespace NosCore.PacketHandlers.Movement
                     portal.DestinationY);
             }
         }
+
+        private static bool IsPortalAccessible(PortalType type) => type switch
+        {
+            PortalType.MapPortal => true,
+            PortalType.TsNormal => true,
+            PortalType.Open => true,
+            PortalType.Miniland => true,
+            PortalType.TsEnd => true,
+            PortalType.Exit => true,
+            PortalType.Effect => true,
+            PortalType.TimeSpace => true,
+            PortalType.ShopTeleport => true,
+            _ => false,
+        };
     }
 }

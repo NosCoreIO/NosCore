@@ -120,7 +120,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 new Mock<Wolverine.IMessageBus>().Object,
                 new List<QuestRewardDto>(),
                 new List<QuestQuestRewardDto>(),
-                new Mock<GameObject.Services.ItemGenerationService.IItemGenerationService>().Object);
+                new Mock<GameObject.Services.ItemGenerationService.IItemGenerationService>().Object,
+                new Mock<GameObject.Services.ExperienceService.IExperienceProgressionService>().Object);
         }
 
         [TestMethod]
@@ -234,6 +235,70 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 .WhenAsync(KillingOneMob)
                 .Then(ObjectivesShouldBeIncomplete)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingMoreThanRequiredClampsObjectiveProgress()
+        {
+            await new Spec("Progress clamps at required count, never exceeds it on extra kills")
+                .Given(CharacterHasHuntQuestNeedingTwoKills)
+                .WhenAsync(KillingTheRequiredMobThreeTimes)
+                .Then(ObjectiveProgressShouldBe_, 2)
+                .And(ObjectivesShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task KillingUnrelatedMobDoesNotAdvanceObjective()
+        {
+            await new Spec("Killing a mob that does not match any objective FirstData leaves progress at zero")
+                .Given(CharacterHasHuntQuestNeedingFiveKills)
+                .WhenAsync(KillingADifferentMob)
+                .Then(ObjectiveProgressShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasHuntQuestNeedingTwoKills()
+        {
+            var objective = new QuestObjectiveDto
+            {
+                QuestObjectiveId = Guid.NewGuid(),
+                FirstData = TargetMobVNum,
+                SecondData = 2,
+            };
+            var quest = new Quest
+            {
+                QuestId = 12,
+                QuestType = QuestType.Hunt,
+                QuestObjectives = new List<QuestObjectiveDto> { objective },
+            };
+            _trackedQuest = new CharacterQuest
+            {
+                QuestId = 12,
+                Quest = quest,
+                CompletedOn = null,
+            };
+            Session.Character.Quests.TryAdd(Guid.NewGuid(), _trackedQuest);
+        }
+
+        private async Task KillingTheRequiredMobThreeTimes()
+        {
+            for (var i = 0; i < 3; i++)
+            {
+                await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
+            }
+        }
+
+        private async Task KillingADifferentMob()
+        {
+            await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = 999 });
+        }
+
+        private void ObjectiveProgressShouldBe_(int expected)
+        {
+            var objectiveId = _trackedQuest.Quest.QuestObjectives.First().QuestObjectiveId;
+            _trackedQuest.ObjectiveProgress.TryGetValue(objectiveId, out var progress);
+            Assert.AreEqual(expected, progress);
         }
 
         private bool AddQuestResult;
@@ -467,7 +532,6 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private void ObjectivesShouldBeComplete()
         {
             Assert.IsTrue(_trackedQuest.AreObjectivesComplete());
-            Assert.IsNull(_trackedQuest.CompletedOn);
         }
 
         private void ObjectivesShouldBeIncomplete()

@@ -21,20 +21,24 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
         {
-            var mapItem = evt.MapItem;
-            if (mapItem.ItemInstance!.Item.ItemType != ItemType.Map
-                || mapItem.ItemInstance.Item.Effect != ItemEffectType.SpCharger)
+            var item = evt.ItemInstance;
+            if (item?.Item.ItemType != ItemType.Map
+                || item.Item.Effect != ItemEffectType.SpCharger)
             {
                 return;
             }
 
             var session = evt.ClientSession;
             var character = session.Character;
-            character.AddSpPoints(mapItem.ItemInstance.Item.EffectValue, worldConfiguration);
             var mapInstance = character.MapInstance;
+            var visualId = evt.VisualId;
+            if (!mapInstance.TryRemoveMapItem(visualId))
+            {
+                return;
+            }
+            character.AddSpPoints(item.Item.EffectValue, worldConfiguration);
             await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
-            mapInstance.TryRemoveMapItem(mapItem.VisualId);
-            await mapInstance.SendPacketAsync(character.GenerateGet(mapItem.VisualId));
+            await mapInstance.SendPacketAsync(character.GenerateGet(visualId));
         }
     }
 }
