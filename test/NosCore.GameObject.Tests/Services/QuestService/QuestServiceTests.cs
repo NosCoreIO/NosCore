@@ -113,8 +113,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 TestHelpers.Instance.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
-                    new HuntQuestHandler(),
-                    new NumberOfKillQuestHandler(),
+                    new HuntQuestHandler(Logger),
+                    new NumberOfKillQuestHandler(Logger),
                     new GoToQuestHandler(),
                 },
                 new Mock<Wolverine.IMessageBus>().Object,
@@ -217,22 +217,22 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
-        public async Task KillingRequiredMobsShouldCompleteHuntQuest()
+        public async Task KillingRequiredMobsShouldCompleteHuntObjectives()
         {
-            await new Spec("Killing the last required mob should mark quest CompletedOn")
+            await new Spec("Killing the last required mob should complete hunt objectives")
                 .Given(CharacterHasHuntQuestWithOneKillRemaining)
                 .WhenAsync(KillingTheRequiredMob)
-                .Then(QuestShouldBeMarkedCompleted)
+                .Then(ObjectivesShouldBeComplete)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task KillingEarlyMobsShouldNotCompleteHuntQuest()
+        public async Task KillingEarlyMobsShouldNotCompleteHuntObjectives()
         {
-            await new Spec("Killing a mob before target count should not complete quest")
+            await new Spec("Killing a mob before target count should not complete hunt objectives")
                 .Given(CharacterHasHuntQuestNeedingFiveKills)
                 .WhenAsync(KillingOneMob)
-                .Then(QuestShouldStillBeIncomplete)
+                .Then(ObjectivesShouldBeIncomplete)
                 .ExecuteAsync();
         }
 
@@ -464,13 +464,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             await Service.OnMonsterKilledAsync(Session.Character, new NpcMonsterDto { NpcMonsterVNum = TargetMobVNum });
         }
 
-        private void QuestShouldBeMarkedCompleted()
+        private void ObjectivesShouldBeComplete()
         {
             Assert.IsTrue(_trackedQuest.AreObjectivesComplete());
             Assert.IsNull(_trackedQuest.CompletedOn);
         }
 
-        private void QuestShouldStillBeIncomplete()
+        private void ObjectivesShouldBeIncomplete()
         {
             Assert.IsFalse(_trackedQuest.AreObjectivesComplete());
             Assert.IsNull(_trackedQuest.CompletedOn);

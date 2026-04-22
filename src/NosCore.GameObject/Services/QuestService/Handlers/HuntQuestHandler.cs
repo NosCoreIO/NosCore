@@ -6,11 +6,12 @@
 
 using JetBrains.Annotations;
 using NosCore.Packets.Enumerations;
+using Serilog;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
 [UsedImplicitly]
-public sealed class HuntQuestHandler : KillQuestHandlerBase
+public sealed class HuntQuestHandler(ILogger logger) : KillQuestHandlerBase(logger)
 {
     public override QuestType QuestType => QuestType.Hunt;
 }

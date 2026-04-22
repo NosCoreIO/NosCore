@@ -4,15 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
+using Serilog;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-public abstract class KillQuestHandlerBase : IQuestTypeHandler
+public abstract class KillQuestHandlerBase(ILogger logger) : IQuestTypeHandler
 {
     public abstract QuestType QuestType { get; }
 
@@ -39,6 +41,17 @@ public abstract class KillQuestHandlerBase : IQuestTypeHandler
             return;
         }
 
-        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+        // Progress has already been committed to ObjectiveProgress. A qsti send
+        // failure must not bubble up — Wolverine would retry the whole kill
+        // handler and double-increment the objective.
+        try
+        {
+            await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+        }
+        catch (Exception ex)
+        {
+            logger.Warning(ex, "Failed to send qsti progress for character {CharacterId} quest {QuestId}",
+                character.CharacterId, quest.QuestId);
+        }
     }
 }
