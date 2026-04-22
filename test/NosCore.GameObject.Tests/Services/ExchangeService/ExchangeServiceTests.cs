@@ -11,17 +11,22 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Serilog;
 using SpecLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ExchangeRequestRegistry = NosCore.GameObject.Services.ExchangeService.ExchangeRequestRegistry;
 
 namespace NosCore.GameObject.Tests.Services.ExchangeService
@@ -126,6 +131,101 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             new Spec("Processing exchange should swap items")
                 .Then(ProcessExchangeShouldReturnItemsForBoth)
                 .Execute();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenTargetsGoldWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure + MaxGoldReached when target's gold + session's gold exceed MaxGoldAmount")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionCharacterGoldIs_, 900_000_000L)
+                .And(TargetCharacterGoldIs_, 500_000_000L)
+                .And(ExchangeOfferTargetsGoldIs_, 500_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
+                .And(DictionaryShouldContainPacketFor_WithMessage_, true, Game18NConstString.MaxGoldReached)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenNonTradableItemIsOffered()
+        {
+            await new Spec("Validate returns Failure + ItemCanNotBeSold when the exchange offer contains a non-tradable item")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionOffersANonTradableItem)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
+                .And(DictionaryShouldContainPacketFor_WithMessage_, false, Game18NConstString.ItemCanNotBeSold)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeSucceedsWhenBothSidesAreWithinCaps()
+        {
+            await new Spec("Validate returns Success with a null packet dict when both sides stay within all caps and fit inventory")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionCharacterGoldIs_, 1_000L)
+                .And(TargetCharacterGoldIs_, 1_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Success)
+                .And(DictionaryShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        private ClientSession? _sessionA;
+        private ClientSession? _sessionB;
+        private Tuple<ExchangeResultType, Dictionary<long, IPacket>?>? _validationResult;
+        private GameObject.Services.ExchangeService.ExchangeService? _realExchange;
+
+        private async Task SessionAndTargetAreSetUp()
+        {
+            await TestHelpers.ResetAsync();
+            Broadcaster.Reset();
+            _sessionA = await TestHelpers.Instance.GenerateSessionAsync();
+            _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
+            _realExchange = new GameObject.Services.ExchangeService.ExchangeService(
+                ItemProvider!, WorldConfiguration!, Logger, new ExchangeRequestRegistry(),
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+            _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
+        }
+
+        private void SessionCharacterGoldIs_(long gold) => _sessionA!.Character.Gold = gold;
+
+        private void TargetCharacterGoldIs_(long gold) => _sessionB!.Character.Gold = gold;
+
+        private void ExchangeOfferTargetsGoldIs_(long gold) =>
+            _realExchange!.SetGold(_sessionB!.Character.VisualId, gold, 0);
+
+        private void SessionOffersANonTradableItem()
+        {
+            _sessionA!.Character.Gold = 0;
+            _sessionB!.Character.Gold = 0;
+            var item = new InventoryItemInstance(new GameObject.Services.ItemGenerationService.Item.ItemInstance(
+                new Item { VNum = 999, Type = NoscorePocketType.Main, IsTradable = false })
+            { Amount = 1 });
+            _realExchange!.AddItems(_sessionA.Character.CharacterId, item, 1);
+        }
+
+        private async Task ValidatingExchange()
+        {
+            _validationResult = _realExchange!.ValidateExchange(_sessionA!, _sessionB!.Character);
+        }
+
+        private void ResultTypeShouldBe_(ExchangeResultType expected) =>
+            Assert.AreEqual(expected, _validationResult!.Item1);
+
+        private void DictionaryShouldBeNull() => Assert.IsNull(_validationResult!.Item2);
+
+        private void DictionaryShouldContainPacketFor_WithMessage_(bool forTarget, Game18NConstString expected)
+        {
+            var id = forTarget ? _sessionB!.Character.VisualId : _sessionA!.Character.CharacterId;
+            var dict = _validationResult!.Item2;
+            Assert.IsNotNull(dict);
+            Assert.IsTrue(dict.ContainsKey(id), $"Expected packet for id={id}");
+            var packet = dict[id];
+            var infoi = packet as InfoiPacket;
+            Assert.IsNotNull(infoi);
+            Assert.AreEqual(expected, infoi.Message);
         }
 
         private void ExchangeIsOpen()
