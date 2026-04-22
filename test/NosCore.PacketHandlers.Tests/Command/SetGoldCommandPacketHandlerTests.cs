@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             PubSubHub.Setup(x => x.GetSubscribersAsync())
                 .Returns(Task.FromResult(new List<Subscriber>()));
 
-            Handler = new SetGoldCommandPacketHandler(PubSubHub.Object);
+            Handler = new SetGoldCommandPacketHandler(PubSubHub.Object, TestHelpers.Instance.ItemList);
         }
 
         [TestMethod]
