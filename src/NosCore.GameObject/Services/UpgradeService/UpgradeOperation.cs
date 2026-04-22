@@ -203,7 +203,7 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
                 {
                     break;
                 }
-                var taken = (short)Math.Min(remaining, inst.ItemInstance!.Amount);
+                var taken = Math.Min(remaining, inst.ItemInstance!.Amount);
                 session.Character.InventoryService.RemoveItemAmountFromInventory(taken, inst.ItemInstanceId);
                 remaining -= taken;
                 outPackets.Add(inst.GeneratePocketChange((PocketType)inst.Type, inst.Slot));

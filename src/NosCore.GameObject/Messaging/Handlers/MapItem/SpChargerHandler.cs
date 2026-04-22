@@ -30,11 +30,14 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            character.AddSpPoints(item.Item.EffectValue, worldConfiguration);
             var mapInstance = character.MapInstance;
             var visualId = evt.VisualId;
+            if (!mapInstance.TryRemoveMapItem(visualId))
+            {
+                return;
+            }
+            character.AddSpPoints(item.Item.EffectValue, worldConfiguration);
             await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
-            mapInstance.TryRemoveMapItem(visualId);
             await mapInstance.SendPacketAsync(character.GenerateGet(visualId));
         }
     }

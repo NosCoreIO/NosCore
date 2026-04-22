@@ -430,7 +430,10 @@ namespace NosCore.GameObject.Services.QuestService
                 await RunScriptAsync(character);
             }
 
-            await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
+            if (!hasQPayStep)
+            {
+                await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
+            }
         }
     }
 }

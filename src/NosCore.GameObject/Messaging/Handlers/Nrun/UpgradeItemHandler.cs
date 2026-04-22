@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -21,7 +22,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (target == null)
+            if (target is not NpcComponentBundle)
             {
                 return Task.CompletedTask;
             }

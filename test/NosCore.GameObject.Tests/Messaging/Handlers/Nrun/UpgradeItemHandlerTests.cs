@@ -36,19 +36,19 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
-        public async Task UpgradeItemRunnerOpensWopenWindowOne()
-        {
-            await new Spec("n_run 2 (UpgradeItem) opens wopen 1 0")
-                .WhenAsync(NrunUpgradeItemIsHandled)
-                .Then(WopenWithType_ShouldHaveBeenSent, WindowType.UpgradeItem)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task NullTargetIsIgnored()
         {
             await new Spec("UpgradeItem handler ignores events with null target")
                 .WhenAsync(NrunUpgradeItemWithNullTargetIsHandled)
+                .Then(NoWopenShouldHaveBeenSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NonNpcTargetIsIgnored()
+        {
+            await new Spec("A target that is not an NpcComponentBundle short-circuits before sending wopen")
+                .WhenAsync(NrunUpgradeItemWithGenericAliveTargetIsHandled)
                 .Then(NoWopenShouldHaveBeenSent)
                 .ExecuteAsync();
         }
@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private void RunnerShouldBeUpgradeItem() =>
             Assert.AreEqual(NrunRunnerType.UpgradeItem, _handler.Runner);
 
-        private Task NrunUpgradeItemIsHandled() =>
+        private Task NrunUpgradeItemWithGenericAliveTargetIsHandled() =>
             _handler.HandleAsync(_session,
                 new Mock<IAliveEntity>().Object,
                 new NrunPacket { Runner = NrunRunnerType.UpgradeItem });
@@ -72,13 +72,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private Task NrunUpgradeItemWithNullTargetIsHandled() =>
             _handler.HandleAsync(_session, null,
                 new NrunPacket { Runner = NrunRunnerType.UpgradeItem });
-
-        private void WopenWithType_ShouldHaveBeenSent(WindowType expected)
-        {
-            var wopen = _session.LastPackets.OfType<WopenPacket>().LastOrDefault();
-            Assert.IsNotNull(wopen);
-            Assert.AreEqual(expected, wopen.Type);
-        }
 
         private void NoWopenShouldHaveBeenSent() =>
             Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());

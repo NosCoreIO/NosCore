@@ -50,39 +50,40 @@ public sealed class RewardService(
 
     public async Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
-        if (victim is not INonPlayableEntity npc)
+        try
+        {
+            if (victim is not INonPlayableEntity npc)
+            {
+                return;
+            }
+
+            var mob = npc.NpcMonster;
+            if (mob == null)
+            {
+                return;
+            }
+
+            var mapInstance = victim.MapInstance;
+            if (mapInstance == null)
+            {
+                return;
+            }
+
+            var totalDamage = hitSnapshot.Values.Sum();
+            if (totalDamage <= 0)
+            {
+                return;
+            }
+
+            await AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot);
+            await SpawnDropsAsync(victim, mob, mapInstance);
+            await SpawnGoldAsync(victim, mob, mapInstance);
+            _ = killer;
+        }
+        finally
         {
             victim.HitList.Clear();
-            return;
         }
-
-        var mob = npc.NpcMonster;
-        if (mob == null)
-        {
-            victim.HitList.Clear();
-            return;
-        }
-
-        var mapInstance = victim.MapInstance;
-        if (mapInstance == null)
-        {
-            victim.HitList.Clear();
-            return;
-        }
-
-        var totalDamage = hitSnapshot.Values.Sum();
-        if (totalDamage <= 0)
-        {
-            victim.HitList.Clear();
-            return;
-        }
-
-        await AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot);
-        await SpawnDropsAsync(victim, mob, mapInstance);
-        await SpawnGoldAsync(victim, mob, mapInstance);
-
-        victim.HitList.Clear();
-        _ = killer;
     }
 
     private async Task AwardExperienceAsync(IAliveEntity victim, NpcMonsterDto mob, int totalDamage, IReadOnlyDictionary<Entity, int> hitSnapshot)
