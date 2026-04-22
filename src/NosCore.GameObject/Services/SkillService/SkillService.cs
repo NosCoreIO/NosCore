@@ -47,5 +47,50 @@ namespace NosCore.GameObject.Services.SkillService
                 SkillVnums = ordered,
             }).ConfigureAwait(false);
         }
+
+        public async Task<bool> LearnClassSkillsAsync(ICharacterEntity character)
+        {
+            var classByte = (byte)character.Class;
+            var learned = false;
+            foreach (var skill in skills.Where(s => s.Class == classByte && s.LevelMinimum <= character.JobLevel))
+            {
+                if (character.Skills.ContainsKey(skill.SkillVNum))
+                {
+                    continue;
+                }
+
+                var entry = new CharacterSkill
+                {
+                    Id = Guid.NewGuid(),
+                    CharacterId = character.VisualId,
+                    SkillVNum = skill.SkillVNum,
+                    Skill = skill,
+                };
+                if (character.Skills.TryAdd(skill.SkillVNum, entry))
+                {
+                    await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()).ConfigureAwait(false);
+                    learned = true;
+                }
+            }
+
+            if (!learned)
+            {
+                return false;
+            }
+
+            var ordered = character.Skills.Values
+                .Where(s => s.Skill != null)
+                .OrderBy(s => s.Skill!.CastId)
+                .Select(s => s.SkillVNum)
+                .ToList();
+
+            await character.SendPacketAsync(new SkiPacket
+            {
+                PrimarySkillVnum = (short)(200 + 20 * classByte),
+                SecondarySkillVnum = (short)(201 + 20 * classByte),
+                SkillVnums = ordered,
+            }).ConfigureAwait(false);
+            return true;
+        }
     }
 }

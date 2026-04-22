@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using Arch.Core;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -125,7 +126,34 @@ public sealed class RewardService(
             }
 
             await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
+
+            await AwardReputationAsync(player, mob).ConfigureAwait(false);
+            await AwardDignityAsync(player, mob).ConfigureAwait(false);
         }
+    }
+
+    private static async Task AwardReputationAsync(PlayerComponentBundle player, NpcMonsterDto mob)
+    {
+        if (player.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance || mob.Level < 3)
+        {
+            return;
+        }
+        player.Reput += mob.Level / 3;
+        await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
+    }
+
+    private static async Task AwardDignityAsync(PlayerComponentBundle player, NpcMonsterDto mob)
+    {
+        if (player.Level <= 20 || player.Level >= mob.Level || player.Dignity >= 100)
+        {
+            return;
+        }
+        if (RandomHelper.Instance.RandomNumber(0, 2) != 0)
+        {
+            return;
+        }
+        player.Dignity = (short)(player.Dignity + 1);
+        await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
     }
 
     private async Task SpawnDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance)
@@ -153,10 +181,13 @@ public sealed class RewardService(
 
     private async Task SpawnGoldAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance)
     {
-        // Mobs don't carry Gold as a column in this dataset; level-scaled amount gives a
-        // predictable reward without needing extra content. Bumping this to a proper
-        // GoldDrop field is easy once the content team provides one.
-        var goldAmount = System.Math.Max(0, mob.Level * RandomHelper.Instance.RandomNumber(1, 5));
+        if (mapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
+            && mapInstance.MapInstanceType != MapInstanceType.TimeSpaceInstance)
+        {
+            return;
+        }
+
+        var goldAmount = RandomHelper.Instance.RandomNumber(6 * mob.Level, 12 * mob.Level);
         if (goldAmount <= 0) return;
 
         try

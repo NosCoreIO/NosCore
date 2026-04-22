@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Player;
@@ -37,7 +38,8 @@ namespace NosCore.GameObject.Services.ExperienceService
         IJobExperienceService jobExperienceService,
         IHeroExperienceService heroExperienceService,
         ISpExperienceService spExperienceService,
-        IFairyExperienceService fairyExperienceService) : IExperienceProgressionService
+        IFairyExperienceService fairyExperienceService,
+        ISkillService skillService) : IExperienceProgressionService
     {
         private const byte MaxLevel = 99;
         private const byte MaxJobLevel = 80;
@@ -221,6 +223,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                         Message = Game18NConstString.JobLevelIncreased
                     });
                     await mapInstance.SendPacketAsync(player.GenerateEff(8));
+                    await skillService.LearnClassSkillsAsync(player).ConfigureAwait(false);
                 }
 
                 if (heroLeveledUp)
