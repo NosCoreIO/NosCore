@@ -41,6 +41,7 @@ namespace NosCore.WebApi.Controllers
     {
         [AllowAnonymous]
         [HttpPost("sessions")]
+        [HttpPost("/api/v1/auth/sessions")]
         public async Task<IActionResult> ConnectUserAsync(ApiSession session)
         {
             if (!ModelState.IsValid)
