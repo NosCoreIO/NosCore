@@ -52,6 +52,15 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 
         private static string HexStringToString(string hexString)
         {
+            // Older clients hex-encoded each ASCII char of the auth code (36
+            // GUID chars → 72 hex chars); modern builds hand the raw GUID
+            // string straight through. Detect the GUID form via the dashes
+            // so Convert.ToByte doesn't choke on them.
+            if (Guid.TryParse(hexString, out _))
+            {
+                return hexString;
+            }
+
             var bb = Enumerable.Range(0, hexString.Length)
                 .Where(x => x % 2 == 0)
                 .Select(x => Convert.ToByte(hexString.Substring(x, 2), 16))
@@ -62,6 +71,12 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
         public Task SetAwaitingConnectionAsync(long sessionId, string accountName)
         {
             _authCodeService.MarkReadyForAuth(accountName, sessionId);
+            return Task.CompletedTask;
+        }
+
+        public Task StoreAuthCodeAsync(string authCode, string accountName)
+        {
+            _authCodeService.StoreAuthCode(authCode, accountName);
             return Task.CompletedTask;
         }
 

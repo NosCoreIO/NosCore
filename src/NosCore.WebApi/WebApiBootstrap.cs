@@ -24,7 +24,6 @@ using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -59,8 +58,12 @@ namespace NosCore.WebApi
             builder.Host.ConfigureContainer<ContainerBuilder>(
                 containerBuilder =>
                 {
-                    containerBuilder.RegisterType<AuthHub>().AsImplementedInterfaces();
-                    containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
+                    // Talk to the shared auth-code store on MasterServer via the
+                    // AuthHub SignalR client rather than using a local
+                    // AuthCodeService — otherwise codes stored here never reach
+                    // the LoginServer process that has to validate them.
+                    containerBuilder.RegisterType<NosCore.GameObject.InterChannelCommunication.HubConnectionFactory>();
+                    containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
                     containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();

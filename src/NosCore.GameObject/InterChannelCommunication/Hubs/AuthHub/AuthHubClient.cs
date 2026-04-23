@@ -27,5 +27,12 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
             await _hubConnection.InvokeAsync(nameof(SetAwaitingConnectionAsync), sessionId, accountName);
             await _hubConnection.StopAsync();
         }
+
+        public async Task StoreAuthCodeAsync(string authCode, string accountName)
+        {
+            await _hubConnection.StartAsync();
+            await _hubConnection.InvokeAsync(nameof(StoreAuthCodeAsync), authCode, accountName);
+            await _hubConnection.StopAsync();
+        }
     }
 }
