@@ -88,6 +88,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             await new Spec("A sit packet targeting a different player's VisualId does not flip their sit state")
                 .Given(CharacterIsOnMap)
+                .And(CharacterIsStanding)
+                .And(OtherPlayerIsOnSameMap)
                 .And(OtherPlayerIsStanding)
                 .WhenAsync(SittingOtherPlayer)
                 .Then(OtherPlayerIsSittingShouldBe_, false)
@@ -116,6 +118,11 @@ namespace NosCore.PacketHandlers.Tests.Movement
             OtherSession.Character.IsSitting = false;
         }
 
+        private void OtherPlayerIsOnSameMap()
+        {
+            OtherSession.Character.MapInstance = Session.Character.MapInstance;
+        }
+
         private async Task SittingOtherPlayer()
         {
             await Handler.ExecuteAsync(new SitPacket
@@ -140,7 +147,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
                     new SitSubPacket
                     {
                         VisualType = VisualType.Player,
-                        VisualId = 999999
+                        VisualId = int.MaxValue
                     }
                 }
             }, Session);

@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
@@ -23,48 +24,47 @@ public abstract class KillQuestHandlerBase(ILogger logger) : IQuestTypeHandler
 
     public async Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest)
     {
-        var progressed = false;
-        short mobVNum = 0;
-        int current = 0;
-        int required = 0;
+        var progressSnapshots = new List<(short MobVNum, int Current, int Required)>();
         foreach (var objective in quest.Quest.QuestObjectives)
         {
             if (objective.FirstData != mob.NpcMonsterVNum)
             {
                 continue;
             }
-            required = objective.SecondData ?? 0;
+            var required = objective.SecondData ?? 0;
             var previous = quest.ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var p) ? p : 0;
             if (required > 0 && previous >= required)
             {
                 continue;
             }
-            current = quest.ObjectiveProgress.AddOrUpdate(objective.QuestObjectiveId, 1, (_, e) => e + 1);
+            var current = quest.ObjectiveProgress.AddOrUpdate(objective.QuestObjectiveId, 1, (_, e) => e + 1);
             if (required > 0 && current > required)
             {
                 current = required;
                 quest.ObjectiveProgress[objective.QuestObjectiveId] = required;
             }
-            mobVNum = (short)objective.FirstData;
-            progressed = true;
+            progressSnapshots.Add(((short)objective.FirstData, current, required));
         }
 
-        if (!progressed)
+        if (progressSnapshots.Count == 0)
         {
             return;
         }
 
         try
         {
-            await character.SendPacketAsync(new Sayi2Packet
+            foreach (var (mobVNum, current, required) in progressSnapshots)
             {
-                VisualType = VisualType.Player,
-                VisualId = character.VisualId,
-                Type = SayColorType.Red,
-                Message = Game18NConstString.Hunting,
-                ArgumentType = 6,
-                Game18NArguments = new Game18NArguments(2) { mobVNum, $"{current}/{required}" }
-            });
+                await character.SendPacketAsync(new Sayi2Packet
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = character.VisualId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.Hunting,
+                    ArgumentType = 6,
+                    Game18NArguments = new Game18NArguments(2) { mobVNum, $"{current}/{required}" }
+                });
+            }
             await character.SendPacketAsync(quest.GenerateQstiPacket(false));
         }
         catch (Exception ex)

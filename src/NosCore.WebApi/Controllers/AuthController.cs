@@ -14,7 +14,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -36,11 +35,12 @@ namespace NosCore.WebApi.Controllers
     [Route("api/[controller]")]
     public class AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao,
             ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            IAuthHub authHub, IAuthCodeService authCodeService)
+            IAuthHub authHub)
         : Controller
     {
         [AllowAnonymous]
         [HttpPost("sessions")]
+        [HttpPost("/api/v1/auth/sessions")]
         public async Task<IActionResult> ConnectUserAsync(ApiSession session)
         {
             if (!ModelState.IsValid)
@@ -96,8 +96,9 @@ namespace NosCore.WebApi.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("codes")]
-        public IActionResult GetAuthCode(ApiPlatformGameAccount platformGameAccount)
+        public async Task<IActionResult> GetAuthCodeAsync(ApiPlatformGameAccount platformGameAccount)
         {
             var identity = (ClaimsIdentity?)User.Identity;
             if (identity?.Claims.Any(s =>
@@ -107,7 +108,10 @@ namespace NosCore.WebApi.Controllers
             }
 
             var authCode = Guid.NewGuid();
-            authCodeService.StoreAuthCode(authCode.ToString(),
+            // Push via the SignalR hub so the code lands in the shared
+            // auth-code store on MasterServer — LoginServer reads from the
+            // same store when validating NoS0577's AuthToken.
+            await authHub.StoreAuthCodeAsync(authCode.ToString(),
                 identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value);
 
             return Ok(new { code = authCode });

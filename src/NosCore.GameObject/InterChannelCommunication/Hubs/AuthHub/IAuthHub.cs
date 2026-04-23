@@ -13,4 +13,11 @@ public interface IAuthHub
     Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId);
 
     Task SetAwaitingConnectionAsync(long sessionId, string accountName);
+
+    /// <summary>
+    /// Push an auth code issued by the WebApi into the shared auth-code
+    /// store on the MasterServer so every other process (LoginServer
+    /// first) can validate it via <see cref="GetAwaitingConnectionAsync"/>.
+    /// </summary>
+    Task StoreAuthCodeAsync(string authCode, string accountName);
 }

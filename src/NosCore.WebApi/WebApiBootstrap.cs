@@ -7,6 +7,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Serilog;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +24,6 @@ using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.Services.AuthService;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -51,12 +51,20 @@ namespace NosCore.WebApi
             builder.Services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(ApiConfiguration.MasterCommunication))).ValidateDataAnnotations();
             builder.Services.AddI18NLogs();
 
+            builder.Services.ConfigureOptions<NosCore.Core.ConfigureJwtBearerOptions>();
+            builder.Services.AddAuthentication(c => c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            builder.Services.AddAuthorization();
+
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             builder.Host.ConfigureContainer<ContainerBuilder>(
                 containerBuilder =>
                 {
-                    containerBuilder.RegisterType<AuthHub>().AsImplementedInterfaces();
-                    containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
+                    // Talk to the shared auth-code store on MasterServer via the
+                    // AuthHub SignalR client rather than using a local
+                    // AuthCodeService — otherwise codes stored here never reach
+                    // the LoginServer process that has to validate them.
+                    containerBuilder.RegisterType<NosCore.GameObject.InterChannelCommunication.HubConnectionFactory>();
+                    containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
                     containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();
@@ -81,6 +89,7 @@ namespace NosCore.WebApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapRazorPages();

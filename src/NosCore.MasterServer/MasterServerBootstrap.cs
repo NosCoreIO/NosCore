@@ -182,13 +182,18 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<ParcelRegistry>().As<IParcelRegistry>().SingleInstance();
 
             containerBuilder.RegisterType<ChannelHub>().SingleInstance().AsImplementedInterfaces();
-            containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHub).Assembly)
                 .Where(t => t.Name.EndsWith("Hub") && t.Name != nameof(ChannelHub))
                 .AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
-                .Where(t => t.Name.EndsWith("Service"))
+                .Where(t => t.Name.EndsWith("Service") && t != typeof(AuthCodeService))
                 .AsImplementedInterfaces();
+            // AuthCodeService must be a singleton so the auth-code dictionary is
+            // shared across hub method calls; registering it AFTER the assembly
+            // scan (or equivalently excluding it from the scan above) keeps the
+            // singleton lifetime from being overridden by the default-lifetime
+            // scan.
+            containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
 
             RegisterDto(containerBuilder);
         }

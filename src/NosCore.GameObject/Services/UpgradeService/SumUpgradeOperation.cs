@@ -72,6 +72,14 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             return null;
         }
 
+        // Reject self-sum: same slot/type sent twice resolves source and target to the
+        // same InventoryItemInstance, which would double-remove on failure and sum the
+        // item into itself on success.
+        if (source.ItemInstanceId == target.ItemInstanceId)
+        {
+            return null;
+        }
+
         // Both must be the same slot type AND that slot must be Boots or Gloves.
         // Mirrors OpenNos WearableInstance.Sum lines 623-625.
         if (s.Item.EquipmentSlot != t.Item.EquipmentSlot

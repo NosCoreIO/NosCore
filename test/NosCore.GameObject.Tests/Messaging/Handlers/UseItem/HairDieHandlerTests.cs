@@ -96,8 +96,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             await new Spec("EffectValue outside defined HairColorType falls back to DarkPurple")
                 .Given(ItemInInventoryWithEffect_Value_, ItemEffectType.ApplyHairDie, 200)
+                .And(CharacterHairColorIs_, HairColorType.Black)
                 .WhenAsync(UsingTheItem)
                 .Then(HairColorShouldBe_, HairColorType.DarkPurple)
+                .And(ItemStackCountShouldBe_, (short)0)
                 .ExecuteAsync();
         }
 

@@ -235,6 +235,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             Assert.AreEqual(171, p.SourceY);
             Assert.AreEqual(_oldNosvilleInstance!.MapInstanceId, p.SourceMapInstanceId);
             Assert.AreEqual(_minilandInstance!.MapInstanceId, p.DestinationMapInstanceId);
+            Assert.AreEqual(20001, p.DestinationMapId);
         }
 
         private Miniland? InitializedMiniland;
