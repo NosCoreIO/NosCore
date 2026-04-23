@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task FirstBackPackGrantConsumesItemAndAddsBonus()
         {
-            await new Spec("First BackPack grant adds the StaticBonus, consumes one item, and emits EffectActivated")
+            await new Spec("First BackPack grant adds the StaticBonus and consumes one item")
                 .Given(ItemInInventoryWithEffect_, ItemEffectType.InventoryUpgrade)
                 .WhenAsync(UsingTheItem)
                 .Then(StaticBonusListShouldContain_, StaticBonusType.BackPack)

@@ -109,9 +109,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void GuriTextInputShouldBeSentForCurrentSlot()
         {
-            var guri = _session.LastPackets.OfType<GuriPacket>()
-                .LastOrDefault(p => p.Type == GuriPacketType.TextInput);
-            Assert.IsNotNull(guri);
+            var textInputs = _session.LastPackets.OfType<GuriPacket>()
+                .Where(p => p.Type == GuriPacketType.TextInput)
+                .ToList();
+            Assert.AreEqual(1, textInputs.Count);
+            var guri = textInputs[0];
             Assert.AreEqual(3u, guri.Argument);
             Assert.AreEqual(1u, guri.SecondArgument);
             Assert.AreEqual(7L, guri.EntityId);

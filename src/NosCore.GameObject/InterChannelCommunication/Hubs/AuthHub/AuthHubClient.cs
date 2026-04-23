@@ -5,13 +5,16 @@
 //
 
 using Microsoft.AspNetCore.SignalR.Client;
+using System;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
-    public class AuthHubClient(HubConnectionFactory hubConnectionFactory) : IAuthHub
+    public class AuthHubClient(HubConnectionFactory hubConnectionFactory) : IAuthHub, IAsyncDisposable
     {
         private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(AuthHub));
+
+        public ValueTask DisposeAsync() => _hubConnection.DisposeAsync();
 
         public async Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId)
         {

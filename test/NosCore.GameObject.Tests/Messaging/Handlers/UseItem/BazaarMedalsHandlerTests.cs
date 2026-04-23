@@ -75,6 +75,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .WhenAsync(UsingTheItem)
                 .Then(StaticBonusListShouldContain_, StaticBonusType.BazaarMedalGold)
                 .And(ItemStackCountShouldBe_, (short)0)
+                .And(StaticBonusDateEndShouldNotBeNull)
                 .ExecuteAsync();
         }
 

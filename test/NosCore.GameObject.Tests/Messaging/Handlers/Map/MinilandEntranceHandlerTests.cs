@@ -51,6 +51,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
                 .Given(MinilandIsRegisteredWithOwner_, true)
                 .WhenAsync(HandlingEnterEvent)
                 .Then(MlinfoPacketShouldHaveBeenSent)
+                .And(MlobjlstPacketShouldHaveBeenSent)
                 .And(DailyVisitCountShouldStillBe_, 0)
                 .And(VisitCountShouldStillBe_, 0)
                 .ExecuteAsync();
@@ -116,6 +117,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
 
         private void MlinfoPacketShouldHaveBeenSent() =>
             Assert.IsTrue(_session.LastPackets.OfType<MlinfoPacket>().Any());
+
+        private void MlobjlstPacketShouldHaveBeenSent() =>
+            Assert.IsTrue(_session.LastPackets.OfType<MlobjlstPacket>().Any());
 
         private void WelcomeMessagePacketShouldHaveBeenSent() =>
             Assert.IsTrue(_session.LastPackets.OfType<MsgPacket>().Any());

@@ -206,9 +206,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             _realExchange!.AddItems(_sessionA.Character.CharacterId, item, 1);
         }
 
-        private async Task ValidatingExchange()
+        private Task ValidatingExchange()
         {
             _validationResult = _realExchange!.ValidateExchange(_sessionA!, _sessionB!.Character);
+            return Task.CompletedTask;
         }
 
         private void ResultTypeShouldBe_(ExchangeResultType expected) =>
