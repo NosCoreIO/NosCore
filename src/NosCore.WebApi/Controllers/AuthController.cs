@@ -97,6 +97,7 @@ namespace NosCore.WebApi.Controllers
             });
         }
 
+        [Authorize]
         [HttpPost("codes")]
         public IActionResult GetAuthCode(ApiPlatformGameAccount platformGameAccount)
         {

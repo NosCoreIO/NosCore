@@ -7,6 +7,7 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using Serilog;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.EntityFrameworkCore;
@@ -51,6 +52,9 @@ namespace NosCore.WebApi
             builder.Services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(ApiConfiguration.MasterCommunication))).ValidateDataAnnotations();
             builder.Services.AddI18NLogs();
 
+            builder.Services.ConfigureOptions<NosCore.Core.ConfigureJwtBearerOptions>();
+            builder.Services.AddAuthentication(c => c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             builder.Host.ConfigureContainer<ContainerBuilder>(
                 containerBuilder =>
@@ -81,6 +85,7 @@ namespace NosCore.WebApi
 
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.MapRazorPages();
