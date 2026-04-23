@@ -50,7 +50,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Password = "123"
             }), TestHelpers.Instance.AccountDao, Logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
-               new AuthHub(AuthCodeService), AuthCodeService);
+               new AuthHub(AuthCodeService));
         }
 
         [TestMethod]
@@ -206,13 +206,13 @@ namespace NosCore.WebApi.Tests.ApiTests
         }
 
         [TestMethod]
-        public void GetAuthCodeShouldGenerateCodeWhenValidIdentity()
+        public async Task GetAuthCodeShouldGenerateCodeWhenValidIdentity()
         {
-            new Spec("Get auth code should generate code when valid identity")
+            await new Spec("Get auth code should generate code when valid identity")
                 .Given(ControllerHasValidIdentity)
-                .When(GettingAuthCode)
+                .WhenAsync(GettingAuthCodeAsync)
                 .Then(ShouldReturnValidGuid)
-                .Execute();
+                .ExecuteAsync();
         }
 
         private void ControllerHasValidIdentity()
@@ -232,9 +232,9 @@ namespace NosCore.WebApi.Tests.ApiTests
             };
         }
 
-        private void GettingAuthCode()
+        private async Task GettingAuthCodeAsync()
         {
-            Result = Controller.GetAuthCode(new ApiPlatformGameAccount
+            Result = await Controller.GetAuthCodeAsync(new ApiPlatformGameAccount
             {
                 PlatformGameAccountId = "123"
             });
@@ -251,13 +251,13 @@ namespace NosCore.WebApi.Tests.ApiTests
         }
 
         [TestMethod]
-        public void GetAuthCodeShouldFailWhenInvalidIdentity()
+        public async Task GetAuthCodeShouldFailWhenInvalidIdentity()
         {
-            new Spec("Get auth code should fail when invalid identity")
+            await new Spec("Get auth code should fail when invalid identity")
                 .Given(ControllerHasInvalidIdentity)
-                .When(GettingAuthCode)
+                .WhenAsync(GettingAuthCodeAsync)
                 .Then(ShouldReturnAuthIncorrectError)
-                .Execute();
+                .ExecuteAsync();
         }
 
         private void ControllerHasInvalidIdentity()

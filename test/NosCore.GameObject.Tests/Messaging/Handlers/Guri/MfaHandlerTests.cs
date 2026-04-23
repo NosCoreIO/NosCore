@@ -111,7 +111,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
 
         private async Task HandlingGuri_(GuriPacketType type, int argument, long visualId, string value)
         {
-            var packet = new GuriPacket
+            var packet = new NosCore.Packets.ClientPackets.UI.GuriPacket
             {
                 Type = type,
                 Argument = argument,
