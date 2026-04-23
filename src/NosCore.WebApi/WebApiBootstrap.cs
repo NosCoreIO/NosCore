@@ -53,6 +53,7 @@ namespace NosCore.WebApi
 
             builder.Services.ConfigureOptions<NosCore.Core.ConfigureJwtBearerOptions>();
             builder.Services.AddAuthentication(c => c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+            builder.Services.AddAuthorization();
 
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             builder.Host.ConfigureContainer<ContainerBuilder>(

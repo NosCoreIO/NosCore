@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using NosCore.GameObject.Services.AuthService;
 using System;
@@ -13,6 +14,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
+    [Authorize]
     public class AuthHub : Hub, IAuthHub
     {
         private readonly IAuthCodeService _authCodeService;

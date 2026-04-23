@@ -16,23 +16,40 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
         public async Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId)
         {
             await _hubConnection.StartAsync();
-            var result = await _hubConnection.InvokeAsync<string?>(nameof(GetAwaitingConnectionAsync), name, packetPassword, clientSessionSessionId);
-            await _hubConnection.StopAsync();
-            return result;
+            try
+            {
+                return await _hubConnection.InvokeAsync<string?>(nameof(GetAwaitingConnectionAsync), name, packetPassword, clientSessionSessionId);
+            }
+            finally
+            {
+                await _hubConnection.StopAsync();
+            }
         }
 
         public async Task SetAwaitingConnectionAsync(long sessionId, string accountName)
         {
             await _hubConnection.StartAsync();
-            await _hubConnection.InvokeAsync(nameof(SetAwaitingConnectionAsync), sessionId, accountName);
-            await _hubConnection.StopAsync();
+            try
+            {
+                await _hubConnection.InvokeAsync(nameof(SetAwaitingConnectionAsync), sessionId, accountName);
+            }
+            finally
+            {
+                await _hubConnection.StopAsync();
+            }
         }
 
         public async Task StoreAuthCodeAsync(string authCode, string accountName)
         {
             await _hubConnection.StartAsync();
-            await _hubConnection.InvokeAsync(nameof(StoreAuthCodeAsync), authCode, accountName);
-            await _hubConnection.StopAsync();
+            try
+            {
+                await _hubConnection.InvokeAsync(nameof(StoreAuthCodeAsync), authCode, accountName);
+            }
+            finally
+            {
+                await _hubConnection.StopAsync();
+            }
         }
     }
 }
