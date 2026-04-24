@@ -17,6 +17,11 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(KillPacket _, ClientSession session)
         {
+            if (session.Character.Hp <= 0)
+            {
+                return;
+            }
+
             session.Character.Hp = 0;
             await messageBus.PublishAsync(new EntityDiedEvent(session.Character, session.Character)).ConfigureAwait(false);
         }
