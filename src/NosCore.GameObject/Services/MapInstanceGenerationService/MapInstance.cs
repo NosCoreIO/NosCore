@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
@@ -62,13 +63,16 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMonsterAi? _monsterAi;
         private readonly IBuffService? _buffService;
         private readonly IRegenerationService? _regenerationService;
+        private readonly IBattleService? _battleService;
+        private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
 
         public MapWorld EcsWorld { get; }
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
-            IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null)
+            IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
+            IBattleService? battleService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -93,6 +97,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _monsterAi = monsterAi;
             _buffService = buffService;
             _regenerationService = regenerationService;
+            _battleService = battleService;
             EcsWorld = new MapWorld();
         }
 
@@ -424,6 +429,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     {
                         await _regenerationService.TickAsync(this).ConfigureAwait(false);
                     }
+
+                    if (_battleService != null)
+                    {
+                        await _battleService.TickCooldownResetsAsync(this).ConfigureAwait(false);
+                    }
+
+                    await SweepPendingRespawnsAsync().ConfigureAwait(false);
                 }
                 catch (Exception e)
                 {
@@ -432,6 +444,36 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
             return Task.CompletedTask;
+        }
+
+        // Registered by MonsterRespawnHandler when a monster dies. The map-level life
+        // loop picks it up on the next 400ms tick instead of us spawning a Task.Delay
+        // per corpse.
+        public void ScheduleRespawn(MonsterComponentBundle monster, Instant respawnAt)
+        {
+            _pendingRespawns[monster.VisualId] = (monster, respawnAt);
+        }
+
+        private async Task SweepPendingRespawnsAsync()
+        {
+            if (_pendingRespawns.IsEmpty) return;
+            var now = _clock.GetCurrentInstant();
+            foreach (var (visualId, entry) in _pendingRespawns)
+            {
+                if (entry.RespawnAt > now) continue;
+                if (!_pendingRespawns.TryRemove(visualId, out _)) continue;
+                var monster = entry.Monster;
+                if (monster.MapInstance == null) continue;
+
+                monster.Hp = monster.MaxHp;
+                monster.Mp = monster.MaxMp;
+                monster.IsAlive = true;
+                monster.PositionX = monster.FirstX;
+                monster.PositionY = monster.FirstY;
+                monster.HitList.Clear();
+
+                await this.SendPacketAsync(monster.GenerateIn()).ConfigureAwait(false);
+            }
         }
 
         protected virtual void Dispose(bool disposing)

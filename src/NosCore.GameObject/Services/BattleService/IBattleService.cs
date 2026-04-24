@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 
 namespace NosCore.GameObject.Services.BattleService
 {
@@ -16,5 +17,10 @@ namespace NosCore.GameObject.Services.BattleService
     public interface IBattleService
     {
         Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments);
+
+        // Drain the pending skill-cooldown-reset table for characters on this map
+        // and emit SkillResetPacket for any whose ReadyAt has elapsed. Called once
+        // per map per 400ms life tick from MapInstance.
+        Task TickCooldownResetsAsync(MapInstance mapInstance);
     }
 }

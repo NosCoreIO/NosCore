@@ -192,12 +192,12 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         {
             using (await session.AcquirePacketLockAsync().ConfigureAwait(false))
             {
-                await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200)).ConfigureAwait(false);
+                await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
             }
         }
         else
         {
-            await Task.WhenAll(handler.ExecuteAsync(packet, session), Task.Delay(200)).ConfigureAwait(false);
+            await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
         }
     }
 }
