@@ -15,5 +15,9 @@ namespace NosCore.GameObject.Services.AuthService
         void MarkReadyForAuth(string accountName, long sessionId);
         bool IsReadyForAuth(string accountName, long sessionId);
         void ClearReadyForAuth(string accountName);
+
+        void RegisterSessionIp(string accountName, string ipAddress);
+        void UnregisterSessionIp(string accountName);
+        string? GetSessionIp(string accountName);
     }
 }

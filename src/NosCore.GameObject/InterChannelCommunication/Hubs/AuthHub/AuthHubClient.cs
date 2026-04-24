@@ -54,5 +54,44 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
                 await _hubConnection.StopAsync();
             }
         }
+
+        public async Task RegisterSessionIpAsync(string accountName, string ipAddress)
+        {
+            await _hubConnection.StartAsync();
+            try
+            {
+                await _hubConnection.InvokeAsync(nameof(RegisterSessionIpAsync), accountName, ipAddress);
+            }
+            finally
+            {
+                await _hubConnection.StopAsync();
+            }
+        }
+
+        public async Task UnregisterSessionIpAsync(string accountName)
+        {
+            await _hubConnection.StartAsync();
+            try
+            {
+                await _hubConnection.InvokeAsync(nameof(UnregisterSessionIpAsync), accountName);
+            }
+            finally
+            {
+                await _hubConnection.StopAsync();
+            }
+        }
+
+        public async Task<string?> GetSessionIpAsync(string accountName)
+        {
+            await _hubConnection.StartAsync();
+            try
+            {
+                return await _hubConnection.InvokeAsync<string?>(nameof(GetSessionIpAsync), accountName);
+            }
+            finally
+            {
+                await _hubConnection.StopAsync();
+            }
+        }
     }
 }

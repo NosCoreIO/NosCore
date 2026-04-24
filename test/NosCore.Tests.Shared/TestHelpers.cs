@@ -255,7 +255,8 @@ namespace NosCore.Tests.Shared
                 mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, SessionGroupFactory, SessionRegistry, GenerateItemProvider(), Instance.DistanceCalculator,
                 new Mock<NosCore.GameObject.Services.BattleService.IMonsterAi>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IRegenerationService>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IRegenerationService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleService>().Object);
             await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, NullLogger<MapInstance>.Instance, Clock, mapChangeService, SessionGroupFactory, SessionRegistry, Instance.DistanceCalculator));
@@ -323,6 +324,7 @@ namespace NosCore.Tests.Shared
                 new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance, Instance.LogLanguageLocalizer, sessionRefHolder),
                 new List<ISessionDisconnectHandler>(),
                 Instance.SessionRegistry,
+                new Mock<NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub.IAuthHub>().Object,
                 Instance.GameLanguageLocalizer)
             {
                 SessionId = LastId

@@ -5,15 +5,18 @@
 //
 
 using System;
+using System.Collections.Concurrent;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
+using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
@@ -33,8 +36,14 @@ namespace NosCore.GameObject.Services.BattleService
         IHitQueue hitQueue,
         IMessageBus messageBus,
         ISessionRegistry sessionRegistry,
+        IClock clock,
+        ICaptureService captureService,
         ILogger<BattleService> logger) : IBattleService
     {
+        // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
+        // and drained by TickCooldownResetsAsync on each map's 400ms life tick.
+        private readonly ConcurrentDictionary<long, ConcurrentDictionary<long, Instant>> _pendingCooldownResets = new();
+
         public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
             if (!CanAttack(origin, target))
@@ -49,6 +58,24 @@ namespace NosCore.GameObject.Services.BattleService
             if (skill == null)
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
+                return;
+            }
+
+            // Capture skills branch before damage — vanosilla / OpenNos both suppress
+            // normal damage and SuPacket for skills carrying a CaptureAnimal bcard.
+            // A fail still consumes the cooldown via ScheduleCooldownReset below.
+            if (captureService.IsCaptureSkill(skill))
+            {
+                try
+                {
+                    await captureService.TryCaptureAsync(origin, target, skill).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Capture attempt failed: {Attacker} -> {Target}", origin.VisualId, target.VisualId);
+                }
+
+                ScheduleCooldownReset(origin, skill);
                 return;
             }
 
@@ -187,19 +214,35 @@ namespace NosCore.GameObject.Services.BattleService
         {
             if (origin is not ICharacterEntity character) return;
 
-            _ = Task.Run(async () =>
+            var readyAt = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(skill.Cooldown * 100));
+            _pendingCooldownResets
+                .GetOrAdd(character.VisualId, _ => new ConcurrentDictionary<long, Instant>())[skill.CastId] = readyAt;
+        }
+
+        public async Task TickCooldownResetsAsync(MapInstance mapInstance)
+        {
+            if (_pendingCooldownResets.IsEmpty) return;
+            var now = clock.GetCurrentInstant();
+            foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
             {
-                try
+                if (!session.HasPlayerEntity) continue;
+                var character = session.Character;
+                if (!_pendingCooldownResets.TryGetValue(character.VisualId, out var skills)) continue;
+                foreach (var (castId, readyAt) in skills)
                 {
-                    await Task.Delay(skill.Cooldown * 100).ConfigureAwait(false);
-                    if (character.IsDisconnecting) return;
-                    await character.SendPacketAsync(new SkillResetPacket { CastId = skill.CastId }).ConfigureAwait(false);
+                    if (readyAt > now) continue;
+                    if (!skills.TryRemove(castId, out _)) continue;
+                    if (character.IsDisconnecting) continue;
+                    try
+                    {
+                        await character.SendPacketAsync(new SkillResetPacket { CastId = castId }).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Failed to reset cooldown for skill {CastId}", castId);
+                    }
                 }
-                catch (Exception ex)
-                {
-                    logger.LogWarning(ex, "Failed to reset cooldown for skill {CastId}", skill.CastId);
-                }
-            });
+            }
         }
 
         private static void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)

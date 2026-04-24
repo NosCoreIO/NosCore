@@ -82,5 +82,21 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
             return Task.CompletedTask;
         }
 
+        public Task RegisterSessionIpAsync(string accountName, string ipAddress)
+        {
+            _authCodeService.RegisterSessionIp(accountName, ipAddress);
+            return Task.CompletedTask;
+        }
+
+        public Task UnregisterSessionIpAsync(string accountName)
+        {
+            _authCodeService.UnregisterSessionIp(accountName);
+            return Task.CompletedTask;
+        }
+
+        public Task<string?> GetSessionIpAsync(string accountName)
+        {
+            return Task.FromResult(_authCodeService.GetSessionIp(accountName));
+        }
     }
 }
