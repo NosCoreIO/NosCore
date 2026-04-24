@@ -136,6 +136,7 @@ namespace NosCore.GameObject.Services.LoginService
                         var i = 1;
                         var nstest = new NsTestPacket
                         {
+                            LeadingBlank = string.Empty,
                             AccountName = username,
                             SubPacket = subpacket,
                             SessionId = clientSession.SessionId,
