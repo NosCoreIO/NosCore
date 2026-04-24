@@ -37,6 +37,7 @@ namespace NosCore.GameObject.Services.BattleService
         IMessageBus messageBus,
         ISessionRegistry sessionRegistry,
         IClock clock,
+        ICaptureService captureService,
         ILogger<BattleService> logger) : IBattleService
     {
         // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
@@ -57,6 +58,24 @@ namespace NosCore.GameObject.Services.BattleService
             if (skill == null)
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
+                return;
+            }
+
+            // Capture skills branch before damage — vanosilla / OpenNos both suppress
+            // normal damage and SuPacket for skills carrying a CaptureAnimal bcard.
+            // A fail still consumes the cooldown via ScheduleCooldownReset below.
+            if (captureService.IsCaptureSkill(skill))
+            {
+                try
+                {
+                    await captureService.TryCaptureAsync(origin, target, skill).ConfigureAwait(false);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Capture attempt failed: {Attacker} -> {Target}", origin.VisualId, target.VisualId);
+                }
+
+                ScheduleCooldownReset(origin, skill);
                 return;
             }
 

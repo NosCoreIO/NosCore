@@ -20,7 +20,8 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(SetHairStylePacket packet, ClientSession session)
         {
-            if (!Enum.IsDefined(typeof(HairStyleType), packet.Style))
+            if (!Enum.IsDefined(typeof(HairStyleType), packet.Style) ||
+                packet.Style > (byte)HairStyleType.HairStyleB)
             {
                 return;
             }

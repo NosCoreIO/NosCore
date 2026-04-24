@@ -50,6 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _bus.Object,
                 new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
                 NodaTime.SystemClock.Instance,
+                new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance);
         }
 

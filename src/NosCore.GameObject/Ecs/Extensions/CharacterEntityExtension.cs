@@ -225,9 +225,9 @@ namespace NosCore.GameObject.Ecs.Extensions
             return pktQs;
         }
 
-        public static RsfiPacket GenerateRsfi(this ICharacterEntity characterEntity)
+        public static NosCore.Packets.ServerPackets.Player.RsfiPacket GenerateRsfi(this ICharacterEntity characterEntity)
         {
-            return new RsfiPacket
+            return new NosCore.Packets.ServerPackets.Player.RsfiPacket
             {
                 Act = 1,
                 ActPart = 1,
