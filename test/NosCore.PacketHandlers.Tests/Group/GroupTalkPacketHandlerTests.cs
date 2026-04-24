@@ -19,7 +19,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     [TestClass]
     public class GroupTalkPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> _sessions = new();
         private GroupTalkPacketHandler _groupTalkPacketHandler = null!;
         private PjoinPacketHandler _pJoinPacketHandler = null!;

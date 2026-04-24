@@ -11,12 +11,12 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapChangeService;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class TeleportPacketHandler(ILogger logger, IMapChangeService mapChangeService,
+    public class TeleportPacketHandler(ILogger<TeleportPacketHandler> logger, IMapChangeService mapChangeService,
             IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
         : PacketHandler<TeleportPacket>, IWorldPacketHandler
     {
@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Command
                         targetSession.MapY);
                 }
 
-                logger.Error(gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,
+                logger.LogError(gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,
                     session.Account.Language]);
                 return Task.CompletedTask;
             }

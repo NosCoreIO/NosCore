@@ -13,7 +13,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -22,7 +22,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
     [TestClass]
     public class MapChangeServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService> Logger = new Mock<ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService>>().Object;
         private IMapChangeService Service = null!;
         private ClientSession Session = null!;
 

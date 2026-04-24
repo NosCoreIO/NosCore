@@ -15,7 +15,7 @@ using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Concurrent;
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private ClientSession Session = null!;
         private ClientSession TargetSession = null!;
         private Mock<IBattleService> BattleService = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<UseSkillPacketHandler> Logger = new Mock<ILogger<UseSkillPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

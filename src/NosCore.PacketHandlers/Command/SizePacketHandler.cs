@@ -13,12 +13,12 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SizePacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class SizePacketHandler(ILogger<SizePacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<SizePacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(SizePacket sizePacket, ClientSession session)
@@ -36,14 +36,14 @@ namespace NosCore.PacketHandlers.Command
                     entity = session.Character.MapInstance.FindNpc(s => s.VisualId == sizePacket.VisualId);
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         sizePacket.VisualType);
                     return Task.CompletedTask;
             }
 
             if (entity == null)
             {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST],
+                logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST],
                     sizePacket.VisualType);
                 return Task.CompletedTask;
             }

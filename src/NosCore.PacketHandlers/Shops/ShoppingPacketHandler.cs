@@ -14,12 +14,12 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class ShoppingPacketHandler(ILogger logger, IDignityService dignityService,
+    public class ShoppingPacketHandler(ILogger<ShoppingPacketHandler> logger, IDignityService dignityService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         : PacketHandler<ShoppingPacket>, IWorldPacketHandler
     {
@@ -47,14 +47,14 @@ namespace NosCore.PacketHandlers.Shops
                     break;
 
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         shoppingPacket.VisualType);
                     return;
             }
 
             if (aliveEntity == null)
             {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return;
             }
 

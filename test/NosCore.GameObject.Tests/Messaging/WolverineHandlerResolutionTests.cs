@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
@@ -102,7 +103,6 @@ namespace NosCore.GameObject.Tests.Messaging
             var services = new ServiceCollection();
 
             // Mirrors WorldServerBootstrap.ConfigureServices ordering.
-            services.AddSingleton<Serilog.ILogger>(_ => Serilog.Log.Logger);
             services.AddSingleton<IClock>(_ => SystemClock.Instance);
             services.AddTransient<NosCore.Core.I18N.IGameLanguageLocalizer, NosCore.Core.I18N.GameLanguageLocalizer>();
 

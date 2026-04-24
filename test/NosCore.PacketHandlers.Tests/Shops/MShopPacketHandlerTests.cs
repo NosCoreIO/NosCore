@@ -26,7 +26,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -40,7 +40,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class MShopPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private readonly MShopPacket ShopPacket = new()
         {
             Type = CreateShopPacketType.Open,
@@ -203,7 +202,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1 }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
@@ -215,7 +214,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1 }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, (short)value), 0),
                 NoscorePocketType.Etc, 0);
@@ -233,7 +232,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

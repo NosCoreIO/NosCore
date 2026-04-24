@@ -21,7 +21,7 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class BlDelPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<BlDelPacketHandlerTests> Logger = new Mock<ILogger<BlDelPacketHandlerTests>>().Object;
         private BlacklistService BlackListController = null!;
         private Mock<IBlacklistHub> BlackListHttpClient = null!;
         private BlDelPacketHandler BlDelPacketHandler = null!;

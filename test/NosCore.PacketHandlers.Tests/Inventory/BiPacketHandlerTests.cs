@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Inventory;
@@ -26,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            BiPacketHandler = new BiPacketHandler(Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            BiPacketHandler = new BiPacketHandler(NullLogger<BiPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]

@@ -66,7 +66,6 @@ namespace NosCore.WebApi
                     containerBuilder.RegisterType<NosCore.GameObject.InterChannelCommunication.HubConnectionFactory>();
                     containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-                    containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();
 
                     containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch

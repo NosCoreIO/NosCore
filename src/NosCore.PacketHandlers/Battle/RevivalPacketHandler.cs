@@ -19,7 +19,7 @@ using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.PacketHandlers.Battle
 {
@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Battle
     // Every branch ends with `tp` (position) + `revive` + refreshed `stat`, mirroring
     // the death.txt trace at lines 6338–6344.
     public class RevivalPacketHandler(
-        ILogger logger,
+        ILogger<RevivalPacketHandler> logger,
         IMapChangeService mapChangeService,
         IRespawnService respawnService)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Battle
             catch (Exception ex)
             {
                 character.IsAlive = false;
-                logger.Warning(ex, "Revival failed for character {CharacterId} type {Type}",
+                logger.LogWarning(ex, "Revival failed for character {CharacterId} type {Type}",
                     character.CharacterId, packet.Type);
             }
         }

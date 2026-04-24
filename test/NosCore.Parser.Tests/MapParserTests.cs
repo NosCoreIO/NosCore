@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.IO;
 using System.Linq;
@@ -23,14 +23,12 @@ namespace NosCore.Parser.Tests
     public class MapParserTests
     {
         private Mock<IDao<MapDto, short>> _daoMock = null!;
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private string _tempFolder = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _daoMock = new Mock<IDao<MapDto, short>>();
             _tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -53,7 +51,7 @@ namespace NosCore.Parser.Tests
         public async Task MapParser_ParsesSingleEntry()
         {
             WriteMapIdDat("1 1 0 0 nosvillage\r\nDATA 0\r\n");
-            var parser = new MapParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             var result = await parser.ParseDatAsync(_tempFolder);
 
             Assert.AreEqual(1, result.Count);
@@ -68,7 +66,7 @@ namespace NosCore.Parser.Tests
                 "1 1 0 0 nosvillage\r\nDATA 0\r\n" +
                 "2 1 0 0 alveus\r\nDATA 0\r\n" +
                 "145 1 0 0 oldnosville\r\nDATA 0\r\n");
-            var parser = new MapParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             var result = await parser.ParseDatAsync(_tempFolder);
 
             Assert.AreEqual(3, result.Count);
@@ -81,7 +79,7 @@ namespace NosCore.Parser.Tests
         public async Task MapParser_EmptyFileReturnsEmptyList()
         {
             WriteMapIdDat("");
-            var parser = new MapParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             var result = await parser.ParseDatAsync(_tempFolder);
 
             Assert.AreEqual(0, result.Count);

@@ -12,7 +12,7 @@ using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Concurrent;
@@ -25,7 +25,6 @@ namespace NosCore.GameObject.Tests.Services.QuestService
     [TestClass]
     public class QuestServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private GameObject.Services.QuestService.QuestService Service = null!;
         private ClientSession Session = null!;
         private List<ScriptDto> Scripts = null!;
@@ -108,13 +107,13 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 TestHelpers.Instance.WorldConfiguration,
                 Quests,
                 QuestObjectives,
-                Logger,
+                NullLogger<NosCore.GameObject.Services.QuestService.QuestService>.Instance,
                 TestHelpers.Instance.Clock,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
-                    new HuntQuestHandler(Logger),
-                    new NumberOfKillQuestHandler(Logger),
+                    new HuntQuestHandler(NullLogger<HuntQuestHandler>.Instance),
+                    new NumberOfKillQuestHandler(NullLogger<NumberOfKillQuestHandler>.Instance),
                     new GoToQuestHandler(),
                 },
                 new Mock<Wolverine.IMessageBus>().Object,

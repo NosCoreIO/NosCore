@@ -23,7 +23,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.Database.Hosting;
 
@@ -160,14 +160,14 @@ public sealed class PersistenceModule : Autofac.Module
                 if (staticMetaDataAttribute != null &&
                     staticMetaDataAttribute.LoadedMessage != LogLanguageKey.UNKNOWN)
                 {
-                    c.Resolve<ILogger>().Information(
+                    c.Resolve<ILogger<PersistenceModule>>().LogInformation(
                         c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.LoadedMessage],
                         items.Count);
                 }
             }
             else
             {
-                c.Resolve<ILogger>().Error(
+                c.Resolve<ILogger<PersistenceModule>>().LogError(
                     c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.EmptyMessage]);
             }
 

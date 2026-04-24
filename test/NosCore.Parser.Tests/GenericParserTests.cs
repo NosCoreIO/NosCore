@@ -9,7 +9,7 @@ using Moq;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,14 +20,14 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class GenericParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
+        private Mock<ILogger<GenericParser<TestDto>>> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private string _tempFolder = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<GenericParser<TestDto>>>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(_tempFolder);

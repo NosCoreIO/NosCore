@@ -14,7 +14,7 @@ using NosCore.PacketHandlers.Command;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     {
         private SizePacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private Mock<ILogger> Logger = null!;
+        private Mock<ILogger<SizePacketHandler>> Logger = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
 
         [TestInitialize]
@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             await TestHelpers.ResetAsync();
             Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Logger = new Mock<ILogger>();
+            Logger = new Mock<ILogger<SizePacketHandler>>();
             LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             Handler = new SizePacketHandler(Logger.Object, LogLanguage.Object);
         }
@@ -112,7 +112,13 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void ShouldLogError()
         {
-            Logger.Verify(x => x.Error(It.IsAny<string>(), It.IsAny<VisualType>()), Times.AtLeastOnce);
+            Logger.Verify(x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => true),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.AtLeastOnce);
         }
     }
 }

@@ -9,14 +9,14 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class RespawnMapTypeParser(IDao<RespawnMapTypeDto, long> respawnMapTypeDao, ILogger<RespawnMapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         internal async Task InsertRespawnMapTypeAsync()
         {
@@ -80,7 +80,7 @@ namespace NosCore.Parser.Parsers
                 }
             };
             await respawnMapTypeDao.TryInsertOrUpdateAsync(respawnmaptypemaps);
-            logger.Information(logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
+            logger.LogInformation(logLanguage[LogLanguageKey.RESPAWNTYPE_PARSED],
                 respawnmaptypemaps.Count());
         }
     }

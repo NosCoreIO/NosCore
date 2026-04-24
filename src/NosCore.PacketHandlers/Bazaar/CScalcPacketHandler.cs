@@ -22,7 +22,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
             IBazaarHub bazaarHttpClient,
-            IItemGenerationService itemProvider, ILogger logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
+            IItemGenerationService itemProvider, ILogger<CScalcPacketHandler> logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             return;
                         }
 
-                        logger.Error(logLanguage[LogLanguageKey.BAZAAR_DELETE_ERROR]);
+                        logger.LogError(logLanguage[LogLanguageKey.BAZAAR_DELETE_ERROR]);
                     }
                     else
                     {

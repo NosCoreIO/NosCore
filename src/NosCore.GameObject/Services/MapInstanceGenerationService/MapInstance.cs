@@ -27,7 +27,7 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
     public class MapInstance : IBroadcastable, IDisposable
     {
         public short MaxPacketsBuffer { get; } = 250;
-        private readonly ILogger _logger;
+        private readonly ILogger<MapInstance> _logger;
 
         private readonly IMapItemGenerationService _mapItemGenerationService;
         private bool _isSleeping;
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public MapWorld EcsWorld { get; }
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
-            IMapItemGenerationService mapItemGenerationService, ILogger logger, IClock clock, IMapChangeService mapChangeService,
+            IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null)
         {
@@ -427,7 +427,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 }
                 catch (Exception e)
                 {
-                    _logger.Error(e.Message, e);
+                    _logger.LogError(e.Message, e);
                 }
             }
             Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();

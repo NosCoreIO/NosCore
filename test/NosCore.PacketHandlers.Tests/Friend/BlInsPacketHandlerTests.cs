@@ -16,7 +16,7 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class BlInsPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<BlInsPackettHandler> Logger = new Mock<ILogger<BlInsPackettHandler>>().Object;
         private BlInsPackettHandler BlInsPacketHandler = null!;
         private ClientSession Session = null!;
 

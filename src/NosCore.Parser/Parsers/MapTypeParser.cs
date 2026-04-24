@@ -10,13 +10,13 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class MapTypeParser(IDao<MapTypeDto, short> dropDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class MapTypeParser(IDao<MapTypeDto, short> dropDao, ILogger<MapTypeParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         internal async Task InsertMapTypesAsync()
         {
@@ -208,7 +208,7 @@ namespace NosCore.Parser.Parsers
                 }
             };
             await dropDao.TryInsertOrUpdateAsync(mts);
-            logger.Information(logLanguage[LogLanguageKey.MAPTYPES_PARSED]);
+            logger.LogInformation(logLanguage[LogLanguageKey.MAPTYPES_PARSED]);
         }
     }
 }

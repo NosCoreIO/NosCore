@@ -24,7 +24,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Shops
@@ -32,7 +32,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class RequestNpcPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private RequestNpcPacketHandler _requestNpcPacketHandler = null!;
         private ClientSession _session = null!;
 
@@ -44,13 +43,13 @@ namespace NosCore.PacketHandlers.Tests.Shops
             // Register ShoppingPacketHandler so the shop-no-dialog branch can dispatch
             // a ShoppingPacket through HandlePacketsAsync and we can observe the n_inv.
             var shoppingHandler = new ShoppingPacketHandler(
-                Logger,
+                NullLogger<ShoppingPacketHandler>.Instance,
                 new Mock<IDignityService>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
-                Logger,
+                NullLogger<RequestNpcPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry);
         }

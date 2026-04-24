@@ -18,7 +18,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private ClientSession TargetSession = null!;
         private Mock<IExchangeService> ExchangeService = null!;
         private Mock<IBlacklistHub> BlacklistHub = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<ExchangeRequestPackettHandler> Logger = new Mock<ILogger<ExchangeRequestPackettHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

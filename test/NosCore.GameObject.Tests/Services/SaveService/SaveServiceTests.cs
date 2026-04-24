@@ -19,7 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Concurrent;
@@ -32,7 +32,6 @@ namespace NosCore.GameObject.Tests.Services.SaveService
     [TestClass]
     public class SaveServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private ClientSession Session = null!;
         private ISaveService Service = null!;
         private IItemGenerationService ItemProvider = null!;
@@ -49,15 +48,15 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 Guid.NewGuid().ToString());
             NosCoreContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
 
-            var itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(Logger, ContextBuilder);
-            var inventoryItemInstanceDao = new Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>(Logger, ContextBuilder);
-            var staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(Logger, ContextBuilder);
-            var quicklistEntriesDao = new Dao<QuicklistEntry, QuicklistEntryDto, Guid>(Logger, ContextBuilder);
-            var titleDao = new Dao<Title, TitleDto, Guid>(Logger, ContextBuilder);
-            var characterQuestDao = new Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>(Logger, ContextBuilder);
-            var characterQuestObjectiveDao = new Dao<Database.Entities.CharacterQuestObjective, CharacterQuestObjectiveDto, Guid>(Logger, ContextBuilder);
+            var itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, ContextBuilder);
+            var inventoryItemInstanceDao = new Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>(NullLogger<Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, ContextBuilder);
+            var staticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(NullLogger<Dao<StaticBonus, StaticBonusDto, long>>.Instance, ContextBuilder);
+            var quicklistEntriesDao = new Dao<QuicklistEntry, QuicklistEntryDto, Guid>(NullLogger<Dao<QuicklistEntry, QuicklistEntryDto, Guid>>.Instance, ContextBuilder);
+            var titleDao = new Dao<Title, TitleDto, Guid>(NullLogger<Dao<Title, TitleDto, Guid>>.Instance, ContextBuilder);
+            var characterQuestDao = new Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>(NullLogger<Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>>.Instance, ContextBuilder);
+            var characterQuestObjectiveDao = new Dao<Database.Entities.CharacterQuestObjective, CharacterQuestObjectiveDto, Guid>(NullLogger<Dao<Database.Entities.CharacterQuestObjective, CharacterQuestObjectiveDto, Guid>>.Instance, ContextBuilder);
             CharacterQuestObjectiveDao = characterQuestObjectiveDao;
-            var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(Logger, ContextBuilder);
+            var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(NullLogger<Dao<Database.Entities.Respawn, RespawnDto, long>>.Instance, ContextBuilder);
 
             var minilandService = new Mock<IMinilandService>();
             minilandService.Setup(s => s.GetMiniland(It.IsAny<long>()))
@@ -76,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 characterQuestDao,
                 characterQuestObjectiveDao,
                 respawnDao,
-                Logger,
+                NullLogger<NosCore.GameObject.Services.SaveService.SaveService>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }
 

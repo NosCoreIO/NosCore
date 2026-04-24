@@ -21,7 +21,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     [TestClass]
     public class MJoinPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<MJoinPacketHandlerTests> Logger = new Mock<ILogger<MJoinPacketHandlerTests>>().Object;
         private readonly Mock<IPubSubHub> ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
         private readonly Mock<IFriendHub> FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
         private Mock<IMinilandService> MinilandProvider = null!;

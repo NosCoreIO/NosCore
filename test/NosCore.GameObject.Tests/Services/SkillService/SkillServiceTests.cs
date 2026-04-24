@@ -12,7 +12,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     [TestClass]
     public class SkillServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<SkillServiceTests> Logger = new Mock<ILogger<SkillServiceTests>>().Object;
         private ISkillService Service = null!;
         private Mock<IDao<CharacterSkillDto, Guid>> CharacterSkillDao = null!;
         private List<SkillDto> Skills = null!;

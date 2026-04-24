@@ -8,7 +8,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -45,7 +45,7 @@ namespace NosCore.Parser.Parsers
     //A   {ActId}	{Name}
     //~
 
-    public class ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ActParser(IDao<ActDto, byte> actDao, IDao<ActPartDto, byte> actDescDao, ILogger<ActParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}act_desc.dat";
 
@@ -84,7 +84,7 @@ namespace NosCore.Parser.Parsers
 
             await actDao.TryInsertOrUpdateAsync(acts);
             await actDescDao.TryInsertOrUpdateAsync(actParts);
-            logger.Information(logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
+            logger.LogInformation(logLanguage[LogLanguageKey.ACTS_PARTS_PARSED], actParts.Count);
         }
     }
 }

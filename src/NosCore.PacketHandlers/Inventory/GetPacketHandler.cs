@@ -15,13 +15,13 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Wolverine;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class GetPacketHandler(ILogger logger, IHeuristic distanceCalculator, IClock clock,
+    public class GetPacketHandler(ILogger<GetPacketHandler> logger, IHeuristic distanceCalculator, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
         : PacketHandler<GetPacket>, IWorldPacketHandler
     {
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Inventory
                     return;
 
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.UNKNOWN_PICKERTYPE]);
+                    logger.LogError(logLanguage[LogLanguageKey.UNKNOWN_PICKERTYPE]);
                     return;
             }
 

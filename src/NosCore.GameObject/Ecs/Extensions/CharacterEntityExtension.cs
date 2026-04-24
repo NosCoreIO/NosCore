@@ -43,7 +43,7 @@ using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -175,7 +175,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     case NoscorePocketType.Wear:
                         break;
                     default:
-                        logger.Information(
+                        logger.LogInformation(
                             logLanguageLocalizer[LogLanguageKey.POCKETTYPE_UNKNOWN]);
                         break;
                 }

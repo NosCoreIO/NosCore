@@ -19,7 +19,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.PacketHandlers.Battle
 {
@@ -28,7 +28,7 @@ namespace NosCore.PacketHandlers.Battle
     // the target entity, and hand off to IBattleService. All damage math lives behind
     // IBattleService so swapping formulas doesn't touch this file.
     public class UseSkillPacketHandler(
-        ILogger logger,
+        ILogger<UseSkillPacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IBattleService battleService,
         ISessionRegistry sessionRegistry)
@@ -137,13 +137,13 @@ namespace NosCore.PacketHandlers.Battle
                     candidate = clientSession.Character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId);
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.TargetVisualType);
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.TargetVisualType);
                     return null;
             }
 
             if (candidate == null)
             {
-                logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+                logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
                 return null;
             }
             return candidate;

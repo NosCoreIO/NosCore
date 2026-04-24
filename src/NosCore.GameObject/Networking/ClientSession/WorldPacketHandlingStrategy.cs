@@ -14,12 +14,12 @@ using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession;
 
-public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRefHolder sessionRefHolder)
+public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRefHolder sessionRefHolder)
     : IPacketHandlingStrategy
 {
     public async Task HandlePacketAsync(IPacket packet, ClientSession session, bool isFromNetwork)
@@ -46,7 +46,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         var packetHeader = processedPacket.Header;
         if (string.IsNullOrWhiteSpace(packetHeader) && isFromNetwork)
         {
-            logger.Warning(logLanguage[LogLanguageKey.CORRUPT_PACKET], processedPacket);
+            logger.LogWarning(logLanguage[LogLanguageKey.CORRUPT_PACKET], processedPacket);
             await session.DisconnectAsync();
             return;
         }
@@ -54,7 +54,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         var handler = session.GetHandler(processedPacket.GetType());
         if (handler == null)
         {
-            logger.Warning(logLanguage[LogLanguageKey.HANDLER_NOT_FOUND], packetHeader);
+            logger.LogWarning(logLanguage[LogLanguageKey.HANDLER_NOT_FOUND], packetHeader);
             return;
         }
 
@@ -81,7 +81,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
     {
         if (session.LastKeepAliveIdentity != 0 && packet.KeepAliveId != session.LastKeepAliveIdentity + 1)
         {
-            logger.Error(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
+            logger.LogError(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
             await session.DisconnectAsync();
             return false;
         }
@@ -105,7 +105,7 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         }
 
         session.SessionId = sessionRefHolder[session.SessionKey].SessionId;
-        logger.Debug(logLanguage[LogLanguageKey.CLIENT_ARRIVED], session.SessionId);
+        logger.LogDebug(logLanguage[LogLanguageKey.CLIENT_ARRIVED], session.SessionId);
         session.WaitForPacketsAmount = 2;
         return Task.FromResult(true);
     }
@@ -155,20 +155,20 @@ public class WorldPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
 
         if (session.HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && session.Character.InExchangeOrShop)
         {
-            logger.Warning(logLanguage[LogLanguageKey.PLAYER_IN_SHOP], packet.Header);
+            logger.LogWarning(logLanguage[LogLanguageKey.PLAYER_IN_SHOP], packet.Header);
             return false;
         }
 
         var isMfa = packet is GuriPacket guri && guri.Type == GuriPacketType.TextInput && guri.Argument == 3 && guri.VisualId == 0;
         if (!session.HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0 && !isMfa)
         {
-            logger.Warning(logLanguage[LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER], packet.Header);
+            logger.LogWarning(logLanguage[LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER], packet.Header);
             return false;
         }
 
         if (session.HasSelectedCharacter && (attr.Scopes & Scope.InGame) == 0)
         {
-            logger.Warning(logLanguage[LogLanguageKey.PACKET_USED_WHILE_IN_GAME], packet.Header);
+            logger.LogWarning(logLanguage[LogLanguageKey.PACKET_USED_WHILE_IN_GAME], packet.Header);
             return false;
         }
 

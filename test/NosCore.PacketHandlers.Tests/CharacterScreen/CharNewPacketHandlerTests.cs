@@ -25,7 +25,7 @@ using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -37,7 +37,6 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private CharNewPacketHandler CharNewPacketHandler = null!;
         private ClientSession Session = null!;
         private Mock<IMapChangeService> MapChangeService = null!;
@@ -49,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             await TestHelpers.ResetAsync();
             CharNewPacketHandler =
                 new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, TestHelpers.Instance.ItemList, new Mock<ILogger>().Object);
+                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, TestHelpers.Instance.ItemList, NullLoggerFactory.Instance);
             Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
             MapChangeService = new Mock<IMapChangeService>();
             Session.ClearPlayerEntity();

@@ -6,6 +6,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Core.Configuration;
@@ -23,7 +24,7 @@ using System.Threading.Tasks;
 namespace NosCore.LoginServer
 {
     public class LoginServer(IOptions<LoginConfiguration> loginConfiguration, NetworkManager networkManager,
-            Serilog.ILogger logger, NosCoreContext context,
+            ILogger<LoginServer> logger, NosCoreContext context,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IChannelHub channelHubClient)
         : BackgroundService
     {
@@ -38,19 +39,19 @@ namespace NosCore.LoginServer
             {
                 await context.Database.MigrateAsync(stoppingToken);
                 await context.Database.GetDbConnection().OpenAsync(stoppingToken);
-                logger.Information(logLanguage[LogLanguageKey.DATABASE_INITIALIZED]);
+                logger.LogInformation(logLanguage[LogLanguageKey.DATABASE_INITIALIZED]);
             }
             catch (Exception ex)
             {
-                logger.Error(logLanguage[LogLanguageKey.DATABASE_ERROR], ex);
-                logger.Error(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
+                logger.LogError(logLanguage[LogLanguageKey.DATABASE_ERROR], ex);
+                logger.LogError(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
             var connectTask = Policy
                  .Handle<Exception>()
                  .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                      (_, __, timeSpan) =>
-                         logger.Error(
+                         logger.LogError(
                              logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
                              timeSpan.TotalSeconds)
                  ).ExecuteAsync(() => channelHubClient.Bind(channel));

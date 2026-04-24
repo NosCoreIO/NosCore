@@ -21,13 +21,13 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
     public sealed class ChangeClassHandler(
-        ILogger logger,
+        ILogger<ChangeClassHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> languageLocalizer,
         IOptions<WorldConfiguration> worldConfiguration,
         IExperienceService experienceService,
@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             var classType = (CharacterClassType)(packet.Type ?? 0);
             if ((CharacterClassType)session.Character.Class == classType)
             {
-                logger.Error(languageLocalizer[LogLanguageKey.CANT_CHANGE_SAME_CLASS]);
+                logger.LogError(languageLocalizer[LogLanguageKey.CANT_CHANGE_SAME_CLASS]);
                 return;
             }
 

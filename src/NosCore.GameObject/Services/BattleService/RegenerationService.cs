@@ -14,6 +14,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.Enumerations;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -26,7 +27,7 @@ namespace NosCore.GameObject.Services.BattleService;
 public sealed class RegenerationService(
     ISessionRegistry sessionRegistry,
     IClock clock,
-    Serilog.ILogger logger) : IRegenerationService, ISingletonService
+    ILogger<RegenerationService> logger) : IRegenerationService, ISingletonService
 {
     private static readonly Duration SittingInterval = Duration.FromMilliseconds(1500);
     private static readonly Duration StandingInterval = Duration.FromMilliseconds(2000);
@@ -109,7 +110,7 @@ public sealed class RegenerationService(
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "Regeneration tick failed for map {MapId}", mapInstance.Map.MapId);
+            logger.LogWarning(ex, "Regeneration tick failed for map {MapId}", mapInstance.Map.MapId);
         }
     }
 }

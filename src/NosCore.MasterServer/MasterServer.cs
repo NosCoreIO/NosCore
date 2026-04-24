@@ -8,7 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.MasterServer
 {
-    public class MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger logger, 
+    public class MasterServer(IOptions<MasterConfiguration> masterConfiguration, ILogger<MasterServer> logger, 
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : BackgroundService
     {
@@ -24,7 +24,7 @@ namespace NosCore.MasterServer
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            logger.Information(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
+            logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";

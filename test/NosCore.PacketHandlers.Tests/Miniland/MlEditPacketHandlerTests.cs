@@ -19,7 +19,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     [TestClass]
     public class MlEditPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<MlEditPacketHandlerTests> Logger = new Mock<ILogger<MlEditPacketHandlerTests>>().Object;
         private MlEditPacketHandler MlEditPacketHandler = null!;
         private ClientSession Session = null!;
         private IMinilandService MinilandProvider = null!;

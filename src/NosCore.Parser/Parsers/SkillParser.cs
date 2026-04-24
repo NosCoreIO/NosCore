@@ -9,7 +9,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,9 +19,10 @@ using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
     public class SkillParser(IDao<BCardDto, short> bCardDao, IDao<ComboDto, int> comboDao,
-        IDao<SkillDto, short> skillDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        IDao<SkillDto, short> skillDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        //  VNUM    {VNum}  
+        private readonly ILogger<SkillParser> _logger = loggerFactory.CreateLogger<SkillParser>();
+        //  VNUM    {VNum}
         //	NAME    {Name}
 
         //  TYPE	0	0	0	0	0	0
@@ -79,7 +80,7 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertSkillsAsync(string folder)
         {
-            var parser = BuildParser(folder).Build(logger, logLanguage);
+            var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var skills = await parser.GetDtosAsync();
 
             foreach (var skill in skills.Where(s => s.Class > 31))
@@ -111,7 +112,7 @@ namespace NosCore.Parser.Parsers
             await comboDao.TryInsertOrUpdateAsync(skills.Where(s => s.Combo != null).SelectMany(s => s.Combo));
             await bCardDao.TryInsertOrUpdateAsync(skills.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
-            logger.Information(logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
+            _logger.LogInformation(logLanguage[LogLanguageKey.SKILLS_PARSED], skills.Count);
         }
 
         private List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)

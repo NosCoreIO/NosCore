@@ -19,7 +19,7 @@ using NosCore.Networking.Encoding;
 using NosCore.Packets.Attributes;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Networking.ClientSession
 {
     public class ClientSession(
-        ILogger logger,
+        ILogger<ClientSession> logger,
         IPacketHandlerRegistry packetHandlerRegistry,
         ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey> networkingLogLanguage,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
         private readonly AsyncLock _handlingPacketLock = new();
-        private readonly ILogger _logger = logger;
+        private readonly ILogger<ClientSession> _logger = logger;
         private PlayerComponentBundle _characterBundle;
 
         public bool HasPlayerEntity =>
@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.Error(logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
+                _logger.LogError(logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
                 await pubSubHub.UnsubscribeAsync(SessionId);
                 await DisconnectAsync();
             }
@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.Information(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], ex);
+                _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], ex);
             }
             finally
             {
@@ -194,7 +194,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                     sessionRegistry.Unregister(Channel.Id);
                 }
                 await pubSubHub.UnsubscribeAsync(SessionId);
-                _logger.Information(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
+                _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }
 

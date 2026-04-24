@@ -84,7 +84,6 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterModule<NetworkingModule>();
 
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
-            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>()
                 .SingleInstance();
             containerBuilder.RegisterType<Dao<Database.Entities.Character, CharacterDto, long>>().As<IDao<CharacterDto, long>>()

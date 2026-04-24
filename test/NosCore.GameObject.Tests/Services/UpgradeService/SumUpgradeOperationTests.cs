@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
@@ -280,7 +281,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 ItemType = ItemType.Armor,
                 EquipmentSlot = equipmentSlot,
             };
-            var wearable = new WearableInstance(item, new Mock<Serilog.ILogger>().Object,
+            var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer)
             {
                 Upgrade = upgrade,

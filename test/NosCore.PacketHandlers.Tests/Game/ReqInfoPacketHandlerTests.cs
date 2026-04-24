@@ -21,7 +21,7 @@ using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Game
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             };
 
             Handler = new ReqInfoPacketHandler(
-                new Mock<ILogger>().Object,
+                new Mock<ILogger<ReqInfoPacketHandler>>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
                 NpcMonsters);

@@ -24,7 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Login;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Login
     [TestClass]
     public class NoS0575PacketHandlerSpecs
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<NoS0575PacketHandler> Logger = new Mock<ILogger<NoS0575PacketHandler>>().Object;
         private string Password = null!;
         private Mock<IAuthHub> AuthHttpClient = null!;
         private Mock<IPubSubHub> PubSubHub = null!;

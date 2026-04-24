@@ -10,13 +10,13 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
-    public class PostedPacketMessageChannelCommunicationMessageHandler(ILogger logger, IDeserializer deserializer,
+    public class PostedPacketMessageChannelCommunicationMessageHandler(ILogger<PostedPacketMessageChannelCommunicationMessageHandler> logger, IDeserializer deserializer,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<PostedPacket>
     {
         public override async Task Handle(PostedPacket postedPacket)
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     await receiverSession.SendPacketAsync(message);
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
+                    logger.LogError(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
         }

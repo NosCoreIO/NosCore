@@ -22,7 +22,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CScalcPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<CScalcPacketHandler> Logger = new Mock<ILogger<CScalcPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient = null!;
         private CScalcPacketHandler CScalcPacketHandler = null!;
         private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;

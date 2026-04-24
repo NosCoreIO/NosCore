@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Services.SaveService
             IMinilandService minilandProvider, IDao<TitleDto, Guid> titleDao,
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
-            IDao<RespawnDto, long> respawnDao, ILogger logger,
+            IDao<RespawnDto, long> respawnDao, ILogger<SaveService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : ISaveService
     {
@@ -95,7 +95,7 @@ namespace NosCore.GameObject.Services.SaveService
                     .TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
                 if (!itemInstancesSaved)
                 {
-                    logger.Error(
+                    logger.LogError(
                         new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."),
                         logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
                     return;
@@ -120,7 +120,7 @@ namespace NosCore.GameObject.Services.SaveService
                 var questsSaved = await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
                 if (!questsSaved)
                 {
-                    logger.Error(
+                    logger.LogError(
                         new InvalidOperationException("CharacterQuest upsert failed; skipping objective upsert to avoid FK cascade."),
                         logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
                     return;
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Services.SaveService
                 var objectivesDeleted = await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete);
                 if (objectivesDeleted == null)
                 {
-                    logger.Error(
+                    logger.LogError(
                         new InvalidOperationException("CharacterQuestObjective delete failed; skipping objective upsert to avoid orphaned-row conflicts on next save."),
                         logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
                     return;
@@ -162,7 +162,7 @@ namespace NosCore.GameObject.Services.SaveService
                 var objectivesSaved = await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives);
                 if (!objectivesSaved)
                 {
-                    logger.Error(
+                    logger.LogError(
                         new InvalidOperationException("CharacterQuestObjective upsert failed; quest progress will reset on reconnect."),
                         logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
                     return;
@@ -172,7 +172,7 @@ namespace NosCore.GameObject.Services.SaveService
             }
             catch (Exception e)
             {
-                logger.Error(e, logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
+                logger.LogError(e, logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
             }
         }
     }

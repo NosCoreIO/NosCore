@@ -5,7 +5,6 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
@@ -22,7 +21,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared.AutoFixture;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -34,7 +33,6 @@ namespace NosCore.Tests.Shared.BDD
         protected NosCoreFixture Fixture { get; private set; } = null!;
         protected ClientSession Session { get; set; } = null!;
         protected ItemGenerationService ItemProvider { get; set; } = null!;
-        protected ILogger Logger { get; } = new Mock<ILogger>().Object;
 
         protected List<ItemDto> DefaultItems { get; } = new()
         {
@@ -56,7 +54,7 @@ namespace NosCore.Tests.Shared.BDD
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             ItemProvider = new ItemGenerationService(
                 DefaultItems,
-                Logger,
+                NullLoggerFactory.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }
 

@@ -6,14 +6,14 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
 {
-    public class FriendHubClient(HubConnectionFactory hubConnectionFactory, ILogger logger)
+    public class FriendHubClient(HubConnectionFactory hubConnectionFactory, ILogger<FriendHubClient> logger)
         : BaseHubClient(hubConnectionFactory, nameof(FriendHub), logger), IFriendHub
     {
         public Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket) =>

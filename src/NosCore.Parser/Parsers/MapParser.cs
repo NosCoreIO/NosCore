@@ -9,7 +9,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,11 +18,12 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class MapParser(IDao<MapDto, short> mapDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class MapParser(IDao<MapDto, short> mapDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //{ID} {ID} {MapPoint} {MapPoint} {Name}
         //DATA 0
 
+        private readonly ILogger<MapParser> _logger = loggerFactory.CreateLogger<MapParser>();
         private readonly string _fileMapIdDat = $"{Path.DirectorySeparatorChar}MapIDData.dat";
         private readonly string _folderMap = $"{Path.DirectorySeparatorChar}map";
 
@@ -33,7 +34,8 @@ namespace NosCore.Parser.Parsers
                 {nameof(MapDto.MapId), chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][0])},
                 {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}
             };
-            var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList, logger, logLanguage);
+            var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList,
+                loggerFactory.CreateLogger<GenericParser<MapDto>>(), logLanguage);
             return genericParser.GetDtosAsync(" ");
         }
 
@@ -54,7 +56,7 @@ namespace NosCore.Parser.Parsers
             }).ToList();
 
             await mapDao.TryInsertOrUpdateAsync(maps);
-            logger.Information(logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
+            _logger.LogInformation(logLanguage[LogLanguageKey.MAPS_PARSED], maps.Count);
         }
     }
 }

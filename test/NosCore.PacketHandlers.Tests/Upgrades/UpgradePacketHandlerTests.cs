@@ -16,7 +16,7 @@ using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Upgrades
@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         private ClientSession _session = null!;
         private Mock<IUpgradeOperation> _matchingOperation = null!;
         private Mock<IUpgradeOperation> _otherOperation = null!;
-        private Mock<ILogger> _logger = null!;
+        private Mock<ILogger<UpgradePacketHandler>> _logger = null!;
         private UpgradePacketHandler _handler = null!;
 
         [TestInitialize]
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                 .ReturnsAsync((IReadOnlyList<IPacket>)new IPacket[0]);
             _otherOperation = new Mock<IUpgradeOperation>();
             _otherOperation.Setup(o => o.Kind).Returns(UpgradePacketType.RarifyItem);
-            _logger = new Mock<ILogger>();
+            _logger = new Mock<ILogger<UpgradePacketHandler>>();
             _handler = new UpgradePacketHandler(
                 new[] { _otherOperation.Object, _matchingOperation.Object },
                 _logger.Object,
@@ -102,6 +102,12 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         }
 
         private void WarningShouldHaveBeenLogged() =>
-            _logger.Verify(l => l.Warning(It.IsAny<string>(), It.IsAny<UpgradePacketType>()), Times.AtLeastOnce);
+            _logger.Verify(l => l.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => true),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.AtLeastOnce);
     }
 }

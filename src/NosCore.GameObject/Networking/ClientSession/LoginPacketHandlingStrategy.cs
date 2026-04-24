@@ -8,12 +8,12 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession;
 
-public class LoginPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+public class LoginPacketHandlingStrategy(ILogger<LoginPacketHandlingStrategy> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     : IPacketHandlingStrategy
 {
     public async Task HandlePacketAsync(IPacket packet, ClientSession session, bool isFromNetwork)
@@ -28,14 +28,14 @@ public class LoginPacketHandlingStrategy(ILogger logger, ILogLanguageLocalizer<L
         var attr = session.GetPacketAttribute(packet.GetType());
         if (attr != null && (attr.Scopes & Scope.OnLoginScreen) == 0)
         {
-            logger.Warning(logLanguage[LogLanguageKey.PACKET_USED_WHILE_NOT_ON_LOGIN], packet.Header);
+            logger.LogWarning(logLanguage[LogLanguageKey.PACKET_USED_WHILE_NOT_ON_LOGIN], packet.Header);
             return;
         }
 
         var handler = session.GetHandler(packet.GetType());
         if (handler == null)
         {
-            logger.Warning(logLanguage[LogLanguageKey.HANDLER_NOT_FOUND], packetHeader);
+            logger.LogWarning(logLanguage[LogLanguageKey.HANDLER_NOT_FOUND], packetHeader);
             return;
         }
 

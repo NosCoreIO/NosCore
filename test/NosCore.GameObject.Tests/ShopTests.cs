@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -182,7 +183,7 @@ namespace NosCore.GameObject.Tests
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = price, ReputPrice = reputPrice }
             };
             return new ItemGenerationService(items,
-                Logger,
+                NullLoggerFactory.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer);
         }
 

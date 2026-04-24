@@ -17,7 +17,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _killerSession = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new PlayerRevivalHandler(new Mock<ILogger>().Object);
+            _handler = new PlayerRevivalHandler(new Mock<ILogger<PlayerRevivalHandler>>().Object);
         }
 
         [TestMethod]

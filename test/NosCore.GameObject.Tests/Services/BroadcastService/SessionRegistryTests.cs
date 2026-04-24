@@ -7,7 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Services.BroadcastService;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Linq;
@@ -19,12 +19,12 @@ namespace NosCore.GameObject.Tests.Services.BroadcastService
     public class SessionRegistryTests
     {
         private ISessionRegistry Registry = null!;
-        private Mock<ILogger> MockLogger = null!;
+        private Mock<ILogger<SessionRegistry>> MockLogger = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            MockLogger = new Mock<ILogger>();
+            MockLogger = new Mock<ILogger<SessionRegistry>>();
             Registry = new SessionRegistry(MockLogger.Object);
         }
 

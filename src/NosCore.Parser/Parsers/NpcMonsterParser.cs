@@ -10,7 +10,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -50,7 +50,8 @@ namespace NosCore.Parser.Parsers
         private readonly string _fileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
         private readonly IDao<BCardDto, short> _bCardDao;
         private readonly IDao<DropDto, short> _dropDao;
-        private readonly ILogger _logger;
+        private readonly ILogger<NpcMonsterParser> _logger;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
         private readonly IDao<NpcMonsterSkillDto, long> _npcMonsterSkillDao;
         private readonly IDao<SkillDto, short> _skillDao;
@@ -63,14 +64,15 @@ namespace NosCore.Parser.Parsers
 
         public NpcMonsterParser(IDao<SkillDto, short> skillDao, IDao<BCardDto, short> bCardDao,
             IDao<DropDto, short> dropDao, IDao<NpcMonsterSkillDto, long> npcMonsterSkillDao,
-            IDao<NpcMonsterDto, short> npcMonsterDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<NpcMonsterDto, short> npcMonsterDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _skillDao = skillDao;
             _bCardDao = bCardDao;
             _dropDao = dropDao;
             _npcMonsterSkillDao = npcMonsterSkillDao;
             _npcMonsterDao = npcMonsterDao;
-            _logger = logger;
+            _loggerFactory = loggerFactory;
+            _logger = loggerFactory.CreateLogger<NpcMonsterParser>();
             _logLanguage = logLanguage;
             InitStats();
         }
@@ -276,13 +278,13 @@ namespace NosCore.Parser.Parsers
         {
             _skilldb = _skillDao.LoadAll().ToDictionary(x => x.SkillVNum, x => x);
             _dropdb = _dropDao.LoadAll().Where(x => x.MonsterVNum != null).GroupBy(x => x.MonsterVNum).ToDictionary(x => x.Key ?? 0, x => x.ToList());
-            var parser = BuildParser(folder).Build(_logger, _logLanguage);
+            var parser = BuildParser(folder).Build(_loggerFactory, _logLanguage);
             var monsters = (await parser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters);
             await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
             await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
             await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
-            _logger.Information(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
+            _logger.LogInformation(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
         }
 
         private int ImportJxp(Dictionary<string, string[][]> chunk)

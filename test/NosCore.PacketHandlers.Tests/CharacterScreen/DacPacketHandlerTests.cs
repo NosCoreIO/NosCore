@@ -17,7 +17,7 @@ using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class DacPacketHandlerTests
     {
-        private static readonly Mock<ILogger> Logger = new();
+        private static readonly Mock<ILogger<DacPacketHandler>> Logger = new();
         private DacPacketHandler DacPacketHandler = null!;
         private ClientSession Session = null!;
         private Mock<IAuthHub> AuthHttpClient = null!;
@@ -141,17 +141,38 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AlreadyConnectedErrorShouldBeLogged()
         {
-            Logger.Verify(o => o.Error(It.Is<string>(s => s == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED];
+            Logger.Verify(o => o.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString()!.Contains(expected)),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Once);
         }
 
         private void InvalidAccountErrorShouldBeLogged()
         {
-            Logger.Verify(o => o.Error(It.Is<string>(s => s == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT];
+            Logger.Verify(o => o.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString()!.Contains(expected)),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Once);
         }
 
         private void InvalidPasswordErrorShouldBeLogged()
         {
-            Logger.Verify(o => o.Error(It.Is<string>(s => s == TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD]), It.Is<It.IsAnyType>((v, t) => true)), Times.Once);
+            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD];
+            Logger.Verify(o => o.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString()!.Contains(expected)),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Once);
         }
 
         private void AccountShouldBeNull()

@@ -9,7 +9,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ShopParser(IDao<ShopDto, int> shopDao, IDao<MapNpcDto, int> mapNpcDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ShopParser(IDao<ShopDto, int> shopDao, IDao<MapNpcDto, int> mapNpcDao, ILogger<ShopParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertShopsAsync(List<string[]> packetList)
         {
@@ -64,7 +64,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await shopDao.TryInsertOrUpdateAsync(shops);
-            logger.Information(logLanguage[LogLanguageKey.SHOPS_PARSED],
+            logger.LogInformation(logLanguage[LogLanguageKey.SHOPS_PARSED],
                 shopCounter);
         }
     }

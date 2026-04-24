@@ -13,12 +13,12 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class BiPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class BiPacketHandler(ILogger<BiPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<BiPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Inventory
                 case RequestDeletionType.Confirmed:
                     if (clientSession.Character.InExchangeOrShop)
                     {
-                        logger.Error(logLanguage[LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP]);
+                        logger.LogError(logLanguage[LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP]);
                         return;
                     }
 

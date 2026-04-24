@@ -19,7 +19,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CModPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<CModPacketHandler> Logger = new Mock<ILogger<CModPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient = null!;
         private CModPacketHandler CmodPacketHandler = null!;
         private ClientSession Session = null!;

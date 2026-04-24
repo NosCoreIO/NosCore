@@ -23,13 +23,13 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class WearHandler(
-        ILogger logger,
+        ILogger<WearHandler> logger,
         IClock clock,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IOptions<WorldConfiguration> worldConfiguration)
@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             if (session.Character.InExchangeOrShop)
             {
-                logger.Error(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
+                logger.LogError(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
                 return;
             }
 

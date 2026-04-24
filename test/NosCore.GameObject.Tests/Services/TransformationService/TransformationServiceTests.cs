@@ -12,7 +12,7 @@ using NosCore.Algorithm.JobExperienceService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
     [TestClass]
     public class TransformationServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<NosCore.GameObject.Services.TransformationService.TransformationService> Logger = new Mock<ILogger<NosCore.GameObject.Services.TransformationService.TransformationService>>().Object;
         private ITransformationService Service = null!;
         private ClientSession Session = null!;
 

@@ -16,7 +16,7 @@ using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
 
-            var logger = new Mock<ILogger>().Object;
+            var logger = new Mock<ILogger<NcifPacketHandler>>().Object;
             Handler = new NcifPacketHandler(
                 logger,
                 TestHelpers.Instance.LogLanguageLocalizer,

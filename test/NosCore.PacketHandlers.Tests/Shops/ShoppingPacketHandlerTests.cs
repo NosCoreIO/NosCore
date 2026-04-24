@@ -13,7 +13,7 @@ using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private ShoppingPacketHandler Handler = null!;
         private ClientSession Session = null!;
         private Mock<IDignityService> DignityService = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<ShoppingPacketHandler> Logger = new Mock<ILogger<ShoppingPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

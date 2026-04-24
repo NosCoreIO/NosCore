@@ -9,7 +9,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class I18NParser<TDto, TPk>(IDao<TDto, TPk> dao, ILogger logger,
+    public class I18NParser<TDto, TPk>(IDao<TDto, TPk> dao, ILogger<I18NParser<TDto, TPk>> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     where TDto : II18NDto, new()
     where TPk : struct
@@ -62,14 +62,14 @@ namespace NosCore.Parser.Parsers
                     }
                     await dao.TryInsertOrUpdateAsync(dtos.Values);
 
-                    logger.Information(
+                    logger.LogInformation(
                         logLanguage[logLanguageKey],
                         dtos.Count,
                         region);
                 }
                 catch (FileNotFoundException)
                 {
-                    logger.Warning(logLanguage[LogLanguageKey.LANGUAGE_MISSING]);
+                    logger.LogWarning(logLanguage[LogLanguageKey.LANGUAGE_MISSING]);
                 }
             }));
         }

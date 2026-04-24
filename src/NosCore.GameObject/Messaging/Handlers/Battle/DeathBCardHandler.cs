@@ -14,12 +14,12 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
     [UsedImplicitly]
-    public sealed class DeathBCardHandler(INpcCombatCatalog catalog, ILogger logger)
+    public sealed class DeathBCardHandler(INpcCombatCatalog catalog, ILogger<DeathBCardHandler> logger)
     {
         [UsedImplicitly]
         public async Task Handle(EntityDiedEvent evt)
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             }
             catch (Exception ex)
             {
-                logger.Warning(ex, "Failed to broadcast death-BCard stat update for character {CharacterId}",
+                logger.LogWarning(ex, "Failed to broadcast death-BCard stat update for character {CharacterId}",
                     killer.CharacterId);
             }
         }

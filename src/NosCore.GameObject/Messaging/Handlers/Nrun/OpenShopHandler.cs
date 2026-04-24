@@ -13,12 +13,12 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class OpenShopHandler(ILogger logger) : INrunEventHandler
+    public sealed class OpenShopHandler(ILogger<OpenShopHandler> logger) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.ProbabilityUIs;
 
@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             var raw = (byte)(packet.Type ?? 0);
             if (!Enum.IsDefined(typeof(WindowType), raw))
             {
-                logger.Warning(
+                logger.LogWarning(
                     "n_run ProbabilityUIs requested unknown WindowType={Raw} (NPC visualId={VisualId}); extend WindowType or add a mapping",
                     raw,
                     npc.VisualId);

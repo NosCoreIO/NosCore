@@ -20,14 +20,14 @@ using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Exchange
 {
-    public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger logger,
+    public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger<ExchangeRequestPackettHandler> logger,
             IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
@@ -42,13 +42,13 @@ namespace NosCore.PacketHandlers.Exchange
             if (hasTarget && ((packet.RequestType == RequestExchangeType.Confirmed) ||
                 (packet.RequestType == RequestExchangeType.Cancelled)))
             {
-                logger.Error(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
+                logger.LogError(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                 return;
             }
 
             if (clientSession.Character.InShop || (hasTarget && target.InShop))
             {
-                logger.Error(logLanguage[LogLanguageKey.PLAYER_IN_SHOP]);
+                logger.LogError(logLanguage[LogLanguageKey.PLAYER_IN_SHOP]);
                 return;
             }
 
@@ -159,14 +159,14 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (!targetId.HasValue)
                     {
-                        logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                        logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                         return;
                     }
 
                     if (!sessionRegistry.TryGetCharacter(s =>
                         (s.VisualId == targetId.Value) && (s.MapInstance == clientSession.Character.MapInstance), out var exchangeTarget))
                     {
-                        logger.Error(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
+                        logger.LogError(logLanguage[LogLanguageKey.CANT_FIND_CHARACTER]);
                         return;
                     }
 
@@ -198,7 +198,7 @@ namespace NosCore.PacketHandlers.Exchange
                             }
                             else
                             {
-                                logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                                logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                             }
                         }
                     }
@@ -243,7 +243,7 @@ namespace NosCore.PacketHandlers.Exchange
                     var cancelId = exchangeService.GetTargetId(clientSession.Character.CharacterId);
                     if (!cancelId.HasValue)
                     {
-                        logger.Error(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
+                        logger.LogError(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
                         return;
                     }
 

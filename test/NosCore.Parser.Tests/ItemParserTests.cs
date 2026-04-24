@@ -14,7 +14,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +26,6 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ItemParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<ItemDto, short>> _itemDaoMock = null!;
         private Mock<IDao<BCardDto, short>> _bCardDaoMock = null!;
@@ -37,7 +36,6 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _itemDaoMock = new Mock<IDao<ItemDto, short>>();
             _bCardDaoMock = new Mock<IDao<BCardDto, short>>();
@@ -106,7 +104,7 @@ namespace NosCore.Parser.Tests
             var content = CreateItemData(vnum: 1, price: 500, name: "Sword");
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -123,7 +121,7 @@ namespace NosCore.Parser.Tests
                           CreateItemData(vnum: 3, name: "Item3");
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(3, _savedItems.Count);
@@ -136,7 +134,7 @@ namespace NosCore.Parser.Tests
                           CreateItemData(vnum: 1, name: "Item1Duplicate");
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -157,7 +155,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -180,7 +178,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -199,7 +197,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -215,7 +213,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -233,7 +231,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -245,7 +243,7 @@ namespace NosCore.Parser.Tests
         {
             CreateTestFile("");
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(0, _savedItems.Count);
@@ -261,7 +259,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -281,7 +279,7 @@ namespace NosCore.Parser.Tests
             );
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -301,7 +299,7 @@ namespace NosCore.Parser.Tests
                 data: "15\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -322,7 +320,7 @@ namespace NosCore.Parser.Tests
                 data: "42\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -336,7 +334,7 @@ namespace NosCore.Parser.Tests
             var content = CreateItemData(vnum: 5119);
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);
@@ -351,7 +349,7 @@ namespace NosCore.Parser.Tests
                           CreateItemData(vnum: 181);
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(3, _savedItems.Count);
@@ -371,7 +369,7 @@ namespace NosCore.Parser.Tests
                           CreateItemData(vnum: 4105, indexType: 4, equipmentSlot: 11);
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(2, _savedItems.Count);
@@ -393,7 +391,7 @@ namespace NosCore.Parser.Tests
                 data: "0\t0\t99\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0");
             CreateTestFile(content);
 
-            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedItems.Count);

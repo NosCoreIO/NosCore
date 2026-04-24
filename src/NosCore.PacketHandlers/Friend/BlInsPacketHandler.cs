@@ -14,12 +14,12 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlInsPackettHandler(IBlacklistHub blacklistHttpClient, ILogger logger,
+    public class BlInsPackettHandler(IBlacklistHub blacklistHttpClient, ILogger<BlInsPackettHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Friend
                     await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient));
                     break;
                 default:
-                    logger.Warning(logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);
+                    logger.LogWarning(logLanguage[LogLanguageKey.FRIEND_REQUEST_DISCONNECTED]);
                     break;
             }
         }

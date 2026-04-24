@@ -15,13 +15,13 @@ using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class DacPacketHandler(IDao<AccountDto, long> accountDao,
-            ILogger logger, IAuthHub authHttpClient,
+            ILogger<DacPacketHandler> logger, IAuthHub authHttpClient,
             IPubSubHub pubSubHub, ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<DacPacket>, IWorldPacketHandler
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             await clientSession.HandlePacketsAsync(new[] { new SelectPacket { Slot = packet.Slot } })
                 ;
 
-            logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
+            logger.LogInformation(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                 clientSession.Account.Name);
         }
     }

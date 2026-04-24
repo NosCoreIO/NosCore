@@ -12,13 +12,13 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Login
 {
     public class NoS0575PacketHandler(ILoginService loginService, IOptions<LoginConfiguration> loginConfiguration,
-            ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogger<NoS0575PacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<NoS0575Packet>, ILoginPacketHandler
     {
         public override Task ExecuteAsync(NoS0575Packet packet, ClientSession clientSession)
@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Login
                     false, packet.RegionType);
             }
 
-            logger.Warning(logLanguage[LogLanguageKey.TRY_OLD_AUTH], packet.Username);
+            logger.LogWarning(logLanguage[LogLanguageKey.TRY_OLD_AUTH], packet.Username);
             return Task.CompletedTask;
 
         }

@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +23,6 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class SkillParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<SkillDto, short>> _skillDaoMock = null!;
         private Mock<IDao<BCardDto, short>> _bCardDaoMock = null!;
@@ -36,7 +35,6 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _skillDaoMock = new Mock<IDao<SkillDto, short>>();
             _bCardDaoMock = new Mock<IDao<BCardDto, short>>();
@@ -129,7 +127,7 @@ namespace NosCore.Parser.Tests
             var content = CreateSkillData(skillVNum: 1, name: "Fireball", mpCost: 50, cooldown: 10);
             CreateTestFile(content);
 
-            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertSkillsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedSkills.Count);
@@ -147,7 +145,7 @@ namespace NosCore.Parser.Tests
                           CreateSkillData(skillVNum: 3, name: "Skill3");
             CreateTestFile(content);
 
-            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertSkillsAsync(_tempFolder);
 
             Assert.AreEqual(3, _savedSkills.Count);
@@ -159,7 +157,7 @@ namespace NosCore.Parser.Tests
             var content = CreateSkillData(skillVNum: 1, targetType: 1, hitType: 2, range: 5, targetRange: 3);
             CreateTestFile(content);
 
-            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertSkillsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedSkills.Count);
@@ -175,7 +173,7 @@ namespace NosCore.Parser.Tests
             var content = CreateSkillData(skillVNum: 1, element: 2);
             CreateTestFile(content);
 
-            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertSkillsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedSkills.Count);
@@ -187,7 +185,7 @@ namespace NosCore.Parser.Tests
         {
             CreateTestFile("");
 
-            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object, _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertSkillsAsync(_tempFolder);
 
             Assert.AreEqual(0, _savedSkills.Count);

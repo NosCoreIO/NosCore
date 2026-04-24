@@ -21,7 +21,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Text;
@@ -30,7 +30,7 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class WhisperPacketHandler(ILogger logger, ISerializer packetSerializer,
+    public class WhisperPacketHandler(ILogger<WhisperPacketHandler> logger, ISerializer packetSerializer,
             IBlacklistHub blacklistHttpClient,
              IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Chat
             }
             catch (Exception e)
             {
-                logger.Error("Whisper failed.", e);
+                logger.LogError(e, "Whisper failed.");
             }
         }
     }

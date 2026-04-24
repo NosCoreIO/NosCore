@@ -6,14 +6,14 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub
 {
-    public class BlacklistHubClient(HubConnectionFactory hubConnectionFactory, ILogger logger)
+    public class BlacklistHubClient(HubConnectionFactory hubConnectionFactory, ILogger<BlacklistHubClient> logger)
         : BaseHubClient(hubConnectionFactory, nameof(BlacklistHub), logger), IBlacklistHub
     {
         public Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest) =>

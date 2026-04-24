@@ -9,7 +9,7 @@ using Moq;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -20,14 +20,12 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class FluentParserBuilderTests
     {
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private string _tempFolder = null!;
 
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _tempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
             Directory.CreateDirectory(_tempFolder);
@@ -59,7 +57,7 @@ namespace NosCore.Parser.Tests
                 .Field(x => x.Id, chunk => Convert.ToInt32(chunk["VNUM"][0][1]))
                 .Field(x => x.Price, chunk => Convert.ToInt64(chunk["VNUM"][0][2]))
                 .Field(x => x.Name, chunk => chunk["NAME"][0][1])
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -78,7 +76,7 @@ namespace NosCore.Parser.Tests
             var parser = FluentParserBuilder<TestDto>.Create(filePath, "END", 0)
                 .Field(x => x.Id, "VNUM", 0, 1)
                 .Field(x => x.Price, "VNUM", 0, 2)
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -95,7 +93,7 @@ namespace NosCore.Parser.Tests
 
             var parser = FluentParserBuilder<TestDto>.Create(filePath, "END", 0)
                 .Field(x => x.Name, "DATA", 0, 1, s => s.Replace("_", " "))
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -113,7 +111,7 @@ namespace NosCore.Parser.Tests
                 .WithSplitter(" ")
                 .Field(x => x.Id, "VNUM", 0, 1)
                 .Field(x => x.Price, "VNUM", 0, 2)
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -130,7 +128,7 @@ namespace NosCore.Parser.Tests
 
             var parser = FluentParserBuilder<TestDtoWithBool>.Create(filePath, "END", 0)
                 .Field(x => x.IsActive, "DATA", 0, 1)
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -146,7 +144,7 @@ namespace NosCore.Parser.Tests
 
             var parser = FluentParserBuilder<TestDtoWithEnum>.Create(filePath, "END", 0)
                 .Field(x => x.Status, "DATA", 0, 1)
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -162,7 +160,7 @@ namespace NosCore.Parser.Tests
 
             var parser = FluentParserBuilder<TestDto>.Create(filePath, "END", 0)
                 .Field(x => x.Id, "VNUM", 0, 1)
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 
@@ -177,7 +175,7 @@ namespace NosCore.Parser.Tests
 
             var parser = FluentParserBuilder<TestDto>.Create(filePath, "END", 0)
                 .Field(x => x.Id, CalculateSum)
-                .Build(_loggerMock.Object, _logLanguageMock.Object);
+                .Build(NullLoggerFactory.Instance, _logLanguageMock.Object);
 
             var results = await parser.GetDtosAsync();
 

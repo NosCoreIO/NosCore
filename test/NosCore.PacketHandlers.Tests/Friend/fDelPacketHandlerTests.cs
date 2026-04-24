@@ -21,7 +21,7 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -35,7 +35,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FDelPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private Mock<IChannelHub> ChannelHttpClient = null!;
         private Mock<IDao<CharacterDto, long>> CharacterDao = null!;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
@@ -65,9 +64,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 });
             FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
             FDelPacketHandler = new FdelPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer, new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger));
+                TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer, new NosCore.GameObject.Services.BroadcastService.SessionRegistry(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance));
             CharacterDao = new Mock<IDao<CharacterDto, long>>();
-            FriendController = new FriendService(Logger, CharacterRelationDao, CharacterDao.Object,
+            FriendController = new FriendService(NullLogger<FriendService>.Instance, CharacterRelationDao, CharacterDao.Object,
                 new FriendRequestRegistry(), ConnectedAccountHttpClient.Object, ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => FriendController.GetFriendsAsync(id));

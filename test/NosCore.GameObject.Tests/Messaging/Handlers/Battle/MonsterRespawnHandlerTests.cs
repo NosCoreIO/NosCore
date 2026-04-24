@@ -11,7 +11,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Battle;
 using NosCore.GameObject.Services.BattleService;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
 {
@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             // Passing a non-monster victim should be a no-op (no aggro clear either,
             // since the player doesn't own monster aggro state).
             var aggro = new Mock<IAggroService>();
-            var handler = new MonsterRespawnHandler(aggro.Object, new Mock<ILogger>().Object);
+            var handler = new MonsterRespawnHandler(aggro.Object, new Mock<ILogger<MonsterRespawnHandler>>().Object);
 
             var playerVictim = new Mock<IAliveEntity>().Object;
             var killer = new Mock<IAliveEntity>().Object;

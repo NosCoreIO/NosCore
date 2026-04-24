@@ -25,7 +25,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             _handler = new WearHandler(
-                new Mock<ILogger>().Object,
+                new Mock<ILogger<WearHandler>>().Object,
                 TestHelpers.Instance.Clock,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.WorldConfiguration);

@@ -24,7 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.AutoFixture;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FinsPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry> Logger = new Mock<ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>>().Object;
         private NosCoreFixture Fixture = null!;
         private readonly Mock<IChannelHub> ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private FriendService CreateFriendService()
         {
             return new FriendService(
-                new Mock<ILogger>().Object,
+                new Mock<ILogger<FriendService>>().Object,
                 CharacterRelationDao,
                 TestHelpers.Instance.CharacterDao,
                 FriendRequestHolder,

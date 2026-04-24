@@ -10,7 +10,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -25,13 +25,13 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService
     {
         private readonly IPubSubHubClient _pubSubHubClient;
         private readonly Dictionary<Type, IChannelCommunicationMessageHandler<IMessage>> _handlers;
-        private readonly ILogger _logger;
+        private readonly ILogger<ChannelCommunicationRunner> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public ChannelCommunicationRunner(
             IPubSubHubClient pubSubHubClient,
             IEnumerable<IChannelCommunicationMessageHandler<IMessage>> handlers,
-            ILogger logger,
+            ILogger<ChannelCommunicationRunner> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _pubSubHubClient = pubSubHubClient;
@@ -56,12 +56,12 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService
                     }
                     else
                     {
-                        _logger.Warning(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
+                        _logger.LogWarning(_logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     }
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex, _logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR]);
+                    _logger.LogError(ex, _logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR]);
                 }
             });
         }

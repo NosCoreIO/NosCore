@@ -17,12 +17,12 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class BuyPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+    public class BuyPacketHandler(ILogger<BuyPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Shops
                     break;
 
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         buyPacket.VisualType);
                     return Task.CompletedTask;
             }
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Shops
                 return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration, itemProvider, gameLanguageLocalizer);
             }
 
-            logger.Error(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
+            logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
             return Task.CompletedTask;
 
         }

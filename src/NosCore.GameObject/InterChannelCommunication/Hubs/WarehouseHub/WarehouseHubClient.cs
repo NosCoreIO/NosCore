@@ -6,14 +6,14 @@
 
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
 {
-    public class WarehouseHubClient(HubConnectionFactory hubConnectionFactory, ILogger logger)
+    public class WarehouseHubClient(HubConnectionFactory hubConnectionFactory, ILogger<WarehouseHubClient> logger)
         : BaseHubClient(hubConnectionFactory, nameof(WarehouseHub), logger), IWarehouseHub
     {
         public Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) =>

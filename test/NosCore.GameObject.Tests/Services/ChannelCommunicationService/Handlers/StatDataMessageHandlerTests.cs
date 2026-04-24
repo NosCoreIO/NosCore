@@ -21,7 +21,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         private StatDataMessageChannelCommunicationMessageHandler Handler = null!;
         private ClientSession Session = null!;
         private Mock<ISessionRegistry> SessionRegistry = null!;
-        private Mock<ILogger> Logger = null!;
+        private Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>> Logger = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
         private IOptions<WorldConfiguration> WorldConfig = null!;
         private Mock<IExperienceService> ExperienceService = null!;
@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
-            Logger = new Mock<ILogger>();
+            Logger = new Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>>();
             LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             WorldConfig = Options.Create(new WorldConfiguration { MaxGoldAmount = 999999999 });
             ExperienceService = new Mock<IExperienceService>();
@@ -135,7 +135,13 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void ShouldLogError()
         {
-            Logger.Verify(x => x.Error(It.IsAny<string>()), Times.Once);
+            Logger.Verify(x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => true),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Once);
         }
     }
 }

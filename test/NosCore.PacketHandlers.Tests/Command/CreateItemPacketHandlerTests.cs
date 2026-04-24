@@ -19,7 +19,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         private ClientSession Session = null!;
         private List<ItemDto> Items = null!;
         private Mock<IItemGenerationService> ItemProvider = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<CreateItemPackettHandler> Logger = new Mock<ILogger<CreateItemPackettHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

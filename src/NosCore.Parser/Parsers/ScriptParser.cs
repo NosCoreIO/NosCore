@@ -8,7 +8,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ScriptParser(IDao<ScriptDto, Guid> scriptDao, ILogger<ScriptParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //script {ScriptId}	
         //{ScriptStepId}	{StepType} {Argument}
@@ -61,7 +61,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await scriptDao.TryInsertOrUpdateAsync(scripts);
-            logger.Information(logLanguage[LogLanguageKey.SCRIPTS_PARSED], scripts.Count);
+            logger.LogInformation(logLanguage[LogLanguageKey.SCRIPTS_PARSED], scripts.Count);
         }
     }
 }

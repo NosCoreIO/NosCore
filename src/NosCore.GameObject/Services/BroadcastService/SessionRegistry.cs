@@ -8,7 +8,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Interfaces;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.BroadcastService
 {
-    public class SessionRegistry(ILogger logger) : ISessionRegistry
+    public class SessionRegistry(ILogger<SessionRegistry> logger) : ISessionRegistry
     {
         private readonly ConcurrentDictionary<string, SessionInfo> _sessionsByChannelId = new();
         private readonly ConcurrentDictionary<long, string> _channelIdByCharacterId = new();
@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Services.BroadcastService
                 }
                 catch (Exception ex)
                 {
-                    logger.Warning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
+                    logger.LogWarning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
                 }
             });
             await Task.WhenAll(tasks);
@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Services.BroadcastService
                     }
                     catch (Exception ex)
                     {
-                        logger.Warning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
+                        logger.LogWarning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
                     }
                 });
             await Task.WhenAll(tasks);

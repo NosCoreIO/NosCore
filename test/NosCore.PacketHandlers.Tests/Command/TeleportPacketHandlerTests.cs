@@ -12,7 +12,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         private ClientSession Session = null!;
         private ClientSession TargetSession = null!;
         private Mock<IMapChangeService> MapChangeService = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<TeleportPacketHandler> Logger = new Mock<ILogger<TeleportPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

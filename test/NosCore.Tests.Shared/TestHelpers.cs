@@ -74,7 +74,8 @@ using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -99,7 +100,6 @@ namespace NosCore.Tests.Shared
 
         private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao = null!;
         private IDao<IItemInstanceDto?, Guid> ItemInstanceDao = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
         private IDao<MapMonsterDto, int> MapMonsterDao = null!;
         private IDao<MapNpcDto, int> MapNpcDao = null!;
         private IDao<PortalDto, int> PortalDao = null!;
@@ -110,7 +110,7 @@ namespace NosCore.Tests.Shared
         public Mock<IChannelHub> ChannelHttpClient = new();
         public Mock<IPubSubHub> PubSubHub = new();
         public Mock<IFriendHub> FriendHttpClient = new();
-        public NosCore.GameObject.Services.BroadcastService.SessionRegistry SessionRegistry = new(new Mock<ILogger>().Object);
+        public NosCore.GameObject.Services.BroadcastService.SessionRegistry SessionRegistry = new(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance);
         public FakeClock Clock = new(Instant.FromUtc(2021, 01, 01, 01, 01, 01));
         public ISessionGroupFactory SessionGroupFactory { get; private set; } = null!;
         private TestHelpers()
@@ -246,25 +246,25 @@ namespace NosCore.Tests.Shared
             var minilandServiceMock = new Mock<IMinilandService>();
             minilandServiceMock.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
             MapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, Logger, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object);
+                MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, NullLogger<MapChangeService>.Instance, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object);
             var mapChangeService = MapChangeService;
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,
                 MapNpcDao,
-                MapMonsterDao, PortalDao, ShopItemDao, Logger,
+                MapMonsterDao, PortalDao, ShopItemDao, NullLoggerFactory.Instance,
                 mapInstanceRegistry, MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, mapChangeService, SessionGroupFactory, SessionRegistry, GenerateItemProvider(), Instance.DistanceCalculator,
                 new Mock<NosCore.GameObject.Services.BattleService.IMonsterAi>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IRegenerationService>().Object);
             await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
-                MapInstanceType.NormalInstance, MapItemProvider, Logger, Clock, mapChangeService, SessionGroupFactory, SessionRegistry, Instance.DistanceCalculator));
+                MapInstanceType.NormalInstance, MapItemProvider, NullLogger<MapInstance>.Instance, Clock, mapChangeService, SessionGroupFactory, SessionRegistry, Instance.DistanceCalculator));
             MapInstanceGeneratorService = instanceGeneratorService;
         }
 
         public IItemGenerationService GenerateItemProvider()
         {
-            return new ItemGenerationService(ItemList, Logger, Instance.LogLanguageLocalizer);
+            return new ItemGenerationService(ItemList, NullLoggerFactory.Instance, Instance.LogLanguageLocalizer);
         }
 
         public void InitDatabase()
@@ -272,19 +272,19 @@ namespace NosCore.Tests.Shared
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                 Guid.NewGuid().ToString());
             DbContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
-            CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(Logger, ContextBuilder);
-            AccountDao = new Dao<Account, AccountDto, long>(Logger, ContextBuilder);
-            MateDao = new Dao<Mate, MateDto, long>(Logger, ContextBuilder);
-            PortalDao = new Dao<Portal, PortalDto, int>(Logger, ContextBuilder);
-            MapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(Logger, ContextBuilder);
-            MapNpcDao = new Dao<MapNpc, MapNpcDto, int>(Logger, ContextBuilder);
-            MinilandDao = new Dao<Miniland, MinilandDto, Guid>(Logger, ContextBuilder);
-            MinilandObjectDao = new Dao<MinilandObject, MinilandObjectDto, Guid>(Logger, ContextBuilder);
-            ShopItemDao = new Dao<ShopItem, ShopItemDto, int>(Logger, ContextBuilder);
-            CharacterDao = new Dao<Character, CharacterDto, long>(Logger, ContextBuilder);
-            ItemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(Logger, ContextBuilder);
-            InventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(Logger, ContextBuilder);
-            StaticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(Logger, ContextBuilder);
+            CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(NullLogger<Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>>.Instance, ContextBuilder);
+            AccountDao = new Dao<Account, AccountDto, long>(NullLogger<Dao<Account, AccountDto, long>>.Instance, ContextBuilder);
+            MateDao = new Dao<Mate, MateDto, long>(NullLogger<Dao<Mate, MateDto, long>>.Instance, ContextBuilder);
+            PortalDao = new Dao<Portal, PortalDto, int>(NullLogger<Dao<Portal, PortalDto, int>>.Instance, ContextBuilder);
+            MapMonsterDao = new Dao<MapMonster, MapMonsterDto, int>(NullLogger<Dao<MapMonster, MapMonsterDto, int>>.Instance, ContextBuilder);
+            MapNpcDao = new Dao<MapNpc, MapNpcDto, int>(NullLogger<Dao<MapNpc, MapNpcDto, int>>.Instance, ContextBuilder);
+            MinilandDao = new Dao<Miniland, MinilandDto, Guid>(NullLogger<Dao<Miniland, MinilandDto, Guid>>.Instance, ContextBuilder);
+            MinilandObjectDao = new Dao<MinilandObject, MinilandObjectDto, Guid>(NullLogger<Dao<MinilandObject, MinilandObjectDto, Guid>>.Instance, ContextBuilder);
+            ShopItemDao = new Dao<ShopItem, ShopItemDto, int>(NullLogger<Dao<ShopItem, ShopItemDto, int>>.Instance, ContextBuilder);
+            CharacterDao = new Dao<Character, CharacterDto, long>(NullLogger<Dao<Character, CharacterDto, long>>.Instance, ContextBuilder);
+            ItemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, ContextBuilder);
+            InventoryItemInstanceDao = new Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>(NullLogger<Dao<InventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, ContextBuilder);
+            StaticBonusDao = new Dao<StaticBonus, StaticBonusDto, long>(NullLogger<Dao<StaticBonus, StaticBonusDto, long>>.Instance, ContextBuilder);
             TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
         }
@@ -299,28 +299,28 @@ namespace NosCore.Tests.Shared
             var handlers = packetHandlers ?? new List<IPacketHandler>
             {
                 new CharNewPacketHandler(CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                        new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, Logger),
-                new BlInsPackettHandler(BlacklistHttpClient.Object, Logger, Instance.LogLanguageLocalizer),
+                        new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, NullLoggerFactory.Instance),
+                new BlInsPackettHandler(BlacklistHttpClient.Object, NullLogger<BlInsPackettHandler>.Instance, Instance.LogLanguageLocalizer),
                 new UseItemPacketHandler(new Mock<Wolverine.IMessageBus>().Object),
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
-                new SelectPacketHandler(CharacterDao, Logger, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
+                new SelectPacketHandler(CharacterDao, NullLogger<SelectPacketHandler>.Instance, NullLoggerFactory.Instance, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                     new Mock<IDao<CharacterQuestObjectiveDto, Guid>>().Object,
                     new Mock<IDao<RespawnDto, long>>().Object, new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), SessionGroupFactory, new CharacterInitializationService(), new Mock<Wolverine.IMessageBus>().Object),
                 new CSkillPacketHandler(Instance.Clock),
-                new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, Logger, ItemInstanceDao, Instance.LogLanguageLocalizer),
+                new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer),
                 new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
-                new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, Logger, ItemInstanceDao, Instance.LogLanguageLocalizer)
+                new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CScalcPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer)
             };
             var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(handlers);
             var session = new ClientSession(
-                Logger,
+                NullLogger<ClientSession>.Instance,
                 packetHandlerRegistry,
                 new Mock<ILogLanguageLocalizer<NosCore.Networking.Resource.LogLanguageKey>>().Object,
                 Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.PubSubHub.Object,
                 new Mock<IEncoder>().Object,
-                new WorldPacketHandlingStrategy(Logger, Instance.LogLanguageLocalizer, sessionRefHolder),
+                new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance, Instance.LogLanguageLocalizer, sessionRefHolder),
                 new List<ISessionDisconnectHandler>(),
                 Instance.SessionRegistry,
                 Instance.GameLanguageLocalizer)
@@ -392,7 +392,7 @@ namespace NosCore.Tests.Shared
 
             var now = Instance.Clock.GetCurrentInstant();
             var group = new GameObject.Services.GroupService.Group(NosCore.Data.Enumerations.Group.GroupType.Group, SessionGroupFactory);
-            var inventoryService = new InventoryService(ItemList, WorldConfiguration, Logger);
+            var inventoryService = new InventoryService(ItemList, WorldConfiguration, NullLogger<InventoryService>.Instance);
             var playerStateComponent = new GameObject.Ecs.Components.PlayerStateComponent(
                 characterDto,
                 acc,

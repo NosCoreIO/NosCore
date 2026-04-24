@@ -21,7 +21,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -37,7 +37,6 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private ClientSession TargetSession = null!;
         private Mock<IExchangeService> ExchangeService = null!;
         private ItemGenerationService ItemProvider = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -54,11 +53,11 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 new Item { Type = NoscorePocketType.Main, VNum = 1013, IsTradable = false }
             };
             ItemProvider = new ItemGenerationService(items,
-                Logger, TestHelpers.Instance.LogLanguageLocalizer);
+                NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Handler = new ExcListPacketHandler(
                 ExchangeService.Object,
-                Logger,
+                NullLogger<ExcListPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry);
         }

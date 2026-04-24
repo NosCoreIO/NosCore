@@ -7,13 +7,13 @@
 using Json.Patch;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub
 {
-    public class MailHubClient(HubConnectionFactory hubConnectionFactory, ILogger logger)
+    public class MailHubClient(HubConnectionFactory hubConnectionFactory, ILogger<MailHubClient> logger)
         : BaseHubClient(hubConnectionFactory, nameof(MailHub), logger), IMailHub
     {
         public Task<List<MailData>> GetMails(long id, long characterId, bool senderCopy) =>

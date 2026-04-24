@@ -16,12 +16,12 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.PacketHandlers.Shops
 {
     public class NrunPacketHandler(
-            ILogger logger,
+            ILogger<NrunPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry,
             IEnumerable<INrunEventHandler> handlers)
@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Shops
             var handler = handlers.FirstOrDefault(h => h.Runner == packet.Runner);
             if (handler is null)
             {
-                logger.Debug("Unhandled n_run runner {Runner}", packet.Runner);
+                logger.LogDebug("Unhandled n_run runner {Runner}", packet.Runner);
                 return Task.CompletedTask;
             }
 
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Shops
                     target = null;
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.Type);
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.Type);
                     return Task.CompletedTask;
             }
 
