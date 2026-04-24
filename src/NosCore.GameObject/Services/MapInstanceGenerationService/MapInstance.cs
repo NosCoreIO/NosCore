@@ -388,7 +388,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             {
                 Type = 0,
                 Id = Map.MapId,
-                MapType = enter
+                IsEntering = enter
             };
         }
 
