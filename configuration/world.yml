@@ -211,11 +211,12 @@ BasicEquipments:
   MartialArtist:
     Create80: []
 BasicSkills:
+  # 200 / 201 / 209 (Adventurer primary / secondary / Pet Catcher) are seeded
+  # unconditionally for every new character in CharNewPacketHandler — matches
+  # vanosilla's hard-coded BaseSkill list — and must not live here, otherwise
+  # a JSON misedit could create characters without the capture slot working.
   Adventurer:
-    CreateAndUpgrade:
-    - 200
-    - 201
-    - 209
+    CreateAndUpgrade: []
   Swordsman:
     CreateAndUpgrade: []
     Create56:
