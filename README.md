@@ -57,3 +57,15 @@ We recommend usage of :
 ## 4. Start services ##
 - script to start services are in .\scripts 
 
+## 5. (Optional) Local NuGet packages ##
+Every NosCore repo ships a `Directory.Build.props` that adds a NuGet source when the `NOSCORE_LOCAL_PACKAGES` environment variable is set — useful for testing an un-released `NosCore.Packets` / `NosCore.Dao` / `NosCore.Shared` build without publishing it.
+
+One-time setup (run once per machine):
+```
+setx NOSCORE_LOCAL_PACKAGES C:\LocalPackages
+mkdir C:\LocalPackages
+```
+Restart Visual Studio / your shell so the new variable is picked up.
+
+Drop any `.nupkg` file into that folder, then restore as usual. If the variable is unset the property group is skipped and only nuget.org is used — no action needed for contributors who don't want local packages.
+

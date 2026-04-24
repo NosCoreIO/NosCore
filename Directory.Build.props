@@ -4,4 +4,7 @@
     <Nullable>enable</Nullable>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(NOSCORE_LOCAL_PACKAGES)' != ''">
+    <RestoreAdditionalProjectSources>$(RestoreAdditionalProjectSources);$(NOSCORE_LOCAL_PACKAGES)</RestoreAdditionalProjectSources>
+  </PropertyGroup>
 </Project>
