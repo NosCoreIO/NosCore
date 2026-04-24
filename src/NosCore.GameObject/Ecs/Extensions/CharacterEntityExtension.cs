@@ -58,14 +58,14 @@ namespace NosCore.GameObject.Ecs.Extensions
            "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public static IEnumerable<IPacket> GenerateInv(this ICharacterEntity characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
         {
-            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv9 = new InvPacket { Type = (PocketType)NoscorePocketType.Mount, IvnSubPackets = new List<IvnSubPacket?>() };
-            var inv10 = new InvPacket { Type = (PocketType)NoscorePocketType.Raid, IvnSubPackets = new List<IvnSubPacket?>() };
+            var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv2 = new InvPacket { Type = PocketType.Etc, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv9 = new InvPacket { Type = (PocketType)NoscorePocketType.Mount, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv10 = new InvPacket { Type = (PocketType)NoscorePocketType.Raid, IvnSubPackets = new List<IvnSubPacket>() };
 
             if (characterEntity.InventoryService == null)
             {

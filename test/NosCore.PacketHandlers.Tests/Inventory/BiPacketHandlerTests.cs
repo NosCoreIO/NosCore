@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             var packet = GetLastPacket<IvnPacket>();
             Assert.IsNotNull(packet);
-            Assert.IsTrue(packet.IvnSubPackets?.All(iv => iv?.Slot == 0 && iv.VNum == -1) ?? false);
+            Assert.IsTrue(packet.IvnSubPackets?.All(iv => iv.Slot == 0 && iv.VNum == 0) ?? false);
         }
 
         private void AnEquipmentItemInSlot_(int value)
