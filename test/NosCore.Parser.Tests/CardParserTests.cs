@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +23,6 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class CardParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<CardDto, short>> _cardDaoMock = null!;
         private Mock<IDao<BCardDto, short>> _bCardDaoMock = null!;
@@ -34,7 +33,6 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _cardDaoMock = new Mock<IDao<CardDto, short>>();
             _bCardDaoMock = new Mock<IDao<BCardDto, short>>();
@@ -99,7 +97,7 @@ namespace NosCore.Parser.Tests
             var content = CreateCardData(cardId: 1, name: "Buff1", level: 5, duration: 100);
             CreateTestFile(content);
 
-            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedCards.Count);
@@ -117,7 +115,7 @@ namespace NosCore.Parser.Tests
                           CreateCardData(cardId: 3, name: "Buff3");
             CreateTestFile(content);
 
-            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(3, _savedCards.Count);
@@ -130,7 +128,7 @@ namespace NosCore.Parser.Tests
                           CreateCardData(cardId: 1, name: "Buff1Duplicate");
             CreateTestFile(content);
 
-            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedCards.Count);
@@ -142,7 +140,7 @@ namespace NosCore.Parser.Tests
             var content = CreateCardData(cardId: 1, delay: 500);
             CreateTestFile(content);
 
-            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedCards.Count);
@@ -154,7 +152,7 @@ namespace NosCore.Parser.Tests
         {
             CreateTestFile("");
 
-            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(0, _savedCards.Count);

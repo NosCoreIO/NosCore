@@ -12,12 +12,12 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class ClientDirPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ClientDirPacketHandler(ILogger<ClientDirPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<ClientDirPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(ClientDirPacket dirpacket, ClientSession session)
@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Movement
                     entity = session.Character;
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         dirpacket.VisualType);
                     return Task.CompletedTask;
             }

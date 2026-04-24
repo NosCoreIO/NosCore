@@ -7,7 +7,7 @@
 using FastMember;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -20,7 +20,7 @@ namespace NosCore.Parser.Parsers.Generic
 {
 
     public class GenericParser<T>(string fileAddress, string endPattern, int firstIndex,
-        Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger logger,
+        Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList, ILogger<GenericParser<T>> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     where T : new()
     {
@@ -71,7 +71,7 @@ namespace NosCore.Parser.Parsers.Generic
                 }
                 catch (Exception ex)
                 {
-                    logger.Verbose(logLanguage[LogLanguageKey.CHUNK_FORMAT_INVALID], lines, ex);
+                    logger.LogTrace(logLanguage[LogLanguageKey.CHUNK_FORMAT_INVALID], lines, ex);
                 }
             })));
             return resultCollection.ToList();

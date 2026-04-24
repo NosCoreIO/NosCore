@@ -17,7 +17,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.PacketHandlers.Game
 {
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Game
     // Type 6 is not mate-only — it's "info for any map entity"; the VisualType field picks
     // between player/npc/monster/mate. For NPC (2) and monster (3) branches we use the same
     // NpcMonsterDto template the in-packet carries.
-    public sealed class ReqInfoPacketHandler(ILogger logger,
+    public sealed class ReqInfoPacketHandler(ILogger<ReqInfoPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry,
             List<NpcMonsterDto> npcMonsters)
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Game
                     return;
 
                 default:
-                    logger.Warning(logLanguage[LogLanguageKey.UNHANDLED_REQINFO_TYPE], packet.ReqType);
+                    logger.LogWarning(logLanguage[LogLanguageKey.UNHANDLED_REQINFO_TYPE], packet.ReqType);
                     return;
             }
         }
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Game
                     template = monsterLookup?.NpcMonster;
                     break;
                 default:
-                    logger.Debug("req_info 6 for unsupported visualType={VisualType} visualId={VisualId}", visualType, visualId);
+                    logger.LogDebug("req_info 6 for unsupported visualType={VisualType} visualId={VisualId}", visualType, visualId);
                     return;
             }
 
@@ -120,7 +120,7 @@ namespace NosCore.PacketHandlers.Game
         // mate subsystem lands.
         private Task HandleMateInfoAsync(ReqInfoPacket packet, ClientSession session)
         {
-            logger.Debug("req_info 6 <mateTransportId={TransportId}> received but mate subsystem is not wired",
+            logger.LogDebug("req_info 6 <mateTransportId={TransportId}> received but mate subsystem is not wired",
                 packet.TargetVNum);
             return Task.CompletedTask;
         }

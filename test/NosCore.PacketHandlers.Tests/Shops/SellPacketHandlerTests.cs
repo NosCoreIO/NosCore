@@ -5,7 +5,6 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
@@ -22,7 +21,7 @@ using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -37,7 +36,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private MapInstanceAccessorService InstanceProvider = null!;
         private SellPacketHandler SellPacketHandler = null!;
         private ClientSession Session = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -113,7 +111,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ItemType = ItemType.Sell, Price = long.MaxValue }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 5), 0),
                 NoscorePocketType.Etc, 0);
@@ -150,7 +148,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -168,7 +166,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = false }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -186,7 +184,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000 }
             };
-            var itemBuilder = new ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

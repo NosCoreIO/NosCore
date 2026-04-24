@@ -17,7 +17,7 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -167,7 +167,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             var mapMiniland = new NosCore.GameObject.Map.Map { MapId = 20001, NameI18NKey = "miniland", Data = new byte[] { } };
 
             var clock = TestHelpers.Instance.Clock;
-            var logger = new Mock<ILogger>().Object;
+            var logger = new Mock<ILogger<MapInstance>>().Object;
             var sessionGroupFactory = TestHelpers.Instance.SessionGroupFactory;
             var mapItemProvider = TestHelpers.Instance.MapItemProvider!;
             var mapChangeService = new Mock<GameObject.Services.MapChangeService.IMapChangeService>().Object;

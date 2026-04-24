@@ -80,7 +80,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.WorldServer
 {
@@ -249,11 +248,8 @@ namespace NosCore.WorldServer
                         x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
                             x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
 
-                    // Cross-cutting singletons that don't belong to any module. Logger is
-                    // wired here because it needs a captured Log.Logger reference; IClock
-                    // because SystemClock is an external NodaTime type with no container-
-                    // friendly constructor.
-                    services.AddSingleton<Serilog.ILogger>(_ => Log.Logger);
+                    // IClock is wired as a singleton here because SystemClock is an external
+                    // NodaTime type with no container-friendly constructor.
                     services.AddSingleton<IClock>(_ => SystemClock.Instance);
 
                     // ID services, session/map registries, hub clients, pathfinder and the

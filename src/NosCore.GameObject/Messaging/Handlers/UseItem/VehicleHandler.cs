@@ -14,13 +14,13 @@ using NosCore.GameObject.Services.TransformationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class VehicleHandler(
-        ILogger logger,
+        ILogger<VehicleHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         ITransformationService transformationService)
     {
@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var character = session.Character;
             if (character.InExchangeOrShop)
             {
-                logger.Error(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
+                logger.LogError(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
                 return;
             }
 

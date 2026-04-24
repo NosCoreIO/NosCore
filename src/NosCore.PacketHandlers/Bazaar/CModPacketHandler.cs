@@ -17,13 +17,13 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CModPacketHandler(IBazaarHub bazaarHttpClient, ILogger logger,
+    public class CModPacketHandler(IBazaarHub bazaarHttpClient, ILogger<CModPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CModPacket>, IWorldPacketHandler
     {
@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
             else
             {
-                logger.Error(logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
+                logger.LogError(logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
             }
         }
     }

@@ -25,7 +25,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
-            IDao<MateDto, long> mateDao, ILogger logger, IAuthHub authHttpClient,
+            IDao<MateDto, long> mateDao, ILogger<EntryPointPacketHandler> logger, IAuthHub authHttpClient,
             IPubSubHub pubSubHub, IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
@@ -48,7 +48,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (alreadyConnnected)
             {
-                _logger.Error(logLanguage[LogLanguageKey.ALREADY_CONNECTED], new
+                _logger.LogError(logLanguage[LogLanguageKey.ALREADY_CONNECTED], new
                 {
                     accountName
                 });
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (account == null)
             {
-                _logger.Error(logLanguage[LogLanguageKey.INVALID_ACCOUNT], new
+                _logger.LogError(logLanguage[LogLanguageKey.INVALID_ACCOUNT], new
                 {
                     accountName
                 });
@@ -78,7 +78,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
             if (!awaitingConnection)
             {
-                _logger.Error(logLanguage[LogLanguageKey.INVALID_PASSWORD], new
+                _logger.LogError(logLanguage[LogLanguageKey.INVALID_PASSWORD], new
                 {
                     accountName
                 });
@@ -120,7 +120,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.MfaValidated = true;
                 }
 
-                logger.Information(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
+                logger.LogInformation(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],
                     clientSession.Account.Name);
                 if (!clientSession.MfaValidated && clientSession.Account.MfaSecret != null)
                 {

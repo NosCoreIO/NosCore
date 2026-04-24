@@ -22,7 +22,7 @@ using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -30,7 +30,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.TransformationService
 {
     public class TransformationService(IClock clock, IExperienceService experienceService,
-            IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger logger,
+            IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger<TransformationService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration)
         : ITransformationService
     {
@@ -93,7 +93,7 @@ namespace NosCore.GameObject.Services.TransformationService
             if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance is
                 not SpecialistInstance sp)
             {
-                logger.Error(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
+                logger.LogError(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
                 return;
             }
 
@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Services.TransformationService
                 }
                 else
                 {
-                    logger.Error(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
+                    logger.LogError(logLanguage[LogLanguageKey.USE_SP_WITHOUT_SP_ERROR]);
                 }
             }
             else

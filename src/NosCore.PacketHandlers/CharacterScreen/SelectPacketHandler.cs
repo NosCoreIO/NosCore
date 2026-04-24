@@ -39,7 +39,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Core.I18N;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -50,7 +50,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
 {
-    public class SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger logger,
+    public class SelectPacketHandler(IDao<CharacterDto, long> characterDao, ILogger<SelectPacketHandler> logger, ILoggerFactory loggerFactory,
             IItemGenerationService itemProvider,
             IMapInstanceAccessorService mapInstanceAccessorService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IDao<StaticBonusDto, long> staticBonusDao,
@@ -75,7 +75,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
                 if (characterDto == null)
                 {
-                    logger.Error(logLanguage[LogLanguageKey.CHARACTER_SLOT_EMPTY], new
+                    logger.LogError(logLanguage[LogLanguageKey.CHARACTER_SLOT_EMPTY], new
                     {
                         clientSession.Account.AccountId,
                         packet.Slot
@@ -110,7 +110,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var ids = inventories.Select(o => o.ItemInstanceId).ToList();
                 var itemInstances = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
 
-                var inventoryService = new InventoryService(items, configuration, logger);
+                var inventoryService = new InventoryService(items, configuration, loggerFactory.CreateLogger<InventoryService>());
                 inventories.ForEach(k => inventoryService[k.ItemInstanceId] =
                     InventoryItemInstance.Create(itemProvider.Convert(itemInstances.First(s => s!.Id == k.ItemInstanceId)!),
                         characterId, k));
@@ -258,7 +258,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             catch (Exception ex)
             {
-                logger.Error(logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
+                logger.LogError(logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
                 {
                     clientSession.Account.AccountId,
                     packet.Slot

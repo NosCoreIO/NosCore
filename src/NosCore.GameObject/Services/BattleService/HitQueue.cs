@@ -14,7 +14,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -30,7 +30,7 @@ public sealed class HitQueue(
     IBattleStatsProvider statsProvider,
     IBuffService buffService,
     IRegenerationService regenerationService,
-    ILogger logger) : IHitQueue, ISingletonService
+    ILogger<HitQueue> logger) : IHitQueue, ISingletonService
 {
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
 
@@ -90,7 +90,7 @@ public sealed class HitQueue(
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "Hit queue worker for entity {Handle} crashed", target.Handle);
+            logger.LogError(ex, "Hit queue worker for entity {Handle} crashed", target.Handle);
         }
         finally
         {
@@ -170,7 +170,7 @@ public sealed class HitQueue(
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "Failed to apply hit to entity {Handle}", request.Target.Handle);
+            logger.LogError(ex, "Failed to apply hit to entity {Handle}", request.Target.Handle);
             request.Completion.TrySetException(ex);
         }
         return Task.CompletedTask;

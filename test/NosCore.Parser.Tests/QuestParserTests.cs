@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +23,6 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class QuestParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<QuestDto, short>> _questDaoMock = null!;
         private Mock<IDao<QuestObjectiveDto, Guid>> _questObjectiveDaoMock = null!;
@@ -37,7 +36,6 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _questDaoMock = new Mock<IDao<QuestDto, short>>();
             _questObjectiveDaoMock = new Mock<IDao<QuestObjectiveDto, Guid>>();
@@ -121,7 +119,7 @@ namespace NosCore.Parser.Tests
             var content = CreateQuestData(questId: 1, title: "FirstQuest", levelMin: 10, levelMax: 50);
             CreateTestFile(content);
 
-            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedQuests.Count);
@@ -139,7 +137,7 @@ namespace NosCore.Parser.Tests
                           CreateQuestData(questId: 3, title: "Quest3");
             CreateTestFile(content);
 
-            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.AreEqual(3, _savedQuests.Count);
@@ -151,7 +149,7 @@ namespace NosCore.Parser.Tests
             var content = CreateQuestData(questId: 1, autoFinish: true);
             CreateTestFile(content);
 
-            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedQuests.Count);
@@ -164,7 +162,7 @@ namespace NosCore.Parser.Tests
             var content = CreateQuestData(questId: 1, isDaily: true);
             CreateTestFile(content);
 
-            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedQuests.Count);
@@ -177,7 +175,7 @@ namespace NosCore.Parser.Tests
             var content = CreateQuestData(questId: 1, nextQuestId: 2);
             CreateTestFile(content);
 
-            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedQuests.Count);
@@ -189,7 +187,7 @@ namespace NosCore.Parser.Tests
         {
             CreateTestFile("");
 
-            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestsAsync(_tempFolder);
 
             Assert.AreEqual(0, _savedQuests.Count);

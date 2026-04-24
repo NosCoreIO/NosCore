@@ -13,7 +13,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
@@ -22,7 +22,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // an OutPacket here would cut the animation short, so we only clear aggro and
     // schedule the respawn. Player deaths are handled by the revive/warp flow.
     [UsedImplicitly]
-    public sealed class MonsterRespawnHandler(IAggroService aggroService, ILogger logger)
+    public sealed class MonsterRespawnHandler(IAggroService aggroService, ILogger<MonsterRespawnHandler> logger)
     {
         [UsedImplicitly]
         public Task Handle(EntityDiedEvent evt)
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             }
             catch (Exception ex)
             {
-                logger.Warning(ex, "Failed to respawn monster {VisualId}", monster.VisualId);
+                logger.LogWarning(ex, "Failed to respawn monster {VisualId}", monster.VisualId);
             }
         }
     }

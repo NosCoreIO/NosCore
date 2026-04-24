@@ -20,7 +20,7 @@ using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -127,7 +127,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 }
                 catch (Exception e)
                 {
-                    logger.Error(e.Message, e);
+                    logger.LogError(e.Message, e);
                 }
             }
             entity.Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();

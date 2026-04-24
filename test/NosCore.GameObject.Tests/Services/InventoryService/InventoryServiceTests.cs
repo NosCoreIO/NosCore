@@ -6,7 +6,6 @@
 
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -18,7 +17,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -29,7 +28,6 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
     [TestClass]
     public class InventoryServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
         private IInventoryService? Inventory { get; set; }
 
@@ -45,9 +43,9 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item {Type = NoscorePocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
                 new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
             };
-            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             Inventory = new GameObject.Services.InventoryService.InventoryService(items, Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 }),
-                Logger);
+                NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
         }
 
         [TestMethod]

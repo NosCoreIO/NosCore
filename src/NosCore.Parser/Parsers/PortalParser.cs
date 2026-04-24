@@ -9,7 +9,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class PortalParser(ILogger logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class PortalParser(ILogger<PortalParser> logger, IDao<MapDto, short> mapDao, IDao<PortalDto, int> portalDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly List<PortalDto> _listPortals2 = new();
         private List<PortalDto> _listPortals1 = new();
@@ -170,7 +170,7 @@ namespace NosCore.Parser.Parsers
                         && (s.SourceY == portal.SourceY))).ToList();
             await portalDao.TryInsertOrUpdateAsync(portalsDtos);
 
-            logger.Information(logLanguage[LogLanguageKey.PORTALS_PARSED],
+            logger.LogInformation(logLanguage[LogLanguageKey.PORTALS_PARSED],
                 portalsDtos.Count + portalCounter);
         }
     }

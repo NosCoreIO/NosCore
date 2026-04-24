@@ -19,14 +19,14 @@ using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class BtkPacketHandler(ILogger logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
+    public class BtkPacketHandler(ILogger<BtkPacketHandler> logger, ISerializer packetSerializer, IFriendHub friendHttpClient,
             IPubSubHub packetHttpClient, IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry)
         : PacketHandler<BtkPacket>, IWorldPacketHandler
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Chat
 
             if (friendlist.All(s => s.CharacterId != btkPacket.CharacterId))
             {
-                logger.Error(gameLanguageLocalizer[LanguageKey.USER_IS_NOT_A_FRIEND,
+                logger.LogError(gameLanguageLocalizer[LanguageKey.USER_IS_NOT_A_FRIEND,
                     session.Account.Language]);
                 return;
             }

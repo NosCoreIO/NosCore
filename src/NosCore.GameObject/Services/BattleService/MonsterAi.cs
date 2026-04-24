@@ -22,7 +22,7 @@ using NosCore.GameObject.Services.PathfindingService;
 using NosCore.Networking;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -52,7 +52,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private readonly INpcCombatCatalog catalog;
     private readonly IRandomProvider random;
     private readonly IClock clock;
-    private readonly ILogger logger;
+    private readonly ILogger<MonsterAi> logger;
     private readonly IReadOnlyDictionary<short, SkillDto> skillsByVnum;
 
     public MonsterAi(
@@ -65,7 +65,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IRandomProvider random,
         IClock clock,
         List<SkillDto> skills,
-        ILogger logger)
+        ILogger<MonsterAi> logger)
         : this(battleService, aggroService, pathfindingService, sessionRegistry, distanceCalculator,
             catalog, random, clock, skills.ToDictionary(s => s.SkillVNum, s => s), logger)
     {
@@ -81,7 +81,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         IRandomProvider random,
         IClock clock,
         IReadOnlyDictionary<short, SkillDto> skillsByVnum,
-        ILogger logger)
+        ILogger<MonsterAi> logger)
     {
         this.battleService = battleService;
         this.aggroService = aggroService;
@@ -156,7 +156,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         }
         catch (Exception ex)
         {
-            logger.Error(ex, "AI tick failed for {VisualId}", entity.VisualId);
+            logger.LogError(ex, "AI tick failed for {VisualId}", entity.VisualId);
             return false;
         }
     }

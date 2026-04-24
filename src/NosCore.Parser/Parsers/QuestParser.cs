@@ -10,7 +10,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -36,8 +36,9 @@ namespace NosCore.Parser.Parsers
     //#=======
 
     public class QuestParser(IDao<QuestDto, short> questDao, IDao<QuestObjectiveDto, Guid> questObjectiveDao,
-        IDao<QuestRewardDto, short> questRewardDao, IDao<QuestQuestRewardDto, Guid> questQuestRewardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        IDao<QuestRewardDto, short> questRewardDao, IDao<QuestQuestRewardDto, Guid> questQuestRewardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        private readonly ILogger<QuestParser> _logger = loggerFactory.CreateLogger<QuestParser>();
         private readonly string _fileQuestDat = $"{Path.DirectorySeparatorChar}quest.dat";
         private Dictionary<short, QuestRewardDto>? _questRewards;
 
@@ -67,14 +68,14 @@ namespace NosCore.Parser.Parsers
 
         public async Task ImportQuestsAsync(string folder)
         {
-            var parser = BuildParser(folder).Build(logger, logLanguage);
+            var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var quests = await parser.GetDtosAsync();
 
             await questDao.TryInsertOrUpdateAsync(quests);
             await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
             await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
 
-            logger.Information(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
+            _logger.LogInformation(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
         }
 
         private List<QuestQuestRewardDto> ImportQuestQuestRewards(Dictionary<string, string[][]> chunk)

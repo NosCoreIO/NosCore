@@ -16,7 +16,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.PathfindingService;
 using NosCore.PathFinder.Interfaces;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<IRandomProvider>().Object,
                 new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
                 new Dictionary<short, SkillDto>(),
-                new Mock<ILogger>().Object);
+                new Mock<ILogger<MonsterAi>>().Object);
 
             Assert.IsNotNull(ai);
             Assert.IsInstanceOfType(ai, typeof(IMonsterAi));

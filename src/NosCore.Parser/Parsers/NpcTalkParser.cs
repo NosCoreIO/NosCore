@@ -9,7 +9,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -31,8 +31,9 @@ namespace NosCore.Parser.Parsers
     //b zts16038e  . n_talk 7 0&@
     //b zts4759e  . n_run 3000 0
     //b zts4760e  . n_talk 100 0
-    public class NpcTalkParser(IDao<NpcTalkDto, short> npcTalkDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class NpcTalkParser(IDao<NpcTalkDto, short> npcTalkDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        private readonly ILogger<NpcTalkParser> _logger = loggerFactory.CreateLogger<NpcTalkParser>();
         private readonly string _fileNpcTalkDat = $"{Path.DirectorySeparatorChar}npctalk.dat";
 
 
@@ -45,12 +46,12 @@ namespace NosCore.Parser.Parsers
             };
 
             var genericParser = new GenericParser<NpcTalkDto>(folder + _fileNpcTalkDat,
-                "%", 0, actionList, logger, logLanguage);
+                "%", 0, actionList, loggerFactory.CreateLogger<GenericParser<NpcTalkDto>>(), logLanguage);
             var npcTalks = (await genericParser.GetDtosAsync(" ")).ToList();
             npcTalks.Add(new NpcTalkDto { DialogId = 99, NameI18NKey = "" });
             await npcTalkDao.TryInsertOrUpdateAsync(npcTalks);
 
-            logger.Information(logLanguage[LogLanguageKey.NPCTALKS_PARSED], npcTalks.Count);
+            _logger.LogInformation(logLanguage[LogLanguageKey.NPCTALKS_PARSED], npcTalks.Count);
         }
 
     }

@@ -13,12 +13,12 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class NcifPacketHandler(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+    public class NcifPacketHandler(ILogger<NcifPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry)
         : PacketHandler<NcifPacket>, IWorldPacketHandler
     {
@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Game
                     entity = session.Character.MapInstance.FindNpc(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
+                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                         ncifPacket.Type);
                     return;
             }

@@ -24,7 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 
 namespace NosCore.PacketHandlers.Tests.Battle
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Returns(((short)1, (short)50, (short)60));
 
             _handler = new RevivalPacketHandler(
-                new Mock<ILogger>().Object,
+                new Mock<ILogger<RevivalPacketHandler>>().Object,
                 _mapChangeService.Object,
                 _respawnService.Object);
         }

@@ -20,7 +20,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private Mock<IPubSubHub> PubSubHub = null!;
         private Mock<ISerializer> Serializer = null!;
         private Mock<ISessionRegistry> SessionRegistry = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<BtkPacketHandler> Logger = new Mock<ILogger<BtkPacketHandler>>().Object;
         private const long OfflineFriendId = 99998;
         private const long DifferentChannelFriendId = 99997;
 

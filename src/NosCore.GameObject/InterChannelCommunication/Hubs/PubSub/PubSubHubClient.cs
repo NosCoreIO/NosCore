@@ -3,7 +3,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -14,7 +14,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
     public class PubSubHubClient : IPubSubHubClient, IAsyncDisposable
     {
         private readonly HubConnection _hubConnection;
-        private readonly ILogger _logger;
+        private readonly ILogger<PubSubHubClient> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
         private readonly SemaphoreSlim _connectionLock = new(1, 1);
         private bool _isStarted;
@@ -23,7 +23,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public bool IsConnected => _hubConnection.State == HubConnectionState.Connected;
 
-        public PubSubHubClient(HubConnectionFactory hubConnectionFactory, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public PubSubHubClient(HubConnectionFactory hubConnectionFactory, ILogger<PubSubHubClient> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             _logger = logger;
             _logLanguage = logLanguage;
@@ -36,19 +36,19 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
             _hubConnection.Reconnecting += error =>
             {
-                _logger.Warning(_logLanguage[LogLanguageKey.PUBSUB_RECONNECTING]);
+                _logger.LogWarning(_logLanguage[LogLanguageKey.PUBSUB_RECONNECTING]);
                 return Task.CompletedTask;
             };
 
             _hubConnection.Reconnected += connectionId =>
             {
-                _logger.Information(_logLanguage[LogLanguageKey.PUBSUB_RECONNECTED]);
+                _logger.LogInformation(_logLanguage[LogLanguageKey.PUBSUB_RECONNECTED]);
                 return Task.CompletedTask;
             };
 
             _hubConnection.Closed += error =>
             {
-                _logger.Warning(_logLanguage[LogLanguageKey.PUBSUB_CONNECTION_CLOSED]);
+                _logger.LogWarning(_logLanguage[LogLanguageKey.PUBSUB_CONNECTION_CLOSED]);
                 return Task.CompletedTask;
             };
         }
@@ -67,7 +67,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
                 {
                     await _hubConnection.StartAsync();
                     _isStarted = true;
-                    _logger.Information(_logLanguage[LogLanguageKey.PUBSUB_CONNECTION_STARTED]);
+                    _logger.LogInformation(_logLanguage[LogLanguageKey.PUBSUB_CONNECTION_STARTED]);
                 }
             }
             finally
@@ -85,7 +85,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
                 {
                     await _hubConnection.StopAsync();
                     _isStarted = false;
-                    _logger.Information(_logLanguage[LogLanguageKey.PUBSUB_CONNECTION_STOPPED]);
+                    _logger.LogInformation(_logLanguage[LogLanguageKey.PUBSUB_CONNECTION_STOPPED]);
                 }
             }
             finally

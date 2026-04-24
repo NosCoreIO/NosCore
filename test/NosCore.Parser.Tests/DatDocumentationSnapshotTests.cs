@@ -14,7 +14,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace NosCore.Parser.Tests
 {
@@ -25,22 +25,22 @@ namespace NosCore.Parser.Tests
     public class DatDocumentationSnapshotTests
     {
         [TestMethod] public void Item() => RegenerateFor(new ItemParser(
-            Mock<ItemDto, short>(), Mock<BCardDto, short>(), Logger(), LogLang()).BuildParser("."));
+            Mock<ItemDto, short>(), Mock<BCardDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
 
         [TestMethod] public void Card() => RegenerateFor(new CardParser(
-            Mock<CardDto, short>(), Mock<BCardDto, short>(), Logger(), LogLang()).BuildParser("."));
+            Mock<CardDto, short>(), Mock<BCardDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
 
         [TestMethod] public void Skill() => RegenerateFor(new SkillParser(
-            Mock<BCardDto, short>(), Mock<ComboDto, int>(), Mock<SkillDto, short>(), Logger(), LogLang()).BuildParser("."));
+            Mock<BCardDto, short>(), Mock<ComboDto, int>(), Mock<SkillDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
 
         [TestMethod] public void NpcMonster() => RegenerateFor(new NpcMonsterParser(
             Mock<SkillDto, short>(), Mock<BCardDto, short>(), Mock<DropDto, short>(),
-            Mock<NpcMonsterSkillDto, long>(), Mock<NpcMonsterDto, short>(), Logger(), LogLang())
+            Mock<NpcMonsterSkillDto, long>(), Mock<NpcMonsterDto, short>(), NullLoggerFactory.Instance, LogLang())
             .BuildParser("."));
 
         [TestMethod] public void Quest() => RegenerateFor(new QuestParser(
             Mock<QuestDto, short>(), Mock<QuestObjectiveDto, Guid>(),
-            Mock<QuestRewardDto, short>(), Mock<QuestQuestRewardDto, Guid>(), Logger(), LogLang())
+            Mock<QuestRewardDto, short>(), Mock<QuestQuestRewardDto, Guid>(), NullLoggerFactory.Instance, LogLang())
             .BuildParser("."));
 
         private static void RegenerateFor<T>(FluentParserBuilder<T> builder) where T : new()
@@ -63,7 +63,6 @@ namespace NosCore.Parser.Tests
         private static string Normalize(string text) => text.Replace("\r\n", "\n");
 
         private static IDao<TDto, TKey> Mock<TDto, TKey>() where TDto : class => new Mock<IDao<TDto, TKey>>().Object;
-        private static ILogger Logger() => new Mock<ILogger>().Object;
         private static ILogLanguageLocalizer<LogLanguageKey> LogLang() => new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object;
     }
 

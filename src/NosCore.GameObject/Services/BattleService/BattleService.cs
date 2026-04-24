@@ -18,7 +18,7 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using Wolverine;
 
 namespace NosCore.GameObject.Services.BattleService
@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Services.BattleService
         IHitQueue hitQueue,
         IMessageBus messageBus,
         ISessionRegistry sessionRegistry,
-        ILogger logger) : IBattleService
+        ILogger<BattleService> logger) : IBattleService
     {
         public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
                 catch (Exception ex)
                 {
-                    logger.Error(ex, "Hit processing failed: {Attacker} -> {Target}", origin.VisualId, currentTarget.VisualId);
+                    logger.LogError(ex, "Hit processing failed: {Attacker} -> {Target}", origin.VisualId, currentTarget.VisualId);
                 }
             }
 
@@ -197,7 +197,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
                 catch (Exception ex)
                 {
-                    logger.Warning(ex, "Failed to reset cooldown for skill {CastId}", skill.CastId);
+                    logger.LogWarning(ex, "Failed to reset cooldown for skill {CastId}", skill.CastId);
                 }
             });
         }

@@ -74,7 +74,6 @@ namespace NosCore.Parser
         {
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>()
                 .OnActivated(c => c.Instance.Database.Migrate());
-            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(CardParser).Assembly)
                 .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                 .AsSelf();

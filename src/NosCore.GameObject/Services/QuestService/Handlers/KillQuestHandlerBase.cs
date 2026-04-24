@@ -14,7 +14,7 @@ using NosCore.Packets;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
@@ -69,7 +69,7 @@ public abstract class KillQuestHandlerBase(ILogger logger) : IQuestTypeHandler
         }
         catch (Exception ex)
         {
-            logger.Warning(ex, "Failed to send quest progress for character {CharacterId} quest {QuestId}",
+            logger.LogWarning(ex, "Failed to send quest progress for character {CharacterId} quest {QuestId}",
                 character.CharacterId, quest.QuestId);
         }
     }

@@ -13,7 +13,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.PacketHandlers.Upgrades
 {
@@ -22,7 +22,7 @@ namespace NosCore.PacketHandlers.Upgrades
     // another IUpgradeOperation with DI.
     public sealed class UpgradePacketHandler(
         IEnumerable<IUpgradeOperation> operations,
-        ILogger logger,
+        ILogger<UpgradePacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<UpgradePacket>, IWorldPacketHandler
     {
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Upgrades
             var operation = operations.FirstOrDefault(o => o.Kind == packet.UpgradeType);
             if (operation == null)
             {
-                logger.Warning(logLanguage[LogLanguageKey.UNHANDLED_UPGRADE_TYPE], packet.UpgradeType);
+                logger.LogWarning(logLanguage[LogLanguageKey.UNHANDLED_UPGRADE_TYPE], packet.UpgradeType);
                 return;
             }
 

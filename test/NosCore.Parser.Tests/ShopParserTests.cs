@@ -12,7 +12,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +22,7 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ShopParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
+        private Mock<ILogger<ShopParser>> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<ShopDto, int>> _shopDaoMock = null!;
         private Mock<IDao<MapNpcDto, int>> _mapNpcDaoMock = null!;
@@ -31,7 +31,7 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<ShopParser>>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _shopDaoMock = new Mock<IDao<ShopDto, int>>();
             _mapNpcDaoMock = new Mock<IDao<MapNpcDto, int>>();

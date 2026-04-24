@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,7 +21,7 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class PortalParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
+        private Mock<ILogger<PortalParser>> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<PortalDto, int>> _portalDaoMock = null!;
         private Mock<IDao<MapDto, short>> _mapDaoMock = null!;
@@ -30,7 +30,7 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<PortalParser>>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _portalDaoMock = new Mock<IDao<PortalDto, int>>();
             _mapDaoMock = new Mock<IDao<MapDto, short>>();

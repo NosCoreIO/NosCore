@@ -7,13 +7,13 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
 {
-    public class BazaarHubClient(HubConnectionFactory hubConnectionFactory, ILogger logger)
+    public class BazaarHubClient(HubConnectionFactory hubConnectionFactory, ILogger<BazaarHubClient> logger)
         : BaseHubClient(hubConnectionFactory, nameof(BazaarHub), logger), IBazaarHub
     {
         public Task<List<BazaarLink>> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,

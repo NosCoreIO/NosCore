@@ -10,7 +10,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //  VNUM	CardId
         //  NAME    Name
@@ -53,14 +53,16 @@ namespace NosCore.Parser.Parsers
                     source: "1ST + 2ST (5 groups of 6)", description: "Up to 5 BCards, first 3 from 1ST then 2 from 2ST");
         }
 
+        private readonly ILogger<CardParser> _logger = loggerFactory.CreateLogger<CardParser>();
+
         public async Task InsertCardsAsync(string folder)
         {
-            var parser = BuildParser(folder).Build(logger, logLanguage);
+            var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var cards = (await parser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             await cardDao.TryInsertOrUpdateAsync(cards);
             await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
-            logger.Information(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
+            _logger.LogInformation(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
         }
 
         public List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)

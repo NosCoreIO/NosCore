@@ -20,14 +20,14 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 using StatData = NosCore.GameObject.InterChannelCommunication.Messages.StatData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
-    public class StatDataMessageChannelCommunicationMessageHandler(ILogger logger,
+    public class StatDataMessageChannelCommunicationMessageHandler(ILogger<StatDataMessageChannelCommunicationMessageHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration, ISessionRegistry sessionRegistry,
         IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) : ChannelCommunicationMessageHandler<StatData>
     {
@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     }
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
+                    logger.LogError(logLanguage[LogLanguageKey.UNKWNOWN_RECEIVERTYPE]);
                     break;
             }
         }

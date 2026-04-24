@@ -22,7 +22,7 @@ using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Services.QuestService
 {
     public class QuestService(List<ScriptDto> scripts,
             IOptions<WorldConfiguration> worldConfiguration, List<QuestDto> quests,
-            List<QuestObjectiveDto> questObjectives, ILogger logger, IClock clock,
+            List<QuestObjectiveDto> questObjectives, ILogger<QuestService> logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IEnumerable<IQuestTypeHandler> questTypeHandlers,
             Wolverine.IMessageBus messageBus,
@@ -231,14 +231,14 @@ namespace NosCore.GameObject.Services.QuestService
                     var item = itemBuilderService.Create((short)reward.Data, (short)amount, (sbyte)reward.Rarity, reward.Upgrade, reward.Design);
                     if (item == null)
                     {
-                        logger.Warning("Quest reward skipped: invalid item vnum {VNum} for character {CharacterId}",
+                        logger.LogWarning("Quest reward skipped: invalid item vnum {VNum} for character {CharacterId}",
                             reward.Data, character.CharacterId);
                         break;
                     }
                     var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.VisualId));
                     if (added == null || added.Count == 0)
                     {
-                        logger.Warning("Quest reward lost: inventory full for item {VNum}x{Amount} character {CharacterId}",
+                        logger.LogWarning("Quest reward lost: inventory full for item {VNum}x{Amount} character {CharacterId}",
                             reward.Data, amount, character.CharacterId);
                         await character.SendPacketAsync(new SayiPacket
                         {
@@ -255,7 +255,7 @@ namespace NosCore.GameObject.Services.QuestService
                     }
                     break;
                 default:
-                    logger.Warning("Unhandled quest reward type {Type}", reward.RewardType);
+                    logger.LogWarning("Unhandled quest reward type {Type}", reward.RewardType);
                     break;
             }
         }
@@ -274,7 +274,7 @@ namespace NosCore.GameObject.Services.QuestService
                 return await ValidateQuestAsync(character, questId);
             }
 
-            logger.Error(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
+            logger.LogError(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
             return false;
         }
 
@@ -314,7 +314,7 @@ namespace NosCore.GameObject.Services.QuestService
             var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
             if (questDto == null)
             {
-                logger.Error(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
+                logger.LogError(logLanguage[LogLanguageKey.QUEST_NOT_FOUND]);
                 return true;
             }
             var quest = questDto.Adapt<Quest>();

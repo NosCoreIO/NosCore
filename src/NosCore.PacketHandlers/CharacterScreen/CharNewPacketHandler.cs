@@ -23,7 +23,7 @@ using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<QuicklistEntryDto, Guid> quicklistEntryDao, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IHpService hpService, IMpService mpService,
             IOptions<WorldConfiguration> worldConfiguration, IDao<CharacterSkillDto, Guid> characterSkillDao,
-            List<ItemDto> items, ILogger logger)
+            List<ItemDto> items, ILoggerFactory loggerFactory)
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration = worldConfiguration.Value;
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     };
                     chara = await characterDao.TryInsertOrUpdateAsync(chara);
 
-                    var inventory = new InventoryService(items, worldConfiguration, logger);
+                    var inventory = new InventoryService(items, worldConfiguration, loggerFactory.CreateLogger<InventoryService>());
                     var origin = ResolveStarterOrigin(@class, _worldConfiguration.AllClassAvailableOnCreate);
                     var itemsToAdd = ResolvePack(_worldConfiguration.BasicEquipments, @class, origin, new List<BasicEquipment>());
 

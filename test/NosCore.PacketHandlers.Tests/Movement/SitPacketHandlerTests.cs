@@ -12,7 +12,7 @@ using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         private SitPacketHandler Handler = null!;
         private ClientSession Session = null!;
         private ClientSession OtherSession = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<SitPacketHandler> Logger = new Mock<ILogger<SitPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

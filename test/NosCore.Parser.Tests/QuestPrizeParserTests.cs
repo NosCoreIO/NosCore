@@ -12,7 +12,7 @@ using NosCore.Data.Enumerations.Quest;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -25,7 +25,6 @@ namespace NosCore.Parser.Tests
     public class QuestPrizeParserTests
     {
         private Mock<IDao<QuestRewardDto, short>> _daoMock = null!;
-        private Mock<ILogger> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private List<QuestRewardDto> _saved = null!;
         private string _tempFolder = null!;
@@ -33,7 +32,6 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _daoMock = new Mock<IDao<QuestRewardDto, short>>();
             _saved = [];
@@ -65,7 +63,7 @@ namespace NosCore.Parser.Tests
         public async Task QuestPrizeParser_GoldRewardParsesAmountFromFirstDataField()
         {
             WriteFile(Entry(100, (byte)QuestRewardType.Gold, "500\t-1\t-1\t-1\t-1"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(1, _saved.Count);
@@ -79,7 +77,7 @@ namespace NosCore.Parser.Tests
         public async Task QuestPrizeParser_ExpRewardParsesAmountAndData()
         {
             WriteFile(Entry(200, (byte)QuestRewardType.Exp, "1000\t5000\t-1\t-1\t-1"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(1, _saved.Count);
@@ -92,7 +90,7 @@ namespace NosCore.Parser.Tests
         public async Task QuestPrizeParser_ExpRewardWithMinusOneDataYieldsZero()
         {
             WriteFile(Entry(201, (byte)QuestRewardType.Exp, "1000\t-1\t-1\t-1\t-1"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(1, _saved.Count);
@@ -104,7 +102,7 @@ namespace NosCore.Parser.Tests
         public async Task QuestPrizeParser_WearItemRewardStoresVnumAndAmountOne()
         {
             WriteFile(Entry(300, (byte)QuestRewardType.WearItem, "2000\t-1\t-1\t-1\t-1"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(1, _saved.Count);
@@ -116,7 +114,7 @@ namespace NosCore.Parser.Tests
         public async Task QuestPrizeParser_EtcMainItemUsesDataFieldFiveForAmount()
         {
             WriteFile(Entry(400, (byte)QuestRewardType.EtcMainItem, "1012\t-1\t-1\t-1\t10"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(1, _saved.Count);
@@ -128,7 +126,7 @@ namespace NosCore.Parser.Tests
         public async Task QuestPrizeParser_EtcMainItemMinusOneAmountFallsBackToOne()
         {
             WriteFile(Entry(401, (byte)QuestRewardType.EtcMainItem, "1013\t-1\t-1\t-1\t-1"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(1, _saved.Count);
@@ -143,7 +141,7 @@ namespace NosCore.Parser.Tests
                 Entry(1, (byte)QuestRewardType.Gold, "100\t-1\t-1\t-1\t-1") +
                 Entry(2, (byte)QuestRewardType.Exp, "500\t1000\t-1\t-1\t-1") +
                 Entry(3, (byte)QuestRewardType.WearItem, "2000\t-1\t-1\t-1\t-1"));
-            var parser = new QuestPrizeParser(_daoMock.Object, _loggerMock.Object, _logLanguageMock.Object);
+            var parser = new QuestPrizeParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ImportQuestPrizesAsync(_tempFolder);
 
             Assert.AreEqual(3, _saved.Count);

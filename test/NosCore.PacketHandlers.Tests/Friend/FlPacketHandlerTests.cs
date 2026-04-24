@@ -18,7 +18,7 @@ using NosCore.PacketHandlers.Friend;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FlPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
         private FlCommandPacketHandler FlPacketHandler = null!;
         private ClientSession Session = null!;
@@ -50,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
                 });
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            FlPacketHandler = new FlCommandPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger));
+            FlPacketHandler = new FlCommandPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance));
         }
 
         [TestMethod]
@@ -82,7 +81,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            var friend = new FriendService(Logger, CharacterRelationDao, TestHelpers.Instance.CharacterDao,
+            var friend = new FriendService(NullLogger<FriendService>.Instance, CharacterRelationDao, TestHelpers.Instance.CharacterDao,
                 friendRequestHolder, TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(Session.Character.CharacterId,

@@ -62,7 +62,6 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
-using ILogger = Serilog.ILogger;
 
 namespace NosCore.MasterServer
 {
@@ -174,7 +173,6 @@ namespace NosCore.MasterServer
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
-            containerBuilder.Register(_ => Log.Logger).As<Serilog.ILogger>().SingleInstance();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 
             containerBuilder.RegisterType<BazaarRegistry>().As<IBazaarRegistry>().SingleInstance();
@@ -246,14 +244,14 @@ namespace NosCore.MasterServer
                 {
                     if ((items.Count != 0) && (staticMetaDataAttribute != null))
                     {
-                        c.Resolve<ILogger>().Information(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.LoadedMessage],
+                        c.Resolve<ILoggerFactory>().CreateLogger(nameof(MasterServerBootstrap)).LogInformation(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.LoadedMessage],
                             items.Count);
                     }
                 }
                 else
                 {
-                    c.Resolve<ILogger>()
-                        .Error(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.EmptyMessage]);
+                    c.Resolve<ILoggerFactory>().CreateLogger(nameof(MasterServerBootstrap))
+                        .LogError(c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()[staticMetaDataAttribute.EmptyMessage]);
                 }
 
                 return items;

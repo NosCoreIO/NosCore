@@ -22,7 +22,7 @@ using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking.SessionGroup;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
-            ILogger logger, IMapInstanceRegistry mapInstanceRegistry,
+            ILoggerFactory loggerFactory, IMapInstanceRegistry mapInstanceRegistry,
             IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock, ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IItemGenerationService itemProvider, IHeuristic distanceCalculator,
@@ -57,9 +57,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
         }
 
+        private readonly ILogger<MapInstanceGeneratorService> _logger = loggerFactory.CreateLogger<MapInstanceGeneratorService>();
+
         public async Task InitializeAsync()
         {
-            logger.Information(logLanguage[LogLanguageKey.LOADING_MAPINSTANCES]);
+            _logger.LogInformation(logLanguage[LogLanguageKey.LOADING_MAPINSTANCES]);
             try
             {
                 mapMonsters.LoadAll();
@@ -124,7 +126,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {
-            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService, logger, clock,
+            return new MapInstance(map, guid, shopAllowed, normalInstance, mapItemGenerationService,
+                loggerFactory.CreateLogger<MapInstance>(), clock,
                 mapChangeService, sessionGroupFactory, sessionRegistry, distanceCalculator, monsterAi, buffService, regenerationService);
         }
 

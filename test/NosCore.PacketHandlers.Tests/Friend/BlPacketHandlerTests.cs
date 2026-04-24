@@ -18,7 +18,7 @@ using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class BlPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry> Logger = new Mock<ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>>().Object;
         private BlPacketHandler BlPacketHandler = null!;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
         private ClientSession Session = null!;

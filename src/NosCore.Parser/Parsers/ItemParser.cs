@@ -12,7 +12,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,8 +21,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        private readonly ILogger<ItemParser> _logger = loggerFactory.CreateLogger<ItemParser>();
         //  VNUM	{VNum}	{Price}
         //	NAME {Name}
 
@@ -153,7 +154,7 @@ namespace NosCore.Parser.Parsers
 
         public async Task ParseAsync(string folder)
         {
-            var parser = BuildParser(folder).Build(logger, logLanguage);
+            var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var items = (await parser.GetDtosAsync()).GroupBy(p => p.VNum).Select(g => g.First()).ToList();
             foreach (var item in items)
             {
@@ -192,7 +193,7 @@ namespace NosCore.Parser.Parsers
             await itemDao.TryInsertOrUpdateAsync(items);
             await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
-            logger.Information(logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
+            _logger.LogInformation(logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
         }
 
 

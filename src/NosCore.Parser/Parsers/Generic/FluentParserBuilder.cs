@@ -6,7 +6,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -154,9 +154,9 @@ namespace NosCore.Parser.Parsers.Generic
             return this;
         }
 
-        public FluentParser<T> Build(ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public FluentParser<T> Build(ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
-            return new FluentParser<T>(_fileAddress, _endPattern, _firstIndex, _actionList, _splitter, logger, logLanguage);
+            return new FluentParser<T>(_fileAddress, _endPattern, _firstIndex, _actionList, _splitter, loggerFactory, logLanguage);
         }
 
         private static string GetPropertyName<TProperty>(Expression<Func<T, TProperty>> expression)
@@ -203,10 +203,11 @@ namespace NosCore.Parser.Parsers.Generic
             int firstIndex,
             Dictionary<string, Func<Dictionary<string, string[][]>, object?>> actionList,
             string splitter,
-            ILogger logger,
+            ILoggerFactory loggerFactory,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
-            _parser = new GenericParser<T>(fileAddress, endPattern, firstIndex, actionList, logger, logLanguage);
+            _parser = new GenericParser<T>(fileAddress, endPattern, firstIndex, actionList,
+                loggerFactory.CreateLogger<GenericParser<T>>(), logLanguage);
             _splitter = splitter;
         }
 

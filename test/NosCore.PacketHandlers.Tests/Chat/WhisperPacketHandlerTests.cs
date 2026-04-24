@@ -18,7 +18,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private Mock<IBlacklistHub> BlacklistHub = null!;
         private Mock<IPubSubHub> PubSubHub = null!;
         private Mock<ISerializer> Serializer = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<WhisperPacketHandler> Logger = new Mock<ILogger<WhisperPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

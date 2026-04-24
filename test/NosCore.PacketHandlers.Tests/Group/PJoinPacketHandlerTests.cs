@@ -17,7 +17,7 @@ using NosCore.PacketHandlers.Group;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     [TestClass]
     public class PJoinPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> Sessions = new();
         private PjoinPacketHandler PJoinPacketHandler = null!;
 

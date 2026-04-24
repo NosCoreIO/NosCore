@@ -15,7 +15,7 @@ using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Battle
 {
@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // TODO: post-revive protection (card 684, ~30s invuln) isn't granted — the
     // buff/card application layer isn't wired up yet. See death.txt line 6352.
     [UsedImplicitly]
-    public sealed class PlayerRevivalHandler(ILogger logger)
+    public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             }
             catch (Exception ex)
             {
-                logger.Warning(ex, "PlayerRevivalHandler failed for {CharacterId}", player.CharacterId);
+                logger.LogWarning(ex, "PlayerRevivalHandler failed for {CharacterId}", player.CharacterId);
             }
         }
     }

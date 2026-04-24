@@ -20,7 +20,8 @@ using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Networking.SessionGroup;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -31,7 +32,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class SelectPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<SelectPacketHandler> Logger = new Mock<ILogger<SelectPacketHandler>>().Object;
         private SelectPacketHandler SelectPacketHandler = null!;
         private ClientSession Session = null!;
 
@@ -44,6 +45,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             SelectPacketHandler = new SelectPacketHandler(
                 TestHelpers.Instance.CharacterDao,
                 Logger,
+                NullLoggerFactory.Instance,
                 new Mock<IItemGenerationService>().Object,
                 TestHelpers.Instance.MapInstanceAccessorService,
                 new Mock<IDao<IItemInstanceDto?, Guid>>().Object,

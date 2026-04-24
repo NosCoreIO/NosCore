@@ -12,7 +12,7 @@ using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -23,7 +23,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     {
         private BuyPacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<BuyPacketHandler> Logger = new Mock<ILogger<BuyPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()

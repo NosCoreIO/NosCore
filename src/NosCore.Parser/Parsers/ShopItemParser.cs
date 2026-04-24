@@ -8,14 +8,14 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ShopItemParser(IDao<ShopItemDto, int> shopItemDao, IDao<ShopDto, int> shopDao, ILogger<ShopItemParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertShopItemsAsync(List<string[]> packetList)
         {
@@ -87,7 +87,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await shopItemDao.TryInsertOrUpdateAsync(shopListItemDtos);
-            logger.Information(logLanguage[LogLanguageKey.SHOPITEMS_PARSED],
+            logger.LogInformation(logLanguage[LogLanguageKey.SHOPITEMS_PARSED],
                 itemCounter);
         }
     }

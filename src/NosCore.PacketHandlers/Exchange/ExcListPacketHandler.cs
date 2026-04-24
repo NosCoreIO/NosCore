@@ -15,13 +15,13 @@ using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Exchange
 {
-    public class ExcListPacketHandler(IExchangeService exchangeService, ILogger logger,
+    public class ExcListPacketHandler(IExchangeService exchangeService, ILogger<ExcListPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         : PacketHandler<ExcListPacket>, IWorldPacketHandler
     {
@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Exchange
         {
             if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
             {
-                logger.Error(logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
+                logger.LogError(logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
                 return;
             }
 
@@ -54,7 +54,7 @@ namespace NosCore.PacketHandlers.Exchange
                                 ExchangeResultType.Failure);
                         await clientSession.SendPacketAsync(closeExchange);
                         await target.SendPacketAsync(closeExchange);
-                        logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
+                        logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
                         return;
                     }
 
@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Exchange
                         await clientSession.SendPacketAsync(exchangeService.CloseExchange(clientSession.Character.CharacterId,
                             ExchangeResultType.Failure));
                         await target.SendPacketAsync(exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure));
-                        logger.Error(
+                        logger.LogError(
                             logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
                         return;
                     }

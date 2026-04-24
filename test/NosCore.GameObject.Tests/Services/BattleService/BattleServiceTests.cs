@@ -21,7 +21,8 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
-using Serilog;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Wolverine;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _hitQueue.Object,
                 _bus.Object,
                 new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
-                new Mock<ILogger>().Object);
+                NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance);
         }
 
         [TestMethod]

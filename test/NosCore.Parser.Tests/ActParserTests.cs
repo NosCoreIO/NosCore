@@ -11,7 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -23,7 +23,7 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ActParserTests
     {
-        private Mock<ILogger> _loggerMock = null!;
+        private Mock<ILogger<ActParser>> _loggerMock = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<ActDto, byte>> _actDaoMock = null!;
         private Mock<IDao<ActPartDto, byte>> _actPartDaoMock = null!;
@@ -34,7 +34,7 @@ namespace NosCore.Parser.Tests
         [TestInitialize]
         public void Setup()
         {
-            _loggerMock = new Mock<ILogger>();
+            _loggerMock = new Mock<ILogger<ActParser>>();
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _actDaoMock = new Mock<IDao<ActDto, byte>>();
             _actPartDaoMock = new Mock<IDao<ActPartDto, byte>>();

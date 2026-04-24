@@ -24,7 +24,7 @@ using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -39,7 +39,7 @@ public sealed class RewardService(
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
     IExperienceProgressionService experienceProgression,
-    ILogger logger) : IRewardService
+    ILogger<RewardService> logger) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
     // on ServerManager; we keep it constant until there's a gameplay reason to tune it.
@@ -175,7 +175,7 @@ public sealed class RewardService(
             }
             catch (System.Exception ex)
             {
-                logger.Warning(ex, "Failed to spawn drop {VNum} from {Mob}", drop.VNum, mob.NpcMonsterVNum);
+                logger.LogWarning(ex, "Failed to spawn drop {VNum} from {Mob}", drop.VNum, mob.NpcMonsterVNum);
             }
         }
     }
@@ -199,7 +199,7 @@ public sealed class RewardService(
         }
         catch (System.Exception ex)
         {
-            logger.Warning(ex, "Failed to spawn gold drop from {Mob}", mob.NpcMonsterVNum);
+            logger.LogWarning(ex, "Failed to spawn gold drop from {Mob}", mob.NpcMonsterVNum);
         }
     }
 

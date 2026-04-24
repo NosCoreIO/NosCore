@@ -6,7 +6,6 @@
 
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -26,7 +25,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -38,7 +37,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
     [TestClass]
     public class MgPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private MgPacketHandler _mgPacketHandler = null!;
         private ClientSession _session = null!;
         private IMinilandService _minilandProvider = null!;
@@ -76,7 +74,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _session.Character.MapInstance = mapInstance;
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                Logger,
+                NullLoggerFactory.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer);
             _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider);
         }

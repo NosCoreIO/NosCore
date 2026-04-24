@@ -6,7 +6,6 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -14,7 +13,7 @@ using NosCore.Data.Enumerations.Miniland;
 using NosCore.Database;
 using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Linq;
@@ -25,7 +24,6 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
     [TestClass]
     public class WarehouseServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private IWarehouseService Service = null!;
         private IDao<WarehouseItemDto, Guid> WarehouseItemDao = null!;
         private IDao<WarehouseDto, Guid> WarehouseDao = null!;
@@ -41,9 +39,9 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
                 Guid.NewGuid().ToString());
             NosCoreContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
 
-            WarehouseItemDao = new Dao<Database.Entities.WarehouseItem, WarehouseItemDto, Guid>(Logger, ContextBuilder);
-            WarehouseDao = new Dao<Database.Entities.Warehouse, WarehouseDto, Guid>(Logger, ContextBuilder);
-            ItemInstanceDao = new Dao<Database.Entities.ItemInstance, IItemInstanceDto?, Guid>(Logger, ContextBuilder);
+            WarehouseItemDao = new Dao<Database.Entities.WarehouseItem, WarehouseItemDto, Guid>(NullLogger<Dao<Database.Entities.WarehouseItem, WarehouseItemDto, Guid>>.Instance, ContextBuilder);
+            WarehouseDao = new Dao<Database.Entities.Warehouse, WarehouseDto, Guid>(NullLogger<Dao<Database.Entities.Warehouse, WarehouseDto, Guid>>.Instance, ContextBuilder);
+            ItemInstanceDao = new Dao<Database.Entities.ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<Database.Entities.ItemInstance, IItemInstanceDto?, Guid>>.Instance, ContextBuilder);
 
             Service = new GameObject.Services.WarehouseService.WarehouseService(
                 WarehouseItemDao,

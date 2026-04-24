@@ -18,7 +18,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         private ClientSession Session = null!;
         private Mock<ISessionRegistry> SessionRegistry = null!;
         private Mock<IDeserializer> Deserializer = null!;
-        private Mock<ILogger> Logger = null!;
+        private Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>> Logger = null!;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
 
         [TestInitialize]
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
             Deserializer = new Mock<IDeserializer>();
-            Logger = new Mock<ILogger>();
+            Logger = new Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>();
             LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             Handler = new PostedPacketMessageChannelCommunicationMessageHandler(Logger.Object, Deserializer.Object, LogLanguage.Object, SessionRegistry.Object);
         }
@@ -185,7 +185,13 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void ShouldLogError()
         {
-            Logger.Verify(x => x.Error(It.IsAny<string>()), Times.Once);
+            Logger.Verify(x => x.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => true),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Once);
         }
     }
 }

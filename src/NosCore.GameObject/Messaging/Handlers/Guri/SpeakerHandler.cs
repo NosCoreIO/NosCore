@@ -18,13 +18,13 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Guri
 {
     [UsedImplicitly]
     public sealed class SpeakerHandler(
-        ILogger logger,
+        ILogger<SpeakerHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IGameLanguageLocalizer gameLanguageLocalizer,
         ISessionRegistry sessionRegistry)
@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 (short)(packet.VisualId ?? 0), NoscorePocketType.Etc);
             if (inv?.ItemInstance?.Item?.Effect != ItemEffectType.Speaker)
             {
-                logger.Error(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND],
+                logger.LogError(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND],
                     NoscorePocketType.Etc, (short)(packet.VisualId ?? 0)));
                 return;
             }
@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 }
                 if (deeplink == null)
                 {
-                    logger.Error(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
+                    logger.LogError(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND], type, slot));
                     return;
                 }
                 message = CraftMessage(message, valueSplit.Skip(2).ToArray()).Replace(' ', '|');

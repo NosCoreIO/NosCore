@@ -16,13 +16,13 @@ using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 using Wolverine;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger logger, IClock clock,
+    public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger<WalkPacketHandler> logger, IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
         : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Movement
             if ((walkPacket.XCoordinate + walkPacket.YCoordinate) % 3 % 2 != walkPacket.CheckSum)
             {
                 await session.DisconnectAsync();
-                logger.Error(logLanguage[LogLanguageKey.WALK_CHECKSUM_INVALID], session.Character.VisualId);
+                logger.LogError(logLanguage[LogLanguageKey.WALK_CHECKSUM_INVALID], session.Character.VisualId);
                 return;
             }
 
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Movement
             if (travelTime > 1000 * (_speedDiffAllowed + 1))
             {
                 await session.DisconnectAsync();
-                logger.Error(logLanguage[LogLanguageKey.SPEED_INVALID], session.Character.VisualId);
+                logger.LogError(logLanguage[LogLanguageKey.SPEED_INVALID], session.Character.VisualId);
                 return;
             }
 

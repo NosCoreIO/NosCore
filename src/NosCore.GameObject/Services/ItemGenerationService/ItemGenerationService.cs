@@ -13,7 +13,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 
@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 {
     public class ItemGenerationService(
         List<ItemDto> items,
-        ILogger logger,
+        ILoggerFactory loggerFactory,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IItemGenerationService
     {
         public IItemInstance Convert(IItemInstanceDto k)
@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                                 Design = design
                             };
                         default:
-                            var wear = new WearableInstance(itemToCreate, logger, logLanguage)
+                            var wear = new WearableInstance(itemToCreate, loggerFactory.CreateLogger<WearableInstance>(), logLanguage)
                             {
                                 Amount = amount,
                                 Rare = rare,

@@ -14,7 +14,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
     [TestClass]
     public class CharacterInitializationServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<CharacterInitializationServiceTests> Logger = new Mock<ILogger<CharacterInitializationServiceTests>>().Object;
         private ICharacterInitializationService Service = null!;
         private IMinilandService MinilandService = null!;
         private ClientSession Session = null!;

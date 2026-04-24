@@ -22,13 +22,13 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class CreateItemPackettHandler(ILogger logger, List<ItemDto> items,
+    public class CreateItemPackettHandler(ILogger<CreateItemPackettHandler> logger, List<ItemDto> items,
             IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<CreateItemPacket>, IWorldPacketHandler
@@ -139,7 +139,7 @@ namespace NosCore.PacketHandlers.Command
                         wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
                         break;
                     default:
-                        logger.Debug(
+                        logger.LogDebug(
                             logLanguage[LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE]);
                         break;
                 }

@@ -23,7 +23,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Map;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Services.MapChangeService
     public class MapChangeService(IExperienceService experienceService, IJobExperienceService jobExperienceService,
             IHeroExperienceService heroExperienceService, IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger<MapChangeService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus)
         : IMapChangeService
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (mapInstance == null)
                 {
-                    logger.Error(
+                    logger.LogError(
                         logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
                     return;
                 }
@@ -253,7 +253,7 @@ namespace NosCore.GameObject.Services.MapChangeService
             }
             catch (Exception ex)
             {
-                logger.Warning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
+                logger.LogWarning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
             }
             finally
             {

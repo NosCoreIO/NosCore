@@ -20,7 +20,7 @@ using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharRenPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<CharRenPacketHandlerTests> Logger = new Mock<ILogger<CharRenPacketHandlerTests>>().Object;
         private CharRenPacketHandler CharRenPacketHandler = null!;
         private ClientSession Session = null!;
         private Data.Dto.CharacterDto ExistingCharacter = null!;

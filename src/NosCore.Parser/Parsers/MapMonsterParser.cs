@@ -9,7 +9,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
     public class MapMonsterParser(IDao<MapMonsterDto, int> mapMonsterDao, IDao<NpcMonsterDto, short> npcMonsterDao,
-        ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        ILogger<MapMonsterParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         public async Task InsertMapMonsterAsync(List<string[]> packetList)
         {
@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
             }
 
             await mapMonsterDao.TryInsertOrUpdateAsync(monsters);
-            logger.Information(logLanguage[LogLanguageKey.MONSTERS_PARSED],
+            logger.LogInformation(logLanguage[LogLanguageKey.MONSTERS_PARSED],
                 monsters.Count);
         }
     }

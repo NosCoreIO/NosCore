@@ -22,7 +22,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Linq;
 using System.Threading.Tasks;
@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             SpTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock,
                 new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                    new Mock<ILogger>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration),
+                    new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration),
                 TestHelpers.Instance.GameLanguageLocalizer);
         }
 

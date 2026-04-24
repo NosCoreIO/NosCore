@@ -21,7 +21,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -34,7 +34,6 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
     [TestClass]
     public class ExchangeServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private GameObject.Services.ExchangeService.ExchangeService? ExchangeProvider;
         private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
         private IOptions<WorldConfiguration>? WorldConfiguration;
@@ -56,8 +55,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
                 new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, Logger, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
         }
 
         [TestMethod]
@@ -184,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             _sessionA = await TestHelpers.Instance.GenerateSessionAsync();
             _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
             _realExchange = new GameObject.Services.ExchangeService.ExchangeService(
-                ItemProvider!, WorldConfiguration!, Logger, new ExchangeRequestRegistry(),
+                ItemProvider!, WorldConfiguration!, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(),
                 TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
             _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
         }
@@ -319,10 +318,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         {
             IInventoryService inventory1 =
                 new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, Logger);
+                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
             IInventoryService inventory2 =
                 new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, Logger);
+                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
             var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 1), 0))!
                 .First();
             var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 1), 0))!

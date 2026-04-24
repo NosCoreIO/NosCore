@@ -13,7 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FriendService
 {
-    public class FriendService(ILogger logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
+    public class FriendService(ILogger<FriendService> logger, IDao<CharacterRelationDto, Guid> characterRelationDao,
             IDao<CharacterDto, long> characterDao, IFriendRequestRegistry friendRequestRegistry,
             IPubSubHub pubSubHub, IChannelHub channelHub, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : IFriendService
@@ -103,7 +103,7 @@ namespace NosCore.GameObject.Services.FriendService
                         friendRequestRegistry.UnregisterRequest(friendRequest.First().Key);
                         return LanguageKey.FRIEND_REJECTED;
                     default:
-                        logger.Error(logLanguage[LogLanguageKey.INVITETYPE_UNKNOWN]);
+                        logger.LogError(logLanguage[LogLanguageKey.INVITETYPE_UNKNOWN]);
                         friendRequestRegistry.UnregisterRequest(friendRequest.First().Key);
                         throw new ArgumentException();
                 }

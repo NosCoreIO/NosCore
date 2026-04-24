@@ -16,7 +16,7 @@ using NosCore.GameObject.Services.FriendService;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
     [TestClass]
     public class FriendServiceTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
+        private static readonly ILogger<NosCore.GameObject.Services.FriendService.FriendService> Logger = new Mock<ILogger<NosCore.GameObject.Services.FriendService.FriendService>>().Object;
         private IFriendService Service = null!;
         private IFriendRequestRegistry FriendRequestHolder = null!;
         private Mock<IPubSubHub> PubSubHub = null!;

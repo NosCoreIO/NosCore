@@ -19,7 +19,7 @@ using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,7 +27,7 @@ using System.Linq;
 namespace NosCore.GameObject.Services.ExchangeService
 {
     public class ExchangeService(IItemGenerationService itemBuilderService,
-            IOptions<WorldConfiguration> worldConfiguration, ILogger logger, IExchangeRequestRegistry exchangeRegistry,
+            IOptions<WorldConfiguration> worldConfiguration, ILogger<ExchangeService> logger, IExchangeRequestRegistry exchangeRegistry,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
         : IExchangeService
     {
@@ -152,7 +152,7 @@ namespace NosCore.GameObject.Services.ExchangeService
             var request = exchangeRegistry.GetExchangeRequest(visualId);
             if (request == null)
             {
-                logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return;
             }
 
@@ -189,19 +189,19 @@ namespace NosCore.GameObject.Services.ExchangeService
             var pair = exchangeRegistry.GetExchangeRequestPair(visualId);
             if (pair == null)
             {
-                logger.Error(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return null;
             }
 
             var data = pair.Value;
             if (!exchangeRegistry.RemoveExchangeData(data.Key) || !exchangeRegistry.RemoveExchangeRequest(data.Key))
             {
-                logger.Error(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
+                logger.LogError(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
             }
 
             if (!exchangeRegistry.RemoveExchangeData(data.Value) || !exchangeRegistry.RemoveExchangeRequest(data.Value))
             {
-                logger.Error(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
+                logger.LogError(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
             }
 
             return new ExcClosePacket
@@ -214,7 +214,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         {
             if (CheckExchange(visualId) || CheckExchange(targetVisualId))
             {
-                logger.Error(logLanguage[LogLanguageKey.ALREADY_EXCHANGE]);
+                logger.LogError(logLanguage[LogLanguageKey.ALREADY_EXCHANGE]);
                 return false;
             }
 

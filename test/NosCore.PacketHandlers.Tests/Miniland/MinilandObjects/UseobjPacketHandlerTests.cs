@@ -28,7 +28,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -41,7 +41,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
     [TestClass]
     public class UseobjPacketHandlerTests
     {
-        private static readonly ILogger Logger = new Mock<ILogger>().Object;
         private UseobjPacketHandler _useobjPacketHandler = null!;
         private ClientSession _session = null!;
         private IMinilandService _minilandProvider = null!;
@@ -83,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _itemInstanceDaoMock = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
-                Logger,
+                NullLoggerFactory.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer);
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider);
         }

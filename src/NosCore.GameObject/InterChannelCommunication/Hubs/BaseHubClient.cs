@@ -5,9 +5,9 @@
 //
 
 using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.Extensions.Logging;
 using Polly;
 using Polly.Retry;
-using Serilog;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,39 +19,39 @@ public abstract class BaseHubClient : IAsyncDisposable
     private readonly HubConnection _hubConnection;
     private readonly SemaphoreSlim _connectionLock = new(1, 1);
     private readonly ILogger _logger;
+    private readonly AsyncRetryPolicy _retryPolicy;
     private bool _isStarted;
-
-    private static readonly AsyncRetryPolicy RetryPolicy = Policy
-        .Handle<Exception>()
-        .WaitAndRetryAsync(
-            3,
-            attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
-            (exception, timeSpan, retryCount, _) =>
-            {
-                Log.Warning(exception, "Hub call failed. Retry {RetryCount} in {TimeSpan}", retryCount, timeSpan);
-            });
 
     protected BaseHubClient(HubConnectionFactory hubConnectionFactory, string hubName, ILogger logger)
     {
         _logger = logger;
+        _retryPolicy = Policy
+            .Handle<Exception>()
+            .WaitAndRetryAsync(
+                3,
+                attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt)),
+                (exception, timeSpan, retryCount, _) =>
+                {
+                    _logger.LogWarning(exception, "Hub call failed. Retry {RetryCount} in {TimeSpan}", retryCount, timeSpan);
+                });
         _hubConnection = hubConnectionFactory.Create(hubName);
 
         _hubConnection.Reconnecting += error =>
         {
-            _logger.Warning("Hub {HubName} reconnecting...", hubName);
+            _logger.LogWarning("Hub {HubName} reconnecting...", hubName);
             return Task.CompletedTask;
         };
 
         _hubConnection.Reconnected += connectionId =>
         {
-            _logger.Information("Hub {HubName} reconnected", hubName);
+            _logger.LogInformation("Hub {HubName} reconnected", hubName);
             return Task.CompletedTask;
         };
 
         _hubConnection.Closed += error =>
         {
             _isStarted = false;
-            _logger.Warning("Hub {HubName} connection closed", hubName);
+            _logger.LogWarning("Hub {HubName} connection closed", hubName);
             return Task.CompletedTask;
         };
     }
@@ -80,7 +80,7 @@ public abstract class BaseHubClient : IAsyncDisposable
 
     protected async Task<T> InvokeAsync<T>(string methodName, params object?[] args)
     {
-        return await RetryPolicy.ExecuteAsync(async () =>
+        return await _retryPolicy.ExecuteAsync(async () =>
         {
             await EnsureConnectedAsync();
             return await _hubConnection.InvokeCoreAsync<T>(methodName, args);
@@ -89,7 +89,7 @@ public abstract class BaseHubClient : IAsyncDisposable
 
     protected async Task InvokeAsync(string methodName, params object?[] args)
     {
-        await RetryPolicy.ExecuteAsync(async () =>
+        await _retryPolicy.ExecuteAsync(async () =>
         {
             await EnsureConnectedAsync();
             await _hubConnection.InvokeCoreAsync(methodName, args);

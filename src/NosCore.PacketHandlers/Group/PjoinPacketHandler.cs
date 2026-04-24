@@ -23,13 +23,13 @@ using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PjoinPacketHandler(ILogger logger, IBlacklistHub blacklistHttpCLient, IClock clock,
+    public class PjoinPacketHandler(ILogger<PjoinPacketHandler> logger, IBlacklistHub blacklistHttpCLient, IClock clock,
             IIdService<GameObject.Services.GroupService.Group> groupIdService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry)
@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Group
 
             if (!hasTargetSession && (pjoinPacket.RequestType != GroupRequestType.Sharing))
             {
-                logger.Error(gameLanguageLocalizer[LanguageKey.UNABLE_TO_REQUEST_GROUP,
+                logger.LogError(gameLanguageLocalizer[LanguageKey.UNABLE_TO_REQUEST_GROUP,
                     clientSession.Account.Language]);
                 return;
             }
@@ -321,7 +321,7 @@ namespace NosCore.PacketHandlers.Group
                     });
                     break;
                 default:
-                    logger.Error(logLanguage[LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN]);
+                    logger.LogError(logLanguage[LogLanguageKey.GROUPREQUESTTYPE_UNKNOWN]);
                     break;
             }
         }

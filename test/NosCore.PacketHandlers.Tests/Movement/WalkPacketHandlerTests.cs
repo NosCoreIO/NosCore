@@ -13,7 +13,7 @@ using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Tests.Shared;
-using Serilog;
+using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
 
@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         private WalkPacketHandler Handler = null!;
         private ClientSession Session = null!;
         private Mock<IHeuristic> DistanceCalculator = null!;
-        private readonly ILogger Logger = new Mock<ILogger>().Object;
+        private readonly ILogger<WalkPacketHandler> Logger = new Mock<ILogger<WalkPacketHandler>>().Object;
 
         [TestInitialize]
         public async Task SetupAsync()
