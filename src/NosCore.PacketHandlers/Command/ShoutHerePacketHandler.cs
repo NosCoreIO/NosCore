@@ -18,7 +18,7 @@ namespace NosCore.PacketHandlers.Command
     {
         public override Task ExecuteAsync(ShoutHerePacket packet, ClientSession session)
         {
-            if (string.IsNullOrEmpty(packet.Message))
+            if (string.IsNullOrWhiteSpace(packet.Message))
             {
                 return session.SendPacketAsync(session.Character.GenerateSay(packet.Help(), SayColorType.Yellow));
             }
