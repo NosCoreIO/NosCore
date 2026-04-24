@@ -23,11 +23,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             {
                 return new IvnSubPacket
                 {
-                    Slot = slot,
-                    VNum = -1,
-                    RareAmount = 0,
-                    UpgradeDesign = 0,
-                    SecondUpgrade = 0
+                    Slot = slot
                 };
             }
 
@@ -38,8 +34,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 RareAmount =
                     type != PocketType.Equipment ? itemInstance.Amount
                         : itemInstance.Rare,
-                UpgradeDesign = itemInstance.Upgrade,
-                SecondUpgrade = 0
+                UpgradeDesign = itemInstance.Upgrade
             };
         }
 
@@ -52,14 +47,14 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return new IvnPacket
                 {
                     Type = type,
-                    IvnSubPackets = new List<IvnSubPacket?> { ((IItemInstance?)null).GenerateIvnSubPacket(type, slot) }
+                    IvnSubPackets = new List<IvnSubPacket> { ((IItemInstance?)null).GenerateIvnSubPacket(type, slot) }
                 };
             }
 
             return new IvnPacket
             {
                 Type = type,
-                IvnSubPackets = new List<IvnSubPacket?>
+                IvnSubPackets = new List<IvnSubPacket>
                 {
                     new()
                     {
@@ -68,8 +63,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                         RareAmount =
                             itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
                                 : itemInstance.ItemInstance.Rare,
-                        UpgradeDesign = itemInstance.ItemInstance.Upgrade,
-                        SecondUpgrade = 0
+                        UpgradeDesign = itemInstance.ItemInstance.Upgrade
                     }
                 }
             };
@@ -87,7 +81,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             {
                 Type = type,
                 IvnSubPackets = itemInstance.Select(item => item.ItemInstance.GenerateIvnSubPacket(type, item.Slot))
-                    .ToList() as List<IvnSubPacket?>
+                    .ToList()
             };
 
         }
