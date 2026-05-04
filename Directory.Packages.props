@@ -26,7 +26,7 @@
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.6" />
     <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
     <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.6" />
     <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.6" />
