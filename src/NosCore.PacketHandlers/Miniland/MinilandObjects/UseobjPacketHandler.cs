@@ -22,6 +22,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using UseObjPacket = NosCore.Packets.ClientPackets.Miniland.UseObjPacket;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
@@ -33,7 +34,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             var miniland = minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             var minilandObject =
                 clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
-                    s.Slot == useobjPacket.ObjectId);
+                    s.Slot == useobjPacket.Slot);
             if (minilandObject == null)
             {
                 return;
@@ -50,7 +51,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 {
                     IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
                     ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
-                    Slot = (byte)useobjPacket.ObjectId,
+                    Slot = (byte)useobjPacket.Slot,
                     MinilandPoints = miniland.MinilandPoint,
                     LawDurability = minilandObject.DurabilityPoint < 1000,
                     IsFull = full,
