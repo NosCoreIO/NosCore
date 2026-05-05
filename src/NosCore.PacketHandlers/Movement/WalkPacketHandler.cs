@@ -33,8 +33,23 @@ namespace NosCore.PacketHandlers.Movement
         {
             var distance = (int)distanceCalculator.GetDistance((session.Character.PositionX, session.Character.PositionY), (walkPacket.XCoordinate, walkPacket.YCoordinate)) - 1;
 
-            if ((session.Character.Speed < walkPacket.Speed) || (distance > session.Character.Speed / 2))
+            if (session.Character.Speed < walkPacket.Speed)
             {
+                logger.LogWarning(
+                    "walk dropped: server speed {ServerSpeed} < packet speed {PacketSpeed} for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY})",
+                    session.Character.Speed, walkPacket.Speed, session.Character.VisualId,
+                    session.Character.PositionX, session.Character.PositionY,
+                    walkPacket.XCoordinate, walkPacket.YCoordinate);
+                return;
+            }
+
+            if (distance > session.Character.Speed / 2)
+            {
+                logger.LogWarning(
+                    "walk dropped: distance {Distance} > speed/2 ({HalfSpeed}) for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY}) packetSpeed={PacketSpeed}",
+                    distance, session.Character.Speed / 2, session.Character.VisualId,
+                    session.Character.PositionX, session.Character.PositionY,
+                    walkPacket.XCoordinate, walkPacket.YCoordinate, walkPacket.Speed);
                 return;
             }
 
@@ -53,25 +68,38 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            if (session.Character.MapInstance.Map.IsBlockedZone(
-                    session.Character.PositionX, session.Character.PositionY,
-                    walkPacket.XCoordinate, walkPacket.YCoordinate))
+            if (!session.Character.MapInstance.Map.IsWalkable(walkPacket.XCoordinate, walkPacket.YCoordinate))
             {
+                logger.LogWarning(
+                    "walk dropped: destination not walkable for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY})",
+                    session.Character.VisualId,
+                    session.Character.PositionX, session.Character.PositionY,
+                    walkPacket.XCoordinate, walkPacket.YCoordinate);
                 return;
             }
 
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
-                new EveryoneBut(session.Channel!.Id));
-
-            session.Character.LastMove = clock.GetCurrentInstant();
+            // Write the new position into the ECS BEFORE broadcasting `mv`: GenerateMove
+            // reads PositionX/Y, and monsters / other clients resolve target coords off
+            // the ECS as well. Broadcasting first left every observer at the stale spawn
+            // coords and made monsters pathfind back to the saved login position.
+            session.Character.PositionX = walkPacket.XCoordinate;
+            session.Character.PositionY = walkPacket.YCoordinate;
             if (session.Character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
             {
                 session.Character.MapX = walkPacket.XCoordinate;
                 session.Character.MapY = walkPacket.YCoordinate;
             }
+            session.Character.LastMove = clock.GetCurrentInstant();
 
-            session.Character.PositionX = walkPacket.XCoordinate;
-            session.Character.PositionY = walkPacket.YCoordinate;
+            logger.LogInformation(
+                "walk accepted: character {VisualId} wrote ({WrittenX},{WrittenY}); ECS now reads PositionX/Y=({StoredX},{StoredY}) MapX/Y=({StoredMapX},{StoredMapY})",
+                session.Character.VisualId,
+                walkPacket.XCoordinate, walkPacket.YCoordinate,
+                session.Character.PositionX, session.Character.PositionY,
+                session.Character.MapX, session.Character.MapY);
+
+            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
+                new EveryoneBut(session.Channel!.Id));
 
             await messageBus.PublishAsync(new CharacterMovedEvent(
                 session.Character,

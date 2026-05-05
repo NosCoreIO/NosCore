@@ -42,33 +42,36 @@ namespace NosCore.GameObject.Services.QuestService
 
         public QuestSubPacket GenerateQuestSubPacket(bool showDialog)
         {
-            var objectives = new List<QuestObjectiveSubPacket>();
-            var questCount = 0;
-            var complete = AreObjectivesComplete();
-            foreach (var objective in Quest.QuestObjectives)
+            var pairs = new (short Cur, short Req)[5];
+            var countable = IsCountableObjective(Quest.QuestType);
+            for (var i = 0; i < Quest.QuestObjectives.Count && i < 5; i++)
             {
-                var maxCount = IsCountableObjective(Quest.QuestType) ? (short)(objective.SecondData ?? 0) : (short)0;
-                var currentCount = IsCountableObjective(Quest.QuestType)
+                var objective = Quest.QuestObjectives[i];
+                var required = countable ? (short)(objective.SecondData ?? 0) : (short)0;
+                var current = countable
                     && ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var c)
                     ? (short)c
                     : (short)0;
-                objectives.Add(new QuestObjectiveSubPacket
-                {
-                    CurrentCount = currentCount,
-                    MaxCount = maxCount,
-                    IsFinished = questCount == 0 ? complete : (bool?)null
-                });
-                questCount++;
+                pairs[i] = (current, required);
             }
 
             return new QuestSubPacket
             {
                 QuestId = QuestId,
-                InfoId = QuestId,
-                GoalType = Quest.QuestType,
-                ObjectiveCount = 5,
-                ShowDialog = showDialog,
-                QuestObjectiveSubPackets = objectives
+                QuestLineId = QuestId,
+                QuestType = Quest.QuestType,
+                Status = (byte)(AreObjectivesComplete() ? 1 : 0),
+                Objective1Current = pairs[0].Cur,
+                Objective1Required = pairs[0].Req,
+                Objective2Current = pairs[1].Cur,
+                Objective2Required = pairs[1].Req,
+                Objective3Current = pairs[2].Cur,
+                Objective3Required = pairs[2].Req,
+                Objective4Current = pairs[3].Cur,
+                Objective4Required = pairs[3].Req,
+                Objective5Current = pairs[4].Cur,
+                Objective5Required = pairs[4].Req,
+                QuestToShowInfo = showDialog
             };
         }
 

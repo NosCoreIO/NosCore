@@ -12,6 +12,7 @@ namespace NosCore.GameObject.Services.AuthService
     {
         private readonly ConcurrentDictionary<string, string> _authCodes = new();
         private readonly ConcurrentDictionary<string, long> _readyForAuth = new();
+        private readonly ConcurrentDictionary<string, string> _sessionIps = new();
 
         public void StoreAuthCode(string authCode, string accountName)
         {
@@ -41,6 +42,21 @@ namespace NosCore.GameObject.Services.AuthService
         public void ClearReadyForAuth(string accountName)
         {
             _readyForAuth.TryRemove(accountName, out _);
+        }
+
+        public void RegisterSessionIp(string accountName, string ipAddress)
+        {
+            _sessionIps[accountName] = ipAddress;
+        }
+
+        public void UnregisterSessionIp(string accountName)
+        {
+            _sessionIps.TryRemove(accountName, out _);
+        }
+
+        public string? GetSessionIp(string accountName)
+        {
+            return _sessionIps.TryGetValue(accountName, out var ip) ? ip : null;
         }
     }
 }

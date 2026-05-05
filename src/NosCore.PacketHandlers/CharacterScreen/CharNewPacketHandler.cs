@@ -139,9 +139,15 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         inventory.AddItemToPocket(InventoryItemInstance.Create(itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount, itemToAdd.Rare, itemToAdd.Upgrade), chara.CharacterId), itemToAdd.NoscorePocketType);
                     }
 
-                    var skillsToAdd = ResolvePack(_worldConfiguration.BasicSkills, @class, origin, new List<short>());
+                    // Universal base skills every character must own regardless of class / starter
+                    // origin — matches vanosilla's BaseSkill.cs hard-coded list (VNum 200 primary,
+                    // 201 secondary, 209 Pet Catcher). These cannot live in WorldConfiguration.BasicSkills
+                    // because that table is class/origin-specific and would let a misconfigured JSON
+                    // create a character without the capture slot (u_s 16 returns `cancel 2 ...`).
+                    var skillsToAdd = new List<short> { 200, 201, 209 };
+                    skillsToAdd.AddRange(ResolvePack(_worldConfiguration.BasicSkills, @class, origin, new List<short>()));
 
-                    foreach (var skillToAdd in skillsToAdd)
+                    foreach (var skillToAdd in skillsToAdd.Distinct())
                     {
                         await characterSkillDao.TryInsertOrUpdateAsync(new CharacterSkillDto
                         { CharacterId = chara.CharacterId, SkillVNum = skillToAdd, Id = Guid.NewGuid() });

@@ -20,4 +20,8 @@ public interface IAuthHub
     /// first) can validate it via <see cref="GetAwaitingConnectionAsync"/>.
     /// </summary>
     Task StoreAuthCodeAsync(string authCode, string accountName);
+
+    Task RegisterSessionIpAsync(string accountName, string ipAddress);
+    Task UnregisterSessionIpAsync(string accountName);
+    Task<string?> GetSessionIpAsync(string accountName);
 }

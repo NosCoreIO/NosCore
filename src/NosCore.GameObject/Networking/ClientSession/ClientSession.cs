@@ -11,6 +11,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.PacketHandlerService;
@@ -38,6 +39,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         IPacketHandlingStrategy packetHandlingStrategy,
         IEnumerable<ISessionDisconnectHandler> disconnectHandlers,
         ISessionRegistry sessionRegistry,
+        IAuthHub authHub,
         IGameLanguageLocalizer? gameLanguageLocalizer = null)
         : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
@@ -115,6 +117,12 @@ namespace NosCore.GameObject.Networking.ClientSession
                     AccountName = accountDto.Name,
                     Disconnect = DisconnectAsync
                 });
+
+                var remoteAddress = Channel.RemoteAddress;
+                if (remoteAddress != null)
+                {
+                    _ = authHub.RegisterSessionIpAsync(accountDto.Name, remoteAddress);
+                }
             }
         }
 
@@ -192,6 +200,11 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (Channel != null)
                 {
                     sessionRegistry.Unregister(Channel.Id);
+                }
+                if (Account != null!)
+                {
+                    try { await authHub.UnregisterSessionIpAsync(Account.Name); }
+                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to unregister session IP for {Account}", Account.Name); }
                 }
                 await pubSubHub.UnsubscribeAsync(SessionId);
                 _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);

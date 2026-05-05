@@ -17,6 +17,12 @@ namespace NosCore.GameObject.Services.QuestService
         Task RunScriptAsync(ICharacterEntity character);
         Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
         Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob);
+
+        // Capture-specific quest progression (CAPTURE_AND_KEEP / CAPTURE_WITHOUT_KEEPING
+        // equivalents). Kept distinct from OnMonsterKilledAsync so capture doesn't
+        // accidentally credit hunt / kill objectives.
+        Task OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob);
+
         Task<bool> AddQuestAsync(ICharacterEntity character, QuestActionType type, short questId);
 
         // Flips CompletedOn (if not already), sends the client-side UI packet

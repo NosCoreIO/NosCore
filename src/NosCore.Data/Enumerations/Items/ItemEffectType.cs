@@ -14,6 +14,7 @@ namespace NosCore.Data.Enumerations.Items
         ApplyHairStyle = 11,
         Speaker = 15,
         MarriageProposal = 34,
+        MateCapture = 100,
         Undefined = 69,
         SpCharger = 71,
         DroppedSpRecharger = 150,

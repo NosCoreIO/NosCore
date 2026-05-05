@@ -11,6 +11,7 @@ using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
+using NosCore.Algorithm.SpeedService;
 using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -61,7 +62,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IDao<ScriptDto, Guid> scriptDao, List<QuestDto> quests, List<QuestObjectiveDto> questObjectives,
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
-            List<ItemDto> items, IHpService hpService, IMpService mpService, ISessionGroupFactory sessionGroupFactory,
+            List<ItemDto> items, IHpService hpService, IMpService mpService, ISpeedService speedService,
+            ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService, IMessageBus messageBus)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
@@ -155,7 +157,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     characterDto.HairColor,
                     characterDto.Class,
                     0,
-                    10,
+                    speedService.GetSpeed(characterDto.Class),
                     authority,
                     authority >= NosCore.Shared.Enumerations.AuthorityType.GameMaster,
                     configuration.Value.ServerId);
