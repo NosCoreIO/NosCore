@@ -15,37 +15,37 @@
     <PackageVersion Include="JsonPatch.Net" Version="5.0.2" />
     <PackageVersion Include="Mapster" Version="10.0.7" />
     <PackageVersion Include="Mapster.JsonNet" Version="10.0.7" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" />
-    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.0" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.6" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.AspNetCore.Authorization" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="5.3.0-2.25625.1" />
+    <PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.3.0" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Relational" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Caching.Memory" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.7" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.5.1" />
     <PackageVersion Include="Moq" Version="4.20.72" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="4.2.1" />
-    <PackageVersion Include="MSTest.TestFramework" Version="4.2.1" />
-    <PackageVersion Include="NodaTime" Version="3.3.1" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="4.2.2" />
+    <PackageVersion Include="MSTest.TestFramework" Version="4.2.2" />
+    <PackageVersion Include="NodaTime" Version="3.3.2" />
     <PackageVersion Include="NodaTime.Serialization.SystemTextJson" Version="1.3.1" />
-    <PackageVersion Include="NodaTime.Testing" Version="3.3.1" />
+    <PackageVersion Include="NodaTime.Testing" Version="3.3.2" />
     <PackageVersion Include="NosCore.Algorithm" Version="2.0.0" />
     <PackageVersion Include="NosCore.Analyzers" Version="2.0.0" />
     <PackageVersion Include="NosCore.Dao" Version="5.0.0" />
     <PackageVersion Include="NosCore.FastMember" Version="1.5.0" />
     <PackageVersion Include="NosCore.Networking" Version="8.0.0" />
-    <PackageVersion Include="NosCore.Packets" Version="20.0.2" />
+    <PackageVersion Include="NosCore.Packets" Version="20.0.3" />
     <PackageVersion Include="NosCore.PathFinder" Version="2.1.0" />
     <PackageVersion Include="NosCore.Shared" Version="6.0.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.1" />
@@ -64,9 +64,9 @@
     <PackageVersion Include="Serilog.Settings.Configuration" Version="10.0.0" />
     <PackageVersion Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageVersion Include="SpecLight" Version="1.0.71" />
-    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.17.0" />
+    <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.18.0" />
     <PackageVersion Include="System.Reactive" Version="6.1.0" />
     <PackageVersion Include="TwoFactorAuth.Net" Version="1.4.0" />
-    <PackageVersion Include="WolverineFx" Version="5.31.1" />
+    <PackageVersion Include="WolverineFx" Version="5.37.0" />
   </ItemGroup>
 </Project>
