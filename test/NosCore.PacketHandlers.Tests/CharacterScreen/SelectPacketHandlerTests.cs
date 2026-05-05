@@ -10,6 +10,7 @@ using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
 using NosCore.Algorithm.ReputationService;
+using NosCore.Algorithm.SpeedService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -66,6 +67,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new List<ItemDto>(),
                 new HpService(),
                 new MpService(),
+                new SpeedService(),
                 new Mock<ISessionGroupFactory>().Object,
                 new CharacterInitializationService(),
                 new Mock<Wolverine.IMessageBus>().Object);

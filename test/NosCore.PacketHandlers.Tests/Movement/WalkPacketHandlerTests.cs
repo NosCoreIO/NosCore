@@ -123,21 +123,10 @@ namespace NosCore.PacketHandlers.Tests.Movement
             }, Session);
         }
 
-        private async Task WalkingWithInvalidChecksum()
+        private void PositionShouldNotBeUpdated()
         {
-            await Handler.ExecuteAsync(new WalkPacket
-            {
-                XCoordinate = 5,
-                YCoordinate = 5,
-                Speed = 20,
-                CheckSum = 99
-            }, Session);
-        }
-
-        private void PositionShouldBeUpdated()
-        {
-            Assert.AreEqual(5, Session.Character.PositionX);
-            Assert.AreEqual(5, Session.Character.PositionY);
+            Assert.AreEqual(InitialX, Session.Character.PositionX);
+            Assert.AreEqual(InitialY, Session.Character.PositionY);
         }
 
         private void MapInstanceBecomesNormalInstance()
@@ -155,12 +144,6 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             Assert.AreEqual(expectedX, Session.Character.MapX);
             Assert.AreEqual(expectedY, Session.Character.MapY);
-        }
-
-        private void PositionShouldNotBeUpdated()
-        {
-            Assert.AreEqual(InitialX, Session.Character.PositionX);
-            Assert.AreEqual(InitialY, Session.Character.PositionY);
         }
 
         private void NoPacketShouldBeSent()
