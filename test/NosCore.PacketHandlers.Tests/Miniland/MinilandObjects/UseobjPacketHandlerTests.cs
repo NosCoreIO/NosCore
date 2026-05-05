@@ -34,7 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using UseObjPacket = NosCore.Packets.ServerPackets.Miniland.UseObjPacket;
+using UseObjPacket = NosCore.Packets.ClientPackets.Miniland.UseObjPacket;
 
 namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 {
@@ -163,27 +163,27 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private async Task UsingNonExistentObject()
         {
-            var useobjPacket = new UseObjPacket
+            var useobjPacket = new UseObjPacket(_session.Character.Name)
             {
-                ObjectId = 99
+                Slot = 99
             };
             await _useobjPacketHandler.ExecuteAsync(useobjPacket, _session);
         }
 
         private async Task UsingMinigameObject()
         {
-            var useobjPacket = new UseObjPacket
+            var useobjPacket = new UseObjPacket(_session.Character.Name)
             {
-                ObjectId = 0
+                Slot = 0
             };
             await _useobjPacketHandler.ExecuteAsync(useobjPacket, _session);
         }
 
         private async Task UsingWarehouseObject()
         {
-            var useobjPacket = new UseObjPacket
+            var useobjPacket = new UseObjPacket(_session.Character.Name)
             {
-                ObjectId = 0
+                Slot = 0
             };
             await _useobjPacketHandler.ExecuteAsync(useobjPacket, _session);
         }
