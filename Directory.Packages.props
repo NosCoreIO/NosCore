@@ -11,7 +11,7 @@
     <PackageVersion Include="BCrypt.Net-Core" Version="1.6.0" />
     <PackageVersion Include="coverlet.msbuild" Version="10.0.0" />
     <PackageVersion Include="FastExpressionCompiler" Version="5.4.1" />
-    <PackageVersion Include="JetBrains.Annotations" Version="2025.2.4" />
+    <PackageVersion Include="JetBrains.Annotations" Version="2026.2.0" />
     <PackageVersion Include="JsonPatch.Net" Version="5.0.2" />
     <PackageVersion Include="Mapster" Version="10.0.7" />
     <PackageVersion Include="Mapster.JsonNet" Version="10.0.7" />
