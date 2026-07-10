@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="Arch" Version="2.1.0" />
-    <PackageVersion Include="Autofac" Version="9.1.0" />
+    <PackageVersion Include="Autofac" Version="9.3.1" />
     <PackageVersion Include="Autofac.Extensions.DependencyInjection" Version="11.0.0" />
     <PackageVersion Include="AutoFixture" Version="4.18.1" />
     <PackageVersion Include="AutoFixture.AutoMoq" Version="4.18.1" />
