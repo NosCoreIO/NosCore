@@ -6,6 +6,9 @@ on:
   pull_request:
     branches: [ master ]
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -31,7 +34,11 @@ jobs:
         dotnet test test/NosCore.PacketHandlers.Tests/NosCore.PacketHandlers.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.Tests.Shared/NosCore.Tests.Shared.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.WebApi.Tests/NosCore.WebApi.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
-        curl -s https://codecov.io/bash | bash -s -- -t $(CODECOV_TOKEN)
+
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v5
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
 
     - name: Login to DockerHub
       if: github.ref == 'refs/heads/master'
