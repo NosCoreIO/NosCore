@@ -67,6 +67,6 @@
     <PackageVersion Include="System.IdentityModel.Tokens.Jwt" Version="8.22.0" />
     <PackageVersion Include="System.Reactive" Version="7.0.0" />
     <PackageVersion Include="TwoFactorAuth.Net" Version="1.4.0" />
-    <PackageVersion Include="WolverineFx" Version="6.28.0" />
+    <PackageVersion Include="WolverineFx" Version="6.29.0" />
   </ItemGroup>
 </Project>
