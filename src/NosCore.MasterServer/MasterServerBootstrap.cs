@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -88,11 +88,17 @@ namespace NosCore.MasterServer
             builder.Configuration.AddConfiguration(
                 ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }));
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            // When output is redirected - a Windows service, a container, a process manager,
+            // CI - touching the console title throws on Windows, and the server dies during
+            // startup having done nothing at all. The banner has the same problem: it measures
+            // the window width. Both are decoration, so they are attempted and skipped when
+            // they cannot be done.
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                Console.Title = Title;
+                try { Console.Title = Title; } catch { /* console rediretta o assente */ }
             }
-            Logger.PrintHeader(ConsoleText);
+
+            try { Logger.PrintHeader(ConsoleText); } catch { /* idem */ }
 
             builder.Host.UseSerilog();
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());

@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -20,6 +20,9 @@
     <PackageReference Include="NosCore.Algorithm" />
     <PackageReference Include="System.Reactive" />
     <PackageReference Include="WolverineFx" />
+    <!-- See the note in Directory.Packages.props: from Wolverine 6 on, without this the
+         server builds but will not start. -->
+    <PackageReference Include="WolverineFx.RuntimeCompilation" />
   </ItemGroup>
 
   <ItemGroup>

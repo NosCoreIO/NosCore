@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -27,7 +27,9 @@ namespace NosCore.MasterServer
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
+                // See MasterServerBootstrap: this throws when output is redirected.
+                try { Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}"; }
+                catch { /* console rediretta o assente */ }
             }
 
             return Task.CompletedTask;

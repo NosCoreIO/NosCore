@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -49,7 +49,9 @@ namespace NosCore.WorldServer
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
+                // The console title cannot be touched when output is redirected.
+                try { Console.Title += $@" - Port : {worldConfiguration.Value.Port}"; }
+                catch { /* console rediretta o assente */ }
             }
             var connectTask = Policy
                 .Handle<Exception>()
