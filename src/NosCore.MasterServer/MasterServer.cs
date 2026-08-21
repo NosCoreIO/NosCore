@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,7 +28,14 @@ namespace NosCore.MasterServer
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
+                try
+                {
+                    Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
+                }
+                catch (IOException)
+                {
+                    // No console attached to carry a title (service, detached process).
+                }
             }
 
             return Task.CompletedTask;

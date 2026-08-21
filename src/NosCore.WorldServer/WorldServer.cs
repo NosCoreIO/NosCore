@@ -20,6 +20,7 @@ using NosCore.Networking.SessionGroup;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -49,7 +50,14 @@ namespace NosCore.WorldServer
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
+                try
+                {
+                    Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
+                }
+                catch (IOException)
+                {
+                    // No console attached to carry a title (service, detached process).
+                }
             }
             var connectTask = Policy
                 .Handle<Exception>()

@@ -17,6 +17,7 @@ using NosCore.Networking;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
+using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -32,7 +33,14 @@ namespace NosCore.LoginServer
         {
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}";
+                try
+                {
+                    Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}";
+                }
+                catch (IOException)
+                {
+                    // No console attached to carry a title (service, detached process).
+                }
             }
 
             try

@@ -55,6 +55,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -90,7 +91,14 @@ namespace NosCore.MasterServer
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                Console.Title = Title;
+                try
+                {
+                    Console.Title = Title;
+                }
+                catch (IOException)
+                {
+                    // No console attached to carry a title (service, detached process).
+                }
             }
             Logger.PrintHeader(ConsoleText);
 

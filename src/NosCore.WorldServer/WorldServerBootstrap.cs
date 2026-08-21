@@ -74,6 +74,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using Wolverine;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -234,7 +235,14 @@ namespace NosCore.WorldServer
                 {
                     if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
                     {
-                        Console.Title = Title;
+                        try
+                        {
+                            Console.Title = Title;
+                        }
+                        catch (IOException)
+                        {
+                            // No console attached to carry a title (service, detached process).
+                        }
                     }
 
                     InitializeConfiguration(args, services);
