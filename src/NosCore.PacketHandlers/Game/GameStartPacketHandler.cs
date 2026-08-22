@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -23,6 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -149,9 +151,23 @@ namespace NosCore.PacketHandlers.Game
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
-            //            // MATES
-            //            Session.SendPackets(Session.Character.GenerateScP());
-            //            Session.SendPackets(Session.Character.GenerateScN());
+            // MATES. The capture spells out the order: p_clear wipes whatever the client had,
+            // then one sc_p per pet and one sc_n per partner, then sc_p_stc closes the burst.
+            //
+            //     p_clear
+            //     sc_p 3 1508 26724 1 1000 0 ...
+            //     sc_n 1 319 26719 50 1000 1536 ...
+            //     sc_p_stc 0
+            //
+            // p_clear is already sent above for the party window; the pet list needs its own,
+            // because the client treats the two as one panel and a stale row would survive.
+            await session.SendPacketAsync(new PclearPacket());
+            await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
+
+            // sc_p_stc carries how many extra mate slots the account has bought, in tenths. Zero
+            // until the shop that sells them exists — but the packet has to be there, because it
+            // is what tells the client the list is complete.
+            await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
             //            Session.Character.GenerateStartupInventory();
 
             await session.SendPacketAsync(session.Character.GenerateGold());

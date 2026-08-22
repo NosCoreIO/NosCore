@@ -236,11 +236,12 @@ public class MapWorld : IDisposable
         PlayerContextComponent context,
         PlayerInventoryComponent inventory,
         PlayerSocialComponent social,
-        PlayerRequestsComponent requests)
+        PlayerRequestsComponent requests,
+        PlayerMatesComponent mates)
     {
         return World.Create(identity, health, mana, position, visual, appearance, experience, gold,
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
-            context, inventory, social, requests);
+            context, inventory, social, requests, mates);
     }
 
     public void DestroyEntity(Entity entity)

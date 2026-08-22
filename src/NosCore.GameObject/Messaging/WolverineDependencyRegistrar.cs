@@ -17,6 +17,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
@@ -47,6 +48,9 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IIdService<Group>>(_ => new IdService<Group>(1));
         services.AddSingleton<IIdService<MapItemComponentBundle>>(_ => new IdService<MapItemComponentBundle>(100000));
         services.AddSingleton<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1));
+        // Mates start at two million so their transport ids cannot collide with the visual ids
+        // of the monsters and npcs already on a map, which live far below that.
+        services.AddSingleton<IIdService<Mate>>(_ => new IdService<Mate>(2000000));
 
         // Pathfinder / heuristic — OctileDistance is the standard NosTale grid
         // metric (diagonal moves cost sqrt(2), orthogonal cost 1).
@@ -59,6 +63,7 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IMapInstanceRegistry, MapInstanceRegistry>();
         services.AddSingleton<IExchangeRequestRegistry, ExchangeRequestRegistry>();
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
+        services.AddSingleton<IMateService, MateService>();
 
         // Inter-channel hub clients — one instance per concrete HubClient, each
         // exposed as all of its implemented interfaces so features that depend on

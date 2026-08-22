@@ -71,7 +71,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 new Mock<ISessionGroupFactory>().Object,
                 new CharacterInitializationService(),
-                new Mock<Wolverine.IMessageBus>().Object);
+                new Mock<Wolverine.IMessageBus>().Object,
+                new Mock<NosCore.GameObject.Services.MateService.IMateService>().Object);
         }
 
         [TestMethod]
