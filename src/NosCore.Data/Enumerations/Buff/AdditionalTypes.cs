@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -397,10 +397,14 @@ namespace NosCore.Data.Enumerations.Buff
             AttackHitChanceNegated = 12,
             AlwaysDodgePropability = 21,
             AlwaysDodgePropabilityNegated = 22,
-            NoPenatly = 41,
+
+            NoPenalty = 31,
+            NoPenaltyNegated = 32,
+
             DistanceDamageIncreasing = 41,
-            NoPenatlyNegated = 42,
-            DistanceDamageIncreasingNegated = 42
+            DistanceDamageIncreasingNegated = 42,
+
+            FairyDamagePerDebuff = 51
         }
 
         public enum HealingBurningAndCasting : byte
@@ -427,7 +431,15 @@ namespace NosCore.Data.Enumerations.Buff
         public enum HideBarrelSkill : byte
         {
             NoHpConsumption = 11,
-            NoHpRecovery = 12
+            NoHpRecovery = 12,
+            DamageByDistanceIncreased = 21,
+            DamageByDistanceDecreased = 22,
+            ChanceNoDebuffPerStack = 31,
+            ChanceDebuffPerStack = 32,
+            HpPerBuffStackRestored = 41,
+            HpPerBuffStackReduced = 42,
+            OnlyEnemiesWithBuffsAbove = 51,
+            OnlyEnemiesWithDebuffsAbove = 52
         }
 
         public enum Hpmp : byte
@@ -537,7 +549,15 @@ namespace NosCore.Data.Enumerations.Buff
         public enum LordHatus : byte
         {
             InflictDamageAtLocation = 11,
-            InflictDamageAtLocationNegated = 12
+            InflictDamageAtLocationNegated = 12,
+            SunWolfCommandChance = 21,
+            SunWolfCommandChanceNegated = 22,
+            RestoreHpFromDamageTaken = 31,
+            RestoreMpFromDamageTaken = 32,
+            DamageCap = 41,
+            DamageCapNegated = 42,
+            NamedEffectCriticalChance = 51,
+            NamedEffectCriticalChanceNegated = 52
         }
 
         public enum MaxHpmp : byte
@@ -634,7 +654,9 @@ namespace NosCore.Data.Enumerations.Buff
             RangedAttackIncreased = 31,
             RangedAttackDecreased = 32,
             MagicalAttackIncreased = 41,
-            MagicalAttackDecreased = 42
+            MagicalAttackDecreased = 42,
+            DamageTakenReducedByMissingHp = 51,
+            DamageDealtIncreasedByMissingHp = 52
         }
 
         public enum MultDefence : byte
@@ -676,7 +698,15 @@ namespace NosCore.Data.Enumerations.Buff
         public enum Quest : byte
         {
             SummonMonsterBased = 11,
-            SummonMonsterBasedNegated = 12
+            SummonMonsterBasedNegated = 12,
+            RestoreHpFromDamage = 21,
+            RestoreMpFromDamage = 22,
+            SeeHiddenWithinRange = 31,
+            SeeHiddenWithinRangeNegated = 32,
+            AdditionalHpPercent = 41,
+            AdditionalMpPercent = 42,
+            InvisibleBeyondFiveSpaces = 51,
+            InvisibleBeyondFiveSpacesNegated = 52
         }
 
         public enum Recovery : byte
@@ -717,8 +747,10 @@ namespace NosCore.Data.Enumerations.Buff
             PlantBombWhenAttack = 22, // Same as 12!
             ReduceEnemySkill = 31,
             ReduceEnemySkillNegated = 32,
-            HitAttacker = 41,
-            HitAttackerNegated = 42
+            CastBuffOnAttacker = 41,
+            CastBuffOnAttackerNegated = 42,
+            ChanceCausingXBuffOnAttacker = 51,
+            ChanceCausingXBuffOnAttackerNegated = 52
         }
 
         public enum SeSpecialist : byte
@@ -750,7 +782,13 @@ namespace NosCore.Data.Enumerations.Buff
             LowerSpScroll = 11,
             LowerSpScrollNegated = 12,
             HigherSpScroll = 21,
-            HigherSpScrollNegated = 22
+            HigherSpScrollNegated = 22,
+            MonsterAndPlayerEffect = 31,
+            MonsterAndPlayerEffectNegated = 32,
+            AllSpecialistPointsIncreased = 41,
+            AllSpecialistPointsIncreasedNegated = 42,
+            PetTrainerExperience = 51,
+            PetTrainerExperienceNegated = 52
         }
 
         public enum SpecialActions : byte
@@ -870,6 +908,7 @@ namespace NosCore.Data.Enumerations.Buff
             ResistanceToEffectNegated = 32,
             IncreaseDamageInPvp = 41,
             DecreaseDamageInPvp = 42,
+            RemoveBuffBelowLevel = 51,
             RemoveBadEffects = 52
         }
 
@@ -905,7 +944,15 @@ namespace NosCore.Data.Enumerations.Buff
         public enum SummonedMonsterAttack : byte
         {
             CauseDamage = 11,
-            CauseDamageNegated = 12
+            CauseDamageNegated = 12,
+            RemoveDebuffOnHitChance = 21,
+            RemoveDebuffOnHitChanceNegated = 22,
+            HpFromDamageByMissingHp = 31,
+            HpFromDamageByMissingHpNegated = 32,
+            NoHpMpConsumption = 41,
+            NoHpMpRecovery = 42,
+            MovementSpeedCapped = 51,
+            MovementSpeedCappedNegated = 52
         }
 
         public enum Summons : byte
@@ -961,7 +1008,13 @@ namespace NosCore.Data.Enumerations.Buff
             DamageTakenIncreased = 11,
             DamageTakenDecreased = 12,
             AttackPowerIncreased = 21,
-            AttackPowerDecreased = 22
+            AttackPowerDecreased = 22,
+            SecondBasicAttackChance = 31,
+            SecondBasicAttackChanceNegated = 32,
+            RestoreHpPercent = 41,
+            RestoreMpPercent = 42,
+            LowHpDamageReduction = 51,
+            LowHpAttackBonus = 52
         }
 
         public enum TimeCircleSkills : byte
@@ -1006,6 +1059,7 @@ namespace NosCore.Data.Enumerations.Buff
         public enum Type86 : byte
         {
             CdResetWithProb = 11,
+            CdResetWithProbUncapped = 12,
             IncreaseGrovyBeachVibesProb = 21,
             DecreaseGrovyBeachVibesProb = 22,
             IncreaseDamageVsHigherLevelMonster = 31,
@@ -1077,14 +1131,14 @@ namespace NosCore.Data.Enumerations.Buff
 
         public enum Type93 : byte
         {
-            IncreaseElementOnAttack = 00,
-            DecreaseElementOnAttack = 01,
             IncreaseFireElement = 11,
             DecreaseFireElement = 12,
             IncreaseWaterElement = 21,
             DecreaseWaterElement = 22,
-            //SubType 3 didn't exist. IncreaseLightElement ?
-            //SubType 4 didn't exist. IncreaseDarkElement ?
+            IncreaseLightElement = 31,
+            DecreaseLightElement = 32,
+            IncreaseShadowElement = 41,
+            DecreaseShadowElement = 42,
             IncreaseAllElements = 51,
             DecreaseAllElements = 52
         }
@@ -1097,7 +1151,10 @@ namespace NosCore.Data.Enumerations.Buff
             DecreaseFireRes = 22,
             IncreaseWaterRes = 31,
             DecreaseWaterRes = 32,
-            //SubType 4 didn't exist. IncreaseLightRes ?
+
+            IncreaseLightRes = 41,
+            DecreaseLightRes = 42,
+
             IncreaseDarkRes = 51,
             DecreaseDarkRes = 52
         }
@@ -1105,9 +1162,15 @@ namespace NosCore.Data.Enumerations.Buff
         public enum Type95 : byte
         {
             DropX2Chance = 11,
-            AddBuffOnAttack = 21,
-            //SubType 3 didn't exist.
-            AddBuffOnDef = 41,
+            NoDropChance = 12,
+            ChanceCausingXBuffOnEnemyOnAttack = 21,
+            ChanceCausingXBuffOnEnemyOnAttackNegated = 22,
+            ChanceReceivingXBuffOnAttack = 31,
+            ChanceReceivingXBuffOnAttackNegated = 32,
+            ChanceCausingXBuffOnEnemyOnDefence = 41,
+            ChanceCausingXBuffOnEnemyOnDefenceNegated = 42,
+            ChanceReceivingXBuffOnDefence = 51,
+            ChanceReceivingXBuffOnDefenceNegated = 52
         }
 
         public enum Type96 : byte
@@ -1133,12 +1196,16 @@ namespace NosCore.Data.Enumerations.Buff
 
         public enum Type98 : byte
         {
-            IncreaseWaterDamage = 00,
-            DecreaseWaterDamage = 01,
-            IncreaseAllAttackDamageRecived = 11,
-            DecreaseAllAttackDamageRecived = 12,
-            IncreaseFireAttackDamage = 21,
-            DecreaseFireAttackDamage = 22
+            AllElementalDamageIncreasedChance = 11,
+            AllElementalDamageReducedChance = 12,
+            FireDamageIncreasedChance = 21,
+            FireDamageReducedChance = 22,
+            WaterDamageIncreasedChance = 31,
+            WaterDamageReducedChance = 32,
+            LightDamageIncreasedChance = 41,
+            LightDamageReducedChance = 42,
+            ShadowDamageIncreasedChance = 51,
+            ShadowDamageReducedChance = 52
         }
 
         public enum Type99 : byte
@@ -1183,6 +1250,20 @@ namespace NosCore.Data.Enumerations.Buff
             DecreaseDodge = 52
         }
 
+        public enum Type114 : byte
+        {
+            FireDamageIncreasedChance = 11,
+            FireDamageReducedChance = 12,
+            WaterDamageIncreasedChance = 21,
+            WaterDamageReducedChance = 22,
+            LightDamageIncreasedChance = 31,
+            LightDamageReducedChance = 32,
+            ShadowDamageIncreasedChance = 41,
+            ShadowDamageReducedChance = 42,
+            EnemySoftCritDamageReduced = 51,
+            EnemySoftCritDamageReducedNegated = 52
+        }
+
         public enum Type102 : byte
         {
             IncreaseSLDamage = 11,
@@ -1214,6 +1295,7 @@ namespace NosCore.Data.Enumerations.Buff
         public enum Type104 : byte
         {
             ReflectOnDeff = 11,
+            ReflectOnDeffNegated = 12,
             AreaDamageEachSecond = 21,
             SummonMonsterOnDef = 31,
             //SubType 4 didn't exist.
@@ -1222,36 +1304,42 @@ namespace NosCore.Data.Enumerations.Buff
 
         public enum Type107 : byte
         {
-            IncreaseMagicDamage = 11,
-            DecreaseMagicDamage = 12,
-            IncreaseElementResOnDef = 21,
-            DecreaseElementResOnDef = 22,
-            IncreaseXpGain = 31,
-            DecreaseXpGain = 32,
-            //SubType 4 didn't exist.
-            IncreaseDodge = 51,
-            DecreaseDodge = 52
+            MagicArmourFlat = 11,
+            MagicArmourFlatNegated = 12,
+            ElementResistanceOnDefenceChance = 21,
+            ElementResistanceOnDefenceChanceNegated = 22,
+            MaxAdditionalHpIncreased = 31,
+            MaxAdditionalHpDecreased = 32,
+            IgnoreBlockChance = 41,
+            IgnoreBlockChanceNegated = 42,
+            DodgeIncreasedPercent = 51,
+            HitRateIncreasedPercent = 52
         }
 
         public enum Type108 : byte
         {
             ReflectCritOnDef = 11,
+            ReflectCritOnDefNegated = 12,
             IncreaseDodgeByMissingHp = 21,
             DecreaseDodgeByMissingHp = 22,
             IncreaseCritDamageWithCount = 31,
             DecreaseCritDamageWithCount = 32,
             TransferDamageToMp = 41,
+            TransferDamageToMpNegated = 42,
             IncreaseAttackByMagicRes = 51,
             DecreaseAttackByMagicRes = 52
         }
 
         public enum Type109 : byte
         {
-            //SubType 1 didn't exist.
-            //SubType 2 didn't exist.
-            //SubType 3 didn't exist.
-            ChanceToIncreaseDamage = 41,
-            ChanceToDecreaseDamage = 42,
+            LionLoaDamageChance = 11,
+            LionLoaDamageChanceNegated = 12,
+            EagleLoaDamageChance = 21,
+            EagleLoaDamageChanceNegated = 22,
+            SnakeLoaDamageChance = 31,
+            SnakeLoaDamageChanceNegated = 32,
+            BearLoaDamageChance = 41,
+            BearLoaDamageChanceNegated = 42,
             IncreaseElementOnDebuff = 51,
             DecreaseElementOnDebuff = 52
         }
@@ -1264,5 +1352,42 @@ namespace NosCore.Data.Enumerations.Buff
         }
 
         // end!
+
+        public enum ArmourPiercing : byte
+        {
+            PierceArmour = 11,
+            CountsAsPinpoint = 21,
+            CriticalDamageWhileActive = 31,
+            CriticalChanceWhileActive = 41,
+            OnBlockWhileActive = 51
+        }
+
+        public enum HeatAndGravity : byte
+        {
+            ConsumeHeatForDamage = 11,
+            GainSharpness = 21,
+            GainGravity = 31,
+            GravitationDamage = 41,
+            DamageFromGravityPool = 51
+        }
+
+        public enum FuelPoints : byte
+        {
+            ConsumeForShadow = 11,
+            ConsumeForEffect = 21,
+            ConsumeForCooldownReset = 31,
+            ConsumeForDefencePierce = 41,
+            GainHeat = 51
+        }
+
+        public enum TokenSystem : byte
+        {
+            RequiresTokens = 11,
+            ChanceToGainTokens = 21,
+            EnhancementActive = 31,
+            GaugeIncrease = 41,
+            SpendForGuaranteedReward = 51
+        }
+
     }
 }

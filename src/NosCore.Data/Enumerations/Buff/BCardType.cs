@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -70,8 +70,8 @@ namespace NosCore.Data.Enumerations.Buff
             LordHatus = 53,
             LordCalvinas = 54,
             SeSpecialist = 55,
-            SummonedMonsterAttack = 56,
-            FourthGlacernonFamilyRaid = 57,
+            FourthGlacernonFamilyRaid = 56,
+            SummonedMonsterAttack = 57,
             BearSpirit = 58,
             SummonSkill = 59,
             InflictSkill = 60,
@@ -129,7 +129,14 @@ namespace NosCore.Data.Enumerations.Buff
             Type109 = 109,
             Type110 = 110,
 
-            Spsl = 200
+            Type114 = 114,
+
+            Spsl = 200,
+
+            ArmourPiercing = 118,
+            HeatAndGravity = 120,
+            FuelPoints = 122,
+            TokenSystem = 124
         }
     }
 }
