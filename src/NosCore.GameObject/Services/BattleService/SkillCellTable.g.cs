@@ -1,13 +1,7 @@
-﻿// GENERATED FROM THE CLIENT'S Skill.dat - do not edit by hand.
+// GENERATED FROM THE CLIENT'S Skill.dat - do not edit by hand.
 //
-// The cell pattern of the skills that hit by cells. Each entry is a flat list of (dx, dy) pairs
-// relative to the caster with the pattern facing north, so a negative dy is forward; the caller
-// rotates them towards the target.
-//
-// They are a table rather than a database column because they are static client data: the same
-// for every server, and read straight out of the file that ships with the game.
-//
-// 68 skills, 1002 cells in all.
+// Skill.dat's CELL section: (dx, dy) pairs relative to the caster, drawn facing north, so a
+// negative dy is forward. Static client data, hence a table rather than a column.
 
 
 using System.Collections.Generic;

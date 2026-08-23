@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -35,9 +35,7 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             return results;
         }
 
-        // Skills with a CELL pattern have no area radius: 67 of the 68 declare
-        // AOE with radius zero, because the area *is* the pattern. Taking the radius ends up
-        // hitting the single target, with nothing to say so.
+        // A CELL pattern comes with radius zero: the area is the pattern.
         var pattern = SkillCells.Pattern(skill.SkillVnum);
         var cells = pattern == null
             ? null
@@ -95,8 +93,7 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
         };
     }
 
-    // Who is hit: the pattern's cells when the skill has one, otherwise the box around the
-    // target.
+    // The pattern's cells when the skill has one, otherwise the box around the target.
     private static bool IsHit(HashSet<(short X, short Y)>? cells, short cx, short cy, short x,
         short y, int range)
     {

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -10,9 +10,6 @@ using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
-    // Getting this wrong raises nothing: an unapplied or badly rotated pattern means the skill
-    // hits fewer people and the game carries on. The expected numbers come from the client's
-    // Skill.dat, not from another implementation.
     [TestClass]
     public class SkillCellsTests
     {
@@ -20,8 +17,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         //     CELL 9 10 | 0 -8 1 | 0 -7 1 | ... | 0 -1 1 | 0 0 0
         private const short PiercingShot = 244;
 
-        // 367 "Fire Breath": a rectangle of thirty cells in front. It guards the fact that the
-        // list does NOT stop at twenty - eleven skills reach thirty.
+        // 367 "Fire Breath": thirty cells, so the list does not stop at twenty.
         private const short Fireblast = 367;
 
         [TestMethod]
@@ -85,9 +81,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             }
         }
 
-        // On a diagonal the rotation rounds, so an exact row cannot be demanded. What can be
-        // demanded is that the row really points at the target: every cell in the right quadrant,
-        // and the furthest one as far out as eight diagonal steps reach.
+        // Diagonals round, so demand the quadrant and the reach rather than exact cells.
         [TestMethod]
         public void AimingDiagonallyPointsTheLineAtTheTarget()
         {
@@ -103,9 +97,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 "eight diagonal steps reach six cells on each axis, not eight");
         }
 
-        // Caster and target on the same cell: no direction, so the pattern is kept as authored.
-        // Without the guard the normalisation divides by zero, every cell becomes NaN and then
-        // zero once converted - all of them stacked on the caster, in silence.
+        // Without the zero-distance guard the normalisation divides by zero and every cell
+        // collapses onto the caster, silently.
         [TestMethod]
         public void CastingOnYourOwnCellKeepsTheWrittenOrientation()
         {
