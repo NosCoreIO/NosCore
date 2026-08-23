@@ -10,8 +10,6 @@ using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
-    // A unit mistake here raises nothing at all: the server runs, the monsters come back, and
-    // only counting the seconds shows they come back a hundred times too fast.
     [TestClass]
     public class RespawnTimingTests
     {
