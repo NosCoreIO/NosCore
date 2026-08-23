@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -144,6 +144,22 @@ namespace NosCore.Parser.Parsers
             return list;
         }
 
+        // The steps of a combo chain, from Skill.dat's FCOMBO section.
+        //
+        // THE FIRST FIELD IS NOT A STEP, IT IS A SWITCH: 1 when the skill has a chain and 0 when
+        // it has not - true of all 1958 skills in the file. Five triplets of (hit, animation,
+        // effect) follow it. Counting the triplets from the switch instead of after it shifted
+        // every step by one field:
+        //
+        //     220 "Basic Slash"   FCOMBO 1 | 3 40 513 | 4 25 525 | 5 13 524 | 0 0 0 | 0 0 0
+        //     read as             (hit 1, anim 3, eff 40), (hit 513, ...), (hit 525, ...)
+        //
+        // Hit 513 never arrives - the consecutive-hit counter stays in single figures - so the
+        // chain could not fire, and nothing said so: no exception, just the third blow's special
+        // animation that never plays. Twenty-one skills carry an FCOMBO.
+        //
+        // The raw row starts at index 2 (field 0 is empty, field 1 is the section name), so the
+        // switch is at 2 and triplet j starts at 3 + j*3.
         private List<ComboDto> AddCombos(Dictionary<string, string[][]> chunks)
         {
             var list = new List<ComboDto>();
@@ -152,9 +168,9 @@ namespace NosCore.Parser.Parsers
                 var comb = new ComboDto
                 {
                     SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
-                    Hit = short.Parse(chunks["FCOMBO"][0][j * 3 + 2]),
-                    Animation = short.Parse(chunks["FCOMBO"][0][j * 3 + 3]),
-                    Effect = short.Parse(chunks["FCOMBO"][0][j * 3 + 4])
+                    Hit = short.Parse(chunks["FCOMBO"][0][(j * 3) + 3]),
+                    Animation = short.Parse(chunks["FCOMBO"][0][(j * 3) + 4]),
+                    Effect = short.Parse(chunks["FCOMBO"][0][(j * 3) + 5])
                 };
                 if ((comb.Hit == 0) && (comb.Animation == 0) && (comb.Effect == 0))
                 {
