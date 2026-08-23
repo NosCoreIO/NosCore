@@ -246,5 +246,38 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.AreEqual(mate.GenerateIn(RegionType.EN).VisualId, mate.GenerateOut().VisualId);
         }
+
+        [TestMethod]
+        public async Task OnlyOneMateOfEachTypeIsEverOutAsync()
+        {
+            // Two rows can claim the slot — two captures racing, or a database edited by hand —
+            // and the second would spawn on top of the first with nothing raised anywhere.
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true },
+                new MateDto { MateId = 2, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true },
+                new MateDto { MateId = 3, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner, IsTeamMember = true }
+            }, Creature(ChickenVNum, "Chicken", 157, 10), Creature(PartnerVNum, "Bob", 870, 200));
+
+            var mates = await service.LoadAsync(CharacterId);
+
+            Assert.AreEqual(1, mates.Count(s => s.MateType == MateType.Pet && s.IsTeamMember));
+            Assert.AreEqual(1, mates.Count(s => s.MateType == MateType.Partner && s.IsTeamMember),
+                "a pet and a partner are two different slots and both may be out");
+            Assert.AreEqual(1L, mates.Single(s => s.MateType == MateType.Pet && s.IsTeamMember).MateId,
+                "the first row keeps the slot, so which mate is out does not change between logins");
+        }
+
+        [TestMethod]
+        public async Task AMateThatIsNotOutStaysInTheListAsync()
+        {
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true },
+                new MateDto { MateId = 2, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true }
+            }, Creature(ChickenVNum, "Chicken", 157, 10));
+
+            Assert.AreEqual(2, (await service.LoadAsync(CharacterId)).Count);
+        }
     }
 }

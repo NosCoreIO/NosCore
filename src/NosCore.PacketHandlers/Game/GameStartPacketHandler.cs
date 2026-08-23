@@ -128,13 +128,6 @@ namespace NosCore.PacketHandlers.Game
             session.Character.LoadExpensions();
             await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration));
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
-            await session.SendPacketAsync(new PclearPacket());
-
-            // Group init even for solo players — the client expects pinit + a self-row pst
-            // so its party UI is in a known state for later joins/leaves.
-            await session.SendPacketAsync(session.Character.Group.GeneratePinit());
-            await session.SendPacketsAsync(session.Character.Group.GeneratePst());
-
             //            Session.SendPacket("zzim");
             await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)
             {
@@ -150,10 +143,19 @@ namespace NosCore.PacketHandlers.Game
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
+            // p_clear wipes one panel that holds both the party and the mate list, so the two
+            // bursts have to follow it rather than straddle it. The capture puts them in this
+            // order: p_clear, the sc packets, sc_p_stc, then pinit.
             await session.SendPacketAsync(new PclearPacket());
             await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
-
             await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
+
+            // Party init even for a solo player: the client wants pinit and a self-row pst so
+            // its party frame is in a known state for later joins and leaves.
+            await session.SendPacketAsync(session.Character.Group.GeneratePinit());
+            await session.SendPacketsAsync(session.Character.Group.GeneratePst());
+            await session.SendPacketsAsync(session.Character.Mates.Values
+                .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
             //            Session.Character.GenerateStartupInventory();
 
             await session.SendPacketAsync(session.Character.GenerateGold());
