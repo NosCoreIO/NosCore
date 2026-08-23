@@ -265,6 +265,16 @@ namespace NosCore.GameObject.Services.MapChangeService
                 MatePlacement.Arrange(character.PositionX, character.PositionY,
                     newMapInstance.Map, teamMates);
 
+                // The mate becomes a real entity on the map it is standing on: that is what lets
+                // it be targeted, buffed and killed like anything else that fights.
+                foreach (var mate in teamMates)
+                {
+                    var handle = newMapInstance.EcsWorld.CreateMate(
+                        (int)mate.MateTransportId, mate, newMapInstance,
+                        mate.PositionX, mate.PositionY, 2);
+                    mate.Entity = new Ecs.MateComponentBundle(handle, newMapInstance.EcsWorld);
+                }
+
                 var mateSpawns = teamMates.Select(s => s.GenerateIn(accountLanguage)).ToList();
                 if (invisible)
                 {
@@ -311,9 +321,19 @@ namespace NosCore.GameObject.Services.MapChangeService
             var mapInstance = character.MapInstance;
             var channelId = session.Channel!.Id;
             await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(channelId));
-            await mapInstance.SendPacketsAsync(character.Mates.Values
-                .Where(s => s.IsTeamMember)
-                .Select(s => s.GenerateOut()));
+            var leaving = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
+            await mapInstance.SendPacketsAsync(leaving.Select(s => s.GenerateOut()));
+
+            // The entity belongs to the map being left, so it goes with it. A new one is made
+            // on arrival; keeping this one would leave a mate standing in a world nobody is in.
+            foreach (var mate in leaving)
+            {
+                if (mate.Entity is { } handle)
+                {
+                    mapInstance.EcsWorld.DestroyEntity(handle.Handle);
+                    mate.Entity = null;
+                }
+            }
             session.ClearPlayerEntity();
             await session.SendPacketAsync(new MapOutPacket());
         }

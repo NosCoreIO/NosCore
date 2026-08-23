@@ -137,6 +137,37 @@ public class MapWorld : IDisposable
         return entity;
     }
 
+    public Entity CreateMate(
+        int visualId,
+        Services.MateService.Mate mate,
+        MapInstance mapInstance,
+        short positionX,
+        short positionY,
+        byte direction)
+    {
+        var now = SystemClock.Instance.GetCurrentInstant();
+        return World.Create(
+            new EntityIdentityComponent(visualId, VisualType.Npc, mate.CharacterId),
+            new HealthComponent(mate.Hp, mate.MaxHp, true),
+            new ManaComponent(mate.Mp, mate.MaxMp),
+            new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
+            new VisualComponent(0, 0, 0, 0, false, false, false),
+            new NpcDataComponent(mate.VNum, mate.NpcMonster.Race, mate.Level, 0, mate.NpcMonster.Speed, 10),
+            // A mate never wanders and is never hostile on its own: it goes where its owner
+            // goes and hits what its owner points at.
+            new SpawnComponent(positionX, positionY, false, false),
+            new EffectComponent(0, 0),
+            new TimingComponent(now, now),
+            new NpcStateComponent(mate.NpcMonster, mapInstance, new SemaphoreSlim(1, 1),
+                new ConcurrentDictionary<Entity, int>(), null, null, null,
+                new Dictionary<Type, Subject<RequestData>>(), null, false),
+            new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
+            new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
+            new MateStateComponent(mate, mate.CharacterId)
+        );
+    }
+
     public Entity CreateMapItem(
         long visualId,
         short vNum,

@@ -43,6 +43,15 @@ namespace NosCore.GameObject.Messaging.Handlers.Mate
 
             foreach (var mate in mates)
             {
+                // The entity carries the position everything else reads — a monster deciding
+                // whom to hit, a skill deciding what is in range. Moving only the packet would
+                // leave the mate visibly in one place and actually in another.
+                if (mate.Entity is { } handle)
+                {
+                    handle.PositionX = mate.PositionX;
+                    handle.PositionY = mate.PositionY;
+                }
+
                 var move = new MovePacket
                 {
                     VisualType = VisualType.Npc,

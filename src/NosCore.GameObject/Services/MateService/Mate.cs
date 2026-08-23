@@ -35,6 +35,17 @@ namespace NosCore.GameObject.Services.MateService
         /// <inheritdoc cref="PositionX" />
         public short PositionY { get; set; }
 
+        /// <summary>
+        /// The mate's place in the world while it is out, or null while it is not.
+        /// </summary>
+        /// <remarks>
+        /// A mate that can be hit has to be an entity like any other combatant — the battle
+        /// service asks for an Arch handle, and giving mates a second notion of "thing that
+        /// fights" would mean maintaining two. The handle lives here rather than in a registry
+        /// because the mate is already the thing everyone holds.
+        /// </remarks>
+        public Ecs.MateComponentBundle? Entity { get; set; }
+
         public int MaxHp => NpcMonster.MaxHp;
 
         public int MaxMp => NpcMonster.MaxMp;
