@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -130,13 +130,12 @@ namespace NosCore.Data.Enumerations.Buff
             Type110 = 110,
 
             Type114 = 114,
-
-            Spsl = 200,
-
             ArmourPiercing = 118,
             HeatAndGravity = 120,
             FuelPoints = 122,
-            TokenSystem = 124
+            TokenSystem = 124,
+
+            Spsl = 200
         }
     }
 }
