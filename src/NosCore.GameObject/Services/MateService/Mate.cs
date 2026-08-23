@@ -123,7 +123,7 @@ namespace NosCore.GameObject.Services.MateService
                     : NpcMonster.Name[RegionType.EN];
             }
 
-            return name.Replace(' ', '^');
+            return name;
         }
 
         private static ScnPacket.ScEquipmentDetails EmptySlot => new()

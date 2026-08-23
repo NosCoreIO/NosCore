@@ -133,7 +133,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
-        public async Task TheNameSentToTheClientHasNoSpacesInItAsync()
+        public async Task TheCreatureNameIsUsedWhenTheMateWasNeverRenamedAsync()
         {
             var service = Build(new[]
             {
@@ -142,7 +142,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var packet = (await service.LoadAsync(CharacterId))[0].GenerateScp(RegionType.EN);
 
-            Assert.AreEqual("Joyeux^Mouton", packet.Name);
+            // The serializer turns the space into a caret on the way out; the packet itself
+            // carries the name as it is.
+            Assert.AreEqual("Joyeux Mouton", packet.Name);
         }
 
         [TestMethod]
