@@ -70,8 +70,8 @@ namespace NosCore.Data.Enumerations.Buff
             LordHatus = 53,
             LordCalvinas = 54,
             SeSpecialist = 55,
-            SummonedMonsterAttack = 56,
-            FourthGlacernonFamilyRaid = 57,
+            FourthGlacernonFamilyRaid = 56,
+            SummonedMonsterAttack = 57,
             BearSpirit = 58,
             SummonSkill = 59,
             InflictSkill = 60,
@@ -128,6 +128,12 @@ namespace NosCore.Data.Enumerations.Buff
             Type108 = 108,
             Type109 = 109,
             Type110 = 110,
+
+            Type114 = 114,
+            ArmourPiercing = 118,
+            HeatAndGravity = 120,
+            FuelPoints = 122,
+            TokenSystem = 124,
 
             Spsl = 200
         }
