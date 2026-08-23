@@ -191,5 +191,33 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                     ((PacketFamilyAuthority)authority).ToString());
             }
         }
+
+        [TestMethod]
+        public async Task TheTagOverTheHeadMatchesTheCapturedLineAsync()
+        {
+            // gidx 1 521919 5083 [NDM](Gardien) 3 — a single family id, which is what all 670
+            // gidx lines in the capture carry, and what the packet models since 21.0.0.
+            var membership = await Nemesis().GetMembershipAsync(MemberId);
+            var packet = membership!.Family.GenerateGidx(521919, membership.Authority,
+                Localizer(), RegionType.EN);
+
+            Assert.AreEqual(VisualType.Player, packet.VisualType);
+            Assert.AreEqual(521919, packet.VisualId);
+            Assert.AreEqual(FamilyId, packet.FamilyId);
+            Assert.AreEqual("-Nemesis-(Member)", packet.FamilyName);
+            Assert.AreEqual(7, packet.FamilyLevel);
+        }
+
+        [TestMethod]
+        public void ACharacterWithNoFamilyStillGetsATag()
+        {
+            // gidx 1 741328 -1 - 0. Saying nothing would leave the client showing whichever tag
+            // it was told about last.
+            var packet = Family.GenerateEmptyGidx(741328);
+
+            Assert.IsNull(packet.FamilyId, "a null id is what the serializer writes as -1");
+            Assert.AreEqual("-", packet.FamilyName);
+            Assert.AreEqual(0, packet.FamilyLevel);
+        }
     }
 }

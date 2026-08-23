@@ -49,6 +49,42 @@ namespace NosCore.GameObject.Services.FamilyService
             };
         }
 
+        /// <summary>
+        /// The family tag drawn over a character's head.
+        /// </summary>
+        /// <remarks>
+        /// A capture writes the family field as a single id in all 670 of its gidx lines, and
+        /// -1 where there is no family — which is what the packet now models, since 21.0.0.
+        ///     gidx 1 521919 5083 [NDM](Gardien) 3
+        /// </remarks>
+        public GidxPacket GenerateGidx(long visualId, FamilyAuthority authority,
+            IGameLanguageLocalizer localizer, RegionType language)
+        {
+            return new GidxPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = visualId,
+                FamilyId = FamilyId,
+                FamilyName = GenerateFamilyTag(authority, localizer, language),
+                FamilyLevel = FamilyLevel
+            };
+        }
+
+        /// <summary>
+        /// What the client is told when a character has no family at all.
+        /// </summary>
+        public static GidxPacket GenerateEmptyGidx(long visualId)
+        {
+            return new GidxPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = visualId,
+                FamilyId = null,
+                FamilyName = "-",
+                FamilyLevel = 0
+            };
+        }
+
         public string GenerateFamilyTag(FamilyAuthority authority, IGameLanguageLocalizer localizer,
             RegionType language)
         {
