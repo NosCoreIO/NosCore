@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -30,11 +30,9 @@ namespace NosCore.LoginServer
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                // The console title cannot be touched when output is redirected.
-                try { Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}"; }
-                catch { /* console rediretta o assente */ }
+                Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}";
             }
 
             try

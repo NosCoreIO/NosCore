@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -99,9 +99,7 @@ namespace NosCore.WorldServer
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
 
-            // The banner measures the window width, which throws when output is redirected.
-            // It is decoration, not a reason to refuse to start.
-            try { Logger.PrintHeader(ConsoleText); } catch { /* console rediretta o assente */ }
+            Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(worldConfiguration.Language.ToString());
         }
 
@@ -234,9 +232,9 @@ namespace NosCore.WorldServer
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
                     {
-                        try { Console.Title = Title; } catch { /* console rediretta o assente */ }
+                        Console.Title = Title;
                     }
 
                     InitializeConfiguration(args, services);

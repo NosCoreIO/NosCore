@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -47,11 +47,9 @@ namespace NosCore.WorldServer
                 Thread.Sleep(30000);
             };
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
-                // The console title cannot be touched when output is redirected.
-                try { Console.Title += $@" - Port : {worldConfiguration.Value.Port}"; }
-                catch { /* console rediretta o assente */ }
+                Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
             }
             var connectTask = Policy
                 .Handle<Exception>()
