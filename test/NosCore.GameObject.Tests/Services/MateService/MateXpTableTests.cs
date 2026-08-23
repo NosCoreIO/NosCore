@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -10,17 +10,6 @@ using NosCore.GameObject.Services.MateService;
 
 namespace NosCore.GameObject.Tests.Services.MateService
 {
-    /// <summary>
-    /// The mate experience table, checked against the rows a real server sent.
-    /// </summary>
-    /// <remarks>
-    /// THIS IS THE KIND OF MISTAKE THAT DOES NOT THROW. A mate curve that is twenty times too
-    /// steep raises no exception, logs nothing, and fails no other test: the pet simply never
-    /// levels, and it reads as grind rather than as a bug. The only thing that catches it is a
-    /// number from a real session, which is what every row below is.
-    ///
-    /// Source: the XpLoad field of sc_p and sc_n in build/parser-input/packet.txt.
-    /// </remarks>
     [TestClass]
     public class MateXpTableTests
     {
@@ -51,8 +40,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public void PartnerNeedsFourTimesWhatAPetNeeds()
         {
-            // The two divisors are 5 and 20, so the ratio has to hold at every level. Stating it
-            // separately catches someone "simplifying" the two into one.
             for (byte level = 1; level < 100; level++)
             {
                 Assert.AreEqual(MateXpTable.RequiredXp(level, MateType.Pet) * 4,
@@ -64,7 +51,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public void RequirementNeverGoesBackwards()
         {
-            // A curve with a dip in it would let a pet level twice on one kill and then stall.
             var previous = 0L;
             for (byte level = 1; level < 100; level++)
             {
@@ -78,8 +64,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public void AskingBeyondTheTableDoesNotThrow()
         {
-            // Level is a byte and the table stops at 255: the boundary has to answer, because a
-            // level cap that crashes is worse than one that saturates.
             Assert.IsTrue(MateXpTable.RequiredXp(byte.MaxValue, MateType.Pet) > 0);
             Assert.IsTrue(MateXpTable.RequiredXp(0, MateType.Pet) > 0);
         }

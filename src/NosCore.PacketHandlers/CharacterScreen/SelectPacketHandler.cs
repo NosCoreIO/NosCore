@@ -261,10 +261,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 character.Respawns = respawnDao
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
 
-                // The mates. CaptureService has been writing these rows since capture worked, and
-                // until now nothing read them back: a caught pet went into the database and was
-                // never heard from again. Loading them here, next to the other per-character
-                // lists, is what makes the catch mean something.
                 foreach (var mate in await mateService.LoadAsync(characterId).ConfigureAwait(false))
                 {
                     character.Mates[mate.MateTransportId] = mate;

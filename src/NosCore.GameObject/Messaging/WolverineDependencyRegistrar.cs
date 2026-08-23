@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -28,14 +28,12 @@ namespace NosCore.GameObject.Messaging;
 
 // Single source of truth for every GameObject-side registration that both MSDI
 // (for Wolverine codegen) and Autofac (for runtime resolution) need to see.
-//
 // AutofacServiceProviderFactory.Populate() copies MSDI registrations into the
 // Autofac container at host-build time, so anything registered here becomes
 // visible to both: Wolverine at codegen, Autofac at runtime. Registering a
 // service here and again on the Autofac side duplicates the registration and
 // is the most common cause of "An item with the same key..." style drift
 // bugs — so bootstrap and tests both call this and nowhere else.
-//
 // DAO/DbContext side is mirrored separately by PersistenceModule.MirrorTo so
 // this assembly doesn't have to reference NosCore.Database.
 public static class WolverineDependencyRegistrar
@@ -48,8 +46,6 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IIdService<Group>>(_ => new IdService<Group>(1));
         services.AddSingleton<IIdService<MapItemComponentBundle>>(_ => new IdService<MapItemComponentBundle>(100000));
         services.AddSingleton<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1));
-        // Mates start at two million so their transport ids cannot collide with the visual ids
-        // of the monsters and npcs already on a map, which live far below that.
         services.AddSingleton<IIdService<Mate>>(_ => new IdService<Mate>(2000000));
 
         // Pathfinder / heuristic — OctileDistance is the standard NosTale grid
@@ -83,7 +79,6 @@ public static class WolverineDependencyRegistrar
         // the ISingletonService marker interface (implemented by classes that own
         // shared state: caches, queues, per-entity maps). Everything else is
         // transient so short-lived handlers don't accidentally share mutable state.
-        //
         // Matched suffixes cover the vocabulary we actually use across the codebase:
         // *Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai.
         // New classes can add a suffix here if they want auto-discovery, or they

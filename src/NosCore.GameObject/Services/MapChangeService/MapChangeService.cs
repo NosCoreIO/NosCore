@@ -1,4 +1,4 @@
-
+﻿
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -123,8 +123,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var inventory = oldWorld.TryGetComponent<PlayerInventoryComponent>(oldEntity) ?? default;
                 var social = oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default;
                 var requests = oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default;
-                // The mates come across untouched: a map change moves where the character is, not
-                // which creatures belong to them.
                 var mates = oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default;
 
                 if (session.Channel?.Id != null)

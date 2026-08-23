@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -75,9 +75,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task PetsAndPartnersAreNumberedSeparatelyFromZeroAsync()
         {
-            // What the capture shows: sc_p slots 0..7 and sc_n slots 0..1 in the same burst.
-            // Numbering them in one sequence would push every pet's slot up by the number of
-            // partners, and the client would draw them in the wrong boxes.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner },
@@ -96,8 +93,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task ARowPointingAtAnUnknownCreatureIsSkippedRatherThanSentAsync()
         {
-            // The row stays in the database — losing it would be the unrecoverable choice — but
-            // it cannot go out on the wire, because there is no name to put in the packet.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = 9999, MateType = MateType.Pet }
@@ -140,9 +135,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task TheNameSentToTheClientHasNoSpacesInItAsync()
         {
-            // The client splits a packet on spaces. A two-word creature name sent as-is shifts
-            // every field after it, and the pet window fills with the wrong numbers — no
-            // exception anywhere.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet }
@@ -174,7 +166,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var packet = (await service.LoadAsync(CharacterId))[0].GenerateScp(RegionType.EN);
 
-            // sc_p 0 333 26720 3 1000 33 ... 195 195 20 20 0 90 0 Poule 0
             Assert.AreEqual(90L, packet.XpLoad);
         }
     }

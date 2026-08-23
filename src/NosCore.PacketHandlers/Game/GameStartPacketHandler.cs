@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -59,7 +59,6 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
                     SayColorType.Yellow));
             }
-
 
             await skillService.LoadSkill(session.Character);
             await session.SendPacketAsync(session.Character.GenerateTit());
@@ -151,22 +150,9 @@ namespace NosCore.PacketHandlers.Game
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
-            // MATES. The capture spells out the order: p_clear wipes whatever the client had,
-            // then one sc_p per pet and one sc_n per partner, then sc_p_stc closes the burst.
-            //
-            //     p_clear
-            //     sc_p 3 1508 26724 1 1000 0 ...
-            //     sc_n 1 319 26719 50 1000 1536 ...
-            //     sc_p_stc 0
-            //
-            // p_clear is already sent above for the party window; the pet list needs its own,
-            // because the client treats the two as one panel and a stale row would survive.
             await session.SendPacketAsync(new PclearPacket());
             await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
 
-            // sc_p_stc carries how many extra mate slots the account has bought, in tenths. Zero
-            // until the shop that sells them exists — but the packet has to be there, because it
-            // is what tells the client the list is complete.
             await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
             //            Session.Character.GenerateStartupInventory();
 
