@@ -42,6 +42,9 @@ namespace NosCore.GameObject.Services.FamilyService
                 FamilyManagerAuthorityType = ManagerAuthorityType,
                 FamilyMemberCanGetHistory = MemberCanGetHistory,
                 FamilyMemberAuthorityType = MemberAuthorityType,
+                // The last field of a packet is left alone by the serializer, on the grounds
+                // that it may legitimately hold spaces. A family message may not: the capture
+                // shows it caret-separated.
                 FamilyMessage = (FamilyMessage ?? string.Empty).Replace(' ', '^')
             };
         }
@@ -57,7 +60,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 _ => LanguageKey.FAMILY_AUTHORITY_MEMBER
             };
 
-            return $"{Name}({localizer[rank, language]})".Replace(' ', '^');
+            return $"{Name}({localizer[rank, language]})";
         }
     }
 }
