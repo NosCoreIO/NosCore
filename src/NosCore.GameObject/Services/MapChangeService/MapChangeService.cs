@@ -15,6 +15,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Networking;
@@ -257,17 +258,25 @@ namespace NosCore.GameObject.Services.MapChangeService
                     }
                 }
 
-                // The mates arrive with their owner. They are placed beside the character rather
-                // than on their stored square: that square belongs to whichever map they were
-                // last saved on, and dropping a pet onto it here would put it through a wall.
+                // The mates arrive with their owner, each on its own walkable square: their
+                // stored square belongs to whichever map they were last saved on, and reusing
+                // it here would put a pet through a wall.
                 var teamMates = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
-                foreach (var mate in teamMates)
+                MatePlacement.Arrange(character.PositionX, character.PositionY,
+                    newMapInstance.Map, teamMates);
+
+                var mateSpawns = teamMates.Select(s => s.GenerateIn(accountLanguage)).ToList();
+                if (invisible)
                 {
-                    mate.PositionX = (short)(character.PositionX + 1);
-                    mate.PositionY = (short)(character.PositionY + 1);
+                    // A hidden owner keeps their mates to themselves: a visible pet with an
+                    // Owner field on it announces the character it belongs to.
+                    await session.SendPacketsAsync(mateSpawns);
+                }
+                else
+                {
+                    await newMapInstance.SendPacketsAsync(mateSpawns);
                 }
 
-                await newMapInstance.SendPacketsAsync(teamMates.Select(s => s.GenerateIn(accountLanguage)));
                 await session.SendPacketsAsync(teamMates.Select(s => s.GenerateCond()));
                 await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 

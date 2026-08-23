@@ -19,6 +19,7 @@ using NosCore.Packets.ServerPackets.Visibility;
 using System.Linq;
 using System.Threading.Tasks;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
+using MatePlacement = NosCore.GameObject.Services.MateService.MatePlacement;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
 
 namespace NosCore.GameObject.Tests.Services.MateService
@@ -278,6 +279,60 @@ namespace NosCore.GameObject.Tests.Services.MateService
             }, Creature(ChickenVNum, "Chicken", 157, 10));
 
             Assert.AreEqual(2, (await service.LoadAsync(CharacterId)).Count);
+        }
+
+        private static GameObject.Map.Map OpenGround()
+        {
+            return new GameObject.Map.Map
+            {
+                MapId = 1,
+                NameI18NKey = "openGround",
+                Data = [8, 0, 8, 0, .. new byte[64]]
+            };
+        }
+
+        [TestMethod]
+        public async Task TwoMatesNeverStandOnTheSameSquareAsync()
+        {
+            // A character can have a pet and a partner out at once. Giving both the same offset
+            // stacks them, and nothing complains.
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true },
+                new MateDto { MateId = 2, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner, IsTeamMember = true }
+            }, Creature(ChickenVNum, "Chicken", 157, 10), Creature(PartnerVNum, "Bob", 870, 200));
+
+            var mates = await service.LoadAsync(CharacterId);
+            MatePlacement.Arrange(4, 4, OpenGround(), mates);
+
+            Assert.AreEqual(2, mates.Select(s => (s.PositionX, s.PositionY)).Distinct().Count());
+        }
+
+        [TestMethod]
+        public async Task AMateIsNeverPlacedInsideAWallAsync()
+        {
+            var walled = new GameObject.Map.Map
+            {
+                MapId = 1,
+                NameI18NKey = "walled",
+                // Four by four, everything solid but the two squares on the top row.
+                Data = [4, 0, 4, 0,
+                    0, 0, 1, 1,
+                    1, 1, 1, 1,
+                    1, 1, 1, 1,
+                    1, 1, 1, 1]
+            };
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true }
+            }, Creature(ChickenVNum, "Chicken", 157, 10));
+
+            var mates = await service.LoadAsync(CharacterId);
+            MatePlacement.Arrange(0, 0, walled, mates);
+
+            var mate = mates[0];
+            Assert.IsTrue(walled.IsWalkable(mate.PositionX, mate.PositionY),
+                $"placed at {mate.PositionX},{mate.PositionY}, which is not walkable");
         }
     }
 }
