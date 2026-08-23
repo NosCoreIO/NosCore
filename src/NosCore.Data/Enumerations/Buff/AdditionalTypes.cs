@@ -110,7 +110,15 @@ namespace NosCore.Data.Enumerations.Buff
             ChanceRangedIncreased = 31,
             ChanceRangedDecreased = 32,
             ChanceMagicalIncreased = 41,
-            ChanceMagicalDecreased = 42
+            ChanceMagicalDecreased = 42,
+
+            /// <summary>
+            /// "Final damage from incoming critical hits is reduced by %s%% per critical hit
+            /// (max. %s hits)." Not a negation of anything above it: the first four pairs are the
+            /// parry, which is a chance, while this is priced per critical in a RUN.
+            /// </summary>
+            CriticalDamageReducedPerHit = 51,
+            CriticalDamageReducedPerHitNegated = 52
         }
 
         public enum BossMonstersSkill : byte
