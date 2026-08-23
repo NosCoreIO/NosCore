@@ -15,6 +15,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
+using NosCore.Packets.ServerPackets.Visibility;
 using System.Linq;
 using System.Threading.Tasks;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
@@ -169,6 +170,81 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var packet = (await service.LoadAsync(CharacterId))[0].GenerateScp(RegionType.EN);
 
             Assert.AreEqual(90L, packet.XpLoad);
+        }
+
+        [TestMethod]
+        public async Task TheSpawnPacketMarksTheMateAsBelongingToItsOwnerAsync()
+        {
+            // in 2 1506 445562 26 26 2 100 100 0 0 3 626114 1 0 -1 Ratufu^pirate^(Feu) 0 -1 ...
+            // Owner and GroupEffect are what separate a mate from a map npc; without them the
+            // client draws it as scenery and will not let the owner command it.
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, Hp = 78, Mp = 5 }
+            }, Creature(ChickenVNum, "Chicken", 156, 10));
+
+            var mate = (await service.LoadAsync(CharacterId))[0];
+            mate.PositionX = 26;
+            mate.PositionY = 26;
+            var packet = mate.GenerateIn(RegionType.EN);
+
+            Assert.AreEqual(VisualType.Npc, packet.VisualType);
+            Assert.AreEqual(CharacterId, packet.InNonPlayerSubPacket!.Owner);
+            Assert.AreEqual(3, packet.InNonPlayerSubPacket.GroupEffect);
+            Assert.AreEqual(mate.MateTransportId, packet.VisualId);
+            Assert.AreEqual(26, packet.PositionX);
+            Assert.AreEqual(50, packet.InNonPlayerSubPacket.InAliveSubPacket!.Hp,
+                "the spawn carries health as a percentage, not as points");
+        }
+
+        [TestMethod]
+        public async Task APartnerIsFlaggedDifferentlyFromAPetOnSpawnAsync()
+        {
+            // Both partners in the capture carry 1 after the name where every pet carries 0.
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet },
+                new MateDto { MateId = 2, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner }
+            }, Creature(ChickenVNum, "Chicken", 157, 10), Creature(PartnerVNum, "Bob", 870, 200));
+
+            var mates = await service.LoadAsync(CharacterId);
+
+            Assert.AreEqual(0, mates.Single(s => s.MateType == MateType.Pet)
+                .GenerateIn(RegionType.EN).InNonPlayerSubPacket!.Unknow1);
+            Assert.AreEqual(1, mates.Single(s => s.MateType == MateType.Partner)
+                .GenerateIn(RegionType.EN).InNonPlayerSubPacket!.Unknow1);
+        }
+
+        [TestMethod]
+        public async Task TheHealthBarCarriesTheMateTypeWhereAPlayerCarriesAPartyPositionAsync()
+        {
+            // pst 2 22687 0 100 100 24471 3100 0 0 0 — the third field is the mate type.
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner, Hp = 435, Mp = 100 }
+            }, Creature(PartnerVNum, "Bob", 870, 200));
+
+            var packet = (await service.LoadAsync(CharacterId))[0].GeneratePst();
+
+            Assert.AreEqual(VisualType.Npc, packet.Type);
+            Assert.AreEqual((int)MateType.Partner, packet.GroupOrder);
+            Assert.AreEqual(50, packet.HpLeft);
+            Assert.AreEqual(870, packet.HpLoad);
+        }
+
+        [TestMethod]
+        public async Task ADespawnNamesTheSameIdTheSpawnDidAsync()
+        {
+            // A mismatch here leaves the pet drawn on everybody else's screen for ever, and
+            // nothing throws.
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet }
+            }, Creature(ChickenVNum, "Chicken", 157, 10));
+
+            var mate = (await service.LoadAsync(CharacterId))[0];
+
+            Assert.AreEqual(mate.GenerateIn(RegionType.EN).VisualId, mate.GenerateOut().VisualId);
         }
     }
 }

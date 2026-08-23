@@ -7,7 +7,13 @@
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Mates;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ServerPackets.Visibility;
+using System.Globalization;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.MateService
@@ -19,6 +25,15 @@ namespace NosCore.GameObject.Services.MateService
         public long MateTransportId { get; set; }
 
         public byte PetSlot { get; set; }
+
+        /// <summary>
+        /// Where the mate is standing right now, which is not where it was stored. MapX and MapY
+        /// are the square it was last saved on; these two move with the owner.
+        /// </summary>
+        public short PositionX { get; set; }
+
+        /// <inheritdoc cref="PositionX" />
+        public short PositionY { get; set; }
 
         public int MaxHp => NpcMonster.MaxHp;
 
@@ -110,6 +125,84 @@ namespace NosCore.GameObject.Services.MateService
                 Skill1Details = null,
                 Skill2Details = null,
                 Skill3Details = null
+            };
+        }
+
+        /// <summary>
+        /// The spawn packet. Owner and GroupEffect are what tell the client this is somebody's
+        /// mate rather than a map npc:
+        ///     in 2 1506 445562 26 26 2 100 100 0 0 3 626114 1 0 -1 Ratufu^pirate^(Feu) 0 -1 ...
+        /// </summary>
+        public InPacket GenerateIn(RegionType language)
+        {
+            return new InPacket
+            {
+                VisualType = VisualType.Npc,
+                VNum = VNum.ToString(CultureInfo.InvariantCulture),
+                VisualId = MateTransportId,
+                PositionX = PositionX,
+                PositionY = PositionY,
+                Direction = Direction,
+                InNonPlayerSubPacket = new InNonPlayerSubPacket
+                {
+                    InAliveSubPacket = new InAliveSubPacket
+                    {
+                        Hp = MaxHp > 0 ? (int)(Hp / (float)MaxHp * 100) : 100,
+                        Mp = MaxMp > 0 ? (int)(Mp / (float)MaxMp * 100) : 100
+                    },
+                    Dialog = 0,
+                    Faction = 0,
+                    GroupEffect = 3,
+                    Owner = CharacterId,
+                    SpawnEffect = SpawnEffectType.NoEffect,
+                    IsSitting = false,
+                    Morph = (short?)(Skin != 0 ? Skin : -1),
+                    Name = DisplayName(language),
+                    Unknow1 = (byte)(MateType == MateType.Partner ? 1 : 0)
+                }
+            };
+        }
+
+        public OutPacket GenerateOut()
+        {
+            return new OutPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = MateTransportId
+            };
+        }
+
+        /// <summary>
+        /// The health bar in the party frame. GroupOrder carries the mate type here, not a
+        /// position in the party:  pst 2 22687 0 100 100 24471 3100 0 0 0
+        /// </summary>
+        public PstPacket GeneratePst()
+        {
+            return new PstPacket
+            {
+                Type = VisualType.Npc,
+                VisualId = MateTransportId,
+                GroupOrder = (int)MateType,
+                HpLeft = MaxHp > 0 ? (int)(Hp / (float)MaxHp * 100) : 0,
+                MpLeft = MaxMp > 0 ? (int)(Mp / (float)MaxMp * 100) : 0,
+                HpLoad = MaxHp,
+                MpLoad = MaxMp,
+                Race = 0,
+                Gender = GenderType.Male,
+                Morph = 0,
+                BuffIds = null
+            };
+        }
+
+        public CondPacket GenerateCond()
+        {
+            return new CondPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = MateTransportId,
+                NoAttack = false,
+                NoMove = false,
+                Speed = NpcMonster.Speed
             };
         }
 

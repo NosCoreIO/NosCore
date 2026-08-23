@@ -251,6 +251,20 @@ namespace NosCore.GameObject.Services.MapChangeService
                     }
                 }
 
+                // The mates arrive with their owner. They are placed beside the character rather
+                // than on their stored square: that square belongs to whichever map they were
+                // last saved on, and dropping a pet onto it here would put it through a wall.
+                var teamMates = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
+                foreach (var mate in teamMates)
+                {
+                    mate.PositionX = (short)(character.PositionX + 1);
+                    mate.PositionY = (short)(character.PositionY + 1);
+                }
+
+                await newMapInstance.SendPacketsAsync(teamMates.Select(s => s.GenerateIn(accountLanguage)));
+                await session.SendPacketsAsync(teamMates.Select(s => s.GenerateCond()));
+                await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
+
                 await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance));
             }
             catch (Exception ex)
@@ -282,6 +296,9 @@ namespace NosCore.GameObject.Services.MapChangeService
             var mapInstance = character.MapInstance;
             var channelId = session.Channel!.Id;
             await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(channelId));
+            await mapInstance.SendPacketsAsync(character.Mates.Values
+                .Where(s => s.IsTeamMember)
+                .Select(s => s.GenerateOut()));
             session.ClearPlayerEntity();
             await session.SendPacketAsync(new MapOutPacket());
         }
