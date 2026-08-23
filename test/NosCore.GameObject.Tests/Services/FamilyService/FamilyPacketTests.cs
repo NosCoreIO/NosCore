@@ -10,8 +10,13 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets;
+using NosCore.Shared.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
 using GenderType = NosCore.Packets.Enumerations.GenderType;
@@ -119,6 +124,61 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             Assert.IsNull(_session.Character.GenerateGInfo(new FamilyExperienceService()));
         }
+
+        [TestMethod]
+        public void TheTagGoesOutOnTheWireExactlyAsTheCaptureHasIt()
+        {
+            // The packet object being right is not the same as the line being right, and the
+            // line is what the client reads. Two captured gidx, one with a family and one
+            // without:
+            //
+            //     gidx 1 521919 5083 [NDM](Gardien) 3
+            //     gidx 1 741328 -1 - 0
+            //
+            // The second is the one worth pinning: a null id has to serialise as -1 and a null
+            // name as -, which is the serializer's job and not this code's. Asserting on the
+            // object would pass whatever the serializer did with it.
+            //
+            // The trailing space is trimmed on purpose: GidxPacket ends in a FamilyIcons list,
+            // and an empty one still emits its leading separator here while the captured server
+            // sends nothing at all - 670 gidx lines, not one with a trailing space. It is an
+            // empty last token either way, so it is recorded rather than worked around.
+            var serializer = BuildSerializer();
+
+            _session.Character.Family = null;
+            var line = serializer.Serialize(new[]
+                { (IPacket)_session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
+                    RegionType.EN) }).TrimEnd('\uFFFF', '\n', ' ');
+
+            StringAssert.StartsWith(line, "gidx 1 ");
+            StringAssert.EndsWith(line, " -1 - 0",
+                "no family has to reach the client as -1 and -, not as empty fields");
+        }
+
+        [TestMethod]
+        public void AFamilyGoesOutWithItsIdNameAndLevel()
+        {
+            // gidx 1 521919 5052 -Nemesis-(...) 7
+            var serializer = BuildSerializer();
+
+            _session.Character.Family = Nemesis(_session.Character.CharacterId);
+            var line = serializer.Serialize(new[]
+                { (IPacket)_session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
+                    RegionType.EN) }).TrimEnd('\uFFFF', '\n', ' ');
+
+            var fields = line.Split(' ');
+            Assert.AreEqual("gidx", fields[0]);
+            Assert.AreEqual("1", fields[1]);
+            Assert.AreEqual("5052", fields[3]);
+            StringAssert.StartsWith(fields[4], "-Nemesis-(");
+            Assert.AreEqual("7", fields[5]);
+        }
+
+        // The same list the world server hands its serializer, so a test cannot pass on a
+        // registration the real thing does not have.
+        private static Serializer BuildSerializer() => new(typeof(IPacket).Assembly.GetTypes()
+            .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
+            .ToList());
 
         [TestMethod]
         public void TheRankIsReadInTheLanguageOfWhoeverIsLooking()
