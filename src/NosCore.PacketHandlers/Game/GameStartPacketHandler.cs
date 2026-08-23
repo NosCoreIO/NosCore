@@ -158,11 +158,10 @@ namespace NosCore.PacketHandlers.Game
                 .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
             //            Session.Character.GenerateStartupInventory();
 
-            var membership = session.Character.FamilyCharacter;
-            if (membership != null)
+            var familyMembership = session.Character.FamilyCharacter;
+            if (familyMembership != null)
             {
-                await session.SendPacketAsync(membership.Family.GenerateGInfo(membership.Authority,
-                    familyExperienceService.GetFamilyExperience(membership.Family.FamilyLevel))).ConfigureAwait(false);
+                await session.SendPacketAsync(session.Character.GenerateGInfo(familyExperienceService));
             }
 
             await session.SendPacketAsync(session.Character.GenerateGold());

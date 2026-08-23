@@ -228,7 +228,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                         ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, otherCharacter.AccountLanguage]}]"
                         : string.Empty;
                     await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
-                    await session.SendPacketAsync(GenerateGidx(otherCharacter));
+                    await session.SendPacketAsync(otherCharacter.GenerateGidx(gameLanguageLocalizer, accountLanguage));
 
                     if (!otherCharacter.Invisible)
                     {
@@ -257,7 +257,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                             ? $"[{gameLanguageLocalizer[LanguageKey.SUPPORT, accountLanguage]}]"
                             : string.Empty;
                         await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
-                        await newMapInstance.SendPacketAsync(GenerateGidx(character));
+                        await newMapInstance.SendPacketAsync(character.GenerateGidx(gameLanguageLocalizer, accountLanguage));
                     }
                 }
 
@@ -308,19 +308,6 @@ namespace NosCore.GameObject.Services.MapChangeService
             {
                 await ChangeMapAsync(session, mapId, mapX, mapY);
             }
-        }
-
-        /// <summary>
-        /// The family tag over a character's head, or the empty one when they have no family:
-        /// the client keeps whatever it was last told, so silence would leave a stale tag.
-        /// </summary>
-        private Packets.ServerPackets.Families.GidxPacket GenerateGidx(Ecs.PlayerComponentBundle character)
-        {
-            var membership = character.FamilyCharacter;
-            return membership == null
-                ? FamilyService.Family.GenerateEmptyGidx(character.VisualId)
-                : membership.Family.GenerateGidx(character.VisualId, membership.Authority,
-                    gameLanguageLocalizer, character.AccountLanguage);
         }
 
         private async Task LeaveMapAsync(ClientSession session)

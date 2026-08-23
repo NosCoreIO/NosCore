@@ -434,10 +434,7 @@ public static class PlayerBundleExtensions
             Unknown1 = null,
             GroupId = -1,
             FamilyId = (int)(player.FamilyCharacter?.FamilyId ?? -1),
-            FamilyName = player.FamilyCharacter == null
-                ? "-"
-                : player.FamilyCharacter.Family.GenerateFamilyTag(
-                    player.FamilyCharacter.Authority, localizer, player.AccountLanguage),
+            FamilyName = player.GenerateGidx(localizer, player.AccountLanguage).FamilyName,
             CharacterId = player.VisualId,
             Authority = player.Authority,
             Gender = player.Gender,

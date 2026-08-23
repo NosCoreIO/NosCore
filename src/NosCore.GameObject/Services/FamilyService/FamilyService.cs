@@ -7,6 +7,7 @@
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Family;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,20 +38,21 @@ namespace NosCore.GameObject.Services.FamilyService
             var memberRows = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.ToList()
                 ?? new List<FamilyCharacterDto>();
 
-            var memberIds = memberRows.Select(s => s.CharacterId).ToHashSet();
-            var names = (characterDao.Where(s => memberIds.Contains(s.CharacterId))?.ToList()
-                    ?? new List<CharacterDto>())
-                .ToDictionary(s => s.CharacterId, s => s.Name);
-
             family.Members = memberRows.Select(row =>
             {
                 var member = row.Adapt<FamilyCharacter>();
                 member.Family = family;
-                member.CharacterName = names.TryGetValue(row.CharacterId, out var name)
-                    ? name
-                    : string.Empty;
                 return member;
             }).ToList();
+
+            // Only the head's name is ever printed, so only the head's name is fetched.
+            var head = family.Members.FirstOrDefault(s => s.Authority == FamilyAuthority.Head);
+            if (head != null)
+            {
+                var headCharacter = await characterDao
+                    .FirstOrDefaultAsync(s => s.CharacterId == head.CharacterId).ConfigureAwait(false);
+                family.HeadCharacterName = headCharacter?.Name ?? string.Empty;
+            }
 
             return family.Members.First(s => s.CharacterId == characterId);
         }
