@@ -88,7 +88,7 @@ namespace NosCore.MasterServer
             builder.Configuration.AddConfiguration(
                 ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }));
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
                 Console.Title = Title;
             }

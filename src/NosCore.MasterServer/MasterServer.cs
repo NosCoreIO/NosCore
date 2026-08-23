@@ -25,7 +25,7 @@ namespace NosCore.MasterServer
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
                 Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
             }

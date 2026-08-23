@@ -20,6 +20,7 @@
     <PackageReference Include="NosCore.Algorithm" />
     <PackageReference Include="System.Reactive" />
     <PackageReference Include="WolverineFx" />
+    <PackageReference Include="WolverineFx.RuntimeCompilation" />
   </ItemGroup>
 
   <ItemGroup>

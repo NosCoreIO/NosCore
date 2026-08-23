@@ -30,7 +30,7 @@ namespace NosCore.LoginServer
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
                 Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}";
             }

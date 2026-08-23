@@ -164,7 +164,7 @@ namespace NosCore.LoginServer
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
                     {
                         Console.Title = Title;
                     }

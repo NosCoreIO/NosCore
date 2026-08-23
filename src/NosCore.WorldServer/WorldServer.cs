@@ -47,7 +47,7 @@ namespace NosCore.WorldServer
                 Thread.Sleep(30000);
             };
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
             {
                 Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
             }

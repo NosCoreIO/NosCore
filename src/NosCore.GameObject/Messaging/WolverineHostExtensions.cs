@@ -28,6 +28,10 @@ namespace NosCore.GameObject.Messaging
             {
                 opts.ServiceName = serviceName;
                 opts.ApplicationAssembly = typeof(WolverineHostExtensions).Assembly;
+
+                // ExtensionDiscovery.ManualOnly below stops WolverineFx.RuntimeCompilation from
+                // self-registering, so it has to be invoked here.
+                opts.UseRuntimeCompilation();
                 foreach (var asm in handlerAssemblies)
                 {
                     opts.Discovery.IncludeAssembly(asm);
