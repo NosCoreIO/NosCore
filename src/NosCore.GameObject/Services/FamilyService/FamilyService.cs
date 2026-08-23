@@ -38,7 +38,6 @@ namespace NosCore.GameObject.Services.FamilyService
             family.Members = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.ToList()
                 ?? new List<FamilyCharacterDto>();
 
-            // Only the head's name is ever printed, so only the head's name is fetched.
             var head = family.Members.FirstOrDefault(s => s.Authority == FamilyAuthority.Head);
             if (head != null)
             {

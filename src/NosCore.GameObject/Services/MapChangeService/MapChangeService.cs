@@ -1,4 +1,4 @@
-﻿
+
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -258,13 +258,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                             : string.Empty;
                         await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
 
-                        // The family tag carries the reader's own words, so it cannot be built
-                        // once and broadcast: everyone already on the map would be told this
-                        // character's rank in the ARRIVING player's language. One packet each.
-                        //
-                        // The same fix went into GenerateGidx itself; this was the call site it
-                        // left behind. The line above is fine as it stands - GenerateIn's prefix
-                        // is the moderator tag, which belongs to the character, not the reader.
+                        // The tag is in the reader's language, so it cannot be built once and
+                        // broadcast - one packet each.
                         var watchers = sessionRegistry.GetSessions(s =>
                             s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId);
                         await Task.WhenAll(watchers.Select(watcher =>

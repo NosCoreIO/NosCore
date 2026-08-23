@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -23,9 +23,6 @@ using GenderType = NosCore.Packets.Enumerations.GenderType;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
 {
-    // The two packets that carry a family, built off a real character the way the server builds
-    // them. Every value asserted here comes from a captured line rather than from what the code
-    // happens to produce.
     [TestClass]
     public class FamilyPacketTests
     {
@@ -86,8 +83,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void ACharacterWithNoFamilyIsStillToldSo()
         {
-            // gidx 1 741328 -1 - 0. Silence would leave the client showing whichever tag it was
-            // given last, and a null id is what the serializer writes as -1.
+            // gidx 1 741328 -1 - 0 - silence would leave the last tag on screen.
             _session.Character.Family = null;
 
             var packet = _session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
@@ -128,9 +124,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void TheTagGoesOutOnTheWireExactlyAsTheCaptureHasIt()
         {
-            // The packet object being right is not the same as the line being right, and the
-            // line is what the client reads. Two captured gidx, one with a family and one
-            // without:
+            // The object being right is not the line being right, and the line is what the
+            // client reads:
             //
             //     gidx 1 521919 5083 [NDM](Gardien) 3
             //     gidx 1 741328 -1 - 0

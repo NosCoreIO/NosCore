@@ -15,16 +15,10 @@ namespace NosCore.GameObject.Services.FamilyService
     {
         public IReadOnlyList<FamilyCharacterDto> Members { get; set; } = [];
 
-        /// <summary>
-        /// The head's character name, which the family window prints. Kept here because the
-        /// head is usually offline, so there is nobody to ask when the window opens.
-        /// </summary>
+        /// <summary>The head's name, kept here because the head is usually offline.</summary>
         public string HeadCharacterName { get; set; } = string.Empty;
 
-        /// <summary>
-        /// A rank that is not in the member list is Member: the packet has no way to say "none",
-        /// and the lowest rank is the one that grants nothing.
-        /// </summary>
+        /// <summary>Not in the member list means Member: the packet cannot say "none".</summary>
         public FamilyAuthority AuthorityOf(long characterId) =>
             Members.FirstOrDefault(s => s.CharacterId == characterId)?.Authority
             ?? FamilyAuthority.Member;

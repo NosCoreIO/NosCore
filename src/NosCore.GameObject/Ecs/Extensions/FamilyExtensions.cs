@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -17,14 +17,10 @@ namespace NosCore.GameObject.Ecs.Extensions;
 public static class FamilyExtensions
 {
     /// <summary>
-    /// The family tag drawn over a character's head, in the language of whoever is reading it.
-    /// </summary>
-    /// <remarks>
-    /// A capture writes the family field as a single id in all 670 of its gidx lines, and -1
-    /// where there is no family:
+    /// The family tag over a character's head, in the reader's language.
     ///     gidx 1 521919 5083 [NDM](Gardien) 3
     ///     gidx 1 741328 -1 - 0
-    /// </remarks>
+    /// </summary>
     public static GidxPacket GenerateGidx(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
@@ -52,9 +48,7 @@ public static class FamilyExtensions
     }
 
     /// <summary>
-    /// The family window. Every field is confirmed against a capture, which is worth stating
-    /// because seventeen numbers in a row is where an off-by-one hides and this one hands out
-    /// the wrong permissions without throwing:
+    /// The family window, field by field from a capture:
     ///     ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush
     /// </summary>
     public static GInfoPacket? GenerateGInfo(this PlayerComponentBundle player,
@@ -88,10 +82,7 @@ public static class FamilyExtensions
         };
     }
 
-    /// <summary>
-    /// "Name(Rank)". The capture shows [NDM](Gardien) and Survival(Membre), so the brackets
-    /// some families have are part of the name and the parentheses hold the rank.
-    /// </summary>
+    /// <summary>"Name(Rank)", e.g. [NDM](Gardien) - the brackets belong to the name.</summary>
     private static string FamilyTag(Services.FamilyService.Family family, long characterId,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
