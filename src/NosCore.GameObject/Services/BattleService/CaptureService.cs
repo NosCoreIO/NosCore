@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -113,8 +113,8 @@ namespace NosCore.GameObject.Services.BattleService
             // reappears at its spawn. Going through ScheduleRespawn directly (rather
             // than via EntityDiedEvent) avoids pulling in the kill pipeline's xp/gold
             // rewards, death bcards and hunt-quest credit.
-            var respawnMs = Math.Max(1000, monster.NpcMonster.RespawnTime);
-            monster.MapInstance.ScheduleRespawn(monster, clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(respawnMs)));
+            monster.MapInstance.ScheduleRespawn(monster,
+                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
 
             await messageBus.PublishAsync(new EntityCapturedEvent(monster, character)).ConfigureAwait(false);
         }
