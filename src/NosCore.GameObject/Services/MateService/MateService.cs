@@ -6,6 +6,7 @@
 
 using Mapster;
 using Microsoft.Extensions.Logging;
+using NosCore.Algorithm.MateExperienceService;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -19,7 +20,8 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.MateService
 {
     public class MateService(IDao<MateDto, long> mateDao, List<NpcMonsterDto> npcMonsters,
-        IIdService<Mate> mateIdService, ILogger<MateService> logger) : IMateService
+        IIdService<Mate> mateIdService, IMateExperienceService mateExperienceService,
+        ILogger<MateService> logger) : IMateService
     {
         public Task<List<Mate>> LoadAsync(long characterId)
         {
@@ -39,6 +41,9 @@ namespace NosCore.GameObject.Services.MateService
                 var mate = row.Adapt<Mate>();
                 mate.NpcMonster = npcMonster;
                 mate.MateTransportId = mateIdService.GetNextId();
+                mate.XpLoad = mate.MateType == MateType.Pet
+                    ? mateExperienceService.GetPetExperience(mate.Level)
+                    : mateExperienceService.GetPartnerExperience(mate.Level);
                 mates.Add(mate);
             }
 

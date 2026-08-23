@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.MateExperienceService;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     rows.Where(predicate.Compile()));
 
             return new MateServiceImpl(dao.Object, creatures.ToList(),
-                new IdService<Mate>(2000000), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
         }
 
         [TestMethod]

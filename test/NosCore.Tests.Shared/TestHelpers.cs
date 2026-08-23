@@ -312,6 +312,7 @@ namespace NosCore.Tests.Shared
                     new Mock<IDao<RespawnDto, long>>().Object, new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), new SpeedService(), new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object, SessionGroupFactory, new CharacterInitializationService(), new Mock<Wolverine.IMessageBus>().Object,
                     new NosCore.GameObject.Services.MateService.MateService(new Mock<IDao<MateDto, long>>().Object, new List<NpcMonsterDto>(),
                         new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
+                        new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
                         NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance)),
 
                 new CSkillPacketHandler(Instance.Clock),

@@ -50,7 +50,11 @@ namespace NosCore.GameObject.Services.MateService
 
         public int MaxMp => NpcMonster.MaxMp;
 
-        public long XpLoad => MateXpTable.RequiredXp(Level, MateType);
+        /// <summary>
+        /// Written when the mate is loaded rather than computed here: the curve lives in
+        /// NosCore.Algorithm, and a data object has no business resolving a service.
+        /// </summary>
+        public long XpLoad { get; set; }
 
         public ScpPacket GenerateScp(RegionType language)
         {
