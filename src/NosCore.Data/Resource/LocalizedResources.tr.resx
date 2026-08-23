@@ -570,4 +570,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Bilinmeyen yükseltme türü: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>{0} betikli örnek yüklendi!</value>
+  </data>
 </root>

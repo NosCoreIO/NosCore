@@ -73,7 +73,6 @@ public sealed class PersistenceModule : Autofac.Module
     // health-check scopes, etc.) can plan handler construction. The runtime IServiceProvider
     // is still backed by Autofac via AutofacServiceProviderFactory, so resolution semantics
     // are unchanged — this is a visibility shim, not a second source of truth.
-    //
     // Note: we deliberately do NOT mirror the open IDao<IDto> facet here. PersistenceModule.Load
     // registers each Dao<TDb,TDto,TPk> as both IDao<IDto> and IDao<TDto,TPk> in Autofac. If we
     // mirror the IDao<IDto> facet too, Populate(services) reflows it into Autofac as a SECOND
@@ -111,7 +110,7 @@ public sealed class PersistenceModule : Autofac.Module
 
         foreach (var dto in assemblyDto.Where(p =>
             typeof(IDto).IsAssignableFrom(p) &&
-            (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass))
+            !typeof(IItemInstanceDto).IsAssignableFrom(p) && p.IsClass))
         {
             var db = assemblyDb.FirstOrDefault(tgo =>
                 string.Compare(dto.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);

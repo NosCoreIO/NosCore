@@ -552,4 +552,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Type d'amélioration non géré: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>{0} instances scriptées analysées !</value>
+  </data>
 </root>
