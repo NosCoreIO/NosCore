@@ -113,12 +113,7 @@ namespace NosCore.Data.Enumerations.Buff
             ChanceMagicalDecreased = 42,
 
             /// <summary>
-            /// "Final damage from incoming critical hits is reduced by %s%% per critical hit
-            /// (max. %s hits)." Not a negation of anything above it: the first four pairs are the
-            /// parry, which is a chance, while this is priced per critical in a RUN.
-            ///
-            /// 52 carries that same sentence word for word, so the suffix marks the X2 slot and
-            /// not an inversion. Nothing in the game data declares it today.
+            /// Per-critical reduction over a run of hits, not a chance like 11-42.
             /// </summary>
             CriticalDamageReducedPerHit = 51,
             CriticalDamageReducedPerHitNegated = 52
@@ -1304,36 +1299,8 @@ namespace NosCore.Data.Enumerations.Buff
         }
 
         /// <summary>
-        /// Type 104. Five of the ten subtypes were missing, and the fourth pair was marked as not
-        /// existing when the files declare it.
+        /// 52 targets allies, not enemies - it is not the negation of 51.
         /// </summary>
-        /// <remarks>
-        /// What BCard.dat says, resolved through the client's language files:
-        ///
-        ///     11  "When you're defending, there is a %s%% chance of %s%% of the damage being
-        ///          reflected at the enemy (up to 50%% of the max. HP of the player with the buff)."
-        ///     12  the same sentence WITHOUT the cap - not a negation of 11
-        ///     21  "All opponents within %s space(s) take %s damage every 1.5 seconds."
-        ///     22  the same sentence, word for word
-        ///     31  "When you're defending, there is a %s%% chance of summoning a(n) %s."
-        ///     32  the same, summoning two
-        ///     41  "Increases the attack power of your NosMate by %s%%."
-        ///     42  the same sentence, word for word
-        ///     51  "All opponents within %s space(s) suffer %s every 1.5 seconds."
-        ///     52  "Allies within %s space(s) suffer [%s] every 1.5 seconds."
-        ///
-        /// 51 and 52 are not a pair either: one names enemies and the other allies, so a handler
-        /// that treats 52 as the negation of 51 would put a hostile aura on its own party.
-        ///
-        /// For 22 and 42 the client repeats the X1 sentence unchanged, so the files give the
-        /// second slot no meaning of its own. The `Negated` suffix here means "the X2 slot",
-        /// which is what it already means for the identical-text pairs upstream names that way
-        /// (see Type107.MagicArmourFlatNegated) - it is not a claim that the effect inverts.
-        /// Nothing in the game data declares 22 or 42 today.
-        ///
-        /// The names of 12 and of the existing 51 are left alone so nothing downstream breaks;
-        /// what they actually mean is written above.
-        /// </remarks>
         public enum Type104 : byte
         {
             ReflectOnDeff = 11,
