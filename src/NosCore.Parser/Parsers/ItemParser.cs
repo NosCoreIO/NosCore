@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -197,36 +197,8 @@ namespace NosCore.Parser.Parsers
         }
 
 
-        // Effects declared by an item, from the BUFF section: five groups of five fields, laid
-        // out as [type, first, second, subtype index, third].
-        //
-        // THE SIGN OF `first` SELECTS THE VARIANT, and this parser was the only one of the three
-        // that did not honour it. Every BCard subtype comes in pairs which the official files
-        // describe as opposites:
-        //
-        //     type 11, subtype 11:  "damage taken from all attacks is INCREASED by %s%%"
-        //     type 11, subtype 12:  "damage from all attacks is REDUCED by %s%%"
-        //
-        // A negative `first` means the second of the pair. SkillParser has always applied this
-        // (`+ (first < 0 ? 1 : 0)`), CardParser has always applied it, ItemParser never did.
-        //
-        // WHAT THAT COST. Every one of the 132 type-11 effects on equipment in the game files
-        // carries a negative `first` — armour reduces the damage you take, which is what armour
-        // is for. Stored without the sign they all became subtype 11, "damage increased". The
-        // combat code looks up subtype 12, finds nothing, and the reduction silently never
-        // applies. Same story for type 45 (48 effects, all negative: debuff resistance), type
-        // 114 (44 of 50) and type 44 (309 of 763, which are defence rather than attack).
-        //
-        // Roughly 530 effects on equipment, inert, with nothing logged.
-        //
-        // VERIFIED THREE WAYS, because "the other two parsers do it" is not on its own proof:
-        //
-        //   1. the two sibling parsers apply the rule to the same file family;
-        //   2. this parser ALREADY treats a negative `first` specially, taking its magnitude —
-        //      which only makes sense if the sign carries meaning;
-        //   3. the rendered game text matches. Item 119 "Spirit Tunic" has first = -40, and the
-        //      client shows "There is a 10% chance that damage from all attacks is reduced by
-        //      10%" — the "reduced" variant, and 40/4 = 10 for the chance.
+        // A negative first value selects the second half of the subtype pair, as in SkillParser
+        // and CardParser.
         private List<BCardDto> ImportBCards(Dictionary<string, string[][]> chunk)
         {
             var list = new List<BCardDto>();

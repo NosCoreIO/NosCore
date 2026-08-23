@@ -98,44 +98,23 @@ namespace NosCore.Parser.Tests
                    "END";
         }
 
-        // The sign of the first value picks which half of a subtype pair an effect means.
-        //
-        // Every BCard subtype comes in opposites, and the official files spell them out:
-        //
-        //     type 11, subtype 11:  "damage taken from all attacks is INCREASED by %s%%"
-        //     type 11, subtype 12:  "damage from all attacks is REDUCED by %s%%"
-        //
-        // A negative first value means the second of the pair. The skill and card parsers have
-        // always applied this; the item parser did not, and there is nothing in the resulting
-        // data to show it: the row is present, well formed, and means the opposite of what the
-        // game shows.
-        //
-        // The scene below is real. Item 119 "Spirit Tunic" declares type 11 with first = -40 and
-        // subtype index 0, and the client renders "There is a 10% chance that damage from all
-        // attacks is reduced by 10%" - subtype 12, with 40/4 = 10 for the chance.
-        //
-        // What it cost: all 132 type-11 effects on equipment in the game files carry a negative
-        // first value, because armour reduces incoming damage. Stored as subtype 11, the combat
-        // code looked up subtype 12, found nothing, and the reduction never applied.
         [TestMethod]
         public async Task ItemParser_NegativeFirstValueSelectsTheSecondSubtype()
         {
-            // type 11, first -40, second 40, subtype index 0, third 0
             CreateTestFile(CreateItemData(vnum: 119, buff: "11\t-40\t40\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
 
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
             var card = _savedBCards.Single(b => b.Type == 11);
-            Assert.AreEqual(12, card.SubType, "a negative first value means the second of the pair");
-            Assert.AreEqual(10, card.FirstData, "the magnitude is divided by four");
+            Assert.AreEqual(12, card.SubType);
+            Assert.AreEqual(10, card.FirstData);
             Assert.AreEqual(10, card.SecondData);
         }
 
         [TestMethod]
         public async Task ItemParser_PositiveFirstValueKeepsTheFirstSubtype()
         {
-            // Same effect with a positive first value: the other half of the pair.
             CreateTestFile(CreateItemData(vnum: 120, buff: "11\t40\t40\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
 
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
@@ -148,7 +127,6 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ItemParser_SubtypeIndexShiftsByTen()
         {
-            // Subtype index 1 with a negative first value is the melee half, reduced: 22.
             CreateTestFile(CreateItemData(vnum: 117, buff: "11\t-24\t60\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
 
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
@@ -156,7 +134,7 @@ namespace NosCore.Parser.Tests
 
             var card = _savedBCards.Single(b => b.Type == 11);
             Assert.AreEqual(22, card.SubType);
-            Assert.AreEqual(6, card.FirstData, "item 117 Nubuck Tunic reads as a 6% chance in game");
+            Assert.AreEqual(6, card.FirstData);
         }
 
         [TestMethod]
