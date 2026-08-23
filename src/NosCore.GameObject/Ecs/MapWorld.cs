@@ -153,8 +153,6 @@ public class MapWorld : IDisposable
             new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
             new VisualComponent(0, 0, 0, 0, false, false, false),
             new NpcDataComponent(mate.VNum, mate.NpcMonster.Race, mate.Level, 0, mate.NpcMonster.Speed, 10),
-            // A mate never wanders and is never hostile on its own: it goes where its owner
-            // goes and hits what its owner points at.
             new SpawnComponent(positionX, positionY, false, false),
             new EffectComponent(0, 0),
             new TimingComponent(now, now),

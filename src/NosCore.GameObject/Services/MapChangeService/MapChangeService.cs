@@ -329,13 +329,10 @@ namespace NosCore.GameObject.Services.MapChangeService
 
             // The entity belongs to the map being left, so it goes with it. A new one is made
             // on arrival; keeping this one would leave a mate standing in a world nobody is in.
-            foreach (var mate in leaving)
+            foreach (var mate in leaving.Where(s => s.Entity.HasValue))
             {
-                if (mate.Entity is { } handle)
-                {
-                    mapInstance.EcsWorld.DestroyEntity(handle.Handle);
-                    mate.Entity = null;
-                }
+                mapInstance.EcsWorld.DestroyEntity(mate.Entity!.Value.Handle);
+                mate.Entity = null;
             }
             session.ClearPlayerEntity();
             await session.SendPacketAsync(new MapOutPacket());
