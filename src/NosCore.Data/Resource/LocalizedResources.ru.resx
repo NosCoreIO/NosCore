@@ -583,15 +583,15 @@
     <value>Загружено скриптовых инстансов: {0}!</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Head</value>
+    <value>Глава семьи</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
-    <value>Assistant</value>
+    <value>Помощник</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
-    <value>Manager</value>
+    <value>Управляющий</value>
   </data>
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
-    <value>Member</value>
+    <value>Участник</value>
   </data>
 </root>

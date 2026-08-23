@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -156,9 +156,6 @@ namespace NosCore.PacketHandlers.Game
                 .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
             //            Session.Character.GenerateStartupInventory();
 
-            // The family window. Nothing asked for it — the capture shows the server pushing
-            // ginfo on its own, and repeatedly during a session — so a character who has a
-            // family is told about it as part of arriving.
             var membership = session.Character.FamilyCharacter;
             if (membership != null)
             {

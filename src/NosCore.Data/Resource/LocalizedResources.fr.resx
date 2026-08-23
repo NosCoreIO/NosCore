@@ -556,15 +556,15 @@
     <value>{0} instances scriptées analysées !</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Head</value>
+    <value>Chef de famille</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
     <value>Assistant</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
-    <value>Manager</value>
+    <value>Gardien</value>
   </data>
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
-    <value>Member</value>
+    <value>Membre</value>
   </data>
 </root>

@@ -485,15 +485,15 @@
     <value>¡{0} instancias de script analizadas!</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Head</value>
+    <value>Cabeza de familia</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
-    <value>Assistant</value>
+    <value>Asistente</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
-    <value>Manager</value>
+    <value>Gerente</value>
   </data>
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
-    <value>Member</value>
+    <value>Miembro</value>
   </data>
 </root>

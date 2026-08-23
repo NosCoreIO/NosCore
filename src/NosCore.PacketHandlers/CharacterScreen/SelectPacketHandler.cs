@@ -268,9 +268,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     character.Mates[mate.MateTransportId] = mate;
                 }
 
-                // The family. The tables have been in the schema since the first migration and
-                // nothing read them, so a character who belonged to a family looked to everyone
-                // — including themselves — like a character who did not.
                 character.FamilyCharacter = await familyService
                     .GetMembershipAsync(characterId).ConfigureAwait(false);
 

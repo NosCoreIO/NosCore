@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -13,7 +13,6 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
-    /// <inheritdoc cref="IFamilyService" />
     public class FamilyService(IDao<FamilyDto, long> familyDao,
         IDao<FamilyCharacterDto, long> familyCharacterDao,
         IDao<CharacterDto, long> characterDao) : IFamilyService
@@ -31,9 +30,6 @@ namespace NosCore.GameObject.Services.FamilyService
                 .FirstOrDefaultAsync(s => s.FamilyId == membership.FamilyId).ConfigureAwait(false);
             if (familyDto == null)
             {
-                // A membership row pointing at a family that is gone. The character is treated as
-                // having none, which is what the player already sees; keeping the orphan row
-                // would make every family packet name a family that cannot be opened.
                 return null;
             }
 
@@ -41,8 +37,6 @@ namespace NosCore.GameObject.Services.FamilyService
             var memberRows = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.ToList()
                 ?? new List<FamilyCharacterDto>();
 
-            // One query for the names instead of one per member: the family window names the
-            // head, and a large family is seventy rows.
             var memberIds = memberRows.Select(s => s.CharacterId).ToHashSet();
             var names = (characterDao.Where(s => memberIds.Contains(s.CharacterId))?.ToList()
                     ?? new List<CharacterDto>())
@@ -58,9 +52,6 @@ namespace NosCore.GameObject.Services.FamilyService
                 return member;
             }).ToList();
 
-            // Hand back the row belonging to the character that asked, taken from the same list
-            // the family holds — so the caller and the family agree about the same object rather
-            // than about two copies that can drift.
             return family.Members.First(s => s.CharacterId == characterId);
         }
     }

@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -25,14 +25,6 @@ using FamilyServiceImpl = NosCore.GameObject.Services.FamilyService.FamilyServic
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
 {
-    /// <summary>
-    /// Reading a character's family, and describing it to the client.
-    /// </summary>
-    /// <remarks>
-    /// The ginfo assertions are anchored to a real captured line rather than to what the code
-    /// happens to produce — seventeen fields in a row is where an off-by-one lives, and an
-    /// off-by-one here shows the wrong family the wrong permissions without throwing anything.
-    /// </remarks>
     [TestClass]
     public class FamilyTests
     {
@@ -129,8 +121,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheMembershipHandedBackIsTheSameObjectTheFamilyHoldsAsync()
         {
-            // Two copies of the same membership drift the moment one is edited, and the drift is
-            // invisible: the window would show one rank and the tag another.
             var membership = await Nemesis().GetMembershipAsync(MemberId);
 
             Assert.AreSame(membership,
@@ -148,7 +138,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AMembershipPointingAtAFamilyThatIsGoneReadsAsNoFamilyAsync()
         {
-            // Rather than a family packet naming something that cannot be opened.
             var service = Build([],
                 [new FamilyCharacterDto { FamilyCharacterId = 1, FamilyId = FamilyId, CharacterId = MemberId }],
                 [new CharacterDto { CharacterId = MemberId, Name = "Uppermost" }]);
@@ -159,7 +148,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheFamilyWindowMatchesTheCapturedLineAsync()
         {
-            // ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush
             var membership = await Nemesis().GetMembershipAsync(MemberId);
             var packet = membership!.Family.GenerateGInfo(membership.Authority, 640000);
 
@@ -177,8 +165,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheFamilyMessageTravelsWithoutSpacesAsync()
         {
-            // The client splits a packet on spaces; a message sent as-is shifts nothing after it
-            // only because it is last, and would break the moment a field is added.
             var membership = await Nemesis().GetMembershipAsync(MemberId);
 
             Assert.AreEqual("coin^afk^go^rush",
@@ -188,8 +174,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheTagIsTheFamilyNameWithTheRankAfterItAsync()
         {
-            // gidx 1 626114 5052 -Nemesis-(Membre) 7 — the parentheses hold the rank, and any
-            // brackets in front are part of the family's own name.
             var membership = await Nemesis().GetMembershipAsync(MemberId);
 
             Assert.AreEqual("-Nemesis-(Member)",
@@ -201,9 +185,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void TheTwoAuthorityEnumsAgreeValueForValue()
         {
-            // One enum lives in the database layer and one in the packet library, and the tag and
-            // the window are built from different ones. If they ever diverge every player's rank
-            // silently shifts by one.
             foreach (var authority in Enum.GetValues<FamilyAuthority>())
             {
                 Assert.AreEqual(authority.ToString(),

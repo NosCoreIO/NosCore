@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -6,30 +6,8 @@
 
 namespace NosCore.GameObject.Services.FamilyService
 {
-    /// <summary>
-    /// How much experience a family needs to leave its current level.
-    /// </summary>
-    /// <remarks>
-    /// INHERITED, AND THE ONE THING WE CAN CHECK SAYS IT IS WRONG. The table below is the one the
-    /// older emulators ship. The capture contains a family at level 7, and its ginfo says the bar
-    /// runs to 640 000:
-    ///
-    ///     ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 ...
-    ///                              ^ level     ^ this
-    ///
-    /// The table says 1 900 000 for that level — nearly three times as much. One observation is
-    /// not enough to rebuild nineteen rows, so the inherited numbers stay and the disagreement is
-    /// written down instead of papered over. It is used only to draw the bar; nothing levels a
-    /// family up yet, so being wrong costs a misdrawn bar and not lost progress.
-    ///
-    /// Closing it needs ginfo lines from families at several different levels — see Q16.
-    /// </remarks>
     public static class FamilyExperienceTable
     {
-        /// <summary>
-        /// Experience to leave <paramref name="familyLevel" />, or a number the bar can never
-        /// fill once past the last described level.
-        /// </summary>
         public static uint RequiredExperience(byte familyLevel)
         {
             return familyLevel switch
@@ -53,9 +31,6 @@ namespace NosCore.GameObject.Services.FamilyService
                 17 => 9_500_000,
                 18 => 10_000_000,
                 19 => 17_000_000,
-                // Past the last level the table describes. A full bar that never moves is the
-                // honest picture of "there is nothing after this"; a zero would make the client
-                // divide by it.
                 _ => 999_999_999
             };
         }

@@ -581,15 +581,15 @@
     <value>{0} Skript-Instanzen geladen!</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Head</value>
+    <value>Familienoberhaupt</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
-    <value>Assistant</value>
+    <value>Assistent</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
-    <value>Manager</value>
+    <value>Verwalter</value>
   </data>
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
-    <value>Member</value>
+    <value>Mitglied</value>
   </data>
 </root>
