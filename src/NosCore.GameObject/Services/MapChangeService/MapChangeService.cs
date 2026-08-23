@@ -229,11 +229,14 @@ namespace NosCore.GameObject.Services.MapChangeService
                         : string.Empty;
                     await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
 
-                    // And whatever is at their heel. Announcing only the arriving character's
-                    // mates would leave every pet already on the map invisible to them.
-                    await session.SendPacketsAsync(otherCharacter.Mates.Values
-                        .Where(m => m.IsTeamMember)
-                        .Select(m => m.GenerateIn(accountLanguage)));
+                    // And whatever is at their heel — unless they are hidden, in which case the
+                    // pet would announce them: its spawn packet names its owner.
+                    if (!otherCharacter.Invisible)
+                    {
+                        await session.SendPacketsAsync(otherCharacter.Mates.Values
+                            .Where(m => m.IsTeamMember)
+                            .Select(m => m.GenerateIn(accountLanguage)));
+                    }
 
                     var shop = otherCharacter.Shop;
                     if (shop != null)
