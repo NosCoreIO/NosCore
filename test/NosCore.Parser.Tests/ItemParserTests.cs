@@ -99,6 +99,45 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_NegativeFirstValueSelectsTheSecondSubtype()
+        {
+            CreateTestFile(CreateItemData(vnum: 119, buff: "11\t-40\t40\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.Type == 11);
+            Assert.AreEqual(12, card.SubType);
+            Assert.AreEqual(10, card.FirstData);
+            Assert.AreEqual(10, card.SecondData);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_PositiveFirstValueKeepsTheFirstSubtype()
+        {
+            CreateTestFile(CreateItemData(vnum: 120, buff: "11\t40\t40\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.Type == 11);
+            Assert.AreEqual(11, card.SubType);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_SubtypeIndexShiftsByTen()
+        {
+            CreateTestFile(CreateItemData(vnum: 117, buff: "11\t-24\t60\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.Type == 11);
+            Assert.AreEqual(22, card.SubType);
+            Assert.AreEqual(6, card.FirstData);
+        }
+
+        [TestMethod]
         public async Task ItemParser_ParsesSingleItem()
         {
             var content = CreateItemData(vnum: 1, price: 500, name: "Sword");
