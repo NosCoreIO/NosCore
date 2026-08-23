@@ -18,10 +18,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Mates
 {
-    // A pet attacking what its owner points it at. The mate goes through the same
-    // IBattleService.Hit as everything else that fights: it is an entity on the map with the
-    // same components a monster has, so the skill resolver already treats it as one and there
-    // is no second damage path to keep in step.
+    // A mate goes through IBattleService.Hit like anything else that fights - it is an entity
+    // with a monster's components, so there is no second damage path.
     public class UpetPacketHandler(
         IBattleService battleService,
         ISessionRegistry sessionRegistry,
@@ -33,8 +31,7 @@ namespace NosCore.PacketHandlers.Mates
         {
             var character = session.Character;
 
-            // Only the owner commands the mate, and only one that is actually out. Trusting the
-            // id would let a client drive somebody else's pet.
+            // Trusting the id would let a client drive somebody else's pet.
             if (!character.Mates.TryGetValue(packet.MateTransportId, out var mate)
                 || !mate.IsTeamMember
                 || mate.Entity is not { } attacker)
@@ -48,8 +45,7 @@ namespace NosCore.PacketHandlers.Mates
                 return;
             }
 
-            // Cast id zero is the creature's own basic attack: a mate has no learned skills, so
-            // the resolver reads it off the NpcMonster exactly as it does for a monster.
+            // Cast id zero is the creature's own basic attack, read off the NpcMonster.
             await battleService.Hit(attacker, target, new HitArguments { SkillId = 0 })
                 .ConfigureAwait(false);
         }

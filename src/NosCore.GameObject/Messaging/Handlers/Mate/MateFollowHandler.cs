@@ -17,16 +17,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Messaging.Handlers.Mate
 {
-    // Keeps a character's mates at their heel. A mate that stays where it was summoned looks
-    // broken long before it looks unfinished, so it moves on the same event the character's own
-    // step publishes rather than on a timer of its own.
+    // Mates follow on the same event the owner's own step publishes.
     [UsedImplicitly]
     public sealed class MateFollowHandler
     {
         [UsedImplicitly]
         public async Task Handle(CharacterMovedEvent evt)
         {
-            // Only a player has mates, and the event is declared on the wider interface.
             if (evt.Character is not PlayerComponentBundle character)
             {
                 return;
@@ -43,9 +40,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Mate
 
             foreach (var mate in mates)
             {
-                // The entity carries the position everything else reads — a monster deciding
-                // whom to hit, a skill deciding what is in range. Moving only the packet would
-                // leave the mate visibly in one place and actually in another.
+                // The entity carries the position aggro and range checks read, not the packet.
                 if (mate.Entity is { } handle)
                 {
                     handle.PositionX = mate.PositionX;
@@ -61,8 +56,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Mate
                     Speed = mate.NpcMonster.Speed
                 };
 
-                // A hidden owner's mates are still theirs: broadcasting them would draw the
-                // character back onto everybody's screen, and the spawn packet even names them.
+                // Broadcasting a hidden owner's mates would put the owner back on screen.
                 if (character.Invisible)
                 {
                     await character.SendPacketAsync(move).ConfigureAwait(false);

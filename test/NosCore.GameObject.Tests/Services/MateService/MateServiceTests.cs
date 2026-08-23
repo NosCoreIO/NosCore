@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -221,7 +221,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task TheHealthBarCarriesTheMateTypeWhereAPlayerCarriesAPartyPositionAsync()
         {
-            // pst 2 22687 0 100 100 24471 3100 0 0 0 — the third field is the mate type.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner, Hp = 435, Mp = 100 }
@@ -238,8 +237,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task ADespawnNamesTheSameIdTheSpawnDidAsync()
         {
-            // A mismatch here leaves the pet drawn on everybody else's screen for ever, and
-            // nothing throws.
+            // A mismatch leaves the pet drawn on everybody else's screen, silently.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet }
@@ -253,8 +251,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task OnlyOneMateOfEachTypeIsEverOutAsync()
         {
-            // Two rows can claim the slot — two captures racing, or a database edited by hand —
-            // and the second would spawn on top of the first with nothing raised anywhere.
+            // Two rows can claim one slot, and the second would spawn on top of the first.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true },
@@ -296,8 +293,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task TwoMatesNeverStandOnTheSameSquareAsync()
         {
-            // A character can have a pet and a partner out at once. Giving both the same offset
-            // stacks them, and nothing complains.
+            // A pet and a partner out at once must not share an offset.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true },
