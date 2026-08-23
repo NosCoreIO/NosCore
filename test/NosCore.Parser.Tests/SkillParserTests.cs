@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -125,14 +125,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task SkillParser_ReadsComboTripletsAfterTheSwitch()
         {
-            // The real FCOMBO row of skill 220, "Basic Slash". The leading 1 is the switch that
-            // says the skill has a chain at all; the triplets follow it.
-            //
-            //     FCOMBO 1 | 3 40 513 | 4 25 525 | 5 13 524 | 0 0 0 | 0 0 0
-            //
-            // Counting from the switch instead of after it produced (hit 1, anim 3, eff 40) and
-            // then hits 513 and 525 - numbers the consecutive-hit counter never reaches, so the
-            // chain could not fire and nothing reported it.
+            // Skill 220's real row: the leading 1 is the switch, the triplets follow it.
             var content = CreateSkillData(skillVNum: 220, name: "Basic Slash",
                 fcombo: "1\t3\t40\t513\t4\t25\t525\t5\t13\t524\t0\t0\t0\t0\t0\t0");
             CreateTestFile(content);
