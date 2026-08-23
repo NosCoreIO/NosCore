@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -72,7 +72,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new Mock<ISessionGroupFactory>().Object,
                 new CharacterInitializationService(),
                 new Mock<Wolverine.IMessageBus>().Object,
-                new Mock<NosCore.GameObject.Services.MateService.IMateService>().Object);
+                new Mock<NosCore.GameObject.Services.MateService.IMateService>().Object,
+                new Mock<NosCore.GameObject.Services.FamilyService.IFamilyService>().Object);
         }
 
         [TestMethod]

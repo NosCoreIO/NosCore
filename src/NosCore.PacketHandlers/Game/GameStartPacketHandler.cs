@@ -15,6 +15,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
@@ -154,6 +155,16 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(session.Character.Mates.Values
                 .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
             //            Session.Character.GenerateStartupInventory();
+
+            // The family window. Nothing asked for it — the capture shows the server pushing
+            // ginfo on its own, and repeatedly during a session — so a character who has a
+            // family is told about it as part of arriving.
+            var membership = session.Character.FamilyCharacter;
+            if (membership != null)
+            {
+                await session.SendPacketAsync(membership.Family.GenerateGInfo(membership.Authority,
+                    FamilyExperienceTable.RequiredExperience(membership.Family.FamilyLevel))).ConfigureAwait(false);
+            }
 
             await session.SendPacketAsync(session.Character.GenerateGold());
             await session.SendPacketAsync(session.Character.GenerateCond());

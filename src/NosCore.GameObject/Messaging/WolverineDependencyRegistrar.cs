@@ -15,6 +15,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MateService;
@@ -62,6 +63,7 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IExchangeRequestRegistry, ExchangeRequestRegistry>();
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
         services.AddSingleton<IMateService, MateService>();
+        services.AddSingleton<IFamilyService, FamilyService>();
 
         // Inter-channel hub clients — one instance per concrete HubClient, each
         // exposed as all of its implemented interfaces so features that depend on

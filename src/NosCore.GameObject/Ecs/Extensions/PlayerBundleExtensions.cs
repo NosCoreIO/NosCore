@@ -434,8 +434,15 @@ public static class PlayerBundleExtensions
                 ? $"[{localizer[LanguageKey.SUPPORT, player.Account.Language]}]" + player.Name : player.Name,
             Unknown1 = null,
             GroupId = -1,
-            FamilyId = -1,
-            FamilyName = null,
+            // -1 and "-" are what the capture shows for a character with no family, and the
+            // family's id and its "Name(Rank)" tag when there is one:
+            //     c_info ChachaNeko - -1 5083 [NDM](Gardien) 521919 ...
+            //     c_info Elendan    - -1   -1 -              741328 ...
+            FamilyId = (int)(player.FamilyCharacter?.FamilyId ?? -1),
+            FamilyName = player.FamilyCharacter == null
+                ? "-"
+                : player.FamilyCharacter.Family.GenerateFamilyTag(
+                    player.FamilyCharacter.Authority, localizer, player.AccountLanguage),
             CharacterId = player.VisualId,
             Authority = player.Authority,
             Gender = player.Gender,
@@ -446,6 +453,10 @@ public static class PlayerBundleExtensions
             Compliment = (short)(player.Authority == AuthorityType.Moderator ? 500 : player.Compliment),
             Morph = 0,
             Invisible = false,
+            // NOT the family level, whatever the field is called. PIKAZ in the capture belongs
+            // to a family the gidx line says is level 10, and their c_info carries 0 in this
+            // slot; the two characters whose morph upgrade is known carry that instead. Left at
+            // zero rather than filled with something the capture contradicts.
             FamilyLevel = 0,
             MorphUpgrade = 0,
             ArenaWinner = false

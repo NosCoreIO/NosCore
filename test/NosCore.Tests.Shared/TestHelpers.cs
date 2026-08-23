@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -313,8 +313,11 @@ namespace NosCore.Tests.Shared
                     new NosCore.GameObject.Services.MateService.MateService(new Mock<IDao<MateDto, long>>().Object, new List<NpcMonsterDto>(),
                         new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
                         new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
-                        NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance)),
-
+                        NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance),
+                    new NosCore.GameObject.Services.FamilyService.FamilyService(
+                        new Mock<IDao<FamilyDto, long>>().Object,
+                        new Mock<IDao<FamilyCharacterDto, long>>().Object,
+                        CharacterDao)),
                 new CSkillPacketHandler(Instance.Clock),
                 new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer),
                 new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
@@ -429,6 +432,7 @@ namespace NosCore.Tests.Shared
                 new List<RespawnDto>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerSocialComponent(
                 new ConcurrentDictionary<long, long>(),
+                null,
                 null));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerMatesComponent(
                 new ConcurrentDictionary<long, NosCore.GameObject.Services.MateService.Mate>()));

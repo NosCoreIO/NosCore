@@ -582,4 +582,16 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>Загружено скриптовых инстансов: {0}!</value>
   </data>
+  <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
+    <value>Head</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
+    <value>Assistant</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
+    <value>Manager</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
+    <value>Member</value>
+  </data>
 </root>

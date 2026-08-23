@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -198,6 +198,10 @@ namespace NosCore.Data.Enumerations.I18N
         OBJECT_IN_BAZAAR,
         ITEM_GIFTED,
         NOT_IN_FRIENDLIST,
-        SPEAKER
+        SPEAKER,
+        FAMILY_AUTHORITY_HEAD,
+        FAMILY_AUTHORITY_ASSISTANT,
+        FAMILY_AUTHORITY_MANAGER,
+        FAMILY_AUTHORITY_MEMBER
     }
 }
