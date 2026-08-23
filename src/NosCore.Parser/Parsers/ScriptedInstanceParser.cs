@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -28,8 +28,9 @@ namespace NosCore.Parser.Parsers
         public async Task InsertScriptedInstancesAsync(List<string[]> packetList)
         {
             var maps = mapDao.LoadAll().Select(s => s.MapId).ToHashSet();
-            var known = scriptedInstanceDao.LoadAll()
-                .Select(s => (s.MapId, s.PositionX, s.PositionY)).ToHashSet();
+            var stored = scriptedInstanceDao.LoadAll()
+                .ToDictionary(s => (s.MapId, s.PositionX, s.PositionY), s => s);
+            var seen = new HashSet<(short, short, short)>();
             var found = new List<ScriptedInstanceDto>();
             short currentMap = 0;
 
@@ -84,9 +85,26 @@ namespace NosCore.Parser.Parsers
                 }
 
                 var key = (entrance.MapId, entrance.PositionX, entrance.PositionY);
-                if (!known.Add(key))
+
+                // Within one run the same entrance can turn up more than once - the capture walks
+                // a map twice and the wp comes round again. First reading wins.
+                if (!seen.Add(key))
                 {
                     return;
+                }
+
+                // An entrance already in the table gets its metadata refreshed rather than
+                // skipped. Skipping it looked safe and was not: the columns this parser exists to
+                // fill arrive from the migration as 0, 0 and false, so on any database that
+                // already holds entrances the import would leave every level range at zero and
+                // every raid non-heroic - and say nothing.
+                //
+                // The id and the script come from the stored row: the id so the upsert updates
+                // instead of inserting a duplicate, the script because it is not ours to write.
+                if (stored.TryGetValue(key, out var existing))
+                {
+                    entrance.ScriptedInstanceId = existing.ScriptedInstanceId;
+                    entrance.Script = existing.Script;
                 }
 
                 found.Add(entrance);

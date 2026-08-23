@@ -482,6 +482,6 @@
     <value>Tipo de mejora no manejado: {0}</value>
   </data>
   <data name="TIMESPACES_PARSED" xml:space="preserve">
-    <value>¡{0} instancias con guion analizadas!</value>
+    <value>¡{0} instancias de script analizadas!</value>
   </data>
 </root>
