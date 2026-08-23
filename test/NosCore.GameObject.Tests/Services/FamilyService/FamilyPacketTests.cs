@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -14,7 +14,6 @@ using NosCore.Tests.Shared;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
-using FamilyCharacter = NosCore.GameObject.Services.FamilyService.FamilyCharacter;
 using GenderType = NosCore.Packets.Enumerations.GenderType;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
@@ -34,7 +33,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _session = await TestHelpers.Instance.GenerateSessionAsync();
         }
 
-        private static FamilyCharacter Nemesis(FamilyAuthority authority = FamilyAuthority.Member)
+        private static Family Nemesis(long characterId, FamilyAuthority authority = FamilyAuthority.Member)
         {
             var family = new Family
             {
@@ -52,22 +51,24 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 FamilyMessage = "coin afk go rush",
                 HeadCharacterName = "Yzigor"
             };
-            var membership = new FamilyCharacter
+            family.Members = new List<FamilyCharacterDto>
             {
-                FamilyCharacterId = 1,
-                FamilyId = family.FamilyId,
-                Authority = authority,
-                Family = family
+                new()
+                {
+                    FamilyCharacterId = 1,
+                    FamilyId = family.FamilyId,
+                    CharacterId = characterId,
+                    Authority = authority
+                }
             };
-            family.Members = new List<FamilyCharacter> { membership };
-            return membership;
+            return family;
         }
 
         [TestMethod]
         public void TheTagCarriesTheFamilyIdAndTheRank()
         {
             // gidx 1 521919 5052 -Nemesis-(Member) 7
-            _session.Character.FamilyCharacter = Nemesis();
+            _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
             var packet = _session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
                 _session.Character.AccountLanguage);
@@ -82,7 +83,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             // gidx 1 741328 -1 - 0. Silence would leave the client showing whichever tag it was
             // given last, and a null id is what the serializer writes as -1.
-            _session.Character.FamilyCharacter = null;
+            _session.Character.Family = null;
 
             var packet = _session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
                 _session.Character.AccountLanguage);
@@ -96,7 +97,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         public void TheWindowMatchesTheCapturedLine()
         {
             // ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush
-            _session.Character.FamilyCharacter = Nemesis();
+            _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
             var packet = _session.Character.GenerateGInfo(new FamilyExperienceService())!;
 
@@ -114,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void NoFamilyMeansNoWindow()
         {
-            _session.Character.FamilyCharacter = null;
+            _session.Character.Family = null;
 
             Assert.IsNull(_session.Character.GenerateGInfo(new FamilyExperienceService()));
         }
@@ -124,7 +125,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             // Two players standing next to each other see the same family in their own words,
             // so the tag cannot be built once from the owner's account language.
-            _session.Character.FamilyCharacter = Nemesis(FamilyAuthority.Manager);
+            _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Manager);
 
             var english = _session.Character
                 .GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer, Shared.Enumerations.RegionType.EN)

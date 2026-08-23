@@ -268,8 +268,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     character.Mates[mate.MateTransportId] = mate;
                 }
 
-                character.FamilyCharacter = await familyService
-                    .GetMembershipAsync(characterId).ConfigureAwait(false);
+                character.Family = await familyService
+                    .GetFamilyAsync(characterId).ConfigureAwait(false);
 
                 await characterInitializationService.InitializeAsync(character);
 

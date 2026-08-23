@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -18,7 +18,7 @@ namespace NosCore.GameObject.Services.FamilyService
         IDao<FamilyCharacterDto, long> familyCharacterDao,
         IDao<CharacterDto, long> characterDao) : IFamilyService
     {
-        public async Task<FamilyCharacter?> GetMembershipAsync(long characterId)
+        public async Task<Family?> GetFamilyAsync(long characterId)
         {
             var membership = await familyCharacterDao
                 .FirstOrDefaultAsync(s => s.CharacterId == characterId).ConfigureAwait(false);
@@ -35,15 +35,8 @@ namespace NosCore.GameObject.Services.FamilyService
             }
 
             var family = familyDto.Adapt<Family>();
-            var memberRows = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.ToList()
+            family.Members = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.ToList()
                 ?? new List<FamilyCharacterDto>();
-
-            family.Members = memberRows.Select(row =>
-            {
-                var member = row.Adapt<FamilyCharacter>();
-                member.Family = family;
-                return member;
-            }).ToList();
 
             // Only the head's name is ever printed, so only the head's name is fetched.
             var head = family.Members.FirstOrDefault(s => s.Authority == FamilyAuthority.Head);
@@ -54,7 +47,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 family.HeadCharacterName = headCharacter?.Name ?? string.Empty;
             }
 
-            return family.Members.First(s => s.CharacterId == characterId);
+            return family;
         }
     }
 }

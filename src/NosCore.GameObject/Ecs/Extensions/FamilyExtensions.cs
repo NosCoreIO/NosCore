@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -28,8 +28,8 @@ public static class FamilyExtensions
     public static GidxPacket GenerateGidx(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
-        var membership = player.FamilyCharacter;
-        if (membership == null)
+        var family = player.Family;
+        if (family == null)
         {
             return new GidxPacket
             {
@@ -45,9 +45,9 @@ public static class FamilyExtensions
         {
             VisualType = VisualType.Player,
             VisualId = player.VisualId,
-            FamilyId = membership.FamilyId,
-            FamilyName = FamilyTag(membership, localizer, viewerLanguage),
-            FamilyLevel = membership.Family.FamilyLevel
+            FamilyId = family.FamilyId,
+            FamilyName = FamilyTag(family, player.CharacterId, localizer, viewerLanguage),
+            FamilyLevel = family.FamilyLevel
         };
     }
 
@@ -60,13 +60,12 @@ public static class FamilyExtensions
     public static GInfoPacket? GenerateGInfo(this PlayerComponentBundle player,
         IFamilyExperienceService familyExperienceService)
     {
-        var membership = player.FamilyCharacter;
-        if (membership == null)
+        var family = player.Family;
+        if (family == null)
         {
             return null;
         }
 
-        var family = membership.Family;
         return new GInfoPacket
         {
             FamilyName = family.Name,
@@ -77,7 +76,7 @@ public static class FamilyExtensions
             MaxFamilyXp = familyExperienceService.GetFamilyExperience(family.FamilyLevel),
             MembersCount = (ushort)family.Members.Count,
             MembersCapacity = family.MaxSize,
-            CharacterFamilyAuthority = (Packets.Enumerations.FamilyAuthority)membership.Authority,
+            CharacterFamilyAuthority = (Packets.Enumerations.FamilyAuthority)family.AuthorityOf(player.CharacterId),
             FamilyManagerCanInvit = family.ManagerCanInvite,
             FamilyManagerCanNotice = family.ManagerCanNotice,
             FamilyManagerCanShout = family.ManagerCanShout,
@@ -93,10 +92,10 @@ public static class FamilyExtensions
     /// "Name(Rank)". The capture shows [NDM](Gardien) and Survival(Membre), so the brackets
     /// some families have are part of the name and the parentheses hold the rank.
     /// </summary>
-    private static string FamilyTag(Services.FamilyService.FamilyCharacter membership,
+    private static string FamilyTag(Services.FamilyService.Family family, long characterId,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
-        var rank = membership.Authority switch
+        var rank = family.AuthorityOf(characterId) switch
         {
             FamilyAuthority.Head => LanguageKey.FAMILY_AUTHORITY_HEAD,
             FamilyAuthority.Assistant => LanguageKey.FAMILY_AUTHORITY_ASSISTANT,
@@ -104,6 +103,6 @@ public static class FamilyExtensions
             _ => LanguageKey.FAMILY_AUTHORITY_MEMBER
         };
 
-        return $"{membership.Family.Name}({localizer[rank, viewerLanguage]})";
+        return $"{family.Name}({localizer[rank, viewerLanguage]})";
     }
 }

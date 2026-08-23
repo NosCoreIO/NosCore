@@ -104,37 +104,46 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         [TestMethod]
-        public async Task ACharacterWithNoFamilyHasNoMembershipAsync()
+        public async Task ACharacterWithNoFamilyGetsNothingAsync()
         {
-            Assert.IsNull(await Nemesis().GetMembershipAsync(999));
+            Assert.IsNull(await Nemesis().GetFamilyAsync(999));
         }
 
         [TestMethod]
-        public async Task TheMembershipComesBackWithItsFamilyAndEveryMemberAsync()
+        public async Task TheFamilyComesBackWithEveryMemberAsync()
         {
-            var membership = await Nemesis().GetMembershipAsync(MemberId);
+            var family = await Nemesis().GetFamilyAsync(MemberId);
 
-            Assert.IsNotNull(membership);
-            Assert.AreEqual("-Nemesis-", membership.Family.Name);
-            Assert.AreEqual(2, membership.Family.Members.Count);
-            Assert.AreEqual(FamilyAuthority.Member, membership.Authority);
+            Assert.IsNotNull(family);
+            Assert.AreEqual("-Nemesis-", family.Name);
+            Assert.AreEqual(2, family.Members.Count);
         }
 
         [TestMethod]
-        public async Task TheMembershipHandedBackIsTheSameObjectTheFamilyHoldsAsync()
+        public async Task EachMemberIsReadAtTheirOwnRankAsync()
         {
-            var membership = await Nemesis().GetMembershipAsync(MemberId);
+            // The window hands out permissions off this value, and reading somebody else's row
+            // would grant them without throwing.
+            var family = await Nemesis().GetFamilyAsync(MemberId);
 
-            Assert.AreSame(membership,
-                membership!.Family.Members.Single(s => s.CharacterId == MemberId));
+            Assert.AreEqual(FamilyAuthority.Member, family!.AuthorityOf(MemberId));
+            Assert.AreEqual(FamilyAuthority.Head, family.AuthorityOf(HeadId));
+        }
+
+        [TestMethod]
+        public async Task ARankThatIsNotInTheListReadsAsMemberAsync()
+        {
+            var family = await Nemesis().GetFamilyAsync(MemberId);
+
+            Assert.AreEqual(FamilyAuthority.Member, family!.AuthorityOf(999));
         }
 
         [TestMethod]
         public async Task TheHeadsNameIsFetchedForTheWindowAsync()
         {
-            var membership = await Nemesis().GetMembershipAsync(MemberId);
+            var family = await Nemesis().GetFamilyAsync(MemberId);
 
-            Assert.AreEqual("Yzigor", membership!.Family.HeadCharacterName);
+            Assert.AreEqual("Yzigor", family!.HeadCharacterName);
         }
 
         [TestMethod]
@@ -145,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 [new FamilyCharacterDto { FamilyCharacterId = 1, FamilyId = FamilyId, CharacterId = MemberId }],
                 [new CharacterDto { CharacterId = MemberId, Name = "Uppermost" }]);
 
-            Assert.IsNull(await service.GetMembershipAsync(MemberId));
+            Assert.IsNull(await service.GetFamilyAsync(MemberId));
         }
 
         [TestMethod]

@@ -10,6 +10,6 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public interface IFamilyService
     {
-        Task<FamilyCharacter?> GetMembershipAsync(long characterId);
+        Task<Family?> GetFamilyAsync(long characterId);
     }
 }

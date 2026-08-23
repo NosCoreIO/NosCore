@@ -433,7 +433,7 @@ public static class PlayerBundleExtensions
                 ? $"[{localizer[LanguageKey.SUPPORT, player.Account.Language]}]" + player.Name : player.Name,
             Unknown1 = null,
             GroupId = -1,
-            FamilyId = (int)(player.FamilyCharacter?.FamilyId ?? -1),
+            FamilyId = (int)(player.Family?.FamilyId ?? -1),
             FamilyName = player.GenerateGidx(localizer, player.AccountLanguage).FamilyName,
             CharacterId = player.VisualId,
             Authority = player.Authority,
