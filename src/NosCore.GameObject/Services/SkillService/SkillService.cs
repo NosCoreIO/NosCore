@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Services.SkillService
             // Characters who changed class before the deletion below existed are still carrying
             // the old rows. Clearing them at login, and not only at the next class change, means
             // those characters heal themselves instead of staying broken for ever.
-            await ForgetSkillsOfOtherClassesAsync(character).ConfigureAwait(false);
+            await ForgetUnlearnableSkillsAsync(character).ConfigureAwait(false);
 
             var characterSkills = characterSkillDao.Where(x => x.CharacterId == character.VisualId).Adapt<List<CharacterSkill>>() ?? new List<CharacterSkill>();
             var skillToUse = skills.Where(x => characterSkills.Select(s => s.SkillVNum).Contains(x.SkillVNum));
@@ -58,14 +58,25 @@ namespace NosCore.GameObject.Services.SkillService
         ///
         /// <b>They cannot be selected by class like every other one</b>, and that is this table's
         /// trap: class 0 does not mean "Adventurer", it is the scrap container where 193 entries
-        /// end up - passives, monster skills, things with no cost and no cast. Filtering by class
-        /// 0 gave an Adventurer <i>all</i> of them, and the bar filled with icons the client will
-        /// not cast: the symptom is "the skills arrive but they do not work".
+        /// end up - the emotes, the stat courses, the shop and rest actions, passives. Filtering
+        /// by class 0 gave an Adventurer <i>all</i> of them, and the bar filled with icons the
+        /// client will not cast.
         ///
-        /// These are the real numbers, from the original game. 209 does not exist.
+        /// The range is 200 to 210 inclusive. 209 is in it: Skill.dat gives it class 0, cast id
+        /// 16, LevelMinimum 1 and the name Capture - it is the Adventurer's pet catcher, which is
+        /// why CharNewPacketHandler grants it to every new character and why its comment there
+        /// talks about <c>u_s 16</c>. Left out, an Adventurer cannot catch anything.
+        ///
+        /// 211 and 212 are excluded on purpose: the file calls them "Ultra Super Cheating Skill"
+        /// and "Admin Cheating Skill".
+        ///
+        /// Open, and deliberately not guessed at: 300 to 306 are also class 0, with LevelMinimum
+        /// 10 to 18 and names like "Strengthen Swing". They look like the upgraded forms of
+        /// 200-206 and they carry the SAME cast ids, so they cannot simply be added alongside.
+        /// Nothing in the files says how one replaces the other, so they stay out until it does.
         /// </summary>
         private static readonly short[] AdventurerSkills =
-            { 200, 201, 202, 203, 204, 205, 206, 207, 208, 210 };
+            { 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210 };
 
         /// <summary>The skills this class can hold.</summary>
         private IEnumerable<SkillDto> Learnable(ICharacterEntity character) =>
@@ -86,10 +97,17 @@ namespace NosCore.GameObject.Services.SkillService
         /// The visible symptom was a basic attack computed off the <b>wrong weapon</b>: Swing is a
         /// melee skill, a melee skill selects the secondary-weapon profile on an Archer, and the
         /// bow in the main hand counted for nothing.
+        ///
+        /// The job level is part of the question and not only the class: a class change puts the
+        /// job level back to 1, so a row for a skill of the <i>destination</i> class that needs
+        /// job 20 is just as unusable as one belonging to the class left behind.
         /// </summary>
-        public async Task ForgetSkillsOfOtherClassesAsync(ICharacterEntity character)
+        public async Task ForgetUnlearnableSkillsAsync(ICharacterEntity character)
         {
-            var keep = Learnable(character).Select(s => s.SkillVNum).ToHashSet();
+            var keep = Learnable(character)
+                .Where(skill => skill.LevelMinimum <= character.JobLevel)
+                .Select(skill => skill.SkillVNum)
+                .ToHashSet();
             var characterId = character.VisualId;
 
             foreach (var stale in characterSkillDao.Where(x => x.CharacterId == characterId)?

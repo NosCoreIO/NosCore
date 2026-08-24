@@ -10,13 +10,13 @@ namespace NosCore.GameObject.Services.SkillService
         Task<bool> LearnClassSkillsAsync(ICharacterEntity character);
 
         /// <summary>
-        /// Deletes the skills the character can no longer learn, from memory and from the
-        /// database both.
+        /// Deletes the skills the character cannot learn right now - wrong class, or a job level
+        /// they no longer have - from memory and from the database both.
         /// </summary>
         /// <remarks>
         /// A class change already emptied the in-memory list; the rows behind it stayed, and
         /// came back on the next login. See the implementation for what that did.
         /// </remarks>
-        Task ForgetSkillsOfOtherClassesAsync(ICharacterEntity character);
+        Task ForgetUnlearnableSkillsAsync(ICharacterEntity character);
     }
 }
