@@ -109,6 +109,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await queue.EnqueueAsync(request);
 
             buffs.Verify(b => b.ApplySkillBuffAsync(target, (short)7, (short)100, skill.BCards, attacker), Times.Once);
+
+            // The other half, and a different thing: the buff above turns the skill's own BCards
+            // into a lasting effect, this inflicts the Card those BCards name by id. On the
+            // entity that took the blow, which is the only reason this can run here at all.
+            cards.Verify(c => c.InflictAsync(target, attacker, skill.BCards), Times.Once);
         }
 
         [TestMethod]
@@ -129,6 +134,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
 
             buffs.Verify(b => b.ApplySkillBuffAsync(It.IsAny<IAliveEntity>(), It.IsAny<short>(), It.IsAny<short>(), It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>(), It.IsAny<IAliveEntity>()), Times.Never);
+
+            // Nor a card on a corpse: poisoning something already dead costs a packet and a buff
+            // icon on an entity that is about to stop existing.
+            cards.Verify(c => c.InflictAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+                It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()), Times.Never);
         }
 
         [TestMethod]
