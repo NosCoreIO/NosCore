@@ -57,9 +57,10 @@ public readonly record struct EquipmentStats(
     /// Maximum HP and MP added by the worn pieces.
     ///
     /// They live here and not among the combat stats because they do not end up in
-    /// <c>CombatStats</c>: they change the entity's ceiling instead, and it is
-    /// <c>VitalityService</c> that writes it. The field already existed on the item (<c>Item.Hp</c>,
-    /// <c>Item.Mp</c>, read by the parser) and nobody read it.
+    /// <c>CombatStats</c>: they raise the entity's maximum instead. Nothing consumes them yet -
+    /// max HP is still computed from class and level alone, at login - and they are collected
+    /// here because the parser has always read <c>Item.Hp</c> and <c>Item.Mp</c> and nobody
+    /// ever looked at them.
     /// </summary>
     int Hp,
     int Mp,
