@@ -21,15 +21,57 @@ namespace NosCore.GameObject.Services.BattleService;
 // "base" profile from level+class (matching OpenNos CharacterHelper) and then fold in
 // equipment (CombatComponent, once populated by the inventory/equipment system) plus
 // active buffs. Monsters read straight from NpcMonsterDto with their own buff pass.
-public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStatsProvider
+public sealed class BattleStatsProvider(
+    IBuffService buffService,
+    EquipmentService.IEquipmentStatsService equipmentStatsService) : IBattleStatsProvider
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
         var baseStats = ResolveBaseStats(entity);
+
+        // Worn equipment, before the buffs: a buff that multiplies attack has to see the weapon.
+        var withGear = entity is ICharacterEntity
+            ? ApplyEquipment(baseStats, equipmentStatsService.Resolve(entity))
+            : baseStats;
+
         var buffs = buffService.GetActiveBuffs(entity);
-        var withBuffs = ApplyBuffs(baseStats, buffs, entity);
+        var withBuffs = ApplyBuffs(withGear, buffs, entity);
         return withBuffs;
     }
+
+    // Adds what the worn pieces carry.
+    //
+    // Nothing was doing this. CombatComponent is created all zeros in MapWorld and never written
+    // to, so ReadCombat below always came back empty and a character fought on the level+class
+    // base tables alone - in full gear exactly as naked. It raises nothing, because those tables
+    // give plausible numbers: the only way to see it is to compare two characters.
+    private static CombatStats ApplyEquipment(CombatStats stats, EquipmentService.EquipmentStats gear) =>
+        stats with
+        {
+            MinHit = stats.MinHit + gear.MinHit,
+            MaxHit = stats.MaxHit + gear.MaxHit,
+            HitRate = stats.HitRate + gear.HitRate,
+            CriticalChance = stats.CriticalChance + gear.CriticalChance,
+            CriticalRate = stats.CriticalRate + gear.CriticalRate,
+            MeleeUpgrade = stats.MeleeUpgrade + gear.MainWeaponUpgrade,
+            MinDistance = stats.MinDistance + gear.MinDistance,
+            MaxDistance = stats.MaxDistance + gear.MaxDistance,
+            DistanceRate = stats.DistanceRate + gear.DistanceRate,
+            DistanceCriticalChance = stats.DistanceCriticalChance + gear.DistanceCriticalChance,
+            DistanceCriticalRate = stats.DistanceCriticalRate + gear.DistanceCriticalRate,
+            RangedUpgrade = stats.RangedUpgrade + gear.SecondaryWeaponUpgrade,
+            Defence = stats.Defence + gear.CloseDefence,
+            DistanceDefence = stats.DistanceDefence + gear.DistanceDefence,
+            MagicDefence = stats.MagicDefence + gear.MagicDefence,
+            DefenceDodge = stats.DefenceDodge + gear.DefenceDodge,
+            DistanceDefenceDodge = stats.DistanceDefenceDodge + gear.DistanceDefenceDodge,
+            DefenceUpgrade = stats.DefenceUpgrade + gear.ArmourUpgrade,
+            ElementRate = stats.ElementRate + gear.ElementRate,
+            FireResistance = stats.FireResistance + gear.FireResistance,
+            WaterResistance = stats.WaterResistance + gear.WaterResistance,
+            LightResistance = stats.LightResistance + gear.LightResistance,
+            DarkResistance = stats.DarkResistance + gear.DarkResistance,
+        };
 
     private static CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch
     {
