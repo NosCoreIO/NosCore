@@ -945,7 +945,7 @@ public static class ClientSessionMailExtensions
     public static async Task ChangeClassAsync(this ClientSession session, CharacterClassType classType,
         IOptions<WorldConfiguration> worldConfiguration,
         IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
-        IItemGenerationService itemProvider)
+        IItemGenerationService itemProvider, Services.SkillService.ISkillService skillService)
     {
         var character = session.Character;
         var inventoryService = character.InventoryService;
@@ -982,6 +982,18 @@ public static class ClientSessionMailExtensions
         character.Class = classType;
         character.Hp = character.MaxHp;
         character.Mp = character.MaxMp;
+
+        // The old class's skills are no longer usable and the new one's are not there yet:
+        // without this you change job and keep the previous bar, full of icons the client
+        // refuses to cast because they do not belong to the class.
+        character.Skills.Clear();
+
+        // Emptying the list is not enough - the rows behind it survive, and the next login loads
+        // them straight back on top of the new class's. LearnClassSkillsAsync then grants what
+        // the job level allows, and the change has just put that back to 1, so it starts from
+        // the first skill.
+        await skillService.ForgetSkillsOfOtherClassesAsync(character).ConfigureAwait(false);
+        await skillService.LearnClassSkillsAsync(character).ConfigureAwait(false);
 
         var itemsToAdd = worldConfiguration.Value.BasicEquipments.TryGetValue(classType.ToString(), out var byOrigin)
             && byOrigin.TryGetValue(StarterOrigin.CreateAndUpgrade, out var pack)

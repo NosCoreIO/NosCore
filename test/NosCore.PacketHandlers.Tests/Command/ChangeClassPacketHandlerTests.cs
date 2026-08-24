@@ -47,7 +47,8 @@ namespace NosCore.PacketHandlers.Tests.Command
 
             Handler = new ChangeClassPacketHandler(PubSubHub.Object,
                 TestHelpers.Instance.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService(),
-                TestHelpers.Instance.GenerateItemProvider());
+                TestHelpers.Instance.GenerateItemProvider(),
+                new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object);
         }
 
         [TestMethod]
