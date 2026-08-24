@@ -64,6 +64,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IBuffService? _buffService;
         private readonly IRegenerationService? _regenerationService;
         private readonly IBattleService? _battleService;
+        private readonly IVitalityService? _vitalityService;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
 
         public MapWorld EcsWorld { get; }
@@ -72,7 +73,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
-            IBattleService? battleService = null)
+            IBattleService? battleService = null, IVitalityService? vitalityService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -98,6 +99,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _buffService = buffService;
             _regenerationService = regenerationService;
             _battleService = battleService;
+            _vitalityService = vitalityService;
             EcsWorld = new MapWorld();
         }
 
@@ -415,9 +417,20 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         foreach (var npc in Npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
                         foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
                         {
-                            if (session.HasPlayerEntity)
+                            if (!session.HasPlayerEntity)
                             {
-                                await _buffService.TickAsync(session.Character).ConfigureAwait(false);
+                                continue;
+                            }
+
+                            var expired = await _buffService.TickAsync(session.Character).ConfigureAwait(false);
+
+                            // A type 33 buff raises the maximum while it lasts. Without this
+                            // the maximum stays inflated after the effect ends, and the bar
+                            // goes on showing health that is not there.
+                            if (expired.Count > 0 && _vitalityService != null)
+                            {
+                                await _vitalityService.RefreshAndNotifyAsync(session.Character)
+                                    .ConfigureAwait(false);
                             }
                         }
                     }

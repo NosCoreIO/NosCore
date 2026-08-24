@@ -39,7 +39,8 @@ namespace NosCore.GameObject.Services.ExperienceService
         IHeroExperienceService heroExperienceService,
         ISpExperienceService spExperienceService,
         IFairyExperienceService fairyExperienceService,
-        ISkillService skillService) : IExperienceProgressionService
+        ISkillService skillService,
+        BattleService.IVitalityService vitalityService) : IExperienceProgressionService
     {
         private const byte MaxLevel = 99;
         private const byte MaxJobLevel = 80;
@@ -196,6 +197,12 @@ namespace NosCore.GameObject.Services.ExperienceService
 
             if (characterLeveledUp)
             {
+                // The new maximum first, then the full heal, in that order: the other way the
+                // healing tops up to the previous level's maximum. Nothing recomputed it at
+                // all before - it was fixed at login and stayed there, so the extra health of
+                // a new level only appeared after a relog.
+                vitalityService.Refresh(player);
+
                 // Full heal on any character / SP / job / hero level-up (trace `stat 256 256 78 78`).
                 player.Hp = player.MaxHp;
                 player.Mp = player.MaxMp;

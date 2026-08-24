@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         ILogger<WearHandler> logger,
         IClock clock,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-        IOptions<WorldConfiguration> worldConfiguration)
+        IOptions<WorldConfiguration> worldConfiguration,
+        Services.BattleService.IVitalityService vitalityService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -192,6 +193,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 itemInstance.ItemInstance.ItemDeleteTime =
                     clock.GetCurrentInstant().Plus(Duration.FromSeconds(itemInstance.ItemInstance.Item.ItemValidTime));
             }
+
+            // A piece can carry HP and MP as its own value or as a type 33 effect. Without
+            // this the maximum stays as it was and the thousand-HP armour gives none of it.
+            await vitalityService.RefreshAndNotifyAsync(session.Character).ConfigureAwait(false);
         }
     }
 }

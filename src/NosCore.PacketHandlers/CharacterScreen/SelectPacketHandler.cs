@@ -63,6 +63,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISpeedService speedService,
+            NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService, IMessageBus messageBus)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
@@ -206,6 +207,22 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 await clientSession.SendPacketsAsync(character.GenerateInv(logger, logLanguage));
 #pragma warning restore CS0618
                 await clientSession.SendPacketAsync(character.GenerateMlobjlst());
+
+                // The real maximum, now that the inventory is assembled: the one passed to
+                // CreatePlayer comes from the class and level table alone and knows nothing
+                // about what is worn. It has to come after the character is set up, because
+                // before that there is no inventory to look at.
+                vitalityService.Refresh(character);
+
+                if (character.Hp > character.MaxHp)
+                {
+                    character.Hp = character.MaxHp;
+                }
+
+                if (character.Mp > character.MaxMp)
+                {
+                    character.Mp = character.MaxMp;
+                }
 
                 if (character.Hp > character.MaxHp)
                 {

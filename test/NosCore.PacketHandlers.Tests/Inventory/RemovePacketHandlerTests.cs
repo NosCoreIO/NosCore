@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Moq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.InventoryService;
@@ -29,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            RemovePacketHandler = new RemovePacketHandler();
+            RemovePacketHandler = new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
         }
 
         [TestMethod]

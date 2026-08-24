@@ -18,7 +18,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class RemovePacketHandler : PacketHandler<RemovePacket>, IWorldPacketHandler
+    public class RemovePacketHandler(NosCore.GameObject.Services.BattleService.IVitalityService vitalityService)
+        : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
@@ -66,6 +67,10 @@ namespace NosCore.PacketHandlers.Inventory
                 await clientSession.Character.MapInstance.SendPacketAsync(
                     clientSession.Character.GeneratePairy(null));
             }
+
+            // Taking off a piece that gave HP lowers the maximum - and the current HP has to
+            // be brought back under it, or the client draws the bar past its own edge.
+            await vitalityService.RefreshAndNotifyAsync(clientSession.Character).ConfigureAwait(false);
         }
     }
 }

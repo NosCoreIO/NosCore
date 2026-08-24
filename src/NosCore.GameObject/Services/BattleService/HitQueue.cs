@@ -35,6 +35,7 @@ public sealed class HitQueue(
     IBattleStatsProvider statsProvider,
     IBuffService buffService,
     IRegenerationService regenerationService,
+    IVitalityService vitalityService,
     ILogger<HitQueue> logger) : IHitQueue, ISingletonService
 {
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
@@ -57,6 +58,16 @@ public sealed class HitQueue(
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
         }
         return request.Completion.Task;
+    }
+
+    // A buff can move maximum HP and MP (BCard type 33), and the maximum does not live in
+    // CombatStats: nothing else would pick the change up.
+    private async Task RefreshVitalityAsync(IAliveEntity entity)
+    {
+        if (entity is ICharacterEntity character)
+        {
+            await vitalityService.RefreshAndNotifyAsync(character).ConfigureAwait(false);
+        }
     }
 
     private Channel<HitRequest> CreateChannel(IAliveEntity target)
@@ -104,7 +115,7 @@ public sealed class HitQueue(
     }
 
     // async because the effects a blow carries are awaited below: they have to follow the
-    // blow, not race it.
+    // blow, not race it, and the maximum HP recomputed after them has to see them applied.
     private async Task TryApplyHit(HitRequest request)
     {
         try
@@ -176,11 +187,24 @@ public sealed class HitQueue(
             }
 
             // Skill BCards that don't describe damage (i.e. stat modifiers) become a
-            // buff on the target lasting the skill's Duration. Fire-and-forget is fine:
-            // the worker is already serialising per-target, so ordering is preserved.
+            // buff on the target lasting the skill's Duration.
             if (!killed && request.Skill.Duration > 0 && request.Skill.BCards.Count > 0)
             {
-                _ = buffService.ApplySkillBuffAsync(target, request.Skill.SkillVnum, request.Skill.Duration, request.Skill.BCards, request.Origin);
+                await buffService
+                    .ApplySkillBuffAsync(target, request.Skill.SkillVnum, request.Skill.Duration,
+                        request.Skill.BCards, request.Origin)
+                    .ConfigureAwait(false);
+
+                // Awaited and not fire-and-forget any more: the maximum HP below is read from
+                // the effect that has just landed, and a type 33 buff that has not been
+                // applied yet would leave the maximum at its old value until the next piece
+                // of gear changes. The worker already serialises per target, so this only
+                // orders the work that was already happening.
+                await RefreshVitalityAsync(target).ConfigureAwait(false);
+                if (!ReferenceEquals(request.Origin, target))
+                {
+                    await RefreshVitalityAsync(request.Origin).ConfigureAwait(false);
+                }
             }
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));

@@ -68,6 +68,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new HpService(),
                 new MpService(),
                 new SpeedService(),
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 new Mock<ISessionGroupFactory>().Object,
                 new CharacterInitializationService(),
                 new Mock<Wolverine.IMessageBus>().Object);
