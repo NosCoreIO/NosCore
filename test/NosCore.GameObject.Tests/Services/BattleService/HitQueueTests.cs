@@ -116,6 +116,46 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             cards.Verify(c => c.InflictAsync(target, attacker, skill.BCards), Times.Once);
         }
 
+        // The blow does not report itself finished until the card it carries has been applied.
+        //
+        // The Verify above cannot see this: it passes just as well if the call is fired and
+        // forgotten, because Moq answers with an already-completed Task either way. And
+        // fire-and-forget is exactly what this used to be - TryApplyHit was made async for this
+        // one property, so something has to hold on to it.
+        //
+        // The wait can only fail in the safe direction: if the call is awaited the hit can never
+        // complete, so the delay always wins; a loaded machine can make this pass when it should
+        // not, never fail when it should not.
+        [TestMethod]
+        public async Task ALandedHitDoesNotFinishBeforeTheCardIsApplied()
+        {
+            var target = new FakeBattleEntity { Hp = 100, MaxHp = 100 };
+            var attacker = new FakeBattleEntity();
+            var calc = new Mock<IDamageCalculator>();
+            calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
+                .Returns(new DamageResult(10, SuPacketHitMode.SuccessAttack));
+            var stats = new Mock<IBattleStatsProvider>();
+            stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
+
+            var applying = new TaskCompletionSource();
+            var cards = new Mock<IInflictedCardService>();
+            cards.Setup(c => c.InflictAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+                    It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()))
+                .Returns(applying.Task);
+
+            var queue = new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
+                new Mock<IRegenerationService>().Object, cards.Object, new Mock<ILogger<HitQueue>>().Object);
+            var skill = MakeSkill() with { BCards = new[] { new BCardDto { Type = 3 } } };
+
+            var hit = queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
+
+            Assert.AreNotSame(hit, await Task.WhenAny(hit, Task.Delay(200)),
+                "the hit finished while the card was still being applied");
+
+            applying.SetResult();
+            await hit;
+        }
+
         [TestMethod]
         public async Task KillingHitSkipsBuffApplication()
         {
