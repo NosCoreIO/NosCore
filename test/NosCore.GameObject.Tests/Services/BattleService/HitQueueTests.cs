@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -137,11 +137,20 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
+            // Two signals, not one. `entered` says the worker has actually reached the call -
+            // without it the test would also pass on a machine slow enough that the worker never
+            // got there, which is a pass for the wrong reason. `applying` is the gate the call
+            // waits on.
+            var entered = new TaskCompletionSource();
             var applying = new TaskCompletionSource();
             var cards = new Mock<IInflictedCardService>();
             cards.Setup(c => c.InflictAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
                     It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()))
-                .Returns(applying.Task);
+                .Returns(() =>
+                {
+                    entered.TrySetResult();
+                    return applying.Task;
+                });
 
             var queue = new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
                 new Mock<IRegenerationService>().Object, cards.Object, new Mock<ILogger<HitQueue>>().Object);
@@ -149,10 +158,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             var hit = queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
 
-            Assert.AreNotSame(hit, await Task.WhenAny(hit, Task.Delay(200)),
-                "the hit finished while the card was still being applied");
+            try
+            {
+                Assert.AreSame(entered.Task, await Task.WhenAny(entered.Task, Task.Delay(5000)),
+                    "the worker never reached the card application");
 
-            applying.SetResult();
+                // Now that the call is in flight, the hit must not be finished. The wait can only
+                // fail in the safe direction: if the call is awaited the hit can never complete,
+                // so the delay always wins.
+                Assert.AreNotSame(hit, await Task.WhenAny(hit, Task.Delay(200)),
+                    "the hit finished while the card was still being applied");
+            }
+            finally
+            {
+                // In a finally, or a failed assertion above would leave the queue's worker parked
+                // on a gate nobody opens for the rest of the run.
+                applying.TrySetResult();
+            }
+
             await hit;
         }
 
