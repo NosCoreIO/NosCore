@@ -770,8 +770,12 @@ public static class PlayerBundleExtensions
             VisualId = player.VisualId,
             Level = player.Level,
             HeroLvl = player.HeroLevel,
-            HpPercentage = (int)(player.Hp / (float)player.MaxHp * 100),
-            MpPercentage = (int)(player.Mp / (float)player.MaxMp * 100),
+            // Guarded the way the rest of the file guards it. A maximum of zero is not a
+            // state the game reaches today, but the division is on floats: it does not
+            // throw, it yields NaN, and the cast then puts a meaningless number in the two
+            // fields the client draws as the health and mana bars.
+            HpPercentage = player.MaxHp > 0 ? (int)(player.Hp / (float)player.MaxHp * 100) : 100,
+            MpPercentage = player.MaxMp > 0 ? (int)(player.Mp / (float)player.MaxMp * 100) : 100,
             CurrentHp = player.Hp,
             CurrentMp = player.Mp,
             MaxHp = player.MaxHp,
