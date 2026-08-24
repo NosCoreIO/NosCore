@@ -232,6 +232,18 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
                         if (sub == (byte)AdditionalTypes.Morale.MoraleIncreased) moraleFlat += first;
                         else if (sub == (byte)AdditionalTypes.Morale.MoraleDecreased) moraleFlat -= first;
                         break;
+                    case BCardType.CardType.Element:
+                        if (sub == (byte)AdditionalTypes.Element.AllIncreased) elementAll += first;
+                        else if (sub == (byte)AdditionalTypes.Element.AllDecreased) elementAll -= first;
+                        else if (sub == (byte)AdditionalTypes.Element.FireIncreased) elementFire += first;
+                        else if (sub == (byte)AdditionalTypes.Element.FireDecreased) elementFire -= first;
+                        else if (sub == (byte)AdditionalTypes.Element.WaterIncreased) elementWater += first;
+                        else if (sub == (byte)AdditionalTypes.Element.WaterDecreased) elementWater -= first;
+                        else if (sub == (byte)AdditionalTypes.Element.LightIncreased) elementLight += first;
+                        else if (sub == (byte)AdditionalTypes.Element.LightDecreased) elementLight -= first;
+                        else if (sub == (byte)AdditionalTypes.Element.DarkIncreased) elementDark += first;
+                        else if (sub == (byte)AdditionalTypes.Element.DarkDecreased) elementDark -= first;
+                        break;
                     // Type 13, the defender's side of the elemental exchange. Not to be
                     // confused with type 7 below, which is the attacker's element rate: these
                     // four are read in ComputeElementalDamage as a percentage taken off the
@@ -247,18 +259,6 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
                         else if (sub == (byte)AdditionalTypes.ElementResistance.LightDecreased) resistLight -= first;
                         else if (sub == (byte)AdditionalTypes.ElementResistance.DarkIncreased) resistDark += first;
                         else if (sub == (byte)AdditionalTypes.ElementResistance.DarkDecreased) resistDark -= first;
-                        break;
-                    case BCardType.CardType.Element:
-                        if (sub == (byte)AdditionalTypes.Element.AllIncreased) elementAll += first;
-                        else if (sub == (byte)AdditionalTypes.Element.AllDecreased) elementAll -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.FireIncreased) elementFire += first;
-                        else if (sub == (byte)AdditionalTypes.Element.FireDecreased) elementFire -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.WaterIncreased) elementWater += first;
-                        else if (sub == (byte)AdditionalTypes.Element.WaterDecreased) elementWater -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.LightIncreased) elementLight += first;
-                        else if (sub == (byte)AdditionalTypes.Element.LightDecreased) elementLight -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.DarkIncreased) elementDark += first;
-                        else if (sub == (byte)AdditionalTypes.Element.DarkDecreased) elementDark -= first;
                         break;
                 }
             }
