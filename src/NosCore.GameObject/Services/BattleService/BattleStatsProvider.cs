@@ -214,6 +214,7 @@ public sealed class BattleStatsProvider(
         int moraleFlat = 0;
         int resistAll = 0, resistFire = 0, resistWater = 0, resistLight = 0, resistDark = 0;
         int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
+        int guaranteedHit = 0, guaranteedDodge = 0;
 
         foreach (var source in CardSources(buffs, equipment))
         {
@@ -288,6 +289,22 @@ public sealed class BattleStatsProvider(
                         if (sub == (byte)AdditionalTypes.Morale.MoraleIncreased) moraleFlat += first;
                         else if (sub == (byte)AdditionalTypes.Morale.MoraleDecreased) moraleFlat -= first;
                         break;
+                    // Type 16. The file gives X1 and X2 the same sentence, so the second slot
+                    // carries no meaning of its own and both add - and in the data no skill
+                    // declares one with a negative value anyway.
+                    case BCardType.CardType.GuarantedDodgeRangedAttack:
+                        if (sub is (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AttackHitChance
+                            or (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AttackHitChanceNegated)
+                        {
+                            guaranteedHit += first;
+                        }
+                        else if (sub is (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AlwaysDodgePropability
+                            or (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AlwaysDodgePropabilityNegated)
+                        {
+                            guaranteedDodge += first;
+                        }
+
+                        break;
                     case BCardType.CardType.Element:
                         if (sub == (byte)AdditionalTypes.Element.AllIncreased) elementAll += first;
                         else if (sub == (byte)AdditionalTypes.Element.AllDecreased) elementAll -= first;
@@ -361,6 +378,8 @@ public sealed class BattleStatsProvider(
             LightResistance = stats.LightResistance + resistAll + resistLight,
             DarkResistance = stats.DarkResistance + resistAll + resistDark,
             ElementRate = stats.ElementRate + elementFlatBonus,
+            GuaranteedHitChance = stats.GuaranteedHitChance + guaranteedHit,
+            GuaranteedDodgeChance = stats.GuaranteedDodgeChance + guaranteedDodge,
         };
     }
 

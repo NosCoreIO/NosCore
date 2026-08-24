@@ -43,19 +43,40 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         // Dodge phase: only melee/ranged skills can miss. Magicians never dodge.
         if ((skill.Type == 0 || skill.Type == 1) && attacker.Class != CharacterClassType.Mage)
         {
-            var dodgeMultiplier = Math.Min(5.0, context.MonsterDodge / (double)(context.MainHitRate + 1));
-            // Cubic-fit dodge chance from OpenNos: approximates a sharp rise after the
-            // attacker's hit rate falls behind the defender's dodge by ~2x.
-            var chance = Math.Max(1.0,
-                -0.25 * Math.Pow(dodgeMultiplier, 3)
-                - 0.57 * Math.Pow(dodgeMultiplier, 2)
-                + 25.3 * dodgeMultiplier
-                - 1.41);
+            // Type 16 overrides this roll from both sides: subtype 11 on the attacker is "there
+            // is a %s%% chance that every attack hits", subtype 21 on the defender is "always
+            // dodge the target with a probability of %s%%".
+            //
+            // THE ORDER IS OURS, NOT THE FILE'S. When both are present and both roll, one has to
+            // win, and nothing in BCard.dat says which: the attacker's guarantee goes first
+            // because its sentence is the unconditional one. A rare intersection - subtype 21
+            // appears on no skill at all, only on cards - but it had to be decided rather than
+            // left to the order of two ifs.
+            var alwaysHits = attacker.GuaranteedHitChance > 0
+                && random.NextDouble() * 100 <= attacker.GuaranteedHitChance;
 
-            // RNG returns [0,100). A dodge lands if roll <= chance (chance is percent).
-            if (random.NextDouble() * 100 <= chance)
+            if (!alwaysHits)
             {
-                return new DamageResult(0, SuPacketHitMode.Miss);
+                if (defender.GuaranteedDodgeChance > 0
+                    && random.NextDouble() * 100 <= defender.GuaranteedDodgeChance)
+                {
+                    return new DamageResult(0, SuPacketHitMode.Miss);
+                }
+
+                var dodgeMultiplier = Math.Min(5.0, context.MonsterDodge / (double)(context.MainHitRate + 1));
+                // Cubic-fit dodge chance from OpenNos: approximates a sharp rise after the
+                // attacker's hit rate falls behind the defender's dodge by ~2x.
+                var chance = Math.Max(1.0,
+                    -0.25 * Math.Pow(dodgeMultiplier, 3)
+                    - 0.57 * Math.Pow(dodgeMultiplier, 2)
+                    + 25.3 * dodgeMultiplier
+                    - 1.41);
+
+                // RNG returns [0,100). A dodge lands if roll <= chance (chance is percent).
+                if (random.NextDouble() * 100 <= chance)
+                {
+                    return new DamageResult(0, SuPacketHitMode.Miss);
+                }
             }
         }
 
