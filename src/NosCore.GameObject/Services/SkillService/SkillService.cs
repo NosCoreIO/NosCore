@@ -33,22 +33,102 @@ namespace NosCore.GameObject.Services.SkillService
                     (key, oldValue) => characterSkill);
             }
 
-            // Push the refreshed list to the client. Matches OpenNos GenerateSki:
-            // primary/secondary are the class starter vnums (200 + 20*Class, +1),
-            // followed by every learned skill ordered by cast id so the bar draws
-            // deterministically. Without this packet the client's hotbar stays empty
-            // and the server's skill-cast gate is invisible.
-            var classByte = (byte)character.Class;
+            await SendSkillListAsync(character, useSpecialist: false).ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Past this class the specialist kits begin. Up to 31 are the playable jobs and a few
+        /// shared containers; from 32 upwards there is one class per transformation.
+        /// </summary>
+        private const int FirstSpecialistClass = 31;
+
+        public async Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel)
+        {
+            // The previous card's skills go first: changing specialist without clearing would
+            // leave the kit of every card ever worn.
+            RemoveSpecialistSkills(character);
+
+            // WHICH CARD, THE FILE SAYS. Skill.dat, DATA section, second field: it carries the
+            // "design" of the specialist card the skill belongs to - the same number the card
+            // item exposes in INDEX[5] and that arrives here as Morph.
+            //
+            // The obvious rule is arithmetic, class == 31 + morph. It holds for the historic
+            // cards, designs 1 to 29 really do sit on classes 32 to 60, and it is wrong on
+            // **283 of the 627 specialist skills, across 23 cards**. It does not fail by leaving
+            // the bar empty, which would be noticed: for 18 of those cards the class it picks
+            // exists and belongs to somebody else, so it hands out ANOTHER card's skills.
+            //
+            //   Flame Druid (design 42): 31 + 42 = 73, and class 73 is another specialist's.
+            //                            Its own 22 skills sit on classes 70 and 71, with
+            //                            complementary cast ids 0 to 21 - so no single class
+            //                            holds a card either.
+            //
+            // The column is called UpgradeType because that is what it has always been called
+            // here; the name is wrong, and renaming it would be a schema migration for a field
+            // nobody else reads as an "upgrade type".
+            foreach (var skill in skills.Where(s => s.Class > FirstSpecialistClass
+                                                    && s.UpgradeType == morph
+                                                    && s.LevelMinimum <= spLevel))
+            {
+                character.Skills.AddOrUpdate(skill.SkillVNum,
+                    new CharacterSkill
+                    {
+                        SkillVNum = skill.SkillVNum,
+                        CharacterId = character.VisualId,
+                        Skill = skill
+                    },
+                    (_, existing) => existing);
+            }
+
+            await SendSkillListAsync(character, useSpecialist: true).ConfigureAwait(false);
+        }
+
+        public async Task UnloadSpecialistSkillsAsync(ICharacterEntity character)
+        {
+            RemoveSpecialistSkills(character);
+            await SendSkillListAsync(character, useSpecialist: false).ConfigureAwait(false);
+        }
+
+        private static void RemoveSpecialistSkills(ICharacterEntity character)
+        {
+            foreach (var entry in character.Skills
+                         .Where(s => s.Value.Skill?.Class >= FirstSpecialistClass)
+                         .ToList())
+            {
+                character.Skills.TryRemove(entry.Key, out _);
+            }
+        }
+
+        /// <summary>
+        /// Sends the skill bar to the client.
+        ///
+        /// While transformed <b>only</b> the card's skills are shown, not the class ones: the two
+        /// live in the same collection and are told apart by the skill's class. Mixing them would
+        /// give the player a bar with twice the icons, half of which the client will not cast.
+        ///
+        /// The two leading slots change too: out of transformation they are the class's basic
+        /// attacks, inside they are the card's first skill.
+        /// </summary>
+        private async Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
+        {
             var ordered = character.Skills.Values
-                .Where(s => s.Skill != null)
+                .Where(s => s.Skill != null && (s.Skill!.Class >= FirstSpecialistClass) == useSpecialist)
                 .OrderBy(s => s.Skill!.CastId)
                 .Select(s => s.SkillVNum)
                 .ToList();
 
+            var classByte = (byte)character.Class;
+            var primary = useSpecialist
+                ? (ordered.Count > 0 ? ordered[0] : (short)0)
+                : (short)(200 + 20 * classByte);
+            var secondary = useSpecialist
+                ? (ordered.Count > 0 ? ordered[0] : (short)0)
+                : (short)(201 + 20 * classByte);
+
             await character.SendPacketAsync(new SkiPacket
             {
-                PrimarySkillVnum = (short)(200 + 20 * classByte),
-                SecondarySkillVnum = (short)(201 + 20 * classByte),
+                PrimarySkillVnum = primary,
+                SecondarySkillVnum = secondary,
                 SkillVnums = ordered,
             }).ConfigureAwait(false);
         }
@@ -158,18 +238,7 @@ namespace NosCore.GameObject.Services.SkillService
                 return false;
             }
 
-            var ordered = character.Skills.Values
-                .Where(s => s.Skill != null)
-                .OrderBy(s => s.Skill!.CastId)
-                .Select(s => s.SkillVNum)
-                .ToList();
-
-            await character.SendPacketAsync(new SkiPacket
-            {
-                PrimarySkillVnum = (short)(200 + 20 * classByte),
-                SecondarySkillVnum = (short)(201 + 20 * classByte),
-                SkillVnums = ordered,
-            }).ConfigureAwait(false);
+            await SendSkillListAsync(character, useSpecialist: false).ConfigureAwait(false);
             return true;
         }
     }

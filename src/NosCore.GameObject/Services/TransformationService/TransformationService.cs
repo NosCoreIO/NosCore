@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Services.TransformationService
     public class TransformationService(IClock clock, IExperienceService experienceService,
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger<TransformationService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
-            SpeedCalculationService.ISpeedCalculationService speedCalculationService)
+            SpeedCalculationService.ISpeedCalculationService speedCalculationService,
+            SkillService.ISkillService skillService)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -42,6 +43,11 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Morph = 0;
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
+
+            // Taking the card off takes its skills with it. Leaving them would mean allowing
+            // them to be cast untransformed, which is the shortest way to make transforming
+            // pointless.
+            await skillService.UnloadSpecialistSkillsAsync(character).ConfigureAwait(false);
             character.SpCooldown = 30;
 
             var characterId = character.CharacterId;
@@ -131,6 +137,13 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Morph = sp.Item.Morph;
             character.MorphUpgrade = (byte)sp.Upgrade;
             character.MorphDesign = (byte)sp.Design;
+
+            // Transforming changes the kit: the class skills leave the bar and the card's
+            // arrive, filtered by the level the card has reached. Without this the player
+            // transforms and keeps the previous skills, which is the opposite of what a
+            // specialist is for.
+            await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel)
+                .ConfigureAwait(false);
 
             var characterId2 = character.CharacterId;
             var mapInstance = character.MapInstance;

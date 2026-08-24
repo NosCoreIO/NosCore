@@ -49,7 +49,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                     new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration,
-                    new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService())),
+                    new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
+                    new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object),
                 TestHelpers.Instance.GameLanguageLocalizer);
         }
 
