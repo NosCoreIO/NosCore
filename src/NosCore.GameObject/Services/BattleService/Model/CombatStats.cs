@@ -49,4 +49,11 @@ public readonly record struct CombatStats(
     int FireResistance,
     int WaterResistance,
     int LightResistance,
-    int DarkResistance);
+    int DarkResistance,
+    // Type 14: what the ATTACKER does to the defender's resistances. Carried by the attacker and
+    // read against the defender's own, so a "reduces the enemy's fire resistance by 20" arrives
+    // here as -20 and the damage step adds the two together.
+    int EnemyFireResistance = 0,
+    int EnemyWaterResistance = 0,
+    int EnemyLightResistance = 0,
+    int EnemyDarkResistance = 0);
