@@ -4,6 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.StaticEntities;
+using System.Collections.Generic;
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
@@ -132,7 +135,8 @@ public sealed class HitQueue(
                 return;
             }
 
-            var newHp = target.Hp - damage.Damage;
+            // Damage proportional to HP rather than to the stats, on top of the blow.
+            var newHp = target.Hp - damage.Damage - PercentageHpLoss(target, request.Skill.BCards);
             var overkill = 0;
             var killed = false;
             if (newHp <= 0)
@@ -189,6 +193,44 @@ public sealed class HitQueue(
             logger.LogError(ex, "Failed to apply hit to entity {Handle}", request.Target.Handle);
             request.Completion.TrySetException(ex);
         }
+    }
+
+    /// <summary>
+    /// Type 37 subtype 31: "Decreases the opponent's HP by %s%%." 112 of the 122 declarations on
+    /// skills are this subtype, and the case was not read at all.
+    /// </summary>
+    /// <remarks>
+    /// ONE ASSUMPTION IS OURS, and it is the same one the sibling codebase carries so the two do
+    /// not drift: the percentage is taken from MAXIMUM HP. The file says only "HP by %s%%" and
+    /// does not distinguish, and on current HP the loss would halve and halve again without ever
+    /// finishing anything - which is not what a skill declaring 90% is for.
+    ///
+    /// Subtype 32 hits the caster instead, and no skill in the file declares it; it is left out
+    /// rather than written blind against no data.
+    ///
+    /// It can kill, and that is a deliberate difference from the sibling codebase, which floors
+    /// the victim at 1 HP. That floor is a workaround for where the effect runs there - outside
+    /// the blow, so a kill would bypass the death sequence. Here the loss is part of the same
+    /// subtraction as the blow itself, so the ordinary path handles the death, and nothing in the
+    /// file says the effect must leave its victim standing.
+    /// </remarks>
+    private static int PercentageHpLoss(IAliveEntity target, IReadOnlyList<BCardDto> bCards)
+    {
+        var loss = 0;
+        for (var i = 0; i < bCards.Count; i++)
+        {
+            var bCard = bCards[i];
+            if ((BCardType.CardType)bCard.Type != BCardType.CardType.RecoveryAndDamagePercent
+                || bCard.SubType != (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseEnemyHp
+                || bCard.FirstData <= 0)
+            {
+                continue;
+            }
+
+            loss += target.MaxHp * bCard.FirstData / 100;
+        }
+
+        return loss;
     }
 
     private static void FlipIsAlive(IAliveEntity entity, bool alive)
