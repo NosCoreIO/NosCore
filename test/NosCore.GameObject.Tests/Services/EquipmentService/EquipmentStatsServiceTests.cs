@@ -11,7 +11,10 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using Moq;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.EquipmentService;
@@ -23,17 +26,12 @@ using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.EquipmentService
 {
-    // These tests defend something that until yesterday did NOT happen at all: that what is
-    // addosso conti qualcosa.
+    // These tests defend something that did not happen at all: that what is worn counts.
+    // CombatComponent is meant to hold the equipment statistics and nobody ever wrote into it, so
+    // weapon and armour were decoration and one always fought as if bare-handed.
     //
-    // NosCore has a CombatComponent meant to hold the equipment statistics, and
-    // nobody ever wrote into it - it starts at zero and stays at zero. The comment in the code
-    // diceva «once populated by the inventory/equipment system», e quel sistema non esisteva. In
-    // in game meant that weapon and armour were decoration: one always fought bare-
-    // handed, and it is why the numbers seemed disconnected from what was worn.
-    //
-    // The catalogue is local and not the tests' shared one, which has no combat
-    // stats: here pieces with real numbers are needed.
+    // The catalogue is local rather than the tests' shared one, which has no combat stats: these
+    // need pieces with real numbers.
     [TestClass]
     public class EquipmentStatsServiceTests
     {
@@ -218,13 +216,9 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         }
         // --- The effects declared by the pieces -----------------------------------------------
         //
-        // A piece of equipment does not carry numbers only: it carries effects too - "chance
-        // of poisoning", "defence increased by 25%". They are the BCards, and the parser already read them
-        // correctly from the official files. Only then nobody looked at them: they ended up in the
-        // database e li restavano.
-        //
-        // In the sibling codebase they are BattleEntity's `StaticBcards`, added to the active buffs by
-        // GetStuffBuff. Qui non esisteva l'equivalente.
+        // A piece carries effects as well as numbers - "chance of poisoning", "defence increased
+        // by 25%". The parser already read them correctly from the official files and nobody ever
+        // looked at them again. The sibling codebase folds them in with GetStuffBuff.
 
         [TestMethod]
         public void AWornPieceCarriesItsDeclaredEffects()
@@ -242,6 +236,24 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         public void NothingWornMeansNoEffects()
         {
             Assert.AreEqual(0, _service.Resolve(_session.Character).BCards.Count);
+        }
+
+        // The effects have to reach the combat stats, not just the list. Collecting them and
+        // then dropping them is the failure this defends against: it raises nothing, the gloves
+        // look right in the inventory, and the 25% defence they promise is never applied.
+        [TestMethod]
+        public void AWornEffectReachesTheCombatStats()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
+                .Returns(new List<BuffInstance>());
+            var provider = new BattleStatsProvider(buffs.Object, _service);
+
+            var bare = provider.GetStats(_session.Character).Defence;
+            Wear(EquipmentType.Gloves, EnchantedGlovesVnum);
+            var gloved = provider.GetStats(_session.Character).Defence;
+
+            Assert.AreEqual(bare + 25, gloved);
         }
 
         // This defends the case where being wrong makes no noise: a piece with stats but

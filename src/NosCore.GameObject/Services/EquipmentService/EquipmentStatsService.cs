@@ -16,26 +16,13 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 namespace NosCore.GameObject.Services.EquipmentService;
 
 /// <summary>
-/// Adds up what is worn, following the same split as the original game.
+/// Adds up what is worn, following the same split as the original game: the main weapon feeds
+/// melee, the secondary feeds range, everything else feeds the defences and resistances. The
+/// specialist card has a path of its own (see <c>SpecialistPointService</c>) and is skipped.
 ///
-/// ## Two values per stat, not one
-///
-/// Every piece carries the value <b>of the model</b> (the same on every copy) and the value
-/// <b>of the copy</b> (the one that changes with upgrade and rarity). Both have to be added:
-/// taking only one of them is the classic silent mistake - the weapon works, it deals damage, and it deals
-/// systematically less than it should, with nothing to say so.
-///
-/// ## Tre profili separati
-///
-/// The main weapon feeds melee, the secondary feeds range, the armour feeds the defences.
-/// They do not mix, and it is what lets an archer have different numbers from a
-/// swordsman at the same level.
-///
-/// ## Gli altri pezzi
-///
-/// Hat, gloves, boots, necklaces and rings carry defences and resistances, not damage. The fairy
-/// carries the elemental rate. Every slot is walked, skipping the three already counted and the
-/// specialist card, which has a path of its own (see <c>SpecialistPointService</c>).
+/// Every stat is read twice, from the model and from the copy: the model's value is the same on
+/// every instance, the copy's is what upgrade and rarity changed. Adding only one of them is the
+/// silent mistake - the weapon still works and deals systematically less than it should.
 /// </summary>
 public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog)
     : IEquipmentStatsService, ISingletonService
@@ -55,9 +42,8 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
 
         var stats = EquipmentStats.None;
 
-        // The worn pieces' effects are gathered along the way and handed over whole to
-        // whoever computes the stats: the fold by type and subtype is already written there and
-        // duplicarla qui vorrebbe dire tenerne allineate due copie.
+        // The effects are gathered along the way and handed over whole: the fold by type and
+        // subtype already exists in BattleStatsProvider, and a second copy would drift from it.
         var bcards = new List<BCardDto>();
 
         var main = Worn(character, EquipmentType.MainWeapon);
@@ -114,9 +100,9 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
             };
         }
 
-        // Everything else: hat, gloves, boots, necklaces, rings, bracelets. They carry defences
-        // and resistances. The three already counted are skipped, and the specialist card, which has a
-        // suo — sommarla qui la conterebbe due volte.
+        // Everything else - hat, gloves, boots, necklaces, rings, bracelets - carries defences and
+        // resistances. The three already counted are skipped, and so is the specialist card: it has
+        // a path of its own, and adding it here would count it twice.
         for (byte slot = 0; slot < 16; slot++)
         {
             var piece = inventory.LoadBySlotAndType(slot, NoscorePocketType.Wear)?.ItemInstance
@@ -169,11 +155,9 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
     }
 
     /// <summary>
-    /// A piece's effects: the model's and the copy's.
-    ///
-    /// The model always carries the same ones - it is the item itself. The copy can have its own,
-    /// which in the game are the equipment options added with cells. Both have to be taken
-    /// entrambi.
+    /// The effects the model declares. The copy's own - the options added with cells - are not
+    /// here: <c>WearableInstance</c> has no navigation to <c>EquipmentOption</c>, so from a worn
+    /// piece they cannot be reached yet.
     /// </summary>
     private void CollectBCards(List<BCardDto> into, WearableInstance piece)
     {

@@ -13,19 +13,14 @@ namespace NosCore.GameObject.Services.EquipmentService;
 /// <summary>
 /// What the worn equipment adds to the combat stats.
 ///
-/// Before this service <b>the equipment counted for nothing</b>: NosCore has a
-/// <c>CombatComponent</c> meant to hold these values, but nobody ever wrote
-/// into it - it starts at zero and stays at zero. The comment in the code said "once populated by the
-/// inventory/equipment system», e quel sistema non esisteva.
-///
-/// The effect in game was that weapon and armour were decoration: the damage came only from the
-/// tabelle di classe e livello, identico a mani nude.
+/// Before this service the equipment counted for nothing: <c>CombatComponent</c> is meant to hold
+/// these values and nobody ever wrote into it, so weapon and armour were decoration - the damage
+/// came from the level and class tables alone, in full gear exactly as naked.
 /// </summary>
 public interface IEquipmentStatsService
 {
     /// <summary>
-    /// The sum of the worn equipment. Returns zeros if there is no inventory or no
-    /// niente addosso.
+    /// The sum of the worn equipment, or zeros if there is no inventory and nothing worn.
     /// </summary>
     EquipmentStats Resolve(IAliveEntity entity);
 }
@@ -69,12 +64,9 @@ public readonly record struct EquipmentStats(
     int Hp,
     int Mp,
     /// <summary>
-    /// The effects the worn pieces declare.
-    ///
-    /// They are a different thing from the flat stats above: an armour carries its defence in
-    /// a field, but it can also carry an effect - "chance of causing poisoning",
-    /// "fire resistance increased". In the sibling codebase they are the `StaticBcards`; here nobody read
-    /// nessuno.
+    /// The effects the worn pieces declare - a different thing from the flat stats above: an
+    /// armour carries its defence in a field, but it can also carry "chance of causing poisoning".
+    /// The sibling codebase calls them <c>StaticBcards</c>.
     /// </summary>
     IReadOnlyList<BCardDto> BCards)
 {
