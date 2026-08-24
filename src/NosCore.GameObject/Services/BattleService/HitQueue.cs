@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -36,6 +36,7 @@ public sealed class HitQueue(
     IBuffService buffService,
     IRegenerationService regenerationService,
     IVitalityService vitalityService,
+    IInflictedCardService inflictedCardService,
     ILogger<HitQueue> logger) : IHitQueue, ISingletonService
 {
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
@@ -196,6 +197,19 @@ public sealed class HitQueue(
                 {
                     await RefreshVitalityAsync(request.Origin).ConfigureAwait(false);
                 }
+            }
+
+            // The cards the skill inflicts - the stun of Star Attack, the poison of a poisoned
+            // arrow. A different thing from the buff above: that one turns the skill's own BCards
+            // into a lasting effect, this one applies the Card the skill names by id.
+            //
+            // On the target and not the caster because we are on a blow that has landed: who
+            // receives it is a question the files do not answer, and here it does not arise.
+            if (!killed && request.Skill.BCards.Count > 0)
+            {
+                await inflictedCardService
+                    .InflictAsync(target, request.Origin, request.Skill.BCards)
+                    .ConfigureAwait(false);
             }
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));
