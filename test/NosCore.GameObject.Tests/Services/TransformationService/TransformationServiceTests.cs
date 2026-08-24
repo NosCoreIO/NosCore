@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Algorithm.SpeedService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.ExperienceService;
@@ -39,7 +41,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 new Mock<IHeroExperienceService>().Object,
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.WorldConfiguration);
+                TestHelpers.Instance.WorldConfiguration,
+                new GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()));
         }
 
         [TestMethod]
@@ -60,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(ChangingToVehicle)
                 .Then(CharacterShouldBeVehicled)
                 .And(VehicleSpeedShouldBeSet)
+                .And(TheSpeedTheClientSeesIsTheVehicles)
                 .ExecuteAsync();
         }
 
@@ -71,7 +75,23 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .WhenAsync(RemovingVehicle)
                 .Then(CharacterShouldNotBeVehicled)
                 .And(VehicleSpeedShouldBeZero)
+                .And(TheSpeedTheClientSeesIsBackOnFoot)
                 .ExecuteAsync();
+        }
+
+        // VehicleSpeed alone changes nothing the player can feel: `cond` carries Speed, and Speed
+        // was written once at login from the class table. Asserting only VehicleSpeed is what let
+        // a mount that adds no speed look correct.
+        private void TheSpeedTheClientSeesIsTheVehicles()
+        {
+            Assert.AreEqual(20, Session.Character.Speed);
+            Assert.AreEqual(20, Session.Character.GenerateCond().Speed);
+        }
+
+        private void TheSpeedTheClientSeesIsBackOnFoot()
+        {
+            Assert.AreEqual(new SpeedService().GetSpeed(Session.Character.Class),
+                Session.Character.Speed);
         }
 
         private void CharacterHasSpEquipped()
