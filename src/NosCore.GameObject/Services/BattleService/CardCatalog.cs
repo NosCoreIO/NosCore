@@ -27,8 +27,8 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
 
     public CardCatalog(List<CardDto> cards, List<BCardDto> bCards)
     {
-        // Duplicate Cards should not exist, but a database imported twice is not
-        // a theoretical possibility: the first is kept and the pass goes on rather than blowing up the startup.
+        // Duplicate cards should not exist, but a database imported twice does happen: keep
+        // the first and carry on rather than bringing the startup down.
         _cards = cards
             .GroupBy(c => c.CardId)
             .ToDictionary(g => g.Key, g => g.First());
