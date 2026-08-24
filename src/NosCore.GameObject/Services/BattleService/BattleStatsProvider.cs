@@ -171,8 +171,8 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
         int defenceAll = 0, defenceMelee = 0, defenceRanged = 0, defenceMagical = 0;
         int hitRateFlat = 0, dodgeFlat = 0;
         int moraleFlat = 0;
-        int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
         int resistAll = 0, resistFire = 0, resistWater = 0, resistLight = 0, resistDark = 0;
+        int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
 
         foreach (var buff in buffs)
         {
@@ -293,7 +293,6 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
             MagicDefence = stats.MagicDefence + defenceAll + defenceMagical,
             DefenceDodge = stats.DefenceDodge + dodgeFlat,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + dodgeFlat,
-            ElementRate = stats.ElementRate + elementFlatBonus,
             // "All" adds to each of the four rather than living in a fifth field: the
             // damage step reads one resistance, picked by the attacker's element, and a
             // separate total would have to be remembered at every one of those reads.
@@ -301,6 +300,7 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
             WaterResistance = stats.WaterResistance + resistAll + resistWater,
             LightResistance = stats.LightResistance + resistAll + resistLight,
             DarkResistance = stats.DarkResistance + resistAll + resistDark,
+            ElementRate = stats.ElementRate + elementFlatBonus,
         };
     }
 
