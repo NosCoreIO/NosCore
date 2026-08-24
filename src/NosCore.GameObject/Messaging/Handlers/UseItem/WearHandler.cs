@@ -148,12 +148,16 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 }
             }
 
+            // The gate is the job level, and the message said "you do not belong to the required
+            // class" - accusing the one thing that was fine. The class gate is the combined check
+            // above, which sends CanNotWearThat; these two were crossed. The sibling codebase
+            // answers "Your joblevel is too low!" on this same condition.
             if (session.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
             {
                 await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
-                    Message = Game18NConstString.CanNotBeWornDifferentClass
+                    Message = Game18NConstString.CanNotBeWornLowJobLevel
                 });
                 return;
             }
