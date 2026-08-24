@@ -637,16 +637,36 @@ namespace NosCore.Data.Enumerations.Buff
             IgnoreEnemyMoraleNegated = 52
         }
 
+        /// <summary>
+        /// 21-22 are a percentage and 41-42 are flat, which the names do not say. 11-12 and 51-52
+        /// carry the same text as each other in the files, so the X2 slot has no meaning of its own.
+        /// </summary>
         public enum Move : byte
         {
             MovementImpossible = 11,
             MovementImpossibleNegated = 12,
+
+            /// <summary>Movement speed is increased by %s%%.</summary>
             MoveSpeedIncreased = 21,
+
+            /// <summary>Movement speed is decreased by %s%%.</summary>
             MoveSpeedDecreased = 22,
-            SetMovement = 31,
-            SetMovementNegated = 32,
+
+            /// <summary>
+            /// Your movement speed is increased by %s <b>while you are hidden</b>. Not a "set
+            /// movement" of any kind: it is a flat bonus that only applies while invisible.
+            /// </summary>
+            SpeedWhileHiddenIncreased = 31,
+
+            /// <summary>Your movement speed is decreased by %s while you are hidden.</summary>
+            SpeedWhileHiddenDecreased = 32,
+
+            /// <summary>Movement speed is increased by %s. This is the unconditional flat one.</summary>
             MovementSpeedIncreased = 41,
+
+            /// <summary>Movement speed is decreased by %s.</summary>
             MovementSpeedDecreased = 42,
+
             TempMaximized = 51,
             TempMaximizedNegated = 52
         }
