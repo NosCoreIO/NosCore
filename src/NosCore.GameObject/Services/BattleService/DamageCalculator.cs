@@ -64,8 +64,8 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
                 }
 
                 var dodgeMultiplier = Math.Min(5.0, context.MonsterDodge / (double)(context.MainHitRate + 1));
-                // Cubic-fit dodge chance from OpenNos: approximates a sharp rise after the
-                // attacker's hit rate falls behind the defender's dodge by ~2x.
+                // Cubic fit: the chance rises sharply once the attacker's hit rate falls behind
+                // the defender's dodge by about twice.
                 var chance = Math.Max(1.0,
                     -0.25 * Math.Pow(dodgeMultiplier, 3)
                     - 0.57 * Math.Pow(dodgeMultiplier, 2)
