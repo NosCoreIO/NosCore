@@ -242,12 +242,14 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         var attackElement = attacker.Element;
         var elementalBoost = ElementalBoost[Math.Min(attackElement, (byte)4), Math.Min(defender.Element, (byte)4)];
 
+        // The defender's own resistance, plus what the attacker does to it (type 14). A
+        // "reduces the enemy's fire resistance by 20" arrives as -20, so the two simply add.
         var monsterResistance = attackElement switch
         {
-            1 => defender.FireResistance,
-            2 => defender.WaterResistance,
-            3 => defender.LightResistance,
-            4 => defender.DarkResistance,
+            1 => defender.FireResistance + attacker.EnemyFireResistance,
+            2 => defender.WaterResistance + attacker.EnemyWaterResistance,
+            3 => defender.LightResistance + attacker.EnemyLightResistance,
+            4 => defender.DarkResistance + attacker.EnemyDarkResistance,
             _ => 0,
         };
 

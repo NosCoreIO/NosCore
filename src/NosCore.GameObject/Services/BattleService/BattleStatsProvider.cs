@@ -170,6 +170,7 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
         int critInflicting = 0, critDamage = 0;
         int defenceAll = 0, defenceMelee = 0, defenceRanged = 0, defenceMagical = 0;
         int hitRateFlat = 0, dodgeFlat = 0;
+        int foeAll = 0, foeFire = 0, foeWater = 0, foeLight = 0, foeDark = 0;
         int moraleFlat = 0;
         int resistAll = 0, resistFire = 0, resistWater = 0, resistLight = 0, resistDark = 0;
         int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
@@ -219,6 +220,21 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
                         else if (sub == (byte)AdditionalTypes.Defence.RangedDecreased) defenceRanged -= first;
                         else if (sub == (byte)AdditionalTypes.Defence.MagicalIncreased) defenceMagical += first;
                         else if (sub == (byte)AdditionalTypes.Defence.MagicalDecreased) defenceMagical -= first;
+                        break;
+                    // Type 14, and the mirror of type 13: that one is the resistance of whoever
+                    // is being hit, this is what the one hitting does to it. Both end up in the
+                    // same subtraction in ComputeElementalDamage.
+                    case BCardType.CardType.EnemyElementResistance:
+                        if (sub == (byte)AdditionalTypes.EnemyElementResistance.AllIncreased) foeAll += first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.AllDecreased) foeAll -= first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.FireIncreased) foeFire += first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.FireDecreased) foeFire -= first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.WaterIncreased) foeWater += first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.WaterDecreased) foeWater -= first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.LightIncreased) foeLight += first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.LightDecreased) foeLight -= first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.DarkIncreased) foeDark += first;
+                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.DarkDecreased) foeDark -= first;
                         break;
                     case BCardType.CardType.Target:
                         if (sub == (byte)AdditionalTypes.Target.AllHitRateIncreased) hitRateFlat += first;
@@ -282,6 +298,10 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
             MaxHit = (int)((stats.MaxHit + attackAllFlat + attackMeleeFlat) * (1 + (damageAllPct + damageMeleePct) / 100.0)),
             MinDistance = (int)((stats.MinDistance + attackAllFlat + attackRangedFlat) * (1 + (damageAllPct + damageRangedPct) / 100.0)),
             MaxDistance = (int)((stats.MaxDistance + attackAllFlat + attackRangedFlat) * (1 + (damageAllPct + damageRangedPct) / 100.0)),
+            EnemyFireResistance = stats.EnemyFireResistance + foeAll + foeFire,
+            EnemyWaterResistance = stats.EnemyWaterResistance + foeAll + foeWater,
+            EnemyLightResistance = stats.EnemyLightResistance + foeAll + foeLight,
+            EnemyDarkResistance = stats.EnemyDarkResistance + foeAll + foeDark,
             HitRate = stats.HitRate + hitRateFlat,
             DistanceRate = stats.DistanceRate + hitRateFlat,
             CriticalChance = stats.CriticalChance + critInflicting,
