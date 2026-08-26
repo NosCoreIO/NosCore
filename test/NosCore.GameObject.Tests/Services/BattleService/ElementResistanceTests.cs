@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.BattleService.Model;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -56,7 +57,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue, BCards: bCards)
             });
 
-            return new BattleStatsProvider(buffs.Object).GetStats(entity.Object);
+            return new BattleStatsProvider(buffs.Object, NoEquipment()).GetStats(entity.Object);
+        }
+
+        private static IEquipmentStatsService NoEquipment()
+        {
+            var equipment = new Mock<IEquipmentStatsService>();
+            equipment.Setup(s => s.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
+            return equipment.Object;
         }
 
         [TestMethod]

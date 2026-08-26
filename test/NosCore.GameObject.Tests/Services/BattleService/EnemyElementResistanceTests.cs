@@ -14,6 +14,7 @@ using Moq;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Shared.Enumerations;
 
@@ -137,7 +138,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     })
             });
 
-            return new BattleStatsProvider(buffs.Object).GetStats(entity.Object);
+            return new BattleStatsProvider(buffs.Object, NoEquipment()).GetStats(entity.Object);
+        }
+
+        private static IEquipmentStatsService NoEquipment()
+        {
+            var equipment = new Mock<IEquipmentStatsService>();
+            equipment.Setup(s => s.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
+            return equipment.Object;
         }
 
         [TestMethod]
