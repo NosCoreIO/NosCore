@@ -18,18 +18,57 @@ using NosCore.GameObject.Services.BattleService.Model;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Builds CombatStats from the underlying ECS components. Players synthesise their
-// "base" profile from level+class (matching OpenNos CharacterHelper) and then fold in
-// equipment (CombatComponent, once populated by the inventory/equipment system) plus
-// active buffs. Monsters read straight from NpcMonsterDto with their own buff pass.
-public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStatsProvider
+// "base" profile from level+class (matching OpenNos CharacterHelper), then add the worn
+// equipment and fold in every active effect. Monsters read straight from NpcMonsterDto.
+public sealed class BattleStatsProvider(
+    IBuffService buffService,
+    EquipmentService.IEquipmentStatsService equipmentStatsService) : IBattleStatsProvider
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
-        var baseStats = ResolveBaseStats(entity);
-        var buffs = buffService.GetActiveBuffs(entity);
-        var withBuffs = ApplyBuffs(baseStats, buffs, entity);
-        return withBuffs;
+        var gear = entity is ICharacterEntity
+            ? equipmentStatsService.Resolve(entity)
+            : EquipmentService.EquipmentStats.None;
+
+        // Flat equipment first: a card that raises attack by a percentage has to see the weapon.
+        var withGear = ApplyEquipment(ResolveBaseStats(entity), gear);
+
+        return ApplyCards(withGear, buffService.GetActiveBuffs(entity), gear.BCards, entity);
     }
+
+    // Adds what the worn pieces carry.
+    //
+    // Nothing was doing this. CombatComponent is created all zeros in MapWorld and never written
+    // to, so ReadCombat below always came back empty and a character fought on the level+class
+    // base tables alone - in full gear exactly as naked. It raises nothing, because those tables
+    // give plausible numbers: the only way to see it is to compare two characters.
+    private static CombatStats ApplyEquipment(CombatStats stats, EquipmentService.EquipmentStats gear) =>
+        stats with
+        {
+            MinHit = stats.MinHit + gear.MinHit,
+            MaxHit = stats.MaxHit + gear.MaxHit,
+            HitRate = stats.HitRate + gear.HitRate,
+            CriticalChance = stats.CriticalChance + gear.CriticalChance,
+            CriticalRate = stats.CriticalRate + gear.CriticalRate,
+            MeleeUpgrade = stats.MeleeUpgrade + gear.MainWeaponUpgrade,
+            MinDistance = stats.MinDistance + gear.MinDistance,
+            MaxDistance = stats.MaxDistance + gear.MaxDistance,
+            DistanceRate = stats.DistanceRate + gear.DistanceRate,
+            DistanceCriticalChance = stats.DistanceCriticalChance + gear.DistanceCriticalChance,
+            DistanceCriticalRate = stats.DistanceCriticalRate + gear.DistanceCriticalRate,
+            RangedUpgrade = stats.RangedUpgrade + gear.SecondaryWeaponUpgrade,
+            Defence = stats.Defence + gear.CloseDefence,
+            DistanceDefence = stats.DistanceDefence + gear.DistanceDefence,
+            MagicDefence = stats.MagicDefence + gear.MagicDefence,
+            DefenceDodge = stats.DefenceDodge + gear.DefenceDodge,
+            DistanceDefenceDodge = stats.DistanceDefenceDodge + gear.DistanceDefenceDodge,
+            DefenceUpgrade = stats.DefenceUpgrade + gear.ArmourUpgrade,
+            ElementRate = stats.ElementRate + gear.ElementRate,
+            FireResistance = stats.FireResistance + gear.FireResistance,
+            WaterResistance = stats.WaterResistance + gear.WaterResistance,
+            LightResistance = stats.LightResistance + gear.LightResistance,
+            DarkResistance = stats.DarkResistance + gear.DarkResistance,
+        };
 
     private static CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch
     {
@@ -161,9 +200,10 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
     // once, summing +/− per (Type, SubType) pair, then inject the net effect into the
     // CombatStats record. Unknown BCard types fall through silently so content can ship
     // them ahead of server-side handling.
-    private static CombatStats ApplyBuffs(CombatStats stats, IReadOnlyCollection<BuffInstance> buffs, IAliveEntity target)
+    private static CombatStats ApplyCards(CombatStats stats, IReadOnlyCollection<BuffInstance> buffs,
+        IReadOnlyList<BCardDto> equipment, IAliveEntity target)
     {
-        if (buffs.Count == 0) return stats;
+        if (buffs.Count == 0 && equipment.Count == 0) return stats;
 
         int attackAllFlat = 0, attackMeleeFlat = 0, attackRangedFlat = 0, attackMagicalFlat = 0;
         int damageAllPct = 0, damageMeleePct = 0, damageRangedPct = 0, damageMagicalPct = 0;
@@ -175,9 +215,9 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
         int resistAll = 0, resistFire = 0, resistWater = 0, resistLight = 0, resistDark = 0;
         int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
 
-        foreach (var buff in buffs)
+        foreach (var source in CardSources(buffs, equipment))
         {
-            foreach (var card in buff.BCards)
+            foreach (var card in source)
             {
                 var first = ScaleByLevel(card, target.Level);
                 var type = (BCardType.CardType)card.Type;
@@ -322,6 +362,19 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
             DarkResistance = stats.DarkResistance + resistAll + resistDark,
             ElementRate = stats.ElementRate + elementFlatBonus,
         };
+    }
+
+    // Worn pieces fold in the same pass as the buffs, the way GetBuff sums both in the sibling
+    // codebase. Two passes would apply each percentage to a different base.
+    private static IEnumerable<IReadOnlyList<BCardDto>> CardSources(
+        IReadOnlyCollection<BuffInstance> buffs, IReadOnlyList<BCardDto> equipment)
+    {
+        foreach (var buff in buffs)
+        {
+            yield return buff.BCards;
+        }
+
+        yield return equipment;
     }
 
     private static int ScaleByLevel(BCardDto card, int level)
