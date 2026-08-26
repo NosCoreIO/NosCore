@@ -497,25 +497,11 @@ public static class PlayerBundleExtensions
         };
     }
 
-    private static int GetReputationIcon(long reputation)
-    {
-        return reputation switch
-        {
-            >= 5000001 => 28,
-            >= 2500001 => 27,
-            >= 500001 => 26,
-            >= 250001 => 25,
-            >= 100001 => 24,
-            >= 50001 => 23,
-            >= 10001 => 22,
-            >= 5001 => 21,
-            >= 2501 => 20,
-            >= 501 => 19,
-            >= 251 => 18,
-            >= 1 => 17,
-            _ => 16
-        };
-    }
+    // There used to be a second ladder here: thirteen tiers, icons 16 to 28, with cut-offs that
+    // appear nowhere in the client. It disagreed with ReputationLevels, so the same character was
+    // given one icon in c_info and a different one in fd depending on which of the two was asked.
+    // One ladder, read from the client's own bands - see ReputationLevels.
+    private static int GetReputationIcon(long reputation) => (int)ReputationLevels.FromReputation(reputation);
 
     // Matches OpenNos Character.GetDignityIco ordering: Dignity 0 → 1 (Basic), stepping up
     // with each loss threshold. OpenNos tops out at 7 for <= -1000 but NosCore.Packets's
