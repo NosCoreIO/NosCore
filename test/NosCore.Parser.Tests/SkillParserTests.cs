@@ -100,7 +100,8 @@ namespace NosCore.Parser.Tests
             short cooldown = 0,
             short mpCost = 0,
             short itemVNum = 0,
-            byte levelMinimum = 0)
+            byte levelMinimum = 0,
+            string fcombo = "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0")
         {
             return $"\tVNUM\t{skillVNum}\r\n" +
                    $"\tNAME\t{name}\r\n" +
@@ -115,10 +116,55 @@ namespace NosCore.Parser.Tests
                    "\tBASIC\t2\t0\t0\t0\t0\t0\r\n" +
                    "\tBASIC\t3\t0\t0\t0\t0\t0\r\n" +
                    "\tBASIC\t4\t0\t0\t0\t0\t0\r\n" +
-                   "\tFCOMBO\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\r\n" +
+                   $"\tFCOMBO\t{fcombo}\r\n" +
                    "\tCELL\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\r\n" +
                    "\tZ_DESC\t0\r\n" +
                    "#=========================================================";
+        }
+
+        [TestMethod]
+        public async Task SkillParser_ReadsComboTripletsAfterTheSwitch()
+        {
+            // Skill 220's real row: the leading 1 is the switch, the triplets follow it.
+            var content = CreateSkillData(skillVNum: 220, name: "Basic Slash",
+                fcombo: "1\t3\t40\t513\t4\t25\t525\t5\t13\t524\t0\t0\t0\t0\t0\t0");
+            CreateTestFile(content);
+
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object,
+                _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertSkillsAsync(_tempFolder);
+
+            var combos = _savedCombos.Where(c => c.SkillVNum == 220).OrderBy(c => c.Hit).ToList();
+            Assert.AreEqual(3, combos.Count);
+
+            Assert.AreEqual(3, combos[0].Hit);
+            Assert.AreEqual(40, combos[0].Animation);
+            Assert.AreEqual(513, combos[0].Effect);
+
+            Assert.AreEqual(4, combos[1].Hit);
+            Assert.AreEqual(25, combos[1].Animation);
+            Assert.AreEqual(525, combos[1].Effect);
+
+            Assert.AreEqual(5, combos[2].Hit);
+            Assert.AreEqual(13, combos[2].Animation);
+            Assert.AreEqual(524, combos[2].Effect);
+
+            Assert.IsTrue(combos.All(c => c.Hit < 10),
+                "a hit number in the hundreds is a triplet read one field early");
+        }
+
+        [TestMethod]
+        public async Task SkillParser_ASkillWithNoChainSavesNoSteps()
+        {
+            // The switch is 0 and every triplet is zero: nothing to save. Guards against the
+            // switch itself being mistaken for a step.
+            CreateTestFile(CreateSkillData(skillVNum: 1, name: "Fireball"));
+
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object,
+                _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertSkillsAsync(_tempFolder);
+
+            Assert.AreEqual(0, _savedCombos.Count);
         }
 
         [TestMethod]

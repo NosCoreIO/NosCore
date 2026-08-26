@@ -144,6 +144,9 @@ namespace NosCore.Parser.Parsers
             return list;
         }
 
+        // FCOMBO's first field is a switch (has a chain / has not), not a step. The row starts
+        // at index 2, so triplet j starts at 3 + j*3; counting from the switch shifted every
+        // step by one field and the chain never fired.
         private List<ComboDto> AddCombos(Dictionary<string, string[][]> chunks)
         {
             var list = new List<ComboDto>();
@@ -152,9 +155,9 @@ namespace NosCore.Parser.Parsers
                 var comb = new ComboDto
                 {
                     SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
-                    Hit = short.Parse(chunks["FCOMBO"][0][j * 3 + 2]),
-                    Animation = short.Parse(chunks["FCOMBO"][0][j * 3 + 3]),
-                    Effect = short.Parse(chunks["FCOMBO"][0][j * 3 + 4])
+                    Hit = short.Parse(chunks["FCOMBO"][0][(j * 3) + 3]),
+                    Animation = short.Parse(chunks["FCOMBO"][0][(j * 3) + 4]),
+                    Effect = short.Parse(chunks["FCOMBO"][0][(j * 3) + 5])
                 };
                 if ((comb.Hit == 0) && (comb.Animation == 0) && (comb.Effect == 0))
                 {
