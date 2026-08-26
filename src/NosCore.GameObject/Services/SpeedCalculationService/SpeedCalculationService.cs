@@ -18,7 +18,12 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             //        return 0;
             //    }
 
-            var bonusSpeed = 0; /*(byte)GetBuff(CardType.Move, (byte)AdditionalTypes.Move.SetMovementNegated)[0];*/
+            // The movement BCards are still not read. The placeholder that used to sit
+            // here reached for subtype 32, which the files say is "movement speed is
+            // DECREASED by %s while you are hidden": wrong slot and wrong condition for a
+            // general speed bonus. The unconditional flat pair is 41-42, and 21-22 is the
+            // percentage.
+            var bonusSpeed = 0;
             if (defaultSpeed + bonusSpeed > 59)
             {
                 return 59;
