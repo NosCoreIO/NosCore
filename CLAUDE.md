@@ -126,5 +126,16 @@ applies pending migrations on startup.
 
 ## Manual verification
 
-`documentation/manual-test-plan.md` lists what has to be checked in a running client,
-because a good deal of this project is only observable there.
+Much of this project is only observable in a running client. Automated tests cover the
+arithmetic; they do not tell you whether a bar moved or a monster walked.
+
+**Read `documentation/manual-test-plan.md` whenever a change touches gameplay** — combat,
+stats, movement, equipment, skills, monsters or the character — and quote the relevant
+checks back when handing the work over, so there is a concrete list to run rather than a
+vague "test it in game".
+
+**Add to that file when you add a gameplay feature.** If a change genuinely cannot be
+observed from the client — it guards an unreachable state, or it is data waiting on
+behaviour that is not wired yet — say so in its "Not verifiable yet" section instead of
+inventing steps. Never claim a gameplay change is verified on the strength of unit tests
+alone; say what was tested and what still needs a client.
