@@ -817,12 +817,18 @@ namespace NosCore.Data.Enumerations.Buff
             PetTrainerExperienceNegated = 52
         }
 
+        /// <summary>
+        /// 21-22 is a pull and not a taunt, whatever "focus" suggested. The file says "Draws
+        /// enemies to %s fields away from you", the value is a distance of 0 to 4, and the
+        /// skills carrying it are called Drawing Shot, Rotating Hammer and Spider King's Draw.
+        /// A taunt would have no distance to declare.
+        /// </summary>
         public enum SpecialActions : byte
         {
             PushBack = 11,
             PushBackNegated = 12,
-            FocusEnemies = 21,
-            FocusEnemiesNegated = 22,
+            DrawEnemies = 21,
+            DrawEnemiesNegated = 22,
             Charge = 31,
             ChargeNegated = 32,
             RunAway = 41,
