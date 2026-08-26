@@ -40,14 +40,16 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
 
         public byte CalculateSpeed(ICharacterEntity characterEntity)
         {
-            var defaultSpeed = speedService.GetSpeed(characterEntity.Class);
-            if (characterEntity.VehicleSpeed != null)
+            // IsVehicled and not "VehicleSpeed is not null": the component declares that field as
+            // a plain byte and the interface widens it to byte?, so the null branch could never
+            // be taken - the service answered VehicleSpeed always, which is 0 on foot. Nothing
+            // reported it because nothing called the service at all.
+            if (characterEntity.IsVehicled)
             {
-                return (byte)characterEntity.VehicleSpeed;
-
+                return characterEntity.VehicleSpeed ?? 0;
             }
 
-            return CalculateSpeed(characterEntity, defaultSpeed);
+            return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class));
         }
     }
 }

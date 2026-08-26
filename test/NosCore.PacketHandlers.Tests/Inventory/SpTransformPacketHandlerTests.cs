@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.SpeedService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.ExperienceService;
@@ -47,7 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             SpTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock,
                 new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                    new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration),
+                    new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration,
+                    new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService())),
                 TestHelpers.Instance.GameLanguageLocalizer);
         }
 

@@ -31,7 +31,8 @@ namespace NosCore.GameObject.Services.TransformationService
 {
     public class TransformationService(IClock clock, IExperienceService experienceService,
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger<TransformationService> logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
+            SpeedCalculationService.ISpeedCalculationService speedCalculationService)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -159,6 +160,11 @@ namespace NosCore.GameObject.Services.TransformationService
             var character = session.Character;
             character.IsVehicled = true;
             character.VehicleSpeed = item.Speed;
+
+            // cond carries Speed, not VehicleSpeed, and Speed is written once at login from
+            // the class table. Without this line the mount changes the sprite and nothing
+            // else: the player rides at walking pace, and no packet or log says otherwise.
+            character.Speed = speedCalculationService.CalculateSpeed(character);
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
             character.Morph = item.SecondMorph == 0
@@ -201,6 +207,7 @@ namespace NosCore.GameObject.Services.TransformationService
 
             character.IsVehicled = false;
             character.VehicleSpeed = 0;
+            character.Speed = speedCalculationService.CalculateSpeed(character);
 
             var mapInstance = character.MapInstance;
             var condPacket = session.Character.GenerateCond();
