@@ -56,4 +56,7 @@ public readonly record struct CombatStats(
     int EnemyFireResistance = 0,
     int EnemyWaterResistance = 0,
     int EnemyLightResistance = 0,
-    int EnemyDarkResistance = 0);
+    int EnemyDarkResistance = 0,
+    // Type 16: overrides of the ordinary dodge roll, both as a percentage.
+    int GuaranteedHitChance = 0,
+    int GuaranteedDodgeChance = 0);
