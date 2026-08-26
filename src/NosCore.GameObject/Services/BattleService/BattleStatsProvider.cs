@@ -171,6 +171,7 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
         int defenceAll = 0, defenceMelee = 0, defenceRanged = 0, defenceMagical = 0;
         int hitRateFlat = 0, dodgeFlat = 0;
         int moraleFlat = 0;
+        int resistAll = 0, resistFire = 0, resistWater = 0, resistLight = 0, resistDark = 0;
         int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
 
         foreach (var buff in buffs)
@@ -243,6 +244,22 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
                         else if (sub == (byte)AdditionalTypes.Element.DarkIncreased) elementDark += first;
                         else if (sub == (byte)AdditionalTypes.Element.DarkDecreased) elementDark -= first;
                         break;
+                    // Type 13, the defender's side of the elemental exchange. Not to be
+                    // confused with type 7 below, which is the attacker's element rate: these
+                    // four are read in ComputeElementalDamage as a percentage taken off the
+                    // incoming elemental damage.
+                    case BCardType.CardType.ElementResistance:
+                        if (sub == (byte)AdditionalTypes.ElementResistance.AllIncreased) resistAll += first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.AllDecreased) resistAll -= first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.FireIncreased) resistFire += first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.FireDecreased) resistFire -= first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.WaterIncreased) resistWater += first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.WaterDecreased) resistWater -= first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.LightIncreased) resistLight += first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.LightDecreased) resistLight -= first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.DarkIncreased) resistDark += first;
+                        else if (sub == (byte)AdditionalTypes.ElementResistance.DarkDecreased) resistDark -= first;
+                        break;
                 }
             }
         }
@@ -276,6 +293,13 @@ public sealed class BattleStatsProvider(IBuffService buffService) : IBattleStats
             MagicDefence = stats.MagicDefence + defenceAll + defenceMagical,
             DefenceDodge = stats.DefenceDodge + dodgeFlat,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + dodgeFlat,
+            // "All" adds to each of the four rather than living in a fifth field: the
+            // damage step reads one resistance, picked by the attacker's element, and a
+            // separate total would have to be remembered at every one of those reads.
+            FireResistance = stats.FireResistance + resistAll + resistFire,
+            WaterResistance = stats.WaterResistance + resistAll + resistWater,
+            LightResistance = stats.LightResistance + resistAll + resistLight,
+            DarkResistance = stats.DarkResistance + resistAll + resistDark,
             ElementRate = stats.ElementRate + elementFlatBonus,
         };
     }
