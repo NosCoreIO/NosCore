@@ -132,7 +132,8 @@ public sealed class HitQueue(
                 return;
             }
 
-            var newHp = target.Hp - damage.Damage;
+            // Damage proportional to HP rather than to the stats, on top of the blow.
+            var newHp = target.Hp - damage.Damage - PercentageHpLoss(target, request.Skill.BCards);
             var overkill = 0;
             var killed = false;
             if (newHp <= 0)
@@ -189,6 +190,39 @@ public sealed class HitQueue(
             logger.LogError(ex, "Failed to apply hit to entity {Handle}", request.Target.Handle);
             request.Completion.TrySetException(ex);
         }
+    }
+
+    /// <summary>
+    /// Type 37 subtype 31: "Decreases the opponent's HP by %s%%." 112 of the 122 declarations on
+    /// skills are this subtype, and the case was not read at all.
+    /// </summary>
+    /// <remarks>
+    /// The percentage is taken from maximum HP. The file says only "HP by %s%%"; off current HP
+    /// the loss would halve and halve again without ever finishing anything, which is not what a
+    /// skill declaring 90% is for.
+    ///
+    /// Subtype 32 hits the caster instead and no skill declares it, so it is left out.
+    ///
+    /// The loss can kill: it is part of the same subtraction as the blow, so the ordinary death
+    /// path handles it and nothing says the effect must leave its victim standing.
+    /// </remarks>
+    private static int PercentageHpLoss(IAliveEntity target, IReadOnlyList<BCardDto> bCards)
+    {
+        var loss = 0;
+        for (var i = 0; i < bCards.Count; i++)
+        {
+            var bCard = bCards[i];
+            if ((BCardType.CardType)bCard.Type != BCardType.CardType.RecoveryAndDamagePercent
+                || bCard.SubType != (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseEnemyHp
+                || bCard.FirstData <= 0)
+            {
+                continue;
+            }
+
+            loss += target.MaxHp * bCard.FirstData / 100;
+        }
+
+        return loss;
     }
 
     private static void FlipIsAlive(IAliveEntity entity, bool alive)

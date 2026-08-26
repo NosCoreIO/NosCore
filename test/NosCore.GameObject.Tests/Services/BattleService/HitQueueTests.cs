@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Buff;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -142,6 +143,115 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(HitStatus.Missed, outcome.Status);
             Assert.AreEqual(100, target.Hp);
             Assert.AreEqual(0, target.HitList.Count);
+        }
+
+        // --- Type 37 subtype 31, "Decreases the opponent's HP by %s%%" ----------------------
+        //
+        // 112 of the 122 declarations on skills are this subtype, and the case was not read at
+        // all. The percentage comes off MAXIMUM HP - our assumption, stated in the code, because
+        // the file says only "HP by %s%%". These pin it: read off current HP every number below
+        // changes, and nothing would raise.
+
+        private static BCardDto PercentOfHp(short percent) => new()
+        {
+            Type = (byte)BCardType.CardType.RecoveryAndDamagePercent,
+            SubType = (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseEnemyHp,
+            FirstData = percent
+        };
+
+        private static HitQueue QueueDealing(int ordinaryDamage)
+        {
+            var calc = new Mock<IDamageCalculator>();
+            calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
+                .Returns(new DamageResult(ordinaryDamage, SuPacketHitMode.SuccessAttack));
+            var stats = new Mock<IBattleStatsProvider>();
+            stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
+            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
+                new Mock<IRegenerationService>().Object, new Mock<ILogger<HitQueue>>().Object);
+        }
+
+        [TestMethod]
+        public async Task ThePercentageComesOffTheMaximumAndNotTheCurrentHp()
+        {
+            // Half of the maximum is 500. Off the current 600 it would be 300, and the target
+            // would end at 290 instead of 90.
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+
+            await QueueDealing(10).EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { BCards = new[] { PercentOfHp(50) } }
+            });
+
+            Assert.AreEqual(90, target.Hp);
+        }
+
+        [TestMethod]
+        public async Task WithoutTheEffectOnlyTheOrdinaryDamageLands()
+        {
+            var target = new FakeBattleEntity { Hp = 600, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+
+            await QueueDealing(10).EnqueueAsync(Request(attacker, target) with { Skill = MakeSkill() });
+
+            Assert.AreEqual(590, target.Hp);
+        }
+
+        // Two slots on one skill add up: the loop must not stop at the first.
+        [TestMethod]
+        public async Task TwoDeclarationsOnOneSkillBothCount()
+        {
+            var target = new FakeBattleEntity { Hp = 1000, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+
+            // One point of ordinary damage, not zero: a blow that rolls zero is already a miss
+            // by the guard above, and the percentage rides along with a blow that landed.
+            await QueueDealing(1).EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { BCards = new[] { PercentOfHp(20), PercentOfHp(30) } }
+            });
+
+            Assert.AreEqual(499, target.Hp);
+        }
+
+        // It goes through the ordinary death rather than being floored short of it.
+        [TestMethod]
+        public async Task ThePercentageDamageCanKillAndTheDeathIsTheOrdinaryOne()
+        {
+            var target = new FakeBattleEntity { Hp = 200, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+
+            var outcome = await QueueDealing(1).EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { BCards = new[] { PercentOfHp(90) } }
+            });
+
+            Assert.AreEqual(0, target.Hp);
+            Assert.IsTrue(outcome.Killed);
+            Assert.IsFalse(target.IsAlive);
+        }
+
+        // Subtype 32 hits the caster, and no skill in the file declares it. Reading it here would
+        // take the HP off the wrong entity.
+        [TestMethod]
+        public async Task TheSelfInflictedSubtypeIsNotReadAsIfItHitTheTarget()
+        {
+            var target = new FakeBattleEntity { Hp = 1000, MaxHp = 1000 };
+            var attacker = new FakeBattleEntity();
+            var selfInflicted = new BCardDto
+            {
+                Type = (byte)BCardType.CardType.RecoveryAndDamagePercent,
+                SubType = (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseSelfHp,
+                FirstData = 50
+            };
+
+            await QueueDealing(1).EnqueueAsync(Request(attacker, target) with
+            {
+                Skill = MakeSkill() with { BCards = new[] { selfInflicted } }
+            });
+
+            // Only the ordinary point of damage: the self-inflicted subtype took nothing here.
+            Assert.AreEqual(999, target.Hp);
         }
 
         private static HitRequest Request(IAliveEntity attacker, IAliveEntity target) => new(
