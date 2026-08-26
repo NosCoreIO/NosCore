@@ -148,12 +148,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 }
             }
 
+            // The class gate is the combined check above, which sends CanNotWearThat; this one
+            // is the job level and was answering with the class message.
             if (session.Character.JobLevel < itemInstance.ItemInstance.Item.LevelJobMinimum)
             {
                 await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
-                    Message = Game18NConstString.CanNotBeWornDifferentClass
+                    Message = Game18NConstString.CanNotBeWornLowJobLevel
                 });
                 return;
             }

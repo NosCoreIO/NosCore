@@ -134,6 +134,19 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task LowJobLevelIsRejectedWithTheJobLevelMessage()
+        {
+            await new Spec("An item whose LevelJobMinimum exceeds character.JobLevel is rejected, and the message says so - the class message belongs to the combined gate above")
+                .Given(ItemInInventoryOfType_, ItemType.Specialist)
+                .And(ItemRequiresJobLevel_, (byte)55)
+                .And(CharacterIsJobLevel_, (byte)1)
+                .WhenAsync(UsingTheItem)
+                .Then(LowJobLevelShouldHaveBeenSent)
+                .And(NoDifferentClassPacketSent)
+                .ExecuteAsync();
+        }
+
         private void ItemHasValidTime_(int seconds)
         {
             _item.ItemInstance.Item.ItemValidTime = seconds;
@@ -195,6 +208,32 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private void CharacterGenderIs_(GenderType gender)
         {
             _session.Character.Gender = gender;
+        }
+
+        private void ItemRequiresJobLevel_(byte level)
+        {
+            _item.ItemInstance.Item.LevelJobMinimum = level;
+        }
+
+        private void CharacterIsJobLevel_(byte level)
+        {
+            _session.Character.JobLevel = level;
+        }
+
+        private void LowJobLevelShouldHaveBeenSent()
+        {
+            var msg = _session.LastPackets.OfType<MsgiPacket>()
+                .FirstOrDefault(p => p.Message == Game18NConstString.CanNotBeWornLowJobLevel);
+            Assert.IsNotNull(msg);
+        }
+
+        // The failure this guards against sends a real message on the right condition, so it
+        // raises nothing: the player is simply told the wrong reason.
+        private void NoDifferentClassPacketSent()
+        {
+            var msg = _session.LastPackets.OfType<MsgiPacket>()
+                .FirstOrDefault(p => p.Message == Game18NConstString.CanNotBeWornDifferentClass);
+            Assert.IsNull(msg);
         }
 
         private async Task UsingTheItem() => await UsingTheItemWithMode_(1);
