@@ -54,6 +54,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Type, chunk => Convert.ToByte(chunk["TYPE"][0][5]))
                 .Field(x => x.Element, chunk => Convert.ToByte(chunk["TYPE"][0][7]))
                 .Field(x => x.Combo, chunk => AddCombos(chunk))
+                .Field(x => x.CellPattern, chunk => ReadCellPattern(chunk))
                 .Field(x => x.CpCost, chunk => chunk["COST"][0][2] == "-1" ? (byte)0 : byte.Parse(chunk["COST"][0][2]))
                 .Field(x => x.Price, chunk => Convert.ToInt32(chunk["COST"][0][3]))
                 .Field(x => x.CastEffect, chunk => Convert.ToInt16(chunk["EFFECT"][0][3]))
@@ -142,6 +143,48 @@ namespace NosCore.Parser.Parsers
             }
 
             return list;
+        }
+
+        // CELL holds thirty cells at most; a longer pattern continues in the unused tail of
+        // COST. A continues flag on the last available triple means the row ran out, not that
+        // there is more, so the tail is read and may well be empty.
+        private static string? ReadCellPattern(Dictionary<string, string[][]> chunks)
+        {
+            if (!chunks.TryGetValue("CELL", out var cell) || cell.Length == 0)
+            {
+                return null;
+            }
+
+            var cells = new List<int>();
+            var ranOut = ReadTriples(cell[0], 4, cells);
+
+            if (ranOut && chunks.TryGetValue("COST", out var cost) && cost.Length > 0)
+            {
+                ReadTriples(cost[0], 5, cells);
+            }
+
+            return cells.Count == 0 ? null : string.Join(",", cells);
+        }
+
+        // Field [0] is empty and [1] is the section name, so CELL's triples start at [4] and
+        // COST's tail at [5].
+        private static bool ReadTriples(string[] fields, int start, List<int> into)
+        {
+            for (var i = start; i + 2 < fields.Length; i += 3)
+            {
+                if (!int.TryParse(fields[i], out var dx)
+                    || !int.TryParse(fields[i + 1], out var dy)
+                    || !int.TryParse(fields[i + 2], out var continues)
+                    || continues == 0)
+                {
+                    return false;
+                }
+
+                into.Add(dx);
+                into.Add(dy);
+            }
+
+            return true;
         }
 
         // FCOMBO's first field is a switch (has a chain / has not), not a step. The row starts

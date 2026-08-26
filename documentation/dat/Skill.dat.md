@@ -13,6 +13,7 @@
 | CastEffect | Int16 |  |  |
 | CastId | Int16 |  |  |
 | CastTime | Int16 |  |  |
+| CellPattern | String |  |  |
 | Class | Byte |  |  |
 | Combo | ICollection`1 |  |  |
 | Cooldown | Int16 |  |  |

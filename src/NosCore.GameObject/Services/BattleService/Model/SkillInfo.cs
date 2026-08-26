@@ -27,7 +27,10 @@ public sealed record SkillInfo(
     byte Element,
     short Duration,
     short MpCost,
-    IReadOnlyList<BCardDto> BCards)
+    IReadOnlyList<BCardDto> BCards,
+    // The cells this skill hits, from Skill.dat's CELL section via the skill row.
+    // Null for the great majority; sixty-eight skills have one.
+    string? CellPattern = null)
 {
     public bool IsAoe => HitType is TargetHitType.SingleAoeTargetHit
                          or TargetHitType.AoeTargetHit

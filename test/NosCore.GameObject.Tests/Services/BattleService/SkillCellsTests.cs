@@ -14,84 +14,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class SkillCellsTests
     {
-        // 244 "Piercing Shot", archer: the row of eight cells in front of the caster.
-        //     CELL 9 10 | 0 -8 1 | 0 -7 1 | ... | 0 -1 1 | 0 0 0
-        private const short PiercingShot = 244;
-
-        // 367 "Fire Breath": a solid 3x12 rectangle, so thirty-six cells. Thirty of them are
-        //     in CELL, which holds no more; the last six continue in the unused tail of COST.
-        private const short Fireblast = 367;
-
-        // 1857 "Armour Piercing Round": the longest at forty, and the only one that fills the
-        //     tail as well. 1175 "Reaper's Scythe" fills CELL with a closed figure and has an
-        //     empty tail - proof that a full CELL does not by itself mean there is more.
-        private const short ArmourPiercingRound = 1857;
-        private const short ReapersScythe = 1175;
-
-        [TestMethod]
-        public void PiercingShotIsAStraightLineOfEight()
-        {
-            var pattern = SkillCells.Pattern(PiercingShot);
-            Assert.IsNotNull(pattern);
-            Assert.AreEqual(8 * 2, pattern!.Length);
-
-            for (var i = 0; i < 8; i++)
-            {
-                Assert.AreEqual(0, pattern[i * 2]);
-                Assert.AreEqual(-8 + i, pattern[(i * 2) + 1]);
-            }
-        }
-
-        [TestMethod]
-        public void FireblastIsAWholeRectangleAndNotAClippedOne()
-        {
-            var pattern = SkillCells.Pattern(Fireblast);
-            Assert.IsNotNull(pattern);
-            Assert.AreEqual(36 * 2, pattern!.Length);
-
-            var cells = Pairs(pattern);
-            Assert.AreEqual(3, cells.Select(c => c.dx).Distinct().Count());
-            Assert.AreEqual(12, cells.Select(c => c.dy).Distinct().Count());
-            Assert.AreEqual(36, cells.Distinct().Count(), "a solid rectangle, with no hole");
-        }
-
-        [TestMethod]
-        public void ArmourPiercingRoundKeepsItsTip()
-        {
-            var cells = Pairs(SkillCells.Pattern(ArmourPiercingRound)!);
-            Assert.AreEqual(40, cells.Count);
-
-            var tip = cells.Where(c => c.dy <= -13).ToList();
-            Assert.AreEqual(4, tip.Count);
-            Assert.IsTrue(tip.All(c => c.dx == 0), "the tip is one cell wide");
-        }
-
-        // A "continues" flag on the last triplet CELL can hold does not mean there is more, it
-        // means you cannot tell from there. This is the skill that reading the tail blindly
-        // would grow cells it does not have.
-        [TestMethod]
-        public void ReapersScytheStopsAtThirty()
-        {
-            Assert.AreEqual(30 * 2, SkillCells.Pattern(ReapersScythe)!.Length);
-        }
-
-        // If the tail were something other than a continuation, appending it would collide with
-        // what CELL already gave. Across every pattern it never does.
-        [TestMethod]
-        public void NoPatternListsTheSameCellTwice()
-        {
-            for (short vnum = 1; vnum < 2100; vnum++)
-            {
-                if (!SkillCells.Has(vnum))
-                {
-                    continue;
-                }
-
-                var cells = Pairs(SkillCells.Pattern(vnum)!);
-                Assert.AreEqual(cells.Count, cells.Distinct().Count(), $"skill {vnum}");
-                Assert.IsTrue(cells.Count <= 40, $"skill {vnum} exceeds CELL plus the tail");
-            }
-        }
+        // The value the parser writes on the skill row. 244 "Piercing Shot", the archer's: the
+        // row of eight cells in front of the caster, a negative dy being forward. What produced
+        // it - CELL, its thirty-cell limit and the tail of COST - is now tested in
+        // NosCore.Parser.Tests.SkillParserTests, which is where that layout knowledge lives.
+        private const string PiercingShot = "0,-8,0,-7,0,-6,0,-5,0,-4,0,-3,0,-2,0,-1";
 
         private static List<(sbyte dx, sbyte dy)> Pairs(sbyte[] flat)
         {
@@ -107,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingNorthLeavesThePatternAsWritten()
         {
-            var pattern = SkillCells.Pattern(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot)!;
             var cells = SkillCells.Resolve(pattern, 50, 50, 50, 40);
 
             Assert.AreEqual(8, cells.Count);
@@ -120,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingSouthTurnsThePatternAround()
         {
-            var pattern = SkillCells.Pattern(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot)!;
             var cells = SkillCells.Resolve(pattern, 50, 50, 50, 60);
 
             Assert.AreEqual(8, cells.Count);
@@ -133,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingEastPutsTheLineOnTheXAxis()
         {
-            var pattern = SkillCells.Pattern(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot)!;
             var cells = SkillCells.Resolve(pattern, 50, 50, 60, 50);
 
             Assert.AreEqual(8, cells.Count);
@@ -147,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingDiagonallyPointsTheLineAtTheTarget()
         {
-            var pattern = SkillCells.Pattern(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot)!;
             var cells = SkillCells.Resolve(pattern, 50, 50, 60, 40);
 
             Assert.IsTrue(cells.All(c => c.X >= 50 && c.Y <= 50),
@@ -164,19 +91,44 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void CastingOnYourOwnCellKeepsTheWrittenOrientation()
         {
-            var pattern = SkillCells.Pattern(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot)!;
             var cells = SkillCells.Resolve(pattern, 50, 50, 50, 50);
 
             Assert.AreEqual(8, cells.Count);
             Assert.IsTrue(cells.Contains((50, 42)));
         }
 
+        // Most skills have no drawing: 1890 of the 1958. The column is null for them.
         [TestMethod]
         public void ASkillWithoutADrawingHasNoPattern()
         {
-            // 1 is the swordsman's basic attack: no useful CELL section.
-            Assert.IsNull(SkillCells.Pattern(1));
-            Assert.IsFalse(SkillCells.Has(1));
+            Assert.IsNull(SkillCells.Parse(null));
+            Assert.IsNull(SkillCells.Parse(""));
+            Assert.IsNull(SkillCells.Parse("   "));
+        }
+
+        // A broken row must not stop a fight: the pattern decides who a skill hits, and throwing
+        // here would take down the cast instead of degrading it to a single target.
+        [TestMethod]
+        public void AMalformedColumnIsNoPatternRatherThanAnException()
+        {
+            Assert.IsNull(SkillCells.Parse("0,-1,0"), "an odd count is a broken row, not a cell");
+            Assert.IsNull(SkillCells.Parse("0,-1,x,2"));
+            Assert.IsNull(SkillCells.Parse("0,-1,,2"));
+            Assert.IsNull(SkillCells.Parse("0,-1,200,2"), "200 does not fit an sbyte");
+        }
+
+        [TestMethod]
+        public void AWellFormedColumnComesBackAsPairs()
+        {
+            var pattern = SkillCells.Parse(PiercingShot)!;
+            Assert.AreEqual(16, pattern.Length);
+
+            var cells = Pairs(pattern);
+            Assert.AreEqual(8, cells.Count);
+            Assert.IsTrue(cells.All(c => c.dx == 0), "the line is one cell wide");
+            Assert.AreEqual(-8, cells.Min(c => c.dy));
+            Assert.AreEqual(-1, cells.Max(c => c.dy));
         }
     }
 }

@@ -36,7 +36,7 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
         }
 
         // A CELL pattern comes with radius zero: the area is the pattern.
-        var pattern = SkillCells.Pattern(skill.SkillVnum);
+        var pattern = SkillCells.Parse(skill.CellPattern);
         var cells = pattern == null
             ? null
             : SkillCells.Resolve(pattern, attacker.PositionX, attacker.PositionY,

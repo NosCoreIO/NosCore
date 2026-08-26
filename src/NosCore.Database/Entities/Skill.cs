@@ -40,6 +40,10 @@ namespace NosCore.Database.Entities
 
         public short Cooldown { get; set; }
 
+        /// <summary>Cells hit, "dx,dy,..." from the caster facing north. Null when there is none.</summary>
+        [MaxLength(512)]
+        public string? CellPattern { get; set; }
+
         public byte CpCost { get; set; }
 
         public short Duration { get; set; }

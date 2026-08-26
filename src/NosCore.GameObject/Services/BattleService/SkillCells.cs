@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -18,13 +19,34 @@ namespace NosCore.GameObject.Services.BattleService;
 // diagonals, where a one-cell row can come out as a staircase with a gap at its side.
 public static class SkillCells
 {
-    // A skill's pattern, or null if it has none.
-    public static sbyte[]? Pattern(short skillVnum)
+    // A malformed value yields null rather than throwing: the pattern decides who a skill hits.
+    public static sbyte[]? Parse(string? pattern)
     {
-        return SkillCellTable.Patterns.TryGetValue(skillVnum, out var cells) ? cells : null;
-    }
+        if (string.IsNullOrWhiteSpace(pattern))
+        {
+            return null;
+        }
 
-    public static bool Has(short skillVnum) => SkillCellTable.Patterns.ContainsKey(skillVnum);
+        var parts = pattern.Split(',');
+
+        // Pairs, so an odd count is a broken row, not a pattern with a spare coordinate.
+        if (parts.Length == 0 || parts.Length % 2 != 0)
+        {
+            return null;
+        }
+
+        var cells = new sbyte[parts.Length];
+        for (var i = 0; i < parts.Length; i++)
+        {
+            if (!sbyte.TryParse(parts[i], NumberStyles.Integer, CultureInfo.InvariantCulture,
+                    out cells[i]))
+            {
+                return null;
+            }
+        }
+
+        return cells;
+    }
 
     // The absolute cells hit. Caster and target on one cell leaves no direction: kept facing north.
     public static HashSet<(short X, short Y)> Resolve(sbyte[] pattern, short casterX,
