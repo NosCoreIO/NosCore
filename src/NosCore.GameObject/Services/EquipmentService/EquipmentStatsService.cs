@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -15,15 +15,11 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.GameObject.Services.EquipmentService;
 
-/// <summary>
-/// Adds up what is worn, following the same split as the original game: the main weapon feeds
-/// melee, the secondary feeds range, everything else feeds the defences and resistances. The
-/// specialist card has a path of its own (see <c>SpecialistPointService</c>) and is skipped.
-///
-/// Every stat is read twice, from the model and from the copy: the model's value is the same on
-/// every instance, the copy's is what upgrade and rarity changed. Adding only one of them is the
-/// silent mistake - the weapon still works and deals systematically less than it should.
-/// </summary>
+// Main weapon feeds melee, secondary feeds range, the rest feed defences and resistances. The
+// specialist card goes through SpecialistPointService instead.
+//
+// Each stat is summed from both the model and the instance: the model carries the base, the
+// instance carries what upgrade and rarity changed.
 public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog)
     : IEquipmentStatsService, ISingletonService
 {
@@ -100,9 +96,6 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
             };
         }
 
-        // Everything else - hat, gloves, boots, necklaces, rings, bracelets - carries defences and
-        // resistances. The three already counted are skipped, and so is the specialist card: it has
-        // a path of its own, and adding it here would count it twice.
         for (byte slot = 0; slot < 16; slot++)
         {
             var piece = inventory.LoadBySlotAndType(slot, NoscorePocketType.Wear)?.ItemInstance
@@ -112,14 +105,10 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
                 continue;
             }
 
-            // The effects are taken from EVERY piece, weapons and armour included: those are
-            // excluded only from the flat stat sum below, which has already counted them
-            // nei blocchi dedicati.
+            // Effects, HP and MP come off every piece including the weapons and armour handled
+            // above; only the flat stats below skip them, having already been counted.
             CollectBCards(bcards, piece);
 
-            // HP and MP too: any piece can carry them, weapons included, and the dedicated
-            // blocks above do not look at them. They go before the skip, or precisely those
-            // proprio quelli.
             stats = stats with
             {
                 Hp = stats.Hp + piece.Item.Hp,
@@ -148,37 +137,23 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
             };
         }
 
-        // Array.Empty is a single shared instance: without it, "nothing worn" would produce
-        // an empty list different from EquipmentStats.None's and the two would not compare
-        // equal while describing the same thing.
+        // Array.Empty so "nothing worn" compares equal to EquipmentStats.None.
         return stats with { BCards = bcards.Count == 0 ? System.Array.Empty<BCardDto>() : bcards };
     }
 
-    /// <summary>
-    /// The effects the model declares. The copy's own - the options added with cells - are not
-    /// here: <c>WearableInstance</c> has no navigation to <c>EquipmentOption</c>, so from a worn
-    /// piece they cannot be reached yet.
-    /// </summary>
+    // The instance-level options added with cells are not reachable from a worn piece:
+    // WearableInstance has no navigation to EquipmentOption.
     private void CollectBCards(List<BCardDto> into, WearableInstance piece)
     {
         into.AddRange(cardCatalog.GetItemBCards(piece.ItemVNum));
     }
 
-    /// <summary>
-    /// The piece worn in that slot, if it is a wearable item.
-    ///
-    /// The equipment slot <b>is</b> the index in the pocket: that is how the game ties
-    /// a piece to its place, and it is why a weapon in the bag does not count - it is in no
-    /// slot.
-    /// </summary>
+    // The equipment slot is the index in the pocket, which is why a weapon in the bag does
+    // not count.
     private static WearableInstance? Worn(ICharacterEntity character, EquipmentType slot) =>
         character.InventoryService?
             .LoadBySlotAndType((byte)slot, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
 
-    /// <summary>
-    /// Model value plus copy value. Either can be missing, and missing
-    /// means zero, not "skip the piece".
-    /// </summary>
     private static int Sum(short? instanceValue, short? itemValue) =>
         (instanceValue ?? 0) + (itemValue ?? 0);
 
