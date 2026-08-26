@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             aggroService.Clear(monster);
 
-            var respawnMs = Math.Max(1000, monster.NpcMonster.RespawnTime);
-            monster.MapInstance.ScheduleRespawn(monster, clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(respawnMs)));
+            monster.MapInstance.ScheduleRespawn(monster,
+                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
             return Task.CompletedTask;
         }
     }

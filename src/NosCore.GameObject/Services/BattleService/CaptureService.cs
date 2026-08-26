@@ -113,8 +113,8 @@ namespace NosCore.GameObject.Services.BattleService
             // reappears at its spawn. Going through ScheduleRespawn directly (rather
             // than via EntityDiedEvent) avoids pulling in the kill pipeline's xp/gold
             // rewards, death bcards and hunt-quest credit.
-            var respawnMs = Math.Max(1000, monster.NpcMonster.RespawnTime);
-            monster.MapInstance.ScheduleRespawn(monster, clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(respawnMs)));
+            monster.MapInstance.ScheduleRespawn(monster,
+                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
 
             await messageBus.PublishAsync(new EntityCapturedEvent(monster, character)).ConfigureAwait(false);
         }
