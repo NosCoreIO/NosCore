@@ -28,14 +28,15 @@ namespace NosCore.PacketHandlers.Command
     public class ChangeClassPacketHandler(IPubSubHub pubSubHub,
         IOptions<WorldConfiguration> worldConfiguration, IExperienceService experienceService,
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
-        IItemGenerationService itemProvider)
+        IItemGenerationService itemProvider,
+        NosCore.GameObject.Services.SkillService.ISkillService skillService)
         : PacketHandler<ChangeClassPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ChangeClassPacket changeClassPacket, ClientSession session)
         {
             if ((changeClassPacket.Name == session.Character.Name) || string.IsNullOrEmpty(changeClassPacket.Name))
             {
-                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService, itemProvider);
+                await session.ChangeClassAsync(changeClassPacket.ClassType, worldConfiguration, experienceService, jobExperienceService, heroExperienceService, itemProvider, skillService);
                 return;
             }
 

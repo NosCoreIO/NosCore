@@ -33,7 +33,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         IExperienceService experienceService,
         IJobExperienceService jobExperienceService,
         IHeroExperienceService heroExperienceService,
-        NosCore.GameObject.Services.ItemGenerationService.IItemGenerationService itemProvider) : INrunEventHandler
+        NosCore.GameObject.Services.ItemGenerationService.IItemGenerationService itemProvider,
+        Services.SkillService.ISkillService skillService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.ChangeClass;
 
@@ -86,7 +87,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             await session.ChangeClassAsync(classType, worldConfiguration, experienceService,
-                jobExperienceService, heroExperienceService, itemProvider);
+                jobExperienceService, heroExperienceService, itemProvider, skillService);
         }
     }
 }
