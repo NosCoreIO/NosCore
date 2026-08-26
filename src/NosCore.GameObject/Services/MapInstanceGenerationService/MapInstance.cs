@@ -37,7 +37,6 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Threading.Tasks;
 
-
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
     public class MapInstance : IBroadcastable, IDisposable
@@ -176,6 +175,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public Guid MapInstanceId { get; set; }
 
         public MapInstanceType MapInstanceType { get; set; }
+
+        public byte MapIndexX { get; set; }
+
+        public byte MapIndexY { get; set; }
 
         public List<MonsterComponentBundle> Monsters
         {

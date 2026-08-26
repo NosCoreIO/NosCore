@@ -580,4 +580,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} Skript-Instanzen geladen!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Dein Level erlaubt dir nicht, diesen Time-Space zu betreten.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Dieser Time-Space ist noch nicht verfügbar.</value>
+  </data>
 </root>

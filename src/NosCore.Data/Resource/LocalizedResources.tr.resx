@@ -573,4 +573,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} betikli örnek yüklendi!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Seviyeniz bu time-space'e girmenize izin vermiyor.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Bu time-space henüz kullanılamıyor.</value>
+  </data>
 </root>

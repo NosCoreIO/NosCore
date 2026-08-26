@@ -631,4 +631,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} Scripted Instances Parsed!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Your level does not allow you to enter this time-space.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>This time-space is not available yet.</value>
+  </data>
 </root>

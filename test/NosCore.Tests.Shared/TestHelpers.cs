@@ -183,6 +183,8 @@ namespace NosCore.Tests.Shared
 
         public MapInstanceGeneratorService MapInstanceGeneratorService { get; set; } = null!;
 
+        public IMapInstanceRegistry MapInstanceRegistry { get; set; } = null!;
+
         public MapInstanceAccessorService MapInstanceAccessorService { get; set; } = null!;
         public MapChangeService MapChangeService { get; set; } = null!;
         public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
@@ -243,11 +245,13 @@ namespace NosCore.Tests.Shared
             var npc = new MapNpcDto();
             await MapNpcDao.TryInsertOrUpdateAsync(npc);
             var mapInstanceRegistry = new MapInstanceRegistry();
+            MapInstanceRegistry = mapInstanceRegistry;
             MapInstanceAccessorService = new MapInstanceAccessorService(mapInstanceRegistry);
             var minilandServiceMock = new Mock<IMinilandService>();
             minilandServiceMock.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
             MapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, NullLogger<MapChangeService>.Instance, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object);
+                MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, NullLogger<MapChangeService>.Instance, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object,
+                new GameObject.Services.ScriptedInstanceService.ScriptedInstanceService(new List<ScriptedInstanceDto>(), new List<MapDto>(), new Mock<IMapInstanceGeneratorService>().Object, new MapInstanceRegistry(), TestHelpers.Instance.Clock, NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance));
             var mapChangeService = MapChangeService;
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
                 MapItemProvider,

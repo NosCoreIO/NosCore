@@ -36,7 +36,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger<MapChangeService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus)
+            ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus,
+            ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -138,6 +139,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                     currentMapInstance.IsSleeping = true;
                 }
 
+                var abandonedRun = scriptedInstanceService.GetRun(currentMapInstance.MapInstanceId);
+
                 var playerEntity = newMapInstance.EcsWorld.ClonePlayer(
                     identity,
                     health,
@@ -172,6 +175,11 @@ namespace NosCore.GameObject.Services.MapChangeService
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;
 
+                if (abandonedRun != null)
+                {
+                    await scriptedInstanceService.DisposeIfEmptyAsync(abandonedRun).ConfigureAwait(false);
+                }
+
                 character.Group.LeaveGroup(character);
                 character.Group.JoinGroup(character);
 
@@ -195,6 +203,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
                 await session.SendPacketsAsync(newMapInstance.GetMapItems(accountLanguage));
                 await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));
+
+                await session.SendPacketsAsync(scriptedInstanceService.GenerateWp(newMapInstance.Map.MapId));
 
                 var minilandPortals = minilandProvider
                     .GetMinilandPortals(characterId)
