@@ -200,19 +200,14 @@ public sealed class HitQueue(
     /// skills are this subtype, and the case was not read at all.
     /// </summary>
     /// <remarks>
-    /// ONE ASSUMPTION IS OURS, and it is the same one the sibling codebase carries so the two do
-    /// not drift: the percentage is taken from MAXIMUM HP. The file says only "HP by %s%%" and
-    /// does not distinguish, and on current HP the loss would halve and halve again without ever
-    /// finishing anything - which is not what a skill declaring 90% is for.
+    /// The percentage is taken from maximum HP. The file says only "HP by %s%%"; off current HP
+    /// the loss would halve and halve again without ever finishing anything, which is not what a
+    /// skill declaring 90% is for.
     ///
-    /// Subtype 32 hits the caster instead, and no skill in the file declares it; it is left out
-    /// rather than written blind against no data.
+    /// Subtype 32 hits the caster instead and no skill declares it, so it is left out.
     ///
-    /// It can kill, and that is a deliberate difference from the sibling codebase, which floors
-    /// the victim at 1 HP. That floor is a workaround for where the effect runs there - outside
-    /// the blow, so a kill would bypass the death sequence. Here the loss is part of the same
-    /// subtraction as the blow itself, so the ordinary path handles the death, and nothing in the
-    /// file says the effect must leave its victim standing.
+    /// The loss can kill: it is part of the same subtraction as the blow, so the ordinary death
+    /// path handles it and nothing says the effect must leave its victim standing.
     /// </remarks>
     private static int PercentageHpLoss(IAliveEntity target, IReadOnlyList<BCardDto> bCards)
     {

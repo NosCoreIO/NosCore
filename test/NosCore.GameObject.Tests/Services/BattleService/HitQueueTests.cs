@@ -214,8 +214,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(499, target.Hp);
         }
 
-        // It goes through the ordinary death rather than being floored short of it, which is
-        // where this deliberately differs from the sibling codebase.
+        // It goes through the ordinary death rather than being floored short of it.
         [TestMethod]
         public async Task ThePercentageDamageCanKillAndTheDeathIsTheOrdinaryOne()
         {
