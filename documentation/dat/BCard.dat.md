@@ -44,7 +44,7 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 4 | 32 | yes | TargetRangedHitRateDecreased | Hit rate of ranged attacks is decreased by %s. |
 | 4 | 41 | yes | TargetMagicalConcentrationIncreased | Concentration is increased by %s during the magic attack. |
 | 4 | 42 | yes | TargetMagicalConcentrationDecreased | Concentration is decreased by %s during the magic attack. |
-| 4 | 51 | yes |  | Damage to monsters is increased by %s%%. |
+| 4 | 51 | yes | TargetDamageToMonstersIncreased | Damage to monsters is increased by %s%%. |
 | 5 | 11 | yes | CriticalInflictingIncreased | Chance of inflicting critical hits is increased by %s%%. |
 | 5 | 12 | yes | CriticalInflictingReduced | Probability of causing a critical hit is reduced by %s%%. |
 | 5 | 21 | yes | CriticalDamageIncreased | Increases damage from critical hits by %s%%. |
@@ -103,8 +103,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 10 | 32 | yes | DodgeAndDefencePercentDodgingRangedDecreased | Dodging of ranged attacks is decreased by %s. |
 | 10 | 41 | yes | DodgeAndDefencePercentDefenceIncreased | Defence is increased by %s%%. |
 | 10 | 42 | yes | DodgeAndDefencePercentDefenceReduced | Defence power is reduced by %s%%. |
-| 10 | 51 | yes |  | Increases damage to all monsters in Act 8 (excluding raids) and the Act 8 Land of Life by %s%%. |
-| 10 | 52 | yes |  | Reduces damage from all monsters in Act 8 (excluding raids) and the Act 8 Land of Life by %s%%. |
+| 10 | 51 | yes | DodgeAndDefencePercentAct8MonsterDamageIncreased | Increases damage to all monsters in Act 8 (excluding raids) and the Act 8 Land of Life by %s%%. |
+| 10 | 52 | yes | DodgeAndDefencePercentAct8MonsterDamageTakenReduced | Reduces damage from all monsters in Act 8 (excluding raids) and the Act 8 Land of Life by %s%%. |
 | 11 | 11 | yes | BlockChanceAllIncreased | There is a %s%% chance that damage taken from all attacks is increased by %s%%. |
 | 11 | 12 | yes | BlockChanceAllDecreased | There is a %s%% chance that damage from all attacks is reduced by %s%%. |
 | 11 | 21 | yes | BlockChanceMeleeIncreased | There is a %s%% chance that damage taken from melee attacks is increased by %s%%. |
@@ -123,8 +123,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 12 | 32 | yes | AbsorptionRangedAttackDecreased | Ranged attacks below level (+%s) cause %s%% less damage. |
 | 12 | 41 | yes | AbsorptionMagicalAttackIncreased | Magic attacks below level (+%s) cause %s%% more damage. |
 | 12 | 42 | yes | AbsorptionMagicalAttacksDecreased | Magic attacks below level (+%s) cause %s%% less damage. |
-| 12 | 51 | yes |  | Absorb %s%% of your max HP as damage. |
-| 12 | 52 | yes |  | Absorb %s%% of your max HP as damage. |
+| 12 | 51 | yes | AbsorptionMaxHpAsDamage | Absorb %s%% of your max HP as damage. |
+| 12 | 52 | yes | AbsorptionMaxHpAsDamageNegated | Absorb %s%% of your max HP as damage. |
 | 13 | 11 | yes | ElementResistanceAllIncreased | All elemental resistance is increased by %s. |
 | 13 | 12 | yes | ElementResistanceAllDecreased | All elemental resistances are decreased by %s. |
 | 13 | 21 | yes | ElementResistanceFireIncreased | Fire resistance is increased by %s. |
@@ -153,8 +153,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 15 | 32 | yes | DamageRangedDecreased | Ranged damage is decreased by %s%%. |
 | 15 | 41 | yes | DamageMagicalIncreased | Damage taken from magic attacks is increased by %s%%. |
 | 15 | 42 | yes | DamageMagicalDecreased | Magic damage is decreased by %s%%. |
-| 15 | 51 | yes |  | Increases HP by %s%% of max. HP for every attack received (max. %s times). |
-| 15 | 52 | yes |  | Increases MP by %s%% of max. MP for every attack received (max. %s times). |
+| 15 | 51 | yes | DamageHpPerAttackReceived | Increases HP by %s%% of max. HP for every attack received (max. %s times). |
+| 15 | 52 | yes | DamageMpPerAttackReceived | Increases MP by %s%% of max. MP for every attack received (max. %s times). |
 | 16 | 11 | yes | GuarantedDodgeRangedAttackAttackHitChance | There is a %s%% chance that every attack hits. |
 | 16 | 12 | yes | GuarantedDodgeRangedAttackAttackHitChanceNegated | There is a %s%% chance that every attack hits. |
 | 16 | 21 | yes | GuarantedDodgeRangedAttackAlwaysDodgePropability | Always dodge the target with a probability of %s%%. |
@@ -202,8 +202,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 20 | 32 | yes | ReflectionEnemyHpDecreased | Enemy's HP is decreased by %s%% of the damage you take (up to 50%% of the max. HP of the player with the buff). |
 | 20 | 41 | yes | ReflectionEnemyMpIncreased | Enemy's MP is increased by %s%% of the damage I have received. |
 | 20 | 42 | yes | ReflectionEnemyMpDecreased | Enemy's MP is decreased by %s%% of the damage I have received. |
-| 20 | 51 | yes |  | Do not use this part. |
-| 20 | 52 | yes |  | There is a %s%% chance that %s%% of the remaining MP is lost. |
+| 20 | 51 | yes | ReflectionUnusedSlot | Do not use this part. |
+| 20 | 52 | yes | ReflectionRemainingMpLostChance | There is a %s%% chance that %s%% of the remaining MP is lost. |
 | 21 | 11 | yes | DrainAndStealReceiveHpFromMp | Receive %s HP for using %s MP. |
 | 21 | 12 | yes | DrainAndStealReceiveHpFromMpNegated | Receive %s HP for using %s MP. |
 | 21 | 21 | yes | DrainAndStealReceiveMpFromHp | Receive %s MP for using %s HP. |
@@ -276,24 +276,24 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 27 | 52 | yes | SpecialEffectsShadowAppearsNegated | A shadowy figure appears. |
 | 28 | 11 | yes | CaptureCaptureAnimal | Capture animals that are of a lower level than you to turn them into your pets. |
 | 28 | 12 | yes | CaptureCaptureAnimalNegated | Capture animals that are of a lower level than you to turn them into your pets. |
-| 28 | 21 | yes |  | Can hunt sheep. |
-| 28 | 22 | yes |  | Can hunt sheep. |
-| 28 | 31 | yes |  | Throw the acorn as hard as you can. |
-| 28 | 32 | yes |  | Throw the acorn as hard as you can. |
-| 28 | 41 | yes |  | The pet gains %s%% more training experience. |
-| 28 | 42 | yes |  | The pet gains %s%% more training experience. |
-| 28 | 51 | yes |  | There's a %s%% chance to get an additional essence when extracting the essence from %s-star pets. |
-| 28 | 52 | yes |  | There's a %s%% chance to get an additional essence when extracting the essence from %s-star pets. |
+| 28 | 21 | yes | CaptureCanHuntSheep | Can hunt sheep. |
+| 28 | 22 | yes | CaptureCanHuntSheepNegated | Can hunt sheep. |
+| 28 | 31 | yes | CaptureThrowAcorn | Throw the acorn as hard as you can. |
+| 28 | 32 | yes | CaptureThrowAcornNegated | Throw the acorn as hard as you can. |
+| 28 | 41 | yes | CapturePetTrainingExperienceIncreased | The pet gains %s%% more training experience. |
+| 28 | 42 | yes | CapturePetTrainingExperienceIncreasedNegated | The pet gains %s%% more training experience. |
+| 28 | 51 | yes | CaptureAdditionalEssenceChance | There's a %s%% chance to get an additional essence when extracting the essence from %s-star pets. |
+| 28 | 52 | yes | CaptureAdditionalEssenceChanceNegated | There's a %s%% chance to get an additional essence when extracting the essence from %s-star pets. |
 | 29 | 11 | yes | SpecialDamageAndExplosionsChanceExplosion | There is a %s%% chance of causing an explosion which inflicts %s damage. |
 | 29 | 12 | yes | SpecialDamageAndExplosionsChanceExplosionNegated | There is a %s%% chance of causing an explosion which inflicts %s damage. |
 | 29 | 21 | yes | SpecialDamageAndExplosionsExplosionCauses | Within a radius of %s fields the explosion causes %s damage. |
 | 29 | 22 | yes | SpecialDamageAndExplosionsExplosionCausesNegated | Within a radius of %s fields the explosion causes %s damage. |
 | 29 | 31 | yes | SpecialDamageAndExplosionsSurroundingDamage | Causes damage with a chance of %s%% in %s surrounding fields. |
 | 29 | 32 | yes | SpecialDamageAndExplosionsSurroundingDamageNegated | Causes damage with a chance of %s%% in %s surrounding fields. |
-| 29 | 41 | yes |  | This is not affected by buffs which reduce the cooldown. |
-| 29 | 42 | yes |  | This is not affected by buffs which reduce the cooldown. |
-| 29 | 51 | yes |  | After %s attacks, the %s effect will be removed. |
-| 29 | 52 | yes |  | After %s attacks, the %s effect will be removed. |
+| 29 | 41 | yes | SpecialDamageAndExplosionsCooldownNotReducible | This is not affected by buffs which reduce the cooldown. |
+| 29 | 42 | yes | SpecialDamageAndExplosionsCooldownNotReducibleNegated | This is not affected by buffs which reduce the cooldown. |
+| 29 | 51 | yes | SpecialDamageAndExplosionsEffectEndsAfterAttacks | After %s attacks, the %s effect will be removed. |
+| 29 | 52 | yes | SpecialDamageAndExplosionsEffectEndsAfterAttacksNegated | After %s attacks, the %s effect will be removed. |
 | 30 | 11 | yes | SpecialEffects2FocusEnemy | Draws enemy's attention to you. |
 | 30 | 12 | yes | SpecialEffects2RemoveEnemyAttention | Removes enemy's attention from you. |
 | 30 | 21 | yes | SpecialEffects2TeleportInRadius | Teleports you within a radius of %s fields. |
@@ -308,22 +308,22 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 31 | 12 | yes | CalculatingLevelCalculatedAttackLevelNegated | Calculated Attack Level 0 |
 | 31 | 21 | yes | CalculatingLevelCalculatedDefenceLevel | Calculated Defence Level 0 |
 | 31 | 22 | yes | CalculatingLevelCalculatedDefenceLevelNegated | Calculated Defence Level 0 |
-| 31 | 31 | yes |  | Melee defence is increased by %s%%. |
-| 31 | 32 | yes |  | Melee defence is reduced by %s%%. |
-| 31 | 41 | yes |  | Ranged defence is increased by %s%%. |
-| 31 | 42 | yes |  | Ranged defence is reduced by %s%%. |
-| 31 | 51 | yes |  | Magic defence is increased by %s%%. |
-| 31 | 52 | yes |  | Magic defence is reduced by %s%%. |
+| 31 | 31 | yes | CalculatingLevelMeleeDefenceIncreased | Melee defence is increased by %s%%. |
+| 31 | 32 | yes | CalculatingLevelMeleeDefenceReduced | Melee defence is reduced by %s%%. |
+| 31 | 41 | yes | CalculatingLevelRangedDefenceIncreased | Ranged defence is increased by %s%%. |
+| 31 | 42 | yes | CalculatingLevelRangedDefenceReduced | Ranged defence is reduced by %s%%. |
+| 31 | 51 | yes | CalculatingLevelMagicDefenceIncreased | Magic defence is increased by %s%%. |
+| 31 | 52 | yes | CalculatingLevelMagicDefenceReduced | Magic defence is reduced by %s%%. |
 | 32 | 11 | yes | RecoveryHpRecoveryIncreased | HP recovery is increased by %s. |
 | 32 | 12 | yes | RecoveryHpRecoveryDecreased | HP recovery is reduced by %s. |
 | 32 | 21 | yes | RecoveryMpRecoveryIncreased | MP recovery is increased by %s. |
 | 32 | 22 | yes | RecoveryMpRecoveryDecreased | MP recovery is decreased by %s. |
-| 32 | 31 | yes |  | MP recovery is increased by %s%%. |
-| 32 | 32 | yes |  | MP recovery is reduced by %s%%. |
-| 32 | 41 | yes |  | Increases maximum HP by %s%%. |
-| 32 | 42 | yes |  | Decreases maximum HP by %s%%. |
-| 32 | 51 | yes |  | Increases maximum MP by %s%%. |
-| 32 | 52 | yes |  | Decreases maximum MP by %s%%. |
+| 32 | 31 | yes | RecoveryMpRecoveryPercentIncreased | MP recovery is increased by %s%%. |
+| 32 | 32 | yes | RecoveryMpRecoveryPercentReduced | MP recovery is reduced by %s%%. |
+| 32 | 41 | yes | RecoveryMaxHpIncreased | Increases maximum HP by %s%%. |
+| 32 | 42 | yes | RecoveryMaxHpDecreased | Decreases maximum HP by %s%%. |
+| 32 | 51 | yes | RecoveryMaxMpIncreased | Increases maximum MP by %s%%. |
+| 32 | 52 | yes | RecoveryMaxMpDecreased | Decreases maximum MP by %s%%. |
 | 33 | 11 | yes | MaxHpmpMaximumHpIncreased | Maximum HP is increased by %s. |
 | 33 | 12 | yes | MaxHpmpMaximumHpDecreased | Maximum HP is decreased by %s. |
 | 33 | 21 | yes | MaxHpmpMaximumMpIncreased | Maximum MP is increased by %s. |
@@ -352,8 +352,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 35 | 32 | yes | MultDefenceRangedDefenceDecreased | Reduces ranged defence by a factor of %s. |
 | 35 | 41 | yes | MultDefenceMagicalDefenceIncreased | Increases magic defence by a factor of %s. |
 | 35 | 42 | yes | MultDefenceMagicalDefenceDecreased | Decreases magic defence by a factor of %s. |
-| 35 | 51 | yes |  | Damage is reduced by %s%% per debuff stack (max. %s%%). |
-| 35 | 52 | yes |  | Damage is increased by %s%% per debuff stack (max. %s%%). |
+| 35 | 51 | yes | MultDefenceDamageReducedPerDebuffStack | Damage is reduced by %s%% per debuff stack (max. %s%%). |
+| 35 | 52 | yes | MultDefenceDamageIncreasedPerDebuffStack | Damage is increased by %s%% per debuff stack (max. %s%%). |
 | 36 | 11 | yes | TimeCircleSkillsGatherEnergy | Gather %s points for the next attack. |
 | 36 | 12 | yes | TimeCircleSkillsGatherEnergyNegated | Gather %s points for the next attack. |
 | 36 | 21 | yes | TimeCircleSkillsDisableHpConsumption | No HP consumption |
@@ -370,30 +370,30 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 37 | 22 | yes | RecoveryAndDamagePercentMpReduced | MP is reduced by %s%%. |
 | 37 | 31 | yes | RecoveryAndDamagePercentDecreaseEnemyHp | Decreases the opponent's HP by %s%%. |
 | 37 | 32 | yes | RecoveryAndDamagePercentDecreaseSelfHp | The damage causes HP to decrease by %s%%. |
-| 37 | 41 | yes |  | HP is increased by %s%% per debuff stack (max. %s%%). |
-| 37 | 42 | yes |  | HP is reduced by %s%% per debuff stack (max. %s%%). |
-| 37 | 51 | yes |  | The enemy's HP is reduced by %s. The caster gains %s%% of this. |
-| 37 | 52 | yes |  | The enemy's MP is reduced by (caster level*2). The caster gains %s%% of this. |
+| 37 | 41 | yes | RecoveryAndDamagePercentHpPerDebuffStackIncreased | HP is increased by %s%% per debuff stack (max. %s%%). |
+| 37 | 42 | yes | RecoveryAndDamagePercentHpPerDebuffStackReduced | HP is reduced by %s%% per debuff stack (max. %s%%). |
+| 37 | 51 | yes | RecoveryAndDamagePercentEnemyHpDrained | The enemy's HP is reduced by %s. The caster gains %s%% of this. |
+| 37 | 52 | yes | RecoveryAndDamagePercentEnemyMpDrained | The enemy's MP is reduced by (caster level*2). The caster gains %s%% of this. |
 | 38 | 11 | yes | CountSummon | Summons %s of %s monsters when MP reaches 0. |
 | 38 | 12 | yes | CountSummonChance | With a probability of %s%%, summons %s when MP reaches 0. |
-| 38 | 21 | yes |  | Belial reflects your attacks and inflicts damage on your allies. |
-| 38 | 22 | yes |  | Belial reflects your attacks and inflicts damage on your allies. |
-| 38 | 31 | yes |  | The final damage from critical hits is increased by %s%%. |
-| 38 | 32 | yes |  | The damage from critical hits is reduced by %s%%. |
-| 38 | 41 | yes |  | When you're defending, the damage from critical hits is increased by %s%%. |
-| 38 | 42 | yes |  | When you're defending, the damage from critical hits is reduced by %s%%. |
-| 38 | 51 | yes |  | Summons %s NPCs (%s) |
-| 38 | 52 | yes |  | Summons %s NPCs (%s) |
+| 38 | 21 | yes | CountBelialReflectsToAllies | Belial reflects your attacks and inflicts damage on your allies. |
+| 38 | 22 | yes | CountBelialReflectsToAlliesNegated | Belial reflects your attacks and inflicts damage on your allies. |
+| 38 | 31 | yes | CountFinalCriticalDamageIncreased | The final damage from critical hits is increased by %s%%. |
+| 38 | 32 | yes | CountCriticalDamageReduced | The damage from critical hits is reduced by %s%%. |
+| 38 | 41 | yes | CountCriticalDamageTakenIncreased | When you're defending, the damage from critical hits is increased by %s%%. |
+| 38 | 42 | yes | CountCriticalDamageTakenReduced | When you're defending, the damage from critical hits is reduced by %s%%. |
+| 38 | 51 | yes | CountSummonsNpcs | Summons %s NPCs (%s) |
+| 38 | 52 | yes | CountSummonsNpcsNegated | Summons %s NPCs (%s) |
 | 39 | 11 | yes | NoDefeatAndNoDamageDecreaseHpNoDeath | Decreases HP without dying. |
 | 39 | 12 | yes | NoDefeatAndNoDamageDecreaseHpNoKill | Decreases HP without killing. |
 | 39 | 21 | yes | NoDefeatAndNoDamageNeverReceiveDamage | Never receives damage. |
 | 39 | 22 | yes | NoDefeatAndNoDamageNeverCauseDamage | Never causes damage. |
 | 39 | 31 | yes | NoDefeatAndNoDamageTransferAttackPower | Enemy's attack power becomes your own. |
 | 39 | 32 | yes | NoDefeatAndNoDamageTransferAttackPowerNegated | Enemy's attack power becomes your own. |
-| 39 | 41 | yes |  | Increases maximum HP by %s%%. |
-| 39 | 42 | yes |  | Decreases maximum HP by %s%%. |
-| 39 | 51 | yes |  | Increases maximum MP by %s%%. |
-| 39 | 52 | yes |  | Decreases maximum MP by %s%%. |
+| 39 | 41 | yes | NoDefeatAndNoDamageMaxHpIncreased | Increases maximum HP by %s%%. |
+| 39 | 42 | yes | NoDefeatAndNoDamageMaxHpDecreased | Decreases maximum HP by %s%%. |
+| 39 | 51 | yes | NoDefeatAndNoDamageMaxMpIncreased | Increases maximum MP by %s%%. |
+| 39 | 52 | yes | NoDefeatAndNoDamageMaxMpDecreased | Decreases maximum MP by %s%%. |
 | 40 | 11 | yes | SpecialActionsPushBack | Push your opponent back %s fields. |
 | 40 | 12 | yes | SpecialActionsPushBackNegated | Push your opponent back %s fields. |
 | 40 | 21 | yes | SpecialActionsDrawEnemies | Draws enemies to %s fields away from you. |
@@ -432,8 +432,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 43 | 32 | yes | LightAndShadowHealUndead | Heals undead with lower level. |
 | 43 | 41 | yes | LightAndShadowAdditionalDamageWhenHidden | Ambush attacks cause %s additional damage. |
 | 43 | 42 | yes | LightAndShadowAdditionalDamageOnHiddenEnemy | Attacks on hidden enemy cause %s additional damage. |
-| 43 | 51 | yes |  | Ambush attacks cause %s additional damage. |
-| 43 | 52 | yes |  | Attacks on hidden enemy cause %s additional damage. |
+| 43 | 51 | yes | LightAndShadowAmbushDamage | Ambush attacks cause %s additional damage. |
+| 43 | 52 | yes | LightAndShadowDamageToHiddenEnemy | Attacks on hidden enemy cause %s additional damage. |
 | 44 | 11 | yes | ItemExpIncreased | Experience gain is increased by %s%%. |
 | 44 | 12 | yes | ItemExpIncreasedNegated | Experience gain is increased by %s%%. |
 | 44 | 21 | yes | ItemAttackIncreased | All attacks are increased by %s%%. |
@@ -462,8 +462,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 46 | 32 | yes | SpecialBehaviourInflictOnEnemies | At a distance of %s, inflict %s on our enemies. |
 | 46 | 41 | yes | SpecialBehaviourTransformInto | Transforms %s into %s. |
 | 46 | 42 | yes | SpecialBehaviourTransformIntoNegated | Transforms %s into %s. |
-| 46 | 51 | yes |  | Monsters on general maps will only notice you if you attack them. |
-| 46 | 52 | yes |  | Monsters on general maps will only notice you if you attack them. |
+| 46 | 51 | yes | SpecialBehaviourMonstersIgnoreUntilAttacked | Monsters on general maps will only notice you if you attack them. |
+| 46 | 52 | yes | SpecialBehaviourMonstersIgnoreUntilAttackedNegated | Monsters on general maps will only notice you if you attack them. |
 | 47 | 11 | yes | QuestSummonMonsterBased | Summons monsters based on the rules. |
 | 47 | 12 | yes | QuestSummonMonsterBasedNegated | Summons monsters based on the rules. |
 | 47 | 21 | yes | QuestRestoreHpFromDamage | Restores HP equal to %s%% of the damage inflicted (max. %s per attack). |
@@ -498,32 +498,32 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 50 | 12 | yes | HugeSnowmanSnowStormNegated | A snowstorm. All standing users suffer damage of up to 99%. |
 | 50 | 21 | yes | HugeSnowmanEarthQuake | An earthquake. All lying players suffer damage of up to 99%. |
 | 50 | 22 | yes | HugeSnowmanEarthQuakeNegated | An earthquake. All lying players suffer damage of up to 99%. |
-| 50 | 31 | yes |  | Damage to low-level monsters in the Celestial Lair is increased by %s%%. |
-| 50 | 32 | yes |  | Damage from low-level monsters in the Celestial Lair is reduced by %s%%. |
-| 50 | 41 | yes |  | Damage to high-level dragons is increased by %s%%. |
-| 50 | 42 | yes |  | Damage to high-level dragons is reduced by %s%%. |
-| 50 | 51 | yes |  | Decreases HP without dying. |
-| 50 | 52 | yes |  | Decreases HP without killing. |
+| 50 | 31 | yes | HugeSnowmanCelestialLairLowLevelDamageIncreased | Damage to low-level monsters in the Celestial Lair is increased by %s%%. |
+| 50 | 32 | yes | HugeSnowmanCelestialLairLowLevelDamageTakenReduced | Damage from low-level monsters in the Celestial Lair is reduced by %s%%. |
+| 50 | 41 | yes | HugeSnowmanHighLevelDragonDamageIncreased | Damage to high-level dragons is increased by %s%%. |
+| 50 | 42 | yes | HugeSnowmanHighLevelDragonDamageReduced | Damage to high-level dragons is reduced by %s%%. |
+| 50 | 51 | yes | HugeSnowmanHpReducedWithoutDying | Decreases HP without dying. |
+| 50 | 52 | yes | HugeSnowmanHpReducedWithoutKilling | Decreases HP without killing. |
 | 51 | 11 | yes | DrainCastDrain | Cast Drain on the enemy. |
 | 51 | 12 | yes | DrainCastDrainNegated | Cast Drain on the enemy. |
 | 51 | 21 | yes | DrainTransferEnemyHp | The opponent's HP is reduced by %s and the player's HP increased by the same. |
 | 51 | 22 | yes | DrainTransferEnemyHpNegated | The opponent's HP is reduced by %s and the player's HP increased by the same. |
-| 51 | 31 | yes |  | If you are attacked by the Sun Wolf, this duration has a %s%% chance of increasing by 3 seconds (max. %s times). |
-| 51 | 32 | yes |  | If you are attacked by the Sun Wolf, this duration has a %s%% chance of decreasing by 3 seconds (max. %s times). |
-| 51 | 41 | yes |  | If you are attacked by the Sun Wolf, there's a %s%% chance %s is cast. |
-| 51 | 42 | yes |  | If you are attacked by the Sun Wolf, there's a %s%% chance %s is cast. |
-| 51 | 51 | yes |  | If you are attacked by the Sun Wolf, the damage is increased by %s%%. |
-| 51 | 52 | yes |  | If you are attacked by the Sun Wolf, the damage is increased by %s%%. |
+| 51 | 31 | yes | DrainSunWolfDurationIncreasedChance | If you are attacked by the Sun Wolf, this duration has a %s%% chance of increasing by 3 seconds (max. %s times). |
+| 51 | 32 | yes | DrainSunWolfDurationDecreasedChance | If you are attacked by the Sun Wolf, this duration has a %s%% chance of decreasing by 3 seconds (max. %s times). |
+| 51 | 41 | yes | DrainSunWolfCastsEffectChance | If you are attacked by the Sun Wolf, there's a %s%% chance %s is cast. |
+| 51 | 42 | yes | DrainSunWolfCastsEffectChanceNegated | If you are attacked by the Sun Wolf, there's a %s%% chance %s is cast. |
+| 51 | 51 | yes | DrainSunWolfDamageIncreased | If you are attacked by the Sun Wolf, the damage is increased by %s%%. |
+| 51 | 52 | yes | DrainSunWolfDamageIncreasedNegated | If you are attacked by the Sun Wolf, the damage is increased by %s%%. |
 | 52 | 11 | yes | BossMonstersSkillInflictDamageAfter | Inflicts damage to the player more than %s fields away of %s%%. |
 | 52 | 12 | yes | BossMonstersSkillInflictDamageAfterNegated | Inflicts damage to the player more than %s fields away of %s%%. |
-| 52 | 21 | yes |  | You gain additional HP equal to %s%% of the Sun Wolf's HP. (Cannot exceed %s%% of your maximum HP.) |
-| 52 | 22 | yes |  | You gain additional HP equal to %s%% of the Sun Wolf's HP. (Cannot exceed %s%% of your maximum HP.) |
-| 52 | 31 | yes |  | The Sun Wolf and caster have a %s%% chance to receive %s. |
-| 52 | 32 | yes |  | The Sun Wolf and caster have a %s%% chance to receive %s. |
-| 52 | 41 | yes |  | If the Sun Wolf is already dead, it is resurrected with %s%% HP. |
-| 52 | 42 | yes |  | If the Sun Wolf is already dead, it is resurrected with %s%% HP. |
-| 52 | 51 | yes |  | If the Sun Wolf has more than %s%% HP, the Sunchaser's attack power increases by %s%%. |
-| 52 | 52 | yes |  | If the Sun Wolf has more than %s%% HP, the Sunchaser's attack power increases by %s%%. |
+| 52 | 21 | yes | BossMonstersSkillHpFromSunWolf | You gain additional HP equal to %s%% of the Sun Wolf's HP. (Cannot exceed %s%% of your maximum HP.) |
+| 52 | 22 | yes | BossMonstersSkillHpFromSunWolfNegated | You gain additional HP equal to %s%% of the Sun Wolf's HP. (Cannot exceed %s%% of your maximum HP.) |
+| 52 | 31 | yes | BossMonstersSkillSunWolfAndCasterBuffChance | The Sun Wolf and caster have a %s%% chance to receive %s. |
+| 52 | 32 | yes | BossMonstersSkillSunWolfAndCasterBuffChanceNegated | The Sun Wolf and caster have a %s%% chance to receive %s. |
+| 52 | 41 | yes | BossMonstersSkillSunWolfResurrected | If the Sun Wolf is already dead, it is resurrected with %s%% HP. |
+| 52 | 42 | yes | BossMonstersSkillSunWolfResurrectedNegated | If the Sun Wolf is already dead, it is resurrected with %s%% HP. |
+| 52 | 51 | yes | BossMonstersSkillSunchaserAttackWhenSunWolfHealthy | If the Sun Wolf has more than %s%% HP, the Sunchaser's attack power increases by %s%%. |
+| 52 | 52 | yes | BossMonstersSkillSunchaserAttackWhenSunWolfHealthyNegated | If the Sun Wolf has more than %s%% HP, the Sunchaser's attack power increases by %s%%. |
 | 53 | 11 | yes | LordHatusInflictDamageAtLocation | Inflict %s%% damage on the players at the set location. |
 | 53 | 12 | yes | LordHatusInflictDamageAtLocationNegated | Inflict %s%% damage on the players at the set location. |
 | 53 | 21 | yes | LordHatusSunWolfCommandChance | There's a %s%% chance the Sun Wolf receives the command to cast %s on the target. |
@@ -536,15 +536,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 53 | 52 | yes | LordHatusNamedEffectCriticalChanceNegated | Provides a %s%% chance that %s causes a critical hit. |
 | 54 | 11 | yes | LordCalvinasInflictDamageAtLocation | Inflict %s%% damage on the players at the set location. |
 | 54 | 12 | yes | LordCalvinasInflictDamageAtLocationNegated | Inflict %s%% damage on the players at the set location. |
-| 54 | 21 | yes |  | While you're attacking, there is a %s%% chance that a dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 22 | yes |  | While you're attacking, there is a %s%% chance that a dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 31 | yes |  | While you're attacking, there is a %s%% chance that a fire dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 32 | yes |  | While you're attacking, there is a %s%% chance that a fire dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 41 | yes |  | While you're attacking, there is a %s%% chance that an ice dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 42 | yes |  | While you're attacking, there is a %s%% chance that an ice dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 51 | yes |  | While you're attacking, there is a %s%% chance that a moonlight dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 54 | 52 | yes |  | While you're attacking, there is a %s%% chance that a moonlight dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 55 | 11 | yes |  | The effect ends if you take damage from enemies. |
+| 54 | 21 | yes | LordCalvinasSummonDragonChance | While you're attacking, there is a %s%% chance that a dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 22 | yes | LordCalvinasSummonDragonChanceNegated | While you're attacking, there is a %s%% chance that a dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 31 | yes | LordCalvinasSummonFireDragonChance | While you're attacking, there is a %s%% chance that a fire dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 32 | yes | LordCalvinasSummonFireDragonChanceNegated | While you're attacking, there is a %s%% chance that a fire dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 41 | yes | LordCalvinasSummonIceDragonChance | While you're attacking, there is a %s%% chance that an ice dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 42 | yes | LordCalvinasSummonIceDragonChanceNegated | While you're attacking, there is a %s%% chance that an ice dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 51 | yes | LordCalvinasSummonMoonlightDragonChance | While you're attacking, there is a %s%% chance that a moonlight dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 54 | 52 | yes | LordCalvinasSummonMoonlightDragonChanceNegated | While you're attacking, there is a %s%% chance that a moonlight dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 55 | 11 | yes | SeSpecialistEndsOnDamageTaken | The effect ends if you take damage from enemies. |
 | 55 | 12 | yes | SeSpecialistEnterNumberOfBuffsAndDamage | Enter the number of buffs and the value of the damage (1/1000). |
 | 55 | 21 | yes |  |  |
 | 55 | 22 | yes | SeSpecialistEnterNumberOfBuffs | Enter the number of buffs. |
@@ -552,18 +552,18 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 55 | 32 | yes | SeSpecialistDontNeedToEnter | You don't need to enter anything. |
 | 55 | 41 | yes | SeSpecialistLowerHpStrongerEffect | The lower your HP, the stronger the effect. |
 | 55 | 42 | yes | SeSpecialistDoNotNeedToEnter | You don't need to enter anything. |
-| 55 | 51 | yes |  | While you're attacking, there is a %s%% chance that a light dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
-| 55 | 52 | yes |  | While you're attacking, there is a %s%% chance that a light dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 55 | 51 | yes | SeSpecialistSummonLightDragonChance | While you're attacking, there is a %s%% chance that a light dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
+| 55 | 52 | yes | SeSpecialistSummonLightDragonChanceNegated | While you're attacking, there is a %s%% chance that a light dragon will be summoned to attack your target and deal an extra %s%% of the damage you have already inflicted. |
 | 56 | 11 | yes | FourthGlacernonFamilyRaidAllInFieldReceiveDamage | All opponents within %s fields will receive %s%% damage. |
 | 56 | 12 | yes | FourthGlacernonFamilyRaidAllInFieldsReceiveDamage | All opponents within %s fields will receive %s%% damage. |
-| 56 | 21 | yes |  | Increases HP by %s%% of the current Rage bar. |
-| 56 | 22 | yes |  | Increases HP by %s%% of the current Rage bar. |
-| 56 | 31 | yes |  | When you use an attack skill, current HP is reduced by %s%%. |
-| 56 | 32 | yes |  | When you use an attack skill, current HP is reduced by %s%%. |
-| 56 | 41 | yes |  | In PvP all elemental resistances are increased by %s. |
-| 56 | 42 | yes |  | In PvP all elemental resistances are reduced by %s. |
-| 56 | 51 | yes |  | You are invisible. This state will not change if you are attacked. |
-| 56 | 52 | yes |  | You are invisible. This state will not change if you are attacked. |
+| 56 | 21 | yes | FourthGlacernonFamilyRaidHpFromRageBar | Increases HP by %s%% of the current Rage bar. |
+| 56 | 22 | yes | FourthGlacernonFamilyRaidHpFromRageBarNegated | Increases HP by %s%% of the current Rage bar. |
+| 56 | 31 | yes | FourthGlacernonFamilyRaidHpCostOnAttackSkill | When you use an attack skill, current HP is reduced by %s%%. |
+| 56 | 32 | yes | FourthGlacernonFamilyRaidHpCostOnAttackSkillNegated | When you use an attack skill, current HP is reduced by %s%%. |
+| 56 | 41 | yes | FourthGlacernonFamilyRaidPvpResistancesIncreased | In PvP all elemental resistances are increased by %s. |
+| 56 | 42 | yes | FourthGlacernonFamilyRaidPvpResistancesReduced | In PvP all elemental resistances are reduced by %s. |
+| 56 | 51 | yes | FourthGlacernonFamilyRaidInvisibleEvenWhenAttacked | You are invisible. This state will not change if you are attacked. |
+| 56 | 52 | yes | FourthGlacernonFamilyRaidInvisibleEvenWhenAttackedNegated | You are invisible. This state will not change if you are attacked. |
 | 57 | 11 | yes | SummonedMonsterAttackCauseDamage | You cause %s %s%% damage. |
 | 57 | 12 | yes | SummonedMonsterAttackCauseDamageNegated | You cause %s %s%% damage. |
 | 57 | 21 | yes | SummonedMonsterAttackRemoveDebuffOnHitChance | Upon getting hit, removes one random debuff up to level %s for each attack with a %s%% chance. |
@@ -580,30 +580,30 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 58 | 22 | yes |  |  |
 | 58 | 31 | yes | BearSpiritIncreaseMaximumHp | Increases maximum MP by %s%%, however not above 5000 MP. |
 | 58 | 32 | yes | BearSpiritDecreaseMaximumHp | Decreases maximum MP by %s%%, however not below 5000 MP. |
-| 58 | 41 | yes |  | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
-| 58 | 42 | yes |  | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
-| 58 | 51 | yes |  | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
-| 58 | 52 | yes |  | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
+| 58 | 41 | yes | BearSpiritNextSkillDamageFromStored | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
+| 58 | 42 | yes | BearSpiritNextSkillDamageFromStoredNegated | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
+| 58 | 51 | yes | BearSpiritDamageAgainstMonsters | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
+| 58 | 52 | yes | BearSpiritDamageAgainstMonstersNegated | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
 | 59 | 11 | yes |  |  |
 | 59 | 12 | yes |  |  |
 | 59 | 21 | yes |  |  |
 | 59 | 22 | yes |  |  |
 | 59 | 31 | yes | SummonSkillSummon | Summons 1 %s with a probability of %s%%. |
 | 59 | 32 | yes | SummonSkillSummonTimed | Summons 1 %s with a probability of %s%%. (Disappears after a set amount of time) |
-| 59 | 41 | yes |  | You transform into a powerful brown bear. |
-| 59 | 42 | yes |  | You transform back into a druid. |
-| 59 | 51 | yes |  | If you have reached Waterfall Frenzy, damage increases by %s%% of the current Rage bar while this in turn drops by %s%%. |
-| 59 | 52 | yes |  | If you have reached Waterfall Frenzy, damage increases by %s%% of the current Rage bar while this in turn drops by %s%%. |
+| 59 | 41 | yes | SummonSkillTransformIntoBrownBear | You transform into a powerful brown bear. |
+| 59 | 42 | yes | SummonSkillTransformBackIntoDruid | You transform back into a druid. |
+| 59 | 51 | yes | SummonSkillDamageFromRageBarAtWaterfallFrenzy | If you have reached Waterfall Frenzy, damage increases by %s%% of the current Rage bar while this in turn drops by %s%%. |
+| 59 | 52 | yes | SummonSkillDamageFromRageBarAtWaterfallFrenzyNegated | If you have reached Waterfall Frenzy, damage increases by %s%% of the current Rage bar while this in turn drops by %s%%. |
 | 60 | 11 | yes | InflictSkillInflictDamageAtLocation | Inflict %s%% damage on the players at the set location. |
 | 60 | 12 | yes | InflictSkillInflictDamageAtLocationNegated | Inflict %s%% damage on the players at the set location. |
-| 60 | 21 | yes |  | The Rage bar increases by %s%%. |
-| 60 | 22 | yes |  | The Rage bar sinks by %s%%. |
-| 60 | 31 | yes |  | When hit by another character's skill, there is a %s%% chance to reset the cooldown of the skill used. |
-| 60 | 32 | yes |  | When hit by another character's skill, there is a %s%% chance to reset the cooldown of the skill used. |
-| 60 | 41 | yes |  | Attack power is increased by %s%% of the Rage bar. |
-| 60 | 42 | yes |  | Reduces attacks by %s%% of the current Rage bar. |
-| 60 | 51 | yes |  | The Rage bar increases by %s%%. |
-| 60 | 52 | yes |  | Reduces the Rage bar by %s%%. |
+| 60 | 21 | yes | InflictSkillRageBarIncreased | The Rage bar increases by %s%%. |
+| 60 | 22 | yes | InflictSkillRageBarReduced | The Rage bar sinks by %s%%. |
+| 60 | 31 | yes | InflictSkillCooldownResetOnHitChance | When hit by another character's skill, there is a %s%% chance to reset the cooldown of the skill used. |
+| 60 | 32 | yes | InflictSkillCooldownResetOnHitChanceNegated | When hit by another character's skill, there is a %s%% chance to reset the cooldown of the skill used. |
+| 60 | 41 | yes | InflictSkillAttackFromRageBar | Attack power is increased by %s%% of the Rage bar. |
+| 60 | 42 | yes | InflictSkillAttackReducedByRageBar | Reduces attacks by %s%% of the current Rage bar. |
+| 60 | 51 | yes | InflictSkillRageBarIncreasedSecond | The Rage bar increases by %s%%. |
+| 60 | 52 | yes | InflictSkillRageBarReducedSecond | Reduces the Rage bar by %s%%. |
 | 61 | 11 | yes |  |  |
 | 61 | 12 | yes |  |  |
 | 61 | 21 | yes | Type61DebuffDamagePerStackIncreased | Increases damage from ongoing debuffs by %s%% per stack (max. %s%%). |
@@ -628,12 +628,12 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 63 | 12 | yes |  |  |
 | 63 | 21 | yes |  |  |
 | 63 | 22 | yes |  |  |
-| 63 | 31 | yes |  | Cooking experience gain is increased by %s%%. |
-| 63 | 32 | yes |  | Cooking experience gain is reduced by %s%%. |
-| 63 | 41 | yes |  | Chance of major success when cooking increased by %s%%. |
-| 63 | 42 | yes |  | Chance of major success when cooking reduced by %s%%. |
-| 63 | 51 | yes |  | Provides a %s%% chance to receive extra ingredients. |
-| 63 | 52 | yes |  | Provides a %s%% chance to receive extra meals. |
+| 63 | 31 | yes | FocusEnemyAttentionSkillCookingExperienceIncreased | Cooking experience gain is increased by %s%%. |
+| 63 | 32 | yes | FocusEnemyAttentionSkillCookingExperienceReduced | Cooking experience gain is reduced by %s%%. |
+| 63 | 41 | yes | FocusEnemyAttentionSkillCookingMajorSuccessIncreased | Chance of major success when cooking increased by %s%%. |
+| 63 | 42 | yes | FocusEnemyAttentionSkillCookingMajorSuccessReduced | Chance of major success when cooking reduced by %s%%. |
+| 63 | 51 | yes | FocusEnemyAttentionSkillExtraIngredientsChance | Provides a %s%% chance to receive extra ingredients. |
+| 63 | 52 | yes | FocusEnemyAttentionSkillExtraMealsChance | Provides a %s%% chance to receive extra meals. |
 | 64 | 11 | yes | TauntSkillReflectsMaximumDamageFrom | Reflects the maximum received damage from %s. |
 | 64 | 12 | yes | TauntSkillReflectsMaximumDamageFromNegated | Reflects the maximum received damage from %s. |
 | 64 | 21 | yes | TauntSkillDamageInflictedIncreased | The damage inflicted by all attacks will be increased by %s%% with a likelihood of %s%%. Successful defence will recharge energy. |
@@ -648,12 +648,12 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 65 | 12 | yes | FireCannoneerRangeBuffAoeDecreased | The radius of all area attacks is reduced by %s. |
 | 65 | 21 | yes | FireCannoneerRangeBuffFlinch | Flinch from %s of the opponent's blocks. |
 | 65 | 22 | yes | FireCannoneerRangeBuffFlinchNegated | Flinch from %s of the opponent's blocks. |
-| 65 | 31 | yes |  | If you use 'Teleport to Fishing Spot', you'll be taken to your chosen location. |
-| 65 | 32 | yes |  | If you use 'Teleport to Fishing Spot', you'll be taken to your chosen location. |
-| 65 | 41 | yes |  | Stores %s%% of the damage caused by this skill (max. %s per target). |
-| 65 | 42 | yes |  | Stores %s%% of the damage caused by this skill (max. %s per target). |
-| 65 | 51 | yes |  | If you have reached Fury or Frenzy, damage increases by %s%%. |
-| 65 | 52 | yes |  | If you have reached Fury or Frenzy, damage increases by %s%%. |
+| 65 | 31 | yes | FireCannoneerRangeBuffTeleportToFishingSpot | If you use 'Teleport to Fishing Spot', you'll be taken to your chosen location. |
+| 65 | 32 | yes | FireCannoneerRangeBuffTeleportToFishingSpotNegated | If you use 'Teleport to Fishing Spot', you'll be taken to your chosen location. |
+| 65 | 41 | yes | FireCannoneerRangeBuffStoresDamage | Stores %s%% of the damage caused by this skill (max. %s per target). |
+| 65 | 42 | yes | FireCannoneerRangeBuffStoresDamageNegated | Stores %s%% of the damage caused by this skill (max. %s per target). |
+| 65 | 51 | yes | FireCannoneerRangeBuffDamageAtFuryOrFrenzy | If you have reached Fury or Frenzy, damage increases by %s%%. |
+| 65 | 52 | yes | FireCannoneerRangeBuffDamageAtFuryOrFrenzyNegated | If you have reached Fury or Frenzy, damage increases by %s%%. |
 | 66 | 11 | yes | VulcanoElementBuffSkillsIncreased | The fiery skills of the volcano are increased by %s. |
 | 66 | 12 | yes | VulcanoElementBuffSkillsDecreased | The fiery skills of the volcano are reduced by %s. |
 | 66 | 21 | yes | VulcanoElementBuffReducesEnemyAttack | Reduces the effectiveness of the enemy's attack strengthening buffs. |
@@ -662,8 +662,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 66 | 32 | yes | VulcanoElementBuffPullBackBuffIncreasingNegated | If you manage to pull back from the enemy's attack, there is a certain chance the buff will be increased. |
 | 66 | 41 | yes | VulcanoElementBuffCriticalDefence | Defence against %s critical damage. |
 | 66 | 42 | yes | VulcanoElementBuffCriticalDefenceNegated | Defence against %s critical damage. |
-| 66 | 51 | yes |  | Suffers a maximum of %s critical damage when attacked (%s times). |
-| 66 | 52 | yes |  | Suffers a maximum of %s critical damage when attacked (%s times). |
+| 66 | 51 | yes | VulcanoElementBuffCriticalDamageCap | Suffers a maximum of %s critical damage when attacked (%s times). |
+| 66 | 52 | yes | VulcanoElementBuffCriticalDamageCapNegated | Suffers a maximum of %s critical damage when attacked (%s times). |
 | 67 | 11 | yes | DamageConvertingSkillTransferInflictedDamage | Reduces %s%% of the damage that another player within range receives. Instead you take %s%% of that player's damage. |
 | 67 | 12 | yes | DamageConvertingSkillTransferInflictedDamageNegated | Reduces %s%% of the damage that another player within range receives. Instead you take %s%% of that player's damage. |
 | 67 | 21 | yes | DamageConvertingSkillIncreaseDamageTransfered | Increases the damage transferred from your fellow player by %s%%. |
@@ -738,14 +738,14 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 74 | 12 | yes | FrozenDebuffMovementLockedNegated | Lost all body control. Other players can liberate you from the eternal ice. |
 | 74 | 21 | yes |  |  |
 | 74 | 22 | yes |  |  |
-| 74 | 31 | yes |  | The punishment will be carried out. Death awaits! |
-| 74 | 32 | yes |  | The punishment will be carried out. Death awaits! |
-| 74 | 41 | yes |  | Depending on your Heat Points, the chance of a critical hit is increased from %s%% to %s%%. |
-| 74 | 42 | yes |  | Depending on your Heat Points, the chance of a critical hit is increased from %s%% to %s%%. |
-| 74 | 51 | yes |  | All fuel is consumed. For every %s Fuel Points consumed, you recover %s%% HP. |
-| 74 | 52 | yes |  | All fuel is consumed. For every %s Fuel Points consumed, you recover %s%% HP. |
+| 74 | 31 | yes | FrozenDebuffPunishmentDeath | The punishment will be carried out. Death awaits! |
+| 74 | 32 | yes | FrozenDebuffPunishmentDeathNegated | The punishment will be carried out. Death awaits! |
+| 74 | 41 | yes | FrozenDebuffCriticalChanceByHeatPoints | Depending on your Heat Points, the chance of a critical hit is increased from %s%% to %s%%. |
+| 74 | 42 | yes | FrozenDebuffCriticalChanceByHeatPointsNegated | Depending on your Heat Points, the chance of a critical hit is increased from %s%% to %s%%. |
+| 74 | 51 | yes | FrozenDebuffAllFuelConsumedForHp | All fuel is consumed. For every %s Fuel Points consumed, you recover %s%% HP. |
+| 74 | 52 | yes | FrozenDebuffAllFuelConsumedForHpNegated | All fuel is consumed. For every %s Fuel Points consumed, you recover %s%% HP. |
 | 75 | 11 | yes | JumpBackPushJumpBackChance | There is a %s%% chance of moving back %s field(s). |
-| 75 | 12 | yes |  | There is a %s%% chance of moving back %s field(s). |
+| 75 | 12 | yes | JumpBackPushMoveBackChanceNegated | There is a %s%% chance of moving back %s field(s). |
 | 75 | 21 | yes | JumpBackPushPushBackChance | There is a %s%% chance of pushing the enemy away %s field(s). |
 | 75 | 22 | yes | JumpBackPushPushBackChanceNegated | Provides a %s%% chance of pushing the enemy away %s field(s) (only in PvP). |
 | 75 | 31 | yes | JumpBackPushMeleeDurationIncreased | The effect duration for a melee attack is increased by %s. |
@@ -758,22 +758,22 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 76 | 12 | yes | FairyXpIncreaseTeleportToLocationNegated | Teleports you to a selected location. |
 | 76 | 21 | yes | FairyXpIncreaseIncreaseFairyXpPoints | Your fairy's experience points are increased by %s%%. |
 | 76 | 22 | yes | FairyXpIncreaseIncreaseFairyXpPointsNegated | Your fairy's experience points are increased by %s%%. |
-| 76 | 31 | yes |  | Provides a %s%% chance spices aren't consumed when cooking. |
-| 76 | 32 | yes |  | Provides a %s%% chance extra spices are consumed when cooking. |
-| 76 | 41 | yes |  | Increases fullness points by %s. Can only be used when satiety is lower than %s. |
-| 76 | 42 | yes |  | Reduces fullness points by %s. Can only be used when satiety is lower than %s. |
-| 76 | 51 | yes |  | Fullness points will be increased by %s or reduced by %s. |
-| 76 | 52 | yes |  | Provides a %s%% chance to receive %s%% additional fullness points. |
+| 76 | 31 | yes | FairyXpIncreaseSpicesNotConsumedChance | Provides a %s%% chance spices aren't consumed when cooking. |
+| 76 | 32 | yes | FairyXpIncreaseExtraSpicesConsumedChance | Provides a %s%% chance extra spices are consumed when cooking. |
+| 76 | 41 | yes | FairyXpIncreaseFullnessIncreased | Increases fullness points by %s. Can only be used when satiety is lower than %s. |
+| 76 | 42 | yes | FairyXpIncreaseFullnessReduced | Reduces fullness points by %s. Can only be used when satiety is lower than %s. |
+| 76 | 51 | yes | FairyXpIncreaseFullnessChanged | Fullness points will be increased by %s or reduced by %s. |
+| 76 | 52 | yes | FairyXpIncreaseAdditionalFullnessChance | Provides a %s%% chance to receive %s%% additional fullness points. |
 | 77 | 11 | yes | SummonAndRecoverHpChanceSummon | %s%% chance to summon %s. |
 | 77 | 12 | yes | SummonAndRecoverHpChanceSummonNegated | %s%% chance to summon %s. |
 | 77 | 21 | yes | SummonAndRecoverHpRestoreHp | Restores your HP by %s%%. |
 | 77 | 22 | yes | SummonAndRecoverHpReduceHp | Reduces your HP by %s%%. |
-| 77 | 31 | yes |  | The Holy Energy bar is filled by %s%%. |
-| 77 | 32 | yes |  | The Holy Energy bar is emptied by %s%%. |
-| 77 | 41 | yes |  | Regenerates %s%% of the caster's max. HP as HP. |
-| 77 | 42 | yes |  | Regenerates %s%% of the caster's max. HP as HP. This effect does not affect the caster. |
-| 77 | 51 | yes |  | The damage of ultimate skills is increased by %s%%. |
-| 77 | 52 | yes |  | The damage of ultimate skills is increased by %s%%. |
+| 77 | 31 | yes | SummonAndRecoverHpHolyEnergyFilled | The Holy Energy bar is filled by %s%%. |
+| 77 | 32 | yes | SummonAndRecoverHpHolyEnergyEmptied | The Holy Energy bar is emptied by %s%%. |
+| 77 | 41 | yes | SummonAndRecoverHpRegenerateFromCasterMaxHp | Regenerates %s%% of the caster's max. HP as HP. |
+| 77 | 42 | yes | SummonAndRecoverHpRegenerateFromCasterMaxHpNotCaster | Regenerates %s%% of the caster's max. HP as HP. This effect does not affect the caster. |
+| 77 | 51 | yes | SummonAndRecoverHpUltimateSkillDamageIncreased | The damage of ultimate skills is increased by %s%%. |
+| 77 | 52 | yes | SummonAndRecoverHpUltimateSkillDamageIncreasedNegated | The damage of ultimate skills is increased by %s%%. |
 | 78 | 11 | yes | TeamArenaBuffDamageTakenIncreased | There is a %s%% chance of the damage taken in the team arena being increased by %s%%. |
 | 78 | 12 | yes | TeamArenaBuffDamageTakenDecreased | There is a %s%% chance of the damage taken in the team arena being reduced by %s%%. |
 | 78 | 21 | yes | TeamArenaBuffAttackPowerIncreased | There is a %s%% chance of the attack power being increased by %s%% during an attack in the team arena. |
@@ -785,7 +785,7 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 78 | 51 | yes | TeamArenaBuffLowHpDamageReduction | If HP drops below %s%%, incoming damage is reduced by %s%%. |
 | 78 | 52 | yes | TeamArenaBuffLowHpAttackBonus | If HP drops below %s%%, all attacks are increased by %s%%. |
 | 79 | 11 | yes | ArenaCameraCallParticipant1 | Call Participant Number 1 |
-| 79 | 12 | yes |  | Call Participant Number 2 |
+| 79 | 12 | yes | ArenaCameraCallParticipantTwo | Call Participant Number 2 |
 | 79 | 21 | yes | ArenaCameraCallParticipant2Negated | Call Participant Number 2 |
 | 79 | 22 | yes | ArenaCameraCallParticipant2NegatedNegated | Call Participant Number 2 |
 | 79 | 31 | yes | ArenaCameraCallParticipant3 | Call Participant Number 3 |
@@ -810,10 +810,10 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 81 | 22 | yes | AbsorbedSpiritResistForcedMovementNegated | Resists forced movement with a probability of %s%%. |
 | 81 | 31 | yes | AbsorbedSpiritMagicCooldownIncreased | The cooldown time for reusing magic skills is increased by %s%%. |
 | 81 | 32 | yes | AbsorbedSpiritMagicCooldownDecreased | The cooldown time for reusing magic skills is reduced by %s%%. |
-| 81 | 41 | yes |  | If %s is already active, %s is triggered. |
-| 81 | 42 | yes |  | If %s is already active, %s is triggered. |
-| 81 | 51 | yes |  | The equipped fairy's element increases by %s if %s is active. |
-| 81 | 52 | yes |  | The equipped fairy's element increases by %s if %s is active. |
+| 81 | 41 | yes | AbsorbedSpiritTriggersWhenActive | If %s is already active, %s is triggered. |
+| 81 | 42 | yes | AbsorbedSpiritTriggersWhenActiveNegated | If %s is already active, %s is triggered. |
+| 81 | 51 | yes | AbsorbedSpiritFairyElementWhenActive | The equipped fairy's element increases by %s if %s is active. |
+| 81 | 52 | yes | AbsorbedSpiritFairyElementWhenActiveNegated | The equipped fairy's element increases by %s if %s is active. |
 | 82 | 11 | yes | AngerSkillAttackInRangeNotLocation | Attacks all enemies in visual range. Except at a certain location. |
 | 82 | 12 | yes | AngerSkillAttackInRangeNotLocationNegated | Attacks all enemies in visual range. Except at a certain location. |
 | 82 | 21 | yes | AngerSkillReduceEnemyHpChance | Reduces the opponent's HP by %s%% with a probability of %s%%. |
@@ -822,8 +822,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 82 | 32 | yes | AngerSkillBlockGoodEffectNegated | There is a %s%% chance that no good effects below level %s can be used. |
 | 82 | 41 | yes | AngerSkillOnlyNormalAttacks | Reduced to carrying out normal attacks by sheer anger. |
 | 82 | 42 | yes | AngerSkillOnlyNormalAttacksNegated | Only basic attacks are possible. |
-| 82 | 51 | yes |  | Cannot attack for %s sec. |
-| 82 | 52 | yes |  | Cannot attack for %s sec. |
+| 82 | 51 | yes | AngerSkillCannotAttack | Cannot attack for %s sec. |
+| 82 | 52 | yes | AngerSkillCannotAttackNegated | Cannot attack for %s sec. |
 | 83 | 11 | yes | MeteoriteTeleportSummonInVisualRange | Summons a Thorn Bush in visual range. |
 | 83 | 12 | yes | MeteoriteTeleportSummonInVisualRangeNegated | Summons a Thorn Bush in visual range. |
 | 83 | 21 | yes | MeteoriteTeleportTransformTarget | Transforms the target. |
@@ -842,10 +842,10 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 84 | 32 | yes | StealBuffChanceSummonOnyxDragonNegated | When attacking, there is a %s%% chance of summoning a shadow clone to carry out an additional attack. |
 | 84 | 41 | yes | StealBuffStealGoodEffect | A successful attack can steal good effects below level %s from the target's partner and transfer them to allies within 3 fields. Max. %s effects can be stolen. |
 | 84 | 42 | yes | StealBuffStealGoodEffectNegated | A successful attack can steal good effects below level %s from the target's partner and transfer them to allies within 3 fields. Max. %s effects can be stolen. |
-| 84 | 51 | yes |  | There's a %s%% chance that the transformation will be aborted. Cannot be attacked for %s sec. if successfully aborted. The target then returns to their previous state. |
-| 84 | 52 | yes |  | There's a %s%% chance that the transformation will be aborted. Cannot be attacked for %s sec. if successfully aborted. The target then returns to their previous state. |
+| 84 | 51 | yes | StealBuffTransformationAborted | There's a %s%% chance that the transformation will be aborted. Cannot be attacked for %s sec. if successfully aborted. The target then returns to their previous state. |
+| 84 | 52 | yes | StealBuffTransformationAbortedNegated | There's a %s%% chance that the transformation will be aborted. Cannot be attacked for %s sec. if successfully aborted. The target then returns to their previous state. |
 | 85 | 11 | yes | Type85PositionSwapper | Swaps places with the target. Once the effect ends, the character returns to their initial position. |
-| 85 | 12 | yes |  | Swaps places with the target. Once the effect ends, the character returns to their initial position. |
+| 85 | 12 | yes | Type85SwapPlacesWithTarget | Swaps places with the target. Once the effect ends, the character returns to their initial position. |
 | 85 | 21 | yes | Type85OnDeathIncreaseRepLost | When you die, the amount of reputation you lose is increased by %s%%. |
 | 85 | 22 | yes | Type85OnDeathReduceRepLost | When you die, the amount of reputation you lose is reduced by %s%%. |
 | 85 | 31 | yes | Type85OnDeathIncreaseHxpLost | When you die, the amount of champion level experience you lose is increased by %s%%. |
@@ -861,19 +861,19 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 86 | 31 | yes | Type86IncreaseDamageVsHigherLevelMonster | Provides a %s%% chance of increasing damage by %s%% if the monster has the same or a higher combat level than the character. |
 | 86 | 32 | yes | Type86DecreaseDamageVsHigherLevelMonster | Provides a %s%% chance of reducing damage by %s%% if the monster has a higher level than the character. |
 | 86 | 41 | yes | Type86BlockAmountOfBadEffect | Blocks %s bad effects up to level %s. |
-| 86 | 42 | yes |  | Blocks %s bad effects up to level %s. |
+| 86 | 42 | yes | Type86BlocksBadEffects | Blocks %s bad effects up to level %s. |
 | 86 | 51 | yes | Type86ContagiousDebuffAroundCell | There is a %s%% chance of an ally within 2 spaces receiving %s. |
-| 86 | 52 | yes |  | There is a %s%% chance of removing %s from an ally within 2 spaces. |
+| 86 | 52 | yes | Type86RemovesEffectFromAllyChance | There is a %s%% chance of removing %s from an ally within 2 spaces. |
 | 87 | 11 | yes | Type87IncreaseFameRecived | Increases fame received by %s%%. |
 | 87 | 12 | yes | Type87DecreaseFameRecived | Reduces fame received by %s%%. |
 | 87 | 21 | yes | Type87IncreaseHxpRecived | Increases champion experience received by %s%%. |
 | 87 | 22 | yes | Type87DecreaseHxpRecived | Reduces champion experience received by %s%%. |
 | 87 | 31 | yes | Type87ReciveRandomItem | After %s hour(s) you can receive %s unknown items while you are being accompanied. |
-| 87 | 32 | yes |  | After %s hour(s) you can receive %s unknown items while you are being accompanied. |
+| 87 | 32 | yes | Type87UnknownItemsWhileAccompanied | After %s hour(s) you can receive %s unknown items while you are being accompanied. |
 | 87 | 41 | yes | Type87RemoveBuffFromEnemy | There's a %s%% chance to remove a buff from the enemy. |
-| 87 | 42 | yes |  | There's a %s%% chance to remove a buff from the enemy. |
+| 87 | 42 | yes | Type87RemoveEnemyBuffChance | There's a %s%% chance to remove a buff from the enemy. |
 | 87 | 51 | yes | Type87Unknow | Uses lich magic to create a Bone Drake and give the caster Dragon Vitality. |
-| 87 | 52 | yes |  | Uses lich magic to create a Bone Drake and give the caster Strong Dragon Vitality. |
+| 87 | 52 | yes | Type87CreatesBoneDrake | Uses lich magic to create a Bone Drake and give the caster Strong Dragon Vitality. |
 | 88 | 11 | yes | Type88MateReturnToMiniland | Return to Miniland and regenerate %s%% of your HP. If you have maximum HP, you receive %s%% additional HP. |
 | 88 | 12 | yes |  |  |
 | 88 | 21 | yes | Type88IncreaseDamageVsHiden | Attacks on hidden enemies cause %s additional damage. |
@@ -887,25 +887,25 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 89 | 11 | yes | Type89Transform | Transform and assume the Dragon Stance with which you can carry out flame attacks. |
 | 89 | 12 | yes | Type89RemoveTransform | Transform and assume the Haetae Stance with which you can carry out attacks using the power of the beast. |
 | 89 | 21 | yes | Type89Unknow | Provides a %s%% probability to reset the cooldown of %s. |
-| 89 | 22 | yes |  | Provides a %s%% probability to reset the cooldown of %s. |
+| 89 | 22 | yes | Type89CooldownResetChanceNegated | Provides a %s%% probability to reset the cooldown of %s. |
 | 89 | 31 | yes | Type89NegateGoodEffect | There is a %s%% chance that no good effects below level %s can be used. |
-| 89 | 32 | yes |  | There is a %s%% chance that no good effects below level %s can be used. |
+| 89 | 32 | yes | Type89NegateGoodEffectNegated | There is a %s%% chance that no good effects below level %s can be used. |
 | 89 | 41 | yes | Type89NormalAndJobExpIncreased | Combat and job experience points earned are increased by %s%%. |
-| 89 | 42 | yes |  | Combat and job experience points earned are increased by %s%%. |
+| 89 | 42 | yes | Type89NormalAndJobExpIncreasedNegated | Combat and job experience points earned are increased by %s%%. |
 | 89 | 51 | yes | Type89ZhephyrMagicalArrow | Provides a %s%% chance of firing a magical arrow when you use magic or ranged attack skills. |
-| 89 | 52 | yes |  | Provides a %s%% chance of firing a magical arrow when you use attack skills. |
+| 89 | 52 | yes | Type89ZhephyrMagicalArrowNegated | Provides a %s%% chance of firing a magical arrow when you use attack skills. |
 | 90 | 00 | no | Type90DamageVsSealedAndReduceFireDamage |  |
-| 90 | 11 | yes |  | Provides a %s%% chance to increase fire attack damage by %s%%. |
-| 90 | 12 | yes |  | Provides a %s%% chance to reduce fire attack damage by %s%%. |
+| 90 | 11 | yes | Type90FireAttackDamageIncreasedChance | Provides a %s%% chance to increase fire attack damage by %s%%. |
+| 90 | 12 | yes | Type90FireAttackDamageReducedChance | Provides a %s%% chance to reduce fire attack damage by %s%%. |
 | 90 | 21 | yes | Type90IncreaseDamageVsSealed | Damage against monsters in Sealed Vessels is increased by %s%% and against monsters in the Land of Death by %s%%. |
 | 90 | 22 | yes | Type90DecreaseDamageVsSealed | Damage against monsters in Sealed Vessels is reduced by %s%% and against monsters in the Land of Death by %s%%. |
 | 90 | 31 | yes | Type90RainbowBattleDamageAndSpeedBoost | PvP attack power is increased by %s%% during the Rainbow Battle. Movement speed is increased by %s during the Rainbow Battle. |
-| 90 | 32 | yes |  | PvP attack power is reduced by %s%% during the Rainbow Battle. Movement speed is reduced by %s during the Rainbow Battle. |
+| 90 | 32 | yes | Type90RainbowBattleDamageAndSpeedReduced | PvP attack power is reduced by %s%% during the Rainbow Battle. Movement speed is reduced by %s during the Rainbow Battle. |
 | 90 | 41 | yes | Type90IncreaseDamageVsSealedAndGlacernonMonsters | Increases attack power by %s%% when fighting monsters from Sealed Vessels and by %s%% when fighting monsters in Glacernon. |
 | 90 | 42 | yes | Type90DecreaseDamageVsSealedAndGlacernonMonsters | Reduces attack power by %s%% when fighting monsters from Sealed Vessels and by %s%% when fighting monsters in Glacernon. |
-| 90 | 51 | yes |  | If the target has less than %s%% HP, your Holy Energy bar fills by %s%% (does not apply to NosMates). |
+| 90 | 51 | yes | Type90HolyEnergyFromLowHpTarget | If the target has less than %s%% HP, your Holy Energy bar fills by %s%% (does not apply to NosMates). |
 | 91 | 11 | yes | Type91AddBuff | You dodge attacks and have a %s%% chance to cause %s. |
-| 91 | 12 | yes |  | You dodge attacks and have a %s%% chance to cause %s. |
+| 91 | 12 | yes | Type91DodgeAndAddBuffChance | You dodge attacks and have a %s%% chance to cause %s. |
 | 91 | 21 | yes | Type91BuffSkillBooster | Use a buff skill while Enlightenment is active to receive additional effects. |
 | 91 | 22 | yes |  |  |
 | 91 | 31 | yes | Type91AllowFullMoonSkill | Allows you to use Full Moon skills. |
@@ -915,15 +915,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 91 | 51 | yes | Type91ReduceCriticalDamageRecived | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Moon. |
 | 91 | 52 | yes | Type91IncreaseCriticalDamageRecived | The next damage inflicted by the enemy will be reduced by %s%% and consume the Mark of the Moon. |
 | 92 | 11 | yes | Type92AddBuffOnReceiveAttack | Whenever you are attacked, you have a %s%% chance of generating %s. |
-| 92 | 12 | yes |  | Whenever you are attacked, you have a %s%% chance of generating %s. |
+| 92 | 12 | yes | Type92AddBuffOnReceiveAttackNegated | Whenever you are attacked, you have a %s%% chance of generating %s. |
 | 92 | 21 | yes | Type92ChanceToReciveOpportunityToAttack | After using an attack skill, there is a chance of receiving another Opportunity to Attack. |
-| 92 | 22 | yes |  | After using an attack skill, there is a chance of receiving another Opportunity to Attack. |
-| 92 | 31 | yes |  | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Full Moon. |
-| 92 | 32 | yes |  | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Full Moon. |
+| 92 | 22 | yes | Type92ChanceToReciveOpportunityToAttackNegated | After using an attack skill, there is a chance of receiving another Opportunity to Attack. |
+| 92 | 31 | yes | Type92MarkedEnemyNextDamage | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Full Moon. |
+| 92 | 32 | yes | Type92MarkedEnemyNextDamageNegated | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Full Moon. |
 | 92 | 41 | yes | Type92TransformEnemyDebuff | If the effect Bound by Moonlight is active on your opponent, you will trigger Bound by the Full Moon's Light. |
-| 92 | 42 | yes |  | If the effect Bound by Moonlight is active on your opponent, you will trigger Bound by the Full Moon's Light. |
-| 92 | 51 | yes |  | Can only be used with a buff of %s or higher. |
-| 92 | 52 | yes |  | You cannot use skills that increase Heat Points. |
+| 92 | 42 | yes | Type92TransformEnemyDebuffNegated | If the effect Bound by Moonlight is active on your opponent, you will trigger Bound by the Full Moon's Light. |
+| 92 | 51 | yes | Type92RequiresBuffLevel | Can only be used with a buff of %s or higher. |
+| 92 | 52 | yes | Type92CannotUseHeatSkills | You cannot use skills that increase Heat Points. |
 | 93 | 11 | yes | ElementPercentageIncreaseFireElement | Fire element bonus damage is increased by %s%%. |
 | 93 | 12 | yes | ElementPercentageDecreaseFireElement | Fire element is reduced by %s%%. |
 | 93 | 21 | yes | ElementPercentageIncreaseWaterElement | Water element is increased by %s%%. |
@@ -960,18 +960,18 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 96 | 22 | yes | Type96DecreaseFairyElementOnAttack | On attack there is a %s%% chance of decreasing your equipped fairy's element by %s. |
 | 96 | 31 | yes | Type96IncreaseDamageToMonsters | Damage to monsters is increased by %s%%. |
 | 96 | 32 | yes | Type96DecreaseDamageToMonsters | Damage to monsters is reduced by %s%%. |
-| 96 | 41 | yes |  | Provides a %s%% chance when catching a fish to catch an extra fish. |
-| 96 | 42 | yes |  | Provides a %s%% chance when catching a fish to catch an extra fish. |
-| 96 | 51 | yes |  | The probability of catching a rare fish is increased by %s%%. |
-| 96 | 52 | yes |  | The probability of catching a rare fish is increased by %s%%. |
+| 96 | 41 | yes | Type96ExtraFishChance | Provides a %s%% chance when catching a fish to catch an extra fish. |
+| 96 | 42 | yes | Type96ExtraFishChanceNegated | Provides a %s%% chance when catching a fish to catch an extra fish. |
+| 96 | 51 | yes | Type96RareFishChance | The probability of catching a rare fish is increased by %s%%. |
+| 96 | 52 | yes | Type96RareFishChanceNegated | The probability of catching a rare fish is increased by %s%%. |
 | 97 | 11 | yes | Type97AddBuffWithMissingHpChance | Provides a (current HP/max. HP * %s)%% chance to inflict %s on your opponent. |
-| 97 | 12 | yes |  | Provides a (missing HP/max. HP * %s)%% chance to inflict %s on your opponent. |
+| 97 | 12 | yes | Type97AddBuffWithMissingHpChanceNegated | Provides a (missing HP/max. HP * %s)%% chance to inflict %s on your opponent. |
 | 97 | 21 | yes | Type97IncreaseUltimatePoins | If the attack is successful, you earn %s ultimate points. |
 | 97 | 22 | yes | Type97DecreaseUltimatePoints | If you are attacked while blocking, you earn %s ultimate points. |
 | 97 | 31 | yes | Type97AllowUltimateSkills | You can use ultimate skills. |
-| 97 | 32 | yes |  | You can use ultimate skills. |
+| 97 | 32 | yes | Type97AllowUltimateSkillsNegated | You can use ultimate skills. |
 | 97 | 41 | yes | Type97DarkElementAddBuff | When you're attacked with a shadow element skill, there is a %s%% chance of triggering %s. |
-| 97 | 42 | yes |  | When you're attacked with a shadow element skill, there is a %s%% chance of triggering %s. |
+| 97 | 42 | yes | Type97DarkElementAddBuffNegated | When you're attacked with a shadow element skill, there is a %s%% chance of triggering %s. |
 | 97 | 51 | yes | Type97IncreaseAttackAndDefenceForDebuff | When debuffs are applied to you, attack and defence power are increased by %s%% per debuff. |
 | 97 | 52 | yes | Type97DecreaseAttackAndDefenceForDebuff | When buffs are applied to you, attack and defence power are increased by %s%% per buff. |
 | 98 | 11 | yes | Type98AllElementalDamageIncreasedChance | With a %s%% probability all elemental damage is increased by %s%%. |
@@ -1097,12 +1097,12 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 110 | 11 | yes | Type110RecoveryHpOnDodge | Your HP increases by %s whenever you dodge. |
 | 110 | 12 | yes | Type110DecreaseHpOnDodge | Your HP increases by %s whenever you dodge. |
 | 110 | 21 | yes | Type110BeastKingTarget | The Beast King has chosen you as the target of his bite attack. |
-| 110 | 22 | yes |  | The Beast King has chosen you as the target of his bite attack. |
-| 110 | 31 | yes |  | Maximum HP is increased by %s%%. |
-| 110 | 32 | yes |  | Maximum HP is decreased by %s%%. |
-| 110 | 41 | yes |  | Maximum MP is increased by %s%%. |
-| 110 | 42 | yes |  | Maximum MP is decreased by %s%%. |
-| 110 | 51 | yes |  | Your HP increases by %s%% of missing HP when you dodge attacks. |
+| 110 | 22 | yes | Type110BeastKingTargetNegated | The Beast King has chosen you as the target of his bite attack. |
+| 110 | 31 | yes | Type110MaxHpIncreased | Maximum HP is increased by %s%%. |
+| 110 | 32 | yes | Type110MaxHpDecreased | Maximum HP is decreased by %s%%. |
+| 110 | 41 | yes | Type110MaxMpIncreased | Maximum MP is increased by %s%%. |
+| 110 | 42 | yes | Type110MaxMpDecreased | Maximum MP is decreased by %s%%. |
+| 110 | 51 | yes | Type110HpFromMissingHpOnDodge | Your HP increases by %s%% of missing HP when you dodge attacks. |
 | 111 | 11 | yes | MateSynergyMateHpRestoredOnMonsterKill | If you or your NosMates defeat a monster, any NosMates who are currently active will be restored %s%% HP. |
 | 111 | 12 | yes | MateSynergyMateHpRestoredOnMonsterKillNegated | If you or your NosMates defeat a monster, any NosMates who are currently active will be restored %s%% HP. |
 | 111 | 21 | yes | MateSynergyOwnerHpRestoredOnMateDefeat | If one of your NosMates is defeated, you will be restored %s%% HP. |
@@ -1174,15 +1174,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 117 | 51 | yes | Type117HealingPowerChance | %s%% chance to trigger Power of Healing when defending. |
 | 117 | 52 | yes | Type117HealingPowerChanceNegated | %s%% chance to trigger Power of Healing when defending. |
 | 118 | 11 | yes | ArmourPiercingPierceArmour | Pierces armour. Increases damage of Pinpoint attacks. |
-| 118 | 12 | yes |  | Pierces armour thoroughly. Significantly increases damage of Pinpoint attacks. |
+| 118 | 12 | yes | ArmourPiercingPierceArmourThoroughly | Pierces armour thoroughly. Significantly increases damage of Pinpoint attacks. |
 | 118 | 21 | yes | ArmourPiercingCountsAsPinpoint | Counts as a Pinpoint attack. Damage against targets with pierced armour is increased by %s%%. |
-| 118 | 22 | yes |  | Counts as a Pinpoint attack. Damage against targets with pierced armour is increased by %s%%. |
+| 118 | 22 | yes | ArmourPiercingCountsAsPinpointNegated | Counts as a Pinpoint attack. Damage against targets with pierced armour is increased by %s%%. |
 | 118 | 31 | yes | ArmourPiercingCriticalDamageWhileActive | Increases critical damage by %s%% if %s is active. |
-| 118 | 32 | yes |  | Reduces critical damage by %s%% if %s is active. |
+| 118 | 32 | yes | ArmourPiercingCriticalDamageWhileActiveReduced | Reduces critical damage by %s%% if %s is active. |
 | 118 | 41 | yes | ArmourPiercingCriticalChanceWhileActive | Increases the chance of inflicting a critical hit by %s%% if %s is active. |
-| 118 | 42 | yes |  | Reduces the chance of inflicting a critical hit by %s%% if %s is active. |
+| 118 | 42 | yes | ArmourPiercingCriticalChanceWhileActiveReduced | Reduces the chance of inflicting a critical hit by %s%% if %s is active. |
 | 118 | 51 | yes | ArmourPiercingOnBlockWhileActive | You receive %s when you block while %s is active. |
-| 118 | 52 | yes |  | The target receives [%s] when you attack while [%s] is active. |
+| 118 | 52 | yes | ArmourPiercingOnAttackWhileActive | The target receives [%s] when you attack while [%s] is active. |
 | 119 | 11 | yes | HeatPointsAttackByHeatPoints | Depending on your Heat Points, your attack power is increased from %s%% to %s%%. |
 | 119 | 12 | yes | HeatPointsAttackByHeatPointsNegated | Depending on your Heat Points, your attack power is increased from %s%% to %s%%. |
 | 119 | 21 | yes | HeatPointsAttackRangeByHeatPoints | Depending on your Heat Points, your attack range is increased from %s to %s. |
@@ -1194,15 +1194,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 119 | 51 | yes | HeatPointsEnemyHpReducedByDamageTakenOnHighHeating | If the High Heating effect or higher is active, the opponent's HP is reduced by %s%% of the damage you take. |
 | 119 | 52 | yes | HeatPointsEnemyHpReducedByDamageTakenOnHighHeatingNegated | If the High Heating effect or higher is active, the opponent's HP is reduced by %s%% of the damage you take. |
 | 120 | 11 | yes | HeatAndGravityConsumeHeatForDamage | All Heat Points are consumed. The damage increases by %s%% of the consumed Heat Points. |
-| 120 | 12 | yes |  | All Heat Points are consumed. The damage increases by %s%% of the consumed Heat Points. |
+| 120 | 12 | yes | HeatAndGravityConsumeHeatForDamageNegated | All Heat Points are consumed. The damage increases by %s%% of the consumed Heat Points. |
 | 120 | 21 | yes | HeatAndGravityGainSharpness | You receive %s Sharpness Points. |
-| 120 | 22 | yes |  | You lose %s Sharpness Points. |
+| 120 | 22 | yes | HeatAndGravityLoseSharpness | You lose %s Sharpness Points. |
 | 120 | 31 | yes | HeatAndGravityGainGravity | You receive %s Grav Points and lose %s Antigrav Points. |
-| 120 | 32 | yes |  | You receive %s Anti-Grav Points and lose %s Grav Points. |
+| 120 | 32 | yes | HeatAndGravityGainAntiGravity | You receive %s Anti-Grav Points and lose %s Grav Points. |
 | 120 | 41 | yes | HeatAndGravityGravitationDamage | The damage of Gravitation skills is increased by %s%%. |
-| 120 | 42 | yes |  | The damage of Anti-Gravitation skills is increased by %s%%. |
+| 120 | 42 | yes | HeatAndGravityAntiGravitationDamage | The damage of Anti-Gravitation skills is increased by %s%%. |
 | 120 | 51 | yes | HeatAndGravityDamageFromGravityPool | Increases damage by (current number of Grav and Anti-Grav Points) * %s%%. All Grav and Anti-Grav Points are consumed. |
-| 120 | 52 | yes |  | Increases damage by (current number of Grav and Anti-Grav Points) * %s%%. All Grav and Anti-Grav Points are consumed. |
+| 120 | 52 | yes | HeatAndGravityDamageFromBothPools | Increases damage by (current number of Grav and Anti-Grav Points) * %s%%. All Grav and Anti-Grav Points are consumed. |
 | 121 | 11 | yes | Type121DamageIncreasedWhileBuffActive | Increases damage by %s%% if %s is active. |
 | 121 | 12 | yes | Type121DamageReducedWhileBuffActive | Increases damage by %s%% if %s is active. |
 | 121 | 21 | yes | Type121MpCostIncreasedWhileBuffActive | MP consumption of skills (including magic) is increased by %s%% if %s is active. |
@@ -1214,15 +1214,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 121 | 51 | yes | Type121FuelPointsSpentForDamage | You consume %s Fuel Points. Your damage is increased by %s%%. |
 | 121 | 52 | yes | Type121FuelPointsSpentForDamageNegated | You consume %s Fuel Points. Your damage is increased by %s%%. |
 | 122 | 11 | yes | FuelPointsConsumeForShadow | You consume %s Fuel Points. Your shadow element is increased by %s%%. |
-| 122 | 12 | yes |  | You consume %s Fuel Points. Your shadow element is increased by %s%%. |
+| 122 | 12 | yes | FuelPointsConsumeForShadowNegated | You consume %s Fuel Points. Your shadow element is increased by %s%%. |
 | 122 | 21 | yes | FuelPointsConsumeForEffect | You consume %s Fuel Points and receive the %s effect. |
-| 122 | 22 | yes |  | You lose %s Fuel Points and inflict %s to the target. |
+| 122 | 22 | yes | FuelPointsLoseForEffectOnTarget | You lose %s Fuel Points and inflict %s to the target. |
 | 122 | 31 | yes | FuelPointsConsumeForCooldownReset | You consume %s Fuel Points. There's a %s%% chance to reset the cooldown of the used skill. |
-| 122 | 32 | yes |  | You consume %s Fuel Points. There's a %s%% chance to reset the cooldown of the used skill. |
+| 122 | 32 | yes | FuelPointsConsumeForCooldownResetNegated | You consume %s Fuel Points. There's a %s%% chance to reset the cooldown of the used skill. |
 | 122 | 41 | yes | FuelPointsConsumeForDefencePierce | You consume %s Fuel Points and ignore %s%% of the opponent's defence. |
-| 122 | 42 | yes |  | You consume %s Fuel Points and ignore %s%% of the opponent's defence. |
+| 122 | 42 | yes | FuelPointsConsumeForDefencePierceNegated | You consume %s Fuel Points and ignore %s%% of the opponent's defence. |
 | 122 | 51 | yes | FuelPointsGainHeat | You receive %s Heat Points. |
-| 122 | 52 | yes |  | You lose %s Heat Points. |
+| 122 | 52 | yes | FuelPointsLoseHeat | You lose %s Heat Points. |
 | 123 | 11 | yes | Type123TameStarPetChance | Tames %s-star pets with a %s%% chance. |
 | 123 | 12 | yes | Type123TameStarPetChanceNegated | Tames %s-star pets with a %s%% chance. |
 | 123 | 21 | yes | Type123DebuffEndsAfterPlayerHits | This debuff disappears when you get hit %sx by other players. |
@@ -1234,15 +1234,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 123 | 51 | yes | Type123Act9MonsterDamageIncreased | Increases damage to all monsters in Act 9 (excluding raids) and the Act 9 Land of Life by %s%%. |
 | 123 | 52 | yes | Type123Act9MonsterDamageTakenReduced | Reduces damage from all monsters in Act 9 (excluding raids) and the Act 9 Land of Life by %s%%. |
 | 124 | 11 | yes | TokenSystemRequiresTokens | Can only be cast if you have %s tokens. |
-| 124 | 12 | yes |  | Can only be cast if you have %s tokens. |
+| 124 | 12 | yes | TokenSystemRequiresTokensNegated | Can only be cast if you have %s tokens. |
 | 124 | 21 | yes | TokenSystemChanceToGainTokens | Provides a %s%% chance to receive %s token(s). |
-| 124 | 22 | yes |  | Provides a %s%% chance to receive %s token(s). |
+| 124 | 22 | yes | TokenSystemChanceToGainTokensNegated | Provides a %s%% chance to receive %s token(s). |
 | 124 | 31 | yes | TokenSystemEnhancementActive | Token enhancement buff active. |
-| 124 | 32 | yes |  | Token enhancement buff active. |
+| 124 | 32 | yes | TokenSystemEnhancementActiveNegated | Token enhancement buff active. |
 | 124 | 41 | yes | TokenSystemGaugeIncrease | Token gauge increased by %s. |
-| 124 | 42 | yes |  | Token gauge reduced by %s. |
+| 124 | 42 | yes | TokenSystemGaugeReduced | Token gauge reduced by %s. |
 | 124 | 51 | yes | TokenSystemSpendForGuaranteedReward | If you spend %s tokens, you are guaranteed to receive %s. |
-| 124 | 52 | yes |  | If you spend %s tokens, you are guaranteed to deal %s to the target. |
+| 124 | 52 | yes | TokenSystemSpendForGuaranteedEffect | If you spend %s tokens, you are guaranteed to deal %s to the target. |
 | 125 | 11 | yes | Type125AttackForSpentTokens | If you spend %s tokens, your attack power increases by %s%%. |
 | 125 | 12 | yes | Type125SpecialistElementForSpentTokens | If you spend %s tokens, your specialist's original element increases by %s%%. |
 | 125 | 21 | yes | Type125AttackForMineralTokens | If you have %s Mineral tokens, your attack power is increased by %s%%. |
