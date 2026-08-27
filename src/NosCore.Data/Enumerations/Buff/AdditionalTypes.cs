@@ -1428,5 +1428,267 @@ namespace NosCore.Data.Enumerations.Buff
             SpendForGuaranteedReward = 51
         }
 
+        public enum Type61 : byte
+        {
+            DebuffDamagePerStackIncreased = 21,
+            DebuffDamagePerStackReduced = 22,
+            TransformChance = 31,
+            TransformChanceNegated = 32,
+            BuffEndsAfterHitCount = 41,
+            BuffEndsAfterDamageTaken = 42,
+            DamagePerBuffStack = 51,
+            DamagePerDebuffStack = 52
+        }
+
+        public enum Type105 : byte
+        {
+            ApocalypsePowerChance = 11,
+            ApocalypsePowerChanceNegated = 12,
+            ReflectionPowerChance = 21,
+            ReflectionPowerChanceNegated = 22,
+            WolfPowerChance = 31,
+            WolfPowerChanceNegated = 32,
+            KnockBackOnAttackChance = 41,
+            KnockBackOnDefenceChance = 42,
+            ExplosionPowerChance = 51,
+            ExplosionPowerChanceNegated = 52
+        }
+
+        public enum Type106 : byte
+        {
+            AgilityPowerChance = 11,
+            AgilityPowerChanceNegated = 12,
+            LightningPowerChance = 21,
+            LightningPowerChanceNegated = 22,
+            CursePowerChance = 31,
+            CursePowerChanceNegated = 32,
+            BearPowerChance = 41,
+            BearPowerChanceNegated = 42,
+            FrostPowerChance = 51,
+            FrostPowerChanceNegated = 52
+        }
+
+        public enum MateSynergy : byte
+        {
+            MateHpRestoredOnMonsterKill = 11,
+            MateHpRestoredOnMonsterKillNegated = 12,
+            OwnerHpRestoredOnMateDefeat = 21,
+            MateHpRestoredOnMateDefeat = 22,
+            BuffOnSelfOnMonsterKillChance = 31,
+            BuffOnMatesOnMonsterKillChance = 32,
+            MateAttackOnMonsterKillChance = 41,
+            MateDefenceOnMonsterKillChance = 42,
+            AllMatesHpRestoredOnMonsterKillChance = 51,
+            AllMatesHpRestoredOnMonsterKillChanceNegated = 52
+        }
+
+        public enum MateAndSquad : byte
+        {
+            AttackOnMateMonsterKill = 11,
+            DefenceOnMateMonsterKill = 12,
+            DebuffEnemiesOnDeath = 21,
+            BuffMatesOnDeath = 22,
+            BuffOnSelfWhenAllMatesDefeatedChance = 31,
+            BuffOnSelfWhenAllMatesDefeatedChanceNegated = 32,
+            BuffMatesInRangeOnMonsterKill = 41,
+            BuffMatesInRangeOnMonsterKillNegated = 42,
+            SummonSquad = 51,
+            SummonSquadNegated = 52
+        }
+
+        public enum SquadAndGravity : byte
+        {
+            SquadAttackIncreased = 11,
+            SquadDefenceIncreased = 12,
+            MateBuffChance = 21,
+            MateBuffChanceNegated = 22,
+            GravPointsReducedPerBasicAttack = 31,
+            AntiGravPointsReducedPerBasicAttack = 32,
+            GravitationSkillsDisabled = 41,
+            AntiGravitationSkillsDisabled = 42,
+            GravPointsReduced = 51,
+            AntiGravPointsReduced = 52
+        }
+
+        public enum Fishing : byte
+        {
+            CatchChanceIncreased = 11,
+            CatchChanceReduced = 12,
+            LineBreakChanceIncreased = 21,
+            LineBreakChanceReduced = 22,
+            BaitNotConsumedChance = 31,
+            BaitNotConsumedChanceNegated = 32,
+            FishSizeIncreasedChance = 41,
+            FishSizeReducedChance = 42,
+            FishingExperienceIncreased = 51,
+            FishingExperienceReduced = 52
+        }
+
+        public enum Type116 : byte
+        {
+            CleansingArmourPowerChance = 11,
+            CleansingArmourPowerChanceNegated = 12,
+            RegenerationPowerChance = 21,
+            RegenerationPowerChanceNegated = 22,
+            FlamePowerChance = 31,
+            FlamePowerChanceNegated = 32,
+            PurityPowerChance = 41,
+            PurityPowerChanceNegated = 42,
+            ResistancePowerChance = 51,
+            ResistancePowerChanceNegated = 52
+        }
+
+        public enum Type117 : byte
+        {
+            BloodPowerChance = 11,
+            BloodPowerChanceNegated = 12,
+            ConversionPowerChance = 21,
+            ConversionPowerChanceNegated = 22,
+            UnyieldingPowerChance = 31,
+            UnyieldingPowerChanceNegated = 32,
+            InstinctPowerChance = 41,
+            InstinctPowerChanceNegated = 42,
+            HealingPowerChance = 51,
+            HealingPowerChanceNegated = 52
+        }
+
+        public enum HeatPoints : byte
+        {
+            AttackByHeatPoints = 11,
+            AttackByHeatPointsNegated = 12,
+            AttackRangeByHeatPoints = 21,
+            AttackRangeByHeatPointsNegated = 22,
+            AttackRadiusByHeatPoints = 31,
+            AttackRadiusByHeatPointsNegated = 32,
+            PullEnemiesOnHighHeating = 41,
+            PullEnemies = 42,
+            EnemyHpReducedByDamageTakenOnHighHeating = 51,
+            EnemyHpReducedByDamageTakenOnHighHeatingNegated = 52
+        }
+
+        public enum Type121 : byte
+        {
+            DamageIncreasedWhileBuffActive = 11,
+            DamageReducedWhileBuffActive = 12,
+            MpCostIncreasedWhileBuffActive = 21,
+            MpCostReducedWhileBuffActive = 22,
+            WaterElementWhileBuffActive = 31,
+            AllResistancesWhileBuffActive = 32,
+            MaxMpSpentForFuelPoints = 41,
+            MaxMpSpentForFuelPointsNegated = 42,
+            FuelPointsSpentForDamage = 51,
+            FuelPointsSpentForDamageNegated = 52
+        }
+
+        public enum Type123 : byte
+        {
+            TameStarPetChance = 11,
+            TameStarPetChanceNegated = 12,
+            DebuffEndsAfterPlayerHits = 21,
+            DebuffEndsAfterPlayerHitsNegated = 22,
+            UserHpRecovered = 31,
+            UserHpRecoveredNegated = 32,
+            DiesOnAnyAction = 41,
+            DiesOnAnyActionNegated = 42,
+            Act9MonsterDamageIncreased = 51,
+            Act9MonsterDamageTakenReduced = 52
+        }
+
+        public enum Type125 : byte
+        {
+            AttackForSpentTokens = 11,
+            SpecialistElementForSpentTokens = 12,
+            AttackForMineralTokens = 21,
+            DefenceForMineralTokens = 22,
+            GaugeIncreasedOnDamageTaken = 31,
+            GaugeIncreasedOnDamageTakenNegated = 32,
+            InflictOnEnemyOnAttackChance = 41,
+            TriggerOnAttackChance = 42,
+            AttackForExplosiveChargeTokens = 51,
+            DodgeForExplosiveChargeTokens = 52
+        }
+
+        public enum Type126 : byte
+        {
+            TriggerOnSelfAndOwnerChance = 11,
+            RemoveFromSelfAndOwnerChance = 12,
+            DamageFromMainWeaponAttack = 21,
+            DamageFromSecondaryWeaponAttack = 22,
+            ExtraRaidTokenChance = 31,
+            ExtraRaidTokenIncludingHardcoreChance = 32,
+            ExtraRaidBoxChance = 41,
+            ExtraRaidBoxChanceNegated = 42,
+            AttackForPyrosphereTokens = 51,
+            FireElementForPyrosphereTokens = 52
+        }
+
+        public enum Type127 : byte
+        {
+            NamedRaidAndHardcoreAttack = 11,
+            NamedRaidAndHardcoreDefence = 12,
+            AllHardcoreRaidsAttack = 21,
+            AllHardcoreRaidsDefence = 22,
+            AttackForSpareBatteryTokens = 31,
+            HitRateForSpareBatteryTokens = 32,
+            AttackInSealedVesselsAndGlacernon = 41,
+            AttackReducedInSealedVesselsAndGlacernon = 42,
+            GlacernonPvpAttackIncreased = 51,
+            GlacernonPvpAttackReduced = 52
+        }
+
+        public enum Type128 : byte
+        {
+            GlacernonPvpDamageIncreased = 11,
+            GlacernonPvpDamageTakenReduced = 12,
+            CelestialSpireCatacombsAttack = 21,
+            CelestialSpireCatacombsDefence = 22,
+            Act10MonsterDamageIncreased = 31,
+            Act10MonsterDamageTakenReduced = 32,
+            GuaranteedBuffOnOwnerOnly = 41,
+            GuaranteedBuff = 42,
+            DodgeChanceLimitedUses = 51,
+            NextAttackHitsChanceLimitedUses = 52
+        }
+
+        public enum Type129 : byte
+        {
+            PvpDodgeIncreased = 11,
+            PvpDodgeReduced = 12,
+            NezarunRaidDamageIncreased = 21,
+            NezarunRaidDamageIncreasedNegated = 22,
+            NoExperience = 31,
+            NoExperienceNegated = 32,
+            TriggerOnAllyChance = 41,
+            TriggerOnAllyChanceNegated = 42,
+            AttackPerStack = 51,
+            DefencePerStack = 52
+        }
+
+        public enum HeroSummonAndSync : byte
+        {
+            HeroSummonChanceOnAttackSkill = 11,
+            HeroSummonChanceOnAttackSkillNegated = 12,
+            HeroSummonChanceIncreased = 21,
+            HeroSummonChanceIncreasedNegated = 22,
+            SummonedHeroAttackIncreased = 31,
+            SummonedHeroAttackIncreasedNegated = 32,
+            FinalDamagePerSyncBuffLevel = 41,
+            FinalDamagePerSyncBuffLevelNegated = 42,
+            AttackWithDimensionalSynchronisation = 51,
+            DefenceWithDimensionalSynchronisation = 52
+        }
+
+        public enum Type131 : byte
+        {
+            RaidAttackIncreased = 11,
+            RaidAttackIncreasedNegated = 12,
+            DurationReducedOnBlackout = 21,
+            DurationReducedOnBlackoutNegated = 22,
+            StoredDamageTakenAppliedOnExpiry = 31,
+            StoredDamageDealtAppliedOnExpiry = 32,
+            WieldShadowSword = 41,
+            WieldLightSword = 42
+        }
+
     }
 }
