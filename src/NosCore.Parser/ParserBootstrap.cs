@@ -58,15 +58,7 @@ namespace NosCore.Parser
                 builder => builder.UseNpgsql(parserConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();
             Logger.GetLoggerConfiguration().CreateLogger();
-            try
-            {
-                Logger.PrintHeader(ConsoleText);
-            }
-            catch (System.IO.IOException)
-            {
-                // No attached console (e.g. CLI invocation from a shell with redirected stdout) —
-                // skip the banner rather than crashing on Console.WindowWidth.
-            }
+            Logger.PrintHeader(ConsoleText);
             CultureInfo.DefaultThreadCurrentCulture = new(parserConfiguration.Language.ToString());
         }
 
