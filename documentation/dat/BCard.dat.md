@@ -924,26 +924,26 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 92 | 42 | yes |  | If the effect Bound by Moonlight is active on your opponent, you will trigger Bound by the Full Moon's Light. |
 | 92 | 51 | yes |  | Can only be used with a buff of %s or higher. |
 | 92 | 52 | yes |  | You cannot use skills that increase Heat Points. |
-| 93 | 11 | yes | Type93IncreaseFireElement | Fire element bonus damage is increased by %s%%. |
-| 93 | 12 | yes | Type93DecreaseFireElement | Fire element is reduced by %s%%. |
-| 93 | 21 | yes | Type93IncreaseWaterElement | Water element is increased by %s%%. |
-| 93 | 22 | yes | Type93DecreaseWaterElement | Water element is reduced by %s%%. |
-| 93 | 31 | yes | Type93IncreaseLightElement | Light element is increased by %s%%. |
-| 93 | 32 | yes | Type93DecreaseLightElement | Light element is reduced by %s%%. |
-| 93 | 41 | yes | Type93IncreaseShadowElement | Shadow element is increased by %s%%. |
-| 93 | 42 | yes | Type93DecreaseShadowElement | Shadow element is reduced by %s%%. |
-| 93 | 51 | yes | Type93IncreaseAllElements | All elements are increased by %s%%. |
-| 93 | 52 | yes | Type93DecreaseAllElements | All elements are reduced by %s%%. |
-| 94 | 11 | yes | Type94IncreaseAllElementsRes | All elemental resistances are increased by %s%%. |
-| 94 | 12 | yes | Type94DecreaseAllElementsRes | All elemental resistances are reduced by %s%%. |
-| 94 | 21 | yes | Type94IncreaseFireRes | Fire resistance is increased by %s%%. |
-| 94 | 22 | yes | Type94DecreaseFireRes | Fire resistance is reduced by %s%%. |
-| 94 | 31 | yes | Type94IncreaseWaterRes | Water resistance is increased by %s%%. |
-| 94 | 32 | yes | Type94DecreaseWaterRes | Water resistance is reduced by %s%%. |
-| 94 | 41 | yes | Type94IncreaseLightRes | Light resistance is increased by %s%%. |
-| 94 | 42 | yes | Type94DecreaseLightRes | Light resistance is reduced by %s%%. |
-| 94 | 51 | yes | Type94IncreaseDarkRes | Shadow resistance is increased by %s%%. |
-| 94 | 52 | yes | Type94DecreaseDarkRes | Shadow resistance is reduced by %s%%. |
+| 93 | 11 | yes | ElementPercentageIncreaseFireElement | Fire element bonus damage is increased by %s%%. |
+| 93 | 12 | yes | ElementPercentageDecreaseFireElement | Fire element is reduced by %s%%. |
+| 93 | 21 | yes | ElementPercentageIncreaseWaterElement | Water element is increased by %s%%. |
+| 93 | 22 | yes | ElementPercentageDecreaseWaterElement | Water element is reduced by %s%%. |
+| 93 | 31 | yes | ElementPercentageIncreaseLightElement | Light element is increased by %s%%. |
+| 93 | 32 | yes | ElementPercentageDecreaseLightElement | Light element is reduced by %s%%. |
+| 93 | 41 | yes | ElementPercentageIncreaseShadowElement | Shadow element is increased by %s%%. |
+| 93 | 42 | yes | ElementPercentageDecreaseShadowElement | Shadow element is reduced by %s%%. |
+| 93 | 51 | yes | ElementPercentageIncreaseAllElements | All elements are increased by %s%%. |
+| 93 | 52 | yes | ElementPercentageDecreaseAllElements | All elements are reduced by %s%%. |
+| 94 | 11 | yes | ElementResistancePercentageIncreaseAllElementsRes | All elemental resistances are increased by %s%%. |
+| 94 | 12 | yes | ElementResistancePercentageDecreaseAllElementsRes | All elemental resistances are reduced by %s%%. |
+| 94 | 21 | yes | ElementResistancePercentageIncreaseFireRes | Fire resistance is increased by %s%%. |
+| 94 | 22 | yes | ElementResistancePercentageDecreaseFireRes | Fire resistance is reduced by %s%%. |
+| 94 | 31 | yes | ElementResistancePercentageIncreaseWaterRes | Water resistance is increased by %s%%. |
+| 94 | 32 | yes | ElementResistancePercentageDecreaseWaterRes | Water resistance is reduced by %s%%. |
+| 94 | 41 | yes | ElementResistancePercentageIncreaseLightRes | Light resistance is increased by %s%%. |
+| 94 | 42 | yes | ElementResistancePercentageDecreaseLightRes | Light resistance is reduced by %s%%. |
+| 94 | 51 | yes | ElementResistancePercentageIncreaseDarkRes | Shadow resistance is increased by %s%%. |
+| 94 | 52 | yes | ElementResistancePercentageDecreaseDarkRes | Shadow resistance is reduced by %s%%. |
 | 95 | 11 | yes | Type95DropX2Chance | When a hunted monster drops an item, there's a %s%% chance that it drops the item a second time. This effect is only triggered when the dropped item is assigned to the player, not when it is shared in the group. |
 | 95 | 12 | yes | Type95NoDropChance | When hunting monsters, there is a %s%% chance they will not drop any loot. |
 | 95 | 21 | yes | Type95ChanceCausingXBuffOnEnemyOnAttack | On attack, there is a %s%% chance of inflicting %s on your opponent. |
