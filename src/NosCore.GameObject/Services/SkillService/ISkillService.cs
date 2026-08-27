@@ -7,12 +7,6 @@ namespace NosCore.GameObject.Services.SkillService
     {
         Task LoadSkill(ICharacterEntity character);
 
-        /// <summary>
-        /// Loads the worn specialist card's skills and sends them to the client.
-        ///
-        /// They are a set apart from the class ones: while transformed only those are used,
-        /// and taking the card off makes them disappear.
-        /// </summary>
         Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel);
 
         /// <summary>Removes the specialist skills and sends the class list back.</summary>

@@ -33,39 +33,15 @@ namespace NosCore.GameObject.Services.SkillService
                     (key, oldValue) => characterSkill);
             }
 
-            await SendSkillListAsync(character, useSpecialist: false).ConfigureAwait(false);
+            await SendSkillListAsync(character, useSpecialist: false);
         }
 
-        /// <summary>
-        /// Past this class the specialist kits begin. Up to 31 are the playable jobs and a few
-        /// shared containers; from 32 upwards there is one class per transformation.
-        /// </summary>
         private const int FirstSpecialistClass = 31;
 
         public async Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel)
         {
-            // The previous card's skills go first: changing specialist without clearing would
-            // leave the kit of every card ever worn.
             RemoveSpecialistSkills(character);
 
-            // WHICH CARD, THE FILE SAYS. Skill.dat, DATA section, second field: it carries the
-            // "design" of the specialist card the skill belongs to - the same number the card
-            // item exposes in INDEX[5] and that arrives here as Morph.
-            //
-            // The obvious rule is arithmetic, class == 31 + morph. It holds for the historic
-            // cards, designs 1 to 29 really do sit on classes 32 to 60, and it is wrong on
-            // **283 of the 627 specialist skills, across 23 cards**. It does not fail by leaving
-            // the bar empty, which would be noticed: for 18 of those cards the class it picks
-            // exists and belongs to somebody else, so it hands out ANOTHER card's skills.
-            //
-            //   Flame Druid (design 42): 31 + 42 = 73, and class 73 is another specialist's.
-            //                            Its own 22 skills sit on classes 70 and 71, with
-            //                            complementary cast ids 0 to 21 - so no single class
-            //                            holds a card either.
-            //
-            // The column is called UpgradeType because that is what it has always been called
-            // here; the name is wrong, and renaming it would be a schema migration for a field
-            // nobody else reads as an "upgrade type".
             foreach (var skill in skills.Where(s => s.Class > FirstSpecialistClass
                                                     && s.UpgradeType == morph
                                                     && s.LevelMinimum <= spLevel))
@@ -80,13 +56,13 @@ namespace NosCore.GameObject.Services.SkillService
                     (_, existing) => existing);
             }
 
-            await SendSkillListAsync(character, useSpecialist: true).ConfigureAwait(false);
+            await SendSkillListAsync(character, useSpecialist: true);
         }
 
         public async Task UnloadSpecialistSkillsAsync(ICharacterEntity character)
         {
             RemoveSpecialistSkills(character);
-            await SendSkillListAsync(character, useSpecialist: false).ConfigureAwait(false);
+            await SendSkillListAsync(character, useSpecialist: false);
         }
 
         private static void RemoveSpecialistSkills(ICharacterEntity character)
@@ -99,16 +75,6 @@ namespace NosCore.GameObject.Services.SkillService
             }
         }
 
-        /// <summary>
-        /// Sends the skill bar to the client.
-        ///
-        /// While transformed <b>only</b> the card's skills are shown, not the class ones: the two
-        /// live in the same collection and are told apart by the skill's class. Mixing them would
-        /// give the player a bar with twice the icons, half of which the client will not cast.
-        ///
-        /// The two leading slots change too: out of transformation they are the class's basic
-        /// attacks, inside they are the card's first skill.
-        /// </summary>
         private async Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
         {
             var ordered = character.Skills.Values
@@ -238,7 +204,7 @@ namespace NosCore.GameObject.Services.SkillService
                 return false;
             }
 
-            await SendSkillListAsync(character, useSpecialist: false).ConfigureAwait(false);
+            await SendSkillListAsync(character, useSpecialist: false);
             return true;
         }
     }
