@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.Enumerations.Buff;
@@ -205,183 +206,170 @@ public sealed class BattleStatsProvider(
     {
         if (buffs.Count == 0 && equipment.Count == 0) return stats;
 
-        int attackAllFlat = 0, attackMeleeFlat = 0, attackRangedFlat = 0, attackMagicalFlat = 0;
-        int damageAllPct = 0, damageMeleePct = 0, damageRangedPct = 0, damageMagicalPct = 0;
-        int critInflicting = 0, critDamage = 0;
-        int defenceAll = 0, defenceMelee = 0, defenceRanged = 0, defenceMagical = 0;
-        int hitRateFlat = 0, dodgeFlat = 0;
-        int foeAll = 0, foeFire = 0, foeWater = 0, foeLight = 0, foeDark = 0;
-        int moraleFlat = 0;
-        int resistAll = 0, resistFire = 0, resistWater = 0, resistLight = 0, resistDark = 0;
-        int elementAll = 0, elementFire = 0, elementWater = 0, elementLight = 0, elementDark = 0;
-        int guaranteedHit = 0, guaranteedDodge = 0;
+        var totals = new CardTotals();
 
         foreach (var source in CardSources(buffs, equipment))
         {
             foreach (var card in source)
             {
-                var first = ScaleByLevel(card, target.Level);
-                var type = (BCardType.CardType)card.Type;
-                var sub = card.SubType;
-
-                switch (type)
+                if (CardEffects.TryGetValue(card.Effect(), out var apply))
                 {
-                    case BCardType.CardType.AttackPower:
-                        if (sub == (byte)AdditionalTypes.AttackPower.AllAttacksIncreased) attackAllFlat += first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.AllAttacksDecreased) attackAllFlat -= first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.MeleeAttacksIncreased) attackMeleeFlat += first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.MeleeAttacksDecreased) attackMeleeFlat -= first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.RangedAttacksIncreased) attackRangedFlat += first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.RangedAttacksDecreased) attackRangedFlat -= first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.MagicalAttacksIncreased) attackMagicalFlat += first;
-                        else if (sub == (byte)AdditionalTypes.AttackPower.MagicalAttacksDecreased) attackMagicalFlat -= first;
-                        break;
-                    case BCardType.CardType.Damage:
-                        if (sub == (byte)AdditionalTypes.Damage.DamageIncreased) damageAllPct += first;
-                        else if (sub == (byte)AdditionalTypes.Damage.DamageDecreased) damageAllPct -= first;
-                        else if (sub == (byte)AdditionalTypes.Damage.MeleeIncreased) damageMeleePct += first;
-                        else if (sub == (byte)AdditionalTypes.Damage.MeleeDecreased) damageMeleePct -= first;
-                        else if (sub == (byte)AdditionalTypes.Damage.RangedIncreased) damageRangedPct += first;
-                        else if (sub == (byte)AdditionalTypes.Damage.RangedDecreased) damageRangedPct -= first;
-                        else if (sub == (byte)AdditionalTypes.Damage.MagicalIncreased) damageMagicalPct += first;
-                        else if (sub == (byte)AdditionalTypes.Damage.MagicalDecreased) damageMagicalPct -= first;
-                        break;
-                    case BCardType.CardType.Critical:
-                        if (sub == (byte)AdditionalTypes.Critical.InflictingIncreased) critInflicting += first;
-                        else if (sub == (byte)AdditionalTypes.Critical.InflictingReduced) critInflicting -= first;
-                        else if (sub == (byte)AdditionalTypes.Critical.DamageIncreased) critDamage += first;
-                        else if (sub == (byte)AdditionalTypes.Critical.DamageIncreasedInflictingReduced) critDamage -= first;
-                        break;
-                    case BCardType.CardType.Defence:
-                        if (sub == (byte)AdditionalTypes.Defence.AllIncreased) defenceAll += first;
-                        else if (sub == (byte)AdditionalTypes.Defence.AllDecreased) defenceAll -= first;
-                        else if (sub == (byte)AdditionalTypes.Defence.MeleeIncreased) defenceMelee += first;
-                        else if (sub == (byte)AdditionalTypes.Defence.MeleeDecreased) defenceMelee -= first;
-                        else if (sub == (byte)AdditionalTypes.Defence.RangedIncreased) defenceRanged += first;
-                        else if (sub == (byte)AdditionalTypes.Defence.RangedDecreased) defenceRanged -= first;
-                        else if (sub == (byte)AdditionalTypes.Defence.MagicalIncreased) defenceMagical += first;
-                        else if (sub == (byte)AdditionalTypes.Defence.MagicalDecreased) defenceMagical -= first;
-                        break;
-                    // Type 14, and the mirror of type 13: that one is the resistance of whoever
-                    // is being hit, this is what the one hitting does to it. Both end up in the
-                    // same subtraction in ComputeElementalDamage.
-                    case BCardType.CardType.EnemyElementResistance:
-                        if (sub == (byte)AdditionalTypes.EnemyElementResistance.AllIncreased) foeAll += first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.AllDecreased) foeAll -= first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.FireIncreased) foeFire += first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.FireDecreased) foeFire -= first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.WaterIncreased) foeWater += first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.WaterDecreased) foeWater -= first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.LightIncreased) foeLight += first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.LightDecreased) foeLight -= first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.DarkIncreased) foeDark += first;
-                        else if (sub == (byte)AdditionalTypes.EnemyElementResistance.DarkDecreased) foeDark -= first;
-                        break;
-                    case BCardType.CardType.Target:
-                        if (sub == (byte)AdditionalTypes.Target.AllHitRateIncreased) hitRateFlat += first;
-                        else if (sub == (byte)AdditionalTypes.Target.AllHitRateDecreased) hitRateFlat -= first;
-                        break;
-                    case BCardType.CardType.DodgeAndDefencePercent:
-                        if (sub == (byte)AdditionalTypes.DodgeAndDefencePercent.DodgeIncreased) dodgeFlat += first;
-                        else if (sub == (byte)AdditionalTypes.DodgeAndDefencePercent.DodgeDecreased) dodgeFlat -= first;
-                        break;
-                    case BCardType.CardType.Morale:
-                        if (sub == (byte)AdditionalTypes.Morale.MoraleIncreased) moraleFlat += first;
-                        else if (sub == (byte)AdditionalTypes.Morale.MoraleDecreased) moraleFlat -= first;
-                        break;
-                    // Type 16. The file gives X1 and X2 the same sentence, so the second slot
-                    // carries no meaning of its own and both add - and in the data no skill
-                    // declares one with a negative value anyway.
-                    case BCardType.CardType.GuarantedDodgeRangedAttack:
-                        if (sub is (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AttackHitChance
-                            or (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AttackHitChanceNegated)
-                        {
-                            guaranteedHit += first;
-                        }
-                        else if (sub is (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AlwaysDodgePropability
-                            or (byte)AdditionalTypes.GuarantedDodgeRangedAttack.AlwaysDodgePropabilityNegated)
-                        {
-                            guaranteedDodge += first;
-                        }
-
-                        break;
-                    case BCardType.CardType.Element:
-                        if (sub == (byte)AdditionalTypes.Element.AllIncreased) elementAll += first;
-                        else if (sub == (byte)AdditionalTypes.Element.AllDecreased) elementAll -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.FireIncreased) elementFire += first;
-                        else if (sub == (byte)AdditionalTypes.Element.FireDecreased) elementFire -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.WaterIncreased) elementWater += first;
-                        else if (sub == (byte)AdditionalTypes.Element.WaterDecreased) elementWater -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.LightIncreased) elementLight += first;
-                        else if (sub == (byte)AdditionalTypes.Element.LightDecreased) elementLight -= first;
-                        else if (sub == (byte)AdditionalTypes.Element.DarkIncreased) elementDark += first;
-                        else if (sub == (byte)AdditionalTypes.Element.DarkDecreased) elementDark -= first;
-                        break;
-                    // Type 13, the defender's side of the elemental exchange. Not to be
-                    // confused with type 7 below, which is the attacker's element rate: these
-                    // four are read in ComputeElementalDamage as a percentage taken off the
-                    // incoming elemental damage.
-                    case BCardType.CardType.ElementResistance:
-                        if (sub == (byte)AdditionalTypes.ElementResistance.AllIncreased) resistAll += first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.AllDecreased) resistAll -= first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.FireIncreased) resistFire += first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.FireDecreased) resistFire -= first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.WaterIncreased) resistWater += first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.WaterDecreased) resistWater -= first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.LightIncreased) resistLight += first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.LightDecreased) resistLight -= first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.DarkIncreased) resistDark += first;
-                        else if (sub == (byte)AdditionalTypes.ElementResistance.DarkDecreased) resistDark -= first;
-                        break;
+                    apply(totals, ScaleByLevel(card, target.Level));
                 }
             }
         }
 
         // Fold element-specific flat bonuses into ElementRate based on attacker's own
         // element. Non-matching element buffs don't apply.
-        var elementFlatBonus = elementAll + stats.Element switch
+        var elementFlatBonus = totals.ElementAll + stats.Element switch
         {
-            1 => elementFire,
-            2 => elementWater,
-            3 => elementLight,
-            4 => elementDark,
+            1 => totals.ElementFire,
+            2 => totals.ElementWater,
+            3 => totals.ElementLight,
+            4 => totals.ElementDark,
             _ => 0,
         };
 
         return stats with
         {
-            Morale = stats.Morale + moraleFlat,
-            MinHit = (int)((stats.MinHit + attackAllFlat + attackMeleeFlat) * (1 + (damageAllPct + damageMeleePct) / 100.0)),
-            MaxHit = (int)((stats.MaxHit + attackAllFlat + attackMeleeFlat) * (1 + (damageAllPct + damageMeleePct) / 100.0)),
-            MinDistance = (int)((stats.MinDistance + attackAllFlat + attackRangedFlat) * (1 + (damageAllPct + damageRangedPct) / 100.0)),
-            MaxDistance = (int)((stats.MaxDistance + attackAllFlat + attackRangedFlat) * (1 + (damageAllPct + damageRangedPct) / 100.0)),
-            EnemyFireResistance = stats.EnemyFireResistance + foeAll + foeFire,
-            EnemyWaterResistance = stats.EnemyWaterResistance + foeAll + foeWater,
-            EnemyLightResistance = stats.EnemyLightResistance + foeAll + foeLight,
-            EnemyDarkResistance = stats.EnemyDarkResistance + foeAll + foeDark,
-            HitRate = stats.HitRate + hitRateFlat,
-            DistanceRate = stats.DistanceRate + hitRateFlat,
-            CriticalChance = stats.CriticalChance + critInflicting,
-            CriticalRate = stats.CriticalRate + critDamage,
-            DistanceCriticalChance = stats.DistanceCriticalChance + critInflicting,
-            DistanceCriticalRate = stats.DistanceCriticalRate + critDamage,
-            Defence = stats.Defence + defenceAll + defenceMelee,
-            DistanceDefence = stats.DistanceDefence + defenceAll + defenceRanged,
-            MagicDefence = stats.MagicDefence + defenceAll + defenceMagical,
-            DefenceDodge = stats.DefenceDodge + dodgeFlat,
-            DistanceDefenceDodge = stats.DistanceDefenceDodge + dodgeFlat,
+            Morale = stats.Morale + totals.Morale,
+            MinHit = (int)((stats.MinHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)),
+            MaxHit = (int)((stats.MaxHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)),
+            MinDistance = (int)((stats.MinDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)),
+            MaxDistance = (int)((stats.MaxDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)),
+            EnemyFireResistance = stats.EnemyFireResistance + totals.FoeAll + totals.FoeFire,
+            EnemyWaterResistance = stats.EnemyWaterResistance + totals.FoeAll + totals.FoeWater,
+            EnemyLightResistance = stats.EnemyLightResistance + totals.FoeAll + totals.FoeLight,
+            EnemyDarkResistance = stats.EnemyDarkResistance + totals.FoeAll + totals.FoeDark,
+            HitRate = stats.HitRate + totals.HitRate,
+            DistanceRate = stats.DistanceRate + totals.HitRate,
+            CriticalChance = stats.CriticalChance + totals.CritInflicting,
+            CriticalRate = stats.CriticalRate + totals.CritDamage,
+            DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
+            DistanceCriticalRate = stats.DistanceCriticalRate + totals.CritDamage,
+            Defence = stats.Defence + totals.DefenceAll + totals.DefenceMelee,
+            DistanceDefence = stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged,
+            MagicDefence = stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical,
+            DefenceDodge = stats.DefenceDodge + totals.Dodge,
+            DistanceDefenceDodge = stats.DistanceDefenceDodge + totals.Dodge,
             // "All" adds to each of the four rather than living in a fifth field: the
             // damage step reads one resistance, picked by the attacker's element, and a
             // separate total would have to be remembered at every one of those reads.
-            FireResistance = stats.FireResistance + resistAll + resistFire,
-            WaterResistance = stats.WaterResistance + resistAll + resistWater,
-            LightResistance = stats.LightResistance + resistAll + resistLight,
-            DarkResistance = stats.DarkResistance + resistAll + resistDark,
+            FireResistance = stats.FireResistance + totals.ResistAll + totals.ResistFire,
+            WaterResistance = stats.WaterResistance + totals.ResistAll + totals.ResistWater,
+            LightResistance = stats.LightResistance + totals.ResistAll + totals.ResistLight,
+            DarkResistance = stats.DarkResistance + totals.ResistAll + totals.ResistDark,
             ElementRate = stats.ElementRate + elementFlatBonus,
-            GuaranteedHitChance = stats.GuaranteedHitChance + guaranteedHit,
-            GuaranteedDodgeChance = stats.GuaranteedDodgeChance + guaranteedDodge,
+            GuaranteedHitChance = stats.GuaranteedHitChance + totals.GuaranteedHit,
+            GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
         };
     }
+
+    private sealed class CardTotals
+    {
+        public int AttackAll, AttackMelee, AttackRanged, AttackMagical;
+        public int DamageAll, DamageMelee, DamageRanged, DamageMagical;
+        public int CritInflicting, CritDamage;
+        public int DefenceAll, DefenceMelee, DefenceRanged, DefenceMagical;
+        public int HitRate, Dodge, Morale;
+        public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
+        public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
+        public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
+        public int GuaranteedHit, GuaranteedDodge;
+    }
+
+    private static readonly FrozenDictionary<BCardEffect, Action<CardTotals, int>> CardEffects =
+        new Dictionary<BCardEffect, Action<CardTotals, int>>
+        {
+            [BCardEffect.AttackPowerAllAttacksIncreased] = (t, v) => t.AttackAll += v,
+            [BCardEffect.AttackPowerAllAttacksDecreased] = (t, v) => t.AttackAll -= v,
+            [BCardEffect.AttackPowerMeleeAttacksIncreased] = (t, v) => t.AttackMelee += v,
+            [BCardEffect.AttackPowerMeleeAttacksDecreased] = (t, v) => t.AttackMelee -= v,
+            [BCardEffect.AttackPowerRangedAttacksIncreased] = (t, v) => t.AttackRanged += v,
+            [BCardEffect.AttackPowerRangedAttacksDecreased] = (t, v) => t.AttackRanged -= v,
+            [BCardEffect.AttackPowerMagicalAttacksIncreased] = (t, v) => t.AttackMagical += v,
+            [BCardEffect.AttackPowerMagicalAttacksDecreased] = (t, v) => t.AttackMagical -= v,
+
+            [BCardEffect.DamageDamageIncreased] = (t, v) => t.DamageAll += v,
+            [BCardEffect.DamageDamageDecreased] = (t, v) => t.DamageAll -= v,
+            [BCardEffect.DamageMeleeIncreased] = (t, v) => t.DamageMelee += v,
+            [BCardEffect.DamageMeleeDecreased] = (t, v) => t.DamageMelee -= v,
+            [BCardEffect.DamageRangedIncreased] = (t, v) => t.DamageRanged += v,
+            [BCardEffect.DamageRangedDecreased] = (t, v) => t.DamageRanged -= v,
+            [BCardEffect.DamageMagicalIncreased] = (t, v) => t.DamageMagical += v,
+            [BCardEffect.DamageMagicalDecreased] = (t, v) => t.DamageMagical -= v,
+
+            [BCardEffect.CriticalInflictingIncreased] = (t, v) => t.CritInflicting += v,
+            [BCardEffect.CriticalInflictingReduced] = (t, v) => t.CritInflicting -= v,
+            [BCardEffect.CriticalDamageIncreased] = (t, v) => t.CritDamage += v,
+            [BCardEffect.CriticalDamageIncreasedInflictingReduced] = (t, v) => t.CritDamage -= v,
+
+            [BCardEffect.DefenceAllIncreased] = (t, v) => t.DefenceAll += v,
+            [BCardEffect.DefenceAllDecreased] = (t, v) => t.DefenceAll -= v,
+            [BCardEffect.DefenceMeleeIncreased] = (t, v) => t.DefenceMelee += v,
+            [BCardEffect.DefenceMeleeDecreased] = (t, v) => t.DefenceMelee -= v,
+            [BCardEffect.DefenceRangedIncreased] = (t, v) => t.DefenceRanged += v,
+            [BCardEffect.DefenceRangedDecreased] = (t, v) => t.DefenceRanged -= v,
+            [BCardEffect.DefenceMagicalIncreased] = (t, v) => t.DefenceMagical += v,
+            [BCardEffect.DefenceMagicalDecreased] = (t, v) => t.DefenceMagical -= v,
+
+            // Type 14, and the mirror of type 13: that one is the resistance of whoever
+            // is being hit, this is what the one hitting does to it. Both end up in the
+            // same subtraction in ComputeElementalDamage.
+            [BCardEffect.EnemyElementResistanceAllIncreased] = (t, v) => t.FoeAll += v,
+            [BCardEffect.EnemyElementResistanceAllDecreased] = (t, v) => t.FoeAll -= v,
+            [BCardEffect.EnemyElementResistanceFireIncreased] = (t, v) => t.FoeFire += v,
+            [BCardEffect.EnemyElementResistanceFireDecreased] = (t, v) => t.FoeFire -= v,
+            [BCardEffect.EnemyElementResistanceWaterIncreased] = (t, v) => t.FoeWater += v,
+            [BCardEffect.EnemyElementResistanceWaterDecreased] = (t, v) => t.FoeWater -= v,
+            [BCardEffect.EnemyElementResistanceLightIncreased] = (t, v) => t.FoeLight += v,
+            [BCardEffect.EnemyElementResistanceLightDecreased] = (t, v) => t.FoeLight -= v,
+            [BCardEffect.EnemyElementResistanceDarkIncreased] = (t, v) => t.FoeDark += v,
+            [BCardEffect.EnemyElementResistanceDarkDecreased] = (t, v) => t.FoeDark -= v,
+
+            [BCardEffect.TargetAllHitRateIncreased] = (t, v) => t.HitRate += v,
+            [BCardEffect.TargetAllHitRateDecreased] = (t, v) => t.HitRate -= v,
+
+            [BCardEffect.DodgeAndDefencePercentDodgeIncreased] = (t, v) => t.Dodge += v,
+            [BCardEffect.DodgeAndDefencePercentDodgeDecreased] = (t, v) => t.Dodge -= v,
+
+            [BCardEffect.MoraleMoraleIncreased] = (t, v) => t.Morale += v,
+            [BCardEffect.MoraleMoraleDecreased] = (t, v) => t.Morale -= v,
+
+            // Type 16. The file gives X1 and X2 the same sentence, so the second slot
+            // carries no meaning of its own and both add - and in the data no skill
+            // declares one with a negative value anyway.
+            [BCardEffect.GuarantedDodgeRangedAttackAttackHitChance] = (t, v) => t.GuaranteedHit += v,
+            [BCardEffect.GuarantedDodgeRangedAttackAttackHitChanceNegated] = (t, v) => t.GuaranteedHit += v,
+            [BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropability] = (t, v) => t.GuaranteedDodge += v,
+            [BCardEffect.GuarantedDodgeRangedAttackAlwaysDodgePropabilityNegated] = (t, v) => t.GuaranteedDodge += v,
+
+            [BCardEffect.ElementAllIncreased] = (t, v) => t.ElementAll += v,
+            [BCardEffect.ElementAllDecreased] = (t, v) => t.ElementAll -= v,
+            [BCardEffect.ElementFireIncreased] = (t, v) => t.ElementFire += v,
+            [BCardEffect.ElementFireDecreased] = (t, v) => t.ElementFire -= v,
+            [BCardEffect.ElementWaterIncreased] = (t, v) => t.ElementWater += v,
+            [BCardEffect.ElementWaterDecreased] = (t, v) => t.ElementWater -= v,
+            [BCardEffect.ElementLightIncreased] = (t, v) => t.ElementLight += v,
+            [BCardEffect.ElementLightDecreased] = (t, v) => t.ElementLight -= v,
+            [BCardEffect.ElementDarkIncreased] = (t, v) => t.ElementDark += v,
+            [BCardEffect.ElementDarkDecreased] = (t, v) => t.ElementDark -= v,
+
+            // Type 13, the defender's side of the elemental exchange. Not to be confused
+            // with type 7 above, which is the attacker's element rate: these four are read
+            // in ComputeElementalDamage as a percentage taken off the incoming elemental
+            // damage.
+            [BCardEffect.ElementResistanceAllIncreased] = (t, v) => t.ResistAll += v,
+            [BCardEffect.ElementResistanceAllDecreased] = (t, v) => t.ResistAll -= v,
+            [BCardEffect.ElementResistanceFireIncreased] = (t, v) => t.ResistFire += v,
+            [BCardEffect.ElementResistanceFireDecreased] = (t, v) => t.ResistFire -= v,
+            [BCardEffect.ElementResistanceWaterIncreased] = (t, v) => t.ResistWater += v,
+            [BCardEffect.ElementResistanceWaterDecreased] = (t, v) => t.ResistWater -= v,
+            [BCardEffect.ElementResistanceLightIncreased] = (t, v) => t.ResistLight += v,
+            [BCardEffect.ElementResistanceLightDecreased] = (t, v) => t.ResistLight -= v,
+            [BCardEffect.ElementResistanceDarkIncreased] = (t, v) => t.ResistDark += v,
+            [BCardEffect.ElementResistanceDarkDecreased] = (t, v) => t.ResistDark -= v,
+        }.ToFrozenDictionary();
 
     // Worn pieces fold in the same pass as the buffs, the way GetBuff sums both in the sibling
     // codebase. Two passes would apply each percentage to a different base.

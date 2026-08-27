@@ -33,17 +33,14 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             var changed = false;
             foreach (var bcard in bcards)
             {
-                if ((BCardType.CardType)bcard.Type != BCardType.CardType.SpecialEffects) continue;
-
-                var sub = (AdditionalTypes.SpecialEffects)bcard.SubType;
-                switch (sub)
+                switch (bcard.Effect())
                 {
-                    case AdditionalTypes.SpecialEffects.DecreaseKillerHp:
+                    case BCardEffect.SpecialEffectsDecreaseKillerHp:
                         var damage = killer.MaxHp * bcard.FirstData / 100;
                         killer.Hp = Math.Max(1, killer.Hp - damage);
                         changed = true;
                         break;
-                    case AdditionalTypes.SpecialEffects.IncreaseKillerHp:
+                    case BCardEffect.SpecialEffectsIncreaseKillerHp:
                         var heal = killer.MaxHp * bcard.FirstData / 100;
                         killer.Hp = Math.Min(killer.MaxHp, killer.Hp + heal);
                         changed = true;

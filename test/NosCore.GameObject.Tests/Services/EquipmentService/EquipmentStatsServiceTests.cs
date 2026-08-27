@@ -87,8 +87,8 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             new BCardDto
             {
                 ItemVNum = EnchantedGlovesVnum,
-                Type = (byte)BCardType.CardType.Defence,
-                SubType = (byte)AdditionalTypes.Defence.AllIncreased,
+                Type = BCardEffect.DefenceAllIncreased.Type(),
+                SubType = BCardEffect.DefenceAllIncreased.SubType(),
                 FirstData = 25
             }
         };

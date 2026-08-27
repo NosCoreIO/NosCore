@@ -154,8 +154,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static BCardDto PercentOfHp(short percent) => new()
         {
-            Type = (byte)BCardType.CardType.RecoveryAndDamagePercent,
-            SubType = (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseEnemyHp,
+            Type = BCardEffect.RecoveryAndDamagePercentDecreaseEnemyHp.Type(),
+            SubType = BCardEffect.RecoveryAndDamagePercentDecreaseEnemyHp.SubType(),
             FirstData = percent
         };
 
@@ -240,8 +240,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var attacker = new FakeBattleEntity();
             var selfInflicted = new BCardDto
             {
-                Type = (byte)BCardType.CardType.RecoveryAndDamagePercent,
-                SubType = (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseSelfHp,
+                Type = BCardEffect.RecoveryAndDamagePercentDecreaseSelfHp.Type(),
+                SubType = BCardEffect.RecoveryAndDamagePercentDecreaseSelfHp.SubType(),
                 FirstData = 50
             };
 

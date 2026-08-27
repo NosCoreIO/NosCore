@@ -27,11 +27,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     {
         private const short BaseFire = 10;
 
-        private static BCardDto Resistance(AdditionalTypes.ElementResistance subType, short value) =>
+        private static BCardDto Resistance(BCardEffect effect, short value) =>
             new()
             {
-                Type = (byte)BCardType.CardType.ElementResistance,
-                SubType = (byte)subType,
+                Type = effect.Type(),
+                SubType = effect.SubType(),
                 FirstData = value
             };
 
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AFireResistanceBuffAddsToTheMonstersOwn()
         {
-            var stats = StatsWith(Resistance(AdditionalTypes.ElementResistance.FireIncreased, 25));
+            var stats = StatsWith(Resistance(BCardEffect.ElementResistanceFireIncreased, 25));
 
             Assert.AreEqual(BaseFire + 25, stats.FireResistance);
             Assert.AreEqual(0, stats.WaterResistance, "only fire was named");
@@ -81,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void TheAllSubtypeReachesEveryElement()
         {
-            var stats = StatsWith(Resistance(AdditionalTypes.ElementResistance.AllIncreased, 15));
+            var stats = StatsWith(Resistance(BCardEffect.ElementResistanceAllIncreased, 15));
 
             Assert.AreEqual(BaseFire + 15, stats.FireResistance);
             Assert.AreEqual(15, stats.WaterResistance);
@@ -93,8 +93,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public void AllAndOneElementAddUpOnThatElement()
         {
             var stats = StatsWith(
-                Resistance(AdditionalTypes.ElementResistance.AllIncreased, 15),
-                Resistance(AdditionalTypes.ElementResistance.WaterIncreased, 10));
+                Resistance(BCardEffect.ElementResistanceAllIncreased, 15),
+                Resistance(BCardEffect.ElementResistanceWaterIncreased, 10));
 
             Assert.AreEqual(25, stats.WaterResistance);
             Assert.AreEqual(15, stats.LightResistance);
@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void TheDecreasingSubtypeTakesAway()
         {
-            var stats = StatsWith(Resistance(AdditionalTypes.ElementResistance.FireDecreased, 4));
+            var stats = StatsWith(Resistance(BCardEffect.ElementResistanceFireDecreased, 4));
 
             Assert.AreEqual(BaseFire - 4, stats.FireResistance);
         }
