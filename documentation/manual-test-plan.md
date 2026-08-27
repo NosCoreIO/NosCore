@@ -69,6 +69,12 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] With both in play nothing locks up or throws — the attacker's guarantee is resolved
       first by design
 
+### Hit rate by scope — BCard type 4
+
+- [ ] A buff with subtype 21 makes melee attacks land more often and leaves ranged alone
+- [ ] A buff with subtype 31 makes ranged attacks land more often and leaves melee alone
+- [ ] A subtype 11 buff raises both
+
 ### Elemental resistance — BCard types 13 and 14
 
 - [ ] A buff that raises your resistance to an element reduces the elemental damage you
