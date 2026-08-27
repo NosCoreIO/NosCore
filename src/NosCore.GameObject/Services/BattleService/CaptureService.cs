@@ -120,8 +120,6 @@ namespace NosCore.GameObject.Services.BattleService
         }
 
         private static bool HasCaptureBCard(SkillInfo skill) =>
-            skill.BCards.Any(b =>
-                (BCardType.CardType)b.Type == BCardType.CardType.Capture
-                && (AdditionalTypes.Capture)b.SubType == AdditionalTypes.Capture.CaptureAnimal);
+            skill.BCards.Any(b => b.Effect() == BCardEffect.CaptureCaptureAnimal);
     }
 }

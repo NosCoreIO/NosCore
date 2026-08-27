@@ -114,7 +114,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         // The four tests above set the field by hand, so they say nothing about the step that
         // fills it: folding the water value into the fire field would leave them all green.
 
-        private static CombatStats FoldOf(AdditionalTypes.EnemyElementResistance subType, short value)
+        private static CombatStats FoldOf(BCardEffect effect, short value)
         {
             var monster = new NpcMonsterDto();
             var entity = new Mock<INonPlayableEntity>();
@@ -131,8 +131,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     {
                         new BCardDto
                         {
-                            Type = (byte)BCardType.CardType.EnemyElementResistance,
-                            SubType = (byte)subType,
+                            Type = effect.Type(),
+                            SubType = effect.SubType(),
                             FirstData = value
                         }
                     })
@@ -151,7 +151,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void EachElementLandsInItsOwnField()
         {
-            var fire = FoldOf(AdditionalTypes.EnemyElementResistance.FireDecreased, 20);
+            var fire = FoldOf(BCardEffect.EnemyElementResistanceFireDecreased, 20);
 
             Assert.AreEqual(-20, fire.EnemyFireResistance);
             Assert.AreEqual(0, fire.EnemyWaterResistance, "only fire was named");
@@ -162,7 +162,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void TheAllSubtypeReachesEveryElement()
         {
-            var all = FoldOf(AdditionalTypes.EnemyElementResistance.AllDecreased, 15);
+            var all = FoldOf(BCardEffect.EnemyElementResistanceAllDecreased, 15);
 
             Assert.AreEqual(-15, all.EnemyFireResistance);
             Assert.AreEqual(-15, all.EnemyWaterResistance);
@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void TheIncreasingSubtypeKeepsItsSign()
         {
-            var hardened = FoldOf(AdditionalTypes.EnemyElementResistance.WaterIncreased, 12);
+            var hardened = FoldOf(BCardEffect.EnemyElementResistanceWaterIncreased, 12);
 
             Assert.AreEqual(12, hardened.EnemyWaterResistance);
         }

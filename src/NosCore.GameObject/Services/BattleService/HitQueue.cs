@@ -212,9 +212,7 @@ public sealed class HitQueue(
         for (var i = 0; i < bCards.Count; i++)
         {
             var bCard = bCards[i];
-            if ((BCardType.CardType)bCard.Type != BCardType.CardType.RecoveryAndDamagePercent
-                || bCard.SubType != (byte)AdditionalTypes.RecoveryAndDamagePercent.DecreaseEnemyHp
-                || bCard.FirstData <= 0)
+            if (bCard.Effect() != BCardEffect.RecoveryAndDamagePercentDecreaseEnemyHp || bCard.FirstData <= 0)
             {
                 continue;
             }
@@ -270,28 +268,23 @@ public sealed class HitQueue(
         for (var i = 0; i < bCards.Count; i++)
         {
             var bCard = bCards[i];
-            if ((BCardType.CardType)bCard.Type != BCardType.CardType.SpecialActions)
-            {
-                continue;
-            }
-
             var fields = Math.Max(0, (int)bCard.FirstData);
-            switch ((AdditionalTypes.SpecialActions)bCard.SubType)
+            switch (bCard.Effect())
             {
                 // The target slides backwards along the line joining it to whoever struck.
-                case AdditionalTypes.SpecialActions.PushBack:
+                case BCardEffect.SpecialActionsPushBack:
                     await SlideAsync(target, origin.MapX, origin.MapY, Math.Max(1, fields),
                         away: true, stopAt: 0).ConfigureAwait(false);
                     break;
 
                 // The target is drawn in until it is `fields` away from the caster.
-                case AdditionalTypes.SpecialActions.DrawEnemies:
+                case BCardEffect.SpecialActionsDrawEnemies:
                     await SlideAsync(target, origin.MapX, origin.MapY, int.MaxValue,
                         away: false, stopAt: fields).ConfigureAwait(false);
                     break;
 
                 // The caster closes on the target and stops beside it.
-                case AdditionalTypes.SpecialActions.Charge:
+                case BCardEffect.SpecialActionsCharge:
                     await SlideAsync(origin, target.MapX, target.MapY, Math.Max(1, fields),
                         away: false, stopAt: 1).ConfigureAwait(false);
                     break;
