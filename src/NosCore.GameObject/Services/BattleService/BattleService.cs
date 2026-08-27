@@ -245,8 +245,6 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // WalkPacketHandler refuses a destination that is not walkable; this path wrote the same
-        // two fields with no check, so a cast could put a character inside a wall.
         private static void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)
         {
             if (arguments is not { MapX: not null, MapY: not null })
