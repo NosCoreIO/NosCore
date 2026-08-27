@@ -55,12 +55,10 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Serilog;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 
@@ -89,17 +87,7 @@ namespace NosCore.MasterServer
             builder.Configuration.AddConfiguration(
                 ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }));
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-            {
-                try
-                {
-                    Console.Title = Title;
-                }
-                catch (IOException)
-                {
-                    // No console attached to carry a title (service, detached process).
-                }
-            }
+            ConsoleTitle.Set(Title);
             Logger.PrintHeader(ConsoleText);
 
             builder.Host.UseSerilog();

@@ -74,12 +74,10 @@ using NosCore.Shared.I18N;
 using Serilog;
 using Wolverine;
 using System;
-using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace NosCore.WorldServer
@@ -233,17 +231,7 @@ namespace NosCore.WorldServer
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-                    {
-                        try
-                        {
-                            Console.Title = Title;
-                        }
-                        catch (IOException)
-                        {
-                            // No console attached to carry a title (service, detached process).
-                        }
-                    }
+                    ConsoleTitle.Set(Title);
 
                     InitializeConfiguration(args, services);
 

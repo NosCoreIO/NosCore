@@ -12,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NosCore.Core;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -26,7 +27,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser
@@ -131,10 +131,7 @@ namespace NosCore.Parser
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-                    {
-                        try { Console.Title = Title; } catch { /* redirected/non-interactive console */ }
-                    }
+                    ConsoleTitle.Set(Title);
 
                     InitializeConfiguration(args, services);
 
