@@ -19,13 +19,6 @@ using NosCore.Networking;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-/// <summary>
-/// Maximum HP and MP: the class and level base, plus equipment, plus active effects.
-/// </summary>
-/// <remarks>
-/// Type 33 subtypes 31 and 41 add "(Only used by buffs.)", which settles the order: the
-/// percentages apply to the total that already includes the equipment, not to the base alone.
-/// </remarks>
 public sealed class VitalityService(
     IHpService hpService,
     IMpService mpService,
@@ -34,9 +27,6 @@ public sealed class VitalityService(
 {
     public bool Refresh(ICharacterEntity character)
     {
-        // The maximum lives in the health component, and only the player bundle can write it
-        // back: the interface exposes it read-only. Anything that is not a player is left as
-        // it is.
         if (character is not Ecs.PlayerComponentBundle player)
         {
             return false;
@@ -52,9 +42,6 @@ public sealed class VitalityService(
 
         int hpPercent = 0, mpPercent = 0;
 
-        // Type 47 subtypes 41-42: "Additional HP is increased by %s%%, but cannot exceed %s%%
-        // of max HP." Two numbers, and both halves of the sentence matter — a boost without its
-        // ceiling is the whole point of the effect thrown away.
         int additionalHpPercent = 0, additionalHpCap = 0;
         int additionalMpPercent = 0, additionalMpCap = 0;
 
@@ -104,16 +91,9 @@ public sealed class VitalityService(
         hp += hp * hpPercent / 100;
         mp += mp * mpPercent / 100;
 
-        // "Additional" is everything above what the class and the level alone give: the gear
-        // and the effects. The ceiling is read against the maximum as it stands before the
-        // boost, because reading it against the boosted maximum would define the limit in
-        // terms of the thing it is limiting.
         hp += BoostedAddition(hp - baseHp, hp, additionalHpPercent, additionalHpCap);
         mp += BoostedAddition(mp - baseMp, mp, additionalMpPercent, additionalMpCap);
 
-        // A maximum of zero or below would mean a character that cannot exist: a
-        // division by zero in the HP percentage of the `su` packet, and instant death.
-        // An effect that takes away more than there is stops at one.
         hp = Math.Max(1, hp);
         mp = Math.Max(1, mp);
 
@@ -125,9 +105,6 @@ public sealed class VitalityService(
         player.MaxHp = hp;
         player.MaxMp = mp;
 
-        // Taking off a piece that gave HP can leave current HP above the new maximum. The
-        // client would draw a bar past its own edge, and the percentage in the `su` packet
-        // would pass a hundred.
         player.Hp = Math.Min(player.Hp, hp);
         player.Mp = Math.Min(player.Mp, mp);
         return true;
@@ -146,17 +123,6 @@ public sealed class VitalityService(
         }
     }
 
-    /// <summary>
-    /// How much the "additional HP is increased by %s%%, but cannot exceed %s%% of max HP"
-    /// effect adds — type 47, subtypes 41 and 42.
-    /// </summary>
-    /// <param name="additional">Everything above what the class and the level alone give.</param>
-    /// <param name="maximum">The maximum before this effect, which is what the ceiling reads
-    /// against: reading it against the boosted maximum would define the limit in terms of the
-    /// thing it limits.</param>
-    /// <param name="percent">The first number: how much the additional part grows.</param>
-    /// <param name="capPercent">The second number, and the half that is easy to drop. Without
-    /// it the effect is unbounded and nothing says so.</param>
     public static int BoostedAddition(int additional, int maximum, int percent, int capPercent)
     {
         if (percent <= 0 || additional <= 0)

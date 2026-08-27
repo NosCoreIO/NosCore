@@ -28,12 +28,6 @@ using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
-    // The maximum used to be computed once, at login, from class and level. These tests defend the
-    // two ways a piece can raise it - its own Hp field, and a type 33 effect - and the case that
-    // caused the whole thing: levelling up healed you "fully" to the previous level's maximum.
-    //
-    // None of it raises anything. The bar the client draws is the one the server sends, so the
-    // number is always self-consistent; it is simply the wrong number.
     [TestClass]
     public class VitalityServiceTests
     {
@@ -48,8 +42,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 VNum = PlainArmourVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor,
                 EquipmentSlot = EquipmentType.Armor, CloseDefence = 20
             },
-            // Same slot, same defence, and a thousand HP on top: the two tell apart "the piece
-            // counts" from "the piece is worn".
             new Item
             {
                 VNum = HeavyArmourVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor,
@@ -150,8 +142,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(bare, _session.Character.MaxHp);
         }
 
-        // Taking the armour off has to bring the current HP back under the new maximum, or the
-        // client draws a bar past its own edge and the percentage in `su` passes a hundred.
         [TestMethod]
         public void LosingAPieceBringsCurrentHpBackUnderTheMaximum()
         {
@@ -167,8 +157,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(_session.Character.Hp < full);
         }
 
-        // The return value is what RefreshAndNotifyAsync uses to decide whether to send a packet.
-        // Always returning true would spam the client on every tick of the buff loop.
         [TestMethod]
         public void RefreshSaysWhetherAnythingChanged()
         {
@@ -180,8 +168,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsFalse(_service.Refresh(_session.Character));
         }
 
-        // The whole point of recomputing on level-up: without it the "full heal" tops the player
-        // up to the maximum of the level they just left.
         [TestMethod]
         public void ALevelGainRaisesTheMaximum()
         {

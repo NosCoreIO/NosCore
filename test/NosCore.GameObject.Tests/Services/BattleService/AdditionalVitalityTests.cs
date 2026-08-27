@@ -9,9 +9,6 @@ using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
-    // Type 47, subtypes 41 and 42: "Additional HP is increased by %s%%, but cannot exceed %s%%
-    // of max HP." Two numbers in one sentence, and the second is the one that gets dropped —
-    // an unbounded boost raises nothing and looks like a generous item.
     [TestClass]
     public class AdditionalVitalityTests
     {
@@ -25,8 +22,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void TheCeilingStopsTheBoost()
         {
-            // The additional part may not pass 50% of 1000. It is already at 400, so only 100
-            // of the 200 the percentage would give can land.
             Assert.AreEqual(100, VitalityService.BoostedAddition(400, 1000, 50, 50));
         }
 

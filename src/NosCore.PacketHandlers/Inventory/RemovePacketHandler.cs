@@ -68,8 +68,6 @@ namespace NosCore.PacketHandlers.Inventory
                     clientSession.Character.GeneratePairy(null));
             }
 
-            // Taking off a piece that gave HP lowers the maximum - and the current HP has to
-            // be brought back under it, or the client draws the bar past its own edge.
             await vitalityService.RefreshAndNotifyAsync(clientSession.Character).ConfigureAwait(false);
         }
     }

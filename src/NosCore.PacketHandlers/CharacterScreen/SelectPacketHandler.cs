@@ -208,10 +208,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
 #pragma warning restore CS0618
                 await clientSession.SendPacketAsync(character.GenerateMlobjlst());
 
-                // The real maximum, now that the inventory is assembled: the one passed to
-                // CreatePlayer comes from the class and level table alone and knows nothing
-                // about what is worn. It has to come after the character is set up, because
-                // before that there is no inventory to look at.
                 vitalityService.Refresh(character);
 
                 if (character.Hp > character.MaxHp)

@@ -424,9 +424,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                             var expired = await _buffService.TickAsync(session.Character).ConfigureAwait(false);
 
-                            // A type 33 buff raises the maximum while it lasts. Without this
-                            // the maximum stays inflated after the effect ends, and the bar
-                            // goes on showing health that is not there.
                             if (expired.Count > 0 && _vitalityService != null)
                             {
                                 await _vitalityService.RefreshAndNotifyAsync(session.Character)

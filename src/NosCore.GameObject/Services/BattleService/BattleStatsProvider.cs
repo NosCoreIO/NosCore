@@ -396,8 +396,6 @@ public sealed class BattleStatsProvider(
         yield return equipment;
     }
 
-    // Public because VitalityService folds the same cards for the maximum HP and has to
-    // scale them the same way. Two copies of this would drift.
     public static int ScaleByLevel(BCardDto card, int level)
     {
         // Matches OpenNos: IsLevelScaled + IsLevelDivided together means "first/level",
