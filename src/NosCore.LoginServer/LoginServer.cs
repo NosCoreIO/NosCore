@@ -17,7 +17,6 @@ using NosCore.Networking;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -30,10 +29,7 @@ namespace NosCore.LoginServer
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-            {
-                Console.Title += $@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}";
-            }
+            ConsoleTitle.Append($@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}");
 
             try
             {

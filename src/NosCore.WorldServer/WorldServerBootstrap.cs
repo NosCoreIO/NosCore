@@ -78,7 +78,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 
 namespace NosCore.WorldServer
@@ -232,10 +231,7 @@ namespace NosCore.WorldServer
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-                    {
-                        Console.Title = Title;
-                    }
+                    ConsoleTitle.Set(Title);
 
                     InitializeConfiguration(args, services);
 

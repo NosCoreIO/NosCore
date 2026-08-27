@@ -21,7 +21,6 @@ using NosCore.Shared.I18N;
 using Polly;
 using System;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -47,10 +46,7 @@ namespace NosCore.WorldServer
                 Thread.Sleep(30000);
             };
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-            {
-                Console.Title += $@" - Port : {worldConfiguration.Value.Port}";
-            }
+            ConsoleTitle.Append($@" - Port : {worldConfiguration.Value.Port}");
             var connectTask = Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),

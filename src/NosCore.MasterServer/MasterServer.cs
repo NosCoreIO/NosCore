@@ -6,11 +6,10 @@
 
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -25,10 +24,7 @@ namespace NosCore.MasterServer
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows) && !Console.IsOutputRedirected)
-            {
-                Console.Title += $@" - WebApi : {_masterConfiguration.WebApi}";
-            }
+            ConsoleTitle.Append($@" - WebApi : {_masterConfiguration.WebApi}");
 
             return Task.CompletedTask;
         }
