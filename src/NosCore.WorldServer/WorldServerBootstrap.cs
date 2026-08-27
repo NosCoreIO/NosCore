@@ -244,9 +244,10 @@ namespace NosCore.WorldServer
 
                     services.AddI18NLogs();
                     services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
+                    // A lambda factory here is opaque to Wolverine's code generation, which
+                    // then falls back to service location and refuses to compile the chain.
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
-                        x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
-                            x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
+                        typeof(LogLanguageLocalizer<LanguageKey, LocalizedResources>));
 
                     // IClock is wired as a singleton here because SystemClock is an external
                     // NodaTime type with no container-friendly constructor.
