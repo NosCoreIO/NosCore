@@ -177,7 +177,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (abandonedRun != null)
                 {
-                    await scriptedInstanceService.DisposeIfEmptyAsync(abandonedRun).ConfigureAwait(false);
+                    await scriptedInstanceService.DisposeIfEmptyAsync(abandonedRun);
                 }
 
                 character.Group.LeaveGroup(character);

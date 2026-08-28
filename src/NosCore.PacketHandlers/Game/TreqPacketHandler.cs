@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Game
 
             if (packet.StartPress != 1)
             {
-                await session.SendPacketAsync(entrance.GenerateRbr()).ConfigureAwait(false);
+                await session.SendPacketAsync(entrance.GenerateRbr());
                 return;
             }
 
@@ -52,22 +52,22 @@ namespace NosCore.PacketHandlers.Game
             {
                 await session.SendPacketAsync(session.Character.GenerateSay(
                     gameLanguageLocalizer[LanguageKey.TIMESPACE_LEVEL_NOT_ALLOWED, character.AccountLanguage],
-                    SayColorType.Yellow)).ConfigureAwait(false);
+                    SayColorType.Yellow));
                 return;
             }
 
-            var run = await scriptedInstanceService.InstantiateAsync(entrance).ConfigureAwait(false);
+            var run = await scriptedInstanceService.InstantiateAsync(entrance);
             if (run == null)
             {
                 await session.SendPacketAsync(session.Character.GenerateSay(
                     gameLanguageLocalizer[LanguageKey.TIMESPACE_NOT_AVAILABLE, character.AccountLanguage],
-                    SayColorType.Yellow)).ConfigureAwait(false);
+                    SayColorType.Yellow));
                 return;
             }
 
             var firstRoom = run.Rooms[entrance.Definition!.Rooms[0].Key];
             await mapChangeService.ChangeMapInstanceAsync(session, firstRoom,
-                entrance.Definition.StartX, entrance.Definition.StartY).ConfigureAwait(false);
+                entrance.Definition.StartX, entrance.Definition.StartY);
         }
     }
 }

@@ -119,7 +119,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _logger.LogError(
                         "Instance {ScriptedInstanceId} asks for map {VNum}, which does not exist",
                         entrance.ScriptedInstanceId, room.VNum);
-                    await RemoveRoomsAsync(built.Values).ConfigureAwait(false);
+                    await RemoveRoomsAsync(built.Values);
                     return null;
                 }
 
@@ -129,8 +129,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 mapInstance.MapIndexX = room.IndexX;
                 mapInstance.MapIndexY = room.IndexY;
 
-                await _mapInstanceGeneratorService.AddMapInstanceAsync(mapInstance).ConfigureAwait(false);
-                await mapInstance.StartLifeAsync().ConfigureAwait(false);
+                await _mapInstanceGeneratorService.AddMapInstanceAsync(mapInstance);
+                await mapInstance.StartLifeAsync();
                 built[room.Key] = id;
             }
 
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
-            await RemoveRoomsAsync(run.Rooms.Values).ConfigureAwait(false);
+            await RemoveRoomsAsync(run.Rooms.Values);
             return true;
         }
 
@@ -167,7 +167,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             foreach (var room in rooms)
             {
                 _runsByRoom.TryRemove(room, out _);
-                await _mapInstanceGeneratorService.RemoveMapAsync(room).ConfigureAwait(false);
+                await _mapInstanceGeneratorService.RemoveMapAsync(room);
             }
         }
 

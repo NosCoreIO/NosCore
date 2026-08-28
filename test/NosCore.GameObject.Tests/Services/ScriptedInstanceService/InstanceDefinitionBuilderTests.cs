@@ -10,8 +10,6 @@ using System.Linq;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 {
-    // These read as much like a sample of the format as like tests: the builder is a proposal
-    // and should be judgeable by looking.
     [TestClass]
     public class InstanceDefinitionBuilderTests
     {

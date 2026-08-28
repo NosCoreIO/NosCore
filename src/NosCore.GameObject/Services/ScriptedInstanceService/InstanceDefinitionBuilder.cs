@@ -8,10 +8,6 @@ using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
-    /// <summary>
-    /// Writes an instance definition in C# rather than as XML in a database column: the
-    /// compiler checks it, at the cost of needing a rebuild to change one.
-    /// </summary>
     public sealed class InstanceDefinitionBuilder
     {
         private readonly List<InstanceRoom> _rooms = [];
@@ -65,10 +61,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             return this;
         }
 
-        /// <summary>
-        /// Adds a room and hands back its key. Issued rather than written down: in the XML the
-        /// same number was typed twice and nothing checked the two agreed.
-        /// </summary>
         public InstanceDefinitionBuilder WithRoom(short mapVNum, out int key, byte indexX = 0, byte indexY = 0)
         {
             key = _rooms.Count + 1;
