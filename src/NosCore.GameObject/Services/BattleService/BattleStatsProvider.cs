@@ -233,10 +233,10 @@ public sealed class BattleStatsProvider(
         return stats with
         {
             Morale = stats.Morale + totals.Morale,
-            MinHit = (int)((stats.MinHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)),
-            MaxHit = (int)((stats.MaxHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)),
-            MinDistance = (int)((stats.MinDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)),
-            MaxDistance = (int)((stats.MaxDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)),
+            MinHit = ByFactor((int)((stats.MinHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)), totals.FactorAttackAll + totals.FactorAttackMelee),
+            MaxHit = ByFactor((int)((stats.MaxHit + totals.AttackAll + totals.AttackMelee) * (1 + (totals.DamageAll + totals.DamageMelee) / 100.0)), totals.FactorAttackAll + totals.FactorAttackMelee),
+            MinDistance = ByFactor((int)((stats.MinDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)), totals.FactorAttackAll + totals.FactorAttackRanged),
+            MaxDistance = ByFactor((int)((stats.MaxDistance + totals.AttackAll + totals.AttackRanged) * (1 + (totals.DamageAll + totals.DamageRanged) / 100.0)), totals.FactorAttackAll + totals.FactorAttackRanged),
             EnemyFireResistance = stats.EnemyFireResistance + totals.FoeAll + totals.FoeFire,
             EnemyWaterResistance = stats.EnemyWaterResistance + totals.FoeAll + totals.FoeWater,
             EnemyLightResistance = stats.EnemyLightResistance + totals.FoeAll + totals.FoeLight,
@@ -247,9 +247,9 @@ public sealed class BattleStatsProvider(
             CriticalRate = stats.CriticalRate + totals.CritDamage,
             DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
             DistanceCriticalRate = stats.DistanceCriticalRate + totals.CritDamage,
-            Defence = stats.Defence + totals.DefenceAll + totals.DefenceMelee,
-            DistanceDefence = stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged,
-            MagicDefence = stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical,
+            Defence = ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee),
+            DistanceDefence = ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged),
+            MagicDefence = ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical),
             DefenceDodge = stats.DefenceDodge + totals.Dodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + totals.Dodge,
             // "All" adds to each of the four rather than living in a fifth field: the
@@ -265,12 +265,23 @@ public sealed class BattleStatsProvider(
         };
     }
 
+    // A whole factor, the way types 34 and 35 state it: the negative half divides rather
+    // than subtracting, and zero is not a factor.
+    private static int ByFactor(int value, int factor) => factor switch
+    {
+        > 0 => value * factor,
+        < 0 => value / -factor,
+        _ => value,
+    };
+
     private sealed class CardTotals
     {
         public int AttackAll, AttackMelee, AttackRanged, AttackMagical;
         public int DamageAll, DamageMelee, DamageRanged, DamageMagical;
         public int CritInflicting, CritDamage;
         public int DefenceAll, DefenceMelee, DefenceRanged, DefenceMagical;
+        public int FactorAttackAll, FactorAttackMelee, FactorAttackRanged;
+        public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
         public int HitRate, Dodge, Morale;
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
@@ -312,6 +323,26 @@ public sealed class BattleStatsProvider(
             [BCardEffect.DefenceRangedDecreased] = (t, v) => t.DefenceRanged -= v,
             [BCardEffect.DefenceMagicalIncreased] = (t, v) => t.DefenceMagical += v,
             [BCardEffect.DefenceMagicalDecreased] = (t, v) => t.DefenceMagical -= v,
+
+            // Types 34 and 35 state a factor, not a percentage: "attack power is
+            // multiplied by %s". The values are small whole numbers, so folding them into
+            // the percentage totals would turn a fivefold armour into a five per cent one.
+            // The decreasing half divides.
+            [BCardEffect.MultAttackAllAttackIncreased] = (t, v) => t.FactorAttackAll += v,
+            [BCardEffect.MultAttackAllAttackDecreased] = (t, v) => t.FactorAttackAll -= v,
+            [BCardEffect.MultAttackMeleeAttackIncreased] = (t, v) => t.FactorAttackMelee += v,
+            [BCardEffect.MultAttackMeleeAttackDecreased] = (t, v) => t.FactorAttackMelee -= v,
+            [BCardEffect.MultAttackRangedAttackIncreased] = (t, v) => t.FactorAttackRanged += v,
+            [BCardEffect.MultAttackRangedAttackDecreased] = (t, v) => t.FactorAttackRanged -= v,
+
+            [BCardEffect.MultDefenceAllDefenceIncreased] = (t, v) => t.FactorDefenceAll += v,
+            [BCardEffect.MultDefenceAllDefenceDecreased] = (t, v) => t.FactorDefenceAll -= v,
+            [BCardEffect.MultDefenceMeleeDefenceIncreased] = (t, v) => t.FactorDefenceMelee += v,
+            [BCardEffect.MultDefenceMeleeDefenceDecreased] = (t, v) => t.FactorDefenceMelee -= v,
+            [BCardEffect.MultDefenceRangedDefenceIncreased] = (t, v) => t.FactorDefenceRanged += v,
+            [BCardEffect.MultDefenceRangedDefenceDecreased] = (t, v) => t.FactorDefenceRanged -= v,
+            [BCardEffect.MultDefenceMagicalDefenceIncreased] = (t, v) => t.FactorDefenceMagical += v,
+            [BCardEffect.MultDefenceMagicalDefenceDecreased] = (t, v) => t.FactorDefenceMagical -= v,
 
             // Type 14, and the mirror of type 13: that one is the resistance of whoever
             // is being hit, this is what the one hitting does to it. Both end up in the

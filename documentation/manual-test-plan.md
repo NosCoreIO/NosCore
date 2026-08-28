@@ -77,6 +77,19 @@ Boss skills declaring 90% should take most of a bar in one hit.
 - [ ] An "all elements" effect applies to each of fire, water, light and dark rather than
       being ignored
 
+### Multiplied attack and defence — BCard types 34 and 35
+
+These state a factor, not a percentage, so the change is meant to be obvious rather than
+subtle: a card worth 5 is fivefold.
+
+- [ ] A buff carrying "defence is multiplied" makes the same monster's blows land for a
+      small fraction of what they did a moment earlier
+- [ ] The melee, ranged and magic subtypes each move only their own defence: check with
+      three attackers, or one attacker switching weapons
+- [ ] A buff carrying "attack power is multiplied" makes your own numbers jump by whole
+      multiples, not by a few per cent
+- [ ] The decreasing half halves rather than taking a couple of points off
+
 ---
 
 ## Monsters
