@@ -247,11 +247,18 @@ namespace NosCore.GameObject.Services.BattleService
 
         private static void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)
         {
-            if (arguments is { MapX: not null, MapY: not null })
+            if (arguments is not { MapX: not null, MapY: not null })
             {
-                origin.PositionX = arguments.MapX.Value;
-                origin.PositionY = arguments.MapY.Value;
+                return;
             }
+
+            if (origin.MapInstance?.Map.IsWalkable(arguments.MapX.Value, arguments.MapY.Value) == false)
+            {
+                return;
+            }
+
+            origin.PositionX = arguments.MapX.Value;
+            origin.PositionY = arguments.MapY.Value;
         }
 
         // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction
