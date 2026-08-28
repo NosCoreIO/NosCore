@@ -60,8 +60,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             new BCardDto
             {
                 ItemVNum = BlessedHatVnum,
-                Type = (byte)BCardType.CardType.MaxHpmp,
-                SubType = (byte)AdditionalTypes.MaxHpmp.MaximumHpIncreased,
+                Type = BCardEffect.MaxHpmpMaximumHpIncreased.Type(),
+                SubType = BCardEffect.MaxHpmpMaximumHpIncreased.SubType(),
                 FirstData = 500
             }
         };
