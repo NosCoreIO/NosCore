@@ -47,44 +47,36 @@ public sealed class VitalityService(
 
         foreach (var card in cards)
         {
-            if ((BCardType.CardType)card.Type == BCardType.CardType.Quest)
-            {
-                var first = BattleStatsProvider.ScaleByLevel(card, character.Level);
-                switch ((AdditionalTypes.Quest)card.SubType)
-                {
-                    case AdditionalTypes.Quest.AdditionalHpPercent:
-                        additionalHpPercent += first;
-                        additionalHpCap = Math.Max(additionalHpCap, card.SecondData);
-                        break;
-                    case AdditionalTypes.Quest.AdditionalMpPercent:
-                        additionalMpPercent += first;
-                        additionalMpCap = Math.Max(additionalMpCap, card.SecondData);
-                        break;
-                }
-
-                continue;
-            }
-
-            if ((BCardType.CardType)card.Type != BCardType.CardType.MaxHpmp)
+            var type = (BCardType.CardType)card.Type;
+            if (type != BCardType.CardType.Quest && type != BCardType.CardType.MaxHpmp)
             {
                 continue;
             }
 
             var value = BattleStatsProvider.ScaleByLevel(card, character.Level);
-            switch ((AdditionalTypes.MaxHpmp)card.SubType)
+            switch (card.Effect())
             {
-                case AdditionalTypes.MaxHpmp.MaximumHpIncreased: hp += value; break;
-                case AdditionalTypes.MaxHpmp.MaximumHpDecreased: hp -= value; break;
-                case AdditionalTypes.MaxHpmp.MaximumMpIncreased: mp += value; break;
-                case AdditionalTypes.MaxHpmp.MaximumMpDecreased: mp -= value; break;
-                case AdditionalTypes.MaxHpmp.IncreasesMaximumHp: hpPercent += value; break;
-                case AdditionalTypes.MaxHpmp.DecreasesMaximumHp: hpPercent -= value; break;
-                case AdditionalTypes.MaxHpmp.IncreasesMaximumMp: mpPercent += value; break;
-                case AdditionalTypes.MaxHpmp.DecreasesMaximumMp: mpPercent -= value; break;
+                case BCardEffect.QuestAdditionalHpPercent:
+                    additionalHpPercent += value;
+                    additionalHpCap = Math.Max(additionalHpCap, card.SecondData);
+                    break;
+                case BCardEffect.QuestAdditionalMpPercent:
+                    additionalMpPercent += value;
+                    additionalMpCap = Math.Max(additionalMpCap, card.SecondData);
+                    break;
+
+                case BCardEffect.MaxHpmpMaximumHpIncreased: hp += value; break;
+                case BCardEffect.MaxHpmpMaximumHpDecreased: hp -= value; break;
+                case BCardEffect.MaxHpmpMaximumMpIncreased: mp += value; break;
+                case BCardEffect.MaxHpmpMaximumMpDecreased: mp -= value; break;
+                case BCardEffect.MaxHpmpIncreasesMaximumHp: hpPercent += value; break;
+                case BCardEffect.MaxHpmpDecreasesMaximumHp: hpPercent -= value; break;
+                case BCardEffect.MaxHpmpIncreasesMaximumMp: mpPercent += value; break;
+                case BCardEffect.MaxHpmpDecreasesMaximumMp: mpPercent -= value; break;
 
                 // Subtype 51 moves both maxima together.
-                case AdditionalTypes.MaxHpmp.MaximumHpmpIncreased: hp += value; mp += value; break;
-                case AdditionalTypes.MaxHpmp.MaximumHpmpDecreased: hp -= value; mp -= value; break;
+                case BCardEffect.MaxHpmpMaximumHpmpIncreased: hp += value; mp += value; break;
+                case BCardEffect.MaxHpmpMaximumHpmpDecreased: hp -= value; mp -= value; break;
             }
         }
 
