@@ -186,7 +186,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             var cardId = (short)bCard.SecondData;
             if (effect == BCardEffect.BuffChanceRemoving)
             {
-                await RemoveAsync(target, cardId).ConfigureAwait(false);
+                await RemoveAsync(target, cardId);
                 continue;
             }
 
@@ -196,8 +196,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 continue;
             }
 
-            await ApplyAsync(target, card, cardCatalog.GetCardBCards(cardId), caster)
-                .ConfigureAwait(false);
+            await ApplyAsync(target, card, cardCatalog.GetCardBCards(cardId), caster);
         }
     }
 

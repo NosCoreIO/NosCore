@@ -200,9 +200,7 @@ public sealed class HitQueue(
 
             if (!killed && request.Skill.BCards.Count > 0)
             {
-                await buffService
-                    .InflictCardsAsync(target, request.Origin, request.Skill.BCards)
-                    .ConfigureAwait(false);
+                await buffService.InflictCardsAsync(target, request.Origin, request.Skill.BCards);
             }
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));
