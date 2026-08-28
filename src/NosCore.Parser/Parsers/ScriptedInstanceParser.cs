@@ -86,21 +86,11 @@ namespace NosCore.Parser.Parsers
 
                 var key = (entrance.MapId, entrance.PositionX, entrance.PositionY);
 
-                // Within one run the same entrance can turn up more than once - the capture walks
-                // a map twice and the wp comes round again. First reading wins.
                 if (!seen.Add(key))
                 {
                     return;
                 }
 
-                // An entrance already in the table gets its metadata refreshed rather than
-                // skipped. Skipping it looked safe and was not: the columns this parser exists to
-                // fill arrive from the migration as 0, 0 and false, so on any database that
-                // already holds entrances the import would leave every level range at zero and
-                // every raid non-heroic - and say nothing.
-                //
-                // The id and the script come from the stored row: the id so the upsert updates
-                // instead of inserting a duplicate, the script because it is not ours to write.
                 if (stored.TryGetValue(key, out var existing))
                 {
                     entrance.ScriptedInstanceId = existing.ScriptedInstanceId;

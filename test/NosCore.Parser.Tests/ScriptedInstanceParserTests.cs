@@ -137,9 +137,6 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task AnEntranceAlreadyStoredGetsItsMetadataRefreshedAsync()
         {
-            // The columns this parser fills arrive from the migration as 0, 0 and false. Leaving a
-            // stored row alone therefore keeps every level range at zero for ever, on any database
-            // that already holds entrances - and nothing reports it.
             _existing.Add(new ScriptedInstanceDto
             {
                 ScriptedInstanceId = 7,
@@ -157,8 +154,6 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1, refreshed.LevelMinimum);
             Assert.AreEqual(99, refreshed.LevelMaximum);
 
-            // The id makes it an update rather than a second row, and the script is not ours to
-            // overwrite - it is written by whoever authors the instance.
             Assert.AreEqual(7, refreshed.ScriptedInstanceId);
             Assert.AreEqual("<Definition>...</Definition>", refreshed.Script);
         }
