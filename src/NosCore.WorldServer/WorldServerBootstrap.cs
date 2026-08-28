@@ -244,8 +244,6 @@ namespace NosCore.WorldServer
 
                     services.AddI18NLogs();
                     services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
-                    // A lambda factory here is opaque to Wolverine's code generation, which
-                    // then falls back to service location and refuses to compile the chain.
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
                         typeof(LogLanguageLocalizer<LanguageKey, LocalizedResources>));
 
