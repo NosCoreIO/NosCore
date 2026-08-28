@@ -124,15 +124,6 @@ namespace NosCore.Parser.Tests
                    "#=========================================================";
         }
 
-        /// <summary>
-        /// Triples (dx, dy, continues) padded to <paramref name="slots"/>, as the file writes them.
-        /// </summary>
-        /// <remarks>
-        /// The third field is the one that says whether the list goes on, so a pattern of N cells
-        /// is N triples ending in 1 followed by zeros. A pattern that uses every slot ends on a 1
-        /// with nothing after it, which is the ambiguous case: it means "from here it is not
-        /// said", not "there is more".
-        /// </remarks>
         private static string Triples((int dx, int dy)[]? cells, int slots)
         {
             var sb = new System.Text.StringBuilder();
@@ -211,10 +202,6 @@ namespace NosCore.Parser.Tests
                 "the tail is appended after the thirty CELL holds");
         }
 
-        // THE CASE THAT MAKES READING THE TAIL BLINDLY WRONG. Skill 1175 fills all thirty with a
-        // closed figure and does NOT go on: its COST tail is zeros. A "continues" of 1 on the last
-        // available triple means "from here it is not said", so the tail has to be read and found
-        // empty rather than assumed to hold something.
         [TestMethod]
         public async Task AFullCellWithAnEmptyTailStopsAtThirty()
         {

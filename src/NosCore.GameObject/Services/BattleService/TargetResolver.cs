@@ -35,7 +35,6 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             return results;
         }
 
-        // A CELL pattern comes with radius zero: the area is the pattern.
         var pattern = SkillCells.Parse(skill.CellPattern);
         var cells = pattern == null
             ? null
@@ -93,7 +92,6 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
         };
     }
 
-    // The pattern's cells when the skill has one, otherwise the box around the target.
     private static bool IsHit(HashSet<(short X, short Y)>? cells, short cx, short cy, short x,
         short y, int range)
     {

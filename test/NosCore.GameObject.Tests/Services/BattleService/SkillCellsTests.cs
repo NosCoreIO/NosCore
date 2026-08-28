@@ -14,10 +14,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class SkillCellsTests
     {
-        // The value the parser writes on the skill row. 244 "Piercing Shot", the archer's: the
-        // row of eight cells in front of the caster, a negative dy being forward. What produced
-        // it - CELL, its thirty-cell limit and the tail of COST - is now tested in
-        // NosCore.Parser.Tests.SkillParserTests, which is where that layout knowledge lives.
         private const string PiercingShot = "0,-8,0,-7,0,-6,0,-5,0,-4,0,-3,0,-2,0,-1";
 
         private static List<(sbyte dx, sbyte dy)> Pairs(sbyte[] flat)

@@ -10,16 +10,8 @@ using System.Globalization;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// A skill's cell pattern, rotated towards the target.
-//
-// 67 of the 68 skills with a CELL section declare AOE with radius zero, because the area IS
-// the pattern. Reading the radius makes them hit a single target and nothing says so.
-//
-// Rotation is by the angle to the target, exact on the cardinals and rounded on the
-// diagonals, where a one-cell row can come out as a staircase with a gap at its side.
 public static class SkillCells
 {
-    // A malformed value yields null rather than throwing: the pattern decides who a skill hits.
     public static sbyte[]? Parse(string? pattern)
     {
         if (string.IsNullOrWhiteSpace(pattern))
@@ -48,7 +40,6 @@ public static class SkillCells
         return cells;
     }
 
-    // The absolute cells hit. Caster and target on one cell leaves no direction: kept facing north.
     public static HashSet<(short X, short Y)> Resolve(sbyte[] pattern, short casterX,
         short casterY, short targetX, short targetY)
     {
@@ -58,7 +49,6 @@ public static class SkillCells
         double dy = targetY - casterY;
         var len = Math.Sqrt((dx * dx) + (dy * dy));
 
-        // At zero distance there is no direction: north, as authored.
         double ux = 0, uy = -1;
         if (len > 0.0001)
         {
@@ -66,8 +56,6 @@ public static class SkillCells
             uy = dy / len;
         }
 
-        // Authored basis is right = (1,0), forward = (0,-1); forward maps onto (ux, uy) and right
-        // onto (-uy, ux).
         foreach (var (cx, cy) in Pairs(pattern))
         {
             double right = cx;
