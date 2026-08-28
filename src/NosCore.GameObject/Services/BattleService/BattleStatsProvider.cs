@@ -415,7 +415,7 @@ public sealed class BattleStatsProvider(
         yield return equipment;
     }
 
-    private static int ScaleByLevel(BCardDto card, int level)
+    public static int ScaleByLevel(BCardDto card, int level)
     {
         // Matches OpenNos: IsLevelScaled + IsLevelDivided together means "first/level",
         // IsLevelScaled alone means "first * level". Default path uses FirstData as-is.

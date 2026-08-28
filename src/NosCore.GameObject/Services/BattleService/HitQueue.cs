@@ -35,6 +35,7 @@ public sealed class HitQueue(
     IBattleStatsProvider statsProvider,
     IBuffService buffService,
     IRegenerationService regenerationService,
+    IVitalityService vitalityService,
     ILogger<HitQueue> logger) : IHitQueue, ISingletonService
 {
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
@@ -57,6 +58,14 @@ public sealed class HitQueue(
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
         }
         return request.Completion.Task;
+    }
+
+    private async Task RefreshVitalityAsync(IAliveEntity entity)
+    {
+        if (entity is ICharacterEntity character)
+        {
+            await vitalityService.RefreshAndNotifyAsync(character).ConfigureAwait(false);
+        }
     }
 
     private Channel<HitRequest> CreateChannel(IAliveEntity target)
@@ -175,12 +184,18 @@ public sealed class HitQueue(
                 regenerationService.NotifyDamaged(hurtCharacter.CharacterId);
             }
 
-            // Skill BCards that don't describe damage (i.e. stat modifiers) become a
-            // buff on the target lasting the skill's Duration. Fire-and-forget is fine:
-            // the worker is already serialising per-target, so ordering is preserved.
             if (!killed && request.Skill.Duration > 0 && request.Skill.BCards.Count > 0)
             {
-                _ = buffService.ApplySkillBuffAsync(target, request.Skill.SkillVnum, request.Skill.Duration, request.Skill.BCards, request.Origin);
+                await buffService
+                    .ApplySkillBuffAsync(target, request.Skill.SkillVnum, request.Skill.Duration,
+                        request.Skill.BCards, request.Origin)
+                    .ConfigureAwait(false);
+
+                await RefreshVitalityAsync(target).ConfigureAwait(false);
+                if (!ReferenceEquals(request.Origin, target))
+                {
+                    await RefreshVitalityAsync(request.Origin).ConfigureAwait(false);
+                }
             }
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));

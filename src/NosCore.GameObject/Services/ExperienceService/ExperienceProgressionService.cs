@@ -39,7 +39,8 @@ namespace NosCore.GameObject.Services.ExperienceService
         IHeroExperienceService heroExperienceService,
         ISpExperienceService spExperienceService,
         IFairyExperienceService fairyExperienceService,
-        ISkillService skillService) : IExperienceProgressionService
+        ISkillService skillService,
+        BattleService.IVitalityService vitalityService) : IExperienceProgressionService
     {
         private const byte MaxLevel = 99;
         private const byte MaxJobLevel = 80;
@@ -196,6 +197,8 @@ namespace NosCore.GameObject.Services.ExperienceService
 
             if (characterLeveledUp)
             {
+                vitalityService.Refresh(player);
+
                 // Full heal on any character / SP / job / hero level-up (trace `stat 256 256 78 78`).
                 player.Hp = player.MaxHp;
                 player.Mp = player.MaxMp;

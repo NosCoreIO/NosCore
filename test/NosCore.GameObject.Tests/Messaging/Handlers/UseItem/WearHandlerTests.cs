@@ -49,7 +49,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 new Mock<ILogger<WearHandler>>().Object,
                 TestHelpers.Instance.Clock,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.WorldConfiguration);
+                TestHelpers.Instance.WorldConfiguration,
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
         }
 
         [TestMethod]

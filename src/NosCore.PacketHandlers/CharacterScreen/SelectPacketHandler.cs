@@ -63,6 +63,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             IOptions<WorldConfiguration> configuration, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IPubSubHub pubSubHub, IClock clock,
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISpeedService speedService,
+            NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService, IMessageBus messageBus)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
@@ -206,6 +207,18 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 await clientSession.SendPacketsAsync(character.GenerateInv(logger, logLanguage));
 #pragma warning restore CS0618
                 await clientSession.SendPacketAsync(character.GenerateMlobjlst());
+
+                vitalityService.Refresh(character);
+
+                if (character.Hp > character.MaxHp)
+                {
+                    character.Hp = character.MaxHp;
+                }
+
+                if (character.Mp > character.MaxMp)
+                {
+                    character.Mp = character.MaxMp;
+                }
 
                 if (character.Hp > character.MaxHp)
                 {
