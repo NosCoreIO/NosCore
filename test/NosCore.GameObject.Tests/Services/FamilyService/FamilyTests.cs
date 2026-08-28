@@ -122,8 +122,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task EachMemberIsReadAtTheirOwnRankAsync()
         {
-            // The window hands out permissions off this value, and reading somebody else's row
-            // would grant them without throwing.
             var family = await Nemesis().GetFamilyAsync(MemberId);
 
             Assert.AreEqual(FamilyAuthority.Member, family!.AuthorityOf(MemberId));
@@ -160,9 +158,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void TheTwoAuthorityEnumsAgreeValueForValue()
         {
-            // One enum lives in the database layer and one in the packet library, and the tag
-            // and the window are built from different ones. If they ever diverge every player's
-            // rank silently shifts by one.
             foreach (var authority in Enum.GetValues<FamilyAuthority>())
             {
                 Assert.AreEqual(authority.ToString(),

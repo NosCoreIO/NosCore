@@ -16,11 +16,6 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class FamilyExtensions
 {
-    /// <summary>
-    /// The family tag over a character's head, in the reader's language.
-    ///     gidx 1 521919 5083 [NDM](Gardien) 3
-    ///     gidx 1 741328 -1 - 0
-    /// </summary>
     public static GidxPacket GenerateGidx(this PlayerComponentBundle player,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
@@ -47,10 +42,6 @@ public static class FamilyExtensions
         };
     }
 
-    /// <summary>
-    /// The family window, field by field from a capture:
-    ///     ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush
-    /// </summary>
     public static GInfoPacket? GenerateGInfo(this PlayerComponentBundle player,
         IFamilyExperienceService familyExperienceService)
     {

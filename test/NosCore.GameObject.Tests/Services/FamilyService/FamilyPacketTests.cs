@@ -124,20 +124,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void TheTagGoesOutOnTheWireExactlyAsTheCaptureHasIt()
         {
-            // The object being right is not the line being right, and the line is what the
-            // client reads:
-            //
-            //     gidx 1 521919 5083 [NDM](Gardien) 3
-            //     gidx 1 741328 -1 - 0
-            //
-            // The second is the one worth pinning: a null id has to serialise as -1 and a null
-            // name as -, which is the serializer's job and not this code's. Asserting on the
-            // object would pass whatever the serializer did with it.
-            //
-            // The trailing space is trimmed on purpose: GidxPacket ends in a FamilyIcons list,
-            // and an empty one still emits its leading separator here while the captured server
-            // sends nothing at all - 670 gidx lines, not one with a trailing space. It is an
-            // empty last token either way, so it is recorded rather than worked around.
             var serializer = BuildSerializer();
 
             _session.Character.Family = null;
@@ -169,8 +155,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.AreEqual("7", fields[5]);
         }
 
-        // The same list the world server hands its serializer, so a test cannot pass on a
-        // registration the real thing does not have.
         private static Serializer BuildSerializer() => new(typeof(IPacket).Assembly.GetTypes()
             .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
             .ToList());
@@ -178,8 +162,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void TheRankIsReadInTheLanguageOfWhoeverIsLooking()
         {
-            // Two players standing next to each other see the same family in their own words,
-            // so the tag cannot be built once from the owner's account language.
             _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Manager);
 
             var english = _session.Character
@@ -189,9 +171,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer, Shared.Enumerations.RegionType.FR)
                 .FamilyName;
 
-            // The words themselves live in the resources — the capture shows Gardien for a
-            // Manager on a French session. What this guards is that the tag is built per
-            // reader at all, rather than once from the owner's account language.
             Assert.AreNotEqual(english, french);
         }
     }

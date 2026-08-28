@@ -258,8 +258,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                             : string.Empty;
                         await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
 
-                        // The tag is in the reader's language, so it cannot be built once and
-                        // broadcast - one packet each.
                         var watchers = sessionRegistry.GetSessions(s =>
                             s.HasPlayerEntity && s != session && s.Character.MapInstanceId == mapInstanceId);
                         await Task.WhenAll(watchers.Select(watcher =>
