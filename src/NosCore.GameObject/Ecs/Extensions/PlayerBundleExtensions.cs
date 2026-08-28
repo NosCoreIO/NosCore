@@ -497,10 +497,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    // There used to be a second ladder here: thirteen tiers, icons 16 to 28, with cut-offs that
-    // appear nowhere in the client. It disagreed with ReputationLevels, so the same character was
-    // given one icon in c_info and a different one in fd depending on which of the two was asked.
-    // One ladder, read from the client's own bands - see ReputationLevels.
     private static int GetReputationIcon(long reputation) => (int)ReputationLevels.FromReputation(reputation);
 
     // Matches OpenNos Character.GetDignityIco ordering: Dignity 0 → 1 (Basic), stepping up

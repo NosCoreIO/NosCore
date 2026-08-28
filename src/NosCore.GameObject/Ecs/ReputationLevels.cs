@@ -8,14 +8,6 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Ecs;
 
-/// <summary>
-/// The reputation icon a given amount of reputation earns.
-/// </summary>
-/// <remarks>
-/// Twenty-seven bands, matching the enum's first twenty-seven values one for one. Above them the
-/// ladder is by rank rather than by amount, which needs a ranking this project does not keep, and
-/// ReputationType has no RedLegend to name the tier with.
-/// </remarks>
 public static class ReputationLevels
 {
     public static ReputationType FromReputation(long reputation) => reputation switch
