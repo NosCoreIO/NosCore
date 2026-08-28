@@ -36,13 +36,13 @@ namespace NosCore.GameObject.Services.SkillService
             await SendSkillListAsync(character, useSpecialist: false);
         }
 
-        private const int FirstSpecialistClass = 31;
+        private const int PyjamaSpecialistClass = 32;
 
         public async Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel)
         {
             RemoveSpecialistSkills(character);
 
-            foreach (var skill in skills.Where(s => s.Class > FirstSpecialistClass
+            foreach (var skill in skills.Where(s => s.Class >= PyjamaSpecialistClass
                                                     && s.UpgradeType == morph
                                                     && s.LevelMinimum <= spLevel))
             {
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Services.SkillService
         private static void RemoveSpecialistSkills(ICharacterEntity character)
         {
             foreach (var entry in character.Skills
-                         .Where(s => s.Value.Skill?.Class >= FirstSpecialistClass)
+                         .Where(s => s.Value.Skill?.Class >= PyjamaSpecialistClass)
                          .ToList())
             {
                 character.Skills.TryRemove(entry.Key, out _);
@@ -78,7 +78,7 @@ namespace NosCore.GameObject.Services.SkillService
         private async Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
         {
             var ordered = character.Skills.Values
-                .Where(s => s.Skill != null && (s.Skill!.Class >= FirstSpecialistClass) == useSpecialist)
+                .Where(s => s.Skill != null && (s.Skill!.Class >= PyjamaSpecialistClass) == useSpecialist)
                 .OrderBy(s => s.Skill!.CastId)
                 .Select(s => s.SkillVNum)
                 .ToList();
