@@ -198,10 +198,6 @@ public sealed class HitQueue(
                 }
             }
 
-            // The cards the skill inflicts - the stun of Star Attack, the poison of a poisoned
-            // arrow. A different thing from the buff above: that one turns the skill's own BCards
-            // into a lasting effect, this one applies the Card the skill names by id.
-            //
             if (!killed && request.Skill.BCards.Count > 0)
             {
                 await buffService
