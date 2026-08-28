@@ -241,8 +241,7 @@ namespace NosCore.WorldServer
                     services.AddI18NLogs();
                     services.AddTransient(typeof(IGameLanguageLocalizer), typeof(GameLanguageLocalizer));
                     services.AddTransient(typeof(ILogLanguageLocalizer<LanguageKey>),
-                        x => new LogLanguageLocalizer<LanguageKey, LocalizedResources>(
-                            x.GetRequiredService<IStringLocalizer<LocalizedResources>>()));
+                        typeof(LogLanguageLocalizer<LanguageKey, LocalizedResources>));
 
                     // IClock is wired as a singleton here because SystemClock is an external
                     // NodaTime type with no container-friendly constructor.
