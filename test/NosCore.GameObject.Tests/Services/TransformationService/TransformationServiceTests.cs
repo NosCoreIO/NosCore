@@ -42,7 +42,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.WorldConfiguration,
-                new GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()));
+                new GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
+                new Mock<GameObject.Services.SkillService.ISkillService>().Object);
         }
 
         [TestMethod]

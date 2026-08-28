@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Services.TransformationService
     public class TransformationService(IClock clock, IExperienceService experienceService,
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger<TransformationService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
-            SpeedCalculationService.ISpeedCalculationService speedCalculationService)
+            SpeedCalculationService.ISpeedCalculationService speedCalculationService,
+            SkillService.ISkillService skillService)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -42,6 +43,8 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Morph = 0;
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
+
+            await skillService.UnloadSpecialistSkillsAsync(character);
             character.SpCooldown = 30;
 
             var characterId = character.CharacterId;
@@ -131,6 +134,8 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Morph = sp.Item.Morph;
             character.MorphUpgrade = (byte)sp.Upgrade;
             character.MorphDesign = (byte)sp.Design;
+
+            await skillService.LoadSpecialistSkillsAsync(character, sp.Item.Morph, sp.SpLevel);
 
             var characterId2 = character.CharacterId;
             var mapInstance = character.MapInstance;

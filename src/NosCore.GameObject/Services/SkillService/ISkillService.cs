@@ -7,6 +7,11 @@ namespace NosCore.GameObject.Services.SkillService
     {
         Task LoadSkill(ICharacterEntity character);
 
+        Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel);
+
+        /// <summary>Removes the specialist skills and sends the class list back.</summary>
+        Task UnloadSpecialistSkillsAsync(ICharacterEntity character);
+
         Task<bool> LearnClassSkillsAsync(ICharacterEntity character);
 
         /// <summary>

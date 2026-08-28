@@ -33,22 +33,68 @@ namespace NosCore.GameObject.Services.SkillService
                     (key, oldValue) => characterSkill);
             }
 
-            // Push the refreshed list to the client. Matches OpenNos GenerateSki:
-            // primary/secondary are the class starter vnums (200 + 20*Class, +1),
-            // followed by every learned skill ordered by cast id so the bar draws
-            // deterministically. Without this packet the client's hotbar stays empty
-            // and the server's skill-cast gate is invisible.
-            var classByte = (byte)character.Class;
+            await SendSkillListAsync(character, useSpecialist: false);
+        }
+
+        private const int PyjamaSpecialistClass = 32;
+
+        public async Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel)
+        {
+            RemoveSpecialistSkills(character);
+
+            foreach (var skill in skills.Where(s => s.Class >= PyjamaSpecialistClass
+                                                    && s.UpgradeType == morph
+                                                    && s.LevelMinimum <= spLevel))
+            {
+                character.Skills.AddOrUpdate(skill.SkillVNum,
+                    new CharacterSkill
+                    {
+                        SkillVNum = skill.SkillVNum,
+                        CharacterId = character.VisualId,
+                        Skill = skill
+                    },
+                    (_, existing) => existing);
+            }
+
+            await SendSkillListAsync(character, useSpecialist: true);
+        }
+
+        public async Task UnloadSpecialistSkillsAsync(ICharacterEntity character)
+        {
+            RemoveSpecialistSkills(character);
+            await SendSkillListAsync(character, useSpecialist: false);
+        }
+
+        private static void RemoveSpecialistSkills(ICharacterEntity character)
+        {
+            foreach (var entry in character.Skills
+                         .Where(s => s.Value.Skill?.Class >= PyjamaSpecialistClass)
+                         .ToList())
+            {
+                character.Skills.TryRemove(entry.Key, out _);
+            }
+        }
+
+        private async Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
+        {
             var ordered = character.Skills.Values
-                .Where(s => s.Skill != null)
+                .Where(s => s.Skill != null && (s.Skill!.Class >= PyjamaSpecialistClass) == useSpecialist)
                 .OrderBy(s => s.Skill!.CastId)
                 .Select(s => s.SkillVNum)
                 .ToList();
 
+            var classByte = (byte)character.Class;
+            var primary = useSpecialist
+                ? (ordered.Count > 0 ? ordered[0] : (short)0)
+                : (short)(200 + 20 * classByte);
+            var secondary = useSpecialist
+                ? (ordered.Count > 0 ? ordered[0] : (short)0)
+                : (short)(201 + 20 * classByte);
+
             await character.SendPacketAsync(new SkiPacket
             {
-                PrimarySkillVnum = (short)(200 + 20 * classByte),
-                SecondarySkillVnum = (short)(201 + 20 * classByte),
+                PrimarySkillVnum = primary,
+                SecondarySkillVnum = secondary,
                 SkillVnums = ordered,
             }).ConfigureAwait(false);
         }
@@ -158,18 +204,7 @@ namespace NosCore.GameObject.Services.SkillService
                 return false;
             }
 
-            var ordered = character.Skills.Values
-                .Where(s => s.Skill != null)
-                .OrderBy(s => s.Skill!.CastId)
-                .Select(s => s.SkillVNum)
-                .ToList();
-
-            await character.SendPacketAsync(new SkiPacket
-            {
-                PrimarySkillVnum = (short)(200 + 20 * classByte),
-                SecondarySkillVnum = (short)(201 + 20 * classByte),
-                SkillVnums = ordered,
-            }).ConfigureAwait(false);
+            await SendSkillListAsync(character, useSpecialist: false);
             return true;
         }
     }
