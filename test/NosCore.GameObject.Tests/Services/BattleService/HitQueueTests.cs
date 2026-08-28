@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IInflictedCardService>().Object, new Mock<ILogger<HitQueue>>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<ILogger<HitQueue>>().Object);
             var skill = MakeSkill() with
             {
                 SkillVnum = 7,
@@ -110,22 +110,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             buffs.Verify(b => b.ApplySkillBuffAsync(target, (short)7, (short)100, skill.BCards, attacker), Times.Once);
 
-            // The other half, and a different thing: the buff above turns the skill's own BCards
-            // into a lasting effect, this inflicts the Card those BCards name by id. On the
-            // entity that took the blow, which is the only reason this can run here at all.
-            cards.Verify(c => c.InflictAsync(target, attacker, skill.BCards), Times.Once);
+            buffs.Verify(b => b.InflictCardsAsync(target, attacker, skill.BCards), Times.Once);
         }
 
-        // The blow does not report itself finished until the card it carries has been applied.
-        //
-        // The Verify above cannot see this: it passes just as well if the call is fired and
-        // forgotten, because Moq answers with an already-completed Task either way. And
-        // fire-and-forget is exactly what this used to be - TryApplyHit was made async for this
-        // one property, so something has to hold on to it.
-        //
-        // The wait can only fail in the safe direction: if the call is awaited the hit can never
-        // complete, so the delay always wins; a loaded machine can make this pass when it should
-        // not, never fail when it should not.
         [TestMethod]
         public async Task ALandedHitDoesNotFinishBeforeTheCardIsApplied()
         {
@@ -137,14 +124,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            // Two signals, not one. `entered` says the worker has actually reached the call -
-            // without it the test would also pass on a machine slow enough that the worker never
-            // got there, which is a pass for the wrong reason. `applying` is the gate the call
-            // waits on.
+            var buffs = new Mock<IBuffService>();
             var entered = new TaskCompletionSource();
             var applying = new TaskCompletionSource();
-            var cards = new Mock<IInflictedCardService>();
-            cards.Setup(c => c.InflictAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+            buffs.Setup(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
                     It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()))
                 .Returns(() =>
                 {
@@ -152,8 +135,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     return applying.Task;
                 });
 
-            var queue = new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
-                new Mock<IRegenerationService>().Object, cards.Object, new Mock<ILogger<HitQueue>>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object,
+                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object,
+                new Mock<ILogger<HitQueue>>().Object);
             var skill = MakeSkill() with { BCards = new[] { new BCardDto { Type = 3 } } };
 
             var hit = queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
@@ -191,16 +175,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IInflictedCardService>().Object, new Mock<ILogger<HitQueue>>().Object);
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<ILogger<HitQueue>>().Object);
             var skill = MakeSkill() with { Duration = 100, BCards = new[] { new BCardDto { Type = 3 } } };
 
             await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
 
             buffs.Verify(b => b.ApplySkillBuffAsync(It.IsAny<IAliveEntity>(), It.IsAny<short>(), It.IsAny<short>(), It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>(), It.IsAny<IAliveEntity>()), Times.Never);
 
-            // Nor a card on a corpse: poisoning something already dead costs a packet and a buff
-            // icon on an entity that is about to stop existing.
-            cards.Verify(c => c.InflictAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+            buffs.Verify(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
                 It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()), Times.Never);
         }
 
@@ -240,7 +222,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object,
-                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IInflictedCardService>().Object,
+                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object,
                 new Mock<ILogger<HitQueue>>().Object);
         }
 
@@ -347,7 +329,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var stats = new Mock<IBattleStatsProvider>();
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
 
-            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<IInflictedCardService>().Object, new Mock<ILogger<HitQueue>>().Object);
+            return new HitQueue(calc.Object, stats.Object, new Mock<IBuffService>().Object, new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object, new Mock<ILogger<HitQueue>>().Object);
         }
 
         private class MutableDamage
