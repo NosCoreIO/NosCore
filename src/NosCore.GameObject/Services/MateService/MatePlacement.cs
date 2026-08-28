@@ -9,20 +9,12 @@ using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    /// <summary>
-    /// Puts a character's mates around them.
-    /// </summary>
     public static class MatePlacement
     {
         // Tried in order: the first walkable square wins.
         private static readonly (short X, short Y)[] Offsets =
             [(1, 1), (-1, 1), (1, -1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)];
 
-        /// <summary>
-        /// Places every mate on its own walkable square around the owner. Squares are reserved
-        /// as handed out so a pet and a partner do not stack; with none free the mate stands on
-        /// the owner.
-        /// </summary>
         public static void Arrange(short ownerX, short ownerY, Map.Map map, IEnumerable<Mate> mates)
         {
             var taken = new HashSet<(short, short)>();

@@ -150,8 +150,6 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
             await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
 
-            // Party init even for a solo player: the client wants pinit and a self-row pst so
-            // its party frame is in a known state for later joins and leaves.
             await session.SendPacketAsync(session.Character.Group.GeneratePinit());
             await session.SendPacketsAsync(session.Character.Group.GeneratePst());
             await session.SendPacketsAsync(session.Character.Mates.Values

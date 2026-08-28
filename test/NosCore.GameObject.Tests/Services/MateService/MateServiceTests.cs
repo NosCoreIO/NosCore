@@ -146,8 +146,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var packet = (await service.LoadAsync(CharacterId))[0].GenerateScp(RegionType.EN);
 
-            // The serializer turns the space into a caret on the way out; the packet itself
-            // carries the name as it is.
             Assert.AreEqual("Joyeux Mouton", packet.Name);
         }
 
@@ -178,9 +176,6 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task TheSpawnPacketMarksTheMateAsBelongingToItsOwnerAsync()
         {
-            // in 2 1506 445562 26 26 2 100 100 0 0 3 626114 1 0 -1 Ratufu^pirate^(Feu) 0 -1 ...
-            // Owner and GroupEffect are what separate a mate from a map npc; without them the
-            // client draws it as scenery and will not let the owner command it.
             var service = Build(new[]
             {
                 new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, Hp = 78, Mp = 5 }

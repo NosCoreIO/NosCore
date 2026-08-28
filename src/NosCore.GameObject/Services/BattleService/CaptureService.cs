@@ -96,9 +96,6 @@ namespace NosCore.GameObject.Services.BattleService
                 Hp = monster.NpcMonster.MaxHp,
                 Mp = monster.NpcMonster.MaxMp,
                 IsSummonable = true,
-                // A pet you have just caught walks out beside you; it does not go into storage
-                // for you to fetch later. Only if the pet slot is already taken does it wait,
-                // because a character may keep one pet and one partner out at a time.
                 IsTeamMember = !mateDao.Where(s => s.CharacterId == character.CharacterId
                     && s.MateType == MateType.Pet && s.IsTeamMember)!.Any()
             }).ConfigureAwait(false);

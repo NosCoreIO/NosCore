@@ -106,9 +106,6 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        /// <summary>
-        /// in 2 1506 445562 26 26 2 100 100 0 0 3 626114 1 0 -1 Ratufu^pirate^(Feu)
-        /// </summary>
         public static InPacket GenerateIn(this Mate mate, RegionType language)
         {
             return new InPacket
@@ -148,9 +145,6 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        /// <summary>
-        /// GroupOrder carries the mate type, not a party position: pst 2 22687 0 100 100 ...
-        /// </summary>
         public static PstPacket GeneratePst(this Mate mate)
         {
             return new PstPacket

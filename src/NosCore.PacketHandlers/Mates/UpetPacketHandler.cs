@@ -18,8 +18,6 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Mates
 {
-    // A mate goes through IBattleService.Hit like anything else that fights - it is an entity
-    // with a monster's components, so there is no second damage path.
     public class UpetPacketHandler(
         IBattleService battleService,
         ISessionRegistry sessionRegistry,

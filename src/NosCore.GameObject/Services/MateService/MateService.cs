@@ -56,11 +56,6 @@ namespace NosCore.GameObject.Services.MateService
                 {
                     mate.PetSlot = slot++;
 
-                    // A character keeps one pet and one partner out at a time. Two rows can
-                    // claim the slot — two captures racing, or a database edited by hand — and
-                    // the second would spawn on top of the first with no error anywhere. The
-                    // reader decides, so a bad row costs a mate that stays in the list rather
-                    // than a broken map.
                     if (!mate.IsTeamMember)
                     {
                         continue;

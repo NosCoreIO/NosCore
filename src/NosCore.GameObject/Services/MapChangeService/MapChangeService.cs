@@ -229,8 +229,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                         : string.Empty;
                     await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
 
-                    // And whatever is at their heel — unless they are hidden, in which case the
-                    // pet would announce them: its spawn packet names its owner.
                     if (!otherCharacter.Invisible)
                     {
                         await session.SendPacketsAsync(otherCharacter.Mates.Values
@@ -261,15 +259,10 @@ namespace NosCore.GameObject.Services.MapChangeService
                     }
                 }
 
-                // The mates arrive with their owner, each on its own walkable square: their
-                // stored square belongs to whichever map they were last saved on, and reusing
-                // it here would put a pet through a wall.
                 var teamMates = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
                 MatePlacement.Arrange(character.PositionX, character.PositionY,
                     newMapInstance.Map, teamMates);
 
-                // The mate becomes a real entity on the map it is standing on: that is what lets
-                // it be targeted, buffed and killed like anything else that fights.
                 foreach (var mate in teamMates)
                 {
                     var handle = newMapInstance.EcsWorld.CreateMate(
@@ -281,8 +274,6 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var mateSpawns = teamMates.Select(s => s.GenerateIn(accountLanguage)).ToList();
                 if (invisible)
                 {
-                    // A hidden owner keeps their mates to themselves: a visible pet with an
-                    // Owner field on it announces the character it belongs to.
                     await session.SendPacketsAsync(mateSpawns);
                 }
                 else
@@ -327,8 +318,6 @@ namespace NosCore.GameObject.Services.MapChangeService
             var leaving = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
             await mapInstance.SendPacketsAsync(leaving.Select(s => s.GenerateOut()));
 
-            // The entity belongs to the map being left, so it goes with it. A new one is made
-            // on arrival; keeping this one would leave a mate standing in a world nobody is in.
             foreach (var mate in leaving.Where(s => s.Entity.HasValue))
             {
                 mapInstance.EcsWorld.DestroyEntity(mate.Entity!.Value.Handle);
