@@ -18,12 +18,7 @@ using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// Per-class, per-posture regen rates from OpenNos CharacterHelper.HpHealth /
-// HpHealthStand / MpHealth / MpHealthStand. Sitting regen ticks every 1500ms
-// unconditionally; standing regen ticks every 2000ms AND is gated on
-// "no damage taken for the last 4 seconds" — matches OpenNos HealthHPLoad
-// which returns 0 while LastDefence is within 4s of now. Without the gate
-// the HP bar refilled itself in the middle of combat.
+// Standing regen is gated on no damage for 4 seconds; without it the bar refills mid-fight.
 public sealed class RegenerationService(
     ISessionRegistry sessionRegistry,
     IClock clock,
@@ -33,13 +28,24 @@ public sealed class RegenerationService(
     private static readonly Duration StandingInterval = Duration.FromMilliseconds(2000);
     private static readonly Duration StandingDefenceGrace = Duration.FromSeconds(4);
 
-    // HpHealth[class] sitting rate; HpHealthStand[class] standing rate.
-    // Index matches CharacterClassType numeric value (Adventurer=0, Swordsman=1,
-    // Archer=2, Mage=3, MartialArtist=4 — martial artist treated like Swordsman).
-    private static readonly int[] HpSittingRate = { 30, 90, 60, 30, 90 };
-    private static readonly int[] HpStandingRate = { 25, 26, 32, 20, 26 };
-    private static readonly int[] MpSittingRate = { 10, 30, 50, 80, 30 };
-    private static readonly int[] MpStandingRate = { 8, 10, 20, 40, 10 };
+    private static readonly int[] HpSittingRate = { 30, 80, 60, 30, 70 };
+    private static readonly int[] MpSittingRate = { 10, 30, 50, 80, 40 };
+
+    /// <summary>
+    /// On one's feet the rate is derived from the resting one, not looked up.
+    /// </summary>
+    /// <remarks>
+    /// The factor is one half up to level 20 and steps down in bands after it. Multiply before
+    /// dividing, or the band is lost to integer truncation.
+    /// </remarks>
+    public static int StandingRate(int restingRate, byte level)
+    {
+        var percent = level <= 20 ? 50
+            : level <= 40 ? 40
+            : level <= 60 ? 30
+            : 20;
+        return restingRate * percent / 100;
+    }
 
     private readonly ConcurrentDictionary<long, Instant> _lastRegen = new();
     private readonly ConcurrentDictionary<long, Instant> _lastDefence = new();
@@ -84,8 +90,8 @@ public sealed class RegenerationService(
                         continue;
                     }
 
-                    hpRate = HpStandingRate[classIndex];
-                    mpRate = MpStandingRate[classIndex];
+                    hpRate = StandingRate(HpSittingRate[classIndex], character.Level);
+                    mpRate = StandingRate(MpSittingRate[classIndex], character.Level);
                 }
 
                 _lastRegen[character.CharacterId] = now;
