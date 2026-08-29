@@ -101,8 +101,7 @@ namespace NosCore.Parser.Tests
 
             await Parser().InsertDignityLevelsAsync(_tempFolder);
 
-            // The client bounds Default at "100 - 0" but declares nothing between -1 and -99,
-            // so it cannot carry a ceiling of its own.
+            // The client declares nothing between -1 and -99, so Default cannot carry a ceiling.
             Assert.AreEqual((byte)DignityType.Default, _saved[0].DignityLevelId);
             Assert.IsNull(_saved[0].MaxDignity);
         }
@@ -127,9 +126,8 @@ namespace NosCore.Parser.Tests
 
             await Parser().InsertDignityLevelsAsync(_tempFolder);
 
-            // Useless ends at -800 and Failed is declared "-800 to -1000", which would put -800
-            // in two bands. Deriving from the previous floor gives -801, which is also what the
-            // client's own packet documentation says.
+            // Useless ends at -800 and Failed is declared "-800 to -1000", putting -800 in two
+            // bands. Deriving from the previous floor gives the -801 the packet docs state.
             Assert.AreEqual((short)-801, _saved[5].MaxDignity);
         }
 
@@ -140,7 +138,7 @@ namespace NosCore.Parser.Tests
 
             await Parser().InsertDignityLevelsAsync(_tempFolder);
 
-            // "-201 to -400#13#1010% price increase" carries 13, 1010 and 10 after the escape.
+            // The escape tail carries 13, 1010 and 10.
             Assert.AreEqual((short)-201, _saved[2].MaxDignity);
         }
 

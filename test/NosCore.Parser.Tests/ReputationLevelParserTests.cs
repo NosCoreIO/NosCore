@@ -68,7 +68,6 @@ namespace NosCore.Parser.Tests
         private ReputationLevelParser Parser() =>
             new(_daoMock.Object, NullLogger<ReputationLevelParser>.Instance, _logLanguageMock.Object);
 
-        // The real file is one long line of "<key>\v<value>\r" records, not newline-delimited.
         private void WriteConstString(IEnumerable<string> bands, int firstKey = 2081)
         {
             var builder = new StringBuilder();
@@ -117,7 +116,6 @@ namespace NosCore.Parser.Tests
 
             await Parser().InsertReputationLevelsAsync(_tempFolder);
 
-            // "Over 5000000" states the previous band's ceiling, so the tier begins one above it.
             Assert.AreEqual(5_000_001, _saved[^1].MinReputation);
             Assert.IsNull(_saved[^1].MaxReputation);
         }
@@ -175,9 +173,7 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ABandThatStoppedBeingNumericImportsNothing()
         {
-            // 2108 onwards are ranking places rather than thresholds. If the client ever shifts
-            // one of those down into the numeric range the import must refuse it, not read
-            // "51st-100th" as 51 to 100.
+            // 2108 onwards are ranking places, not thresholds.
             var ranked = ClientBands.ToArray();
             ranked[20] = "51st-100th";
 

@@ -8,17 +8,16 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 using System.Collections.Generic;
 
 namespace NosCore.GameObject.Tests
 {
-    // Both sides of every boundary, for the same reason as ReputationLevelsTests: the second
-    // dignity ladder that used to live in PlayerBundleExtensions was off by one at every step
-    // and looked right in the middle of each band.
+    // Both sides of every boundary: the second dignity ladder that used to live in
+    // PlayerBundleExtensions was off by one at every step and looked right mid-band.
     [TestClass]
     public class DignityLevelsTests
     {
-        // (highest dignity still in the band, the icon that band draws), worst first.
         private static readonly (short Top, DignityType Icon)[] Bands =
         {
             (-801, DignityType.Failed),
@@ -29,8 +28,7 @@ namespace NosCore.GameObject.Tests
         };
 
         [TestInitialize]
-        [TestCleanup]
-        public void ResetLadder() => DignityLevels.ResetToClientLadder();
+        public void LoadLadder() => DignityLevels.Load(ClientLadders.DignityLevels());
 
         [TestMethod]
         public void TheHighestValueOfEachBandDrawsThatBandsIcon()
@@ -78,13 +76,12 @@ namespace NosCore.GameObject.Tests
         [TestMethod]
         public void DignityBelowTheLastBandStillDrawsTheWorstIcon()
         {
-            // The client stops at -1000 but nothing clamps dignity there.
             Assert.AreEqual(DignityType.Failed, DignityLevels.FromDignity(-1000));
             Assert.AreEqual(DignityType.Failed, DignityLevels.FromDignity(short.MinValue));
         }
 
         [TestMethod]
-        public void TheImportedLadderReplacesTheBuiltInOne()
+        public void TheLadderIsWhateverWasImported()
         {
             DignityLevels.Load(new List<DignityLevelDto>
             {
@@ -95,15 +92,6 @@ namespace NosCore.GameObject.Tests
             Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(-4));
             Assert.AreEqual(DignityType.Dubious, DignityLevels.FromDignity(-5));
             Assert.AreEqual(DignityType.Dubious, DignityLevels.FromDignity(short.MinValue));
-        }
-
-        [TestMethod]
-        public void AnEmptyTableKeepsTheBuiltInLadder()
-        {
-            DignityLevels.Load(new List<DignityLevelDto>());
-
-            Assert.AreEqual(DignityType.Failed, DignityLevels.FromDignity(-801));
-            Assert.AreEqual(DignityType.Default, DignityLevels.FromDignity(0));
         }
     }
 }

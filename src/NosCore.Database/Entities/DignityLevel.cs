@@ -12,17 +12,14 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Database.Entities
 {
-    [StaticMetaData(LoadedMessage = LogLanguageKey.DIGNITYLEVELS_LOADED)]
+    [StaticMetaData(LoadedMessage = LogLanguageKey.DIGNITYLEVELS_LOADED, EmptyMessage = LogLanguageKey.NO_DIGNITYLEVEL)]
     public class DignityLevel : IStaticEntity
     {
-        // Matches DignityType, whose values 1..6 are the client's dignity bands in order.
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public byte DignityLevelId { get; set; }
 
-        // Dignity descends, so this is the highest value still inside the band. Null on Default,
-        // which the client bounds at 0 but which has to keep catching everything above the first
-        // penalty band: the client declares nothing between -1 and -99.
+        // Dignity descends: this is the highest value still inside the band.
         public short? MaxDignity { get; set; }
     }
 }

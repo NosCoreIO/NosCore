@@ -18,15 +18,11 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // Dignity is the tail of the same conststring table the reputation ladder comes from: names
-    // at 2075..2080, bands at 2111..2116, matching DignityType 1..6. The bands read
-    // "100 - 0", "-100 ~ -200", "-201 to -400" and so on, each of the penalty ones followed by
-    // the effects text after a #13#10 escape.
+    // Bands 2111..2116 are the dignity tail of the same table, matching DignityType 1..6.
     //
-    // Only each band's floor is trusted. The ceilings are derived as one past the previous floor
-    // because the client contradicts itself once: Useless ends at -800 and Failed is declared as
-    // starting at -800 too, which would put -800 in two bands. The client's own packet
-    // documentation puts Failed at -801, and that is what deriving produces.
+    // Only each band's floor is trusted, ceilings being derived as one past the previous floor,
+    // because the client contradicts itself once: Useless ends at -800 and Failed is declared to
+    // start at -800 as well. Deriving gives Failed the -801 its own packet documentation states.
     public class DignityLevelParser(IDao<DignityLevelDto, byte> dignityLevelDao,
         ILogger<DignityLevelParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
@@ -96,8 +92,8 @@ namespace NosCore.Parser.Parsers
             return levels;
         }
 
-        // Every penalty band is negative, so the two magnitudes are negated. The effects text is
-        // cut first because it carries digits of its own ("10% price increase").
+        // Penalty bands are negative, so the magnitudes are negated. The effects text is cut
+        // first because it carries digits of its own ("-201 to -400#13#1010% price increase").
         private static (short Ceiling, short Floor)? ReadBounds(string band)
         {
             var escape = band.IndexOf('#');

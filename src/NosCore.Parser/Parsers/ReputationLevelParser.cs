@@ -18,11 +18,9 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // The client keeps the reputation ladder in conststring as two parallel contiguous tables:
-    // names at 2045..2080 and the matching bands at 2081..2116. The first 30 of each are
-    // reputation and the last 6 are dignity. Of the 30 reputation bands only the first 27 are
-    // numeric — 2108..2110 are ranking places ("51st-100th"), which need a server-side ranking
-    // NosCore does not keep. Those first 27 line up one-for-one with ReputationType 1..27.
+    // Bands 2081..2110 are reputation, but only the first 27 are thresholds: 2108..2110 are
+    // ranking places ("51st-100th") needing a ranking NosCore does not keep. Those 27 are
+    // ReputationType 1..27.
     public class ReputationLevelParser(IDao<ReputationLevelDto, byte> reputationLevelDao,
         ILogger<ReputationLevelParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
@@ -61,8 +59,8 @@ namespace NosCore.Parser.Parsers
                     .Select(match => long.Parse(match.Value, CultureInfo.InvariantCulture))
                     .ToList();
 
-                // The highest band reads "Over 5000000": its single number is the previous
-                // band's upper bound, and it has no upper bound of its own.
+                // The highest band reads "Over 5000000": that number is the previous band's
+                // ceiling, not its own floor.
                 var isHighest = offset == NumericBandCount - 1;
                 if (numbers.Count != (isHighest ? 1 : 2))
                 {

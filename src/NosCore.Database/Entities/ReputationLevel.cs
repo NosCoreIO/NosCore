@@ -12,17 +12,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Database.Entities
 {
-    [StaticMetaData(LoadedMessage = LogLanguageKey.REPUTATIONLEVELS_LOADED)]
+    [StaticMetaData(LoadedMessage = LogLanguageKey.REPUTATIONLEVELS_LOADED, EmptyMessage = LogLanguageKey.NO_REPUTATIONLEVEL)]
     public class ReputationLevel : IStaticEntity
     {
-        // Matches ReputationType, whose values 1..27 are the client's reputation bands in order.
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public byte ReputationLevelId { get; set; }
 
         public long MinReputation { get; set; }
 
-        // Null on the highest band only, which the client states as an open range.
         public long? MaxReputation { get; set; }
     }
 }

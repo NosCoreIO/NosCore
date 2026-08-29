@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 using System.Collections.Generic;
 
 namespace NosCore.GameObject.Tests
@@ -51,8 +52,7 @@ namespace NosCore.GameObject.Tests
         };
 
         [TestInitialize]
-        [TestCleanup]
-        public void ResetLadder() => ReputationLevels.ResetToClientLadder();
+        public void LoadLadder() => ReputationLevels.Load(ClientLadders.ReputationLevels());
 
         [TestMethod]
         public void TheLastValueOfEachBandDrawsThatBandsIcon()
@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Tests
         }
 
         [TestMethod]
-        public void TheImportedLadderReplacesTheBuiltInOne()
+        public void TheLadderIsWhateverWasImported()
         {
             ReputationLevels.Load(new List<ReputationLevelDto>
             {
@@ -125,20 +125,7 @@ namespace NosCore.GameObject.Tests
 
             Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(9));
             Assert.AreEqual(ReputationType.BlueBeginner, ReputationLevels.FromReputation(10));
-
-            // 51 is BlueBeginner on the built-in ladder too, so check a value the two disagree on.
             Assert.AreEqual(ReputationType.BlueBeginner, ReputationLevels.FromReputation(long.MaxValue));
-        }
-
-        [TestMethod]
-        public void AnEmptyTableKeepsTheBuiltInLadder()
-        {
-            // A database parsed before the ReputationLevel table existed must not collapse every
-            // player to a single icon.
-            ReputationLevels.Load(new List<ReputationLevelDto>());
-
-            Assert.AreEqual(ReputationType.RedElite, ReputationLevels.FromReputation(long.MaxValue));
-            Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(0));
         }
     }
 }

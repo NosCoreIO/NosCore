@@ -12,18 +12,15 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // conststring is one long run of "<key>\v<value>\r" records holding the client's UI strings.
-    // Only the UK file is read: the same numbers appear in all nine languages, but each wraps
-    // them in translated prose with its own separators and thousands marks, and CZ/PL are CP1250
-    // rather than CP1252.
+    // Only the UK file is read: every language repeats the same numbers, but wrapped in
+    // translated prose with its own separators and thousands marks, and CZ/PL are CP1250.
     internal static class ConstStringFile
     {
         public const string FileName = "conststring_UK.dat";
 
         public static async Task<Dictionary<int, string>> ReadAsync(string folder)
         {
-            // Latin1 round-trips every byte, so a client shipping a different codepage cannot make
-            // the read throw. Callers only consume digits out of the values.
+            // Latin1 never throws on any byte, and callers only read digits out of the values.
             var content = await File.ReadAllTextAsync(Path.Combine(folder, FileName), Encoding.Latin1)
                 .ConfigureAwait(false);
 

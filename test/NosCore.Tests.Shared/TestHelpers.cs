@@ -443,6 +443,8 @@ namespace NosCore.Tests.Shared
         {
             Lazy = new Lazy<TestHelpers>(() => new TestHelpers());
             Instance.InitDatabase();
+            NosCore.GameObject.Ecs.ReputationLevels.Load(ClientLadders.ReputationLevels());
+            NosCore.GameObject.Ecs.DignityLevels.Load(ClientLadders.DignityLevels());
             await Instance.GenerateMapInstanceProviderAsync();
         }
     }

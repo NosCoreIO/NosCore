@@ -13,10 +13,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Ecs.Extensions
 {
-    // One slot in `in` carries either ladder: the reputation icon while dignity is untouched, the
-    // negated dignity icon once it drops. The guard that chose between them tested the dignity
-    // icon against 0, which it can never be — the lowest icon is 1 — so the reputation icon was
-    // never sent, and an ordinary player was drawn with (byte)-1.
+    // The guard choosing between the two ladders tested the dignity icon against 0, which it
+    // can never be, so the reputation icon was never sent and a normal player drew (byte)-1.
     [TestClass]
     public class ReputationIconTests
     {
