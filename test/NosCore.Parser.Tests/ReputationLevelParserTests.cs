@@ -186,11 +186,8 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ABandThatStoppedBeingNumericImportsNothing()
         {
-            // 2108 onwards are ranking places, not thresholds, and the numbers they carry can be
-            // the RIGHT ones. This band is index 1, where 51 and 150 are exactly what is expected,
-            // so nothing but the ordinal suffix can reject it. Put the same text at index 20 and
-            // the test goes green over a parser that accepts ranking places, because 51 is not the
-            // 285001 that band wants - which is what it used to do.
+            // Index 1 wants exactly 51 and 150, so only the suffix can reject this. At index 20
+            // the bounds reject it first and the test goes green over a parser that never looked.
             var ranked = ClientBands.ToArray();
             ranked[1] = "51st-150th";
 
@@ -204,10 +201,8 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ARankingBandWrittenWithBareNumbersImportsNothing()
         {
-            // French and German write the same ranking places without any suffix - "Place 51 a
-            // 100", "Platze 51 bis 100" - so a rule about digits glued to letters would let them
-            // through. What separates a threshold from a place in all eight client languages is
-            // that no numeric band contains a letter at all.
+            // French and German write ranking places with bare numbers, so a rule about suffixes
+            // lets them through. What holds in all eight languages: no numeric band has a letter.
             var ranked = ClientBands.ToArray();
             ranked[1] = "Place 51 a 150";
 
