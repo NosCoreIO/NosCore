@@ -135,6 +135,7 @@ public sealed class SkillResolver : ISkillResolver
             Element: main.Element,
             Duration: main.Duration,
             MpCost: main.MpCost,
-            BCards: _catalog.GetSkillBCards(main.SkillVNum));
+            BCards: _catalog.GetSkillBCards(main.SkillVNum),
+            CellPattern: main.CellPattern);
     }
 }

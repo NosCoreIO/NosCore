@@ -27,7 +27,8 @@ public sealed record SkillInfo(
     byte Element,
     short Duration,
     short MpCost,
-    IReadOnlyList<BCardDto> BCards)
+    IReadOnlyList<BCardDto> BCards,
+    string? CellPattern = null)
 {
     public bool IsAoe => HitType is TargetHitType.SingleAoeTargetHit
                          or TargetHitType.AoeTargetHit

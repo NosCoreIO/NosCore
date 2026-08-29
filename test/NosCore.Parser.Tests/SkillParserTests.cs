@@ -101,12 +101,14 @@ namespace NosCore.Parser.Tests
             short mpCost = 0,
             short itemVNum = 0,
             byte levelMinimum = 0,
-            string fcombo = "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0")
+            string fcombo = "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0",
+            (int dx, int dy)[]? cells = null,
+            (int dx, int dy)[]? tailCells = null)
         {
             return $"\tVNUM\t{skillVNum}\r\n" +
                    $"\tNAME\t{name}\r\n" +
                    $"\tTYPE\t{skillType}\t{castId}\t{classType}\t{type}\t0\t{element}\t0\r\n" +
-                   $"\tCOST\t{cpCost}\t{price}\t0\r\n" +
+                   $"\tCOST\t{cpCost}\t{price}\t0{Triples(tailCells, 30)}\r\n" +
                    $"\tLEVEL\t{levelMinimum}\t-1\t-1\t-1\t-1\r\n" +
                    $"\tEFFECT\t0\t{castEffect}\t{castAnimation}\t{effect}\t{attackAnimation}\t0\t0\t0\t0\r\n" +
                    $"\tTARGET\t{targetType}\t{hitType}\t{range}\t{targetRange}\t0\r\n" +
@@ -117,9 +119,94 @@ namespace NosCore.Parser.Tests
                    "\tBASIC\t3\t0\t0\t0\t0\t0\r\n" +
                    "\tBASIC\t4\t0\t0\t0\t0\t0\r\n" +
                    $"\tFCOMBO\t{fcombo}\r\n" +
-                   "\tCELL\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\r\n" +
+                   $"\tCELL\t8\t8{Triples(cells, 30)}\r\n" +
                    "\tZ_DESC\t0\r\n" +
                    "#=========================================================";
+        }
+
+        private static string Triples((int dx, int dy)[]? cells, int slots)
+        {
+            var sb = new System.Text.StringBuilder();
+            for (var i = 0; i < slots; i++)
+            {
+                if ((cells != null) && (i < cells.Length))
+                {
+                    sb.Append($"\t{cells[i].dx}\t{cells[i].dy}\t1");
+                }
+                else
+                {
+                    sb.Append("\t0\t0\t0");
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        // A line of `length` cells straight in front of the caster: dy negative is forward.
+        private static (int dx, int dy)[] Line(int length, int dx = 0)
+        {
+            var cells = new (int, int)[length];
+            for (var i = 0; i < length; i++)
+            {
+                cells[i] = (dx, -length + i);
+            }
+
+            return cells;
+        }
+
+        private async Task<SkillDto> ParseOneAsync(string content)
+        {
+            CreateTestFile(content);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object,
+                _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertSkillsAsync(_tempFolder);
+            Assert.AreEqual(1, _savedSkills.Count);
+            return _savedSkills[0];
+        }
+
+        // An empty CELL is the overwhelming majority - 1890 of the 1958 skills - and has to come
+        // out as nothing rather than as a pattern of zero-zero cells.
+        [TestMethod]
+        public async Task ASkillWithNoPatternHasNoCellPattern()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 1));
+            Assert.IsNull(skill.CellPattern);
+        }
+
+        // Skill 244, the archer's piercing shot: the row of eight squares in front of the caster.
+        [TestMethod]
+        public async Task AStraightLineComesOutAsEightPairs()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 244, cells: Line(8)));
+            Assert.AreEqual("0,-8,0,-7,0,-6,0,-5,0,-4,0,-3,0,-2,0,-1", skill.CellPattern);
+        }
+
+        // The list ends at the first triple whose third field is zero, not at the end of the row.
+        [TestMethod]
+        public async Task ThePatternStopsAtTheFirstZeroContinuesFlag()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 2, cells: Line(3)));
+            Assert.AreEqual("0,-3,0,-2,0,-1", skill.CellPattern);
+        }
+
+        // CELL holds thirty cells and no more: 2 + 30*3 + 1 = 93 fields. Ten skills need more and
+        // continue in the tail of COST, which is zeros for the other 1948.
+        [TestMethod]
+        public async Task APatternLongerThanThirtyContinuesInTheTailOfCost()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 1857,
+                cells: Line(30), tailCells: Line(4, dx: 1)));
+
+            Assert.AreEqual(34, skill.CellPattern!.Split(',').Length / 2);
+            Assert.IsTrue(skill.CellPattern!.EndsWith("1,-4,1,-3,1,-2,1,-1"),
+                "the tail is appended after the thirty CELL holds");
+        }
+
+        [TestMethod]
+        public async Task AFullCellWithAnEmptyTailStopsAtThirty()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 1175, cells: Line(30)));
+            Assert.AreEqual(30, skill.CellPattern!.Split(',').Length / 2);
         }
 
         [TestMethod]

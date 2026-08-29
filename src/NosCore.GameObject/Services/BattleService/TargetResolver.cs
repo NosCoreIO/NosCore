@@ -35,6 +35,12 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             return results;
         }
 
+        var pattern = SkillCells.Parse(skill.CellPattern);
+        var cells = pattern == null
+            ? null
+            : SkillCells.Resolve(pattern, attacker.PositionX, attacker.PositionY,
+                primaryTarget.PositionX, primaryTarget.PositionY);
+
         var range = skill.TargetRange;
         var cx = primaryTarget.PositionX;
         var cy = primaryTarget.PositionY;
@@ -44,7 +50,7 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             if (monster.VisualId == primaryTarget.VisualId && monster.VisualType == primaryTarget.VisualType) continue;
             if (!monster.IsAlive) continue;
             if (!IsEnemy(attacker, monster)) continue;
-            if (WithinRange(cx, cy, monster.PositionX, monster.PositionY, range))
+            if (IsHit(cells, cx, cy, monster.PositionX, monster.PositionY, range))
             {
                 results.Add(monster);
             }
@@ -61,7 +67,7 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             if (player.VisualId == attacker.VisualId && attacker.VisualType == VisualType.Player) continue;
             if (!player.IsAlive) continue;
             if (!IsEnemy(attacker, player)) continue;
-            if (WithinRange(cx, cy, player.PositionX, player.PositionY, range))
+            if (IsHit(cells, cx, cy, player.PositionX, player.PositionY, range))
             {
                 results.Add(player);
             }
@@ -84,6 +90,12 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             (VisualType.Npc, VisualType.Monster) => true,
             _ => false,
         };
+    }
+
+    private static bool IsHit(HashSet<(short X, short Y)>? cells, short cx, short cy, short x,
+        short y, int range)
+    {
+        return cells != null ? cells.Contains((x, y)) : WithinRange(cx, cy, x, y, range);
     }
 
     private static bool WithinRange(short cx, short cy, short x, short y, int range)
