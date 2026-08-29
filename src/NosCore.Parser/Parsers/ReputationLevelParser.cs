@@ -29,6 +29,12 @@ namespace NosCore.Parser.Parsers
 
         private static readonly Regex NumberPattern = new(@"\d+", RegexOptions.Compiled);
 
+        // 2108 onwards are ranking places sharing the table, and in some languages they read
+        // as plain numbers: "Place 51 a 100" in French, "Platze 51 bis 100" in German. Only a
+        // letter tells them apart from a threshold, and none of the 26 numeric bands carries
+        // one in any of the eight client languages.
+        private static readonly Regex Letter = new(@"[^\W\d_]", RegexOptions.Compiled);
+
         public async Task InsertReputationLevelsAsync(string folder)
         {
             var bands = await ConstStringFile.ReadAsync(folder).ConfigureAwait(false);
@@ -64,6 +70,11 @@ namespace NosCore.Parser.Parsers
                 // The highest band reads "Over 5000000": that number is the previous band's
                 // ceiling, not its own floor.
                 var isHighest = offset == NumericBandCount - 1;
+                if (!isHighest && Letter.IsMatch(band))
+                {
+                    return null;
+                }
+
                 if (numbers.Count != (isHighest ? 1 : 2))
                 {
                     return null;
