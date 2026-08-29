@@ -25,6 +25,9 @@ public interface IBuffService
     // filtered out because damage is applied immediately, not as a lasting buff.
     Task ApplySkillBuffAsync(IAliveEntity target, short skillVnum, short skillDuration, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster);
 
+    Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
+        IReadOnlyList<BCardDto> skillBCards);
+
     Task RemoveAsync(IAliveEntity target, short cardId);
 
     IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target);

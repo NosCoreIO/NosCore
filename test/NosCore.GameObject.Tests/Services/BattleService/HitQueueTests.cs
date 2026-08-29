@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -109,6 +109,58 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await queue.EnqueueAsync(request);
 
             buffs.Verify(b => b.ApplySkillBuffAsync(target, (short)7, (short)100, skill.BCards, attacker), Times.Once);
+
+            buffs.Verify(b => b.InflictCardsAsync(target, attacker, skill.BCards), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task ALandedHitDoesNotFinishBeforeTheCardIsApplied()
+        {
+            var target = new FakeBattleEntity { Hp = 100, MaxHp = 100 };
+            var attacker = new FakeBattleEntity();
+            var calc = new Mock<IDamageCalculator>();
+            calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
+                .Returns(new DamageResult(10, SuPacketHitMode.SuccessAttack));
+            var stats = new Mock<IBattleStatsProvider>();
+            stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
+
+            var buffs = new Mock<IBuffService>();
+            var entered = new TaskCompletionSource();
+            var applying = new TaskCompletionSource();
+            buffs.Setup(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+                    It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()))
+                .Returns(() =>
+                {
+                    entered.TrySetResult();
+                    return applying.Task;
+                });
+
+            var queue = new HitQueue(calc.Object, stats.Object, buffs.Object,
+                new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object,
+                new Mock<ILogger<HitQueue>>().Object);
+            var skill = MakeSkill() with { BCards = new[] { new BCardDto { Type = 3 } } };
+
+            var hit = queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
+
+            try
+            {
+                Assert.AreSame(entered.Task, await Task.WhenAny(entered.Task, Task.Delay(5000)),
+                    "the worker never reached the card application");
+
+                // Now that the call is in flight, the hit must not be finished. The wait can only
+                // fail in the safe direction: if the call is awaited the hit can never complete,
+                // so the delay always wins.
+                Assert.AreNotSame(hit, await Task.WhenAny(hit, Task.Delay(200)),
+                    "the hit finished while the card was still being applied");
+            }
+            finally
+            {
+                // In a finally, or a failed assertion above would leave the queue's worker parked
+                // on a gate nobody opens for the rest of the run.
+                applying.TrySetResult();
+            }
+
+            await hit;
         }
 
         [TestMethod]
@@ -129,6 +181,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await queue.EnqueueAsync(Request(attacker, target) with { Skill = skill });
 
             buffs.Verify(b => b.ApplySkillBuffAsync(It.IsAny<IAliveEntity>(), It.IsAny<short>(), It.IsAny<short>(), It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>(), It.IsAny<IAliveEntity>()), Times.Never);
+
+            buffs.Verify(b => b.InflictCardsAsync(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(),
+                It.IsAny<System.Collections.Generic.IReadOnlyList<BCardDto>>()), Times.Never);
         }
 
         [TestMethod]

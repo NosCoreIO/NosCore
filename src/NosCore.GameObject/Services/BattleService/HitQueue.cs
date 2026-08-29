@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -196,6 +196,11 @@ public sealed class HitQueue(
                 {
                     await RefreshVitalityAsync(request.Origin).ConfigureAwait(false);
                 }
+            }
+
+            if (!killed && request.Skill.BCards.Count > 0)
+            {
+                await buffService.InflictCardsAsync(target, request.Origin, request.Skill.BCards);
             }
 
             request.Completion.TrySetResult(new HitOutcome(HitStatus.Landed, damage.Damage, damage.HitMode, killed));

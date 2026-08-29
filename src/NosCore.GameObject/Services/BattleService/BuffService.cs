@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -15,6 +15,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Battle;
@@ -25,7 +26,8 @@ namespace NosCore.GameObject.Services.BattleService;
 // ExpiresAt rather than stacking — matches the one-icon-per-card client convention.
 // Expiration is pull-based: TickAsync is called from the world's life loop, which keeps
 // this service dependency-free (no timers, no background tasks) and trivial to test.
-public sealed class BuffService(IClock clock) : IBuffService
+public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
+    IRandomProvider randomProvider) : IBuffService
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
@@ -164,6 +166,42 @@ public sealed class BuffService(IClock clock) : IBuffService
     // BuffStateComponent lives on the target's ECS world; walking through the bundle
     // gets us its dictionary handle without copying. Returning null means the entity
     // has no buff state (e.g. map items) — caller treats as "no buffs".
+    public async Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
+        IReadOnlyList<BCardDto> skillBCards)
+    {
+        for (var i = 0; i < skillBCards.Count; i++)
+        {
+            var bCard = skillBCards[i];
+            var effect = bCard.Effect();
+            if (effect is not (BCardEffect.BuffChanceCausing or BCardEffect.BuffChanceRemoving))
+            {
+                continue;
+            }
+
+            if (!Rolls(bCard.FirstData))
+            {
+                continue;
+            }
+
+            var cardId = (short)bCard.SecondData;
+            if (effect == BCardEffect.BuffChanceRemoving)
+            {
+                await RemoveAsync(target, cardId);
+                continue;
+            }
+
+            var card = cardCatalog.GetCard(cardId);
+            if (card == null)
+            {
+                continue;
+            }
+
+            await ApplyAsync(target, card, cardCatalog.GetCardBCards(cardId), caster);
+        }
+    }
+
+    private bool Rolls(int percent) => percent > 0 && randomProvider.Next(0, 100) < percent;
+
     private static ConcurrentDictionary<short, BuffInstance>? ResolveState(IAliveEntity target)
     {
         return target switch

@@ -18,6 +18,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Interfaces;
+using Moq;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.ShopService;
@@ -40,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public void Setup()
         {
             _clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
-            _service = new BuffService(_clock);
+            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object);
         }
 
         [TestMethod]
