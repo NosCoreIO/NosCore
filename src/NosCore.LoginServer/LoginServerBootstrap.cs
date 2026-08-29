@@ -39,6 +39,7 @@ using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.SessionRef;
+using NosCore.PacketHandlers.Generated;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
 using NosCore.Packets.Attributes;
@@ -128,8 +129,7 @@ namespace NosCore.LoginServer
                 };
             });
 
-            containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes().Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(ILoginPacketHandler).IsAssignableFrom(type)).ToArray())
-                .Where(t => typeof(IPacketHandler).IsAssignableFrom(t) && typeof(ILoginPacketHandler).IsAssignableFrom(t))
+            containerBuilder.RegisterTypes(GeneratedPacketHandlers.LoginHandlerTypes)
                 .AsImplementedInterfaces();
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()

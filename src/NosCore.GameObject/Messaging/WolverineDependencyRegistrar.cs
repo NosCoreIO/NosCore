@@ -4,15 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System;
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NosCore.Core;
 using NosCore.Core.Services.IdService;
 using NosCore.GameObject.Ecs;
-using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.Messaging.Handlers.Nrun;
+using NosCore.GameObject.Generated;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
@@ -60,67 +56,21 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IExchangeRequestRegistry, ExchangeRequestRegistry>();
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
 
-        // Inter-channel hub clients — one instance per concrete HubClient, each
-        // exposed as all of its implemented interfaces so features that depend on
-        // a specific hub contract (IFriendHub, IBlacklistHub, …) resolve cleanly.
-        foreach (var hubType in typeof(ChannelHubClient).Assembly.GetTypes()
-            .Where(t => t.Name.EndsWith("HubClient") && t.IsClass && !t.IsAbstract))
-        {
-            foreach (var iface in hubType.GetInterfaces())
-            {
-                services.AddSingleton(iface, hubType);
-            }
-            services.AddSingleton(hubType);
-        }
-
-        // Convention-based scan for the rest of the game-object services. Naming
-        // tells us WHAT a class is, not HOW to resolve it — so lifetime comes from
-        // the ISingletonService marker interface (implemented by classes that own
-        // shared state: caches, queues, per-entity maps). Everything else is
-        // transient so short-lived handlers don't accidentally share mutable state.
+        // Inter-channel hub clients, the INrunEventHandler / IQuestTypeHandler
+        // implementations and the convention-named game-object services
+        // (*Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai) are all
+        // emitted as explicit AddSingleton/AddTransient calls by NosCore.DiGenerator,
+        // which applies the same rules at compile time that this method used to apply
+        // by reflection at startup.
         //
-        // Matched suffixes cover the vocabulary we actually use across the codebase:
-        // *Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai.
-        // New classes can add a suffix here if they want auto-discovery, or they
-        // can be registered explicitly above.
-        var gameObjectAssembly = typeof(WolverineDependencyRegistrar).Assembly;
-
-        foreach (var impl in gameObjectAssembly.GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
-            .Where(t => typeof(INrunEventHandler).IsAssignableFrom(t)))
-        {
-            services.AddTransient(typeof(INrunEventHandler), impl);
-            services.AddTransient(impl);
-        }
-
-        foreach (var impl in gameObjectAssembly.GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
-            .Where(t => typeof(Services.QuestService.IQuestTypeHandler).IsAssignableFrom(t)))
-        {
-            services.AddTransient(typeof(Services.QuestService.IQuestTypeHandler), impl);
-            services.AddTransient(impl);
-        }
-
-        var suffixes = new[] { "Service", "Provider", "Resolver", "Calculator", "Catalog", "Queue", "Ai" };
-        foreach (var impl in gameObjectAssembly.GetTypes()
-            .Where(t => t.IsClass && !t.IsAbstract && t.IsPublic)
-            .Where(t => suffixes.Any(suffix => t.Name.EndsWith(suffix))))
-        {
-            var lifetime = typeof(ISingletonService).IsAssignableFrom(impl)
-                ? ServiceLifetime.Singleton
-                : ServiceLifetime.Transient;
-
-            foreach (var iface in impl.GetInterfaces()
-                .Where(i => i != typeof(ISingletonService) && !IsSystemInterface(i)))
-            {
-                services.Add(new ServiceDescriptor(iface, impl, lifetime));
-            }
-            services.Add(new ServiceDescriptor(impl, impl, lifetime));
-        }
+        // Lifetime still comes from the ISingletonService marker — implement it on
+        // classes that own shared state (caches, queues, per-entity maps); everything
+        // else stays transient so short-lived handlers don't share mutable state. A
+        // class carrying the marker whose name matches no suffix now fails the build
+        // with NOSDI001 instead of being silently skipped.
+        //
+        // DependencyInjectionParityTests diffs the generated list against the scan it
+        // replaced, so the two cannot drift apart unnoticed.
+        services.AddGeneratedGameObjectServices();
     }
-
-    // Filter out framework interfaces (IDisposable, IAsyncDisposable, IEquatable, …)
-    // so the scan only registers domain-facing contracts.
-    private static bool IsSystemInterface(Type iface)
-        => iface.Namespace?.StartsWith("System", StringComparison.Ordinal) == true;
 }

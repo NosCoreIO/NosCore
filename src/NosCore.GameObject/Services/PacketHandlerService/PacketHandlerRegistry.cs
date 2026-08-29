@@ -21,11 +21,7 @@ namespace NosCore.GameObject.Services.PacketHandlerService
         {
             foreach (var handler in packetsHandlers)
             {
-                var type = handler.GetType().BaseType?.GenericTypeArguments[0];
-                if (type == null)
-                {
-                    continue;
-                }
+                var type = handler.PacketType;
 
                 if (!_attributeDic.ContainsKey(type))
                 {
@@ -36,10 +32,17 @@ namespace NosCore.GameObject.Services.PacketHandlerService
                     }
                 }
 
-                if (!_handlersByPacketType.ContainsKey(type))
+                // Two handlers claiming the same packet used to be swallowed here, with
+                // whichever the container happened to yield first winning. NOSDI003 now
+                // fails the build instead, so reaching this at runtime means a handler
+                // was registered dynamically outside the generated lists.
+                if (_handlersByPacketType.TryGetValue(type, out var existing))
                 {
-                    _handlersByPacketType.Add(type, handler);
+                    throw new InvalidOperationException(
+                        $"Two handlers claim {type.Name}: {existing.GetType().Name} and {handler.GetType().Name}.");
                 }
+
+                _handlersByPacketType.Add(type, handler);
             }
         }
 

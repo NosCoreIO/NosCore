@@ -6,6 +6,7 @@
 
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Interfaces;
+using System;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Infastructure
@@ -13,6 +14,11 @@ namespace NosCore.GameObject.Infastructure
     public interface IPacketHandler
     {
         Task ExecuteAsync(IPacket packet, ClientSession clientSession);
+
+        // The packet this handler consumes. Supplied by PacketHandler<TPacket> so the
+        // registry can key on it directly instead of walking BaseType.GenericTypeArguments,
+        // which silently skipped any handler whose inheritance chain didn't match.
+        Type PacketType { get; }
     }
 
     public interface ILoginPacketHandler
@@ -30,6 +36,8 @@ namespace NosCore.GameObject.Infastructure
 
     public abstract class PacketHandler<TPacket> : IPacketHandler<TPacket> where TPacket : IPacket
     {
+        public Type PacketType => typeof(TPacket);
+
         public abstract Task ExecuteAsync(TPacket packet, ClientSession clientSession);
 
         public Task ExecuteAsync(IPacket packet, ClientSession clientSession)

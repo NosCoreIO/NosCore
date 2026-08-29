@@ -3,7 +3,13 @@
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <TieredCompilation>true</TieredCompilation>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <NosCoreGeneratePacketHandlerLists>true</NosCoreGeneratePacketHandlerLists>
   </PropertyGroup>
+
+  <ItemGroup>
+    <CompilerVisibleProperty Include="NosCoreGeneratePacketHandlerLists" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <OutputPath>..\..\build\</OutputPath>
@@ -26,6 +32,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NosCore.GameObject\NosCore.GameObject.csproj" />
+    <ProjectReference Include="..\..\tools\NosCore.DiGenerator\NosCore.DiGenerator.csproj"
+        OutputItemType="Analyzer"
+        ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

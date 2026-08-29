@@ -37,6 +37,9 @@
     <ProjectReference Include="..\..\tools\NosCore.EcsGenerator\NosCore.EcsGenerator.csproj"
         OutputItemType="Analyzer"
         ReferenceOutputAssembly="false" />
+    <ProjectReference Include="..\..\tools\NosCore.DiGenerator\NosCore.DiGenerator.csproj"
+        OutputItemType="Analyzer"
+        ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>
