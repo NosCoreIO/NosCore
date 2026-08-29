@@ -189,6 +189,11 @@ namespace NosCore.WorldServer
             // "An item with the same key..." runtime errors (see PersistenceModule.MirrorTo
             // comment for the same pattern on the DAO side).
 
+            containerBuilder.RegisterType<NosCore.GameObject.Ecs.LadderInitializer>()
+                .AsSelf()
+                .SingleInstance()
+                .AutoActivate();
+
             containerBuilder.RegisterType<NosCore.GameObject.Services.UpgradeService.RandomNumberSource>()
                 .As<NosCore.GameObject.Services.UpgradeService.IRandomNumberSource>().SingleInstance();
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)

@@ -178,6 +178,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Databáze nemusí být aktuální. Zvažte aktualizaci</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>Načteno {0} DignityLevels!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>Pásma důstojnosti v conststring jsou poškozená, nic nebylo importováno!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>Bylo nahráno {0} DignityLevels!</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Parsování dokončeno</value>
   </data>
@@ -271,8 +280,14 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Není ve vaší černé listině</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>V databázi není žádný DignityLevel! Spusťte parser, jinak budou ikony důstojnosti špatné.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Nebyly nalezeny žádné mapy. K chodu serveru potřebujete minimálně mapu Nosville.</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>V databázi není žádný ReputationLevel! Spusťte parser, jinak budou ikony reputace špatné.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Žádné speciální vlastnosti k nošení</value>
@@ -361,6 +376,15 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrováno na Master Serveru</value>
     <comment>check</comment>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>Načteno {0} ReputationLevels!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>Pásma reputace v conststring jsou poškozená, nic nebylo importováno!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>Bylo nahráno {0} ReputationLevels!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Tvá pověst byla změněna!</value>

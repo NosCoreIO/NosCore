@@ -210,6 +210,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Il database non sembra aggiornato. Per favore considera di aggiornare il tuo database.</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>{0} DignityLevels caricati!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>Le fasce di dignità in conststring non sono valide, non è stato importato nulla!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>{0} DignityLevels sincronizzati!</value>
+  </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>È stato rilevato l'accesso diretto all'oggetto: {0} - {1}.</value>
   </data>
@@ -339,8 +348,14 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>L'utente non è nella lista degli amici.</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>Nessun DignityLevel nel database! Esegui il parser, altrimenti le icone di dignità saranno sbagliate.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Il server ha bisogno almeno della mappa di NosVille per poter funzionare!</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>Nessun ReputationLevel nel database! Esegui il parser, altrimenti le icone di reputazione saranno sbagliate.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Nessuna proprietà speciale indossabile</value>
@@ -460,6 +475,15 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrato sul MasterServer</value>
     <comment>revisionare</comment>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>{0} ReputationLevels caricati!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>Le fasce di reputazione in conststring non sono valide, non è stato importato nulla!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>{0} ReputationLevels sincronizzati!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>La reputazione è cambiata!</value>

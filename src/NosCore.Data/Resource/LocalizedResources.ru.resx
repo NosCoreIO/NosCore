@@ -216,6 +216,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>База данных могла устареть. Пожалуйста, проверьте обновления для БД.</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>Загружено {0} DignityLevels!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>Диапазоны достоинства в conststring повреждены, ничего не импортировано!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>Импортировано {0} DignityLevels!</value>
+  </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Обнаружен прямой доступ к объекту: {0} - {1}</value>
   </data>
@@ -347,8 +356,14 @@
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Игрок не является твоим другом.</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>В базе данных нет DignityLevel! Запустите парсер, иначе значки достоинства будут неверными.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Для работы сервера необходимо установить хотя бы карту НосВилля.</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>В базе данных нет ReputationLevel! Запустите парсер, иначе значки репутации будут неверными.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>SP пригодные к экипировке отсутствуют</value>
@@ -450,6 +465,15 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Зарегистрирован на Master сервере</value>
     <comment>check</comment>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>Загружено {0} ReputationLevels!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>Диапазоны репутации в conststring повреждены, ничего не импортировано!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>Импортировано {0} ReputationLevels!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Твоя репутация изменилась!</value>

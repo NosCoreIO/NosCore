@@ -180,6 +180,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Baza danych może nie być aktualna. Rozważ aktualizację bazy danych.</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>Załadowano: {0} DignityLevels!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>Progi godności w conststring są uszkodzone, nic nie zaimportowano!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>{0} DignityLevels wprowadzono!</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Gotowe!</value>
   </data>
@@ -279,8 +288,14 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Ten gracz nie jest na Twojej czarnej liście!</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>Brak DignityLevel w bazie danych! Uruchom parser, inaczej ikony godności będą błędne.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Serwer potrzebuje przynajmniej mapy NosVille do poprawnego działania!</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>Brak ReputationLevel w bazie danych! Uruchom parser, inaczej ikony reputacji będą błędne.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Brak specjalnych właściwości do noszenia</value>
@@ -368,6 +383,15 @@
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Zarejestrowano na MasterServer</value>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>Załadowano: {0} ReputationLevels!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>Progi reputacji w conststring są uszkodzone, nic nie zaimportowano!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>{0} ReputationLevels wprowadzono!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Your reputation została zmieniona!</value>

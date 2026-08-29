@@ -62,6 +62,8 @@ namespace NosCore.Database
 
         public virtual DbSet<Combo>? Combo { get; set; }
 
+        public virtual DbSet<DignityLevel>? DignityLevel { get; set; }
+
         public virtual DbSet<Drop>? Drop { get; set; }
 
         public virtual DbSet<Family>? Family { get; set; }
@@ -113,6 +115,8 @@ namespace NosCore.Database
         public virtual DbSet<Recipe>? Recipe { get; set; }
 
         public virtual DbSet<RecipeItem>? RecipeItem { get; set; }
+
+        public virtual DbSet<ReputationLevel>? ReputationLevel { get; set; }
 
         public virtual DbSet<Respawn>? Respawn { get; set; }
 

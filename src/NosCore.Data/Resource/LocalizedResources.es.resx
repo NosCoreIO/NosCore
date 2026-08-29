@@ -180,6 +180,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>La base de datos puede ser que no este actualizada. Por favor, considere actualizarla.</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>¡{0} DignityLevels Cargados!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>¡Los rangos de dignidad de conststring están mal formados, no se importó nada!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>¡{0} DignityLevels Analizados!</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Â¡AnÃ¡lisis terminado!</value>
   </data>
@@ -282,8 +291,14 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Â¡Este jugador no estÃ¡ en tu lista negra!</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>¡No hay ningún DignityLevel en la base de datos! Ejecuta el parser o los iconos de dignidad serán incorrectos.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Â¡El servidor necesita al menos el Mapa (MAP) de Nosville para funcionar!</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>¡No hay ningún ReputationLevel en la base de datos! Ejecuta el parser o los iconos de reputación serán incorrectos.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Ningunas propiedades especiales equipables.</value>
@@ -371,6 +386,15 @@
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registrado en el Servidor Maestro.</value>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>¡{0} ReputationLevels Cargados!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>¡Los rangos de reputación de conststring están mal formados, no se importó nada!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>¡{0} ReputationLevels Analizados!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Â¡Tu reptuaciÃ³n ha cambiado!</value>

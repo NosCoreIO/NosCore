@@ -181,6 +181,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Database may not be up to date. Please consider updating your database.</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>{0} DignityLevels Loaded!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>conststring dignity bands are malformed, nothing imported!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>{0} DignityLevels Parsed!</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Parsing done!</value>
   </data>
@@ -283,8 +292,14 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>This player is not on your blacklist!</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>No DignityLevel in database! Run the parser, dignity icons will be wrong.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Server need at least nosville MAP to work!</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>No ReputationLevel in database! Run the parser, reputation icons will be wrong.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>No special properties wearable</value>
@@ -373,6 +388,15 @@
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Registered on MasterServer</value>
     <comment>check</comment>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>{0} ReputationLevels Loaded!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>conststring reputation bands are malformed, nothing imported!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>{0} ReputationLevels Parsed!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>Your reputation has changed!</value>

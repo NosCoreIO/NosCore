@@ -28,6 +28,7 @@ namespace NosCore.Parser
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
         ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
+        ConstStringParser constStringParser,
         IDao<AccountDto, long> accountDao, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
         IDao<I18NNpcMonsterTalkDto, int> i18NNpcMonsterTalkDao,
         IDao<I18NNpcMonsterDto, int> i18NNpcMonsterDao, IDao<I18NMapPointDataDto, int> i18NMapPointDataDao,
@@ -112,6 +113,11 @@ namespace NosCore.Parser
         public Task ImportMapTypeAsync()
         {
             return mapTypeParser.InsertMapTypesAsync();
+        }
+
+        public Task ImportLaddersAsync()
+        {
+            return constStringParser.InsertLaddersAsync(_folder);
         }
 
         public Task ImportMapTypeMapAsync()
