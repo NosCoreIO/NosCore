@@ -180,6 +180,15 @@
   <data name="DATABASE_NOT_UPTODATE" xml:space="preserve">
     <value>Veritabanı güncel olmayabilir. Lütfen sağlayıcıyla konuşun.</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>{0} DignityLevels yüklendi!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>conststring onur aralıkları bozuk, hiçbir şey içe aktarılmadı!</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>{0} DignityLevels işlendi!</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>Birleştirme işlemi bitti.</value>
   </data>
@@ -279,8 +288,14 @@
   <data name="NOT_IN_BLACKLIST" xml:space="preserve">
     <value>Bu kullanıcı karalistende değil!</value>
   </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>Veritabanında DignityLevel yok! Parser'ı çalıştırın, yoksa onur simgeleri yanlış olacak.</value>
+  </data>
   <data name="NO_MAP" xml:space="preserve">
     <value>Harita yok. Sunucunun çalışması için en azından NosVille olmalı!</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>Veritabanında ReputationLevel yok! Parser'ı çalıştırın, yoksa itibar simgeleri yanlış olacak.</value>
   </data>
   <data name="NO_SPECIAL_PROPERTIES_WEARABLE" xml:space="preserve">
     <value>Giyilebilir özellik yok!</value>
@@ -365,6 +380,15 @@
   </data>
   <data name="REGISTRED_ON_MASTER" xml:space="preserve">
     <value>Ana Sunucu'ya bağlanıldı.</value>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>{0} ReputationLevels yüklendi!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>conststring itibar aralıkları bozuk, hiçbir şey içe aktarılmadı!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>{0} ReputationLevels işlendi!</value>
   </data>
   <data name="REPUTATION_CHANGED" xml:space="preserve">
     <value>İtibarın değişti!</value>

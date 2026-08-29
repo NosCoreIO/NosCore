@@ -126,6 +126,15 @@
   <data name="DATABASE_INITIALIZED" xml:space="preserve">
     <value>La base de données a été initialisée !</value>
   </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>{0} DignityLevels ont été chargés !</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>Les paliers de dignité de conststring sont mal formés, rien n'a été importé !</value>
+  </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>{0} DignityLevels ont été analysés avec succès !</value>
+  </data>
   <data name="DONE" xml:space="preserve">
     <value>L'analyse des fichiers est terminée !</value>
   </data>
@@ -134,6 +143,12 @@
   </data>
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Objets ont été analysés avec succès !</value>
+  </data>
+  <data name="NO_DIGNITYLEVEL" xml:space="preserve">
+    <value>Aucun DignityLevel en base ! Lancez le parser, sinon les icônes de dignité seront fausses.</value>
+  </data>
+  <data name="NO_REPUTATIONLEVEL" xml:space="preserve">
+    <value>Aucun ReputationLevel en base ! Lancez le parser, sinon les icônes de réputation seront fausses.</value>
   </data>
   <data name="PARSE_ACCOUNTS" xml:space="preserve">
     <value>Vous-vous analyser les comptes ?</value>
@@ -194,6 +209,15 @@
   </data>
   <data name="PARSE_SCRIPTS" xml:space="preserve">
     <value>Voulez-vous analyser les scripts ?</value>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>{0} ReputationLevels ont été chargés !</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>Les paliers de réputation de conststring sont mal formés, rien n'a été importé !</value>
+  </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>{0} ReputationLevels ont été analysés avec succès !</value>
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>L'émulateur a bien été chargé.</value>

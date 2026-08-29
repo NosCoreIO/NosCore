@@ -55,9 +55,11 @@ namespace NosCore.Parser.Parsers
                     return null;
                 }
 
-                var numbers = NumberPattern.Matches(band)
-                    .Select(match => long.Parse(match.Value, CultureInfo.InvariantCulture))
-                    .ToList();
+                var numbers = ReadNumbers(band);
+                if (numbers == null)
+                {
+                    return null;
+                }
 
                 // The highest band reads "Over 5000000": that number is the previous band's
                 // ceiling, not its own floor.
@@ -90,6 +92,23 @@ namespace NosCore.Parser.Parsers
             }
 
             return levels;
+        }
+
+        // A digit run too long for a long is a malformed band, not a crash.
+        private static List<long>? ReadNumbers(string band)
+        {
+            var numbers = new List<long>();
+            foreach (Match match in NumberPattern.Matches(band))
+            {
+                if (!long.TryParse(match.Value, NumberStyles.None, CultureInfo.InvariantCulture, out var number))
+                {
+                    return null;
+                }
+
+                numbers.Add(number);
+            }
+
+            return numbers;
         }
     }
 }

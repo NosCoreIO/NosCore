@@ -161,6 +161,19 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ABandNumberTooLargeForALongImportsNothing()
+        {
+            var overflowing = ClientBands.ToArray();
+            overflowing[1] = "51 - 99999999999999999999";
+
+            WriteConstString(overflowing);
+
+            await Parser().InsertReputationLevelsAsync(_tempFolder);
+
+            Assert.AreEqual(0, _saved.Count);
+        }
+
+        [TestMethod]
         public async Task AMissingBandImportsNothing()
         {
             WriteConstString(ClientBands.Take(26));

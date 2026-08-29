@@ -99,9 +99,17 @@ namespace NosCore.Parser.Parsers
             var escape = band.IndexOf('#');
             var range = escape < 0 ? band : band[..escape];
 
-            var numbers = NumberPattern.Matches(range)
-                .Select(match => short.Parse(match.Value, CultureInfo.InvariantCulture))
-                .ToList();
+            var numbers = new List<short>();
+            foreach (Match match in NumberPattern.Matches(range))
+            {
+                // A magnitude past short is a malformed band, not a crash.
+                if (!short.TryParse(match.Value, NumberStyles.None, CultureInfo.InvariantCulture, out var number))
+                {
+                    return null;
+                }
+
+                numbers.Add(number);
+            }
 
             return numbers.Count == 2 ? ((short)-numbers[0], (short)-numbers[1]) : null;
         }
