@@ -18,11 +18,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // Bands 2111..2116 are the dignity tail of the same table, matching DignityType 1..6.
-    //
-    // Only each band's floor is trusted, ceilings being derived as one past the previous floor,
-    // because the client contradicts itself once: Useless ends at -800 and Failed is declared to
-    // start at -800 as well. Deriving gives Failed the -801 its own packet documentation states.
+    // Ceilings are derived from the next floor, not read: the client declares Useless ending at
+    // -800 and Failed starting at -800, and only deriving gives Failed the -801 its packet states.
     public class DignityLevelParser(IDao<DignityLevelDto, byte> dignityLevelDao,
         ILogger<DignityLevelParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
