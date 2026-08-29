@@ -10,7 +10,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using Autofac;
-using FastMember;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NosCore.Dao;
@@ -150,7 +149,7 @@ public sealed class PersistenceModule : Autofac.Module
             if (props.Count > 0)
             {
                 var regions = Enum.GetValues(typeof(RegionType));
-                var accessors = TypeAccessor.Create(typeof(TDto));
+                var accessors = MemberAccessor.For(typeof(TDto));
                 Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
             }
 

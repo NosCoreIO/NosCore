@@ -4,7 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using FastMember;
+using NosCore.Data;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -24,7 +24,7 @@ namespace NosCore.Parser.Parsers.Generic
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     where T : new()
     {
-        private readonly TypeAccessor _typeAccessor = TypeAccessor.Create(typeof(T), true);
+        private readonly MemberAccessor _typeAccessor = MemberAccessor.For(typeof(T));
 
         private IEnumerable<string> ParseTextFromFile()
         {

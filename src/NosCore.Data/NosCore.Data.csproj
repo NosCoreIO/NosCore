@@ -39,7 +39,6 @@
     <PackageReference Include="JetBrains.Annotations" />
     <PackageReference Include="Mapster" />
     <PackageReference Include="Mapster.JsonNet" />
-    <PackageReference Include="NosCore.FastMember" />
     <PackageReference Include="NosCore.Packets" />
     <PackageReference Include="NodaTime" />
   </ItemGroup>
