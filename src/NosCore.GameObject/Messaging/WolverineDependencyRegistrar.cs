@@ -28,12 +28,14 @@ namespace NosCore.GameObject.Messaging;
 
 // Single source of truth for every GameObject-side registration that both MSDI
 // (for Wolverine codegen) and Autofac (for runtime resolution) need to see.
+//
 // AutofacServiceProviderFactory.Populate() copies MSDI registrations into the
 // Autofac container at host-build time, so anything registered here becomes
 // visible to both: Wolverine at codegen, Autofac at runtime. Registering a
 // service here and again on the Autofac side duplicates the registration and
 // is the most common cause of "An item with the same key..." style drift
 // bugs — so bootstrap and tests both call this and nowhere else.
+//
 // DAO/DbContext side is mirrored separately by PersistenceModule.MirrorTo so
 // this assembly doesn't have to reference NosCore.Database.
 public static class WolverineDependencyRegistrar
@@ -79,6 +81,7 @@ public static class WolverineDependencyRegistrar
         // the ISingletonService marker interface (implemented by classes that own
         // shared state: caches, queues, per-entity maps). Everything else is
         // transient so short-lived handlers don't accidentally share mutable state.
+        //
         // Matched suffixes cover the vocabulary we actually use across the codebase:
         // *Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai.
         // New classes can add a suffix here if they want auto-discovery, or they

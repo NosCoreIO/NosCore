@@ -143,9 +143,8 @@ namespace NosCore.PacketHandlers.Game
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
-            // p_clear wipes one panel that holds both the party and the mate list, so the two
-            // bursts have to follow it rather than straddle it. The capture puts them in this
-            // order: p_clear, the sc packets, sc_p_stc, then pinit.
+            // p_clear wipes one panel holding both the party and the mate list, so both bursts
+            // have to follow it rather than straddle it.
             await session.SendPacketAsync(new PclearPacket());
             await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
             await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
