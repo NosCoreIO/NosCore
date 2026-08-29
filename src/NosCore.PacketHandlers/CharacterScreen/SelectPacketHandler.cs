@@ -33,6 +33,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking.SessionGroup;
 using Wolverine;
@@ -65,7 +66,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISpeedService speedService,
             NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
-            ICharacterInitializationService characterInitializationService, IMessageBus messageBus)
+            ICharacterInitializationService characterInitializationService, IMessageBus messageBus,
+            IMateService mateService)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -193,6 +195,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerSocialComponent(
                     new ConcurrentDictionary<long, long>(),
                     null));
+                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerMatesComponent(
+                    new ConcurrentDictionary<long, Mate>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerRequestsComponent(
                     new Dictionary<Type, Subject<RequestData>>
                     {
@@ -256,6 +260,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<TitleDto>();
                 character.Respawns = respawnDao
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
+
+                foreach (var mate in await mateService.LoadAsync(characterId).ConfigureAwait(false))
+                {
+                    character.Mates[mate.MateTransportId] = mate;
+                }
 
                 await characterInitializationService.InitializeAsync(character);
 

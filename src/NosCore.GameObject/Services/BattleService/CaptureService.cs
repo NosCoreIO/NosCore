@@ -96,6 +96,8 @@ namespace NosCore.GameObject.Services.BattleService
                 Hp = monster.NpcMonster.MaxHp,
                 Mp = monster.NpcMonster.MaxMp,
                 IsSummonable = true,
+                IsTeamMember = !mateDao.Where(s => s.CharacterId == character.CharacterId
+                    && s.MateType == MateType.Pet && s.IsTeamMember)!.Any()
             }).ConfigureAwait(false);
 
             monster.Hp = 0;

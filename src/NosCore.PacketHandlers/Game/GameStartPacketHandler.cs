@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.SkillService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -23,6 +24,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Quest;
+using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -57,7 +59,6 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(session.Character.GenerateSay("-----------------------------------------------",
                     SayColorType.Yellow));
             }
-
 
             await skillService.LoadSkill(session.Character);
             await session.SendPacketAsync(session.Character.GenerateTit());
@@ -127,13 +128,6 @@ namespace NosCore.PacketHandlers.Game
             session.Character.LoadExpensions();
             await session.SendPacketAsync(session.Character.GenerateExts(worldConfiguration));
             //            Session.SendPacket(Session.Character.GenerateMlinfo());
-            await session.SendPacketAsync(new PclearPacket());
-
-            // Group init even for solo players — the client expects pinit + a self-row pst
-            // so its party UI is in a known state for later joins/leaves.
-            await session.SendPacketAsync(session.Character.Group.GeneratePinit());
-            await session.SendPacketsAsync(session.Character.Group.GeneratePst());
-
             //            Session.SendPacket("zzim");
             await session.SendPacketAsync(new TwkPacket(session.Account.Name, session.Character.Name)
             {
@@ -149,9 +143,16 @@ namespace NosCore.PacketHandlers.Game
             //            // sqst bf
             //            Session.SendPacket("act6");
             //            Session.SendPacket(Session.Character.GenerateFaction());
-            //            // MATES
-            //            Session.SendPackets(Session.Character.GenerateScP());
-            //            Session.SendPackets(Session.Character.GenerateScN());
+            // p_clear wipes one panel holding both the party and the mate list, so both bursts
+            // have to follow it rather than straddle it.
+            await session.SendPacketAsync(new PclearPacket());
+            await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
+            await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
+
+            await session.SendPacketAsync(session.Character.Group.GeneratePinit());
+            await session.SendPacketsAsync(session.Character.Group.GeneratePst());
+            await session.SendPacketsAsync(session.Character.Mates.Values
+                .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
             //            Session.Character.GenerateStartupInventory();
 
             await session.SendPacketAsync(session.Character.GenerateGold());

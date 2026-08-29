@@ -32,7 +32,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(PlayerContextComponent),
     typeof(PlayerInventoryComponent),
     typeof(PlayerSocialComponent),
-    typeof(PlayerRequestsComponent)
+    typeof(PlayerRequestsComponent),
+    typeof(PlayerMatesComponent)
 )]
 public readonly partial struct PlayerComponentBundle : ICharacterEntity
 {

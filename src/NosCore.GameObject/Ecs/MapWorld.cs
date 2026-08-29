@@ -137,6 +137,35 @@ public class MapWorld : IDisposable
         return entity;
     }
 
+    public Entity CreateMate(
+        int visualId,
+        Services.MateService.Mate mate,
+        MapInstance mapInstance,
+        short positionX,
+        short positionY,
+        byte direction)
+    {
+        var now = SystemClock.Instance.GetCurrentInstant();
+        return World.Create(
+            new EntityIdentityComponent(visualId, VisualType.Npc, mate.CharacterId),
+            new HealthComponent(mate.Hp, mate.MaxHp, true),
+            new ManaComponent(mate.Mp, mate.MaxMp),
+            new PositionComponent(positionX, positionY, direction, mapInstance.MapInstanceId),
+            new VisualComponent(0, 0, 0, 0, false, false, false),
+            new NpcDataComponent(mate.VNum, mate.NpcMonster.Race, mate.Level, 0, mate.NpcMonster.Speed, 10),
+            new SpawnComponent(positionX, positionY, false, false),
+            new EffectComponent(0, 0),
+            new TimingComponent(now, now),
+            new NpcStateComponent(mate.NpcMonster, mapInstance, new SemaphoreSlim(1, 1),
+                new ConcurrentDictionary<Entity, int>(), null, null, null,
+                new Dictionary<Type, Subject<RequestData>>(), null, false),
+            new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
+            new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
+            new MateStateComponent(mate, mate.CharacterId)
+        );
+    }
+
     public Entity CreateMapItem(
         long visualId,
         short vNum,
@@ -236,11 +265,12 @@ public class MapWorld : IDisposable
         PlayerContextComponent context,
         PlayerInventoryComponent inventory,
         PlayerSocialComponent social,
-        PlayerRequestsComponent requests)
+        PlayerRequestsComponent requests,
+        PlayerMatesComponent mates)
     {
         return World.Create(identity, health, mana, position, visual, appearance, experience, gold,
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
-            context, inventory, social, requests);
+            context, inventory, social, requests, mates);
     }
 
     public void DestroyEntity(Entity entity)

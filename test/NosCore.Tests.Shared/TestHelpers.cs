@@ -309,7 +309,12 @@ namespace NosCore.Tests.Shared
                 new SelectPacketHandler(CharacterDao, NullLogger<SelectPacketHandler>.Instance, NullLoggerFactory.Instance, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                     new Mock<IDao<CharacterQuestObjectiveDto, Guid>>().Object,
-                    new Mock<IDao<RespawnDto, long>>().Object, new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), new SpeedService(), new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object, SessionGroupFactory, new CharacterInitializationService(), new Mock<Wolverine.IMessageBus>().Object),
+                    new Mock<IDao<RespawnDto, long>>().Object, new Mock<IDao<ScriptDto, Guid>>().Object, new List<QuestDto>(), new List<QuestObjectiveDto>(),WorldConfiguration, Instance.LogLanguageLocalizer, Instance.PubSubHub.Object, Instance.Clock, ItemList, new HpService(), new MpService(), new SpeedService(), new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object, SessionGroupFactory, new CharacterInitializationService(), new Mock<Wolverine.IMessageBus>().Object,
+                    new NosCore.GameObject.Services.MateService.MateService(new Mock<IDao<MateDto, long>>().Object, new List<NpcMonsterDto>(),
+                        new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
+                        new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
+                        NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance)),
+
                 new CSkillPacketHandler(Instance.Clock),
                 new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer),
                 new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
@@ -425,6 +430,8 @@ namespace NosCore.Tests.Shared
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerSocialComponent(
                 new ConcurrentDictionary<long, long>(),
                 null));
+            mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerMatesComponent(
+                new ConcurrentDictionary<long, NosCore.GameObject.Services.MateService.Mate>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerRequestsComponent(
                 new Dictionary<Type, System.Reactive.Subjects.Subject<RequestData>>
                 {

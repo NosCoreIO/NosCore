@@ -15,6 +15,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceAccessService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Networking;
@@ -123,6 +124,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var inventory = oldWorld.TryGetComponent<PlayerInventoryComponent>(oldEntity) ?? default;
                 var social = oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default;
                 var requests = oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default;
+                var mates = oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default;
 
                 if (session.Channel?.Id != null)
                 {
@@ -164,7 +166,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                     context with { MapInstance = newMapInstance },
                     inventory,
                     social,
-                    requests);
+                    requests,
+                    mates);
 
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;
@@ -226,6 +229,13 @@ namespace NosCore.GameObject.Services.MapChangeService
                         : string.Empty;
                     await session.SendPacketAsync(otherCharacter.GenerateIn(prefix));
 
+                    if (!otherCharacter.Invisible)
+                    {
+                        await session.SendPacketsAsync(otherCharacter.Mates.Values
+                            .Where(m => m.IsTeamMember)
+                            .Select(m => m.GenerateIn(accountLanguage)));
+                    }
+
                     var shop = otherCharacter.Shop;
                     if (shop != null)
                     {
@@ -248,6 +258,31 @@ namespace NosCore.GameObject.Services.MapChangeService
                         await newMapInstance.SendPacketAsync(character.GenerateIn(prefix), new EveryoneBut(channelId));
                     }
                 }
+
+                var teamMates = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
+                MatePlacement.Arrange(character.PositionX, character.PositionY,
+                    newMapInstance.Map, teamMates);
+
+                foreach (var mate in teamMates)
+                {
+                    var handle = newMapInstance.EcsWorld.CreateMate(
+                        (int)mate.MateTransportId, mate, newMapInstance,
+                        mate.PositionX, mate.PositionY, 2);
+                    mate.Entity = new Ecs.MateComponentBundle(handle, newMapInstance.EcsWorld);
+                }
+
+                var mateSpawns = teamMates.Select(s => s.GenerateIn(accountLanguage)).ToList();
+                if (invisible)
+                {
+                    await session.SendPacketsAsync(mateSpawns);
+                }
+                else
+                {
+                    await newMapInstance.SendPacketsAsync(mateSpawns);
+                }
+
+                await session.SendPacketsAsync(teamMates.Select(s => s.GenerateCond()));
+                await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 
                 await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance));
             }
@@ -280,6 +315,14 @@ namespace NosCore.GameObject.Services.MapChangeService
             var mapInstance = character.MapInstance;
             var channelId = session.Channel!.Id;
             await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(channelId));
+            var leaving = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
+            await mapInstance.SendPacketsAsync(leaving.Select(s => s.GenerateOut()));
+
+            foreach (var mate in leaving.Where(s => s.Entity.HasValue))
+            {
+                mapInstance.EcsWorld.DestroyEntity(mate.Entity!.Value.Handle);
+                mate.Entity = null;
+            }
             session.ClearPlayerEntity();
             await session.SendPacketAsync(new MapOutPacket());
         }
