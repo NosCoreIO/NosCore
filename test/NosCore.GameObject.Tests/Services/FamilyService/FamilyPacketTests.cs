@@ -109,8 +109,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.AreEqual(130000, packet.FamilyXp);
             Assert.AreEqual(70, packet.MembersCapacity);
             Assert.IsTrue(packet.FamilyManagerCanInvit);
-            Assert.AreEqual("coin afk go rush", packet.FamilyMessage,
-                "the caret substitution is the serializer's job, not ours");
+            Assert.AreEqual("coin^afk^go^rush", packet.FamilyMessage,
+                "a serialized field keeps its own spaces, so the notice arrives as one");
         }
 
         [TestMethod]
@@ -136,6 +136,21 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 "no family has to reach the client as -1 and -, not as empty fields");
         }
 
+        [TestMethod]
+        public void ASpacedFamilyMessageAndRankTravelAsOneFieldEach()
+        {
+            // ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush^larene^30^min^=p
+            var serializer = BuildSerializer();
+            _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Head);
+
+            var ginfo = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGInfo(
+                new FamilyExperienceService())! }).TrimEnd();
+            StringAssert.Contains(ginfo, "coin^afk^go^rush", $"the notice is one field: {ginfo}");
+
+            var gidx = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGidx(
+                TestHelpers.Instance.GameLanguageLocalizer, RegionType.EN) }).TrimEnd();
+            Assert.AreEqual(6, gidx.Split(' ').Length, $"the tag is one field: {gidx}");
+        }
         [TestMethod]
         public void AFamilyGoesOutWithItsIdNameAndLevel()
         {

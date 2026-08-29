@@ -269,7 +269,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 }
 
                 character.Family = await familyService
-                    .GetFamilyAsync(characterId).ConfigureAwait(false);
+                    .GetFamilyAsync(characterId);
 
                 await characterInitializationService.InitializeAsync(character);
 

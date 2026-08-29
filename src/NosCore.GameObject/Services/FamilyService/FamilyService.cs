@@ -21,14 +21,14 @@ namespace NosCore.GameObject.Services.FamilyService
         public async Task<Family?> GetFamilyAsync(long characterId)
         {
             var membership = await familyCharacterDao
-                .FirstOrDefaultAsync(s => s.CharacterId == characterId).ConfigureAwait(false);
+                .FirstOrDefaultAsync(s => s.CharacterId == characterId);
             if (membership == null)
             {
                 return null;
             }
 
             var familyDto = await familyDao
-                .FirstOrDefaultAsync(s => s.FamilyId == membership.FamilyId).ConfigureAwait(false);
+                .FirstOrDefaultAsync(s => s.FamilyId == membership.FamilyId);
             if (familyDto == null)
             {
                 return null;
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.FamilyService
             if (head != null)
             {
                 var headCharacter = await characterDao
-                    .FirstOrDefaultAsync(s => s.CharacterId == head.CharacterId).ConfigureAwait(false);
+                    .FirstOrDefaultAsync(s => s.CharacterId == head.CharacterId);
                 family.HeadCharacterName = headCharacter?.Name ?? string.Empty;
             }
 

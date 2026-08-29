@@ -69,11 +69,11 @@ public static class FamilyExtensions
             FamilyManagerAuthorityType = family.ManagerAuthorityType,
             FamilyMemberCanGetHistory = family.MemberCanGetHistory,
             FamilyMemberAuthorityType = family.MemberAuthorityType,
-            FamilyMessage = family.FamilyMessage
+            FamilyMessage = family.FamilyMessage?.Replace(' ', '^')
         };
     }
 
-    /// <summary>"Name(Rank)", e.g. [NDM](Gardien) - the brackets belong to the name.</summary>
+    // A serialized field keeps its own spaces, and a rank such as "Chef de famille" has two.
     private static string FamilyTag(Services.FamilyService.Family family, long characterId,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
@@ -85,6 +85,6 @@ public static class FamilyExtensions
             _ => LanguageKey.FAMILY_AUTHORITY_MEMBER
         };
 
-        return $"{family.Name}({localizer[rank, viewerLanguage]})";
+        return $"{family.Name}({localizer[rank, viewerLanguage]})".Replace(' ', '^');
     }
 }
