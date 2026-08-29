@@ -508,10 +508,10 @@
     <value>Wczytano {0} instancji skryptowanych!</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Głowa rodziny</value>
+    <value>Szef</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
-    <value>Asystent</value>
+    <value>Reprezentant</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
     <value>Zarządca</value>

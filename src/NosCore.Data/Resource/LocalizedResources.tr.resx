@@ -574,10 +574,10 @@
     <value>{0} betikli örnek yüklendi!</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Aile reisi</value>
+    <value>Ailereisi</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
-    <value>Yardımcı</value>
+    <value>Temsilci</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
     <value>Yönetici</value>

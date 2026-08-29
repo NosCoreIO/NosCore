@@ -602,13 +602,13 @@
     <value>{0} istanze scriptate caricate!</value>
   </data>
   <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
-    <value>Capofamiglia</value>
+    <value>Capo</value>
   </data>
   <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
-    <value>Assistente</value>
+    <value>Vicecapo</value>
   </data>
   <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
-    <value>Gestore</value>
+    <value>Guardiano</value>
   </data>
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Membro</value>

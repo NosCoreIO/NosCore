@@ -69,11 +69,11 @@ public static class FamilyExtensions
             FamilyManagerAuthorityType = family.ManagerAuthorityType,
             FamilyMemberCanGetHistory = family.MemberCanGetHistory,
             FamilyMemberAuthorityType = family.MemberAuthorityType,
+            // A serialized field keeps its own spaces, and the notice is free text.
             FamilyMessage = family.FamilyMessage?.Replace(' ', '^')
         };
     }
 
-    // A serialized field keeps its own spaces, and a rank such as "Chef de famille" has two.
     private static string FamilyTag(Services.FamilyService.Family family, long characterId,
         IGameLanguageLocalizer localizer, RegionType viewerLanguage)
     {
