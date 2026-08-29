@@ -22,6 +22,10 @@ for f in $(git diff --name-only origin/master...HEAD | grep '\.cs$'); do
 done
 ```
 
+**No `ConfigureAwait`.** Every host here is a generic-host console app, so there is no
+synchronization context to come back to and `ConfigureAwait(false)` does nothing but add
+noise to the line. Do not add it; the calls still in the tree are not a precedent.
+
 **Keep semantic types.** Do not flatten a `bool` or an enum to a number because the wire
 value happens to be `0` or `1`; the serializer handles the conversion.
 
@@ -125,7 +129,17 @@ check the table's length too, since inherited tables are often truncated at an o
 - **Never commit to `master`.** Branch, PR, CI green, then merge — including one-line
   chores.
 - **Rebase, never merge.** Linear history: `git rebase origin/master`, `--force-with-lease`
-  on push. Never merge `master` into a branch.
+  on push. Never merge `master` into a branch — not to pick up a fix, not to resolve a
+  conflict, not to make the PR mergeable again. A `Merge remote-tracking branch` or
+  `merge: origin/master` commit in a PR is a defect, and the fix is to rebase it out rather
+  than leave it. Check before pushing:
+
+  ```bash
+  git log --oneline --merges origin/master..HEAD   # must print nothing
+  ```
+
+  Rebasing a long branch across a renamed API repeats the same conflict on every commit;
+  `git config rerere.enabled true` resolves it once and replays the rest.
 - Base new work on `origin/master`, and keep iterating on the same branch rather than
   opening a new one per follow-up.
 - Opening a PR unprompted is fine; **wait for approval before merging** unless the request
