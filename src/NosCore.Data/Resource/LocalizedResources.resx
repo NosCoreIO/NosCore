@@ -265,6 +265,15 @@
   <data name="MAPTYPES_PARSED" xml:space="preserve">
     <value>{0} MapTypes Parsed!</value>
   </data>
+  <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
+    <value>{0} ReputationLevels Parsed!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_LOADED" xml:space="preserve">
+    <value>{0} ReputationLevels Loaded!</value>
+  </data>
+  <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
+    <value>conststring reputation bands are malformed, keeping the previously imported ladder!</value>
+  </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>This map does not exist!</value>
   </data>

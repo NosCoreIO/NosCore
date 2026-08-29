@@ -114,6 +114,8 @@ namespace NosCore.Database
 
         public virtual DbSet<RecipeItem>? RecipeItem { get; set; }
 
+        public virtual DbSet<ReputationLevel>? ReputationLevel { get; set; }
+
         public virtual DbSet<Respawn>? Respawn { get; set; }
 
         public virtual DbSet<RespawnMapType>? RespawnMapType { get; set; }

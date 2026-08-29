@@ -5,8 +5,10 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Tests
 {
@@ -47,6 +49,10 @@ namespace NosCore.GameObject.Tests
             (5_000_000, ReputationType.BlueElite),
             (long.MaxValue, ReputationType.RedElite)
         };
+
+        [TestInitialize]
+        [TestCleanup]
+        public void ResetLadder() => ReputationLevels.ResetToClientLadder();
 
         [TestMethod]
         public void TheLastValueOfEachBandDrawsThatBandsIcon()
@@ -106,6 +112,33 @@ namespace NosCore.GameObject.Tests
             // into something that is not an icon at all.
             Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(-1));
             Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(long.MinValue));
+        }
+
+        [TestMethod]
+        public void TheImportedLadderReplacesTheBuiltInOne()
+        {
+            ReputationLevels.Load(new List<ReputationLevelDto>
+            {
+                new() { ReputationLevelId = (byte)ReputationType.GreenBeginner, MinReputation = 0, MaxReputation = 9 },
+                new() { ReputationLevelId = (byte)ReputationType.BlueBeginner, MinReputation = 10, MaxReputation = null }
+            });
+
+            Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(9));
+            Assert.AreEqual(ReputationType.BlueBeginner, ReputationLevels.FromReputation(10));
+
+            // 51 is BlueBeginner on the built-in ladder too, so check a value the two disagree on.
+            Assert.AreEqual(ReputationType.BlueBeginner, ReputationLevels.FromReputation(long.MaxValue));
+        }
+
+        [TestMethod]
+        public void AnEmptyTableKeepsTheBuiltInLadder()
+        {
+            // A database parsed before the ReputationLevel table existed must not collapse every
+            // player to a single icon.
+            ReputationLevels.Load(new List<ReputationLevelDto>());
+
+            Assert.AreEqual(ReputationType.RedElite, ReputationLevels.FromReputation(long.MaxValue));
+            Assert.AreEqual(ReputationType.GreenBeginner, ReputationLevels.FromReputation(0));
         }
     }
 }
