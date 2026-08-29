@@ -7,7 +7,6 @@
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FastExpressionCompiler;
-using FastMember;
 using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;

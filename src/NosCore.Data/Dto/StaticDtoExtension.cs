@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using FastMember;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
@@ -37,7 +36,7 @@ namespace NosCore.Data.Dto
         public static void InjectI18N(this IStaticDto staticDto,
             IDictionary<PropertyInfo, Tuple<PropertyInfo, Type>> propertyInfos,
             IDictionary<Type, Dictionary<string, Dictionary<RegionType, II18NDto>>> langDictionary, Array regions,
-            TypeAccessor accessor)
+            MemberAccessor accessor)
         {
             foreach (var prop in propertyInfos)
             {

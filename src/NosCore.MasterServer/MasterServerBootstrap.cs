@@ -4,10 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FastExpressionCompiler;
-using FastMember;
 using Mapster;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -232,7 +232,7 @@ namespace NosCore.MasterServer
                 var props = StaticDtoExtension.GetI18NProperties(typeof(ItemDto));
 
                 var regions = Enum.GetValues(typeof(RegionType));
-                var accessors = TypeAccessor.Create(typeof(ItemDto));
+                var accessors = MemberAccessor.For(typeof(ItemDto));
                 Parallel.ForEach(items, s => s.InjectI18N(props, dic, regions, accessors));
                 var staticMetaDataAttribute = typeof(ItemDto).GetCustomAttribute<StaticMetaDataAttribute>();
                 if ((items.Count != 0) || (staticMetaDataAttribute == null) ||
