@@ -577,4 +577,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Unbekannter Aufrüstungstyp: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>{0} Skript-Instanzen geladen!</value>
+  </data>
 </root>

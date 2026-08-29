@@ -99,6 +99,7 @@ namespace NosCore.Parser
             await factory.ImportMapTypeAsync().ConfigureAwait(false);
             await factory.ImportMapTypeMapAsync().ConfigureAwait(false);
             await factory.ImportPortalsAsync().ConfigureAwait(false);
+            await factory.ImportScriptedInstancesAsync().ConfigureAwait(false);
             await factory.ImportI18NAsync().ConfigureAwait(false);
             await factory.ImportLaddersAsync().ConfigureAwait(false);
             await factory.ImportItemsAsync().ConfigureAwait(false);
@@ -148,7 +149,8 @@ namespace NosCore.Parser
             }
 
             logger.LogInformation($"{logLanguage[LogLanguageKey.PARSE_TIMESPACES]} [Y/n]");
-            Console.ReadKey(true);
+            key = Console.ReadKey(true);
+            if (key.KeyChar != 'n') await factory.ImportScriptedInstancesAsync().ConfigureAwait(false);
 
             logger.LogInformation($"{logLanguage[LogLanguageKey.PARSE_ITEMS]} [Y/n]");
             key = Console.ReadKey(true);

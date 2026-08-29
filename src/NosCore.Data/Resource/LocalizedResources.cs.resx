@@ -554,4 +554,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Neznámý typ vylepšení: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>Načteno skriptovaných instancí: {0}!</value>
+  </data>
 </root>

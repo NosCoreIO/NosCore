@@ -65,6 +65,7 @@ namespace NosCore.Data.Enumerations.I18N
         ITEMS_PARSED,
         MAPS_PARSED,
         PORTALS_PARSED,
+        TIMESPACES_PARSED,
         MAPS_LOADED,
         NO_MAP,
         MAPMONSTERS_LOADED,

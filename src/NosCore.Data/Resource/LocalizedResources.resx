@@ -628,4 +628,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Unhandled upgrade type: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>{0} Scripted Instances Parsed!</value>
+  </data>
 </root>

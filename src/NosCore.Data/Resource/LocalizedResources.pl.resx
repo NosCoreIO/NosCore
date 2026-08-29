@@ -504,4 +504,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Nieobsługiwany typ ulepszenia: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>Wczytano {0} instancji skryptowanych!</value>
+  </data>
 </root>

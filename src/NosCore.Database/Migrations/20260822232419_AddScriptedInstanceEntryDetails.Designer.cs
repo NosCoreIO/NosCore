@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using NodaTime;
 using NosCore.Database;
@@ -12,9 +13,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace NosCore.Database.Migrations
 {
     [DbContext(typeof(NosCoreContext))]
-    partial class NosCoreContextModelSnapshot : ModelSnapshot
+    [Migration("20260822232419_AddScriptedInstanceEntryDetails")]
+    partial class AddScriptedInstanceEntryDetails
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -186,11 +189,11 @@ namespace NosCore.Database.Migrations
 
             modelBuilder.Entity("NosCore.Database.Entities.BCard", b =>
                 {
-                    b.Property<int>("BCardId")
+                    b.Property<short>("BCardId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
+                        .HasColumnType("smallint");
 
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("BCardId"));
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("BCardId"));
 
                     b.Property<short?>("CardId")
                         .HasColumnType("smallint");
@@ -649,19 +652,6 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("SkillVNum");
 
                     b.ToTable("Combo");
-                });
-
-            modelBuilder.Entity("NosCore.Database.Entities.DignityLevel", b =>
-                {
-                    b.Property<byte>("DignityLevelId")
-                        .HasColumnType("smallint");
-
-                    b.Property<short?>("MaxDignity")
-                        .HasColumnType("smallint");
-
-                    b.HasKey("DignityLevelId");
-
-                    b.ToTable("DignityLevel");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Drop", b =>
@@ -2441,22 +2431,6 @@ namespace NosCore.Database.Migrations
                     b.ToTable("RecipeItem");
                 });
 
-            modelBuilder.Entity("NosCore.Database.Entities.ReputationLevel", b =>
-                {
-                    b.Property<byte>("ReputationLevelId")
-                        .HasColumnType("smallint");
-
-                    b.Property<long?>("MaxReputation")
-                        .HasColumnType("bigint");
-
-                    b.Property<long>("MinReputation")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ReputationLevelId");
-
-                    b.ToTable("ReputationLevel");
-                });
-
             modelBuilder.Entity("NosCore.Database.Entities.Respawn", b =>
                 {
                     b.Property<long>("RespawnId")
@@ -2751,10 +2725,6 @@ namespace NosCore.Database.Migrations
 
                     b.Property<short>("CastTime")
                         .HasColumnType("smallint");
-
-                    b.Property<string>("CellPattern")
-                        .HasMaxLength(512)
-                        .HasColumnType("character varying(512)");
 
                     b.Property<byte>("Class")
                         .HasColumnType("smallint");

@@ -4,13 +4,16 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities.Base;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
-    public class ScriptedInstance : IEntity
+    [StaticMetaData(LoadedMessage = LogLanguageKey.TIMESPACES_PARSED)]
+    public class ScriptedInstance : IStaticEntity
     {
         public virtual Map Map { get; set; } = null!;
 
@@ -29,5 +32,11 @@ namespace NosCore.Database.Entities
         public short ScriptedInstanceId { get; set; }
 
         public ScriptedInstanceType Type { get; set; }
+
+        public byte LevelMinimum { get; set; }
+
+        public byte LevelMaximum { get; set; }
+
+        public bool IsHeroic { get; set; }
     }
 }

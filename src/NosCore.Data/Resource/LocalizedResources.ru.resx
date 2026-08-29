@@ -579,4 +579,7 @@
   <data name="UNHANDLED_UPGRADE_TYPE" xml:space="preserve">
     <value>Неизвестный тип улучшения: {0}</value>
   </data>
+  <data name="TIMESPACES_PARSED" xml:space="preserve">
+    <value>Загружено скриптовых инстансов: {0}!</value>
+  </data>
 </root>

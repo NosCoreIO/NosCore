@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -28,7 +28,7 @@ namespace NosCore.Parser
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
         ShopItemParser shopItemParser, ShopParser shopParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
-        ConstStringParser constStringParser,
+        ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser,
         IDao<AccountDto, long> accountDao, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
         IDao<I18NNpcMonsterTalkDto, int> i18NNpcMonsterTalkDao,
         IDao<I18NNpcMonsterDto, int> i18NNpcMonsterDao, IDao<I18NMapPointDataDto, int> i18NMapPointDataDao,
@@ -164,6 +164,11 @@ namespace NosCore.Parser
         public Task ImportPortalsAsync()
         {
             return portalParser.InsertPortalsAsync(_packetList);
+        }
+
+        public Task ImportScriptedInstancesAsync()
+        {
+            return scriptedInstanceParser.InsertScriptedInstancesAsync(_packetList);
         }
 
         public async Task ImportI18NAsync()
