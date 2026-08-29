@@ -62,6 +62,8 @@ namespace NosCore.Database
 
         public virtual DbSet<Combo>? Combo { get; set; }
 
+        public virtual DbSet<DignityLevel>? DignityLevel { get; set; }
+
         public virtual DbSet<Drop>? Drop { get; set; }
 
         public virtual DbSet<Family>? Family { get; set; }

@@ -9,10 +9,11 @@ using System.Collections.Generic;
 
 namespace NosCore.GameObject.Ecs;
 
-public sealed class ReputationLevelInitializer
+public sealed class LadderInitializer
 {
-    public ReputationLevelInitializer(List<ReputationLevelDto> levels)
+    public LadderInitializer(List<ReputationLevelDto> reputationLevels, List<DignityLevelDto> dignityLevels)
     {
-        ReputationLevels.Load(levels);
+        ReputationLevels.Load(reputationLevels);
+        DignityLevels.Load(dignityLevels);
     }
 }

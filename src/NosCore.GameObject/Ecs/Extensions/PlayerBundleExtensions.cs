@@ -250,7 +250,7 @@ public static class PlayerBundleExtensions
                 ArmorUpgradeRareSubPacket = player.GetArmorUpgradeRareSubPacket(),
                 FamilySubPacket = new FamilySubPacket(),
                 FamilyName = null,
-                ReputIco = (byte)(GetDignityIcon(player.Dignity) == 0 ? GetReputationIcon(player.Reputation) : -GetDignityIcon(player.Dignity)),
+                ReputIco = GetIcon(player),
                 Invisible = false,
                 MorphUpgrade = 0,
                 Faction = 0,
@@ -442,7 +442,7 @@ public static class PlayerBundleExtensions
             HairStyle = player.HairStyle,
             HairColor = player.HairColor,
             Class = player.Class,
-            Icon = (byte)(GetDignityIcon(player.Dignity) == 0 ? GetReputationIcon(player.Reputation) : -GetDignityIcon(player.Dignity)),
+            Icon = GetIcon(player),
             Compliment = (short)(player.Authority == AuthorityType.Moderator ? 500 : player.Compliment),
             Morph = 0,
             Invisible = false,
@@ -499,21 +499,16 @@ public static class PlayerBundleExtensions
 
     private static int GetReputationIcon(long reputation) => (int)ReputationLevels.FromReputation(reputation);
 
-    // Matches OpenNos Character.GetDignityIco ordering: Dignity 0 → 1 (Basic), stepping up
-    // with each loss threshold. OpenNos tops out at 7 for <= -1000 but NosCore.Packets's
-    // CharacterDignity enum only defines 1..6, so we collapse the worst two tiers to 6
-    // (StupidMinded) — otherwise tc_info fails validation with "Invalid Enum value".
-    private static int GetDignityIcon(int dignity)
+    private static int GetDignityIcon(short dignity) => (int)DignityLevels.FromDignity(dignity);
+
+    // The icon slot carries one of the two ladders: the reputation icon while dignity is
+    // untouched, and the negated dignity icon once it drops into a penalty band.
+    private static byte GetIcon(PlayerComponentBundle player)
     {
-        return dignity switch
-        {
-            <= -800 => 6,
-            <= -600 => 5,
-            <= -400 => 4,
-            <= -200 => 3,
-            <= -100 => 2,
-            _ => 1
-        };
+        var dignity = DignityLevels.FromDignity(player.Dignity);
+        return dignity == DignityType.Default
+            ? (byte)GetReputationIcon(player.Reputation)
+            : (byte)-(int)dignity;
     }
 
     public static EffectPacket GenerateEff(this PlayerComponentBundle player, int effectId)

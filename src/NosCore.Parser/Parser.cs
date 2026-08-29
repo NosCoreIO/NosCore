@@ -100,7 +100,7 @@ namespace NosCore.Parser
             await factory.ImportMapTypeMapAsync().ConfigureAwait(false);
             await factory.ImportPortalsAsync().ConfigureAwait(false);
             await factory.ImportI18NAsync().ConfigureAwait(false);
-            await factory.ImportReputationLevelsAsync().ConfigureAwait(false);
+            await factory.ImportLaddersAsync().ConfigureAwait(false);
             await factory.ImportItemsAsync().ConfigureAwait(false);
             await factory.ImportSkillsAsync().ConfigureAwait(false);
             await factory.ImportCardsAsync().ConfigureAwait(false);
@@ -144,7 +144,7 @@ namespace NosCore.Parser
             if (key.KeyChar != 'n')
             {
                 await factory.ImportI18NAsync().ConfigureAwait(false);
-                await factory.ImportReputationLevelsAsync().ConfigureAwait(false);
+                await factory.ImportLaddersAsync().ConfigureAwait(false);
             }
 
             logger.LogInformation($"{logLanguage[LogLanguageKey.PARSE_TIMESPACES]} [Y/n]");

@@ -274,6 +274,15 @@
   <data name="REPUTATIONLEVELS_MALFORMED" xml:space="preserve">
     <value>conststring reputation bands are malformed, keeping the previously imported ladder!</value>
   </data>
+  <data name="DIGNITYLEVELS_PARSED" xml:space="preserve">
+    <value>{0} DignityLevels Parsed!</value>
+  </data>
+  <data name="DIGNITYLEVELS_LOADED" xml:space="preserve">
+    <value>{0} DignityLevels Loaded!</value>
+  </data>
+  <data name="DIGNITYLEVELS_MALFORMED" xml:space="preserve">
+    <value>conststring dignity bands are malformed, keeping the previously imported ladder!</value>
+  </data>
   <data name="MAP_DONT_EXIST" xml:space="preserve">
     <value>This map does not exist!</value>
   </data>

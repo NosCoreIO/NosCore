@@ -189,7 +189,7 @@ namespace NosCore.WorldServer
             // "An item with the same key..." runtime errors (see PersistenceModule.MirrorTo
             // comment for the same pattern on the DAO side).
 
-            containerBuilder.RegisterType<NosCore.GameObject.Ecs.ReputationLevelInitializer>()
+            containerBuilder.RegisterType<NosCore.GameObject.Ecs.LadderInitializer>()
                 .AsSelf()
                 .SingleInstance()
                 .AutoActivate();

@@ -12,9 +12,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -25,14 +23,9 @@ namespace NosCore.Parser.Parsers
     // reputation and the last 6 are dignity. Of the 30 reputation bands only the first 27 are
     // numeric — 2108..2110 are ranking places ("51st-100th"), which need a server-side ranking
     // NosCore does not keep. Those first 27 line up one-for-one with ReputationType 1..27.
-    //
-    // Only the UK file is read. The same numbers appear in all nine languages, but wrapped in
-    // translated prose with per-language separators ("-", "~", "to"), thousands separators
-    // (ES/RU write "1.001"), and CZ/PL are CP1250 rather than CP1252.
     public class ReputationLevelParser(IDao<ReputationLevelDto, byte> reputationLevelDao,
         ILogger<ReputationLevelParser> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        private const string FileName = "conststring_UK.dat";
         private const int FirstBandKey = 2081;
         private const int NumericBandCount = 27;
 
@@ -40,12 +33,7 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertReputationLevelsAsync(string folder)
         {
-            var path = Path.Combine(folder, FileName);
-            // Latin1 round-trips every byte, so a client shipping a different codepage cannot
-            // make the read throw. Only digit runs are consumed from the values.
-            var content = await File.ReadAllTextAsync(path, Encoding.Latin1).ConfigureAwait(false);
-
-            var bands = ReadBands(content);
+            var bands = await ConstStringFile.ReadAsync(folder).ConfigureAwait(false);
             var levels = BuildLevels(bands);
             if (levels == null)
             {
@@ -55,31 +43,6 @@ namespace NosCore.Parser.Parsers
 
             await reputationLevelDao.TryInsertOrUpdateAsync(levels).ConfigureAwait(false);
             logger.LogInformation(logLanguage[LogLanguageKey.REPUTATIONLEVELS_PARSED], levels.Count);
-        }
-
-        private static Dictionary<int, string> ReadBands(string content)
-        {
-            var bands = new Dictionary<int, string>();
-            foreach (var record in content.Split('\r', '\n'))
-            {
-                var separator = record.IndexOf('\v');
-                if (separator <= 0)
-                {
-                    continue;
-                }
-
-                if (!int.TryParse(record[..separator].Trim(), NumberStyles.None, CultureInfo.InvariantCulture, out var key))
-                {
-                    continue;
-                }
-
-                if (key >= FirstBandKey && key < FirstBandKey + NumericBandCount)
-                {
-                    bands[key] = record[(separator + 1)..];
-                }
-            }
-
-            return bands;
         }
 
         private static List<ReputationLevelDto>? BuildLevels(IReadOnlyDictionary<int, string> bands)
