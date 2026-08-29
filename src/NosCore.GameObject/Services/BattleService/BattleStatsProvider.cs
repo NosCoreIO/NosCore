@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -241,8 +241,8 @@ public sealed class BattleStatsProvider(
             EnemyWaterResistance = stats.EnemyWaterResistance + totals.FoeAll + totals.FoeWater,
             EnemyLightResistance = stats.EnemyLightResistance + totals.FoeAll + totals.FoeLight,
             EnemyDarkResistance = stats.EnemyDarkResistance + totals.FoeAll + totals.FoeDark,
-            HitRate = stats.HitRate + totals.HitRate,
-            DistanceRate = stats.DistanceRate + totals.HitRate,
+            HitRate = stats.HitRate + totals.HitRate + totals.HitRateMelee,
+            DistanceRate = stats.DistanceRate + totals.HitRate + totals.HitRateRanged,
             CriticalChance = stats.CriticalChance + totals.CritInflicting,
             CriticalRate = stats.CriticalRate + totals.CritDamage,
             DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
@@ -282,7 +282,7 @@ public sealed class BattleStatsProvider(
         public int DefenceAll, DefenceMelee, DefenceRanged, DefenceMagical;
         public int FactorAttackAll, FactorAttackMelee, FactorAttackRanged;
         public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
-        public int HitRate, Dodge, Morale;
+        public int HitRate, HitRateMelee, HitRateRanged, Dodge, Morale;
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
@@ -360,6 +360,10 @@ public sealed class BattleStatsProvider(
 
             [BCardEffect.TargetAllHitRateIncreased] = (t, v) => t.HitRate += v,
             [BCardEffect.TargetAllHitRateDecreased] = (t, v) => t.HitRate -= v,
+            [BCardEffect.TargetMeleeHitRateIncreased] = (t, v) => t.HitRateMelee += v,
+            [BCardEffect.TargetMeleeHitRateDecreased] = (t, v) => t.HitRateMelee -= v,
+            [BCardEffect.TargetRangedHitRateIncreased] = (t, v) => t.HitRateRanged += v,
+            [BCardEffect.TargetRangedHitRateDecreased] = (t, v) => t.HitRateRanged -= v,
 
             [BCardEffect.DodgeAndDefencePercentDodgeIncreased] = (t, v) => t.Dodge += v,
             [BCardEffect.DodgeAndDefencePercentDodgeDecreased] = (t, v) => t.Dodge -= v,
