@@ -7,6 +7,11 @@ services:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=noscore
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d noscore"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
     ports:
       - 5432:5432
     # PG17 cannot read a PG12 data directory. A dedicated path forces a clean
@@ -20,6 +25,8 @@ services:
   reverse-proxy:
     container_name: noscore-reverse-proxy
     image: noscoreio/noscore.reverseproxy:latest
+    profiles:
+      - proxy
     restart: unless-stopped
     ports:
       - 4000:4000
@@ -32,6 +39,9 @@ services:
 
   master:
     container_name: noscore-master
+    depends_on:
+      db:
+        condition: service_healthy
     environment:
       - PORT=5000
       - DB_HOST=db
@@ -40,10 +50,14 @@ services:
       context: ./
       dockerfile: deploy/Dockerfile-master
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:5000/health/ready"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     ports:
       - 5000:5000
-    expose:
-      - 5432
     networks:
       - noscore-network
     volumes:
@@ -52,6 +66,11 @@ services:
 
   world:
     container_name: noscore-world
+    depends_on:
+      db:
+        condition: service_healthy
+      master:
+        condition: service_healthy
     environment:
       - WEBAPI_PORT=5001
       - WEBAPI_HOST=http://world
@@ -63,11 +82,16 @@ services:
       context: ./
       dockerfile: deploy/Dockerfile-world
     restart: unless-stopped
+    stop_grace_period: 60s
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 1337"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 60s
     ports:
       - 5001:5001
       - 1337:1337
-    expose:
-      - 5432
     networks:
       - noscore-network
     volumes:
@@ -76,6 +100,11 @@ services:
 
   login:
     container_name: noscore-login
+    depends_on:
+      db:
+        condition: service_healthy
+      master:
+        condition: service_healthy
     environment:
       - LOGIN_PORT=4000
       - MASTER_HOST=http://master
@@ -85,10 +114,14 @@ services:
       context: ./
       dockerfile: deploy/Dockerfile-login
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 4000"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
     ports:
       - 4000:4000
-    expose:
-      - 5432
     networks:
       - noscore-network
     volumes:
