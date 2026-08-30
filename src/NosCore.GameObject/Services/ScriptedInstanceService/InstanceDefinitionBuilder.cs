@@ -107,11 +107,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 Gold = _gold,
                 Reputation = _reputation,
                 FamilyExperience = _familyExperience,
-                RequiredItems = _required,
-                DrawItems = _draw,
-                SpecialItems = _special,
-                GiftItems = _gift,
-                Rooms = _rooms
+                RequiredItems = [.. _required],
+                DrawItems = [.. _draw],
+                SpecialItems = [.. _special],
+                GiftItems = [.. _gift],
+                Rooms = [.. _rooms]
             };
         }
     }

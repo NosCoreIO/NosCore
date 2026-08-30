@@ -68,5 +68,23 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             CollectionAssert.AreEqual(new short[] { 30, 10, 20 },
                 definition.Rooms.Select(s => s.VNum).ToArray());
         }
+
+        [TestMethod]
+        public void ADefinitionDoesNotGrowWhenTheBuilderIsUsedAgain()
+        {
+            var builder = InstanceDefinitionBuilder.Named(1, "First", "First")
+                .WithRoom(2004, out _)
+                .WithReward(1030, 5);
+
+            var first = builder.Build();
+
+            builder.WithRoom(2005, out _).WithReward(1031, 1);
+            var second = builder.Build();
+
+            Assert.AreEqual(1, first.Rooms.Count);
+            Assert.AreEqual(1, first.GiftItems.Count);
+            Assert.AreEqual(2, second.Rooms.Count);
+            Assert.AreEqual(2, second.GiftItems.Count);
+        }
     }
 }
