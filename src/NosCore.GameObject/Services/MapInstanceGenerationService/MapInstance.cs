@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -191,6 +191,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public int XpRate { get; set; }
 
+        private readonly Lock _lifeLock = new();
         private CancellationTokenSource? _lifeCts;
         private Task? _lifeLoop;
 
@@ -399,13 +400,15 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         // instead of thousands of idle timers.
         public Task StartLifeAsync()
         {
-            if (_lifeLoop != null)
+            lock (_lifeLock)
             {
-                return Task.CompletedTask;
+                if (_lifeLoop == null)
+                {
+                    _lifeCts = new CancellationTokenSource();
+                    _lifeLoop = RunLifeLoopAsync(_lifeCts.Token);
+                }
             }
 
-            _lifeCts = new CancellationTokenSource();
-            _lifeLoop = RunLifeLoopAsync(_lifeCts.Token);
             return Task.CompletedTask;
         }
 
@@ -525,6 +528,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
 
             _lifeCts?.Cancel();
+
+            // The token only ends the wait between ticks. A tick already inside TickLifeAsync
+            // walks the entities of the world below, so it has to finish before the world goes.
+            _lifeLoop?.GetAwaiter().GetResult();
+
             _lifeCts?.Dispose();
             _lifeCts = null;
             _lifeLoop = null;
