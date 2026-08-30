@@ -39,7 +39,6 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
 

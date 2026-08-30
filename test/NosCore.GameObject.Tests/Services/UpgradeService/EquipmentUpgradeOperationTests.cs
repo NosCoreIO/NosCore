@@ -49,7 +49,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _random = new Mock<IRandomNumberSource>();

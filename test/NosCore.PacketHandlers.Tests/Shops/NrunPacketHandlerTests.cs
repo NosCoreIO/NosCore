@@ -35,7 +35,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _fakeHandlerMock = new Mock<INrunEventHandler>();

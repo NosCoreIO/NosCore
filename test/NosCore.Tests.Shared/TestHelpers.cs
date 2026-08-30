@@ -119,7 +119,6 @@ namespace NosCore.Tests.Shared
             var sessionGroupFactoryMock = new Mock<ISessionGroupFactory>();
             sessionGroupFactoryMock.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
             SessionGroupFactory = sessionGroupFactoryMock.Object;
-            Broadcaster.Initialize(sessionGroupFactoryMock.Object);
             BlacklistHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))

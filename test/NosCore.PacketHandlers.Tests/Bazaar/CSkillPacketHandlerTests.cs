@@ -31,7 +31,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             CskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock);

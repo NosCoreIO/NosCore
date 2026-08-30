@@ -179,7 +179,6 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         private async Task SessionAndTargetAreSetUp()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             _sessionA = await TestHelpers.Instance.GenerateSessionAsync();
             _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
             _realExchange = new GameObject.Services.ExchangeService.ExchangeService(

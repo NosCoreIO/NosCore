@@ -39,7 +39,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo

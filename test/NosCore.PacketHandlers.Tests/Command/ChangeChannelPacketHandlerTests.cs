@@ -28,7 +28,6 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             ChannelService = new Mock<IChannelService>();
             Handler = new ChangeChannelPacketHandler(ChannelService.Object);

@@ -31,7 +31,6 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
             MapChangeService = new Mock<IMapChangeService>();

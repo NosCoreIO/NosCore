@@ -49,7 +49,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;

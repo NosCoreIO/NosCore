@@ -31,7 +31,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             DignityService = new Mock<IDignityService>();
             DignityService.Setup(x => x.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);

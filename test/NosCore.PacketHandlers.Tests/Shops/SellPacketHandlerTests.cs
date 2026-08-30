@@ -41,7 +41,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             InstanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             SellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration);

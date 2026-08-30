@@ -44,7 +44,6 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
             Logger = new Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>>();

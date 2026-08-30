@@ -46,7 +46,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             BazaarHttpClient = new Mock<IBazaarHub>();
             ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();

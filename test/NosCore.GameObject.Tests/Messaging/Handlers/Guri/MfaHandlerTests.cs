@@ -30,7 +30,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _handler = new MfaHandler();

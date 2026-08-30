@@ -39,7 +39,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             BazaarHttpClient = new Mock<IBazaarHub>();
             CmodPacketHandler = new CModPacketHandler(BazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);

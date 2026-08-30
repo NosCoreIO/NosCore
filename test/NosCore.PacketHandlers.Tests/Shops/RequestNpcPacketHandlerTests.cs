@@ -38,7 +38,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             // Register ShoppingPacketHandler so the shop-no-dialog branch can dispatch
             // a ShoppingPacket through HandlePacketsAsync and we can observe the n_inv.

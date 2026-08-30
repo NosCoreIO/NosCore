@@ -35,7 +35,6 @@ namespace NosCore.WorldServer
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            Broadcaster.Initialize(sessionGroupFactory);
             await mapInstanceGeneratorService.InitializeAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
 
