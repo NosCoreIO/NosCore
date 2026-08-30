@@ -208,9 +208,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
             Assert.AreEqual("Test Test", miniland.MinilandMessage);
             var lastpacket2 = (MlintroPacket?)Session.LastPackets.FirstOrDefault(s => s is MlintroPacket);
-
-            // The packet carries the message as typed; the "^" encoding is the serializer's,
-            // which is why MlintroPacket.Intro declares EscapeSpaces.
             Assert.AreEqual("Test Test", lastpacket2?.Intro);
             Assert.AreEqual("mlintro Test^Test", new Serializer(new[] { typeof(MlintroPacket) }).Serialize(lastpacket2!));
         }
