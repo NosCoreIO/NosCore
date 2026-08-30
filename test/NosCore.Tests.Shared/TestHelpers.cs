@@ -258,7 +258,8 @@ namespace NosCore.Tests.Shared
                 new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IRegenerationService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleService>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
+                new Mock<NosCore.GameObject.Services.TransformationService.ISpCooldownNotificationService>().Object);
             await instanceGeneratorService.InitializeAsync();
             await instanceGeneratorService.AddMapInstanceAsync(new MapInstance(miniland, MinilandId, false,
                 MapInstanceType.NormalInstance, MapItemProvider, NullLogger<MapInstance>.Instance, Clock, mapChangeService, SessionGroupFactory, SessionRegistry, Instance.DistanceCalculator));

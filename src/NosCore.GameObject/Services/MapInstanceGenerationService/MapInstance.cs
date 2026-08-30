@@ -65,6 +65,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IRegenerationService? _regenerationService;
         private readonly IBattleService? _battleService;
         private readonly IVitalityService? _vitalityService;
+        private readonly TransformationService.ISpCooldownNotificationService? _spCooldownNotificationService;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
 
         public MapWorld EcsWorld { get; }
@@ -73,7 +74,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
-            IBattleService? battleService = null, IVitalityService? vitalityService = null)
+            IBattleService? battleService = null, IVitalityService? vitalityService = null,
+            TransformationService.ISpCooldownNotificationService? spCooldownNotificationService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -100,6 +102,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _regenerationService = regenerationService;
             _battleService = battleService;
             _vitalityService = vitalityService;
+            _spCooldownNotificationService = spCooldownNotificationService;
             EcsWorld = new MapWorld();
         }
 
@@ -443,6 +446,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     if (_battleService != null)
                     {
                         await _battleService.TickCooldownResetsAsync(this).ConfigureAwait(false);
+                    }
+
+                    if (_spCooldownNotificationService != null)
+                    {
+                        await _spCooldownNotificationService.TickAsync(this);
                     }
 
                     await SweepPendingRespawnsAsync().ConfigureAwait(false);

@@ -107,6 +107,13 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 
 ## Character
 
+### Specialist cooldown
+
+- [ ] Untransform and wait out the 30 seconds in-game: the red "side effect gone" line
+      and the cleared cooldown arrive roughly on time
+- [ ] Untransform and log out before the window ends: nothing is delivered to a dead
+      session and the server does not error
+
 ### Mounts
 
 - [ ] Mount a vehicle: the sprite changes **and** you move faster
