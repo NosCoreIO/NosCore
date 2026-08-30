@@ -438,11 +438,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         return;
                     }
 
-                    foreach (var monster in Monsters)
+                    foreach (var (_, monster) in _monsters)
                     {
                         await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
                     }
-                    foreach (var npc in Npcs)
+                    foreach (var (_, npc) in _npcs)
                     {
                         await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
                     }
@@ -452,8 +452,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     // fine for buffs since their Duration is measured in deciseconds.
                     if (_buffService != null)
                     {
-                        foreach (var monster in Monsters) await _buffService.TickAsync(monster).ConfigureAwait(false);
-                        foreach (var npc in Npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
+                        foreach (var (_, monster) in _monsters) await _buffService.TickAsync(monster).ConfigureAwait(false);
+                        foreach (var (_, npc) in _npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
                         foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
                         {
                             if (!session.HasPlayerEntity)
