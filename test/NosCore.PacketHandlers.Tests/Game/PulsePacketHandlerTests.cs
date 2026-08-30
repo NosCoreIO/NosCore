@@ -26,7 +26,6 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             PulsePacketHandler = new PulsePacketHandler();
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
         }

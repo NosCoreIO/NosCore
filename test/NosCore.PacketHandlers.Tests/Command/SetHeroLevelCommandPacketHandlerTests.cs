@@ -43,7 +43,6 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
             ChannelHub = new Mock<IChannelHub>();

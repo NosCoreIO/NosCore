@@ -37,7 +37,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
             BattleService = new Mock<IBattleService>();

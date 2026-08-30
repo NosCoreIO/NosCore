@@ -34,7 +34,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _respawnService = new Mock<IRespawnService>();

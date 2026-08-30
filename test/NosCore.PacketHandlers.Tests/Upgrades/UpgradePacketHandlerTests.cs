@@ -33,7 +33,6 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _matchingOperation = new Mock<IUpgradeOperation>();

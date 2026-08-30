@@ -32,7 +32,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _killerSession = await TestHelpers.Instance.GenerateSessionAsync();

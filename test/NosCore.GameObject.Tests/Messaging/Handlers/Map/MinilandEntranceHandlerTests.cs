@@ -37,7 +37,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _minilandService = new Mock<IMinilandService>();

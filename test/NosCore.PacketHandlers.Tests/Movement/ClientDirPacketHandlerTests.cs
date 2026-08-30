@@ -29,7 +29,6 @@ namespace NosCore.PacketHandlers.Tests.Movement
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new ClientDirPacketHandler(
                 Logger,

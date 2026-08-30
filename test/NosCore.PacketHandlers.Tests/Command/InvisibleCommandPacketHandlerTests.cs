@@ -25,7 +25,6 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             Handler = new InvisibleCommandPacketHandler();

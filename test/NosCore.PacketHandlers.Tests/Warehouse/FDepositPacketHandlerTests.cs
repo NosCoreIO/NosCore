@@ -28,7 +28,6 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Handler = new FDepositPacketHandler();
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();

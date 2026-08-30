@@ -47,7 +47,6 @@ namespace NosCore.Tests.Shared.BDD
         [TestInitialize]
         public virtual async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             Fixture = new NosCoreFixture();
             Session = await TestHelpers.Instance.GenerateSessionAsync();

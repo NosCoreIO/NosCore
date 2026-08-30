@@ -59,7 +59,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
 
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Session.Character.MapInstance.Portals = new List<Portal>

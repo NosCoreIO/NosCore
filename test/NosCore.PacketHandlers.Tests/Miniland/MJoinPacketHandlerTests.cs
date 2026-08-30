@@ -45,7 +45,6 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TargetSession = await TestHelpers.Instance.GenerateSessionAsync();

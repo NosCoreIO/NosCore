@@ -33,7 +33,6 @@ namespace NosCore.PacketHandlers.Tests.Quest
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            Broadcaster.Reset();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             QuestService = new Mock<IQuestService>();
             QuestGuid = Guid.NewGuid();

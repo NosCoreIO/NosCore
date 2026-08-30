@@ -52,7 +52,6 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            Broadcaster.Reset();
             await TestHelpers.ResetAsync();
             Fixture = new NosCoreFixture();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
