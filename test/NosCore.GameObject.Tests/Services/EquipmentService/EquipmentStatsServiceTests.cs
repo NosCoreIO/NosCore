@@ -204,9 +204,6 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         [TestMethod]
         public void AWeaponInTheBagCountsForNothing()
         {
-            // It was the clearest report of them all: "I attack with the sword but it uses the crossbow,
-            // which I am not even wearing". Only what is in the slots counts
-            // dell'equipaggiamento.
             var item = _items.Create(MainWeaponVnum, 1);
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(item, _session.Character.CharacterId),
@@ -214,12 +211,6 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
 
             Assert.AreEqual(EquipmentStats.None, _service.Resolve(_session.Character));
         }
-        // --- The effects declared by the pieces -----------------------------------------------
-        //
-        // A piece carries effects as well as numbers - "chance of poisoning", "defence increased
-        // by 25%". The parser already read them correctly from the official files and nobody ever
-        // looked at them again. The sibling codebase folds them in with GetStuffBuff.
-
         [TestMethod]
         public void AWornPieceCarriesItsDeclaredEffects()
         {
