@@ -59,6 +59,7 @@ using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
 using NosCore.Networking.SessionGroup;
 using NosCore.Networking.SessionRef;
+using NosCore.PacketHandlers.Generated;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
 using NosCore.Packets.Attributes;
@@ -159,8 +160,7 @@ namespace NosCore.WorldServer
             });
 
             //NosCore.Controllers
-            containerBuilder.RegisterTypes(typeof(NoS0575PacketHandler).Assembly.GetTypes()
-                    .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && typeof(IWorldPacketHandler).IsAssignableFrom(type)).ToArray())
+            containerBuilder.RegisterTypes(GeneratedPacketHandlers.WorldHandlerTypes)
                 .AsImplementedInterfaces();
 
             //NosCore.Core
