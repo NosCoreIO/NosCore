@@ -65,7 +65,7 @@ jobs:
 
     - name: Build, tag, and push image LoginServer
       if: github.ref == 'refs/heads/master'
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./deploy/Dockerfile
@@ -79,7 +79,7 @@ jobs:
 
     - name: Build, tag, and push image MasterServer
       if: github.ref == 'refs/heads/master'
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./deploy/Dockerfile
@@ -93,7 +93,7 @@ jobs:
 
     - name: Build, tag, and push image WorldServer
       if: github.ref == 'refs/heads/master'
-      uses: docker/build-push-action@v6
+      uses: docker/build-push-action@v7
       with:
         context: .
         file: ./deploy/Dockerfile
