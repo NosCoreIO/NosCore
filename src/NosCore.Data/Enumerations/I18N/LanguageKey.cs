@@ -114,7 +114,6 @@ namespace NosCore.Data.Enumerations.I18N
         SHOPITEMS_LOADED,
         SHOPS_LOADED,
         CONNECTION_LOST,
-        CHANNEL_WILL_EXIT,
         CANT_MOVE_ITEM_IN_SHOP,
         VISUALENTITY_DOES_NOT_EXIST,
         ALREADY_EXCHANGE,

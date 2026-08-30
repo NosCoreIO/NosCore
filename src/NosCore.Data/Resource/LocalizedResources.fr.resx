@@ -408,9 +408,6 @@
   <data name="VISUALTYPE_UNKNOWN" xml:space="preserve">
     <value>Type Visuel inconnu.</value>
   </data>
-  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
-    <value>Fermeture du serveur dans {0} secondes.</value>
-  </data>
   <data name="CONNECTION_LOST" xml:space="preserve">
     <value>La connexion au serveur a été perdue.</value>
   </data>
