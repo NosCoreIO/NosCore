@@ -91,6 +91,20 @@ jobs:
         cache-from: type=gha
         cache-to: type=gha,mode=max
 
+    - name: Build, tag, and push image Parser
+      if: github.ref == 'refs/heads/master'
+      uses: docker/build-push-action@v7
+      with:
+        context: .
+        file: ./deploy/Dockerfile
+        target: parser
+        push: true
+        tags: |
+          noscoreio/noscore.parser:latest
+          noscoreio/noscore.parser:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
     - name: Build, tag, and push image WorldServer
       if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v7

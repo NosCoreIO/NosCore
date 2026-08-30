@@ -128,6 +128,25 @@ services:
     volumes:
       - ./configuration/:/app/configuration
 
+  parser:
+    container_name: noscore-parser
+    profiles:
+      - tools
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - DB_HOST=db
+    build:
+      context: ./
+      dockerfile: deploy/Dockerfile
+      target: parser
+    networks:
+      - noscore-network
+    volumes:
+      - ./configuration/:/app/configuration
+      - ./dats:/dats
+
 networks:
   noscore-network:
     driver: bridge

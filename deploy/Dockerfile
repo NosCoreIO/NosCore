@@ -6,7 +6,8 @@ COPY src/ src/
 RUN --mount=type=cache,target=/root/.nuget/packages \
     dotnet publish src/NosCore.MasterServer -c Release -o /out/master \
     && dotnet publish src/NosCore.LoginServer -c Release -o /out/login \
-    && dotnet publish src/NosCore.WorldServer -c Release -o /out/world
+    && dotnet publish src/NosCore.WorldServer -c Release -o /out/world \
+    && dotnet publish src/NosCore.Parser -c Release -o /out/parser
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.24-amd64 AS base
 
@@ -35,3 +36,9 @@ COPY --from=build /out/world .
 USER $APP_UID
 EXPOSE 1337 5001
 ENTRYPOINT ["dotnet", "NosCore.WorldServer.dll"]
+
+FROM base AS parser
+COPY --from=build /out/parser .
+USER $APP_UID
+ENTRYPOINT ["dotnet", "NosCore.Parser.dll"]
+CMD ["--folder", "/dats"]
