@@ -14,9 +14,8 @@ using System.Linq;
 
 namespace NosCore.PacketHandlers.Tests
 {
-    // Guards the swap from the bootstraps' reflection scan to the lists emitted by
-    // NosCore.DiGenerator. LegacyScan is what WorldServerBootstrap and
-    // LoginServerBootstrap used to run against NosCore.PacketHandlers at startup.
+    // LegacyScan is the startup scan the generator replaced, kept as the oracle its
+    // output is diffed against.
     [TestClass]
     public class PacketHandlerRegistrationParityTests
     {
@@ -28,8 +27,8 @@ namespace NosCore.PacketHandlers.Tests
         public void GeneratedLoginHandlerListMatchesTheReflectionScan()
             => AssertMatches(LegacyScan(typeof(ILoginPacketHandler)), GeneratedPacketHandlers.LoginHandlerTypes);
 
-        // PacketType replaced a BaseType.GenericTypeArguments[0] walk that returned null
-        // - and silently dropped the handler - whenever the chain didn't match.
+        // The old walk returned null - silently dropping the handler - when the chain
+        // did not match.
         [TestMethod]
         public void EveryHandlerReportsThePacketItsBaseClassWasClosedOver()
         {
@@ -64,8 +63,8 @@ namespace NosCore.PacketHandlers.Tests
         private static IEnumerable<Type> LegacyScan(Type marker) =>
             typeof(NoS0575PacketHandler).Assembly.GetTypes()
                 .Where(type => typeof(IPacketHandler).IsAssignableFrom(type) && marker.IsAssignableFrom(type))
-                // The old scan passed GetTypes() straight to Autofac, so it also picked up
-                // interfaces and abstract bases; only concrete classes were ever resolvable.
+                // The old scan passed GetTypes() straight to Autofac, so it saw interfaces and
+                // abstract bases too; only concrete classes were ever resolvable.
                 .Where(type => type is { IsClass: true, IsAbstract: false });
     }
 }

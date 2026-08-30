@@ -15,9 +15,8 @@ namespace NosCore.GameObject.Infastructure
     {
         Task ExecuteAsync(IPacket packet, ClientSession clientSession);
 
-        // The packet this handler consumes. Supplied by PacketHandler<TPacket> so the
-        // registry can key on it directly instead of walking BaseType.GenericTypeArguments,
-        // which silently skipped any handler whose inheritance chain didn't match.
+        // Supplied by PacketHandler<TPacket>; walking BaseType.GenericTypeArguments instead
+        // silently skipped handlers whose inheritance chain did not match.
         Type PacketType { get; }
     }
 

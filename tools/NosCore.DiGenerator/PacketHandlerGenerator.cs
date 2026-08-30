@@ -14,9 +14,6 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace NosCore.DiGenerator;
 
-// Emits the concrete world/login packet handler lists the server bootstraps used to
-// discover by scanning NosCore.PacketHandlers with reflection, and turns the two
-// failure modes that scan swallowed into build errors.
 [Generator]
 public class PacketHandlerGenerator : IIncrementalGenerator
 {
@@ -51,9 +48,8 @@ public class PacketHandlerGenerator : IIncrementalGenerator
 
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        // Opt-in per project. Every assembly referencing NosCore.GameObject can see
-        // PacketHandler<T>, but only NosCore.PacketHandlers should own the generated
-        // bootstrap lists, so it sets NosCoreGeneratePacketHandlerLists in its csproj.
+        // Only NosCore.PacketHandlers owns these lists, so it opts in with
+        // NosCoreGeneratePacketHandlerLists.
         var enabled = context.AnalyzerConfigOptionsProvider.Select(static (provider, _) =>
             provider.GlobalOptions.TryGetValue(
                 "build_property.NosCoreGeneratePacketHandlerLists", out var value) &&
@@ -149,8 +145,8 @@ public class PacketHandlerGenerator : IIncrementalGenerator
         return null;
     }
 
-    // PacketHeaderAttribute is inherited (CommandPacketHeaderAttribute derives from it),
-    // so walk the packet's base chain the way GetCustomAttribute(inherit: true) did.
+    // PacketHeaderAttribute is inherited, so walk the base chain the way
+    // GetCustomAttribute(inherit: true) did.
     private static bool HasHeader(INamedTypeSymbol packetType, INamedTypeSymbol headerAttribute)
     {
         for (var current = packetType; current is not null; current = current.BaseType)

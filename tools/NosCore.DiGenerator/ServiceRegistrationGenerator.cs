@@ -55,10 +55,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             return RegistrationModel.Empty;
         }
 
-        // Both generators live in one analyzer assembly, so this runs for every project
-        // that references it - including ones that merely reference NosCore.GameObject
-        // and would resolve the marker from metadata. Only the assembly that declares
-        // the marker owns these registrations.
+        // Only the assembly declaring the marker owns these registrations; referencing
+        // projects would resolve it from metadata.
         if (!SymbolEqualityComparer.Default.Equals(singletonMarker.ContainingAssembly, compilation.Assembly))
         {
             return RegistrationModel.Empty;
@@ -72,16 +70,13 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
         foreach (var type in EnumerateTypes(compilation.Assembly.GlobalNamespace))
         {
-            // Static classes are abstract+sealed in metadata, so IsAbstract already
-            // excludes them here exactly as it did in the runtime scan.
             if (type.TypeKind != TypeKind.Class || type.IsAbstract)
             {
                 continue;
             }
 
-            // Reflection's Type.IsPublic is true only for top-level public types; a
-            // public nested type reports IsNestedPublic instead and was never picked up
-            // by the runtime scan. Mirror that exactly so the generated list matches.
+            // A public nested type reports IsNestedPublic, so the runtime scan never saw one.
+            // Mirror that.
             var isTopLevelPublic = type.DeclaredAccessibility == Accessibility.Public &&
                                    type.ContainingType is null;
 
@@ -91,9 +86,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             var matchesSuffix = ConventionSuffixes.Any(s => name.EndsWith(s, System.StringComparison.Ordinal));
             var isHubClient = name.EndsWith(HubClientSuffix, System.StringComparison.Ordinal);
 
-            // The four runtime scans ran independently over every type, so a class could
-            // be picked up by more than one. Evaluate them independently here too rather
-            // than short-circuiting, or the generated list silently loses registrations.
+            // The four scans ran independently, so evaluate them independently rather than
+            // short-circuiting, or the list silently loses registrations.
             if (isHubClient || matchesSuffix)
             {
                 if (isUnboundGeneric)
@@ -103,9 +97,7 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
                 }
             }
 
-            // Hub clients are matched on name alone and registered as every interface
-            // they implement, including framework ones - the runtime scan applied no
-            // namespace filter and no visibility filter here, so neither do we.
+            // The runtime scan applied no namespace or visibility filter here, so neither do we.
             if (isHubClient)
             {
                 foreach (var iface in type.AllInterfaces)
@@ -158,11 +150,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
             registrations.Add(new Registration(Display(type), Display(type), lifetime));
         }
 
-        // Metadata order from Type.GetTypes() is not reproducible at compile time, so
-        // order deterministically instead. Where an interface has several
-        // implementations the last registration wins for GetRequiredService, which is
-        // why DependencyInjectionParityTests asserts the generated set matches the
-        // runtime scan as a set and flags multiply-implemented contracts.
+        // Metadata order is not reproducible at compile time, so order by name and let
+        // DependencyInjectionParityTests compare as a set.
         registrations.Sort(static (a, b) =>
         {
             var byService = string.CompareOrdinal(a.ServiceType, b.ServiceType);
@@ -282,9 +271,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         context.AddSource("GeneratedServiceRegistrations.g.cs", SourceText.From(sb.ToString(), Encoding.UTF8));
     }
 
-    // Descriptors are compared against reflection-derived names in
-    // DependencyInjectionParityTests, so drop every 'global::' - including the ones
-    // inside type arguments of a constructed generic - rather than just the prefix.
+    // Drop every 'global::', including inside type arguments, to match the
+    // reflection-derived names the parity test compares against.
     private static string Strip(string fullyQualified)
         => fullyQualified.Replace("global::", string.Empty);
 
@@ -308,9 +296,8 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         public Lifetime Lifetime { get; }
     }
 
-    // Deliberately stores strings and a Location rather than the INamedTypeSymbol:
-    // symbols root the whole Compilation, and this value is cached by the incremental
-    // pipeline.
+    // Strings rather than INamedTypeSymbol: symbols root the whole Compilation and this
+    // is cached by the incremental pipeline.
     private readonly struct DiagnosticInfo
     {
         private DiagnosticInfo(DiagnosticDescriptor descriptor, Location? location, string typeName)

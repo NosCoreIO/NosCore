@@ -32,10 +32,8 @@ namespace NosCore.GameObject.Services.PacketHandlerService
                     }
                 }
 
-                // Two handlers claiming the same packet used to be swallowed here, with
-                // whichever the container happened to yield first winning. NOSDI003 now
-                // fails the build instead, so reaching this at runtime means a handler
-                // was registered dynamically outside the generated lists.
+                // NOSDI003 fails the build on a duplicate, so reaching this means a handler was
+                // registered dynamically outside the generated lists.
                 if (_handlersByPacketType.TryGetValue(type, out var existing))
                 {
                     throw new InvalidOperationException(

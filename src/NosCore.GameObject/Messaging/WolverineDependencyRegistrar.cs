@@ -56,21 +56,8 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IExchangeRequestRegistry, ExchangeRequestRegistry>();
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
 
-        // Inter-channel hub clients, the INrunEventHandler / IQuestTypeHandler
-        // implementations and the convention-named game-object services
-        // (*Service, *Provider, *Resolver, *Calculator, *Catalog, *Queue, *Ai) are all
-        // emitted as explicit AddSingleton/AddTransient calls by NosCore.DiGenerator,
-        // which applies the same rules at compile time that this method used to apply
-        // by reflection at startup.
-        //
-        // Lifetime still comes from the ISingletonService marker — implement it on
-        // classes that own shared state (caches, queues, per-entity maps); everything
-        // else stays transient so short-lived handlers don't share mutable state. A
-        // class carrying the marker whose name matches no suffix now fails the build
-        // with NOSDI001 instead of being silently skipped.
-        //
-        // DependencyInjectionParityTests diffs the generated list against the scan it
-        // replaced, so the two cannot drift apart unnoticed.
+        // NosCore.DiGenerator emits these registrations at compile time. Lifetime still comes
+        // from ISingletonService; a marked class matching no suffix now fails with NOSDI001.
         services.AddGeneratedGameObjectServices();
     }
 }
