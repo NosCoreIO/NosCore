@@ -16,6 +16,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
+using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
@@ -37,7 +38,7 @@ namespace NosCore.WorldServer
             await mapInstanceGeneratorService.InitializeAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
 
-            ConsoleTitle.Append($@" - Port : {worldConfiguration.Value.Port}");
+            ConsoleHelper.AppendTitle($@" - Port : {worldConfiguration.Value.Port}");
             var connectTask = Policy
                 .Handle<Exception>()
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),

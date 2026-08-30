@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Database;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.Networking;
+using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
@@ -29,7 +30,7 @@ namespace NosCore.LoginServer
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            ConsoleTitle.Append($@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}");
+            ConsoleHelper.AppendTitle($@" - Port : {Convert.ToInt32(loginConfiguration.Value.Port)}");
 
             try
             {

@@ -20,6 +20,7 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.Parser.Parsers;
+using NosCore.Shared.Helpers;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.I18N;
 using Serilog;
@@ -137,7 +138,7 @@ namespace NosCore.Parser
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    ConsoleTitle.Set(Title);
+                    ConsoleHelper.SetTitle(Title);
 
                     InitializeConfiguration(args, services);
 

@@ -46,7 +46,7 @@
     <PackageVersion Include="NosCore.Networking" Version="8.0.0" />
     <PackageVersion Include="NosCore.Packets" Version="21.1.1" />
     <PackageVersion Include="NosCore.PathFinder" Version="2.1.0" />
-    <PackageVersion Include="NosCore.Shared" Version="6.0.1" />
+    <PackageVersion Include="NosCore.Shared" Version="6.0.2" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.3" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="10.0.3" />
     <PackageVersion Include="Npgsql.NodaTime" Version="10.0.3" />

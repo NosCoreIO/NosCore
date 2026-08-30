@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Threading;
@@ -24,7 +25,7 @@ namespace NosCore.MasterServer
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
-            ConsoleTitle.Append($@" - WebApi : {_masterConfiguration.WebApi}");
+            ConsoleHelper.AppendTitle($@" - WebApi : {_masterConfiguration.WebApi}");
 
             return Task.CompletedTask;
         }
