@@ -14,6 +14,8 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets;
+using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
@@ -326,6 +328,28 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var mate = mates[0];
             Assert.IsTrue(walled.IsWalkable(mate.PositionX, mate.PositionY),
                 $"placed at {mate.PositionX},{mate.PositionY}, which is not walkable");
+        }
+
+        [TestMethod]
+        public async Task ASpacedMateNameReachesTheClientAsOneFieldAsync()
+        {
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, IsTeamMember = true, Name = "Joyeux Mouton" }
+            }, Creature(ChickenVNum, "Chicken", 157, 10));
+
+            var mate = (await service.LoadAsync(CharacterId))[0];
+            var serializer = new Serializer(typeof(IPacket).Assembly.GetTypes()
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract)
+                .ToList());
+
+            foreach (var packet in new IPacket[]
+                { mate.GenerateIn(RegionType.EN), mate.GenerateScp(RegionType.EN), mate.GenerateScn(RegionType.EN) })
+            {
+                var line = serializer.Serialize(new[] { packet }).TrimEnd();
+                StringAssert.Contains(line, "Joyeux^Mouton",
+                    $"the name has to travel as one field: {line}");
+            }
         }
     }
 }
