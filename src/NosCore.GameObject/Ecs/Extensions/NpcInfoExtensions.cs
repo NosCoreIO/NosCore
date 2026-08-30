@@ -13,15 +13,6 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class NpcInfoExtensions
 {
-    // Builds the e_info response for a req_info 5 (NPC) or req_info 6 (monster/mate).
-    // OpenNos's NpcMonster.GenerateEInfo AND Mate.GenerateEInfo both emit:
-    //   `e_info 10 <vnum> <level> <element> <attackClass> <elementRate> <atkUp>
-    //    <dmgMin> <dmgMax> <concentrate> <critChance> <critRate> <defUp> <closeDef>
-    //    <defDodge> <distDef> <distDodge> <magicDef> <fire> <water> <light> <dark>
-    //    <maxHp> <maxMp> -1 <name>`
-    // — the leading 10 is the format discriminator and the trailing -1 is a constant
-    // the client expects before the name field. Without either, the client can't align
-    // fields and falls back to defaults (Level=0, HP=100/100) in the target info card.
     public static EInfoNpcMonsterPacket GenerateNpcInfo(this NpcMonsterDto npc, RegionType language)
     {
         return new EInfoNpcMonsterPacket
@@ -50,6 +41,9 @@ public static class NpcInfoExtensions
             DarkResistance = npc.DarkResistance,
             MaxHp = npc.MaxHp,
             MaxMp = npc.MaxMp,
+            // The serializer escapes a string field against the separator that follows it, and
+            // nothing follows this one, so the spaces have to go before it is handed over.
+            Name = npc.Name[language].Replace(' ', '^'),
         };
     }
 
