@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -41,9 +41,7 @@ public static class NpcInfoExtensions
             DarkResistance = npc.DarkResistance,
             MaxHp = npc.MaxHp,
             MaxMp = npc.MaxMp,
-            // The serializer escapes a string field against the separator that follows it, and
-            // nothing follows this one, so the spaces have to go before it is handed over.
-            Name = npc.Name[language].Replace(' ', '^'),
+            Name = npc.Name[language],
         };
     }
 
