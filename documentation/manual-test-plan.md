@@ -107,6 +107,14 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 
 ## Character
 
+### Specialist cooldown
+
+- [ ] Untransform, relog within 30 seconds: wearing the SP again is refused with the
+      side-effect message until the window ends
+- [ ] Wait out the 30 seconds in-game: the red "side effect gone" line and the cleared
+      cooldown arrive roughly on time
+- [ ] Server restart inside the window keeps the refusal on the remaining seconds
+
 ### Mounts
 
 - [ ] Mount a vehicle: the sprite changes **and** you move faster
