@@ -20,15 +20,18 @@ WORKDIR /app/build/net10.0
 
 FROM base AS master
 COPY --from=build /out/master .
+USER $APP_UID
 EXPOSE 5000
 ENTRYPOINT ["dotnet", "NosCore.MasterServer.dll"]
 
 FROM base AS login
 COPY --from=build /out/login .
+USER $APP_UID
 EXPOSE 4000
 ENTRYPOINT ["dotnet", "NosCore.LoginServer.dll"]
 
 FROM base AS world
 COPY --from=build /out/world .
+USER $APP_UID
 EXPOSE 1337 5001
 ENTRYPOINT ["dotnet", "NosCore.WorldServer.dll"]
