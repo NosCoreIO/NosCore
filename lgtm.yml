@@ -1,5 +1,0 @@
-extraction:
-  csharp:
-    index:
-      dotnet:
-        version: "8.0.100"
