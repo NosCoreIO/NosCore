@@ -38,7 +38,8 @@ services:
       - WEBAPI_HOST=http://master
     build:
       context: ./
-      dockerfile: deploy/Dockerfile-master
+      dockerfile: deploy/Dockerfile
+      target: master
     restart: unless-stopped
     ports:
       - 5000:5000
@@ -47,8 +48,7 @@ services:
     networks:
       - noscore-network
     volumes:
-      - ./build/net10.0/linux-musl-x64:/app/build/net10.0
-      - ./configuration/:/app/build/configuration
+      - ./configuration/:/app/configuration
 
   world:
     container_name: noscore-world
@@ -61,7 +61,8 @@ services:
       - HOST=127.0.0.1
     build:
       context: ./
-      dockerfile: deploy/Dockerfile-world
+      dockerfile: deploy/Dockerfile
+      target: world
     restart: unless-stopped
     ports:
       - 5001:5001
@@ -71,8 +72,7 @@ services:
     networks:
       - noscore-network
     volumes:
-      - ./build/net10.0/linux-musl-x64:/app/build/net10.0
-      - ./configuration/:/app/build/configuration
+      - ./configuration/:/app/configuration
 
   login:
     container_name: noscore-login
@@ -83,7 +83,8 @@ services:
       - HOST=127.0.0.1
     build:
       context: ./
-      dockerfile: deploy/Dockerfile-login
+      dockerfile: deploy/Dockerfile
+      target: login
     restart: unless-stopped
     ports:
       - 4000:4000
@@ -92,8 +93,7 @@ services:
     networks:
       - noscore-network
     volumes:
-      - ./build/net10.0/linux-musl-x64:/app/build/net10.0
-      - ./configuration/:/app/build/configuration
+      - ./configuration/:/app/configuration
 
 networks:
   noscore-network:

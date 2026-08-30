@@ -1,0 +1,9 @@
+*
+!Directory.Build.props
+!Directory.Packages.props
+!NuGet.config
+!configuration/
+!src/
+!tools/
+**/bin/
+**/obj/

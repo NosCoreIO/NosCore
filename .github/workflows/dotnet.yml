@@ -40,6 +40,10 @@ jobs:
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
+    - name: Set up Docker Buildx
+      if: github.ref == 'refs/heads/master'
+      uses: docker/setup-buildx-action@v3
+
     - name: Login to DockerHub
       if: github.ref == 'refs/heads/master'
       uses: docker/login-action@v3
@@ -47,37 +51,44 @@ jobs:
         username: ${{ secrets.DOCKER_USERNAME }}
         password: ${{ secrets.DOCKER_PASSWORD }}
 
-    - run: dotnet test --runtime linux-musl-x64 --filter TestCategory=SomethingAsDotnetBuildDoesntWorkAnymore
-
     - name: Build, tag, and push image LoginServer
       if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: ./deploy/Dockerfile-login
+        file: ./deploy/Dockerfile
+        target: login
         push: true
         tags: |
           noscoreio/noscore.loginserver:latest
           noscoreio/noscore.loginserver:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Build, tag, and push image MasterServer
       if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: ./deploy/Dockerfile-master
+        file: ./deploy/Dockerfile
+        target: master
         push: true
         tags: |
           noscoreio/noscore.masterserver:latest
           noscoreio/noscore.masterserver:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
 
     - name: Build, tag, and push image WorldServer
       if: github.ref == 'refs/heads/master'
       uses: docker/build-push-action@v6
       with:
         context: .
-        file: ./deploy/Dockerfile-world
+        file: ./deploy/Dockerfile
+        target: world
         push: true
         tags: |
           noscoreio/noscore.worldserver:latest
           noscoreio/noscore.worldserver:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
