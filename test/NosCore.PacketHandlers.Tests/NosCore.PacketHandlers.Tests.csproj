@@ -6,10 +6,6 @@
     <NoWarn>MSTEST0001;MSTEST0017;MSTEST0023;MSTEST0037;MSTEST0044;NU1701</NoWarn>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>..\..\build\</OutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="coverlet.msbuild">
       <PrivateAssets>all</PrivateAssets>

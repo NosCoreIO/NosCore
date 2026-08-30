@@ -8,15 +8,7 @@
     <SelfContained>false</SelfContained>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(TargetArch)' == 'linux-musl-x64'">
-    <RuntimeIdentifier>linux-musl-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <OutputPath>../../build/</OutputPath>
-  </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <OutputPath>../../build/</OutputPath>
   </PropertyGroup>
 

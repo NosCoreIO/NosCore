@@ -10,10 +10,6 @@
     <OutputPath>..\..\build\</OutputPath>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <OutputPath>..\..\build\</OutputPath>
-  </PropertyGroup>
-
   <ItemGroup>
     <PackageReference Include="Arch" />
     <PackageReference Include="Autofac" />
