@@ -21,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, short> bCardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class ItemParser(IDao<ItemDto, short> itemDao, IDao<BCardDto, int> bCardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly ILogger<ItemParser> _logger = loggerFactory.CreateLogger<ItemParser>();
         //  VNUM	{VNum}	{Price}

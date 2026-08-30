@@ -25,16 +25,16 @@ namespace NosCore.Parser.Tests
     public class DatDocumentationSnapshotTests
     {
         [TestMethod] public void Item() => RegenerateFor(new ItemParser(
-            Mock<ItemDto, short>(), Mock<BCardDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
+            Mock<ItemDto, short>(), Mock<BCardDto, int>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
 
         [TestMethod] public void Card() => RegenerateFor(new CardParser(
-            Mock<CardDto, short>(), Mock<BCardDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
+            Mock<CardDto, short>(), Mock<BCardDto, int>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
 
         [TestMethod] public void Skill() => RegenerateFor(new SkillParser(
-            Mock<BCardDto, short>(), Mock<ComboDto, int>(), Mock<SkillDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
+            Mock<BCardDto, int>(), Mock<ComboDto, int>(), Mock<SkillDto, short>(), NullLoggerFactory.Instance, LogLang()).BuildParser("."));
 
         [TestMethod] public void NpcMonster() => RegenerateFor(new NpcMonsterParser(
-            Mock<SkillDto, short>(), Mock<BCardDto, short>(), Mock<DropDto, short>(),
+            Mock<SkillDto, short>(), Mock<BCardDto, int>(), Mock<DropDto, short>(),
             Mock<NpcMonsterSkillDto, long>(), Mock<NpcMonsterDto, short>(), NullLoggerFactory.Instance, LogLang())
             .BuildParser("."));
 

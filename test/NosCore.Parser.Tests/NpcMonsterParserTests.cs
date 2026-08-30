@@ -25,7 +25,7 @@ namespace NosCore.Parser.Tests
     {
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<SkillDto, short>> _skillDaoMock = null!;
-        private Mock<IDao<BCardDto, short>> _bCardDaoMock = null!;
+        private Mock<IDao<BCardDto, int>> _bCardDaoMock = null!;
         private Mock<IDao<DropDto, short>> _dropDaoMock = null!;
         private Mock<IDao<NpcMonsterSkillDto, long>> _npcMonsterSkillDaoMock = null!;
         private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock = null!;
@@ -37,7 +37,7 @@ namespace NosCore.Parser.Tests
         {
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _skillDaoMock = new Mock<IDao<SkillDto, short>>();
-            _bCardDaoMock = new Mock<IDao<BCardDto, short>>();
+            _bCardDaoMock = new Mock<IDao<BCardDto, int>>();
             _dropDaoMock = new Mock<IDao<DropDto, short>>();
             _npcMonsterSkillDaoMock = new Mock<IDao<NpcMonsterSkillDto, long>>();
             _npcMonsterDaoMock = new Mock<IDao<NpcMonsterDto, short>>();
