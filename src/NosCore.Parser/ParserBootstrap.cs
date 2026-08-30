@@ -36,6 +36,23 @@ namespace NosCore.Parser
         private const string Title = "NosCore - Parser";
         private const string ConsoleText = "PARSER - NosCoreIO";
 
+        // ItemInstance DTOs are the only exclusion: they get the dedicated
+        // IDao<IItemInstanceDto?, Guid> registration. A name-based filter here once
+        // swallowed ScriptedInstanceDto too and left its DAO unresolvable.
+        public static IEnumerable<Type> RegistrableDtoTypes()
+        {
+            var entityNames = typeof(Account).Assembly.GetTypes()
+                .Where(t => t is { IsClass: true, IsPublic: true })
+                .Select(t => t.Name)
+                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            return typeof(IStaticDto).Assembly.GetTypes()
+                .Where(p => typeof(IDto).IsAssignableFrom(p)
+                    && !typeof(IItemInstanceDto).IsAssignableFrom(p)
+                    && p.IsClass
+                    && p.Name.EndsWith("Dto")
+                    && entityNames.Contains(p.Name[..^3]));
+        }
+
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class where TPk : struct
         {
@@ -75,23 +92,20 @@ namespace NosCore.Parser
             var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
 
-            assemblyDto.Where(p =>
-                    typeof(IDto).IsAssignableFrom(p) && !p.Name.Contains("InstanceDto") && p.IsClass)
-                .ToList()
-                .ForEach(t =>
-                {
-                    var type = assemblyDb.First(tgo =>
-                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                        Guid.NewGuid().ToString());
-                    var typepk = type.GetProperties()
-                        .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)?
-                            .FindPrimaryKey()?.Properties.Select(x => x.Name)
-                            .Contains(s.Name) ?? false
-                        ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
-                        new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
-                });
+            foreach (var t in RegistrableDtoTypes())
+            {
+                var type = assemblyDb.First(tgo =>
+                    string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
+                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
+                    Guid.NewGuid().ToString());
+                var typepk = type.GetProperties()
+                    .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)?
+                        .FindPrimaryKey()?.Properties.Select(x => x.Name)
+                        .Contains(s.Name) ?? false
+                    ).ToArray()[0];
+                registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
+                    new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
+            }
 
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>()
                 .SingleInstance();
