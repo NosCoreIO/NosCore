@@ -49,6 +49,7 @@ using NosCore.GameObject.Services.AuthService;
 using NosCore.GameObject.Services.BazaarService;
 using NosCore.GameObject.Services.FriendService;
 using NosCore.GameObject.Services.MailService;
+using NosCore.Shared.Helpers;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -87,7 +88,7 @@ namespace NosCore.MasterServer
             builder.Configuration.AddConfiguration(
                 ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }));
 
-            ConsoleTitle.Set(Title);
+            ConsoleHelper.SetTitle(Title);
             Logger.PrintHeader(ConsoleText);
 
             builder.Host.UseSerilog();

@@ -67,6 +67,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Shared.Helpers;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -235,7 +236,7 @@ namespace NosCore.WorldServer
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>
                 {
-                    ConsoleTitle.Set(Title);
+                    ConsoleHelper.SetTitle(Title);
 
                     InitializeConfiguration(args, services);
 
