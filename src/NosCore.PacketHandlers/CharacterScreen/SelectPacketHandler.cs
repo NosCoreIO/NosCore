@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -177,7 +177,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     false,
                     true,
                     now,
-                    now,
+                    characterDto.LastSp ?? now,
                     0
                 );
 
@@ -206,6 +206,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
                 var character = clientSession.Character;
                 group.JoinGroup(character);
+
+                if (characterDto.LastSp is { } lastSp
+                    && now < lastSp.Plus(Duration.FromSeconds(GameObject.Services.TransformationService.TransformationService.SpCooldownSeconds)))
+                {
+                    character.SpCooldown = GameObject.Services.TransformationService.TransformationService.SpCooldownSeconds;
+                }
 
 #pragma warning disable CS0618
                 await clientSession.SendPacketsAsync(character.GenerateInv(logger, logLanguage));

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Database.Entities.Base;
 using NosCore.Packets.Enumerations;
@@ -134,6 +135,8 @@ namespace NosCore.Database.Entities
         public virtual Map Map { get; set; } = null!;
 
         public short MapId { get; set; }
+
+        public Instant? LastSp { get; set; }
 
         public short MapX { get; set; }
 

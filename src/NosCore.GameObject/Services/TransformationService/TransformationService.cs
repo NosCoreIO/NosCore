@@ -33,9 +33,12 @@ namespace NosCore.GameObject.Services.TransformationService
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger<TransformationService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
             SpeedCalculationService.ISpeedCalculationService speedCalculationService,
-            SkillService.ISkillService skillService)
+            SkillService.ISkillService skillService,
+            ISpCooldownNotificationService spCooldownNotificationService)
         : ITransformationService
     {
+        public const short SpCooldownSeconds = 30;
+
         public async Task RemoveSpAsync(ClientSession session)
         {
             var character = session.Character;
@@ -45,7 +48,7 @@ namespace NosCore.GameObject.Services.TransformationService
             character.MorphDesign = 0;
 
             await skillService.UnloadSpecialistSkillsAsync(character);
-            character.SpCooldown = 30;
+            character.SpCooldown = SpCooldownSeconds;
 
             var characterId = character.CharacterId;
             var spCooldown = character.SpCooldown;
@@ -76,19 +79,7 @@ namespace NosCore.GameObject.Services.TransformationService
             });
             await session.SendPacketAsync(statPacket);
 
-            async Task CoolDown()
-            {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = characterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.TransformationSideEffectGone
-                });
-                await session.SendPacketAsync(new SdPacket { Cooldown = 0 });
-            }
-
-            Observable.Timer(TimeSpan.FromMilliseconds(spCooldown * 1000)).Select(_ => CoolDown()).Subscribe();
+            spCooldownNotificationService.Schedule(session, clock.GetCurrentInstant().Plus(Duration.FromSeconds(spCooldown)));
         }
 
         public async Task ChangeSpAsync(ClientSession session)

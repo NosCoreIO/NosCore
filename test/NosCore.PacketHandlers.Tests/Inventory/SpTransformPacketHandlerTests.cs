@@ -50,7 +50,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                     new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration,
                     new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
-                    new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object),
+                    new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
+                    new SpCooldownNotificationService(TestHelpers.Instance.Clock)),
                 TestHelpers.Instance.GameLanguageLocalizer);
         }
 

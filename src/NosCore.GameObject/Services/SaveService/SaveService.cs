@@ -63,6 +63,7 @@ namespace NosCore.GameObject.Services.SaveService
                     characterDto.MapX = character.PositionX;
                     characterDto.MapY = character.PositionY;
                 }
+                characterDto.LastSp = character.LastSp;
                 characterDto.SpPoint = character.SpPoint;
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
                 characterDto.CurrentScriptId = character.CurrentScriptId;
