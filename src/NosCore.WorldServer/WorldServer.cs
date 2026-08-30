@@ -16,7 +16,6 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
-using NosCore.Networking.SessionGroup;
 using NosCore.Shared.I18N;
 using Polly;
 using System;
@@ -30,7 +29,7 @@ namespace NosCore.WorldServer
             ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             ISaveService saveService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IChannelHub channelHubClient,
-            ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
