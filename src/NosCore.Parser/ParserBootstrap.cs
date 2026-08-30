@@ -90,20 +90,13 @@ namespace NosCore.Parser
 
             containerBuilder.RegisterType<ImportFactory>();
             var registerDatabaseObject = typeof(ParserBootstrap).GetMethod(nameof(RegisterDatabaseObject));
-            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
             var assemblyDb = typeof(Account).Assembly.GetTypes();
 
             foreach (var t in RegistrableDtoTypes())
             {
                 var type = assemblyDb.First(tgo =>
                     string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                    Guid.NewGuid().ToString());
-                var typepk = type.GetProperties()
-                    .Where(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(type)?
-                        .FindPrimaryKey()?.Properties.Select(x => x.Name)
-                        .Contains(s.Name) ?? false
-                    ).ToArray()[0];
+                var typepk = Database.Hosting.PersistenceModule.FindPrimaryKeyProperty(type)!;
                 registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
                     new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
             }
