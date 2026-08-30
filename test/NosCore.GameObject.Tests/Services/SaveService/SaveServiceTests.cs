@@ -6,6 +6,7 @@
 
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao;
@@ -46,7 +47,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                Guid.NewGuid().ToString());
+                Guid.NewGuid().ToString())
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             NosCoreContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
 
             var itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, ContextBuilder);
@@ -82,7 +84,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                     new List<NpcMonsterDto>(),
                     new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
                     new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
-                    NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance));
+                    NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance),
+                new DaoTransactionScope(ContextBuilder));
         }
 
         [TestMethod]
