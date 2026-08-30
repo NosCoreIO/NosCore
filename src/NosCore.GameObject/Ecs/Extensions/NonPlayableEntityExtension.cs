@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -89,49 +89,31 @@ namespace NosCore.GameObject.Ecs.Extensions
             bundle.Shop = shops.Values.First();
         }
 
-        public static void StopLife(this INonPlayableEntity entity)
-        {
-            entity.Life?.Dispose();
-            entity.Life = null;
-        }
-
-        public static Task StartLifeAsync(this INonPlayableEntity entity, IHeuristic distanceCalculator, IClock clock, ILogger logger)
-            => entity.StartLifeAsync(monsterAi: null, distanceCalculator, clock, logger);
-
-        // Overload that lets the caller wire in the aggro-driven AI. When the AI is
-        // absent (or the entity has no aggro target this tick) we fall back to the
-        // original random-wander behaviour. Both monsters (targeting players) and
-        // NPCs (targeting hostile mobs) flow through the same TickAsync — the AI
+        // One AI step, driven by the owning map's life loop. When the AI is absent
+        // (or the entity has no aggro target this tick) we fall back to the original
+        // random-wander behaviour. Both monsters (targeting players) and NPCs
+        // (targeting hostile mobs) flow through the same TickAsync — the AI
         // implementation decides what counts as a target based on the entity's
         // race/hostility.
-        public static Task StartLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, ILogger logger)
+        public static async Task TickLifeAsync(this INonPlayableEntity entity, IMonsterAi? monsterAi, IHeuristic distanceCalculator, IClock clock, ILogger logger)
         {
-            entity.Life?.Dispose();
-
-            async Task LifeAsync()
+            try
             {
-                try
+                var acted = false;
+                if (monsterAi != null)
                 {
-                    if (entity.MapInstance.IsSleeping) return;
-
-                    var acted = false;
-                    if (monsterAi != null)
-                    {
-                        acted = await monsterAi.TickAsync(entity);
-                    }
-
-                    if (!acted)
-                    {
-                        await entity.MoveAsync(distanceCalculator, clock);
-                    }
+                    acted = await monsterAi.TickAsync(entity);
                 }
-                catch (Exception e)
+
+                if (!acted)
                 {
-                    logger.LogError(e.Message, e);
+                    await entity.MoveAsync(distanceCalculator, clock);
                 }
             }
-            entity.Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
-            return Task.CompletedTask;
+            catch (Exception e)
+            {
+                logger.LogError(e.Message, e);
+            }
         }
 
         public static Task ShowDialogAsync(this INonPlayableEntity entity, RequestData requestData, long dialog)

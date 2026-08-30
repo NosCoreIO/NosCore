@@ -18,7 +18,6 @@ public record struct NpcStateComponent(
     ConcurrentDictionary<Entity, int> HitList,
     Shop? Shop,
     Dictionary<int, Shop>? Shops,
-    IDisposable? Life,
     Dictionary<Type, Subject<RequestData>> Requests,
     short? Dialog,
     bool IsDisabled

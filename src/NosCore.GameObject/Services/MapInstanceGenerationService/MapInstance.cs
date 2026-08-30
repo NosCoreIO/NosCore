@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -150,9 +151,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                 _isSleeping = true;
                 _isSleepingRequest = false;
-                Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
-                Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
-
                 return true;
             }
             set
@@ -193,7 +191,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public int XpRate { get; set; }
 
-        private IDisposable? Life { get; set; }
+        private CancellationTokenSource? _lifeCts;
+        private Task? _lifeLoop;
 
         public ISessionGroup Sessions { get; set; }
 
@@ -394,19 +393,59 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             };
         }
 
+        // One awaited loop per map replaces the per-entity 400ms timers: entity AI
+        // steps run sequentially inside the tick, so a slow tick delays the next one
+        // instead of overlapping it, and a sleeping map costs one early-out per tick
+        // instead of thousands of idle timers.
         public Task StartLifeAsync()
         {
-            async Task LifeAsync()
+            if (_lifeLoop != null)
             {
-                try
+                return Task.CompletedTask;
+            }
+
+            _lifeCts = new CancellationTokenSource();
+            _lifeLoop = RunLifeLoopAsync(_lifeCts.Token);
+            return Task.CompletedTask;
+        }
+
+        private async Task RunLifeLoopAsync(CancellationToken token)
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(400));
+            try
+            {
+                while (await timer.WaitForNextTickAsync(token))
                 {
+                    try
+                    {
+                        await TickLifeAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e.Message, e);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task TickLifeAsync()
+        {
                     if (IsSleeping)
                     {
                         return;
                     }
 
-                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
-                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
+                    foreach (var monster in Monsters)
+                    {
+                        await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                    }
+                    foreach (var npc in Npcs)
+                    {
+                        await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                    }
 
                     // Buff expiration: drop any buff whose ExpiresAt is past. Done
                     // per-map so the tick rate matches the life loop (400ms) which is
@@ -446,14 +485,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
 
                     await SweepPendingRespawnsAsync().ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message, e);
-                }
-            }
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
-            return Task.CompletedTask;
         }
 
         // Registered by MonsterRespawnHandler when a monster dies. The map-level life
@@ -493,11 +524,10 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return;
             }
 
-            Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
-            Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
-
-            Life?.Dispose();
-            Life = null;
+            _lifeCts?.Cancel();
+            _lifeCts?.Dispose();
+            _lifeCts = null;
+            _lifeLoop = null;
             EcsWorld.Dispose();
         }
     }
