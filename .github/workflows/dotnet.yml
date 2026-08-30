@@ -9,9 +9,14 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     steps:
     - uses: actions/checkout@v4
     - name: Setup .NET
@@ -19,20 +24,27 @@ jobs:
       with:
         dotnet-version: 10.0.x
 
-    - name: Run Unit Tests
+    - name: Cache NuGet packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.nuget/packages
+        key: nuget-${{ runner.os }}-${{ hashFiles('Directory.Packages.props', '**/*.csproj') }}
+        restore-keys: |
+          nuget-${{ runner.os }}-
+
+    - name: Build
       run: |
         dotnet --version
-        dotnet restore
         dotnet build
-        dotnet test --no-build --filter TestCategory!=OPTIONAL-TEST
 
-    - name: Run Code Coverage
+    - name: Run Tests with Coverage
       run: |
         dotnet test test/NosCore.Core.Tests/NosCore.Core.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.Database.Tests/NosCore.Database.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.GameObject.Tests/NosCore.GameObject.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.PacketHandlers.Tests/NosCore.PacketHandlers.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.Tests.Shared/NosCore.Tests.Shared.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
+        dotnet test test/NosCore.Parser.Tests/NosCore.Parser.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.WebApi.Tests/NosCore.WebApi.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
 
     - name: Upload coverage to Codecov
