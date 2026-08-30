@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class SkillParser(IDao<BCardDto, short> bCardDao, IDao<ComboDto, int> comboDao,
+    public class SkillParser(IDao<BCardDto, int> bCardDao, IDao<ComboDto, int> comboDao,
         IDao<SkillDto, short> skillDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly ILogger<SkillParser> _logger = loggerFactory.CreateLogger<SkillParser>();

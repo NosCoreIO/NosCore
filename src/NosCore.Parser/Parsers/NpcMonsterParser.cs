@@ -48,7 +48,7 @@ namespace NosCore.Parser.Parsers
     public class NpcMonsterParser
     {
         private readonly string _fileNpcId = $"{Path.DirectorySeparatorChar}monster.dat";
-        private readonly IDao<BCardDto, short> _bCardDao;
+        private readonly IDao<BCardDto, int> _bCardDao;
         private readonly IDao<DropDto, short> _dropDao;
         private readonly ILogger<NpcMonsterParser> _logger;
         private readonly ILoggerFactory _loggerFactory;
@@ -62,7 +62,7 @@ namespace NosCore.Parser.Parsers
         private Dictionary<short, List<DropDto>>? _dropdb;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
-        public NpcMonsterParser(IDao<SkillDto, short> skillDao, IDao<BCardDto, short> bCardDao,
+        public NpcMonsterParser(IDao<SkillDto, short> skillDao, IDao<BCardDto, int> bCardDao,
             IDao<DropDto, short> dropDao, IDao<NpcMonsterSkillDto, long> npcMonsterSkillDao,
             IDao<NpcMonsterDto, short> npcMonsterDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {

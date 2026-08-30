@@ -28,7 +28,7 @@ namespace NosCore.Parser.Tests
     {
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
         private Mock<IDao<ItemDto, short>> _itemDaoMock = null!;
-        private Mock<IDao<BCardDto, short>> _bCardDaoMock = null!;
+        private Mock<IDao<BCardDto, int>> _bCardDaoMock = null!;
         private string _tempFolder = null!;
         private List<ItemDto> _savedItems = null!;
         private List<BCardDto> _savedBCards = null!;
@@ -38,7 +38,7 @@ namespace NosCore.Parser.Tests
         {
             _logLanguageMock = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             _itemDaoMock = new Mock<IDao<ItemDto, short>>();
-            _bCardDaoMock = new Mock<IDao<BCardDto, short>>();
+            _bCardDaoMock = new Mock<IDao<BCardDto, int>>();
             _savedItems = [];
             _savedBCards = [];
 

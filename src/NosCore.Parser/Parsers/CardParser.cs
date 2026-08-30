@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    public class CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, short> bcardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class CardParser(IDao<CardDto, short> cardDao, IDao<BCardDto, int> bcardDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         //  VNUM	CardId
         //  NAME    Name
