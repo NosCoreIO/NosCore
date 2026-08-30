@@ -161,6 +161,17 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
         return new RegistrationModel(registrations.ToImmutableArray(), diagnostics.ToImmutableArray());
     }
 
+    // GetTypes() returned nested types too, so the hub-client scan - which applies no
+    // visibility filter - could pick one up.
+    private static IEnumerable<INamedTypeSymbol> EnumerateTypes(INamedTypeSymbol type)
+    {
+        yield return type;
+        foreach (var nested in type.GetTypeMembers().SelectMany(EnumerateTypes))
+        {
+            yield return nested;
+        }
+    }
+
     private static IEnumerable<INamedTypeSymbol> EnumerateTypes(INamespaceSymbol root)
     {
         foreach (var member in root.GetMembers())
@@ -175,7 +186,11 @@ public class ServiceRegistrationGenerator : IIncrementalGenerator
 
                     break;
                 case INamedTypeSymbol type:
-                    yield return type;
+                    foreach (var nested in EnumerateTypes(type))
+                    {
+                        yield return nested;
+                    }
+
                     break;
             }
         }

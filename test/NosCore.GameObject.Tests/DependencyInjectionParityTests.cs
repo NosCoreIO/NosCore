@@ -36,12 +36,19 @@ namespace NosCore.GameObject.Tests
                 .Select(d => new Descriptor(d.ServiceType, d.ImplementationType, d.Lifetime))
                 .ToList();
 
-            var missing = legacy.Except(generated).OrderBy(d => d.ServiceType).ToList();
-            var extra = generated.Except(legacy).OrderBy(d => d.ServiceType).ToList();
+            // Counted, not just matched: a duplicate gained or lost is still a difference.
+            var legacyCounts = legacy.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
+            var generatedCounts = generated.GroupBy(d => d).ToDictionary(g => g.Key, g => g.Count());
 
-            var message = string.Join(Environment.NewLine,
-                missing.Select(d => $"MISSING from generated: {d.ServiceType} -> {d.ImplementationType} ({d.Lifetime})")
-                    .Concat(extra.Select(d => $"EXTRA in generated:  {d.ServiceType} -> {d.ImplementationType} ({d.Lifetime})")));
+            var message = string.Join(Environment.NewLine, legacyCounts.Keys.Union(generatedCounts.Keys)
+                .Select(d => (Descriptor: d,
+                    Legacy: legacyCounts.TryGetValue(d, out var l) ? l : 0,
+                    Generated: generatedCounts.TryGetValue(d, out var g) ? g : 0))
+                .Where(x => x.Legacy != x.Generated)
+                .OrderBy(x => x.Descriptor.ServiceType)
+                .Select(x =>
+                    $"{x.Descriptor.ServiceType} -> {x.Descriptor.ImplementationType} ({x.Descriptor.Lifetime}): " +
+                    $"scan {x.Legacy}, generated {x.Generated}"));
 
             Assert.AreEqual(string.Empty, message, message);
         }
