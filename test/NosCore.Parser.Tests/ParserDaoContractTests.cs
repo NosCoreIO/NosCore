@@ -12,6 +12,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Parser.Parsers;
+using NosCore.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,6 +36,7 @@ namespace NosCore.Parser.Tests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             var model = context.Model;
 
+            var registrable = ParserBootstrap.RegistrableDtoTypes().ToHashSet();
             var mismatches = new List<string>();
             foreach (var parser in typeof(CardParser).Assembly.GetTypes()
                 .Where(t => t is { IsClass: true, IsAbstract: false, IsGenericType: false } && t.Name.EndsWith("Parser")))
@@ -60,6 +62,12 @@ namespace NosCore.Parser.Tests
                     if (!entities.TryGetValue(entityName, out var entityType))
                     {
                         mismatches.Add($"{parser.Name}: no entity found for {dtoType.Name}");
+                        continue;
+                    }
+
+                    if (!registrable.Contains(dtoType))
+                    {
+                        mismatches.Add($"{parser.Name}: {dtoType.Name} is not registered by ParserBootstrap");
                         continue;
                     }
 
