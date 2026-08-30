@@ -29,6 +29,13 @@ noise to the line. Do not add it; the calls still in the tree are not a preceden
 **Keep semantic types.** Do not flatten a `bool` or an enum to a number because the wire
 value happens to be `0` or `1`; the serializer handles the conversion.
 
+**The serializer owns the wire format.** Never massage a value to fit it: no
+`Replace(' ', '^')` before assigning a field, no manual padding, no hand-built separator. A
+field that needs escaping says so on the packet property - `EscapeSpaces` for the one that
+ends the line - so the fix belongs in `NosCore.Packets` and ships as a version bump. A
+`Replace` here to make a packet come out right is a defect, including as a stopgap while
+the package catches up.
+
 **Ship only what is wired.** No placeholder enums, handlers or UI for behaviour that does
 not exist yet. A data file listing a field is not a reason to expose it.
 
