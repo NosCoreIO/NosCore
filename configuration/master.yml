@@ -1,11 +1,11 @@
 WebApi:
   Host: ${WEBAPI_HOST,http://localhost}
   Port: 5000
-  Password: NosCorePassword
+  Password: ${MASTER_PASSWORD,NosCorePassword}
 Language: en
 Database:
   Host: ${DB_HOST,localhost}
   Port: 5432
   Database: noscore
-  Username: postgres
-  Password: password
+  Username: ${DB_USER,postgres}
+  Password: ${DB_PASSWORD,password}

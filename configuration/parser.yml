@@ -1,7 +1,7 @@
 Language: en
 Database:
-  Host: 127.0.0.1
+  Host: ${DB_HOST,127.0.0.1}
   Port: 5432
   Database: noscore
-  Username: postgres
-  Password: password
+  Username: ${DB_USER,postgres}
+  Password: ${DB_PASSWORD,password}

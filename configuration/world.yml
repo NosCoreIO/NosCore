@@ -1,5 +1,5 @@
 MasterCommunication:
-  Password: NosCorePassword
+  Password: ${MASTER_PASSWORD,NosCorePassword}
   Host: ${MASTER_HOST,http://localhost}
   Port: 5000
 ServerName: S1-NosCore
@@ -21,14 +21,14 @@ WorldInformation: true
 WebApi:
   Host: ${WEBAPI_HOST,http://localhost}
   Port: 5001
-  Password: NosCorePassword
+  Password: ${MASTER_PASSWORD,NosCorePassword}
 Language: en
 Database:
   Host: ${DB_HOST,localhost}
   Port: 5432
   Database: noscore
-  Username: postgres
-  Password: password
+  Username: ${DB_USER,postgres}
+  Password: ${DB_PASSWORD,password}
 BackpackSize: 48
 MaxItemAmount: 999
 MaxGoldAmount: 1000000000
