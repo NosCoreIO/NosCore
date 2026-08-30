@@ -156,9 +156,6 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Kanał</value>
   </data>
-  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
-    <value>Kanał zamknie się w krótkim czasie.</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Klient podłączony. SessionId: {0}</value>
   </data>

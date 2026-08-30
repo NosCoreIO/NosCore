@@ -273,6 +273,7 @@ namespace NosCore.WorldServer
                     NosCore.GameObject.Messaging.WolverineDependencyRegistrar.RegisterDependencies(services);
 
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+                    services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(60));
                     services.AddHostedService<WorldServer>();
                     services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
                         sp.GetRequiredService<IMessageBus>(),

@@ -190,9 +190,6 @@
   <data name="CHANNEL" xml:space="preserve">
     <value>Канал</value>
   </data>
-  <data name="CHANNEL_WILL_EXIT" xml:space="preserve">
-    <value>Работа канала скоро будет завершена.</value>
-  </data>
   <data name="CLIENT_ARRIVED" xml:space="preserve">
     <value>Клиент прибыл на сервер, SessionId: {0}</value>
     <comment>Проверить контекст, возможно, нужно использователь "Пользователь"</comment>

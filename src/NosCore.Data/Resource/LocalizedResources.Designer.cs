@@ -214,15 +214,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The channel will exit in brief moments..
-        /// </summary>
-        public static string CHANNEL_WILL_EXIT {
-            get {
-                return ResourceManager.GetString("CHANNEL_WILL_EXIT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Client connected, SessionId: {0}.
         /// </summary>
         public static string CLIENT_ARRIVED {

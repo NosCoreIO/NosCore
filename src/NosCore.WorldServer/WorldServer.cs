@@ -38,13 +38,6 @@ namespace NosCore.WorldServer
             Broadcaster.Initialize(sessionGroupFactory);
             await mapInstanceGeneratorService.InitializeAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
-            AppDomain.CurrentDomain.ProcessExit += (_, _) =>
-            {
-                logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
-                Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync)).GetAwaiter().GetResult();
-                logger.LogInformation(logLanguage[LogLanguageKey.CHANNEL_WILL_EXIT], 30);
-                Thread.Sleep(30000);
-            };
 
             ConsoleTitle.Append($@" - Port : {worldConfiguration.Value.Port}");
             var connectTask = Policy
@@ -56,6 +49,13 @@ namespace NosCore.WorldServer
                             timeSpan.TotalSeconds)
                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
             await Task.WhenAny(connectTask, networkManager.RunServerAsync());
+        }
+
+        public override async Task StopAsync(CancellationToken cancellationToken)
+        {
+            logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
+            await Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync));
+            await base.StopAsync(cancellationToken);
         }
     }
 }
