@@ -48,7 +48,7 @@ jobs:
         dotnet test test/NosCore.WebApi.Tests/NosCore.WebApi.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
 
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v5
+      uses: codecov/codecov-action@v7
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
 
