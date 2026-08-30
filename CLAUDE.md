@@ -78,6 +78,25 @@ and an approval table in its `DocumentationTest`. Do not hand-roll a lookup tabl
 
 `NosCore.Data` being data-only and `NosCore.GameObject` holding the logic is deliberate.
 
+### ECS layering
+
+The entity model is Arch components underneath, generated bundles on top — this split is
+the decided design, not a migration in flight:
+
+- **Components** (`Ecs/Components/`) own ALL entity state. A new piece of per-entity
+  state goes into a component (or a new component), never into a bundle body, a service
+  dictionary keyed by entity, or a static.
+- **Bundles** (`[ComponentBundle]` partial structs) are the generated facade the rest of
+  the code reads and writes. Hand-written bundle members are computed views only —
+  no backing fields.
+- **Extension methods** (`Ecs/Extensions/`) are the per-entity behaviour layer; they act
+  on one entity through its bundle.
+- **Systems** (`Ecs/Systems/`) are for iteration-heavy queries over many entities.
+  Prefer a system over LINQ across a bundle list when the call site runs per tick.
+- **Hot paths do not materialise bundle lists.** `MapInstance.Monsters`/`Npcs` allocate a
+  fresh `List` per access; anything called from the map life loop enumerates the backing
+  dictionaries or a system query instead.
+
 ### Deciding, in order
 
 1. A **wire shape** — field order, separator, sentinel? → `NosCore.Packets`, evidenced by a

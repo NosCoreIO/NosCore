@@ -1,4 +1,4 @@
-//  __  _  __    __   ___ __  ___ ___
+﻿//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -150,9 +151,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
                 _isSleeping = true;
                 _isSleepingRequest = false;
-                Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
-                Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
-
                 return true;
             }
             set
@@ -193,7 +191,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public int XpRate { get; set; }
 
-        private IDisposable? Life { get; set; }
+        private readonly Lock _lifeLock = new();
+        private CancellationTokenSource? _lifeCts;
+        private Task? _lifeLoop;
 
         public ISessionGroup Sessions { get; set; }
 
@@ -394,27 +394,69 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             };
         }
 
+        // One awaited loop per map replaces the per-entity 400ms timers: entity AI
+        // steps run sequentially inside the tick, so a slow tick delays the next one
+        // instead of overlapping it, and a sleeping map costs one early-out per tick
+        // instead of thousands of idle timers.
         public Task StartLifeAsync()
         {
-            async Task LifeAsync()
+            lock (_lifeLock)
             {
-                try
+                if (_lifeLoop == null)
                 {
+                    _lifeCts = new CancellationTokenSource();
+                    _lifeLoop = RunLifeLoopAsync(_lifeCts.Token);
+                }
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task RunLifeLoopAsync(CancellationToken token)
+        {
+            using var timer = new PeriodicTimer(TimeSpan.FromMilliseconds(400));
+            try
+            {
+                while (await timer.WaitForNextTickAsync(token))
+                {
+                    try
+                    {
+                        await TickLifeAsync();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(e.Message, e);
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        private async Task TickLifeAsync()
+        {
                     if (IsSleeping)
                     {
                         return;
                     }
 
-                    await Task.WhenAll(Monsters.Where(s => s.Life == null).Select(monster => monster.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
-                    await Task.WhenAll(Npcs.Where(s => s.Life == null).Select(npc => npc.StartLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger)));
+                    foreach (var (_, monster) in _monsters)
+                    {
+                        await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                    }
+                    foreach (var (_, npc) in _npcs)
+                    {
+                        await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                    }
 
                     // Buff expiration: drop any buff whose ExpiresAt is past. Done
                     // per-map so the tick rate matches the life loop (400ms) which is
                     // fine for buffs since their Duration is measured in deciseconds.
                     if (_buffService != null)
                     {
-                        foreach (var monster in Monsters) await _buffService.TickAsync(monster).ConfigureAwait(false);
-                        foreach (var npc in Npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
+                        foreach (var (_, monster) in _monsters) await _buffService.TickAsync(monster).ConfigureAwait(false);
+                        foreach (var (_, npc) in _npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
                         foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
                         {
                             if (!session.HasPlayerEntity)
@@ -446,14 +488,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     }
 
                     await SweepPendingRespawnsAsync().ConfigureAwait(false);
-                }
-                catch (Exception e)
-                {
-                    _logger.LogError(e.Message, e);
-                }
-            }
-            Life = Observable.Interval(TimeSpan.FromMilliseconds(400)).Select(_ => LifeAsync()).Subscribe();
-            return Task.CompletedTask;
         }
 
         // Registered by MonsterRespawnHandler when a monster dies. The map-level life
@@ -493,11 +527,15 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return;
             }
 
-            Parallel.ForEach(Monsters.Where(s => s.Life != null), monster => NonPlayableEntityExtension.StopLife(monster));
-            Parallel.ForEach(Npcs.Where(s => s.Life != null), npc => NonPlayableEntityExtension.StopLife(npc));
+            _lifeCts?.Cancel();
 
-            Life?.Dispose();
-            Life = null;
+            // The token only ends the wait between ticks. A tick already inside TickLifeAsync
+            // walks the entities of the world below, so it has to finish before the world goes.
+            _lifeLoop?.GetAwaiter().GetResult();
+
+            _lifeCts?.Dispose();
+            _lifeCts = null;
+            _lifeLoop = null;
             EcsWorld.Dispose();
         }
     }

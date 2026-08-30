@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             new MonsterComponentBundle(
                 _world.World.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
-                    new NpcStateComponent(null!, null!, null!, null!, null, null, null, null!, null, false)),
+                    new NpcStateComponent(null!, null!, null!, null!, null, null, null!, null, false)),
                 _world);
 
         private void RollGives(int value) => _random.Setup(r => r.Next(0, 100)).Returns(value);

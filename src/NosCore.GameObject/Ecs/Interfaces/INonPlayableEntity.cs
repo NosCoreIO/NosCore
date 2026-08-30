@@ -24,7 +24,6 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         Instant LastMove { get; set; }
 
-        IDisposable? Life { get; set; }
 
         new bool IsAlive { get; set; }
 
