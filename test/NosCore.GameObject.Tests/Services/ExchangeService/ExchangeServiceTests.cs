@@ -56,7 +56,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             };
 
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
-            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer,
+                TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]
@@ -183,7 +184,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
             _realExchange = new GameObject.Services.ExchangeService.ExchangeService(
                 ItemProvider!, WorldConfiguration!, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(),
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer,
+                TestHelpers.Instance.SessionRegistry);
             _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
         }
 
@@ -331,6 +333,31 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             ExchangeProvider.AddItems(2, item2, 1);
             var itemList = ExchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
             Assert.IsTrue((itemList.Count(s => s.Key == 1) == 2) && (itemList.Count(s => s.Key == 2) == 2));
+        }
+
+        [TestMethod]
+        public void AnOfferedItemThatLeftTheInventoryDoesNotReachTheOtherSide()
+        {
+            IInventoryService giver =
+                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
+                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
+            IInventoryService receiver =
+                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
+                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
+
+            var offered = giver.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 1), 0))!.First();
+
+            ExchangeProvider!.OpenExchange(1, 2);
+            ExchangeProvider.AddItems(1, offered, 1);
+
+            // The destination item is built fresh rather than moved, so dropping the offered
+            // item after putting it in the window used to hand over a second copy of it.
+            giver.Remove(offered.ItemInstanceId);
+
+            var itemList = ExchangeProvider.ProcessExchange(1, 2, giver, receiver);
+
+            Assert.AreEqual(0, itemList.Count, "a vanished offer must not transfer");
+            Assert.AreEqual(0, receiver.Count, "the receiver must not gain a duplicate");
         }
     }
 }
