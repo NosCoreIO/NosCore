@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.Enumerations;
@@ -28,7 +29,8 @@ namespace NosCore.GameObject.Services.ExchangeService
 {
     public class ExchangeService(IItemGenerationService itemBuilderService,
             IOptions<WorldConfiguration> worldConfiguration, ILogger<ExchangeService> logger, IExchangeRequestRegistry exchangeRegistry,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
+            ISessionRegistry sessionRegistry)
         : IExchangeService
     {
         public void SetGold(long visualId, long gold, long bankGold)
@@ -204,10 +206,23 @@ namespace NosCore.GameObject.Services.ExchangeService
                 logger.LogError(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
             }
 
+            SetInExchange(data.Key, false);
+            SetInExchange(data.Value, false);
+
             return new ExcClosePacket
             {
                 Type = resultType
             };
+        }
+
+        // The lifecycle owns the flag. Set at the seven call sites instead, it was simply
+        // never set at all, which left every InExchangeOrShop guard inert.
+        private void SetInExchange(long visualId, bool value)
+        {
+            if (sessionRegistry.TryGetCharacter(c => c.VisualId == visualId, out var character))
+            {
+                character.InExchange = value;
+            }
         }
 
         public bool OpenExchange(long visualId, long targetVisualId)
@@ -222,6 +237,8 @@ namespace NosCore.GameObject.Services.ExchangeService
             exchangeRegistry.SetExchangeRequest(targetVisualId, visualId);
             exchangeRegistry.SetExchangeData(visualId, new ExchangeData());
             exchangeRegistry.SetExchangeData(targetVisualId, new ExchangeData());
+            SetInExchange(visualId, true);
+            SetInExchange(targetVisualId, true);
             return true;
         }
 
@@ -254,6 +271,21 @@ namespace NosCore.GameObject.Services.ExchangeService
                     var isFullTransfer = item.Value == item.Key.ItemInstance.Amount;
 
                     pendingTransfers.Add((originInventory, destInventory, item.Key, item.Value, targetId, sessionId, isFullTransfer));
+                }
+            }
+
+            // The offer captured these references when the item was put in the window. Confirm
+            // each is still there, at that amount, before anything is created: the destination
+            // item is built fresh, so a source that has since gone would duplicate it.
+            foreach (var transfer in pendingTransfers)
+            {
+                if (!transfer.OriginInventory.TryGetValue(transfer.OriginalItem.ItemInstanceId, out var live)
+                    || live.ItemInstance == null
+                    || live.ItemInstance.ItemVNum != transfer.OriginalItem.ItemInstance.ItemVNum
+                    || live.ItemInstance.Amount < transfer.Amount)
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                    return new List<KeyValuePair<long, IvnPacket>>();
                 }
             }
 
