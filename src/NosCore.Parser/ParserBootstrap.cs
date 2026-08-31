@@ -37,23 +37,6 @@ namespace NosCore.Parser
         private const string Title = "NosCore - Parser";
         private const string ConsoleText = "PARSER - NosCoreIO";
 
-        // ItemInstance DTOs are the only exclusion: they get the dedicated
-        // IDao<IItemInstanceDto?, Guid> registration. A name-based filter here once
-        // swallowed ScriptedInstanceDto too and left its DAO unresolvable.
-        public static IEnumerable<Type> RegistrableDtoTypes()
-        {
-            var entityNames = typeof(Account).Assembly.GetTypes()
-                .Where(t => t is { IsClass: true, IsPublic: true })
-                .Select(t => t.Name)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
-            return typeof(IStaticDto).Assembly.GetTypes()
-                .Where(p => typeof(IDto).IsAssignableFrom(p)
-                    && !typeof(IItemInstanceDto).IsAssignableFrom(p)
-                    && p.IsClass
-                    && p.Name.EndsWith("Dto")
-                    && entityNames.Contains(p.Name[..^3]));
-        }
-
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder, bool isStatic)
         where TDb : class where TPk : struct
         {
@@ -90,15 +73,11 @@ namespace NosCore.Parser
 
             containerBuilder.RegisterType<ImportFactory>();
             var registerDatabaseObject = typeof(ParserBootstrap).GetMethod(nameof(RegisterDatabaseObject));
-            var assemblyDb = typeof(Account).Assembly.GetTypes();
 
-            foreach (var t in RegistrableDtoTypes())
+            foreach (var mapping in Database.Hosting.PersistenceModule.DiscoverDaoMappings())
             {
-                var type = assemblyDb.First(tgo =>
-                    string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                var typepk = Database.Hosting.PersistenceModule.FindPrimaryKeyProperty(type)!;
-                registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType).Invoke(null,
-                    new[] { containerBuilder, (object)typeof(IStaticDto).IsAssignableFrom(t) });
+                registerDatabaseObject?.MakeGenericMethod(mapping.DtoType, mapping.DbType, mapping.PkType).Invoke(null,
+                    new[] { containerBuilder, (object)mapping.IsStatic });
             }
 
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>()
