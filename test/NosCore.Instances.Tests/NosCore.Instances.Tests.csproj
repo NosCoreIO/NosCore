@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="MSTest.TestAdapter" />
+    <PackageReference Include="MSTest.TestFramework" />
+    <ProjectReference Include="..\..\src\NosCore.Instances.Scripting\NosCore.Instances.Scripting.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="instances\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>
