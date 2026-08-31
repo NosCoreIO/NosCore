@@ -876,12 +876,12 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 87 | 52 | yes | Type87CreatesBoneDrake | Uses lich magic to create a Bone Drake and give the caster Strong Dragon Vitality. |
 | 88 | 11 | yes | Type88MateReturnToMiniland | Return to Miniland and regenerate %s%% of your HP. If you have maximum HP, you receive %s%% additional HP. |
 | 88 | 12 | yes | Type88MateReturnToMinilandNegated |  |
-| 88 | 21 | yes | Type88IncreaseDamageVsHiden | Attacks on hidden enemies cause %s additional damage. |
-| 88 | 22 | yes | Type88DecreaseDamageVsHiden |  |
-| 88 | 31 | yes | Type88IncreaseDamageFromHiden | Damage from hidden enemies is increased by %s%%. |
-| 88 | 32 | yes | Type88DecreaseDamageFromHiden | Damage from hidden enemies is reduced by %s%%. |
-| 88 | 41 | yes | Type88RevealsHidenEnemy | Reveals hidden enemies within %s spaces. |
-| 88 | 42 | yes | Type88RevealsHidenEnemyNegated |  |
+| 88 | 21 | yes | Type88IncreaseDamageVsHidden | Attacks on hidden enemies cause %s additional damage. |
+| 88 | 22 | yes | Type88DecreaseDamageVsHidden |  |
+| 88 | 31 | yes | Type88IncreaseDamageFromHidden | Damage from hidden enemies is increased by %s%%. |
+| 88 | 32 | yes | Type88DecreaseDamageFromHidden | Damage from hidden enemies is reduced by %s%%. |
+| 88 | 41 | yes | Type88RevealsHiddenEnemy | Reveals hidden enemies within %s spaces. |
+| 88 | 42 | yes | Type88RevealsHiddenEnemyNegated |  |
 | 88 | 51 | yes | Type88SkillResetXTimes | Skill can be used %s times without cooldown. |
 | 88 | 52 | yes | Type88SkillResetXTimesNegated |  |
 | 89 | 11 | yes | Type89Transform | Transform and assume the Dragon Stance with which you can carry out flame attacks. |
