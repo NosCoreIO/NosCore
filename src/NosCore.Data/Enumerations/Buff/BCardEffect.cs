@@ -680,6 +680,7 @@ namespace NosCore.Data.Enumerations.Buff
         HideBarrelSkillOnlyEnemiesWithDebuffsAbove = 6252,
 
         FocusEnemyAttentionSkillFocusEnemyAttention = 6311,
+        FocusEnemyAttentionSkillFocusEnemyAttentionNegated = 6312,
 
         FocusEnemyAttentionSkillCookingExperienceIncreased = 6331,
         FocusEnemyAttentionSkillCookingExperienceReduced = 6332,
@@ -946,12 +947,15 @@ namespace NosCore.Data.Enumerations.Buff
 
         Type87CreatesBoneDrake = 8752,
         Type88MateReturnToMiniland = 8811,
-        Type88IncreaseDamageVsHiden = 8821,
-        Type88DecreaseDamageVsHiden = 8822,
-        Type88IncreaseDamageFromHiden = 8831,
-        Type88DecreaseDamageFromHiden = 8832,
-        Type88RevealsHidenEnemy = 8841,
+        Type88MateReturnToMinilandNegated = 8812,
+        Type88IncreaseDamageVsHidden = 8821,
+        Type88DecreaseDamageVsHidden = 8822,
+        Type88IncreaseDamageFromHidden = 8831,
+        Type88DecreaseDamageFromHidden = 8832,
+        Type88RevealsHiddenEnemy = 8841,
+        Type88RevealsHiddenEnemyNegated = 8842,
         Type88SkillResetXTimes = 8851,
+        Type88SkillResetXTimesNegated = 8852,
 
         Type89Transform = 8911,
         Type89RemoveTransform = 8912,
@@ -978,8 +982,11 @@ namespace NosCore.Data.Enumerations.Buff
         Type91AddBuff = 9111,
         Type91DodgeAndAddBuffChance = 9112,
         Type91BuffSkillBooster = 9121,
+        Type91BuffSkillBoosterNegated = 9122,
         Type91AllowFullMoonSkill = 9131,
+        Type91AllowFullMoonSkillNegated = 9132,
         Type91AllowLotusPowerSkill = 9141,
+        Type91AllowLotusPowerSkillNegated = 9142,
         Type91ReduceCriticalDamageRecived = 9151,
         Type91IncreaseCriticalDamageRecived = 9152,
 
