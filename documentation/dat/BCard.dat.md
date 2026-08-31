@@ -625,7 +625,7 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 62 | 51 | yes | HideBarrelSkillOnlyEnemiesWithBuffsAbove | Only applies to enemies with buffs above level %s. |
 | 62 | 52 | yes | HideBarrelSkillOnlyEnemiesWithDebuffsAbove | Only applies to enemies with debuffs above level %s. |
 | 63 | 11 | yes | FocusEnemyAttentionSkillFocusEnemyAttention | Attracts nearby enemies' attention to you. |
-| 63 | 12 | yes |  |  |
+| 63 | 12 | yes | FocusEnemyAttentionSkillFocusEnemyAttentionNegated |  |
 | 63 | 21 | yes |  |  |
 | 63 | 22 | yes |  |  |
 | 63 | 31 | yes | FocusEnemyAttentionSkillCookingExperienceIncreased | Cooking experience gain is increased by %s%%. |
@@ -875,15 +875,15 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 87 | 51 | yes | Type87Unknow | Uses lich magic to create a Bone Drake and give the caster Dragon Vitality. |
 | 87 | 52 | yes | Type87CreatesBoneDrake | Uses lich magic to create a Bone Drake and give the caster Strong Dragon Vitality. |
 | 88 | 11 | yes | Type88MateReturnToMiniland | Return to Miniland and regenerate %s%% of your HP. If you have maximum HP, you receive %s%% additional HP. |
-| 88 | 12 | yes |  |  |
+| 88 | 12 | yes | Type88MateReturnToMinilandNegated |  |
 | 88 | 21 | yes | Type88IncreaseDamageVsHiden | Attacks on hidden enemies cause %s additional damage. |
 | 88 | 22 | yes | Type88DecreaseDamageVsHiden |  |
 | 88 | 31 | yes | Type88IncreaseDamageFromHiden | Damage from hidden enemies is increased by %s%%. |
 | 88 | 32 | yes | Type88DecreaseDamageFromHiden | Damage from hidden enemies is reduced by %s%%. |
 | 88 | 41 | yes | Type88RevealsHidenEnemy | Reveals hidden enemies within %s spaces. |
-| 88 | 42 | yes |  |  |
+| 88 | 42 | yes | Type88RevealsHidenEnemyNegated |  |
 | 88 | 51 | yes | Type88SkillResetXTimes | Skill can be used %s times without cooldown. |
-| 88 | 52 | yes |  |  |
+| 88 | 52 | yes | Type88SkillResetXTimesNegated |  |
 | 89 | 11 | yes | Type89Transform | Transform and assume the Dragon Stance with which you can carry out flame attacks. |
 | 89 | 12 | yes | Type89RemoveTransform | Transform and assume the Haetae Stance with which you can carry out attacks using the power of the beast. |
 | 89 | 21 | yes | Type89Unknow | Provides a %s%% probability to reset the cooldown of %s. |
@@ -907,11 +907,11 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 91 | 11 | yes | Type91AddBuff | You dodge attacks and have a %s%% chance to cause %s. |
 | 91 | 12 | yes | Type91DodgeAndAddBuffChance | You dodge attacks and have a %s%% chance to cause %s. |
 | 91 | 21 | yes | Type91BuffSkillBooster | Use a buff skill while Enlightenment is active to receive additional effects. |
-| 91 | 22 | yes |  |  |
+| 91 | 22 | yes | Type91BuffSkillBoosterNegated |  |
 | 91 | 31 | yes | Type91AllowFullMoonSkill | Allows you to use Full Moon skills. |
-| 91 | 32 | yes |  |  |
+| 91 | 32 | yes | Type91AllowFullMoonSkillNegated |  |
 | 91 | 41 | yes | Type91AllowLotusPowerSkill | Allows you to use Lotus Flower skills. |
-| 91 | 42 | yes |  |  |
+| 91 | 42 | yes | Type91AllowLotusPowerSkillNegated |  |
 | 91 | 51 | yes | Type91ReduceCriticalDamageRecived | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Moon. |
 | 91 | 52 | yes | Type91IncreaseCriticalDamageRecived | The next damage inflicted by the enemy will be reduced by %s%% and consume the Mark of the Moon. |
 | 92 | 11 | yes | Type92AddBuffOnReceiveAttack | Whenever you are attacked, you have a %s%% chance of generating %s. |
