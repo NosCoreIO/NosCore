@@ -252,6 +252,8 @@ namespace NosCore.Parser.Parsers
                 ItemType.Event => chunk["DATA"][0][7],
                 ItemType.Magical => chunk["DATA"][0][4],
                 ItemType.Production => chunk["DATA"][0][4],
+                // Cellons carry the option tier here; every other upgrade material leaves it 0.
+                ItemType.Upgrade => chunk["DATA"][0][4],
                 ItemType.Map => chunk["DATA"][0][4],
                 ItemType.Main => chunk["DATA"][0][4],
                 ItemType.Teacher => chunk["DATA"][0][4],
