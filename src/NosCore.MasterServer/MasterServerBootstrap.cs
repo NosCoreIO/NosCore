@@ -204,25 +204,11 @@ namespace NosCore.MasterServer
                 .AutoActivate();
 
             var registerDatabaseObject = typeof(MasterServerBootstrap).GetMethod(nameof(RegisterDatabaseObject));
-            var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
-            var assemblyDb = typeof(Account).Assembly.GetTypes();
-            assemblyDto.Where(p =>
-                    typeof(IDto).IsAssignableFrom(p) &&
-                    (!p.Name.Contains("InstanceDto") || p.Name.Contains("Inventory")) && p.IsClass)
-                .ToList()
-                .ForEach(t =>
-                {
-                    var type = assemblyDb.First(tgo =>
-                        string.Compare(t.Name, $"{tgo.Name}Dto", StringComparison.OrdinalIgnoreCase) == 0);
-                    var typepk = type.GetProperties()
-                        .Where(s => new NosCoreContext(new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                            Guid.NewGuid().ToString()).Options).Model.FindEntityType(type)?
-                            .FindPrimaryKey()?.Properties.Select(x => x.Name)
-                            .Contains(s.Name) ?? false
-                        ).ToArray()[0];
-                    registerDatabaseObject?.MakeGenericMethod(t, type, typepk.PropertyType)
-                        .Invoke(null, new object?[] { containerBuilder });
-                });
+            foreach (var mapping in Database.Hosting.PersistenceModule.DiscoverDaoMappings())
+            {
+                registerDatabaseObject?.MakeGenericMethod(mapping.DtoType, mapping.DbType, mapping.PkType)
+                    .Invoke(null, new object?[] { containerBuilder });
+            }
 
             containerBuilder.RegisterType<Dao<ItemInstance, IItemInstanceDto?, Guid>>().As<IDao<IItemInstanceDto?, Guid>>().SingleInstance();
 
