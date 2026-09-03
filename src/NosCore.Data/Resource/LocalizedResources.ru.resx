@@ -579,4 +579,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>Загружено скриптовых инстансов: {0}!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Ваш уровень не позволяет войти в этот тайм-спейс.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Этот тайм-спейс пока недоступен.</value>
+  </data>
 </root>

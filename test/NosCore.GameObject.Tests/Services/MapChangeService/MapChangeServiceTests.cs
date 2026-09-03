@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using Moq;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
@@ -49,7 +51,14 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.GameLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
-                new Mock<Wolverine.IMessageBus>().Object);
+                new Mock<Wolverine.IMessageBus>().Object,
+                new GameObject.Services.ScriptedInstanceService.ScriptedInstanceService(
+                    new System.Collections.Generic.List<NosCore.Data.StaticEntities.ScriptedInstanceDto>(),
+                    new System.Collections.Generic.List<NosCore.Data.StaticEntities.MapDto>(),
+                    new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object,
+                    new GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry(),
+                    TestHelpers.Instance.Clock,
+                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance));
         }
 
         [TestMethod]

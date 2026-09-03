@@ -197,6 +197,8 @@ namespace NosCore.Data.Enumerations.I18N
         OBJECT_IN_BAZAAR,
         ITEM_GIFTED,
         NOT_IN_FRIENDLIST,
-        SPEAKER
+        SPEAKER,
+        TIMESPACE_LEVEL_NOT_ALLOWED,
+        TIMESPACE_NOT_AVAILABLE
     }
 }

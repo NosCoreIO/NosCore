@@ -598,4 +598,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} istanze scriptate caricate!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Il tuo livello non ti permette di entrare in questo time-space.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Questo time-space non è ancora disponibile.</value>
+  </data>
 </root>
