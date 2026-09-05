@@ -32,6 +32,7 @@ using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService, IMessageBus messageBus,
-            IMateService mateService)
+            IMateService mateService, IFamilyService familyService)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -194,6 +195,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new List<RespawnDto>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerSocialComponent(
                     new ConcurrentDictionary<long, long>(),
+                    null,
                     null));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerMatesComponent(
                     new ConcurrentDictionary<long, Mate>()));
@@ -265,6 +267,9 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     character.Mates[mate.MateTransportId] = mate;
                 }
+
+                character.Family = await familyService
+                    .GetFamilyAsync(characterId);
 
                 await characterInitializationService.InitializeAsync(character);
 

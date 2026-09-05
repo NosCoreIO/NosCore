@@ -628,4 +628,16 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} Scripted Instances Parsed!</value>
   </data>
+  <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
+    <value>Familyhead</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
+    <value>Familydeputy</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
+    <value>Familykeeper</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
+    <value>Member</value>
+  </data>
 </root>
