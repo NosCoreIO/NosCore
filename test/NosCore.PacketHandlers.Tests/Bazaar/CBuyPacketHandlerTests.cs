@@ -302,5 +302,22 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             var packet = (ModaliPacket?)Session.LastPackets.FirstOrDefault(s => s is ModaliPacket);
             Assert.IsTrue(packet?.Message == Game18NConstString.InsufficientGoldAvailable);
         }
+    
+        [TestMethod]
+        public async Task LosingTheRaceForAListingCostsNeitherGoldNorMakesAnItem()
+        {
+            // The listing lives on the master server and every channel reads it, so two buyers
+            // can both pass the price and amount checks. Only one wins the claim.
+            Session.Character.Gold = 500;
+            BazaarHttpClient!
+                .Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>()))
+                .ReturnsAsync(false);
+
+            await CbuyPacketHandler!.ExecuteAsync(new CBuyPacket { BazaarId = 0, Amount = 1, Price = 50 }, Session);
+
+            Assert.AreEqual(500, Session.Character.Gold, "the loser must keep their gold");
+            Assert.AreEqual(0, Session.Character.InventoryService.Count, "the loser must not receive an item");
+        }
+
     }
 }

@@ -55,21 +55,25 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     if (clientSession.Character.Gold >= price)
                     {
-                        clientSession.Character.Gold -= price;
-                        await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
-
-                        var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id);
-                        var item = itemProvider.Convert(itemInstance!);
-                        item.Id = Guid.NewGuid();
-                        var newInv =
-                            clientSession.Character.InventoryService.AddItemToPocket(
-                                InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                        await clientSession.SendPacketAsync(newInv!.GeneratePocketChange());
-
+                        // Claim the listing before anything is paid for or created. The listing
+                        // is shared across channels, so two buyers can both pass the checks
+                        // above; only one can win this call, and the loser must leave with
+                        // neither the gold gone nor an item made.
                         var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, packet.Amount,
                             clientSession.Character.Name);
                         if (remove)
                         {
+                            clientSession.Character.Gold -= price;
+                            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
+
+                            var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id);
+                            var item = itemProvider.Convert(itemInstance!);
+                            item.Id = Guid.NewGuid();
+                            var newInv =
+                                clientSession.Character.InventoryService.AddItemToPocket(
+                                    InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                            await clientSession.SendPacketAsync(newInv!.GeneratePocketChange());
+
                             await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } });
                             await clientSession.SendPacketAsync(new RCBuyPacket(bz.SellerName!)
                             {
@@ -95,7 +99,14 @@ namespace NosCore.PacketHandlers.Bazaar
                             return;
                         }
 
-                        logger.LogError(logLanguage[LogLanguageKey.BAZAAR_BUY_ERROR]);
+                        // Someone else took it first, most likely from another channel.
+                        logger.LogInformation(logLanguage[LogLanguageKey.BAZAAR_BUY_ERROR]);
+                        await clientSession.SendPacketAsync(new ModaliPacket
+                        {
+                            Type = 1,
+                            Message = Game18NConstString.OfferUpdated
+                        });
+                        await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } });
                     }
                     else
                     {
