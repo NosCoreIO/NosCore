@@ -9,7 +9,7 @@ RUN --mount=type=cache,target=/root/.nuget/packages \
     && dotnet publish src/NosCore.WorldServer -c Release -o /out/world \
     && dotnet publish src/NosCore.Parser -c Release -o /out/parser
 
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.24-amd64 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:11.0-alpine3.24-amd64 AS base
 
 # runtime-deps sets DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=true and ships no ICU data.
 # See https://aka.ms/dotnet-globalization-alpine-containers
