@@ -15,6 +15,13 @@
 [![Discord](https://i.gyazo.com/2115a3ecb258220f5b1a8ebd8c50eb8f.png)](https://discord.gg/Eu3ETSw)
 
 ## You like our work ? ##
+NosCore is a spare-time open source project. Sponsoring does not buy a hosted server, a
+license or a support contract — it buys time spent on the emulator and on the packages
+around it (NosCore.Packets, NosCore.Dao, NosCore.Algorithm, the parser tooling).
+
+Sponsors get the **Supporter** role on [our Discord](https://discord.gg/Eu3ETSw), and from
+$10 a month their name — or their logo, higher up — in the *Special Thanks* section above.
+
 <a href='https://github.com/sponsors/0Lucifer0' target='_blank'><img height='48' style='border:0px;height:46px;' src='https://i.gyazo.com/47b2ca2eb6e1ce38d02b04c410e1c82a.png' border='0' alt='Sponsor me!' /></a>
 [![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/A3562BQV) 
 <a href='https://www.patreon.com/bePatron?u=6503887' target='_blank'><img height='46' style='border:0px;height:46px;' src='https://c5.patreon.com/external/logo/become_a_patron_button@2x.png' border='0' alt='Become a Patron!' /></a>
