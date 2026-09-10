@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/NosCoreIO/NosCore.Packets/blob/15.0.1/icon.png"/>
+  <img src="https://raw.githubusercontent.com/NosCoreIO/NosCore.Packets/master/icon.png"/>
 </p>
 
 # NosCore #
