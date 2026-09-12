@@ -6,6 +6,8 @@
 
 using Json.More;
 using NodaTime;
+using NosCore.Core.Concurrency;
+using System.Collections.Concurrent;
 using NodaTime.Serialization.SystemTextJson;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -26,6 +28,13 @@ namespace NosCore.GameObject.Services.BazaarService
             IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock)
         : IBazaarService
     {
+        // Channels reach these through BazaarHub, and SignalR dispatches calls concurrently, so
+        // read-check-write on a listing is a lost update waiting to happen. One lock per listing
+        // rather than one for the bazaar, so unrelated trades still run in parallel.
+        private static readonly ConcurrentDictionary<long, AsyncLock> Claims = new();
+
+        private static AsyncLock ClaimLock(long id) => Claims.GetOrAdd(id, _ => new AsyncLock());
+
         public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter)
         {
@@ -154,6 +163,7 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null)
         {
+            using var claim = await ClaimLock(id).AcquireAsync();
             var bzlink = bazaarRegistry.GetById(id);
             if (bzlink == null)
             {
@@ -243,6 +253,7 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public async Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod)
         {
+            using var claim = await ClaimLock(id).AcquireAsync();
             var item = bazaarRegistry.GetById(id);
             if ((item?.BazaarItem == null) || (item.BazaarItem?.Amount != item.ItemInstance?.Amount))
             {
