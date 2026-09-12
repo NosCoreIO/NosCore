@@ -557,4 +557,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>Načteno skriptovaných instancí: {0}!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Tvá úroveň ti neumožňuje vstoupit do tohoto time-space.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Tento time-space zatím není dostupný.</value>
+  </data>
 </root>
