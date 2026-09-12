@@ -214,7 +214,6 @@ public static class PlayerBundleExtensions
         });
     }
 
-
     public static InPacket GenerateIn(this PlayerComponentBundle player, string prefix)
     {
         return new InPacket
@@ -434,8 +433,8 @@ public static class PlayerBundleExtensions
                 ? $"[{localizer[LanguageKey.SUPPORT, player.Account.Language]}]" + player.Name : player.Name,
             Unknown1 = null,
             GroupId = -1,
-            FamilyId = -1,
-            FamilyName = null,
+            FamilyId = (int)(player.Family?.FamilyId ?? -1),
+            FamilyName = player.GenerateGidx(localizer, player.AccountLanguage).FamilyName,
             CharacterId = player.VisualId,
             Authority = player.Authority,
             Gender = player.Gender,

@@ -197,6 +197,10 @@ namespace NosCore.Data.Enumerations.I18N
         OBJECT_IN_BAZAAR,
         ITEM_GIFTED,
         NOT_IN_FRIENDLIST,
-        SPEAKER
+        SPEAKER,
+        FAMILY_AUTHORITY_HEAD,
+        FAMILY_AUTHORITY_ASSISTANT,
+        FAMILY_AUTHORITY_MANAGER,
+        FAMILY_AUTHORITY_MEMBER
     }
 }
