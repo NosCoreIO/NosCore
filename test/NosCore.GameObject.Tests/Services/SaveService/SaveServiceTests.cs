@@ -5,6 +5,7 @@
 //
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao;
@@ -13,6 +14,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
+using NosCore.Database.Hosting;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -45,7 +47,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                Guid.NewGuid().ToString());
+                Guid.NewGuid().ToString())
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             NosCoreContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
 
             var itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, ContextBuilder);
@@ -76,7 +79,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 characterQuestObjectiveDao,
                 respawnDao,
                 NullLogger<NosCore.GameObject.Services.SaveService.SaveService>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer,
+                new DaoTransactionScope(ContextBuilder));
         }
 
         [TestMethod]
