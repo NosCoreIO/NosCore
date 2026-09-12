@@ -101,11 +101,31 @@ public sealed class PersistenceModule : Autofac.Module
         services.AddSingleton<IDao<IItemInstanceDto?, Guid>, Dao<ItemInstance, IItemInstanceDto?, Guid>>();
     }
 
+    // One real Npgsql model shared by every primary-key lookup at startup. Model
+    // building never opens a connection, and the InMemory provider this replaces
+    // produced a model without relational conventions while dragging a test-only
+    // package into every server.
+    private static readonly Lazy<Microsoft.EntityFrameworkCore.Metadata.IModel> DesignModel = new(() =>
+    {
+        var options = new DbContextOptionsBuilder<NosCoreContext>()
+            .UseNpgsql("Host=design-time-only", o => o.UseNodaTime()).Options;
+        using var context = new NosCoreContext(options);
+        return context.Model;
+    });
+
+    public static PropertyInfo? FindPrimaryKeyProperty(Type entityType)
+    {
+        var primaryKey = DesignModel.Value.FindEntityType(entityType)?.FindPrimaryKey();
+        return primaryKey == null
+            ? null
+            : entityType.GetProperties()
+                .FirstOrDefault(p => primaryKey.Properties.Any(k => k.Name == p.Name));
+    }
+
     public static IEnumerable<DaoMapping> DiscoverDaoMappings()
     {
         var assemblyDto = typeof(IStaticDto).Assembly.GetTypes();
         var assemblyDb = typeof(Account).Assembly.GetTypes();
-        var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString());
 
         foreach (var dto in assemblyDto.Where(p =>
             typeof(IDto).IsAssignableFrom(p) &&
@@ -117,10 +137,7 @@ public sealed class PersistenceModule : Autofac.Module
             {
                 continue;
             }
-            var pk = db.GetProperties()
-                .FirstOrDefault(s => new NosCoreContext(optionsBuilder.Options).Model.FindEntityType(db)?
-                    .FindPrimaryKey()?.Properties.Select(x => x.Name)
-                    .Contains(s.Name) ?? false);
+            var pk = FindPrimaryKeyProperty(db);
             if (pk == null)
             {
                 continue;

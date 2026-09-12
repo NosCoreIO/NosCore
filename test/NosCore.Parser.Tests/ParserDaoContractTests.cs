@@ -10,6 +10,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
+using NosCore.Database.Hosting;
 using NosCore.Database.Entities;
 using NosCore.Parser.Parsers;
 using NosCore.Parser;
@@ -36,7 +37,9 @@ namespace NosCore.Parser.Tests
                 .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
             var model = context.Model;
 
-            var registrable = ParserBootstrap.RegistrableDtoTypes().ToHashSet();
+            var registrable = PersistenceModule.DiscoverDaoMappings()
+                .Select(mapping => mapping.DtoType)
+                .ToHashSet();
             var mismatches = new List<string>();
             foreach (var parser in typeof(CardParser).Assembly.GetTypes()
                 .Where(t => t is { IsClass: true, IsAbstract: false, IsGenericType: false } && t.Name.EndsWith("Parser")))
@@ -67,7 +70,7 @@ namespace NosCore.Parser.Tests
 
                     if (!registrable.Contains(dtoType))
                     {
-                        mismatches.Add($"{parser.Name}: {dtoType.Name} is not registered by ParserBootstrap");
+                        mismatches.Add($"{parser.Name}: {dtoType.Name} is not registered by DiscoverDaoMappings");
                         continue;
                     }
 
