@@ -39,7 +39,7 @@
     <PackageVersion Include="MSTest.TestFramework" Version="4.4.0" />
     <PackageVersion Include="NodaTime" Version="3.3.3" />
     <PackageVersion Include="NodaTime.Serialization.SystemTextJson" Version="1.4.0" />
-    <PackageVersion Include="NodaTime.Testing" Version="3.3.3" />
+    <PackageVersion Include="NodaTime.Testing" Version="3.3.4" />
     <PackageVersion Include="NosCore.Algorithm" Version="2.1.0" />
     <PackageVersion Include="NosCore.Analyzers" Version="2.0.0" />
     <PackageVersion Include="NosCore.Dao" Version="5.0.0" />
