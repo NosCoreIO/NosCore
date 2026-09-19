@@ -44,8 +44,9 @@ namespace NosCore.PacketHandlers.Chat
                 var messageBuilder = new StringBuilder();
 
                 //Todo: review this
-                var messageData = whisperPacket.Message!.Split(' ');
-                var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+                var trimmedMessage = whisperPacket.Message!.TrimStart(' ');
+                var messageData = trimmedMessage.Split(' ');
+                var receiverName = messageData[trimmedMessage.StartsWith("GM ") ? 1 : 0];
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
                 {

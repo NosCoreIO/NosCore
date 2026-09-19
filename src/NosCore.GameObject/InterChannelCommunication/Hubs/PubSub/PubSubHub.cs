@@ -19,7 +19,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
     {
         public async Task<bool> SendMessageAsync(IMessage message)
         {
-            await Clients.Others.SendAsync("ReceiveMessage", message);
+            await Clients.All.SendAsync("ReceiveMessage", message);
             return true;
         }
 
@@ -27,7 +27,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
         {
             foreach (var message in messages)
             {
-                await Clients.Others.SendAsync("ReceiveMessage", message);
+                await Clients.All.SendAsync("ReceiveMessage", message);
             }
             return true;
         }

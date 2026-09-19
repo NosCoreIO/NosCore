@@ -47,6 +47,7 @@ using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.ScheduledJobs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ChannelCommunicationService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.GroupService;
@@ -276,6 +277,7 @@ namespace NosCore.WorldServer
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(60));
                     services.AddHostedService<WorldServer>();
+                    services.AddHostedService<ChannelCommunicationRunner>();
                     services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),
