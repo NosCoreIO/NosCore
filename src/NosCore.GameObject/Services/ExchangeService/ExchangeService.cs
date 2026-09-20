@@ -333,7 +333,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 items.Add(new KeyValuePair<long, IvnPacket>(transfer.SessionId,
                     (sourceItem ?? transfer.OriginalItem).GeneratePocketChange((PocketType)transfer.OriginalItem.Type, transfer.OriginalItem.Slot)));
                 items.Add(new KeyValuePair<long, IvnPacket>(transfer.TargetId,
-                    transfer.OriginalItem.GeneratePocketChange((PocketType)addedItem.Item.Type, addedItem.Item.Slot)));
+                    addedItem.Item.GeneratePocketChange((PocketType)addedItem.Item.Type, addedItem.Item.Slot)));
             }
 
             return items;

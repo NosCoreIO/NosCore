@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -358,6 +359,32 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
             Assert.AreEqual(0, itemList.Count, "a vanished offer must not transfer");
             Assert.AreEqual(0, receiver.Count, "the receiver must not gain a duplicate");
+        }
+
+        [TestMethod]
+        public void ProcessExchangeNotifiesReceiverWithTheirActualMergedAmount()
+        {
+            IInventoryService giver =
+                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
+                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
+            IInventoryService receiver =
+                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
+                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
+
+            var offered = giver.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 5), 0))!.First();
+            receiver.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 4), 0));
+
+            ExchangeProvider!.OpenExchange(1, 2);
+            // Offering less than the full stack (2 of 5) forces the partial-transfer branch,
+            // which mutates the giver's own item object in place - this used to leak into the
+            // receiver's notification packet.
+            ExchangeProvider.AddItems(1, offered, 2);
+
+            var itemList = ExchangeProvider.ProcessExchange(1, 2, giver, receiver);
+
+            var receiverPacket = itemList.First(s => s.Key == 2).Value;
+            var receiverAmount = receiverPacket.IvnSubPackets!.First()!.RareAmount;
+            Assert.AreEqual((short)6, receiverAmount, "the receiver must be notified of their true merged total (4 + 2), not the giver's remaining balance");
         }
     }
 }

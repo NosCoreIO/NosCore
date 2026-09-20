@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (!hasTarget || target.ExchangeBlocked)
+                    if (!hasTarget || target.ExchangeBlocked || (target.VisualId == clientSession.Character.VisualId))
                     {
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {

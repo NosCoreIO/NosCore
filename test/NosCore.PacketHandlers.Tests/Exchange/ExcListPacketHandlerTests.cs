@@ -104,6 +104,28 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task PhantomZeroAmountSubPacketsShouldNotCloseGoldOnlyOffer()
+        {
+            await new Spec("Phantom zero-amount sub-packets should not close a gold-only offer")
+                .Given(CharacterHasGold)
+                .And(ExchangeIsOpenWithTarget)
+                .WhenAsync(SettingGoldWithPhantomSubPackets)
+                .Then(ExchangeShouldNotBeClosed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PhantomZeroAmountSubPacketsShouldNotPreventGoldFromBeingSet()
+        {
+            await new Spec("Phantom zero-amount sub-packets should not prevent gold from being set")
+                .Given(CharacterHasGold)
+                .And(ExchangeIsOpenWithTarget)
+                .WhenAsync(SettingGoldWithPhantomSubPackets)
+                .Then(ExchangeGoldShouldBeSet)
+                .ExecuteAsync();
+        }
+
         private void CharacterHasNoGold()
         {
             Session.Character.Gold = 0;
@@ -179,9 +201,32 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             }, Session);
         }
 
+        private async Task SettingGoldWithPhantomSubPackets()
+        {
+            // Shape observed on the real wire: a gold-only offer still deserializes with a
+            // minimum of 3 default-valued sub-packets (Amount == 0), which must be filtered
+            // out rather than treated as real offered items.
+            await Handler.ExecuteAsync(new ExcListPacket
+            {
+                Gold = 5000,
+                BankGold = 0,
+                SubPackets = new List<ExcListSubPacket?>
+                {
+                    new() { Slot = 0, PocketType = PocketType.Equipment, Amount = 0 },
+                    new() { Slot = 0, PocketType = PocketType.Equipment, Amount = 0 },
+                    new() { Slot = 0, PocketType = PocketType.Equipment, Amount = 0 }
+                }
+            }, Session);
+        }
+
         private void ExchangeGoldShouldNotBeSet()
         {
             ExchangeService.Verify(x => x.SetGold(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+        }
+
+        private void ExchangeShouldNotBeClosed()
+        {
+            ExchangeService.Verify(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()), Times.Never);
         }
 
         private void ExchangeGoldShouldBeSet()
