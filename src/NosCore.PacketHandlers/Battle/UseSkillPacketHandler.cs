@@ -68,17 +68,19 @@ namespace NosCore.PacketHandlers.Battle
                 return;
             }
 
-            await battleService.Hit(clientSession.Character, target, new HitArguments
+            var accepted = await battleService.Hit(clientSession.Character, target, new HitArguments
             {
                 SkillId = packet.CastId,
                 MapX = packet.MapX,
                 MapY = packet.MapY,
-            }).ConfigureAwait(false);
+            });
 
-            // Successful dispatch → stamp LastUse so subsequent casts are cooldown-gated.
-            // We do this after Hit so a failed cast (no skill resolved) doesn't consume
-            // the cooldown slot and leave the player unable to retry.
-            consumed?.Invoke();
+            // A refused cast (unknown skill, out of reach) spends neither mana nor cooldown, so
+            // the player can retry straight away.
+            if (accepted)
+            {
+                consumed?.Invoke();
+            }
         }
 
         // Verifies MP + cooldown WHEN the character owns the skill. For casts the

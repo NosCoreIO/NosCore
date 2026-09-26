@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.ShopService;
 using NosCore.Packets.Enumerations;
+using NosCore.PathFinder.Heuristic;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -51,6 +52,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
                 NodaTime.SystemClock.Instance,
                 new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
+                new OctileDistanceHeuristic(),
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance);
         }
 
@@ -144,9 +146,130 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
         }
 
-        private static SkillInfo MakeSkill(TargetHitType hitType) => new(
+        [TestMethod]
+        public async Task RefusedCastsReportFalse()
+        {
+            var dead = new FakeEntity { Hp = 0 };
+            var target = new FakeEntity { Hp = 100 };
+            _skillResolver.Setup(r => r.Resolve(It.IsAny<IAliveEntity>(), It.IsAny<long>())).Returns((SkillInfo?)null);
+
+            Assert.IsFalse(await _service.Hit(dead, target, new HitArguments { SkillId = 1 }));
+            Assert.IsFalse(await _service.Hit(new FakeEntity { Hp = 100 }, target, new HitArguments { SkillId = 1 }));
+        }
+
+        [TestMethod]
+        public async Task AcceptedCastReportsTrue()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit));
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+        }
+
+        [DataTestMethod]
+        [DataRow(3, 3, true)]
+        [DataRow(3, 4, true)]
+        [DataRow(3, 5, false)]
+        [DataRow(1, 2, true)]
+        [DataRow(1, 3, false)]
+        public async Task CharacterCastIsLimitedToSkillRangePlusOneCell(int range, int distance, bool accepted)
+        {
+            var origin = MakeCharacter(x: 0, y: 0);
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, PositionX = (short)distance };
+            SetupLanding(origin.Object, target, MakeSkill(TargetHitType.SingleTargetHit, (byte)range, targetType: 0));
+
+            var result = await _service.Hit(origin.Object, target, new HitArguments { SkillId = 1 });
+
+            Assert.AreEqual(accepted, result);
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), accepted ? Times.Once() : Times.Never());
+        }
+
+        [TestMethod]
+        public async Task DiagonalDistanceUsesTheTruncatedOctileDistance()
+        {
+            // (3,3) is 3 * sqrt(2) = 4.24 away: 4 truncated, within range 3 plus one cell.
+            var origin = MakeCharacter(x: 0, y: 0);
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, PositionX = 3, PositionY = 3 };
+            SetupLanding(origin.Object, target, MakeSkill(TargetHitType.SingleTargetHit, range: 3, targetType: 0));
+
+            Assert.IsTrue(await _service.Hit(origin.Object, target, new HitArguments { SkillId = 1 }));
+        }
+
+        [DataTestMethod]
+        [DataRow(0, 0, DisplayName = "range zero says nothing about reach")]
+        [DataRow(3, 1, DisplayName = "caster-centred skills need no target in reach")]
+        public async Task SkillsWithoutAReachAreNotGated(int range, int targetType)
+        {
+            var origin = MakeCharacter(x: 0, y: 0);
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, PositionX = 40 };
+            SetupLanding(origin.Object, target, MakeSkill(TargetHitType.SingleTargetHit, (byte)range, (byte)targetType));
+
+            Assert.IsTrue(await _service.Hit(origin.Object, target, new HitArguments { SkillId = 1 }));
+        }
+
+        [TestMethod]
+        public async Task MonstersAreNotGatedByTheCastReach()
+        {
+            var origin = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Player, PositionX = 40 };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit, range: 1, targetType: 0));
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+        }
+
+        [TestMethod]
+        public async Task ReportedCastCellWithinOneStepIsTaken()
+        {
+            var origin = MakeCharacter(x: 0, y: 0, speed: 10);
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, PositionX = 6 };
+            SetupLanding(origin.Object, target, MakeSkill(TargetHitType.SingleTargetHit, range: 1, targetType: 0));
+
+            // Six cells from the target is out of reach; the reported cell (5,0) is one step on
+            // (5 - 1 <= 10 / 2) and leaves the caster one cell away.
+            var result = await _service.Hit(origin.Object, target, new HitArguments { SkillId = 1, MapX = 5, MapY = 0 });
+
+            Assert.IsTrue(result);
+            Assert.AreEqual((short)5, origin.Object.PositionX);
+        }
+
+        [TestMethod]
+        public async Task ReportedCastCellBeyondOneStepIsIgnored()
+        {
+            var origin = MakeCharacter(x: 0, y: 0, speed: 10);
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster, PositionX = 30 };
+            SetupLanding(origin.Object, target, MakeSkill(TargetHitType.SingleTargetHit, range: 1, targetType: 0));
+
+            var result = await _service.Hit(origin.Object, target, new HitArguments { SkillId = 1, MapX = 29, MapY = 0 });
+
+            Assert.IsFalse(result);
+            Assert.AreEqual((short)0, origin.Object.PositionX);
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
+        }
+
+        private void SetupLanding(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
+        {
+            _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(skill);
+            _targetResolver.Setup(r => r.Resolve(origin, target, skill)).Returns(new[] { target });
+            _hitQueue.Setup(q => q.EnqueueAsync(It.IsAny<HitRequest>()))
+                .ReturnsAsync(new HitOutcome(HitStatus.Landed, 50, SuPacketHitMode.SuccessAttack, false));
+        }
+
+        private static Mock<ICharacterEntity> MakeCharacter(short x, short y, byte speed = 10)
+        {
+            var character = new Mock<ICharacterEntity>();
+            character.SetupAllProperties();
+            character.Setup(c => c.IsAlive).Returns(true);
+            character.Setup(c => c.VisualType).Returns(VisualType.Player);
+            character.Setup(c => c.Speed).Returns(speed);
+            character.Object.PositionX = x;
+            character.Object.PositionY = y;
+            return character;
+        }
+
+        private static SkillInfo MakeSkill(TargetHitType hitType, byte range = 0, byte targetType = 0) => new(
             SkillVnum: 1, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
-            Type: 0, HitType: hitType, Range: 0, TargetRange: 2, TargetType: 0,
+            Type: 0, HitType: hitType, Range: range, TargetRange: 2, TargetType: targetType,
             Element: 0, Duration: 0, MpCost: 0, BCards: Array.Empty<BCardDto>());
 
         private class FakeEntity : IAliveEntity

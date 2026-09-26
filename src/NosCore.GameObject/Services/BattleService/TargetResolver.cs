@@ -56,9 +56,8 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             }
         }
 
-        // Player targets are only relevant when the attacker or allies are non-player
-        // (e.g. a monster AOE hits several players), or in PvP contexts. In both cases
-        // we enumerate players on the same map and filter out allies.
+        // Only monsters strike players in an area, and only players or NPCs strike monsters,
+        // the same sides BattleService.CanAttack enforces for the primary target.
         foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
         {
             if (!session.HasPlayerEntity) continue;
@@ -76,17 +75,13 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
         return results;
     }
 
-    // "Enemy" for v1 is "different visual type" — a character AOE hurts monsters and
-    // other characters (PvP), but a monster AOE only hurts characters and not other
-    // monsters. Groups/party aliasing is a follow-up task.
+    // Players and NPCs are one side, monsters the other; nobody in an area hits their own side.
     private static bool IsEnemy(IAliveEntity attacker, IAliveEntity candidate)
     {
         return (attacker.VisualType, candidate.VisualType) switch
         {
             (VisualType.Player, VisualType.Monster) => true,
-            (VisualType.Player, VisualType.Player) => true,
             (VisualType.Monster, VisualType.Player) => true,
-            (VisualType.Npc, VisualType.Player) => true,
             (VisualType.Npc, VisualType.Monster) => true,
             _ => false,
         };

@@ -40,6 +40,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
             BattleService = new Mock<IBattleService>();
+            BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
+                It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>())).ReturnsAsync(true);
 
             Handler = new UseSkillPacketHandler(
                 Logger,
@@ -128,6 +130,22 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Then(BattleServiceShouldBeCalled)
                 .And(CharacterMpShouldBe_, 35)
                 .And(LastUseShouldHaveBeenStampedRecent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARefusedCastSpendsNeitherMpNorCooldown()
+        {
+            await new Spec("A cast that BattleService refuses leaves Mp and LastUse untouched so the player can retry")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
+                .And(CharacterHasMp_, 50)
+                .And(BattleServiceRefusesTheCast)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterMpShouldBe_, 50)
+                .And(LastUseShouldNotHaveBeenStamped)
                 .ExecuteAsync();
         }
 
@@ -279,6 +297,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 It.IsAny<HitArguments>()), Times.Never);
         }
 
+        private void BattleServiceRefusesTheCast()
+        {
+            BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
+                It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>())).ReturnsAsync(false);
+        }
+
         private void CharacterShouldNoLongerBeSitting()
         {
             Assert.IsFalse(Session.Character.IsSitting);
@@ -292,6 +316,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void LastUseShouldHaveBeenStampedRecent()
         {
             Assert.IsTrue(DateTime.Now - _learnedSkill.LastUse < TimeSpan.FromSeconds(5));
+        }
+
+        private void LastUseShouldNotHaveBeenStamped()
+        {
+            Assert.IsTrue(DateTime.Now - _learnedSkill.LastUse >= TimeSpan.FromSeconds(5));
         }
     }
 }
