@@ -13,6 +13,7 @@ using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Services.BattleService
         IClock clock,
         ICaptureService captureService,
         IHeuristic distanceCalculator,
-        ILogger<BattleService> logger) : IBattleService
+        ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
         // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
         // and drained by TickCooldownResetsAsync on each map's 400ms life tick.
