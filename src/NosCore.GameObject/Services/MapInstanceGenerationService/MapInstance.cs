@@ -189,6 +189,23 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             get { return _npcs.Select(s => s.Value).ToList(); }
         }
 
+        // For the life loop, where Monsters and Npcs would allocate a list per call.
+        public IEnumerable<MonsterComponentBundle> EnumerateMonsters()
+        {
+            foreach (var (_, monster) in _monsters)
+            {
+                yield return monster;
+            }
+        }
+
+        public IEnumerable<NpcComponentBundle> EnumerateNpcs()
+        {
+            foreach (var (_, npc) in _npcs)
+            {
+                yield return npc;
+            }
+        }
+
         public List<Portal> Portals { get; set; }
 
         public bool ShopAllowed { get; }
