@@ -90,9 +90,40 @@ subtle: a card worth 5 is fivefold.
       multiples, not by a few per cent
 - [ ] The decreasing half halves rather than taking a couple of points off
 
+### Casting range
+
+A targeted skill reaches its range plus one cell, measured on the truncated diagonal
+distance the walk check uses.
+
+- [ ] Cast a targeted skill at a monster from inside its range: it lands
+- [ ] Back away until the monster is more than range + 1 cells off and cast again: the
+      cast is refused, the auto-attack stops, no mana is spent and the skill does not go on
+      cooldown
+- [ ] Step back in and cast immediately: it lands, so the refused cast started nothing
+- [ ] A skill centred on yourself (a buff, an area around you) still casts with nothing
+      in reach
+- [ ] Cast while walking: the hit lands and you are not pulled back to an old cell
+
+### Area skills and bystanders
+
+- [ ] Stand a second character next to a monster and cast an area skill at the monster: the
+      monster takes damage, the bystander takes none
+- [ ] A monster's area skill still hits every character standing in it
+
 ---
 
 ## Monsters
+
+### Aggro and chasing
+
+- [ ] Walk toward a hostile monster: it notices you inside its notice range and comes for you
+- [ ] It stops **beside** you rather than on your cell, then attacks
+- [ ] Attacks come at an even pace, not in bursts
+- [ ] Run off: it follows, then gives up; a monster that gave up walks home at the pace it
+      chased at and wanders around its spawn point from there
+- [ ] A monster that is not hostile ignores you until you hit it, then fights back
+- [ ] Kill a monster: XP arrives, the drops appear where it fell, and it respawns at its
+      spawn point
 
 ### Respawn timing
 
@@ -146,6 +177,8 @@ Quick pass after any combat or stat change:
 
 Recorded so nobody spends time hunting for them:
 
+- **Casting range of skills with a range of 0** — the skill data does not say how far they
+  reach, so they are not gated and there is nothing to observe.
 - **BCard subtype names and additions** — data-only. Observable only once a skill or card
   using a given subtype is wired to behaviour.
 - **The `st` percentage guard** — guards a zero maximum, which is not a state the game
