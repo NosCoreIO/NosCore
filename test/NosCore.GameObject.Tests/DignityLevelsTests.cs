@@ -81,6 +81,24 @@ namespace NosCore.GameObject.Tests
         }
 
         [TestMethod]
+        public void TheMaximumIsTheCeilingOfTheDefaultBand()
+        {
+            Assert.AreEqual((short)100, DignityLevels.Maximum);
+        }
+
+        [TestMethod]
+        public void ALadderWithoutADefaultCeilingHasNoMaximum()
+        {
+            DignityLevels.Load(new List<DignityLevelDto>
+            {
+                new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = null },
+                new() { DignityLevelId = (byte)DignityType.Dubious, MaxDignity = -5 }
+            });
+
+            Assert.IsNull(DignityLevels.Maximum);
+        }
+
+        [TestMethod]
         public void TheLadderIsWhateverWasImported()
         {
             DignityLevels.Load(new List<DignityLevelDto>

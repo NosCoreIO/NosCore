@@ -53,7 +53,7 @@ namespace NosCore.Tests.Shared
         {
             var levels = new List<DignityLevelDto>
             {
-                new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = null }
+                new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = 100 }
             };
 
             levels.AddRange(DignityCeilings.Select((ceiling, index) => new DignityLevelDto

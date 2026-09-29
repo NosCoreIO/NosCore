@@ -15,10 +15,15 @@ public static class DignityLevels
 {
     private static volatile DignityBand[] _ladder = [];
 
+    public static short? Maximum { get; private set; }
+
     public static void Load(IEnumerable<DignityLevelDto> levels)
     {
+        var imported = levels.ToList();
+        Maximum = imported.FirstOrDefault(level => level.DignityLevelId == (byte)DignityType.Default)?.MaxDignity;
+
         // Worst first, so the first band a value falls into is the one it belongs to.
-        _ladder = levels
+        _ladder = imported
             .Where(level => level.MaxDignity != null)
             .OrderBy(level => level.MaxDignity)
             .Select(level => new DignityBand(level.MaxDignity!.Value, (DignityType)level.DignityLevelId))
