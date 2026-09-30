@@ -13,6 +13,7 @@ using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
@@ -21,6 +22,7 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
+using NosCore.PathFinder.Interfaces;
 using Microsoft.Extensions.Logging;
 using Wolverine;
 
@@ -38,27 +40,28 @@ namespace NosCore.GameObject.Services.BattleService
         ISessionRegistry sessionRegistry,
         IClock clock,
         ICaptureService captureService,
-        ILogger<BattleService> logger) : IBattleService
+        IHeuristic distanceCalculator,
+        ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
         // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
         // and drained by TickCooldownResetsAsync on each map's 400ms life tick.
         private readonly ConcurrentDictionary<long, ConcurrentDictionary<long, Instant>> _pendingCooldownResets = new();
 
-        public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
+        public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
             if (!CanAttack(origin, target))
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
-                return;
+                return false;
             }
 
             UpdateAttackerPosition(origin, arguments);
 
             var skill = skillResolver.Resolve(origin, arguments.SkillId);
-            if (skill == null)
+            if (skill == null || !IsInReach(origin, target, skill))
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
-                return;
+                return false;
             }
 
             // Capture skills branch before damage — vanosilla / OpenNos both suppress
@@ -76,7 +79,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
 
                 ScheduleCooldownReset(origin, skill);
-                return;
+                return true;
             }
 
             var targets = targetResolver.Resolve(origin, target, skill);
@@ -98,6 +101,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             ScheduleCooldownReset(origin, skill);
+            return true;
         }
 
         private async Task ProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary)
@@ -245,7 +249,9 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        private static void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)
+        // A character's reported cell is only taken when it is one walk step from the cell the
+        // server already has; anything further would let a client cast from wherever it likes.
+        private void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)
         {
             if (arguments is not { MapX: not null, MapY: not null })
             {
@@ -257,8 +263,26 @@ namespace NosCore.GameObject.Services.BattleService
                 return;
             }
 
+            if (origin is ICharacterEntity
+                && !SkillReach.IsWithinOneStep(DistanceTo(origin, arguments.MapX.Value, arguments.MapY.Value), origin.Speed))
+            {
+                return;
+            }
+
             origin.PositionX = arguments.MapX.Value;
             origin.PositionY = arguments.MapY.Value;
+        }
+
+        // Monsters test their own reach before they swing.
+        private bool IsInReach(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
+        {
+            return origin is not ICharacterEntity
+                || SkillReach.IsInReach(skill, DistanceTo(origin, target.PositionX, target.PositionY));
+        }
+
+        private int DistanceTo(IAliveEntity origin, short x, short y)
+        {
+            return (int)distanceCalculator.GetDistance((origin.PositionX, origin.PositionY), (x, y));
         }
 
         // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction

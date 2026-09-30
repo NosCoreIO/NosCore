@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -183,6 +183,23 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         public List<NpcComponentBundle> Npcs
         {
             get { return _npcs.Select(s => s.Value).ToList(); }
+        }
+
+        // For the life loop, where Monsters and Npcs would allocate a list per call.
+        public IEnumerable<MonsterComponentBundle> EnumerateMonsters()
+        {
+            foreach (var (_, monster) in _monsters)
+            {
+                yield return monster;
+            }
+        }
+
+        public IEnumerable<NpcComponentBundle> EnumerateNpcs()
+        {
+            foreach (var (_, npc) in _npcs)
+            {
+                yield return npc;
+            }
         }
 
         public List<Portal> Portals { get; set; }

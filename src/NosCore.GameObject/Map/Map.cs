@@ -111,7 +111,7 @@ namespace NosCore.GameObject.Map
 
         public bool IsWalkable(short mapX, short mapY)
         {
-            if ((mapX > Width) || (mapX < 0) || (mapY > Height) || (mapY < 0))
+            if ((mapX >= Width) || (mapX < 0) || (mapY >= Height) || (mapY < 0))
             {
                 return false;
             }

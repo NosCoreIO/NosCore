@@ -16,7 +16,9 @@ namespace NosCore.GameObject.Services.BattleService
     // concurrent attackers don't race on HP/HitList state.
     public interface IBattleService
     {
-        Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments);
+        // False when a gate refused the cast (state, faction, unknown skill, out of reach) and
+        // nothing was dispatched, so callers only spend mana and cooldown on true.
+        Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments);
 
         // Drain the pending skill-cooldown-reset table for characters on this map
         // and emit SkillResetPacket for any whose ReadyAt has elapsed. Called once
