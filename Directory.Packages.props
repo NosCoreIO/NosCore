@@ -33,10 +33,10 @@
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="10.0.12" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />
-    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.0" />
+    <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.10.1" />
     <PackageVersion Include="Moq" Version="4.21.0" />
-    <PackageVersion Include="MSTest.TestAdapter" Version="4.4.0" />
-    <PackageVersion Include="MSTest.TestFramework" Version="4.4.0" />
+    <PackageVersion Include="MSTest.TestAdapter" Version="4.4.1" />
+    <PackageVersion Include="MSTest.TestFramework" Version="4.4.1" />
     <PackageVersion Include="NodaTime" Version="3.3.4" />
     <PackageVersion Include="NodaTime.Serialization.SystemTextJson" Version="1.4.0" />
     <PackageVersion Include="NodaTime.Testing" Version="3.3.4" />
@@ -51,11 +51,11 @@
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="10.0.3" />
     <PackageVersion Include="Npgsql.NodaTime" Version="10.0.3" />
     <PackageVersion Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.19.1" />
-    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.18.0" />
+    <PackageVersion Include="OpenTelemetry.Extensions.Hosting" Version="1.19.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.EntityFrameworkCore" Version="1.17.0-beta.1" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.19.0" />
-    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.18.0" />
+    <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
     <PackageVersion Include="Polly" Version="8.8.0" />
     <PackageVersion Include="Serilog" Version="4.4.0" />
     <PackageVersion Include="Serilog.Extensions.Hosting" Version="10.0.0" />
