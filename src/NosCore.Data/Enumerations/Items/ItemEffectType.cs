@@ -12,6 +12,7 @@ namespace NosCore.Data.Enumerations.Items
         Teleport = 1,
         ApplyHairDie = 10,
         ApplyHairStyle = 11,
+        RestoreDignity = 14,
         Speaker = 15,
         MarriageProposal = 34,
         MateCapture = 100,

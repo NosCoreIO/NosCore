@@ -128,6 +128,26 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Try to wear an item for another class: that one still says wrong class
 - [ ] `$SetJobLevel` above the requirement, then equip — it succeeds
 
+### Dignity items
+
+The maximum comes from the parser, so re-run it on an existing database first.
+
+- [ ] Die a few times so dignity drops below 0 (each death costs 50)
+- [ ] `$CreateItem 2156` and use it: the reputation window shows dignity 100 higher, a green
+      "Dignity increased: +100" line appears in chat, and the item is gone
+- [ ] `$CreateItem 2168` and use it: dignity lands on 100, and the chat line names only the
+      points actually added
+- [ ] Use another one at 100: "Dignity is at maximum." pops up and the item stays
+- [ ] Relog — the restored dignity is still there
+
+### Potions
+
+- [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar
+      rises by 300 and one potion is gone
+- [ ] A Large Recovery Potion (`$CreateItem 1010`) refills both bars, never past their maximum
+- [ ] At full HP a health potion stays in the inventory, even with MP missing
+- [ ] Potions dragged to the quick bar work the same way as from the inventory
+
 ---
 
 ## Regression sweep

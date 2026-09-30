@@ -146,14 +146,20 @@ namespace NosCore.Parser.Parsers
         // its packet documentation states.
         private static List<DignityLevelDto>? BuildDignityLevels(IReadOnlyDictionary<int, string> bands)
         {
-            if (!bands.ContainsKey(FirstDignityKey))
+            if (!bands.TryGetValue(FirstDignityKey, out var defaultBand))
+            {
+                return null;
+            }
+
+            var maximum = ReadDignityMaximum(defaultBand);
+            if (maximum == null)
             {
                 return null;
             }
 
             var levels = new List<DignityLevelDto>(DignityBandCount)
             {
-                new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = null }
+                new() { DignityLevelId = (byte)DignityType.Default, MaxDignity = maximum }
             };
 
             short? previousFloor = null;
@@ -189,6 +195,18 @@ namespace NosCore.Parser.Parsers
             }
 
             return levels;
+        }
+
+        private static short? ReadDignityMaximum(string band)
+        {
+            var numbers = ReadNumbers(band);
+
+            if (numbers?.Count != 2 || numbers[0] > short.MaxValue || numbers[0] <= numbers[1])
+            {
+                return null;
+            }
+
+            return (short)numbers[0];
         }
 
         // Penalty bands are negative, so the magnitudes are negated. The effects text is cut

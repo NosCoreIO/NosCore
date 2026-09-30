@@ -226,13 +226,23 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task DefaultCatchesEverythingAboveTheFirstPenaltyBand()
+        public async Task DefaultTakesTheMaximumTheClientDeclares()
         {
             await ImportAsync();
 
-            // The client declares nothing between -1 and -99, so Default cannot carry a ceiling.
             Assert.AreEqual((byte)DignityType.Default, _dignitySaved[0].DignityLevelId);
-            Assert.IsNull(_dignitySaved[0].MaxDignity);
+            Assert.AreEqual((short)100, _dignitySaved[0].MaxDignity);
+        }
+
+        [TestMethod]
+        public async Task ADefaultBandWithoutAMaximumImportsNoDignity()
+        {
+            var wrong = DignityBands.ToArray();
+            wrong[0] = "none";
+
+            await ImportAsync(dignity: wrong);
+
+            Assert.AreEqual(0, _dignitySaved.Count);
         }
 
         [TestMethod]
