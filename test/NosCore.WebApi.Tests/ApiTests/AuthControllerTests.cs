@@ -79,7 +79,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.ToString(), StringComparison.InvariantCultureIgnoreCase)),
+                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o!.ToString(), StringComparison.InvariantCultureIgnoreCase)),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
