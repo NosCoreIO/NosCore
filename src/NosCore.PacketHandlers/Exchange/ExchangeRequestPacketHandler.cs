@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (!hasTarget || target.ExchangeBlocked)
+                    if (!hasTarget || target.ExchangeBlocked || (target.VisualId == clientSession.Character.VisualId))
                     {
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
@@ -184,7 +184,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     var success = exchangeService.ValidateExchange(clientSession, exchangeTarget);
 
-                    if (success.Item1 == ExchangeResultType.Success)
+                    if (success.Item1 == ExchangeResultType.Failure)
                     {
                         foreach (var infoPacket in success.Item2!)
                         {

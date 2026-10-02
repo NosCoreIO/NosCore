@@ -17,6 +17,7 @@ using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Exchange
@@ -39,10 +40,18 @@ namespace NosCore.PacketHandlers.Exchange
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId), out var target);
 
-            if ((packet.SubPackets!.Count > 0) && hasTarget)
+            // ExcListPacket.SubPackets is a trailing list with no explicit wire count prefix; the
+            // deserializer pads it to a minimum of 3 entries with default(ExcListSubPacket) fillers
+            // regardless of how many real sub-packets were sent. Amount has a declared [Range(1, ...)],
+            // so a filler (Amount == 0) can never be a genuine offer - same phantom-entry shape as
+            // QstlistPacket/FinitPacket, filtered the same way.
+            var realSubPackets = packet.SubPackets?.Where(value => value is { Amount: >= 1 }).ToList()
+                ?? new List<ExcListSubPacket?>();
+
+            if ((realSubPackets.Count > 0) && hasTarget)
             {
                 byte i = 0;
-                foreach (var value in packet.SubPackets)
+                foreach (var value in realSubPackets)
                 {
                     var item = clientSession.Character.InventoryService.LoadBySlotAndType(value!.Slot,
                         (NoscorePocketType)value.PocketType);

@@ -87,6 +87,26 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task RequestingExchangeWithSelfShouldFail()
+        {
+            await new Spec("Requesting exchange with self should fail")
+                .Given(TargetIsSelf)
+                .WhenAsync(RequestingExchangeWithSelf)
+                .Then(ShouldReceiveBlockingTradesMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RequestingExchangeWithSelfShouldNotOpenExchange()
+        {
+            await new Spec("Requesting exchange with self should not open an exchange")
+                .Given(TargetIsSelf)
+                .WhenAsync(RequestingExchangeWithSelf)
+                .Then(NoExchangeShouldBeOpened)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RequestingExchangeWithBlacklistedPlayerShouldFail()
         {
             await new Spec("Requesting exchange with blacklisted player should fail")
@@ -128,6 +148,12 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
+        private void TargetIsSelf()
+        {
+            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
+        }
+
         private void TargetIsBlacklisted()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
@@ -158,6 +184,15 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             {
                 RequestType = RequestExchangeType.Requested,
                 VisualId = TargetSession.Character.VisualId
+            }, Session);
+        }
+
+        private async Task RequestingExchangeWithSelf()
+        {
+            await Handler.ExecuteAsync(new ExchangeRequestPacket
+            {
+                RequestType = RequestExchangeType.Requested,
+                VisualId = Session.Character.VisualId
             }, Session);
         }
 
