@@ -11,6 +11,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Generated;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MateService;
@@ -58,6 +59,7 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<IExchangeRequestRegistry, ExchangeRequestRegistry>();
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
         services.AddSingleton<IMateService, MateService>();
+        services.AddSingleton<IFamilyService, FamilyService>();
 
         // NosCore.DiGenerator emits these registrations at compile time. Lifetime still comes
         // from ISingletonService; a marked class matching no suffix now fails with NOSDI001.

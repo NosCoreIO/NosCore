@@ -577,4 +577,16 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} Skript-Instanzen geladen!</value>
   </data>
+  <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
+    <value>Oberhaupt</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
+    <value>Vertreter</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
+    <value>Verwalter</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
+    <value>Mitglied</value>
+  </data>
 </root>

@@ -552,4 +552,16 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} instances scriptées analysées !</value>
   </data>
+  <data name="FAMILY_AUTHORITY_HEAD" xml:space="preserve">
+    <value>Tête</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_ASSISTANT" xml:space="preserve">
+    <value>Assistant</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MANAGER" xml:space="preserve">
+    <value>Gardien</value>
+  </data>
+  <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
+    <value>Membre</value>
+  </data>
 </root>
