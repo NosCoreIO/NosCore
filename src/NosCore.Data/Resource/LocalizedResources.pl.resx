@@ -504,4 +504,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>Wczytano {0} instancji skryptowanych!</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Twój poziom nie pozwala ci wejść do tego time-space'a.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Ten time-space nie jest jeszcze dostępny.</value>
+  </data>
 </root>

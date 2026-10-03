@@ -552,4 +552,10 @@
   <data name="TIMESPACES_PARSED" xml:space="preserve">
     <value>{0} instances scriptées analysées !</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Votre niveau ne vous permet pas d'entrer dans ce time-space.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Ce time-space n'est pas encore disponible.</value>
+  </data>
 </root>
