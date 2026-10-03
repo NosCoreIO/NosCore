@@ -211,6 +211,11 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
         }
     }
 
+    // Uniform integer in [0, exclusiveUpperBound) for operations that need to roll more than the
+    // single success check the skeleton performs.
+    protected int Roll(int exclusiveUpperBound) =>
+        Math.Min((int)(random.NextDouble() * exclusiveUpperBound), exclusiveUpperBound - 1);
+
     protected virtual SayiPacket BuildSay(ClientSession session, UpgradeContext ctx,
         UpgradeOutcome outcome, Game18NConstString message) => new()
     {
