@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Persistence;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -27,7 +28,8 @@ namespace NosCore.GameObject.Services.SaveService
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
             IDao<RespawnDto, long> respawnDao, ILogger<SaveService> logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IDaoTransactionScope daoTransactionScope)
         : ISaveService
     {
         public async Task SaveAsync(ClientSession session)
@@ -67,62 +69,112 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
                 characterDto.CurrentScriptId = character.CurrentScriptId;
 
-                await accountDao.TryInsertOrUpdateAsync(account);
-                await characterDao.TryInsertOrUpdateAsync(characterDto);
+                // Every DAO call below shares this scope's transaction: the DAOs swallow
+                // their own exceptions and report failure through their return value, so
+                // each result is checked and the commit only happens when all of them
+                // succeeded. Returning early rolls the whole save back.
+                void Fail(string operation)
+                {
+                    logger.LogError(
+                        new InvalidOperationException($"{operation} failed; character save rolled back."),
+                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                }
+
+                await using var transaction = daoTransactionScope.Begin();
+
+                if (await accountDao.TryInsertOrUpdateAsync(account) == null)
+                {
+                    Fail("Account upsert");
+                    return;
+                }
+
+                if (await characterDao.TryInsertOrUpdateAsync(characterDto) == null)
+                {
+                    Fail("Character upsert");
+                    return;
+                }
 
                 var quicklistEntriesToDelete = quicklistEntriesDao
                         .Where(i => i.CharacterId == characterId)!.ToList()
                     .Where(i => quicklistEntries.All(o => o.Id != i.Id)).ToList();
-                await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray());
-                await quicklistEntriesDao.TryInsertOrUpdateAsync(quicklistEntries);
+                if (await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray()) == null)
+                {
+                    Fail("QuicklistEntry delete");
+                    return;
+                }
+                if (!await quicklistEntriesDao.TryInsertOrUpdateAsync(quicklistEntries))
+                {
+                    Fail("QuicklistEntry upsert");
+                    return;
+                }
 
                 var itemsToDelete = inventoryItemInstanceDao
                         .Where(i => i.CharacterId == characterId)!.ToList()
                     .Where(i => inventoryService.Values.All(o => o.Id != i.Id)).ToList();
 
                 // Inventory delete order: child rows first, then parent ItemInstance rows.
-                await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray());
-                await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray());
-
-                // Inventory insert order: parent ItemInstance rows first so the FK on
-                // InventoryItemInstance.ItemInstanceId resolves on insert. The DAO swallows
-                // exceptions and returns false on failure, so we MUST check the result —
-                // otherwise a silent failure on the ItemInstance insert cascades into a
-                // confusing FK-violation error on the InventoryItemInstance insert that
-                // follows. Skipping the child insert keeps the failure mode loud and
-                // localized to the actual broken layer.
-                var itemInstancesSaved = await itemInstanceDao
-                    .TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray());
-                if (!itemInstancesSaved)
+                if (await inventoryItemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.Id).ToArray()) == null)
                 {
-                    logger.LogError(
-                        new InvalidOperationException("ItemInstance batch insert failed; skipping InventoryItemInstance to avoid FK cascade."),
-                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], session.Character.CharacterId);
+                    Fail("InventoryItemInstance delete");
                     return;
                 }
-                await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray());
+                if (await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()) == null)
+                {
+                    Fail("ItemInstance delete");
+                    return;
+                }
+
+                // Inventory insert order: parent ItemInstance rows first so the FK on
+                // InventoryItemInstance.ItemInstanceId resolves on insert.
+                if (!await itemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.Select(s => s.ItemInstance).ToArray()))
+                {
+                    Fail("ItemInstance upsert");
+                    return;
+                }
+                if (!await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray()))
+                {
+                    Fail("InventoryItemInstance upsert");
+                    return;
+                }
 
                 var staticBonusToDelete = staticBonusDao
                         .Where(i => i.CharacterId == characterId)!.ToList()
                     .Where(i => staticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
-                await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId));
-                await staticBonusDao.TryInsertOrUpdateAsync(staticBonusList);
+                if (await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId)) == null)
+                {
+                    Fail("StaticBonus delete");
+                    return;
+                }
+                if (!await staticBonusDao.TryInsertOrUpdateAsync(staticBonusList))
+                {
+                    Fail("StaticBonus upsert");
+                    return;
+                }
 
-                await titleDao.TryInsertOrUpdateAsync(titles);
+                if (!await titleDao.TryInsertOrUpdateAsync(titles))
+                {
+                    Fail("Title upsert");
+                    return;
+                }
 
                 var minilandDto = (MinilandDto)minilandProvider.GetMiniland(characterId);
-                await minilandDao.TryInsertOrUpdateAsync(minilandDto);
+                if (await minilandDao.TryInsertOrUpdateAsync(minilandDto) == null)
+                {
+                    Fail("Miniland upsert");
+                    return;
+                }
 
                 var questsToDelete = characterQuestDao
                         .Where(i => i.CharacterId == characterId)!.ToList()
                     .Where(i => quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
-                await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id));
-                var questsSaved = await characterQuestDao.TryInsertOrUpdateAsync(quests.Values);
-                if (!questsSaved)
+                if (await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id)) == null)
                 {
-                    logger.LogError(
-                        new InvalidOperationException("CharacterQuest upsert failed; skipping objective upsert to avoid FK cascade."),
-                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    Fail("CharacterQuest delete");
+                    return;
+                }
+                if (!await characterQuestDao.TryInsertOrUpdateAsync(quests.Values))
+                {
+                    Fail("CharacterQuest upsert");
                     return;
                 }
 
@@ -151,24 +203,24 @@ namespace NosCore.GameObject.Services.SaveService
                         live.Id = match.Id;
                     }
                 }
-                var objectivesDeleted = await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete);
-                if (objectivesDeleted == null)
+                if (await characterQuestObjectiveDao.TryDeleteAsync(objectivesToDelete) == null)
                 {
-                    logger.LogError(
-                        new InvalidOperationException("CharacterQuestObjective delete failed; skipping objective upsert to avoid orphaned-row conflicts on next save."),
-                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    Fail("CharacterQuestObjective delete");
                     return;
                 }
-                var objectivesSaved = await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives);
-                if (!objectivesSaved)
+                if (!await characterQuestObjectiveDao.TryInsertOrUpdateAsync(liveObjectives))
                 {
-                    logger.LogError(
-                        new InvalidOperationException("CharacterQuestObjective upsert failed; quest progress will reset on reconnect."),
-                        logLanguage[LogLanguageKey.SAVE_CHARACTER_FAILED], characterId);
+                    Fail("CharacterQuestObjective upsert");
                     return;
                 }
 
-                await respawnDao.TryInsertOrUpdateAsync(character.Respawns);
+                if (!await respawnDao.TryInsertOrUpdateAsync(character.Respawns))
+                {
+                    Fail("Respawn upsert");
+                    return;
+                }
+
+                await transaction.CommitAsync();
             }
             catch (Exception e)
             {
