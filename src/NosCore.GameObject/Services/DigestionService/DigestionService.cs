@@ -25,6 +25,7 @@ public sealed class DigestionService(
     ILogger<DigestionService> logger) : IDigestionService, ISingletonService
 {
     public const int FoodCap = 600;
+    public const int EatEffect = 6000;
     public static readonly Duration TickInterval = Duration.FromSeconds(2);
 
     public async Task TickAsync(MapInstance mapInstance)

@@ -24,7 +24,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     {
         // Not a ceiling on a tick: it only turns away another snack while earlier ones still digest.
         public const int SnackLimit = 300;
-        public const int EatEffect = 6000;
 
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -74,7 +73,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(EatEffect));
+            await character.MapInstance.SendPacketAsync(character.GenerateEff(DigestionService.EatEffect));
             var itemInstance = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
