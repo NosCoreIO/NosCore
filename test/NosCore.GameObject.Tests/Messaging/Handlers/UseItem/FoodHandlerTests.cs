@@ -92,6 +92,31 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task ALoneBigFoodIsNotFull()
+        {
+            await new Spec("With nothing digesting, a single 5000-HP food is eaten without the full message")
+                .Given(A_Restoring_Hp_Mp, ItemType.Food, 5000, 2000)
+                .And(TheCharacterIsSitting)
+                .WhenAsync(EatingIt)
+                .Then(ItemCountShouldBe_, 0)
+                .And(NoFullMessageShouldBeSaid)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EatingWhileDigestingKeepsTheTickRhythm()
+        {
+            await new Spec("A second meal does not push back the next tick of the first")
+                .Given(A_Restoring_Hp_Mp, ItemType.Food, 700, 700)
+                .And(TheCharacterIsSitting)
+                .And(_FoodsOf_PerTickAreDigesting, 1, 140)
+                .And(TheLastTickWas_SecondsAgo, 1)
+                .WhenAsync(EatingIt)
+                .Then(TheLastTickShouldStillBe_SecondsAgo, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ADeadCharacterCannotEat()
         {
             await new Spec("A dead character's food is kept")
@@ -200,6 +225,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void TheFoodScheduleShouldNextHeal_(int perTick) =>
             Assert.AreEqual((perTick, perTick), _session.Character.Digestion.Food.Tick());
+
+        private void NoFullMessageShouldBeSaid() =>
+            Assert.IsFalse(_session.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.IAmFull));
+
+        private void TheLastTickWas_SecondsAgo(int seconds) =>
+            _session.Character.Digestion.LastTick =
+                TestHelpers.Instance.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds);
+
+        private void TheLastTickShouldStillBe_SecondsAgo(int seconds) =>
+            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds),
+                _session.Character.Digestion.LastTick);
 
         private void TheFullMessageShouldBeSaid()
         {

@@ -67,6 +67,32 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         }
 
         [TestMethod]
+        public async Task AFoodTickNeverHealsMoreThanSixHundred()
+        {
+            await new Spec("However much food is digesting, one tick heals at most 600")
+                .Given(CharacterHasMaximum_Hp, 5000)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .And(FoodOwes_Hp_MpPerTick, 700, 0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(TheMapTicks)
+                .Then(HpShouldBe_, 700)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ABigSnackTickIsNotCapped()
+        {
+            await new Spec("A snack tick heals its full amount, even above 600")
+                .Given(CharacterHasMaximum_Hp, 5000)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .And(SnackOwes_Hp_MpPerTick, 1000, 0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(TheMapTicks)
+                .Then(HpShouldBe_, 1100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task HealingStopsAtTheMaximum()
         {
             await new Spec("A tick never lifts HP past the maximum, and rc shows what actually healed")
@@ -140,6 +166,8 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
             _session.Character.Hp = hp;
             _session.Character.Mp = mp;
         }
+
+        private void CharacterHasMaximum_Hp(int maxHp) => _session.Character.MaxHp = maxHp;
 
         private void FoodOwes_Hp_MpPerTick(int hp, int mp) => _digestion.Food.Add(hp, mp);
 

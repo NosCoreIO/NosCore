@@ -155,6 +155,9 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Standing, use a Roasted Herring (`$CreateItem 2017`): the character sits down, the eat
       effect plays, and five green heal numbers of 140 appear two seconds apart
 - [ ] Eat one and stand up after the first green number: the rest of the healing stops
+- [ ] Eat one and click to walk away instead: the healing stops as well
+- [ ] With nothing digesting, eat one Owlbear Steak (`$CreateItem 2472`): no "I'm full.", and its
+      ticks heal 600 each
 - [ ] Sitting, eat five in a row: the fifth says "I'm full." and is still used up, and no green
       number goes above 600
 - [ ] Use Fried Chicken (`$CreateItem 2027`) while standing or fighting: it heals over five ticks
@@ -190,3 +193,5 @@ Recorded so nobody spends time hunting for them:
   yet, so neither the corrected curve nor the flattened packet field has a path to the
   client.
 - **Mates and instances** — same, still open.
+- **Food and snacks in a miniland** — minilands are created after start-up and never get a
+  life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.

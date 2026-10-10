@@ -34,9 +34,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
+            // Set rather than toggled: two meals handled at once must not stand the character back up.
             if (!character.IsSitting)
             {
-                await character.RestAsync();
+                character.IsSitting = true;
+                await character.MapInstance.SendPacketAsync(character.GenerateRest());
             }
 
             await character.MapInstance.SendPacketAsync(character.GenerateEff(DigestionService.EatEffect));
@@ -52,7 +54,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await state.Lock.WaitAsync();
             try
             {
-                full = state.Food.WouldExceed(hpPerTick, mpPerTick, DigestionService.FoodCap);
+                full = !state.Food.IsEmpty && state.Food.WouldExceed(hpPerTick, mpPerTick, DigestionService.FoodCap);
                 if (state.Food.IsEmpty && state.Snack.IsEmpty)
                 {
                     state.LastTick = clock.GetCurrentInstant();
