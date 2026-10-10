@@ -67,6 +67,34 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         }
 
         [TestMethod]
+        public async Task ALateTickDoesNotPushBackTheNextOne()
+        {
+            await new Spec("The map loop picks a tick up 400 ms late; the next is still due two seconds after the first was")
+                .Given(CharacterHas_Hp_Mp, 100, 100)
+                .And(FoodOwes_Hp_MpPerTick, 140, 0)
+                .And(_MillisecondsPass, 2400)
+                .AndAsync(TheMapTicks)
+                .And(_MillisecondsPass, 1600)
+                .WhenAsync(TheMapTicks)
+                .Then(HpShouldBe_, 380)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TicksDoNotBunchUpAfterAStall()
+        {
+            await new Spec("After a long stall one tick lands, and the next waits the full two seconds")
+                .Given(CharacterHas_Hp_Mp, 100, 100)
+                .And(FoodOwes_Hp_MpPerTick, 140, 0)
+                .And(_MillisecondsPass, 10000)
+                .AndAsync(TheMapTicks)
+                .And(_MillisecondsPass, 400)
+                .WhenAsync(TheMapTicks)
+                .Then(HpShouldBe_, 240)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AFoodTickNeverHealsMoreThanSixHundred()
         {
             await new Spec("However much food is digesting, one tick heals at most 600")
@@ -174,6 +202,9 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         private void SnackOwes_Hp_MpPerTick(int hp, int mp) => _digestion.Snack.Add(hp, mp);
 
         private void _SecondsPass(int seconds) => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(seconds));
+
+        private void _MillisecondsPass(int milliseconds) =>
+            TestHelpers.Instance.Clock.Advance(Duration.FromMilliseconds(milliseconds));
 
         private void TheCharacterStandsUp() => _session.Character.IsSitting = false;
 

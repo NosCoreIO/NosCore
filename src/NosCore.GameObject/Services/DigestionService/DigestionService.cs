@@ -77,7 +77,9 @@ public sealed class DigestionService(
 
             food = state.Food.Tick(FoodCap);
             snack = state.Snack.Tick();
-            state.LastTick = now;
+            // Stepping by the interval keeps a two second rhythm on a 400 ms map loop; after a
+            // stall it restarts from now so the missed ticks do not land all at once.
+            state.LastTick = now - state.LastTick < TickInterval * 2 ? state.LastTick + TickInterval : now;
         }
         finally
         {
