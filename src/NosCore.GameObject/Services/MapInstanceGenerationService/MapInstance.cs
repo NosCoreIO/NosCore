@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -16,6 +16,7 @@ using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.DigestionService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
@@ -66,6 +67,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IRegenerationService? _regenerationService;
         private readonly IBattleService? _battleService;
         private readonly IVitalityService? _vitalityService;
+        private readonly IDigestionService? _digestionService;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
 
         public MapWorld EcsWorld { get; }
@@ -74,7 +76,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
-            IBattleService? battleService = null, IVitalityService? vitalityService = null)
+            IBattleService? battleService = null, IVitalityService? vitalityService = null,
+            IDigestionService? digestionService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -101,6 +104,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _regenerationService = regenerationService;
             _battleService = battleService;
             _vitalityService = vitalityService;
+            _digestionService = digestionService;
             EcsWorld = new MapWorld();
         }
 
@@ -480,6 +484,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     if (_regenerationService != null)
                     {
                         await _regenerationService.TickAsync(this).ConfigureAwait(false);
+                    }
+
+                    if (_digestionService != null)
+                    {
+                        await _digestionService.TickAsync(this);
                     }
 
                     if (_battleService != null)
