@@ -9,6 +9,7 @@ using Moq;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
@@ -108,6 +109,32 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 .WhenAsync(ChangingToMinilandInstance)
                 .Then(CharacterMapIdShouldBe_, (short)42)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WhatIsBeingDigestedSurvivesAMapChange()
+        {
+            await new Spec("The digestion state moves with the character to the new map")
+                .Given(CharacterIsOnMap)
+                .And(TheCharacterIsDigesting)
+                .WhenAsync(ChangingToBaseMap1)
+                .Then(TheSameDigestionStateShouldStillBeAttached)
+                .ExecuteAsync();
+        }
+
+        private DigestionState _digestion = null!;
+
+        private void TheCharacterIsDigesting()
+        {
+            _digestion = Session.Character.Digestion;
+            Assert.IsNotNull(_digestion);
+            _digestion.Snack.Add(50, 50);
+        }
+
+        private void TheSameDigestionStateShouldStillBeAttached()
+        {
+            Assert.AreSame(_digestion, Session.Character.Digestion);
+            Assert.IsFalse(Session.Character.Digestion.Snack.IsEmpty);
         }
 
         private void CharacterMapIdIsPinnedTo_(short mapId)
