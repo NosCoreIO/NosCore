@@ -148,6 +148,22 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] At full HP a health potion stays in the inventory, even with MP missing
 - [ ] Potions dragged to the quick bar work the same way as from the inventory
 
+### Food and snacks
+
+Lose some HP first, otherwise there is nothing to watch.
+
+- [ ] Standing, use a Roasted Herring (`$CreateItem 2017`): the character sits down, the eat
+      effect plays, and five green heal numbers of 140 appear two seconds apart
+- [ ] Eat one and stand up after the first green number: the rest of the healing stops
+- [ ] Sitting, eat five in a row: the fifth says "I'm full." and is still used up, and no green
+      number goes above 600
+- [ ] Use Fried Chicken (`$CreateItem 2027`) while standing or fighting: it heals over five ticks
+      without sitting, and keeps healing when a monster hits you
+- [ ] Eat six Fried Chicken in a row: the sixth shows "I'm feeling sick..." in chat and stays in
+      the inventory
+- [ ] Food and a snack eaten together both heal
+- [ ] At full HP, food and snacks are still used up
+
 ---
 
 ## Regression sweep
