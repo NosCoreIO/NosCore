@@ -6,7 +6,6 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -26,8 +25,6 @@ namespace NosCore.PacketHandlers.Movement
         {
             return Task.WhenAll(sitpacket.Users!.Select(u =>
             {
-                IAliveEntity entity;
-
                 switch (u!.VisualType)
                 {
                     case VisualType.Player:
@@ -42,15 +39,12 @@ namespace NosCore.PacketHandlers.Movement
                                 clientSession.Character, sitpacket);
                             return Task.CompletedTask;
                         }
-                        entity = player;
-                        break;
+                        return player.RestAsync();
                     default:
                         logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
                             u.VisualType);
                         return Task.CompletedTask;
                 }
-
-                return entity.RestAsync();
             }));
         }
     }

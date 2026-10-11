@@ -125,6 +125,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var social = oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default;
                 var requests = oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default;
                 var mates = oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default;
+                var digestion = oldWorld.TryGetComponent<DigestionComponent>(oldEntity)
+                    ?? new DigestionComponent(new DigestionState());
 
                 if (session.Channel?.Id != null)
                 {
@@ -167,7 +169,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                     inventory,
                     social,
                     requests,
-                    mates);
+                    mates,
+                    digestion);
 
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;

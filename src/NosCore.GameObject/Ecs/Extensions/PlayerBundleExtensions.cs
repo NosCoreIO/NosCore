@@ -69,6 +69,22 @@ public static class PlayerBundleExtensions
     public static async Task RestAsync(this PlayerComponentBundle player)
     {
         player.IsSitting = !player.IsSitting;
+        if (!player.IsSitting)
+        {
+            // Cleared here as well as on the tick, or standing and sitting back down within one
+            // tick would keep the meal.
+            var digestion = player.Digestion;
+            await digestion.Lock.WaitAsync();
+            try
+            {
+                digestion.Food.Clear();
+            }
+            finally
+            {
+                digestion.Lock.Release();
+            }
+        }
+
         await player.MapInstance.SendPacketAsync(player.GenerateRest());
     }
 

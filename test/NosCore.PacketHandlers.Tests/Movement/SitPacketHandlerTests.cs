@@ -83,6 +83,30 @@ namespace NosCore.PacketHandlers.Tests.Movement
         }
 
         [TestMethod]
+        public async Task StandingUpThrowsAwayTheMealAtOnce()
+        {
+            await new Spec("Standing up empties the food schedule, so sitting back down before the next tick keeps nothing")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsSittingWithFoodDigesting)
+                .WhenAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, false)
+                .And(NoFoodShouldBeDigesting)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SittingDownKeepsTheMeal()
+        {
+            await new Spec("Only standing up throws food away")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsStandingWithFoodDigesting)
+                .WhenAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, true)
+                .And(FoodShouldStillBeDigesting)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AttemptingToSitAnotherPlayerDoesNotFlipTheirState()
         {
             await new Spec("A sit packet targeting a different player's VisualId does not flip their sit state")
@@ -111,6 +135,22 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             Session.Character.IsSitting = false;
         }
+
+        private void CharacterIsSittingWithFoodDigesting()
+        {
+            Session.Character.IsSitting = true;
+            Session.Character.Digestion.Food.Add(140, 0);
+        }
+
+        private void CharacterIsStandingWithFoodDigesting()
+        {
+            Session.Character.IsSitting = false;
+            Session.Character.Digestion.Food.Add(140, 0);
+        }
+
+        private void NoFoodShouldBeDigesting() => Assert.IsTrue(Session.Character.Digestion.Food.IsEmpty);
+
+        private void FoodShouldStillBeDigesting() => Assert.IsFalse(Session.Character.Digestion.Food.IsEmpty);
 
         private void OtherPlayerIsStanding()
         {
