@@ -155,7 +155,6 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Standing, use a Roasted Herring (`$CreateItem 2017`): the character sits down, the eat
       effect plays, and five green heal numbers of 140 appear two seconds apart
 - [ ] Eat one and stand up after the first green number: the rest of the healing stops
-- [ ] Eat one and click to walk away instead: the healing stops as well
 - [ ] With nothing digesting, eat one Owlbear Steak (`$CreateItem 2472`): no "I'm full.", and its
       ticks heal 600 each
 - [ ] Sitting, eat five in a row: the fifth says "I'm full." and is still used up, and no green
