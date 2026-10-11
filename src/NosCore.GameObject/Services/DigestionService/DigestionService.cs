@@ -34,12 +34,17 @@ public sealed class DigestionService(
         {
             foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
             {
-                if (!session.HasPlayerEntity)
+                try
                 {
-                    continue;
+                    if (session.HasPlayerEntity)
+                    {
+                        await TickPlayerAsync(session.Character);
+                    }
                 }
-
-                await TickPlayerAsync(session.Character);
+                catch (Exception ex)
+                {
+                    logger.LogWarning(ex, "Digestion tick failed for session {SessionId}", session.SessionId);
+                }
             }
         }
         catch (Exception ex)
