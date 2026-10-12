@@ -9,10 +9,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
@@ -84,7 +84,7 @@ namespace NosCore.WebApi.Controllers
             {
                 Subject = claims,
                 Issuer = "Issuer",
-                Audience = "Audience",
+                Audience = JwtAudience.Player,
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
             logger.LogInformation(logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
@@ -115,25 +115,6 @@ namespace NosCore.WebApi.Controllers
                 identity.Claims.First(s => s.Type == ClaimTypes.NameIdentifier).Value);
 
             return Ok(new { code = authCode });
-        }
-
-
-        [HttpPost]
-        public IActionResult SetExpectingConnection([FromBody] AuthIntent intent)
-        {
-            if (intent == null!)
-            {
-                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
-            }
-
-            authHub.SetAwaitingConnectionAsync(intent.SessionId, intent.AccountName);
-            return Ok();
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetExpectingConnection(string? id, string? token, int sessionId)
-        {
-            return Ok(await authHub.GetAwaitingConnectionAsync(id, token, sessionId));
         }
 
         [HttpGet("MfaEnabled")]

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NosCore.Core;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
@@ -23,28 +24,27 @@ public class HubConnectionFactory(IOptions<ServerConfiguration> serverConfigurat
 {
     public HubConnection Create(string name)
     {
-        var claims = new ClaimsIdentity(new[]
-        {
-            new Claim(ClaimTypes.NameIdentifier, serverConfiguration.Value.ToString()),
-            new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
-        });
         var password = hasher.Hash(configuration.Value.Password!, configuration.Value.Salt);
-
-        var keyByteArray = Encoding.Default.GetBytes(password);
-        var signinKey = new SymmetricSecurityKey(keyByteArray);
+        var signinKey = new SymmetricSecurityKey(Encoding.Default.GetBytes(password));
         var handler = new JwtSecurityTokenHandler();
-        var securityToken = handler.CreateToken(new SecurityTokenDescriptor
+
+        string CreateToken() => handler.WriteToken(handler.CreateToken(new SecurityTokenDescriptor
         {
-            Subject = claims,
+            Subject = new ClaimsIdentity(new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, serverConfiguration.Value.ToString()),
+                new Claim(ClaimTypes.Role, nameof(AuthorityType.Root))
+            }),
             Issuer = "Issuer",
-            Audience = "Audience",
+            Audience = JwtAudience.Service,
             SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
-        });
+        }));
+
         return new HubConnectionBuilder()
             .WithAutomaticReconnect()
             .WithUrl($"{configuration.Value}/{name}", options =>
             {
-                options.AccessTokenProvider = () => Task.FromResult((string?)handler.WriteToken(securityToken));
+                options.AccessTokenProvider = () => Task.FromResult<string?>(CreateToken());
             })
             .AddJsonProtocol(options =>
             {

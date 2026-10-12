@@ -51,7 +51,7 @@ namespace NosCore.WebApi
             builder.Services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(ApiConfiguration.MasterCommunication))).ValidateDataAnnotations();
             builder.Services.AddI18NLogs();
 
-            builder.Services.ConfigureOptions<NosCore.Core.ConfigureJwtBearerOptions>();
+            builder.Services.ConfigureOptions<NosCore.Core.ConfigurePlayerJwtBearerOptions>();
             builder.Services.AddAuthentication(c => c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             builder.Services.AddAuthorization();
 

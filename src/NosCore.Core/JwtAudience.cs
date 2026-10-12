@@ -4,11 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-namespace NosCore.Data.WebApi
+namespace NosCore.Core
 {
-    public class AuthIntent
+    public static class JwtAudience
     {
-        public long SessionId { get; set; }
-        public string AccountName { get; set; } = null!;
+        public const string Player = "Audience";
+        public const string Service = "NosCore.Services";
     }
 }
