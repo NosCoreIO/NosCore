@@ -16,6 +16,8 @@
     <PackageReference Include="NosCore.Algorithm" />
     <PackageReference Include="System.Reactive" />
     <PackageReference Include="WolverineFx" />
+    <PackageReference Include="WolverineFx.Postgresql" />
+    <PackageReference Include="WolverineFx.RabbitMQ" />
     <PackageReference Include="WolverineFx.RuntimeCompilation" />
   </ItemGroup>
 

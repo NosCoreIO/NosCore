@@ -6,23 +6,21 @@
 
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
 {
-    public class WarehouseHubClient(HubConnectionFactory hubConnectionFactory, ILogger<WarehouseHubClient> logger)
-        : BaseHubClient(hubConnectionFactory, nameof(WarehouseHub), logger), IWarehouseHub
+    public class WarehouseHubClient(IMessageBus bus) : IWarehouseHub
     {
         public Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot) =>
-            InvokeAsync<List<WarehouseLink>>(nameof(GetWarehouseItems), id, ownerId, warehouseType, slot);
+            bus.RequestAsync<List<WarehouseLink>>(new GetWarehouseItemsRequest(id, ownerId, warehouseType, slot));
 
-        public Task<bool> DeleteWarehouseItemAsync(Guid id) =>
-            InvokeAsync<bool>(nameof(DeleteWarehouseItemAsync), id);
+        public Task<bool> DeleteWarehouseItemAsync(Guid id) => bus.RequestAsync<bool>(new DeleteWarehouseItemRequest(id));
 
         public Task<bool> AddWarehouseItemAsync(WareHouseDepositRequest depositRequest) =>
-            InvokeAsync<bool>(nameof(AddWarehouseItemAsync), depositRequest);
+            bus.RequestAsync<bool>(new AddWarehouseItemRequest(depositRequest));
     }
 }

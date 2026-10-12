@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Services.BazaarService
             IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock)
         : IBazaarService
     {
-        // Channels reach these through BazaarHub, and SignalR dispatches calls concurrently, so
+        // Channels reach these through BazaarHub, and its message handlers run concurrently, so
         // read-check-write on a listing is a lost update waiting to happen. One lock per listing
         // rather than one for the bazaar, so unrelated trades still run in parallel.
         private static readonly ConcurrentDictionary<long, AsyncLock> Claims = new();

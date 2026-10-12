@@ -33,6 +33,7 @@ using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
 using NosCore.Networking;
@@ -104,7 +105,6 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<SpamRequestFilter>().SingleInstance().AsImplementedInterfaces();
 
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
-            containerBuilder.RegisterType<HubConnectionFactory>();
             containerBuilder.RegisterType<LoginService>().AsImplementedInterfaces();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<PubSubHubClient>().AsImplementedInterfaces();
@@ -158,8 +158,12 @@ namespace NosCore.LoginServer
 
         private static IHost BuildHost(string[] args)
         {
+            var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "login.yml" });
+            var server = configuration.Get<ServerConfiguration>()!;
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
+                .UseNosCoreWolverine(configuration, InterChannelNode.For("NosCore.LoginServer", "login", server.Host, server.Port),
+                    opts => opts.Discovery.DisableConventionalDiscovery())
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>

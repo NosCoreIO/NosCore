@@ -14,7 +14,7 @@ using System.Text;
 
 namespace NosCore.Core
 {
-    public abstract class ConfigureJwtBearerOptions(IOptions<WebApiConfiguration> webApiConfiguration, IHasher hasher, string audience)
+    public class ConfigureJwtBearerOptions(IOptions<WebApiConfiguration> webApiConfiguration, IHasher hasher)
         : IConfigureNamedOptions<JwtBearerOptions>
     {
         public void Configure(string? name, JwtBearerOptions options)
@@ -33,7 +33,7 @@ namespace NosCore.Core
                 {
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.Default.GetBytes(password)),
-                    ValidAudience = audience,
+                    ValidAudience = "Audience",
                     ValidIssuer = "Issuer",
                     ValidateIssuerSigningKey = true,
                     ValidateLifetime = true

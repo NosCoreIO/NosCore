@@ -29,6 +29,10 @@ Database:
   Database: noscore
   Username: ${DB_USER,postgres}
   Password: ${DB_PASSWORD,password}
+Messaging:
+  Transport: ${MESSAGING_TRANSPORT,Postgresql}
+  PollingIntervalMs: 20
+  RabbitMqUri: ${RABBITMQ_URI,amqp://guest:guest@localhost:5672}
 BackpackSize: 48
 MaxItemAmount: 999
 MaxGoldAmount: 1000000000

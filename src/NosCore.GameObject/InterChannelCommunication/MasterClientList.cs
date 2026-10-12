@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Core;
 using NosCore.Data.WebApi;
 using System.Collections.Concurrent;
@@ -14,6 +15,7 @@ public class MasterClientList
 {
     public readonly ConcurrentDictionary<string, ChannelInfo> Channels = new();
     public readonly ConcurrentDictionary<string, ConcurrentDictionary<long, Subscriber>> ConnectedAccounts = new();
+    public readonly ConcurrentDictionary<string, Instant> LastSeen = new();
 
     public int ConnectionCounter { get; set; }
     public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new();

@@ -4,58 +4,80 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Messages;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Wolverine;
+using IMessage = NosCore.GameObject.InterChannelCommunication.Messages.IMessage;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 {
-    public class PubSubHub(MasterClientList masterClientList)
-        : Hub, IPubSubHub
+    public class PubSubHub(MasterClientList masterClientList, IMessageBus bus, MessagingConfiguration messaging)
+        : IPubSubHub
     {
-        public async Task<bool> SendMessageAsync(IMessage message)
-        {
-            await Clients.Others.SendAsync("ReceiveMessage", message);
-            return true;
-        }
+        public Task<bool> SendMessageAsync(IMessage message) => SendMessagesAsync([message]);
 
-        public async Task<bool> SendMessagesAsync(List<IMessage> messages)
-        {
-            foreach (var message in messages)
-            {
-                await Clients.Others.SendAsync("ReceiveMessage", message);
-            }
-            return true;
-        }
+        public Task<bool> SendMessagesAsync(List<IMessage> messages) => BroadcastAsync(messages, null);
 
         public Task<List<Subscriber>> GetSubscribersAsync()
         {
             return Task.FromResult(masterClientList.ConnectedAccounts.SelectMany(x => x.Value.Values).ToList());
         }
 
-        public Task<bool> SubscribeAsync(Subscriber subscriber)
+        public Task<bool> SubscribeAsync(Subscriber subscriber) =>
+            throw new InvalidOperationException("The master server is not a channel");
+
+        public Task<bool> UnsubscribeAsync(long id) =>
+            throw new InvalidOperationException("The master server is not a channel");
+
+        public bool Subscribe(string channelKey, Subscriber subscriber)
         {
-            if (!masterClientList.ConnectedAccounts.ContainsKey(Context.UserIdentifier ?? throw new InvalidOperationException())
-                || !masterClientList.Channels.ContainsKey(Context.UserIdentifier ?? throw new InvalidOperationException()))
+            if (!masterClientList.ConnectedAccounts.TryGetValue(channelKey, out var accounts)
+                || !masterClientList.Channels.TryGetValue(channelKey, out var channel))
             {
-                return Task.FromResult(false);
+                return false;
             }
-            subscriber.ChannelId = masterClientList.Channels[Context.UserIdentifier].Id;
-            masterClientList.ConnectedAccounts[Context.UserIdentifier].AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
-            return Task.FromResult(true);
+
+            subscriber.ChannelId = channel.Id;
+            accounts.AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
+            return true;
         }
 
-        public Task<bool> UnsubscribeAsync(long id)
+        public bool Unsubscribe(string channelKey, long id) =>
+            masterClientList.ConnectedAccounts.TryGetValue(channelKey, out var accounts)
+            && accounts.TryRemove(id, out _);
+
+        public static async Task<Reply<bool>> Handle(PublishMessagesRequest request, IServiceProvider services) =>
+            new(await services.GetRequiredService<PubSubHub>().BroadcastAsync(request.Messages, request.ChannelKey));
+
+        public static async Task<Reply<List<Subscriber>>> Handle(GetSubscribersRequest _, IServiceProvider services) =>
+            new(await services.GetRequiredService<PubSubHub>().GetSubscribersAsync());
+
+        public static Reply<bool> Handle(SubscribeRequest request, IServiceProvider services) =>
+            new(services.GetRequiredService<PubSubHub>().Subscribe(request.ChannelKey, request.Subscriber));
+
+        public static Reply<bool> Handle(UnsubscribeRequest request, IServiceProvider services) =>
+            new(services.GetRequiredService<PubSubHub>().Unsubscribe(request.ChannelKey, request.Id));
+
+        private async Task<bool> BroadcastAsync(List<IMessage> messages, string? senderChannelKey)
         {
-            if (!masterClientList.ConnectedAccounts.ContainsKey(Context.UserIdentifier ?? throw new InvalidOperationException()))
+            var recipients = masterClientList.Channels
+                .Where(c => c.Key != senderChannelKey && c.Value.Type == ServerType.WorldServer)
+                .Select(c => c.Key);
+            foreach (var channelKey in recipients)
             {
-                return Task.FromResult(false);
+                var endpoint = bus.EndpointFor(messaging.QueueUri(channelKey));
+                foreach (var message in messages)
+                {
+                    await endpoint.SendAsync(new ChannelMessage(message));
+                }
             }
-            return Task.FromResult(masterClientList.ConnectedAccounts[Context.UserIdentifier].TryRemove(id, out _));
+
+            return true;
         }
     }
 }

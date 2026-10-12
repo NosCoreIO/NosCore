@@ -4,94 +4,29 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.AspNetCore.SignalR.Client;
-using System;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
-    public class AuthHubClient(HubConnectionFactory hubConnectionFactory) : IAuthHub, IAsyncDisposable
+    public class AuthHubClient(IMessageBus bus) : IAuthHub
     {
-        private readonly HubConnection _hubConnection = hubConnectionFactory.Create(nameof(AuthHub));
+        public Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId) =>
+            bus.RequestAsync<string?>(new GetAwaitingConnectionRequest(name, packetPassword, clientSessionSessionId));
 
-        public ValueTask DisposeAsync() => _hubConnection.DisposeAsync();
+        public Task SetAwaitingConnectionAsync(long sessionId, string accountName) =>
+            bus.SendToMasterAsync(new SetAwaitingConnectionRequest(sessionId, accountName));
 
-        public async Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId)
-        {
-            await _hubConnection.StartAsync();
-            try
-            {
-                return await _hubConnection.InvokeAsync<string?>(nameof(GetAwaitingConnectionAsync), name, packetPassword, clientSessionSessionId);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync();
-            }
-        }
+        public Task StoreAuthCodeAsync(string authCode, string accountName) =>
+            bus.SendToMasterAsync(new StoreAuthCodeRequest(authCode, accountName));
 
-        public async Task SetAwaitingConnectionAsync(long sessionId, string accountName)
-        {
-            await _hubConnection.StartAsync();
-            try
-            {
-                await _hubConnection.InvokeAsync(nameof(SetAwaitingConnectionAsync), sessionId, accountName);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync();
-            }
-        }
+        public Task RegisterSessionIpAsync(string accountName, string ipAddress) =>
+            bus.SendToMasterAsync(new RegisterSessionIpRequest(accountName, ipAddress));
 
-        public async Task StoreAuthCodeAsync(string authCode, string accountName)
-        {
-            await _hubConnection.StartAsync();
-            try
-            {
-                await _hubConnection.InvokeAsync(nameof(StoreAuthCodeAsync), authCode, accountName);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync();
-            }
-        }
+        public Task UnregisterSessionIpAsync(string accountName) =>
+            bus.SendToMasterAsync(new UnregisterSessionIpRequest(accountName));
 
-        public async Task RegisterSessionIpAsync(string accountName, string ipAddress)
-        {
-            await _hubConnection.StartAsync();
-            try
-            {
-                await _hubConnection.InvokeAsync(nameof(RegisterSessionIpAsync), accountName, ipAddress);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync();
-            }
-        }
-
-        public async Task UnregisterSessionIpAsync(string accountName)
-        {
-            await _hubConnection.StartAsync();
-            try
-            {
-                await _hubConnection.InvokeAsync(nameof(UnregisterSessionIpAsync), accountName);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync();
-            }
-        }
-
-        public async Task<string?> GetSessionIpAsync(string accountName)
-        {
-            await _hubConnection.StartAsync();
-            try
-            {
-                return await _hubConnection.InvokeAsync<string?>(nameof(GetSessionIpAsync), accountName);
-            }
-            finally
-            {
-                await _hubConnection.StopAsync();
-            }
-        }
+        public Task<string?> GetSessionIpAsync(string accountName) =>
+            bus.RequestAsync<string?>(new GetSessionIpRequest(accountName));
     }
 }

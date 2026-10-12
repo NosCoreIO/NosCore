@@ -23,7 +23,9 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.Messaging;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
@@ -51,19 +53,21 @@ namespace NosCore.WebApi
             builder.Services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(ApiConfiguration.MasterCommunication))).ValidateDataAnnotations();
             builder.Services.AddI18NLogs();
 
-            builder.Services.ConfigureOptions<NosCore.Core.ConfigurePlayerJwtBearerOptions>();
+            builder.Services.ConfigureOptions<NosCore.Core.ConfigureJwtBearerOptions>();
             builder.Services.AddAuthentication(c => c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
             builder.Services.AddAuthorization();
 
+            builder.Host.UseNosCoreWolverine(conf,
+                InterChannelNode.For("NosCore.WebApi", "webapi", loginConfiguration.Host, loginConfiguration.Port),
+                opts => opts.Discovery.DisableConventionalDiscovery());
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
             builder.Host.ConfigureContainer<ContainerBuilder>(
                 containerBuilder =>
                 {
                     // Talk to the shared auth-code store on MasterServer via the
-                    // AuthHub SignalR client rather than using a local
-                    // AuthCodeService — otherwise codes stored here never reach
-                    // the LoginServer process that has to validate them.
-                    containerBuilder.RegisterType<NosCore.GameObject.InterChannelCommunication.HubConnectionFactory>();
+                    // AuthHub client rather than using a local AuthCodeService —
+                    // otherwise codes stored here never reach the LoginServer
+                    // process that has to validate them.
                     containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();
