@@ -134,7 +134,6 @@ namespace NosCore.WorldServer
                 .AsImplementedInterfaces()
                 .SingleInstance();
             containerBuilder.RegisterType<ChannelHubClient>().AsImplementedInterfaces().SingleInstance();
-            containerBuilder.RegisterType<HubConnectionFactory>();
 
             containerBuilder.Register(c =>
             {
@@ -229,9 +228,12 @@ namespace NosCore.WorldServer
 
         private static IHost BuildHost(string[] args)
         {
+            var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "world.yml" });
+            var server = configuration.Get<ServerConfiguration>()!;
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
-                .UseNosCoreWolverine("NosCore.WorldServer", typeof(NoS0575PacketHandler).Assembly)
+                .UseNosCoreWolverine(configuration, InterChannelNode.For("NosCore.WorldServer", "world", server.Host, server.Port),
+                    opts => opts.Discovery.IncludeAssembly(typeof(NoS0575PacketHandler).Assembly))
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory())
                 .ConfigureContainer<ContainerBuilder>(InitializeContainer)
                 .ConfigureServices((hostContext, services) =>

@@ -63,6 +63,17 @@ We recommend usage of :
 ## 4. Start services ##
 - script to start services are in .\scripts 
 
+### Inter-server messaging ###
+Master, world, login and web API servers talk to each other through [Wolverine](https://wolverinefx.net). By default the queues live in the same PostgreSQL database as the game data, so there is nothing extra to install.
+
+The PostgreSQL transport polls its queues (`PollingIntervalMs`, 100 ms by default), so every master round trip costs one to two polling intervals. For production, switch every server to RabbitMQ in its `Messaging` section (or with the `MESSAGING_TRANSPORT` / `RABBITMQ_URI` environment variables):
+```yaml
+Messaging:
+  Transport: RabbitMq
+  RabbitMqUri: amqp://user:password@rabbitmq:5672
+```
+All servers must use the same transport. Queues are created on startup.
+
 ## 5. (Optional) Local NuGet packages ##
 Every NosCore repo ships a `Directory.Build.props` that adds a NuGet source when the `NOSCORE_LOCAL_PACKAGES` environment variable is set — useful for testing an un-released `NosCore.Packets` / `NosCore.Dao` / `NosCore.Shared` build without publishing it.
 

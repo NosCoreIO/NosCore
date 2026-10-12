@@ -4,8 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using NosCore.GameObject.Services.AuthService;
 using System;
 using System.Linq;
@@ -14,8 +13,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
-    [Authorize]
-    public class AuthHub : Hub, IAuthHub
+    public class AuthHub : IAuthHub
     {
         private readonly IAuthCodeService _authCodeService;
 
@@ -98,5 +96,23 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
         {
             return Task.FromResult(_authCodeService.GetSessionIp(accountName));
         }
+
+        public static async Task<Reply<string?>> Handle(GetAwaitingConnectionRequest request, IServiceProvider services) =>
+            new(await services.GetRequiredService<AuthHub>().GetAwaitingConnectionAsync(request.Name, request.Token, request.SessionId));
+
+        public static Task Handle(SetAwaitingConnectionRequest request, IServiceProvider services) =>
+            services.GetRequiredService<AuthHub>().SetAwaitingConnectionAsync(request.SessionId, request.AccountName);
+
+        public static Task Handle(StoreAuthCodeRequest request, IServiceProvider services) =>
+            services.GetRequiredService<AuthHub>().StoreAuthCodeAsync(request.AuthCode, request.AccountName);
+
+        public static Task Handle(RegisterSessionIpRequest request, IServiceProvider services) =>
+            services.GetRequiredService<AuthHub>().RegisterSessionIpAsync(request.AccountName, request.IpAddress);
+
+        public static Task Handle(UnregisterSessionIpRequest request, IServiceProvider services) =>
+            services.GetRequiredService<AuthHub>().UnregisterSessionIpAsync(request.AccountName);
+
+        public static async Task<Reply<string?>> Handle(GetSessionIpRequest request, IServiceProvider services) =>
+            new(await services.GetRequiredService<AuthHub>().GetSessionIpAsync(request.AccountName));
     }
 }

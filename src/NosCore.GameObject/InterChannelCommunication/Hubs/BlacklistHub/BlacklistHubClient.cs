@@ -6,23 +6,21 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub
 {
-    public class BlacklistHubClient(HubConnectionFactory hubConnectionFactory, ILogger<BlacklistHubClient> logger)
-        : BaseHubClient(hubConnectionFactory, nameof(BlacklistHub), logger), IBlacklistHub
+    public class BlacklistHubClient(IMessageBus bus) : IBlacklistHub
     {
         public Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest) =>
-            InvokeAsync<LanguageKey>(nameof(AddBlacklistAsync), blacklistRequest);
+            bus.RequestAsync<LanguageKey>(new AddBlacklistRequest(blacklistRequest));
 
         public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) =>
-            InvokeAsync<List<CharacterRelationStatus>>(nameof(GetBlacklistedAsync), id);
+            bus.RequestAsync<List<CharacterRelationStatus>>(new GetBlacklistedRequest(id));
 
-        public Task<bool> DeleteAsync(Guid id) =>
-            InvokeAsync<bool>(nameof(DeleteAsync), id);
+        public Task<bool> DeleteAsync(Guid id) => bus.RequestAsync<bool>(new DeleteBlacklistRequest(id));
     }
 }

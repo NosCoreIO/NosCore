@@ -6,7 +6,6 @@
 
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Messages;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -23,15 +22,4 @@ public interface IPubSubHub
     Task<bool> SubscribeAsync(Subscriber subscriber);
 
     Task<bool> UnsubscribeAsync(long id);
-}
-
-public interface IPubSubHubClient : IPubSubHub
-{
-    event Action<IMessage>? OnMessageReceived;
-
-    Task StartAsync();
-
-    Task StopAsync();
-
-    bool IsConnected { get; }
 }

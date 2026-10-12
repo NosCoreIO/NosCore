@@ -4,12 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 using NosCore.Core;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.Shared.I18N;
 using System;
 using System.Collections.Concurrent;
@@ -20,33 +20,41 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 {
-    public class ChannelHub(ILogger<PubSubHub> logger, MasterClientList masterClientList, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
-        : Hub, IChannelHub
+    public class ChannelHub(ILogger<ChannelHub> logger, MasterClientList masterClientList,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IClock clock)
+        : IChannelHub
     {
-        public override async Task OnDisconnectedAsync(Exception? exception)
-        {
-            var data = masterClientList.Channels.TryGetValue(Context.UserIdentifier ?? throw new InvalidOperationException(), out var channel) ? channel : null;
-            if (data != null)
-            {
-                logger.LogDebug(logLanguage[LogLanguageKey.CONNECTION_LOST],
-                    data.Id.ToString(CultureInfo.CurrentCulture),
-                    data.Name);
-                masterClientList.Channels.Remove(Context.UserIdentifier ?? throw new InvalidOperationException(), out _);
-                masterClientList.ConnectedAccounts.Remove(Context.UserIdentifier ?? throw new InvalidOperationException(), out _);
-                await Groups.RemoveFromGroupAsync(Context.UserIdentifier ?? throw new InvalidOperationException(), data.Type.ToString());
-            }
+        public Task Bind(Channel data) => throw new InvalidOperationException("The master server is not a channel");
 
-            await base.OnDisconnectedAsync(exception);
+        public Task<bool> Ping() => throw new InvalidOperationException("The master server is not a channel");
+
+        public Task<List<ChannelInfo>> GetCommunicationChannels()
+        {
+            return Task.FromResult(masterClientList.Channels.Values.ToList());
         }
 
-        public Task Bind(Channel data)
+        public Task SetMaintenance(bool isGlobal, bool value)
+        {
+            if (!isGlobal)
+            {
+                throw new InvalidOperationException("The master server is not a channel");
+            }
+
+            foreach (var channel in masterClientList.Channels)
+            {
+                channel.Value.IsMaintenance = value;
+            }
+
+            return Task.CompletedTask;
+        }
+
+        public void BindChannel(string channelKey, Channel data)
         {
             var id = ++masterClientList.ConnectionCounter;
             logger.LogDebug(logLanguage[LogLanguageKey.AUTHENTICATED_SUCCESS],
                 id.ToString(CultureInfo.CurrentCulture),
                 data.ClientName);
-            masterClientList.ConnectedAccounts.TryAdd(Context.UserIdentifier ?? throw new InvalidOperationException(),
-                new ConcurrentDictionary<long, Subscriber>());
+            masterClientList.ConnectedAccounts.TryAdd(channelKey, new ConcurrentDictionary<long, Subscriber>());
             var serv = new ChannelInfo
             {
                 Name = data.ClientName,
@@ -59,30 +67,62 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
                 ConnectedAccountLimit = data.ConnectedAccountLimit,
                 Type = data.ClientType,
             };
-            masterClientList.Channels.AddOrUpdate(Context.UserIdentifier ?? throw new InvalidOperationException(), serv, (_, _) => serv);
-            return Task.CompletedTask;
+            masterClientList.Channels.AddOrUpdate(channelKey, serv, (_, _) => serv);
+            masterClientList.LastSeen[channelKey] = clock.GetCurrentInstant();
         }
 
-        public Task<List<ChannelInfo>> GetCommunicationChannels()
+        public void SetChannelMaintenance(string channelKey, bool value)
         {
-            return Task.FromResult(masterClientList.Channels.Values.ToList());
-        }
-
-        public Task<bool> Ping() => Task.FromResult(true);
-
-        public Task SetMaintenance(bool isGlobal, bool value)
-        {
-            if (isGlobal)
+            if (masterClientList.Channels.TryGetValue(channelKey, out var channel))
             {
-                foreach (var channel in masterClientList.Channels)
-                {
-                    channel.Value.IsMaintenance = value;
-                }
-
-                return Task.CompletedTask;
+                channel.IsMaintenance = value;
             }
-            masterClientList.Channels[Context.UserIdentifier ?? throw new InvalidOperationException()].IsMaintenance = value;
+        }
+
+        public bool PingChannel(string channelKey)
+        {
+            if (!masterClientList.Channels.ContainsKey(channelKey))
+            {
+                return false;
+            }
+
+            masterClientList.LastSeen[channelKey] = clock.GetCurrentInstant();
+            return true;
+        }
+
+        public void RemoveChannel(string channelKey)
+        {
+            masterClientList.LastSeen.TryRemove(channelKey, out _);
+            if (!masterClientList.Channels.TryRemove(channelKey, out var channel))
+            {
+                return;
+            }
+
+            logger.LogDebug(logLanguage[LogLanguageKey.CONNECTION_LOST],
+                channel.Id.ToString(CultureInfo.CurrentCulture),
+                channel.Name);
+            masterClientList.ConnectedAccounts.TryRemove(channelKey, out _);
+        }
+
+        public static void Handle(BindChannelRequest request, IServiceProvider services) =>
+            services.GetRequiredService<ChannelHub>().BindChannel(request.ChannelKey, request.Channel);
+
+        public static async Task<Reply<List<ChannelInfo>>> Handle(GetCommunicationChannelsRequest _, IServiceProvider services) =>
+            new(await services.GetRequiredService<ChannelHub>().GetCommunicationChannels());
+
+        public static Task Handle(SetMaintenanceRequest request, IServiceProvider services)
+        {
+            var hub = services.GetRequiredService<ChannelHub>();
+            if (request.IsGlobal)
+            {
+                return hub.SetMaintenance(true, request.Value);
+            }
+
+            hub.SetChannelMaintenance(request.ChannelKey, request.Value);
             return Task.CompletedTask;
         }
+
+        public static Reply<bool> Handle(PingChannelRequest request, IServiceProvider services) =>
+            new(services.GetRequiredService<ChannelHub>().PingChannel(request.ChannelKey));
     }
 }

@@ -9,8 +9,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FastExpressionCompiler;
 using Mapster;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
@@ -25,6 +23,7 @@ using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core;
 using NosCore.Core.Encryption;
+using NosCore.GameObject.Messaging;
 using NosCore.Core.Observability;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao;
@@ -116,32 +115,28 @@ namespace NosCore.MasterServer
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(masterConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
-            services.ConfigureOptions<ConfigureServiceJwtBearerOptions>();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(b => b.AddFilter("Microsoft", LogLevel.Warning));
             services.AddNosCoreTelemetry("NosCore.MasterServer", includeAspNetCore: true);
-            services.AddAuthentication(c => c.DefaultScheme = JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 
-            services.AddSignalR(options =>
+            builder.Host.UseNosCoreWolverine(configuration, InterChannelNode.Master(), opts =>
             {
-                options.DisableImplicitFromServicesParameters = true;
-            }).AddJsonProtocol(options =>
-            {
-                options.PayloadSerializerOptions.Converters.Add(new PolymorphicJsonConverter<IMessage>());
+                opts.Discovery.DisableConventionalDiscovery();
+                opts.Discovery.IncludeType<AuthHub>();
+                opts.Discovery.IncludeType<BazaarHub>();
+                opts.Discovery.IncludeType<BlacklistHub>();
+                opts.Discovery.IncludeType<ChannelHub>();
+                opts.Discovery.IncludeType<FriendHub>();
+                opts.Discovery.IncludeType<MailHub>();
+                opts.Discovery.IncludeType<PubSubHub>();
+                opts.Discovery.IncludeType<WarehouseHub>();
             });
 
             services.AddHealthChecks().AddDbContextCheck<NosCoreContext>("database");
-            services.AddAuthorization(o =>
-            {
-                o.DefaultPolicy = new AuthorizationPolicyBuilder()
-                    .RequireAuthenticatedUser()
-                    .RequireRole(nameof(AuthorityType.Root))
-                    .Build();
-                o.FallbackPolicy = o.DefaultPolicy;
-            });
 
             services.AddHostedService<MasterServer>();
+            services.AddHostedService<ChannelPresenceMonitor>();
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
                 .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
             TypeAdapterConfig.GlobalSettings.EnableJsonMapping();
@@ -150,7 +145,7 @@ namespace NosCore.MasterServer
 
         private static void InitializeContainer(ContainerBuilder containerBuilder)
         {
-            containerBuilder.RegisterType<ChannelHub>().AsImplementedInterfaces().SingleInstance();
+            containerBuilder.RegisterType<ChannelHub>().AsSelf().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
             {
@@ -177,9 +172,9 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<FriendRequestRegistry>().As<IFriendRequestRegistry>().SingleInstance();
             containerBuilder.RegisterType<ParcelRegistry>().As<IParcelRegistry>().SingleInstance();
 
-            containerBuilder.RegisterType<ChannelHub>().SingleInstance().AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHub).Assembly)
                 .Where(t => t.Name.EndsWith("Hub") && t.Name != nameof(ChannelHub))
+                .AsSelf()
                 .AsImplementedInterfaces();
             containerBuilder.RegisterAssemblyTypes(typeof(BazaarService).Assembly)
                 .Where(t => t.Name.EndsWith("Service") && t != typeof(AuthCodeService))
@@ -252,22 +247,11 @@ namespace NosCore.MasterServer
 
         private static void ConfigurePipeline(WebApplication app)
         {
-            app.UseAuthentication();
             app.UseRouting();
-            app.UseWebSockets();
-            app.UseAuthorization();
             CultureInfo.DefaultThreadCurrentCulture = new(app.Services.GetRequiredService<IOptions<MasterConfiguration>>().Value.Language.ToString());
 
-            app.MapHub<AuthHub>(nameof(AuthHub));
-            app.MapHub<PubSubHub>(nameof(PubSubHub));
-            app.MapHub<BazaarHub>(nameof(BazaarHub));
-            app.MapHub<BlacklistHub>(nameof(BlacklistHub));
-            app.MapHub<ChannelHub>(nameof(ChannelHub));
-            app.MapHub<FriendHub>(nameof(FriendHub));
-            app.MapHub<MailHub>(nameof(MailHub));
-            app.MapHub<WarehouseHub>(nameof(WarehouseHub));
-            app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false }).AllowAnonymous();
-            app.MapHealthChecks("/health/ready").AllowAnonymous();
+            app.MapHealthChecks("/health/live", new HealthCheckOptions { Predicate = _ => false });
+            app.MapHealthChecks("/health/ready");
         }
     }
 }

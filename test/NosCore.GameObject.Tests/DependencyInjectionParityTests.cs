@@ -61,8 +61,7 @@ namespace NosCore.GameObject.Tests
             var expected = new[]
             {
                 "NosCore.GameObject.Messaging.Handlers.Nrun.INrunEventHandler",
-                "NosCore.GameObject.Services.QuestService.IQuestTypeHandler",
-                "System.IAsyncDisposable"
+                "NosCore.GameObject.Services.QuestService.IQuestTypeHandler"
             };
 
             var actual = GeneratedServiceRegistrations.Descriptors

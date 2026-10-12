@@ -6,23 +6,21 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
 {
-    public class FriendHubClient(HubConnectionFactory hubConnectionFactory, ILogger<FriendHubClient> logger)
-        : BaseHubClient(hubConnectionFactory, nameof(FriendHub), logger), IFriendHub
+    public class FriendHubClient(IMessageBus bus) : IFriendHub
     {
         public Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket) =>
-            InvokeAsync<LanguageKey>(nameof(AddFriendAsync), friendPacket);
+            bus.RequestAsync<LanguageKey>(new AddFriendRequest(friendPacket));
 
         public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) =>
-            InvokeAsync<List<CharacterRelationStatus>>(nameof(GetFriendsAsync), id);
+            bus.RequestAsync<List<CharacterRelationStatus>>(new GetFriendsRequest(id));
 
-        public Task<bool> DeleteAsync(Guid id) =>
-            InvokeAsync<bool>(nameof(DeleteAsync), id);
+        public Task<bool> DeleteAsync(Guid id) => bus.RequestAsync<bool>(new DeleteFriendRequest(id));
     }
 }

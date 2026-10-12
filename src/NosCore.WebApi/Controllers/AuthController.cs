@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Core;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -84,7 +83,7 @@ namespace NosCore.WebApi.Controllers
             {
                 Subject = claims,
                 Issuer = "Issuer",
-                Audience = JwtAudience.Player,
+                Audience = "Audience",
                 SigningCredentials = new SigningCredentials(signinKey, SecurityAlgorithms.HmacSha256Signature)
             });
             logger.LogInformation(logLanguage[LogLanguageKey.AUTH_API_SUCCESS],
@@ -108,7 +107,7 @@ namespace NosCore.WebApi.Controllers
             }
 
             var authCode = Guid.NewGuid();
-            // Push via the SignalR hub so the code lands in the shared
+            // Push via the AuthHub so the code lands in the shared
             // auth-code store on MasterServer — LoginServer reads from the
             // same store when validating NoS0577's AuthToken.
             await authHub.StoreAuthCodeAsync(authCode.ToString(),
