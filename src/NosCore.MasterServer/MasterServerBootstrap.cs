@@ -61,7 +61,6 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using ConfigureJwtBearerOptions = NosCore.Core.ConfigureJwtBearerOptions;
 
 namespace NosCore.MasterServer
 {
@@ -117,7 +116,7 @@ namespace NosCore.MasterServer
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(masterConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
-            services.ConfigureOptions<ConfigureJwtBearerOptions>();
+            services.ConfigureOptions<ConfigureServiceJwtBearerOptions>();
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(b => b.AddFilter("Microsoft", LogLevel.Warning));
@@ -137,7 +136,9 @@ namespace NosCore.MasterServer
             {
                 o.DefaultPolicy = new AuthorizationPolicyBuilder()
                     .RequireAuthenticatedUser()
+                    .RequireRole(nameof(AuthorityType.Root))
                     .Build();
+                o.FallbackPolicy = o.DefaultPolicy;
             });
 
             services.AddHostedService<MasterServer>();
