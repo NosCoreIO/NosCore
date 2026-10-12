@@ -66,7 +66,7 @@ We recommend usage of :
 ### Inter-server messaging ###
 Master, world, login and web API servers talk to each other through [Wolverine](https://wolverinefx.net). By default the queues live in the same PostgreSQL database as the game data, so there is nothing extra to install.
 
-The PostgreSQL transport polls its queues (`PollingIntervalMs`, 100 ms by default), so every master round trip costs one to two polling intervals. For production, switch every server to RabbitMQ in its `Messaging` section (or with the `MESSAGING_TRANSPORT` / `RABBITMQ_URI` environment variables):
+The PostgreSQL transport polls its queues (`PollingIntervalMs`, 20 ms by default), so every master round trip costs one to two polling intervals. For production, switch every server to RabbitMQ in its `Messaging` section (or with the `MESSAGING_TRANSPORT` / `RABBITMQ_URI` environment variables):
 ```yaml
 Messaging:
   Transport: RabbitMq

@@ -10,7 +10,7 @@ public class MessagingConfiguration
 {
     public MessagingTransport Transport { get; set; } = MessagingTransport.Postgresql;
 
-    public int PollingIntervalMs { get; set; } = 100;
+    public int PollingIntervalMs { get; set; } = 20;
 
     public string? RabbitMqUri { get; set; }
 }

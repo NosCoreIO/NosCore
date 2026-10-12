@@ -11,5 +11,5 @@ Database:
   Password: ${DB_PASSWORD,password}
 Messaging:
   Transport: ${MESSAGING_TRANSPORT,Postgresql}
-  PollingIntervalMs: 100
+  PollingIntervalMs: 20
   RabbitMqUri: ${RABBITMQ_URI,amqp://guest:guest@localhost:5672}
