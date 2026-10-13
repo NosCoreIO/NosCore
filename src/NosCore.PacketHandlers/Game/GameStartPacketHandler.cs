@@ -15,6 +15,8 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
@@ -37,7 +39,8 @@ namespace NosCore.PacketHandlers.Game
             IChannelHub channelHttpClient,
             IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
-            IMapChangeService mapChangeService, ISkillService skillService)
+            IMapChangeService mapChangeService, ISkillService skillService,
+            IFamilyExperienceService familyExperienceService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -154,6 +157,12 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(session.Character.Mates.Values
                 .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));
             //            Session.Character.GenerateStartupInventory();
+
+            var familyInfo = session.Character.GenerateGInfo(familyExperienceService);
+            if (familyInfo != null)
+            {
+                await session.SendPacketAsync(familyInfo);
+            }
 
             await session.SendPacketAsync(session.Character.GenerateGold());
             await session.SendPacketAsync(session.Character.GenerateCond());

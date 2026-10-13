@@ -72,7 +72,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 mailHub.Object,
                 questService.Object,
                 MapChangeService.Object,
-                SkillService.Object);
+                SkillService.Object,
+                new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService());
         }
 
         [TestMethod]
