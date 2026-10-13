@@ -4,8 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.GameObject.Services.BattleService.Model;
-
 namespace NosCore.GameObject.Services.BattleService;
 
 // Distances are the truncated octile distance, the same integer the walk handler and the
@@ -18,11 +16,11 @@ public static class SkillReach
     private const int LatencyCells = 1;
 
     // A range of 0 says nothing about reach in the skill data, so it is not gated.
-    public static bool IsInReach(SkillInfo skill, int distance)
+    public static bool IsInReach(byte targetType, byte range, int distance)
     {
-        return skill.TargetType != TargetedSkill
-            || skill.Range == 0
-            || distance <= skill.Range + LatencyCells;
+        return targetType != TargetedSkill
+            || range == 0
+            || distance <= range + LatencyCells;
     }
 
     // Same allowance the walk handler gives one step at the entity's speed.

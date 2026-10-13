@@ -4,23 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Data.Enumerations.Battle;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.BattleService;
-using NosCore.GameObject.Services.BattleService.Model;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
     [TestClass]
     public class SkillReachTests
     {
-        private static SkillInfo Skill(byte range, byte targetType) => new(
-            SkillVnum: 1, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
-            Type: 0, HitType: TargetHitType.SingleTargetHit, Range: range, TargetRange: 0, TargetType: targetType,
-            Element: 0, Duration: 0, MpCost: 0, BCards: Array.Empty<BCardDto>());
-
         [DataTestMethod]
         [DataRow(1, 1, true)]
         [DataRow(1, 2, true)]
@@ -29,19 +20,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [DataRow(7, 9, false)]
         public void ATargetedSkillReachesItsRangePlusOneCell(int range, int distance, bool inReach)
         {
-            Assert.AreEqual(inReach, SkillReach.IsInReach(Skill((byte)range, targetType: 0), distance));
+            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, (byte)range, distance));
         }
 
         [TestMethod]
         public void ARangeOfZeroIsNotGated()
         {
-            Assert.IsTrue(SkillReach.IsInReach(Skill(range: 0, targetType: 0), distance: 50));
+            Assert.IsTrue(SkillReach.IsInReach(targetType: 0, range: 0, distance: 50));
         }
 
         [TestMethod]
         public void ACasterCentredSkillIsNotGated()
         {
-            Assert.IsTrue(SkillReach.IsInReach(Skill(range: 2, targetType: 1), distance: 50));
+            Assert.IsTrue(SkillReach.IsInReach(targetType: 1, range: 2, distance: 50));
         }
 
         [DataTestMethod]

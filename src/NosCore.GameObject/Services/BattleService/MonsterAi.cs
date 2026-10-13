@@ -27,18 +27,17 @@ using Microsoft.Extensions.Logging;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Aggro-driven AI for both monsters and NPCs (guards), called from MapInstance's life
-// loop every 400ms. What an entity does is decided by MonsterBehaviourRules.Decide from
-// a snapshot of its situation; this class gathers the snapshot and performs the result:
-//   AcquireTarget: hostile entities scan NoticeRange for the closest enemy. Two-faction
-//      rule — NPCs and players are same-side, monsters the other: NPCs target monsters
-//      only, monsters target whichever of player/NPC is closer.
-//   Attack: 20% chance per tick to pick a random cooldown-ready NpcMonsterSkill, else
-//      the basic attack; if the target is within its range, enqueue a Hit via
-//      IBattleService and stamp the cooldown once the hit was accepted.
-//   Chase: otherwise step toward the target along a cached JPS path; re-plan when the
-//      target moved. Stationary entities (CanWalk=false) never chase but still attack.
-//   Return: once the aggro leash expires (aggroService.Current returns HasTarget=false)
-//      the entity paths back to FirstX/FirstY, then idles or wanders from there.
+// loop every 400ms. Each tick:
+//   1. Hostile entities without a target scan NoticeRange for the closest enemy.
+//      Two-faction rule — NPCs and players are same-side, monsters the other: NPCs
+//      target monsters only, monsters target whichever of player/NPC is closer.
+//   2. 20% chance to pick a random cooldown-ready NpcMonsterSkill, else the basic
+//      attack; if the target is within its range, enqueue a Hit via IBattleService and
+//      stamp the cooldown once the hit was accepted.
+//   3. Otherwise step toward the target along a cached JPS path, stopping beside it.
+//      Stationary entities (CanWalk=false) never chase but still attack.
+// Once the aggro leash expires (aggroService.Current returns HasTarget=false) the entity
+// paths back to FirstX/FirstY.
 public sealed class MonsterAi : IMonsterAi, ISingletonService
 {
     private readonly IBattleService battleService;
@@ -103,40 +102,36 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             if (!entity.IsAlive || entity.NpcMonster == null) return false;
 
             var target = CurrentTarget(entity);
-            var chosenSkill = target == null ? null : PickSkill(entity);
-            var behaviour = MonsterBehaviourRules.Decide(
-                Snapshot(entity, target, chosenSkill, hasScanned: false));
-
-            if (behaviour == MonsterBehaviour.AcquireTarget)
+            if (target == null && entity.NpcMonster.IsHostile)
             {
                 var noticed = DetectNearbyEnemy(entity);
                 if (noticed != null)
                 {
                     aggroService.AddThreat(entity, noticed, 1);
+                    target = CurrentTarget(entity);
                 }
-
-                target = CurrentTarget(entity);
-                chosenSkill = target == null ? null : PickSkill(entity);
-                behaviour = MonsterBehaviourRules.Decide(
-                    Snapshot(entity, target, chosenSkill, hasScanned: true));
             }
 
-            switch (behaviour)
+            if (target == null)
             {
-                case MonsterBehaviour.Attack:
-                    await AttackAsync(entity, target!, chosenSkill ?? BasicAttack(entity));
-                    return true;
-                case MonsterBehaviour.Chase:
-                    await StepAlongPathAsync(entity, target!.PositionX, target.PositionY, cellsToLeave: 1);
-                    return true;
-                case MonsterBehaviour.Return:
-                    return await StepAlongPathAsync(entity, entity.MapX, entity.MapY, cellsToLeave: 0);
-                case MonsterBehaviour.Wander:
-                    _pathCache.TryRemove(entity.Handle, out _);
-                    return false;
-                default:
-                    return target != null;
+                return await TryReturnHomeAsync(entity);
             }
+
+            var skill = PickSkill(entity) ?? BasicAttack(entity);
+            var distance = (int)distanceCalculator.GetDistance(
+                (entity.PositionX, entity.PositionY),
+                (target.PositionX, target.PositionY));
+
+            if (distance <= skill.SkillRange)
+            {
+                await AttackAsync(entity, target, skill);
+            }
+            else if (entity.NpcMonster.CanWalk)
+            {
+                await StepAlongPathAsync(entity, target.PositionX, target.PositionY, cellsToLeave: 1);
+            }
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -159,25 +154,17 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         return null;
     }
 
-    private MonsterSituation Snapshot(INonPlayableEntity entity, IAliveEntity? target, ChosenSkill? chosenSkill, bool hasScanned)
+    private async Task<bool> TryReturnHomeAsync(INonPlayableEntity entity)
     {
-        var npcMonster = entity.NpcMonster!;
-        var distance = target == null
-            ? 0
-            : (int)distanceCalculator.GetDistance(
-                (entity.PositionX, entity.PositionY),
-                (target.PositionX, target.PositionY));
+        if (!entity.IsMoving) return false;
 
-        return new MonsterSituation(
-            IsAlive: entity.IsAlive,
-            HasTarget: target != null,
-            IsHostile: npcMonster.IsHostile,
-            HasScanned: hasScanned,
-            CanWalk: npcMonster.CanWalk,
-            IsMoving: entity.IsMoving,
-            AtHome: entity.PositionX == entity.MapX && entity.PositionY == entity.MapY,
-            Distance: distance,
-            AttackRange: chosenSkill?.SkillRange ?? Math.Max(1, (int)npcMonster.BasicRange));
+        if (entity.PositionX == entity.MapX && entity.PositionY == entity.MapY)
+        {
+            _pathCache.TryRemove(entity.Handle, out _);
+            return false;
+        }
+
+        return await StepAlongPathAsync(entity, entity.MapX, entity.MapY, cellsToLeave: 0);
     }
 
     private static ChosenSkill BasicAttack(INonPlayableEntity entity)

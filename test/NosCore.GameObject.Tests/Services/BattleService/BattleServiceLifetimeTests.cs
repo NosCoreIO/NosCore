@@ -22,7 +22,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
-using NosCore.PathFinder.Heuristic;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Tests.Shared;
@@ -72,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var service = new GameObject.Services.BattleService.BattleService(
                 skillResolver.Object, targetResolver.Object, hitQueue.Object, new Mock<IMessageBus>().Object,
                 TestHelpers.Instance.SessionRegistry, clock, new Mock<ICaptureService>().Object,
-                new OctileDistanceHeuristic(), NullLogger<GameObject.Services.BattleService.BattleService>.Instance);
+                NullLogger<GameObject.Services.BattleService.BattleService>.Instance);
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));
 

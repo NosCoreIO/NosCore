@@ -22,7 +22,6 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
-using NosCore.PathFinder.Interfaces;
 using Microsoft.Extensions.Logging;
 using Wolverine;
 
@@ -40,7 +39,6 @@ namespace NosCore.GameObject.Services.BattleService
         ISessionRegistry sessionRegistry,
         IClock clock,
         ICaptureService captureService,
-        IHeuristic distanceCalculator,
         ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
         // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
@@ -55,10 +53,8 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
-            UpdateAttackerPosition(origin, arguments);
-
             var skill = skillResolver.Resolve(origin, arguments.SkillId);
-            if (skill == null || !IsInReach(origin, target, skill))
+            if (skill == null)
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
                 return false;
@@ -249,48 +245,13 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // A character's reported cell is only taken when it is one walk step from the cell the
-        // server already has; anything further would let a client cast from wherever it likes.
-        private void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)
-        {
-            if (arguments is not { MapX: not null, MapY: not null })
-            {
-                return;
-            }
-
-            if (origin.MapInstance?.Map.IsWalkable(arguments.MapX.Value, arguments.MapY.Value) == false)
-            {
-                return;
-            }
-
-            if (origin is ICharacterEntity
-                && !SkillReach.IsWithinOneStep(DistanceTo(origin, arguments.MapX.Value, arguments.MapY.Value), origin.Speed))
-            {
-                return;
-            }
-
-            origin.PositionX = arguments.MapX.Value;
-            origin.PositionY = arguments.MapY.Value;
-        }
-
-        // Monsters test their own reach before they swing.
-        private bool IsInReach(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
-        {
-            return origin is not ICharacterEntity
-                || SkillReach.IsInReach(skill, DistanceTo(origin, target.PositionX, target.PositionY));
-        }
-
-        private int DistanceTo(IAliveEntity origin, short x, short y)
-        {
-            return (int)distanceCalculator.GetDistance((origin.PositionX, origin.PositionY), (x, y));
-        }
-
         // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction
         // rule below is what decides who's on whose side. Characters and NPCs are
         // allies — players can't kill a shop NPC via a crafted UseSkill packet, and
         // guards never friendly-fire a player — so any ally pairing bails first.
-        // Monsters are opposing-faction to both and are free to hit either.
-        private static bool CanAttack(IAliveEntity origin, IAliveEntity target)
+        // Monsters are opposing-faction to both and are free to hit either. Area
+        // targets go through this too, so PvP only needs deciding here.
+        internal static bool CanAttack(IAliveEntity origin, IAliveEntity target)
         {
             if (!origin.IsAlive || !target.IsAlive) return false;
             if (origin.NoAttack) return false;
