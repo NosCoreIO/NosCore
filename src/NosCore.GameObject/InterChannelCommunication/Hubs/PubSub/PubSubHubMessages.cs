@@ -10,7 +10,7 @@ using System.Collections.Generic;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 
-public record PublishMessagesRequest(string ChannelKey, List<IMessage> Messages) : IMasterRequest;
+public record PublishMessagesRequest(List<IMessage> Messages) : IMasterRequest;
 
 public record GetSubscribersRequest : IMasterRequest;
 

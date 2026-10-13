@@ -17,7 +17,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
         public Task<bool> SendMessageAsync(IMessage message) => SendMessagesAsync([message]);
 
         public Task<bool> SendMessagesAsync(List<IMessage> messages) =>
-            bus.RequestAsync<bool>(new PublishMessagesRequest(node.QueueName, messages));
+            bus.RequestAsync<bool>(new PublishMessagesRequest(messages));
 
         public Task<List<Subscriber>> GetSubscribersAsync() =>
             bus.RequestAsync<List<Subscriber>>(new GetSubscribersRequest());
