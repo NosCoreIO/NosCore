@@ -9,7 +9,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
-using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
@@ -154,10 +153,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             return true;
         }
 
-        var isExchangeLifecycleAction = packet is ExchangeRequestPacket
-        { RequestType: RequestExchangeType.Confirmed or RequestExchangeType.Cancelled };
-        if (session.HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && session.Character.InExchangeOrShop
-            && !isExchangeLifecycleAction)
+        if (session.HasSelectedCharacter && (attr.Scopes & Scope.InTrade) == 0 && session.Character.InExchangeOrShop)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.PLAYER_IN_SHOP], packet.Header);
             return false;
