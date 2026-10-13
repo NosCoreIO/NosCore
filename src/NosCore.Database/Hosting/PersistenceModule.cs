@@ -37,7 +37,18 @@ public sealed class PersistenceModule : Autofac.Module
 
     protected override void Load(ContainerBuilder builder)
     {
-        builder.RegisterType<NosCoreContext>().As<DbContext>();
+        // DAOs resolve a fresh DbContext per operation through this registration; when
+        // a DaoTransactionScope is active on the current async flow they get its
+        // context instead, so the whole scope commits or rolls back as one.
+        builder.RegisterType<NosCoreContext>().AsSelf().InstancePerDependency();
+        builder.Register(c => AmbientDbContext.Current ?? (DbContext)c.Resolve<NosCoreContext>())
+            .As<DbContext>().InstancePerDependency();
+        builder.Register(c =>
+            {
+                var factory = c.Resolve<Func<NosCoreContext>>();
+                return new DaoTransactionScope(factory);
+            })
+            .As<NosCore.Core.Persistence.IDaoTransactionScope>().SingleInstance();
 
         builder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
                 x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x.Key ?? "")
@@ -82,6 +93,8 @@ public sealed class PersistenceModule : Autofac.Module
     public static void MirrorTo(IServiceCollection services)
     {
         services.AddTransient<DbContext, NosCoreContext>();
+        services.AddSingleton<NosCore.Core.Persistence.IDaoTransactionScope>(sp =>
+            new DaoTransactionScope(() => sp.GetRequiredService<NosCoreContext>()));
 
         foreach (var mapping in DiscoverDaoMappings())
         {
