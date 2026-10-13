@@ -104,6 +104,28 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task GoldOnlyOfferShouldNotCloseExchange()
+        {
+            await new Spec("Gold only offer should not close exchange")
+                .Given(CharacterHasGold)
+                .And(ExchangeIsOpenWithTarget)
+                .WhenAsync(OfferingOnlyGold)
+                .Then(ExchangeShouldNotBeClosed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GoldOnlyOfferShouldSetGold()
+        {
+            await new Spec("Gold only offer should set gold")
+                .Given(CharacterHasGold)
+                .And(ExchangeIsOpenWithTarget)
+                .WhenAsync(OfferingOnlyGold)
+                .Then(ExchangeGoldShouldBeSet)
+                .ExecuteAsync();
+        }
+
         private void CharacterHasNoGold()
         {
             Session.Character.Gold = 0;
@@ -179,9 +201,24 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             }, Session);
         }
 
+        private async Task OfferingOnlyGold()
+        {
+            await Handler.ExecuteAsync(new ExcListPacket
+            {
+                Gold = 5000,
+                BankGold = 0,
+                SubPackets = null
+            }, Session);
+        }
+
         private void ExchangeGoldShouldNotBeSet()
         {
             ExchangeService.Verify(x => x.SetGold(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+        }
+
+        private void ExchangeShouldNotBeClosed()
+        {
+            ExchangeService.Verify(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()), Times.Never);
         }
 
         private void ExchangeGoldShouldBeSet()

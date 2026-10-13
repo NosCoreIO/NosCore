@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Exchange
                 (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId), out var target);
 
-            if ((packet.SubPackets!.Count > 0) && hasTarget)
+            if ((packet.SubPackets?.Count > 0) && hasTarget)
             {
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
