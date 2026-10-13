@@ -21,7 +21,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
     {
         public Task<bool> SendMessageAsync(IMessage message) => SendMessagesAsync([message]);
 
-        public Task<bool> SendMessagesAsync(List<IMessage> messages) => BroadcastAsync(messages, null);
+        public Task<bool> SendMessagesAsync(List<IMessage> messages) => BroadcastAsync(messages);
 
         public Task<List<Subscriber>> GetSubscribersAsync()
         {
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
             && accounts.TryRemove(id, out _);
 
         public static async Task<Reply<bool>> Handle(PublishMessagesRequest request, IServiceProvider services) =>
-            new(await services.GetRequiredService<PubSubHub>().BroadcastAsync(request.Messages, request.ChannelKey));
+            new(await services.GetRequiredService<PubSubHub>().BroadcastAsync(request.Messages));
 
         public static async Task<Reply<List<Subscriber>>> Handle(GetSubscribersRequest _, IServiceProvider services) =>
             new(await services.GetRequiredService<PubSubHub>().GetSubscribersAsync());
@@ -63,10 +63,12 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
         public static Reply<bool> Handle(UnsubscribeRequest request, IServiceProvider services) =>
             new(services.GetRequiredService<PubSubHub>().Unsubscribe(request.ChannelKey, request.Id));
 
-        private async Task<bool> BroadcastAsync(List<IMessage> messages, string? senderChannelKey)
+        // The sending channel is a recipient too: a whisper, shout or GM command aimed at someone
+        // on the sender's own channel is only delivered through this round trip.
+        private async Task<bool> BroadcastAsync(List<IMessage> messages)
         {
             var recipients = masterClientList.Channels
-                .Where(c => c.Key != senderChannelKey && c.Value.Type == ServerType.WorldServer)
+                .Where(c => c.Value.Type == ServerType.WorldServer)
                 .Select(c => c.Key);
             foreach (var channelKey in recipients)
             {
