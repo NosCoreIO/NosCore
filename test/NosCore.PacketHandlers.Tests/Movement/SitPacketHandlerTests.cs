@@ -6,15 +6,18 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Movement;
 using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Movement
@@ -36,7 +39,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
             Handler = new SitPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -107,6 +111,43 @@ namespace NosCore.PacketHandlers.Tests.Movement
         }
 
         [TestMethod]
+        public async Task SittingDownJustAfterAttackingIsIgnored()
+        {
+            await new Spec("Within three seconds of attacking the sit request gets no answer")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsStanding)
+                .And(CharacterAttacked_MillisecondsAgo, 2900)
+                .WhenAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, false)
+                .And(TheMapShouldSeeNoRestPacket)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SittingDownThreeSecondsAfterAttackingWorks()
+        {
+            await new Spec("The lock is over three seconds after the last attack")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsStanding)
+                .And(CharacterAttacked_MillisecondsAgo, 3000)
+                .WhenAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task StandingUpIsNeverBlocked()
+        {
+            await new Spec("Only sitting down waits for the lock")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsSittingWithFoodDigesting)
+                .And(CharacterAttacked_MillisecondsAgo, 0)
+                .WhenAsync(SittingWithOwnCharacter)
+                .Then(IsSittingShouldBe_, false)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AttemptingToSitAnotherPlayerDoesNotFlipTheirState()
         {
             await new Spec("A sit packet targeting a different player's VisualId does not flip their sit state")
@@ -147,6 +188,13 @@ namespace NosCore.PacketHandlers.Tests.Movement
             Session.Character.IsSitting = false;
             Session.Character.Digestion.Food.Add(140, 0);
         }
+
+        private void CharacterAttacked_MillisecondsAgo(int milliseconds) =>
+            Session.Character.LastAttack =
+                TestHelpers.Instance.Clock.GetCurrentInstant() - Duration.FromMilliseconds(milliseconds);
+
+        private void TheMapShouldSeeNoRestPacket() =>
+            Assert.IsFalse(Session.Character.MapInstance.LastPackets.OfType<RestPacket>().Any());
 
         private void NoFoodShouldBeDigesting() => Assert.IsTrue(Session.Character.Digestion.Food.IsEmpty);
 
@@ -201,6 +249,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance.LastPackets.Clear();
         }
 
         private async Task SittingWithOwnCharacter()

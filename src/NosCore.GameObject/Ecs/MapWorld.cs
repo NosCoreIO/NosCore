@@ -236,7 +236,7 @@ public class MapWorld : IDisposable
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new PlayerComponent(accountId, characterId, isGm, serverId),
             new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false),
-            new TimingComponent(now, now),
+            new TimingComponent(now, Instant.MinValue),
             new SpeedComponent(speed),
             new DigestionComponent(new DigestionState())
         );

@@ -45,6 +45,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Movement;
+using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Shared.Enumerations;
 using System;
@@ -66,23 +67,38 @@ public static class PlayerBundleExtensions
         return player.Sender?.SendPacketsAsync(packets) ?? Task.CompletedTask;
     }
 
-    public static async Task RestAsync(this PlayerComponentBundle player)
+    // Attacking keeps a player on their feet for a while; being hit does not.
+    private static readonly Duration SitLockAfterAttack = Duration.FromSeconds(3);
+
+    public static bool CanSitDown(this PlayerComponentBundle player, Instant now) =>
+        now - player.LastAttack >= SitLockAfterAttack;
+
+    public static Task RestAsync(this PlayerComponentBundle player)
     {
-        player.IsSitting = !player.IsSitting;
-        if (!player.IsSitting)
+        if (player.IsSitting)
         {
-            // Cleared here as well as on the tick, or standing and sitting back down within one
-            // tick would keep the meal.
-            var digestion = player.Digestion;
-            await digestion.Lock.WaitAsync();
-            try
-            {
-                digestion.Food.Clear();
-            }
-            finally
-            {
-                digestion.Lock.Release();
-            }
+            return player.StandUpAsync();
+        }
+
+        player.IsSitting = true;
+        return player.MapInstance.SendPacketAsync(player.GenerateRest());
+    }
+
+    public static async Task StandUpAsync(this PlayerComponentBundle player)
+    {
+        player.IsSitting = false;
+
+        // Cleared here as well as on the tick, or standing and sitting back down within one
+        // tick would keep the meal.
+        var digestion = player.Digestion;
+        await digestion.Lock.WaitAsync();
+        try
+        {
+            digestion.Food.Clear();
+        }
+        finally
+        {
+            digestion.Lock.Release();
         }
 
         await player.MapInstance.SendPacketAsync(player.GenerateRest());

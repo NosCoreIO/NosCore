@@ -148,6 +148,17 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] At full HP a health potion stays in the inventory, even with MP missing
 - [ ] Potions dragged to the quick bar work the same way as from the inventory
 
+### Resting in combat
+
+- [ ] Sit next to a monster that attacks: you stand up as soon as its hit lands, and a second
+      client on the map sees you stand too
+- [ ] Between its hits you can sit back down
+- [ ] Attack a monster and press sit: nothing happens and no message appears
+- [ ] Stop attacking: sitting works again about three seconds after your last attack, even if
+      the monster died sooner
+- [ ] Sit with a Roasted Herring digesting and let a monster hit you: you stand up and the
+      green numbers stop
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.
