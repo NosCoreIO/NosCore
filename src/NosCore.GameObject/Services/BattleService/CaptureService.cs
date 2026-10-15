@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.UI;
@@ -28,8 +29,6 @@ using Wolverine;
 
 namespace NosCore.GameObject.Services.BattleService
 {
-    // A monster can be caught below half health and at or under the player's level. The new pet
-    // starts fifteen levels below the monster and comes out at once when no other pet is out.
     public sealed class CaptureService(IDao<MateDto, long> mateDao, IMateService mateService,
         IMessageBus messageBus, IClock clock, IRandomProvider random) : ICaptureService
     {
@@ -40,6 +39,8 @@ namespace NosCore.GameObject.Services.BattleService
         private const byte MateStartLevelOffset = 15;
         private const short NewPetLoyalty = 3000;
         private const int CaughtEffect = 197;
+        private const short CaughtAnimation = 15;
+        private const short EscapedAnimation = 16;
 
         public bool IsCaptureSkill(SkillInfo skill) =>
             HasCaptureBCard(skill);
@@ -71,8 +72,17 @@ namespace NosCore.GameObject.Services.BattleService
             if (random.Next(0, 100) >= rate)
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureFailed));
+                await monster.MapInstance.SendPacketAsync(Animation(owner, monster, hpPercent, EscapedAnimation));
                 return;
             }
+
+            // Claimed before anything is awaited, so a second capture or a kill cannot take it as well.
+            var caughtAt = Animation(owner, monster, hpPercent, CaughtAnimation);
+            monster.Hp = 0;
+            monster.IsAlive = false;
+            monster.HitList.Clear();
+            monster.MapInstance.ScheduleRespawn(monster,
+                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
 
             var row = await mateDao.TryInsertOrUpdateAsync(new MateDto
             {
@@ -90,7 +100,6 @@ namespace NosCore.GameObject.Services.BattleService
             var mate = mateService.Adopt(row, monster.NpcMonster, owner.Mates.Values);
             owner.Mates[mate.MateTransportId] = mate;
 
-            // Action 3 is the value the capture shows; the same ctl goes out when a pet leaves a map.
             await owner.SendPacketAsync(new CtlPacket
             {
                 Type = (byte)VisualType.Npc, PetId = mate.MateTransportId, Action = 3, Unknown = 0
@@ -104,24 +113,43 @@ namespace NosCore.GameObject.Services.BattleService
                 await owner.SendPacketsAsync(owner.GenerateMateRoster());
             }
 
+            await monster.MapInstance.SendPacketAsync(caughtAt);
             await monster.MapInstance.SendPacketAsync(owner.GenerateEff(CaughtEffect));
-
-            monster.Hp = 0;
-            monster.IsAlive = false;
-            monster.HitList.Clear();
-
             await monster.MapInstance.SendPacketAsync(new OutPacket
             {
                 VisualType = VisualType.Monster,
                 VisualId = monster.VisualId
             });
-
-            // Same delayed respawn as a kill, without the kill's rewards and death effects.
-            monster.MapInstance.ScheduleRespawn(monster,
-                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
+            if (mate.IsTeamMember)
+            {
+                await owner.SendPacketAsync(mate.GenerateCond());
+                await owner.SendPacketAsync(mate.GeneratePst());
+            }
 
             await messageBus.PublishAsync(new EntityCapturedEvent(monster, owner));
         }
+
+        private static SuPacket Animation(PlayerComponentBundle owner, MonsterComponentBundle monster, int hpPercent,
+            short animation) => new()
+        {
+            VisualType = VisualType.Player,
+            VisualId = owner.VisualId,
+            TargetVisualType = VisualType.Monster,
+            TargetId = monster.VisualId,
+            SkillVnum = -1,
+            SkillCooldown = 0,
+            AttackAnimation = animation,
+            SkillEffect = -1,
+            PositionX = -1,
+            PositionY = -1,
+            TargetIsAlive = true,
+            HpPercentage = (byte)hpPercent,
+            Damage = 0,
+            HitMode = SuPacketHitMode.NoDamageSuccess,
+            SkillTypeMinusOne = 0,
+            TargetCurrentHp = monster.Hp,
+            TargetMaxHp = monster.NpcMonster!.MaxHp
+        };
 
         private static MsgiPacket Message(Game18NConstString message) =>
             new() { Type = MessageType.Default, Message = message };

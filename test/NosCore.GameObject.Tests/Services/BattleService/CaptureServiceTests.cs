@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.MateExperienceService;
+using NosCore.Dao.Interfaces;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Buff;
@@ -20,6 +21,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
+using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Player;
@@ -39,6 +42,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private MonsterComponentBundle _monster;
         private Mock<IRandomProvider> _random = null!;
         private CaptureService _service = null!;
+        private MateServiceImpl _mateService = null!;
 
         private static readonly SkillInfo Capture = new(209, 16, 150, 15, -1, 0, 0, default, 1, 0, 0, 0, 0, 0,
             new List<BCardDto>
@@ -61,9 +65,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _random = new Mock<IRandomProvider>();
             _random.Setup(r => r.Next(0, 100)).Returns(0);
-            var mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, new List<NpcMonsterDto> { creature },
+            _mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, new List<NpcMonsterDto> { creature },
                 new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
-            _service = new CaptureService(TestHelpers.Instance.MateDao, mateService,
+            _service = new CaptureService(TestHelpers.Instance.MateDao, _mateService,
                 new Mock<Wolverine.IMessageBus>().Object, TestHelpers.Instance.Clock, _random.Object);
 
             map.LastPackets.Clear();
@@ -101,6 +105,69 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 order);
             Assert.AreEqual(Game18NConstString.CaptureSuccessful, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
             Assert.IsTrue(_session.Character.MapInstance.LastPackets.OfType<EffectPacket>().Any(e => e.Id == 197));
+        }
+
+        [TestMethod]
+        public async Task ASuccessfulCapturePlaysTheCaptureAnimation()
+        {
+            await Catching();
+
+            var map = _session.Character.MapInstance.LastPackets.ToList();
+            var su = map.OfType<SuPacket>().Single();
+            Assert.AreEqual(_monster.VisualId, su.TargetId);
+            Assert.AreEqual(15, su.AttackAnimation);
+            Assert.AreEqual(-1, su.SkillVnum);
+            Assert.IsTrue(su.TargetIsAlive, "the recording shows the monster alive in the animation");
+            Assert.AreEqual(40, su.HpPercentage);
+            Assert.AreEqual(SuPacketHitMode.NoDamageSuccess, su.HitMode);
+            Assert.IsTrue(map.IndexOf(su) < map.FindIndex(p => p is EffectPacket), "the animation comes before the sparkle");
+        }
+
+        [TestMethod]
+        public async Task AFailedRollPlaysTheFailAnimation()
+        {
+            _random.Setup(r => r.Next(0, 100)).Returns(95);
+
+            await Catching();
+
+            Assert.AreEqual(16, _session.Character.MapInstance.LastPackets.OfType<SuPacket>().Single().AttackAnimation);
+        }
+
+        [TestMethod]
+        public async Task TheNewPetGetsItsBarAndSpeedAfterThePanel()
+        {
+            await Catching();
+
+            var sent = _session.LastPackets.ToList();
+            var panel = sent.FindIndex(p => p is PinitPacket);
+            Assert.IsTrue(sent.FindIndex(p => p is CondPacket c && c.VisualId == Caught!.MateTransportId) > panel);
+            Assert.IsTrue(sent.FindIndex(p => p is PstPacket b && b.VisualId == Caught!.MateTransportId) > panel);
+        }
+
+        [TestMethod]
+        public async Task AMonsterBeingCaughtCannotBeCaughtTwice()
+        {
+            // A second capture lands while the first is still writing its row.
+            var dao = new Mock<IDao<MateDto, long>>();
+            CaptureService service = null!;
+            var reentered = false;
+            dao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<MateDto>()))
+                .Returns(async (MateDto row) =>
+                {
+                    if (!reentered)
+                    {
+                        reentered = true;
+                        await service.TryCaptureAsync(_session.Character, _monster, Capture);
+                    }
+
+                    return await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(row);
+                });
+            service = new CaptureService(dao.Object, _mateService, new Mock<Wolverine.IMessageBus>().Object,
+                TestHelpers.Instance.Clock, _random.Object);
+
+            await service.TryCaptureAsync(_session.Character, _monster, Capture);
+
+            Assert.AreEqual(1, _session.Character.Mates.Count);
         }
 
         [TestMethod]
