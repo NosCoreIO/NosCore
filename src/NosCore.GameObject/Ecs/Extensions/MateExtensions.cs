@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Enumerations.Character;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
@@ -13,8 +14,10 @@ using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.Networking;
 using NosCore.Shared.Enumerations;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Ecs.Extensions
 {
@@ -149,6 +152,31 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Unknown = -1,
                 Unknown2 = mate.VNum
             };
+        }
+
+        public static Task SpawnAsync(this Mate mate, PlayerComponentBundle owner, MapInstance mapInstance,
+            short x, short y)
+        {
+            mate.PositionX = x;
+            mate.PositionY = y;
+            var handle = mapInstance.EcsWorld.CreateMate((int)mate.MateTransportId, mate, mapInstance, x, y, 2);
+            mate.Entity = new MateComponentBundle(handle, mapInstance.EcsWorld);
+
+            // A hidden owner's pet would put the owner back on screen.
+            var spawn = mate.GenerateIn(owner.AccountLanguage);
+            return owner.Invisible ? owner.SendPacketAsync(spawn) : mapInstance.SendPacketAsync(spawn);
+        }
+
+        public static async Task DespawnAsync(this Mate mate, MapInstance mapInstance)
+        {
+            if (mate.Entity is not { } entity)
+            {
+                return;
+            }
+
+            await mapInstance.SendPacketAsync(mate.GenerateOut());
+            mapInstance.EcsWorld.DestroyEntity(entity.Handle);
+            mate.Entity = null;
         }
 
         public static OutPacket GenerateOut(this Mate mate)
