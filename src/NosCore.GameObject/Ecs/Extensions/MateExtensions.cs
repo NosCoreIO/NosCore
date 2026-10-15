@@ -8,6 +8,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Parcel;
 using NosCore.Packets.ServerPackets.Player;
@@ -133,6 +134,20 @@ namespace NosCore.GameObject.Ecs.Extensions
                     Name = mate.DisplayName(language),
                     Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 0)
                 }
+            };
+        }
+
+        public static PinitSubPacket GenerateSubPinit(this Mate mate, RegionType language)
+        {
+            return new PinitSubPacket
+            {
+                VisualType = VisualType.Npc,
+                VisualId = mate.MateTransportId,
+                GroupPosition = (int)mate.MateType,
+                Level = mate.Level,
+                Name = mate.DisplayName(language),
+                Unknown = -1,
+                Unknown2 = mate.VNum
             };
         }
 

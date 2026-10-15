@@ -19,6 +19,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
+using NosCore.Packets.ServerPackets.Groups;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -414,6 +415,24 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = MessageType.Default,
                 Message = Game18NConstString.HeroLevelIncreased
             });
+        }
+
+        // Alone, the official server lists nobody; in a group the players come first. Either way
+        // the recipient's own pets that are out follow.
+        public static PinitPacket GeneratePinit(this ICharacterEntity character)
+        {
+            var group = character.Group;
+            var entries = group is { Count: > 1 }
+                ? group.GeneratePinit().PinitSubPackets ?? new List<PinitSubPacket?>()
+                : new List<PinitSubPacket?>();
+            if (character is PlayerComponentBundle player)
+            {
+                entries.AddRange(player.Mates.Values
+                    .Where(s => s.IsTeamMember)
+                    .Select(s => (PinitSubPacket?)s.GenerateSubPinit(player.AccountLanguage)));
+            }
+
+            return new PinitPacket { GroupSize = entries.Count, PinitSubPackets = entries };
         }
 
         public static void JoinGroup(this ICharacterEntity characterEntity, Group group)
