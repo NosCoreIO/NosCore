@@ -23,6 +23,9 @@ using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
+using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Shared.Enumerations;
+using System.Linq;
 using SpecLight;
 using System;
 using System.Collections.Concurrent;
@@ -167,6 +170,31 @@ namespace NosCore.PacketHandlers.Tests.Game
         private async Task ExecutingGameStart()
         {
             await Handler.ExecuteAsync(new GameStartPacket(), Session);
+        }
+
+        [TestMethod]
+        public async Task GameStartListsThePetInThePartyPanel()
+        {
+            await new Spec("The login pinit carries the pet that is out")
+                .Given(CharacterIsReadyToStart)
+                .And(CharacterHasAPetOut)
+                .WhenAsync(ExecutingGameStart)
+                .Then(ThePartyPanelShouldListThePet)
+                .ExecuteAsync();
+        }
+
+        private NosCore.GameObject.Services.MateService.Mate _pet = null!;
+
+        private void CharacterHasAPetOut()
+        {
+            _pet = TestMates.Pet(Session.Character.CharacterId);
+            Session.Character.Mates[_pet.MateTransportId] = _pet;
+        }
+
+        private void ThePartyPanelShouldListThePet()
+        {
+            var pinit = Session.LastPackets.OfType<PinitPacket>().Last();
+            Assert.IsTrue(pinit.PinitSubPackets!.Any(s => s!.VisualType == VisualType.Npc && s.VisualId == _pet.MateTransportId));
         }
 
         private void GameStartedShouldBeFalse()

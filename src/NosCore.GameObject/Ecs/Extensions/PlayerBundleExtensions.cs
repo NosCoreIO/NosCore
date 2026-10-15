@@ -233,10 +233,10 @@ public static class PlayerBundleExtensions
 
                 if (sessionRegistry.TryGetCharacter(s => s.VisualId == member.Item2, out var groupMember))
                 {
-                    await groupMember.SendPacketAsync(group.GeneratePinit());
+                    await groupMember.SendPacketAsync(groupMember.GeneratePinit());
                 }
             }
-            await player.SendPacketAsync(group.GeneratePinit());
+            await player.SendPacketAsync(player.GeneratePinit());
         }
 
         await player.SendPacketAsync(new MsgiPacket

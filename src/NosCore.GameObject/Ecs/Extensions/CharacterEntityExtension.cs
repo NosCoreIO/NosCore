@@ -465,7 +465,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     });
                 }
 
-                await groupMember.SendPacketAsync(groupMember.Group.GeneratePinit());
+                await groupMember.SendPacketAsync(groupMember.GeneratePinit());
             }
 
             characterEntity.Group = new Group(GroupType.Group, sessionGroupFactory);

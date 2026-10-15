@@ -149,7 +149,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(MateService.GenerateScPackets(session.Character.Mates.Values, session.Character.AccountLanguage));
             await session.SendPacketAsync(new ScPStcPacket { MaxMateCountTenths = 0 });
 
-            await session.SendPacketAsync(session.Character.Group.GeneratePinit());
+            await session.SendPacketAsync(session.Character.GeneratePinit());
             await session.SendPacketsAsync(session.Character.Group.GeneratePst());
             await session.SendPacketsAsync(session.Character.Mates.Values
                 .Where(s => s.IsTeamMember).Select(s => s.GeneratePst()));

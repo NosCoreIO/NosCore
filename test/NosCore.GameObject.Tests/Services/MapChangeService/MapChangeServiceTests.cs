@@ -14,6 +14,8 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Tests.Shared;
+using NosCore.Packets.ServerPackets.Groups;
+using System.Linq;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
@@ -140,6 +142,19 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         private void CharacterMapIdIsPinnedTo_(short mapId)
         {
             Session.Character.MapId = mapId;
+        }
+
+        [TestMethod]
+        public async Task AMapChangeListsThePetInThePartyPanel()
+        {
+            var pet = TestMates.Pet(Session.Character.CharacterId);
+            Session.Character.Mates[pet.MateTransportId] = pet;
+
+            await ChangingToBaseMap1();
+
+            var pinit = Session.LastPackets.OfType<PinitPacket>().Last();
+            Assert.IsTrue(pinit.PinitSubPackets!.Any(s => s!.VisualId == pet.MateTransportId));
+            Assert.IsNotNull(pet.Entity, "the pet must be on the new map before the panel names it");
         }
 
         private async Task ChangingToBaseMap1()

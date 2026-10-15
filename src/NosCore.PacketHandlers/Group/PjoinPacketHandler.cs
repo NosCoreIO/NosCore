@@ -247,7 +247,7 @@ namespace NosCore.PacketHandlers.Group
                         if (sessionRegistry.TryGetCharacter(s =>
                             s.VisualId == member.Item2.VisualId, out var session))
                         {
-                            await session.SendPacketAsync(currentGroup.GeneratePinit());
+                            await session.SendPacketAsync(session.GeneratePinit());
                             await session.SendPacketsAsync(currentGroup.GeneratePst().Where(p => p.VisualId != session.VisualId));
                         }
                     }
