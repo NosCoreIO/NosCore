@@ -24,6 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -72,6 +73,10 @@ public static class PlayerBundleExtensions
 
     public static bool CanSitDown(this PlayerComponentBundle player, Instant now) =>
         now - player.LastAttack >= SitLockAfterAttack;
+
+    public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player) =>
+        new IPacket[] { new PclearPacket() }
+            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage));
 
     public static Task RestAsync(this PlayerComponentBundle player)
     {
