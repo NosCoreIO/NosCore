@@ -26,7 +26,12 @@ public class MapDisconnectHandler : ISessionDisconnectHandler
 
         if (session.HasPlayerEntity)
         {
-            await session.Character.MapInstance!.SendPacketAsync(session.Character.GenerateOut());
+            var mapInstance = session.Character.MapInstance!;
+            await mapInstance.SendPacketAsync(session.Character.GenerateOut());
+            foreach (var mate in session.Character.Mates.Values)
+            {
+                await mate.DespawnAsync(mapInstance);
+            }
         }
     }
 }
