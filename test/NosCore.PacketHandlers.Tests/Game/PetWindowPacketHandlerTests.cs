@@ -5,13 +5,18 @@
 //
 
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
+using NosCore.Packets;
+using NosCore.Packets.Attributes;
 using NosCore.Packets.ClientPackets;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Mates;
-using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 
@@ -44,6 +49,22 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.IsInstanceOfType(sent[0], typeof(PclearPacket), "the list follows a p_clear");
             Assert.AreEqual(1, sent.OfType<ScpPacket>().Count());
             Assert.AreEqual(1, sent.OfType<ScnPacket>().Count());
+        }
+
+        [TestMethod]
+        public void TheClientsPetWindowRequestReachesTheHandler()
+        {
+            // The same type list the world server hands its deserializer.
+            var packetTypes = typeof(IPacket).Assembly.GetTypes()
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket))
+                    && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
+                        || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0)
+                    && p.IsClass && !p.IsAbstract);
+
+            var packet = new Deserializer(packetTypes).Deserialize("npinfo 0");
+
+            Assert.IsInstanceOfType(packet, typeof(NpinfoPacketHandler).BaseType!.GetGenericArguments()[0],
+                "handlers are looked up by the exact type the deserializer produces");
         }
 
         [TestMethod]

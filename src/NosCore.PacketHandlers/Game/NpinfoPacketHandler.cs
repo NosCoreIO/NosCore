@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.Packets.ServerPackets.Player;
+using NosCore.Packets.ClientPackets.Player;
 
 namespace NosCore.PacketHandlers.Game
 {
