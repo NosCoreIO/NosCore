@@ -351,5 +351,38 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     $"the name has to travel as one field: {line}");
             }
         }
+
+        [TestMethod]
+        public void AnAdoptedPetTakesTheNextPetSlot()
+        {
+            var service = Build(System.Array.Empty<MateDto>());
+            var existing = new[]
+            {
+                new Mate { MateType = MateType.Pet, PetSlot = 0 },
+                new Mate { MateType = MateType.Pet, PetSlot = 1 },
+                new Mate { MateType = MateType.Partner, PetSlot = 0 }
+            };
+
+            var mate = service.Adopt(
+                new MateDto { MateId = 9, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, Level = 1 },
+                Creature(ChickenVNum, "Chicken", 156, 10), existing);
+
+            Assert.AreEqual(2, mate.PetSlot, "pets and partners are numbered separately");
+            Assert.AreEqual(9, mate.MateId, "the row id is what a later save updates");
+        }
+
+        [TestMethod]
+        public void AnAdoptedPetIsReadyToShow()
+        {
+            var service = Build(System.Array.Empty<MateDto>());
+
+            var mate = service.Adopt(
+                new MateDto { MateId = 9, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, Level = 1 },
+                Creature(ChickenVNum, "Chicken", 156, 10), System.Array.Empty<Mate>());
+
+            Assert.IsTrue(mate.MateTransportId >= 2000000);
+            Assert.AreEqual(ChickenVNum, mate.NpcMonster.NpcMonsterVNum);
+            Assert.AreEqual(15, mate.XpLoad, "a level 1 pet needs 15 experience in the recording");
+        }
     }
 }
