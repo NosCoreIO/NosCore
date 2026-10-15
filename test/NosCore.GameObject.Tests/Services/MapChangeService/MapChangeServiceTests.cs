@@ -15,6 +15,11 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Tests.Shared;
 using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.Parcel;
+using NosCore.Data.Enumerations.Group;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.GroupService;
+using NosCore.Shared.Enumerations;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using SpecLight;
@@ -155,6 +160,23 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             var pinit = Session.LastPackets.OfType<PinitPacket>().Last();
             Assert.IsTrue(pinit.PinitSubPackets!.Any(s => s!.VisualId == pet.MateTransportId));
             Assert.IsNotNull(pet.Entity, "the pet must be on the new map before the panel names it");
+        }
+
+        [TestMethod]
+        public async Task InAGroupThePanelArrivesBeforeTheMembersBars()
+        {
+            var other = await TestHelpers.Instance.GenerateSessionAsync();
+            var group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            Session.Character.JoinGroup(group);
+            other.Character.JoinGroup(group);
+            Session.LastPackets.Clear();
+
+            await ChangingToBaseMap1();
+
+            var sent = Session.LastPackets.ToList();
+            var panel = sent.FindLastIndex(p => p is PinitPacket);
+            var firstBar = sent.FindIndex(p => p is PstPacket s && s.Type == VisualType.Player);
+            Assert.IsTrue(panel >= 0 && firstBar > panel, "a pinit rebuilds the panel, so bars sent before it are lost");
         }
 
         private async Task ChangingToBaseMap1()

@@ -210,11 +210,6 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (group != null)
                 {
-                    if (!group.IsEmpty)
-                    {
-                        await session.SendPacketsAsync(group.GeneratePst());
-                    }
-
                     if (group.Type == GroupType.Group && group.Count > 1)
                     {
                         await newMapInstance.SendPacketAsync(group.GeneratePidx(character));
@@ -271,6 +266,11 @@ namespace NosCore.GameObject.Services.MapChangeService
                 }
 
                 await session.SendPacketAsync(character.GeneratePinit());
+                if (group is { IsEmpty: false })
+                {
+                    await session.SendPacketsAsync(group.GeneratePst());
+                }
+
                 await session.SendPacketsAsync(teamMates.Select(s => s.GenerateCond()));
                 await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 
