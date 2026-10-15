@@ -159,6 +159,21 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] Sit with a Roasted Herring digesting and let a monster hit you: you stand up and the
       green numbers stop
 
+### Pets
+
+Capture is skill 209, which every new character has. Weaken a monster at or below your level to
+under half health first.
+
+- [ ] With no pet out, catch one: "capture successful" shows, the pet appears where the monster
+      stood, it is in the party panel, and the pet window lists it
+- [ ] With a pet already out, catch another: it joins the pet window only
+- [ ] A failed roll says the capture failed; a monster above your level or above half health
+      says why it cannot be caught
+- [ ] Open the pet window: the list stays, it does not empty
+- [ ] Change map: the pet comes along and stays in the party panel
+- [ ] Log out and back in: every pet, its level and loyalty are still there
+- [ ] With a second client on the map, log out: your pet disappears from their screen too
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.
@@ -202,6 +217,6 @@ Recorded so nobody spends time hunting for them:
 - **Family experience and the `gidx` family id** — the family feature itself is not merged
   yet, so neither the corrected curve nor the flattened packet field has a path to the
   client.
-- **Mates and instances** — same, still open.
+- **Instances** — same, still open.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.
