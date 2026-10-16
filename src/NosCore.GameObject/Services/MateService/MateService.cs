@@ -39,13 +39,7 @@ namespace NosCore.GameObject.Services.MateService
                     continue;
                 }
 
-                var mate = row.Adapt<Mate>();
-                mate.NpcMonster = npcMonster;
-                mate.MateTransportId = mateIdService.GetNextId();
-                mate.XpLoad = mate.MateType == MateType.Pet
-                    ? mateExperienceService.GetPetExperience(mate.Level)
-                    : mateExperienceService.GetPartnerExperience(mate.Level);
-                mates.Add(mate);
+                mates.Add(Build(row, npcMonster));
             }
 
             foreach (var group in mates.GroupBy(s => s.MateType))
@@ -67,6 +61,24 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             return Task.FromResult(mates);
+        }
+
+        public Mate Adopt(MateDto row, NpcMonsterDto npcMonster, IEnumerable<Mate> existing)
+        {
+            var mate = Build(row, npcMonster);
+            mate.PetSlot = (byte)existing.Count(s => s.MateType == row.MateType);
+            return mate;
+        }
+
+        private Mate Build(MateDto row, NpcMonsterDto npcMonster)
+        {
+            var mate = row.Adapt<Mate>();
+            mate.NpcMonster = npcMonster;
+            mate.MateTransportId = mateIdService.GetNextId();
+            mate.XpLoad = mate.MateType == MateType.Pet
+                ? mateExperienceService.GetPetExperience(mate.Level)
+                : mateExperienceService.GetPartnerExperience(mate.Level);
+            return mate;
         }
 
         public async Task SaveAsync(IEnumerable<Mate> mates)

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -76,7 +77,47 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 characterQuestObjectiveDao,
                 respawnDao,
                 NullLogger<NosCore.GameObject.Services.SaveService.SaveService>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer,
+                new NosCore.GameObject.Services.MateService.MateService(TestHelpers.Instance.MateDao,
+                    new List<NpcMonsterDto>(),
+                    new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
+                    new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
+                    NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance));
+        }
+
+        [TestMethod]
+        public async Task SavingWritesThePetsCurrentState()
+        {
+            var pet = await OwnedPetAsync();
+            pet.Loyalty = 2500;
+            pet.Experience = 9;
+
+            await Service.SaveAsync(Session);
+
+            var row = await TestHelpers.Instance.MateDao.FirstOrDefaultAsync(s => s.MateId == pet.MateId);
+            Assert.AreEqual(2500, row!.Loyalty);
+            Assert.AreEqual(9, row.Experience);
+        }
+
+        [TestMethod]
+        public async Task SavingTwiceKeepsOneRow()
+        {
+            await OwnedPetAsync();
+
+            await Service.SaveAsync(Session);
+            await Service.SaveAsync(Session);
+
+            var characterId = Session.Character.CharacterId;
+            Assert.AreEqual(1, TestHelpers.Instance.MateDao.Where(s => s.CharacterId == characterId)!.Count());
+        }
+
+        private async Task<NosCore.GameObject.Services.MateService.Mate> OwnedPetAsync()
+        {
+            var pet = TestMates.Pet(Session.Character.CharacterId);
+            var row = await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(pet.Adapt<MateDto>());
+            pet.MateId = row.MateId;
+            Session.Character.Mates[pet.MateTransportId] = pet;
+            return pet;
         }
 
         [TestMethod]

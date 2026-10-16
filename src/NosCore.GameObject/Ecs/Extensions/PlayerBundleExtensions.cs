@@ -24,6 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -72,6 +73,10 @@ public static class PlayerBundleExtensions
 
     public static bool CanSitDown(this PlayerComponentBundle player, Instant now) =>
         now - player.LastAttack >= SitLockAfterAttack;
+
+    public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player) =>
+        new IPacket[] { new PclearPacket() }
+            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage));
 
     public static Task RestAsync(this PlayerComponentBundle player)
     {
@@ -233,10 +238,10 @@ public static class PlayerBundleExtensions
 
                 if (sessionRegistry.TryGetCharacter(s => s.VisualId == member.Item2, out var groupMember))
                 {
-                    await groupMember.SendPacketAsync(group.GeneratePinit());
+                    await groupMember.SendPacketAsync(groupMember.GeneratePinit());
                 }
             }
-            await player.SendPacketAsync(group.GeneratePinit());
+            await player.SendPacketAsync(player.GeneratePinit());
         }
 
         await player.SendPacketAsync(new MsgiPacket
@@ -386,11 +391,8 @@ public static class PlayerBundleExtensions
         };
     }
 
-    // Mirrors OpenNos's Character.GenerateReqInfo (Character.cs:3433). Returns the tc_info
-    // packet sent in response to a client req_info on a player target — the right-click
-    // info card showing class, level, equipped gear rare/upgrade, faction, PvP stats, etc.
-    // Family / talent / Act4 fields default to 0 because those subsystems aren't wired in
-    // NosCore yet; once they are, populate from the corresponding character state.
+    // The right-click info card for a player: class, level, worn gear, faction and PvP stats.
+    // Family, talent and Act4 fields stay 0 until those systems exist.
     public static TcInfoPacket GenerateReqInfo(this PlayerComponentBundle player)
     {
         var inv = player.InventoryService;
@@ -411,7 +413,7 @@ public static class PlayerBundleExtensions
             ElementRate = fairy?.Item?.ElementRate ?? 0,
             Class = player.Class,
             Gender = player.Gender,
-            // No family system yet; OpenNos sends "{familyId} {name}({rank})" or "-1 -" when none.
+            // No family system yet; "-1 -" is how the card reads "no family".
             Family = "-1 -",
             ReputationIco = (ExtendedReputationType)GetReputationIcon(player.Reputation),
             DignityIco = (CharacterDignity)GetDignityIcon(player.Dignity),

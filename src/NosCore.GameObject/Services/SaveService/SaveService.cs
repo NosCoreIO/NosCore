@@ -5,6 +5,7 @@
 //
 
 using NosCore.Dao.Interfaces;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
@@ -27,7 +28,7 @@ namespace NosCore.GameObject.Services.SaveService
             IDao<CharacterQuestDto, Guid> characterQuestDao,
             IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
             IDao<RespawnDto, long> respawnDao, ILogger<SaveService> logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMateService mateService)
         : ISaveService
     {
         public async Task SaveAsync(ClientSession session)
@@ -169,6 +170,7 @@ namespace NosCore.GameObject.Services.SaveService
                 }
 
                 await respawnDao.TryInsertOrUpdateAsync(character.Respawns);
+                await mateService.SaveAsync(character.Mates.Values);
             }
             catch (Exception e)
             {

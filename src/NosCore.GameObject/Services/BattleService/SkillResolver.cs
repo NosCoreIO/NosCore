@@ -49,9 +49,13 @@ public sealed class SkillResolver : ISkillResolver
     {
         // The same skill family can have multiple upgrades; client sends the base CastId
         // and the server picks the highest-tier version the character owns.
-        var match = character.Skills.Values
-            .Where(s => s.Skill != null && s.Skill.CastId == castId && s.Skill.UpgradeSkill == 0)
-            .FirstOrDefault();
+        // Upgrades are type 2. A few active skills, every class's Capture among them, carry a
+        // non-zero UpgradeSkill without being one, so they are only taken when no base skill is.
+        var owned = character.Skills.Values
+            .Where(s => s.Skill != null && s.Skill.CastId == castId)
+            .ToList();
+        var match = owned.FirstOrDefault(s => s.Skill!.UpgradeSkill == 0)
+            ?? owned.FirstOrDefault(s => s.Skill!.SkillType != 2);
         if (match?.Skill == null) return null;
 
         var upgrade = character.Skills.Values

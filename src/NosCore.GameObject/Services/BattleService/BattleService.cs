@@ -61,9 +61,8 @@ namespace NosCore.GameObject.Services.BattleService
                 return;
             }
 
-            // Capture skills branch before damage — vanosilla / OpenNos both suppress
-            // normal damage and SuPacket for skills carrying a CaptureAnimal bcard.
-            // A fail still consumes the cooldown via ScheduleCooldownReset below.
+            // A capture deals no damage: CaptureService sends its own animation and outcome, and a
+            // failed attempt still costs the cooldown below.
             if (captureService.IsCaptureSkill(skill))
             {
                 try
@@ -116,11 +115,8 @@ namespace NosCore.GameObject.Services.BattleService
                 return;
             }
 
-            // Order matters: OpenNos ships stat-to-target BEFORE the SuPacket so the
-            // client HUD bar settles to the new HP before the damage floater animates.
-            // Swapping the order makes the bar appear "frozen" even though the packet
-            // arrived — the client paints the floater first, re-reads its cached HP
-            // for the bar, then finally applies the stat update out-of-band.
+            // stat goes to the target before su: the client paints the damage number first and
+            // re-reads its cached HP for the bar, so a stat arriving later leaves the bar frozen.
             await SendTargetStatAsync(target).ConfigureAwait(false);
             await BroadcastHitAsync(origin, target, skill, outcome).ConfigureAwait(false);
             await BroadcastTargetInfoAsync(target).ConfigureAwait(false);
@@ -155,11 +151,8 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        // The attacked character's own top-left HP/MP HUD reads off `stat`. OpenNos
-        // emits this unicast to just the target (`ReceiverType.OnlySomeone`) BEFORE
-        // the SuPacket — BattleEntity.TargetHit builds GenerateStat, broadcasts it to
-        // only the target, then broadcasts SuPacket to the whole map. We mirror that
-        // order so the client settles the bar before animating damage.
+        // The target's own HP/MP bars read off `stat`, which goes to the target alone before the su
+        // goes to the map, so the bar settles before the damage animates.
         private static Task SendTargetStatAsync(IAliveEntity target)
         {
             if (target is PlayerComponentBundle player)

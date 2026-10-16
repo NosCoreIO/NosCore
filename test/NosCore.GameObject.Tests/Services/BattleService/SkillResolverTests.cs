@@ -69,6 +69,34 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void CaptureResolvesThoughItsDataNamesAnUpgradeField()
+        {
+            // Every class's Capture skill carries a non-zero UpgradeSkill without being an upgrade.
+            var capture = new SkillDto { SkillVNum = 209, CastId = 16, UpgradeSkill = 3, SkillType = 1 };
+            var character = new Mock<ICharacterEntity>();
+            var skills = new ConcurrentDictionary<short, CharacterSkill>();
+            skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
+            skills.TryAdd(209, new CharacterSkill { SkillVNum = 209, Skill = capture });
+            character.SetupGet(c => c.Skills).Returns(skills);
+
+            var resolved = new SkillResolver(_skills, _catalog).Resolve(character.Object, 16);
+
+            Assert.AreEqual((short)209, resolved?.SkillVnum);
+        }
+
+        [TestMethod]
+        public void AnUpgradeAloneDoesNotStandInForItsBaseSkill()
+        {
+            var upgrade = new SkillDto { SkillVNum = 101, CastId = 1, UpgradeSkill = 100, SkillType = 2, Effect = 5 };
+            var character = new Mock<ICharacterEntity>();
+            var skills = new ConcurrentDictionary<short, CharacterSkill>();
+            skills.TryAdd(101, new CharacterSkill { SkillVNum = 101, Skill = upgrade });
+            character.SetupGet(c => c.Skills).Returns(skills);
+
+            Assert.IsNull(new SkillResolver(_skills, _catalog).Resolve(character.Object, 1));
+        }
+
+        [TestMethod]
         public void CharacterWithoutMatchingCastIdReturnsNull()
         {
             var character = new Mock<ICharacterEntity>();
