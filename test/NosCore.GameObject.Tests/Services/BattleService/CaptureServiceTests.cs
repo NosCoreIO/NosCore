@@ -171,6 +171,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ARefusedCaptureReleasesTheClient()
+        {
+            _monster.Hp = 60;
+
+            await Catching();
+
+            var sent = _session.LastPackets.ToList();
+            var cancel = sent.OfType<CancelPacket>().Single();
+            Assert.AreEqual(CancelPacketType.CancelCast, cancel.Type);
+            Assert.AreEqual(16, cancel.TargetId, "the recording's refusal names the skill's cast id");
+            Assert.AreEqual(-1, cancel.Unknow);
+            Assert.IsTrue(sent.IndexOf(cancel) > sent.FindIndex(p => p is MsgiPacket), "the reason comes first");
+        }
+
+        [TestMethod]
+        public async Task CapturingSomethingThatIsNotAMonsterReleasesTheClient()
+        {
+            var other = await TestHelpers.Instance.GenerateSessionAsync();
+
+            await _service.TryCaptureAsync(_session.Character, other.Character, Capture);
+
+            Assert.AreEqual(CancelPacketType.CancelCast, _session.LastPackets.OfType<CancelPacket>().Single().Type);
+        }
+
+        [TestMethod]
+        public async Task ACaptureThatGoesOffIsNotCancelled()
+        {
+            await Catching();
+
+            Assert.IsFalse(_session.LastPackets.OfType<CancelPacket>().Any(), "the animation already resolves the cast");
+        }
+
+        [TestMethod]
         public async Task WithAPetAlreadyOutTheNewOneStaysInTheList()
         {
             var alreadyOut = TestMates.Pet(_session.Character.CharacterId, vnum: 200);
@@ -222,6 +255,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _service.TryCaptureAsync(_session.Character, monster, Capture);
 
             Assert.AreEqual(Game18NConstString.CaptureToHighLevel, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
+            Assert.IsTrue(_session.LastPackets.OfType<CancelPacket>().Any(), "a refused cast must release the client");
         }
 
         [TestMethod]

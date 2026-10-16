@@ -47,16 +47,24 @@ namespace NosCore.GameObject.Services.BattleService
 
         public async Task TryCaptureAsync(IAliveEntity caster, IAliveEntity target, SkillInfo skill)
         {
-            if (!HasCaptureBCard(skill) || caster is not PlayerComponentBundle owner
-                || target is not MonsterComponentBundle monster
+            if (!HasCaptureBCard(skill) || caster is not PlayerComponentBundle owner)
+            {
+                return;
+            }
+
+            // The client holds the cast until it hears back; a refusal that only explains itself
+            // leaves the character unable to act.
+            if (target is not MonsterComponentBundle monster
                 || monster.NpcMonster == null || !monster.IsAlive || monster.MapInstance == null)
             {
+                await owner.SendPacketAsync(Cancel(skill));
                 return;
             }
 
             if (monster.NpcMonster.Level > owner.Level)
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureToHighLevel));
+                await owner.SendPacketAsync(Cancel(skill));
                 return;
             }
 
@@ -65,6 +73,7 @@ namespace NosCore.GameObject.Services.BattleService
             if (hpPercent >= CaptureHpThresholdPercent)
             {
                 await owner.SendPacketAsync(Message(Game18NConstString.CaptureTooMuchLife));
+                await owner.SendPacketAsync(Cancel(skill));
                 return;
             }
 
@@ -150,6 +159,10 @@ namespace NosCore.GameObject.Services.BattleService
             TargetCurrentHp = monster.Hp,
             TargetMaxHp = monster.NpcMonster!.MaxHp
         };
+
+        // In a cast cancel the TargetId field carries the cast id.
+        private static CancelPacket Cancel(SkillInfo skill) =>
+            new() { Type = CancelPacketType.CancelCast, TargetId = skill.CastId, Unknow = -1 };
 
         private static MsgiPacket Message(Game18NConstString message) =>
             new() { Type = MessageType.Default, Message = message };
