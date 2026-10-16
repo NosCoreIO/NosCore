@@ -144,9 +144,38 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
         }
 
-        private static SkillInfo MakeSkill(TargetHitType hitType) => new(
+        [TestMethod]
+        public async Task RefusedCastsReportFalse()
+        {
+            var dead = new FakeEntity { Hp = 0 };
+            var target = new FakeEntity { Hp = 100 };
+            _skillResolver.Setup(r => r.Resolve(It.IsAny<IAliveEntity>(), It.IsAny<long>())).Returns((SkillInfo?)null);
+
+            Assert.IsFalse(await _service.Hit(dead, target, new HitArguments { SkillId = 1 }));
+            Assert.IsFalse(await _service.Hit(new FakeEntity { Hp = 100 }, target, new HitArguments { SkillId = 1 }));
+        }
+
+        [TestMethod]
+        public async Task AcceptedCastReportsTrue()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit));
+
+            Assert.IsTrue(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+        }
+
+        private void SetupLanding(IAliveEntity origin, IAliveEntity target, SkillInfo skill)
+        {
+            _skillResolver.Setup(r => r.Resolve(origin, 1L)).Returns(skill);
+            _targetResolver.Setup(r => r.Resolve(origin, target, skill)).Returns(new[] { target });
+            _hitQueue.Setup(q => q.EnqueueAsync(It.IsAny<HitRequest>()))
+                .ReturnsAsync(new HitOutcome(HitStatus.Landed, 50, SuPacketHitMode.SuccessAttack, false));
+        }
+
+        private static SkillInfo MakeSkill(TargetHitType hitType, byte range = 0, byte targetType = 0) => new(
             SkillVnum: 1, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
-            Type: 0, HitType: hitType, Range: 0, TargetRange: 2, TargetType: 0,
+            Type: 0, HitType: hitType, Range: range, TargetRange: 2, TargetType: targetType,
             Element: 0, Duration: 0, MpCost: 0, BCards: Array.Empty<BCardDto>());
 
         private class FakeEntity : IAliveEntity

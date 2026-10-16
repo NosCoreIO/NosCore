@@ -11,6 +11,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Map;
@@ -188,6 +189,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         {
             get { return _npcs.Select(s => s.Value).ToList(); }
         }
+
+        // For the life loop, where Monsters and Npcs would allocate a list per call.
+        public IEnumerable<MonsterComponentBundle> EnumerateMonsters() => _monsters.EnumerateValues();
+
+        public IEnumerable<NpcComponentBundle> EnumerateNpcs() => _npcs.EnumerateValues();
 
         public List<Portal> Portals { get; set; }
 

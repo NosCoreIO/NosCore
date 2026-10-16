@@ -19,6 +19,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using NosCore.PathFinder.Interfaces;
 using Microsoft.Extensions.Logging;
 
 namespace NosCore.PacketHandlers.Battle
@@ -31,7 +32,8 @@ namespace NosCore.PacketHandlers.Battle
         ILogger<UseSkillPacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IBattleService battleService,
-        ISessionRegistry sessionRegistry)
+        ISessionRegistry sessionRegistry,
+        IHeuristic distanceCalculator)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
@@ -62,31 +64,48 @@ namespace NosCore.PacketHandlers.Battle
             // Cooldown + MP cost gate. Matching OpenNos: CharacterSkill.CanBeUsed()
             // enforces SkillDto.Cooldown * 100ms since LastUse; MpCost is debited on cast,
             // not on hit (so a missed swing still burns mana — prevents spam).
-            if (!TryConsumeSkill(clientSession, packet.CastId, out var consumed))
+            AcceptReportedPosition(clientSession.Character, packet);
+
+            if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed))
             {
                 await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack }).ConfigureAwait(false);
                 return;
             }
 
-            await battleService.Hit(clientSession.Character, target, new HitArguments
+            var accepted = await battleService.Hit(clientSession.Character, target, new HitArguments
             {
                 SkillId = packet.CastId,
-                MapX = packet.MapX,
-                MapY = packet.MapY,
-            }).ConfigureAwait(false);
+            });
 
-            // Successful dispatch → stamp LastUse so subsequent casts are cooldown-gated.
-            // We do this after Hit so a failed cast (no skill resolved) doesn't consume
-            // the cooldown slot and leave the player unable to retry.
-            consumed?.Invoke();
+            // A cast BattleService refuses spends neither mana nor cooldown, so the player can
+            // retry straight away.
+            if (accepted)
+            {
+                consumed?.Invoke();
+            }
         }
 
-        // Verifies MP + cooldown WHEN the character owns the skill. For casts the
+        // The reported cell is only taken when it is one walk step from the cell the server
+        // already has; anything further would let a client cast from wherever it likes.
+        private void AcceptReportedPosition(ICharacterEntity character, UseSkillPacket packet)
+        {
+            if (packet is not { MapX: { } x, MapY: { } y }
+                || character.MapInstance?.Map.IsWalkable(x, y) == false
+                || !SkillReach.IsWithinOneStep((int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (x, y)), character.Speed))
+            {
+                return;
+            }
+
+            character.PositionX = x;
+            character.PositionY = y;
+        }
+
+        // Verifies reach, MP and cooldown WHEN the character owns the skill. For casts the
         // character doesn't have in their learned dict (e.g. transformation-only skills,
         // test fixtures without skill population) we defer rejection to BattleService
         // so the packet path stays permissive and SkillResolver produces a single
         // consistent "unknown skill" response.
-        private static bool TryConsumeSkill(ClientSession session, long castId, out System.Action? commit)
+        private bool TryConsumeSkill(ClientSession session, long castId, IAliveEntity target, out System.Action? commit)
         {
             commit = null;
             var character = session.Character;
@@ -100,6 +119,11 @@ namespace NosCore.PacketHandlers.Battle
                 return true;
             }
             if (!skill.CanBeUsed())
+            {
+                return false;
+            }
+            var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (target.PositionX, target.PositionY));
+            if (!SkillReach.IsInReach(skill.Skill.TargetType, skill.Skill.Range, distance))
             {
                 return false;
             }
