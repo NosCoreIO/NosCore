@@ -8,3 +8,9 @@
     Args:
       outputTemplate: "{Level:u4} {Timestamp:HH:mm:ss} -- {Message:lj}{NewLine}{Exception}"
       theme: Serilog.Sinks.SystemConsole.Themes.AnsiConsoleTheme::Literate, Serilog.Sinks.Console
+  - Name: File
+    Args:
+      path: "logs/noscore-.log"
+      rollingInterval: Day
+      shared: true
+      outputTemplate: "{Level:u4} {Timestamp:yyyy-MM-dd HH:mm:ss} -- {Message:lj}{NewLine}{Exception}"
