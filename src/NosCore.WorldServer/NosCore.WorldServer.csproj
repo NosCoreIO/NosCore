@@ -33,7 +33,7 @@
   <ItemGroup>
     <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <IncludeAssets>build; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
