@@ -17,6 +17,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using Wolverine.Attributes;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 {
@@ -122,7 +123,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
             return Task.CompletedTask;
         }
 
-        public static Reply<bool> Handle(PingChannelRequest request, IServiceProvider services) =>
+        [WolverineLogging(telemetryEnabled: false, successLogLevel: LogLevel.None, executionLogLevel: LogLevel.None)]
+        public static PingChannelReply Handle(PingChannelRequest request, IServiceProvider services) =>
             new(services.GetRequiredService<ChannelHub>().PingChannel(request.ChannelKey));
     }
 }

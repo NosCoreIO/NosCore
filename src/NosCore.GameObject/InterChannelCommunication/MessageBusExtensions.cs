@@ -15,7 +15,10 @@ public static class MessageBusExtensions
     private static readonly TimeSpan Timeout = TimeSpan.FromSeconds(10);
 
     public static async Task<T> RequestAsync<T>(this IMessageBus bus, IMasterRequest request) =>
-        (await bus.InvokeAsync<Reply<T>>(request, timeout: Timeout)).Value;
+        (await bus.InvokeMasterAsync<Reply<T>>(request)).Value;
+
+    public static Task<TReply> InvokeMasterAsync<TReply>(this IMessageBus bus, IMasterRequest request) =>
+        bus.InvokeAsync<TReply>(request, timeout: Timeout);
 
     public static Task SendToMasterAsync(this IMessageBus bus, IMasterRequest request) =>
         bus.InvokeAsync(request, timeout: Timeout);
