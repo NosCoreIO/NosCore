@@ -15,3 +15,6 @@ public record GetCommunicationChannelsRequest : IMasterRequest;
 public record SetMaintenanceRequest(string ChannelKey, bool IsGlobal, bool Value) : IMasterRequest;
 
 public record PingChannelRequest(string ChannelKey) : IMasterRequest;
+
+// Its own type rather than Reply<bool> so logger.yml can drop the per-second heartbeat logs alone.
+public record PingChannelReply(bool IsRegistered);

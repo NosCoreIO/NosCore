@@ -14,3 +14,7 @@
       rollingInterval: Day
       shared: true
       outputTemplate: "{Level:u4} {Timestamp:yyyy-MM-dd HH:mm:ss} -- {Message:lj}{NewLine}{Exception}"
+  Filter:
+  - Name: ByExcluding
+    Args:
+      expression: "EndsWith(MessageType, 'PingChannelRequest') or EndsWith(MessageType, 'PingChannelReply')"
