@@ -103,6 +103,11 @@ subtle: a card worth 5 is fivefold.
 
 This one is easy to eyeball — before the fix everything came back a hundred times too fast.
 
+### Monsters near the map edge
+
+- [ ] Pull a monster that spawns against the right or bottom border, run out of its range and
+      let it walk home: it walks back and the server log shows no `AI tick failed`
+
 ---
 
 ## Character
