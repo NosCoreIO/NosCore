@@ -183,7 +183,6 @@ namespace NosCore.Data.Enumerations.I18N
         ALREADY_BLACKLISTED,
         USER_IS_NOT_A_FRIEND,
         BANK_FULL,
-        ASK_BIND,
         SP_NOPOINTS,
         REPUTATION_CHANGED,
         TOO_RICH_SELLER,

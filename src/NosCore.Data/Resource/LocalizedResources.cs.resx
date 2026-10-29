@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Již je na Černé Listině!</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Chceš spojit tyto položky</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Nejméně jeden z požadovaných souborů chybí</value>
   </data>

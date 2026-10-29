@@ -101,11 +101,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task RequireBindingModeZeroUnboundEmitsConfirmationDialog()
         {
-            await new Spec("RequireBinding + Mode=0 + not yet bound prompts a Qna dialog asking for consent instead of equipping")
+            await new Spec("RequireBinding + Mode=0 + not yet bound prompts the client's cannot-trade-after-wearing question instead of equipping")
                 .Given(ItemInInventoryOfType_, ItemType.Armor)
                 .And(ItemRequiresBinding)
                 .WhenAsync(UsingTheItemWithMode_, (byte)0)
-                .Then(QnaPacketShouldHaveBeenSent)
+                .Then(CannotTradeAskWearingQnaiShouldHaveBeenSent)
                 .And(NoCanNotWearPacketSent)
                 .ExecuteAsync();
         }
@@ -266,9 +266,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.IsNull(say);
         }
 
-        private void QnaPacketShouldHaveBeenSent()
+        private void CannotTradeAskWearingQnaiShouldHaveBeenSent()
         {
-            Assert.IsTrue(_session.LastPackets.OfType<QnaPacket>().Any());
+            var qnai = _session.LastPackets.OfType<QnaiPacket>().SingleOrDefault();
+            Assert.IsNotNull(qnai);
+            Assert.AreEqual(Game18NConstString.CannotTradeAskWearing, qnai.Question);
+            var yes = qnai.YesPacket as UseItemPacket;
+            Assert.IsNotNull(yes);
+            Assert.AreEqual(1, yes.Mode);
+            Assert.IsFalse(_session.LastPackets.OfType<QnaPacket>().Any());
         }
 
         private sealed class ItemInstanceForTest(short vnum) : NosCore.Data.Dto.ItemInstanceDto, IItemInstance

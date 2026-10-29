@@ -417,9 +417,6 @@
   <data name="MASTER_SERVER_PING_FAILED" xml:space="preserve">
     <value>Ping échoué, aucune réponse du serveur master.</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Désirez vous lier cet item à votre personnage ? </value>
-  </data>
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>

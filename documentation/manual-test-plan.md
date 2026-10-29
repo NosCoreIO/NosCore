@@ -132,6 +132,9 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       low, not that you are the wrong class
 - [ ] Try to wear an item for another class: that one still says wrong class
 - [ ] `$SetJobLevel` above the requirement, then equip — it succeeds
+- [ ] `$CreateItem` an item that binds when worn and double-click it: the client's own
+      "cannot be traded after wearing" question opens, in the client's language
+- [ ] Answer yes: the item is worn; answer no: it stays in the inventory
 
 ### Dignity items
 
