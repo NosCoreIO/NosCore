@@ -148,6 +148,17 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] Use another one at 100: "Dignity is at maximum." pops up and the item stays
 - [ ] Relog — the restored dignity is still there
 
+### Inventory sort
+
+- [ ] Scatter a few different items over the MAIN tab with gaps between them, press the sort
+      button at the top of the inventory and confirm: they move to the first slots, in
+      alphabetical order of their names, with no gaps
+- [ ] The same on the EQUIP and ETC tabs; the other tabs are not touched
+- [ ] Two stacks of the same item stay two stacks, the larger first
+- [ ] Relog: the sorted order is still there
+- [ ] On an account in another language, the order follows that language's names
+- [ ] With a personal shop or an exchange open, sorting does nothing
+
 ### Potions
 
 - [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar

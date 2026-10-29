@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Services.ItemStorage;
+using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 
@@ -36,5 +37,7 @@ namespace NosCore.GameObject.Services.InventoryService
             short? targetSlot, bool swap);
 
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
+
+        IReadOnlyList<short> SortPocket(NoscorePocketType pocket, RegionType language);
     }
 }
