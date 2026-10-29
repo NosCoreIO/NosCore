@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemStorage;
+using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
@@ -538,6 +539,24 @@ namespace NosCore.GameObject.Services.InventoryService
 
             TryRemove(itemInstance.ItemInstanceId, out _);
             return itemInstance;
+        }
+
+        public IReadOnlyList<short> SortPocket(NoscorePocketType pocket, RegionType language)
+        {
+            var pocketItems = this.Select(s => s.Value).Where(i => i.Type == pocket).ToList();
+            var touchedSlots = new SortedSet<short>(pocketItems.Select(i => i.Slot));
+            var sorted = pocketItems
+                .OrderBy(i => i.ItemInstance.Item.Name[language], StringComparer.InvariantCultureIgnoreCase)
+                .ThenBy(i => i.ItemInstance.ItemVNum)
+                .ThenByDescending(i => i.ItemInstance.Amount)
+                .ToList();
+            for (short slot = 0; slot < sorted.Count; slot++)
+            {
+                sorted[slot].Slot = slot;
+                touchedSlots.Add(slot);
+            }
+
+            return touchedSlots.ToList();
         }
     }
 }
