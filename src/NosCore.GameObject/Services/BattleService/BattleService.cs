@@ -13,6 +13,7 @@ using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
@@ -38,27 +39,25 @@ namespace NosCore.GameObject.Services.BattleService
         ISessionRegistry sessionRegistry,
         IClock clock,
         ICaptureService captureService,
-        ILogger<BattleService> logger) : IBattleService
+        ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
         // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
         // and drained by TickCooldownResetsAsync on each map's 400ms life tick.
         private readonly ConcurrentDictionary<long, ConcurrentDictionary<long, Instant>> _pendingCooldownResets = new();
 
-        public async Task Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
+        public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
             if (!CanAttack(origin, target))
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
-                return;
+                return false;
             }
-
-            UpdateAttackerPosition(origin, arguments);
 
             var skill = skillResolver.Resolve(origin, arguments.SkillId);
             if (skill == null)
             {
                 await CancelAsync(origin, target).ConfigureAwait(false);
-                return;
+                return false;
             }
 
             // A capture deals no damage: CaptureService sends its own animation and outcome, and a
@@ -75,7 +74,7 @@ namespace NosCore.GameObject.Services.BattleService
                 }
 
                 ScheduleCooldownReset(origin, skill);
-                return;
+                return true;
             }
 
             var targets = targetResolver.Resolve(origin, target, skill);
@@ -97,6 +96,7 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             ScheduleCooldownReset(origin, skill);
+            return true;
         }
 
         private async Task ProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary)
@@ -238,28 +238,13 @@ namespace NosCore.GameObject.Services.BattleService
             }
         }
 
-        private static void UpdateAttackerPosition(IAliveEntity origin, HitArguments arguments)
-        {
-            if (arguments is not { MapX: not null, MapY: not null })
-            {
-                return;
-            }
-
-            if (origin.MapInstance?.Map.IsWalkable(arguments.MapX.Value, arguments.MapY.Value) == false)
-            {
-                return;
-            }
-
-            origin.PositionX = arguments.MapX.Value;
-            origin.PositionY = arguments.MapY.Value;
-        }
-
         // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction
         // rule below is what decides who's on whose side. Characters and NPCs are
         // allies — players can't kill a shop NPC via a crafted UseSkill packet, and
         // guards never friendly-fire a player — so any ally pairing bails first.
-        // Monsters are opposing-faction to both and are free to hit either.
-        private static bool CanAttack(IAliveEntity origin, IAliveEntity target)
+        // Monsters are opposing-faction to both and are free to hit either. Area
+        // targets go through this too, so PvP only needs deciding here.
+        internal static bool CanAttack(IAliveEntity origin, IAliveEntity target)
         {
             if (!origin.IsAlive || !target.IsAlive) return false;
             if (origin.NoAttack) return false;

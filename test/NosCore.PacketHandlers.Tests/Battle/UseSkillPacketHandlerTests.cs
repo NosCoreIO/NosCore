@@ -40,12 +40,15 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
             BattleService = new Mock<IBattleService>();
+            BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
+                It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>())).ReturnsAsync(true);
 
             Handler = new UseSkillPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 BattleService.Object,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.DistanceCalculator);
         }
 
         [TestMethod]
@@ -132,6 +135,22 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task ARefusedCastSpendsNeitherMpNorCooldown()
+        {
+            await new Spec("A cast that BattleService refuses leaves Mp and LastUse untouched so the player can retry")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
+                .And(CharacterHasMp_, 50)
+                .And(BattleServiceRefusesTheCast)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterMpShouldBe_, 50)
+                .And(LastUseShouldNotHaveBeenStamped)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task UsingKnownSkillOnCooldownSendsCancelAndSkipsBattleService()
         {
             await new Spec("A skill whose cooldown has not elapsed since LastUse sends a cancel and does not call Hit")
@@ -158,6 +177,93 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Then(ShouldReceiveCancelPacket)
                 .And(BattleServiceShouldNotBeCalled)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ALearnedSkillOutOfReachSendsCancelAndSpendsNothing()
+        {
+            await new Spec("A target beyond the skill's range plus one cell gets a cancel, no Hit, and no mana spent")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
+                .And(SkillHasRange_, (byte)1)
+                .And(CharacterHasMp_, 50)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)5)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(ShouldReceiveCancelPacket)
+                .And(BattleServiceShouldNotBeCalled)
+                .And(CharacterMpShouldBe_, 50)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReportedCellOneStepAwayIsWhereTheCastIsMeasuredFrom()
+        {
+            await new Spec("A reported cell within one walk step is taken, which brings the target into reach")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)1)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)6)
+                .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterShouldBeAt_, (short)5)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AReportedCellBeyondOneStepIsIgnored()
+        {
+            await new Spec("A reported cell further than one walk step is ignored, so the cast stays out of reach")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)1)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)2)
+                .And(TargetIsAt_, (short)5)
+                .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)4)
+                .Then(ShouldReceiveCancelPacket)
+                .And(BattleServiceShouldNotBeCalled)
+                .And(CharacterShouldBeAt_, (short)0)
+                .ExecuteAsync();
+        }
+
+        private void SkillHasRange_(byte range)
+        {
+            _learnedSkill.Skill!.Range = range;
+            _learnedSkill.Skill.TargetType = 0;
+        }
+
+        private void CharacterIsAt_WithSpeed_(short x, byte speed)
+        {
+            Session.Character.PositionX = x;
+            Session.Character.PositionY = 0;
+            Session.Character.Speed = speed;
+        }
+
+        private void TargetIsAt_(short x)
+        {
+            TargetSession.Character.PositionX = x;
+            TargetSession.Character.PositionY = 0;
+        }
+
+        private void CharacterShouldBeAt_(short x)
+        {
+            Assert.AreEqual(x, Session.Character.PositionX);
+        }
+
+        private async Task UsingSkillOnExistingPlayerReportingCell_(short x)
+        {
+            await Handler.ExecuteAsync(new UseSkillPacket
+            {
+                CastId = 1,
+                TargetVisualType = VisualType.Player,
+                TargetId = TargetSession.Character.VisualId,
+                MapX = x,
+                MapY = 0
+            }, Session);
         }
 
         private void CharacterIsOnMap()
@@ -279,6 +385,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 It.IsAny<HitArguments>()), Times.Never);
         }
 
+        private void BattleServiceRefusesTheCast()
+        {
+            BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
+                It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>())).ReturnsAsync(false);
+        }
+
         private void CharacterShouldNoLongerBeSitting()
         {
             Assert.IsFalse(Session.Character.IsSitting);
@@ -292,6 +404,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void LastUseShouldHaveBeenStampedRecent()
         {
             Assert.IsTrue(DateTime.Now - _learnedSkill.LastUse < TimeSpan.FromSeconds(5));
+        }
+
+        private void LastUseShouldNotHaveBeenStamped()
+        {
+            Assert.IsTrue(DateTime.Now - _learnedSkill.LastUse >= TimeSpan.FromSeconds(5));
         }
     }
 }
