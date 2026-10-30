@@ -23,13 +23,14 @@ using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
     // Cellon rolls are driven by a single stubbed NextDouble, so a roll of 0.10 at a level-1
-    // cellon picks the first option (Hp, 30..100) and lands 10% into its range.
+    // cellon picks the first option type (Hp, 30..100) and lands 10% into its range.
     [TestClass]
     public class CellonOperationTests
     {
@@ -72,8 +73,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task SuccessAddsAnOptionAndChargesTheCellonAndGold()
         {
-            await new Spec("A successful level-1 cellon adds one option, bumps the counter and charges 700 gold")
-                .Given(JewelWith_, (byte)0)
+            await new Spec("A level-1 cellon rolling a type the jewel lacks adds it and charges 700 gold")
+                .Given(JewelWithOptions_, Array.Empty<CellonType>())
                 .And(CellonOfLevel_, 1)
                 .And(CharacterHasGold_, 100_000L)
                 .And(NextRollWillBe_, 0.10)
@@ -84,31 +85,77 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .And(JewelCellonCountShouldBe_, (byte)1)
                 .And(GoldShouldBe_, 99_300L)
                 .And(CellonSlotShouldBeEmpty)
+                .And(MessageShouldBe_, Game18NConstString.OptionAdded)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task FailureConsumesTheCellonWithoutAddingAnOption()
+        public async Task RollingATypeAlreadyOnTheJewelFails()
         {
-            await new Spec("A failed roll still burns the cellon and the gold but leaves the jewel untouched")
-                .Given(JewelWith_, (byte)0)
+            await new Spec("Rolling a type the jewel already carries burns the cellon and the gold but adds nothing")
+                .Given(JewelWithOptions_, new[] { CellonType.Hp })
                 .And(CellonOfLevel_, 1)
                 .And(CharacterHasGold_, 100_000L)
-                .And(NextRollWillBe_, 0.90)
+                .And(NextRollWillBe_, 0.10)
                 .WhenAsync(CellonIsApplied)
                 .Then(PersistedOptionCountShouldBe_, 0)
-                .And(JewelCellonCountShouldBe_, (byte)0)
+                .And(JewelCellonCountShouldBe_, (byte)1)
                 .And(GoldShouldBe_, 99_300L)
                 .And(CellonSlotShouldBeEmpty)
+                .And(MessageShouldBe_, Game18NConstString.CellonDisapearedFailedUpgrade)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyOneCellonOfAStackIsUsed()
+        {
+            await new Spec("Applying from a stack of three cellons leaves two in the slot")
+                .Given(JewelWithOptions_, Array.Empty<CellonType>())
+                .And(CellonStackOfLevel_, 1, (short)3)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.10)
+                .WhenAsync(CellonIsApplied)
+                .Then(CellonsLeftShouldBe_, (short)2)
                 .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task CellonAboveTheJewelTierIsRejected()
         {
-            await new Spec("A cellon stronger than the jewel accepts is refused before anything is charged")
-                .Given(JewelWith_, (byte)0)
+            await new Spec("A cellon stronger than the jewel accepts is refused with a message before anything is charged")
+                .Given(JewelWithOptions_, Array.Empty<CellonType>())
                 .And(CellonOfLevel_, 5)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.10)
+                .WhenAsync(CellonIsApplied)
+                .Then(MessageShouldBe_, Game18NConstString.CellonLevelHigherThanAccessory)
+                .And(GoldShouldBe_, 100_000L)
+                .And(CellonsLeftShouldBe_, (short)1)
+                .And(PersistedOptionCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FullJewelIsRejected()
+        {
+            await new Spec("A jewel already holding its maximum options is refused with a message")
+                .Given(JewelWithOptions_, new[] { CellonType.Hp, CellonType.Mp })
+                .And(CellonOfLevel_, 1)
+                .And(CharacterHasGold_, 100_000L)
+                .And(NextRollWillBe_, 0.10)
+                .WhenAsync(CellonIsApplied)
+                .Then(MessageShouldBe_, Game18NConstString.CantAddMoreOptions)
+                .And(GoldShouldBe_, 100_000L)
+                .And(CellonsLeftShouldBe_, (short)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnotherMaterialIsNotTakenForACellon()
+        {
+            await new Spec("An item that is not an upgrade material is ignored even when it carries an effect value")
+                .Given(JewelWithOptions_, Array.Empty<CellonType>())
+                .And(NonCellonWithEffectValue_, 1)
                 .And(CharacterHasGold_, 100_000L)
                 .And(NextRollWillBe_, 0.10)
                 .WhenAsync(CellonIsApplied)
@@ -118,38 +165,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
-        [TestMethod]
-        public async Task FullJewelIsRejected()
-        {
-            await new Spec("A jewel already holding its maximum options is refused")
-                .Given(JewelWith_, (byte)2)
-                .And(CellonOfLevel_, 1)
-                .And(CharacterHasGold_, 100_000L)
-                .And(NextRollWillBe_, 0.10)
-                .WhenAsync(CellonIsApplied)
-                .Then(NoPacketsShouldBeReturned)
-                .And(GoldShouldBe_, 100_000L)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ExhaustedOptionTypesFailInsteadOfReportingSuccess()
-        {
-            await new Spec("When every option the tier offers is already on the jewel the attempt fails")
-                .Given(JewelWith_, (byte)1)
-                .And(CellonOfLevel_, 1)
-                .And(AllLevelOneOptionsAlreadyTaken)
-                .And(CharacterHasGold_, 100_000L)
-                .And(NextRollWillBe_, 0.10)
-                .WhenAsync(CellonIsApplied)
-                .Then(PersistedOptionCountShouldBe_, 0)
-                .And(JewelCellonCountShouldBe_, (byte)1)
-                .ExecuteAsync();
-        }
-
         // --- Givens ---
 
-        private void JewelWith_(byte appliedOptions)
+        private void JewelWithOptions_(CellonType[] existing)
         {
             var item = new Item
             {
@@ -162,26 +180,31 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer)
             {
-                Cellon = appliedOptions,
+                Cellon = (byte)existing.Length,
             };
             _jewel = InventoryItemInstance.Create(wearable, _session.Character.CharacterId);
             _jewel.Slot = 0;
             _jewel.Type = NoscorePocketType.Equipment;
             _session.Character.InventoryService[_jewel.ItemInstanceId] = _jewel;
+            _existingOptions.AddRange(existing.Select(t =>
+                new EquipmentOptionDto { Type = (byte)t, WearableInstanceId = _jewel.ItemInstanceId }));
         }
 
-        private void CellonOfLevel_(int level)
+        private void CellonOfLevel_(int level) => CellonStackOfLevel_(level, 1);
+
+        private void CellonStackOfLevel_(int level, short amount) =>
+            PutInCellonSlot(new CellonItemForTest(CellonVNum, ItemType.Upgrade, level) { Amount = amount });
+
+        private void NonCellonWithEffectValue_(int effectValue) =>
+            PutInCellonSlot(new CellonItemForTest(CellonVNum, ItemType.Production, effectValue) { Amount = 1 });
+
+        private void PutInCellonSlot(CellonItemForTest instance)
         {
-            var instance = new CellonItemForTest(CellonVNum, level) { Amount = 1 };
             _cellon = InventoryItemInstance.Create(instance, _session.Character.CharacterId);
             _cellon.Slot = 3;
             _cellon.Type = NoscorePocketType.Main;
             _session.Character.InventoryService[_cellon.ItemInstanceId] = _cellon;
         }
-
-        private void AllLevelOneOptionsAlreadyTaken() =>
-            _existingOptions.AddRange(new[] { CellonType.Hp, CellonType.Mp, CellonType.HpRecovery, CellonType.MpRecovery }
-                .Select(t => new EquipmentOptionDto { Type = (byte)t, WearableInstanceId = _jewel.ItemInstanceId }));
 
         private void CharacterHasGold_(long gold) => _session.Character.Gold = gold;
 
@@ -218,9 +241,16 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.IsNull(_session.Character.InventoryService
                 .LoadBySlotAndType(3, NoscorePocketType.Main));
 
+        private void CellonsLeftShouldBe_(short expected) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService
+                .LoadBySlotAndType(3, NoscorePocketType.Main)?.ItemInstance?.Amount ?? 0);
+
+        private void MessageShouldBe_(Game18NConstString expected) =>
+            Assert.AreEqual(expected, _result!.OfType<MsgiPacket>().Single().Message);
+
         private void NoPacketsShouldBeReturned() => Assert.AreEqual(0, _result!.Count);
 
-        private sealed class CellonItemForTest(short vnum, int effectValue) : ItemInstanceDto, IItemInstance
+        private sealed class CellonItemForTest(short vnum, ItemType itemType, int effectValue) : ItemInstanceDto, IItemInstance
         {
             public new Guid Id { get; set; } = Guid.NewGuid();
 
@@ -230,6 +260,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             {
                 VNum = vnum,
                 Type = NoscorePocketType.Main,
+                ItemType = itemType,
                 EffectValue = effectValue,
             };
 
