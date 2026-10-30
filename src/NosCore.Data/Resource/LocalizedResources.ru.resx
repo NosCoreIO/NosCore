@@ -129,10 +129,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Уже в черном списке!</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Ты хочешь привязать этот предмет?</value>
-    <comment>О чем идет речь? Пока не ясно. Уточним.</comment>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Как минимум один обязательный файл отсутствует. Попробуйте ещё раз, когда у вас будут все необходимые файлы.</value>
   </data>

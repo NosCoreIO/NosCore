@@ -129,9 +129,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Bereits in der Blacklist.</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Möchtest du dieses Item an dich binden?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Mindestens eine der erforderlichen Dateien fehlen</value>
   </data>

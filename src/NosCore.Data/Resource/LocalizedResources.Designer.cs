@@ -88,15 +88,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Do you wish to bind with this item?.
-        /// </summary>
-        public static string ASK_BIND {
-            get {
-                return ResourceManager.GetString("ASK_BIND", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to At least one of the required files are missing, try again when you have all the required files..
         /// </summary>
         public static string AT_LEAST_ONE_FILE_MISSING {

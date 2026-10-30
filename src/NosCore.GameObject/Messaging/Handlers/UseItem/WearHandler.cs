@@ -62,12 +62,12 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             if (itemInstance.ItemInstance.BoundCharacterId == null && packet.Mode == 0 && itemInstance.ItemInstance.Item.RequireBinding)
             {
-                await session.SendPacketAsync(new QnaPacket
+                await session.SendPacketAsync(new QnaiPacket
                 {
                     YesPacket = session.Character.GenerateUseItem(
                         (PocketType)itemInstance.Type,
                         itemInstance.Slot, 1, (byte)(packet.Parameter ?? 0)),
-                    Question = session.GetMessageFromKey(LanguageKey.ASK_BIND)
+                    Question = Game18NConstString.CannotTradeAskWearing
                 });
                 return;
             }

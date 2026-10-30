@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Ya estÃ¡ en lista negra.</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Â¿Deseas vincular este objeto?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Al menos uno de los archivos necesarios no esta presente.</value>
   </data>

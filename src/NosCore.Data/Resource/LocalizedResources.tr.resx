@@ -126,9 +126,6 @@
   <data name="ALREADY_BLACKLISTED" xml:space="preserve">
     <value>Zaten karalistede!</value>
   </data>
-  <data name="ASK_BIND" xml:space="preserve">
-    <value>Bu eşyayı bağlamak istiyor musun?</value>
-  </data>
   <data name="AT_LEAST_ONE_FILE_MISSING" xml:space="preserve">
     <value>Bir veya daha fazla gerekli dosya eksik, tüm dosyaları tamamladıktan sonra tekrar deneyiniz.</value>
   </data>
