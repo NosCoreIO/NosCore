@@ -200,6 +200,20 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Food and a snack eaten together both heal
 - [ ] At full HP, food and snacks are still used up
 
+### Cellon options on accessories
+
+Talk to an NPC whose shop menu offers the accessory shop and "add option" (the Fashion Boutique,
+dialog 10), open the shop and switch to the second tab. Drag a necklace, ring or bracelet into
+Accessory and a Cellon (`$CreateItem 1017` for level 1) into Cellon, then Add Option and Confirm.
+
+- [ ] The window shows the price for the cellon's level (700 gold at level 1) and the option list
+- [ ] Confirm: "You have successfully added an option." (or "The Cellon has disappeared because
+      you failed to add options."), the gold drops by the price and one cellon leaves the stack
+- [ ] A cellon above the accessory's option level: "The Cellon's level is higher than that of the
+      accessory.", nothing is charged
+- [ ] An accessory already holding its maximum number of options: "You cannot add any more
+      options.", nothing is charged
+
 ---
 
 ## Regression sweep
@@ -226,5 +240,7 @@ Recorded so nobody spends time hunting for them:
   yet, so neither the corrected curve nor the flattened packet field has a path to the
   client.
 - **Instances** — same, still open.
+- **Cellon options in the item tooltip and on the character** — options are stored, but the
+  server sends no `e_info` for accessories and nothing applies the options to stats yet.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.
