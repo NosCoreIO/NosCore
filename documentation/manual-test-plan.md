@@ -200,6 +200,21 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Food and a snack eaten together both heal
 - [ ] At full HP, food and snacks are still used up
 
+### Wing and Amulet of Return
+
+- [ ] Away from the village, use a Wing of Return (`$CreateItem 2070`): it asks "Do you want to
+      save your position and return to the village?"
+- [ ] Confirm: after the five-second bar you land on your place of revival, and the wing is gone
+- [ ] Use an Amulet of Return (`$CreateItem 2071`): it asks "Would you like to return to the place
+      <map> (x, y)?" naming where you used the wing; Confirm, and after the bar you are back there and
+      the amulet is gone
+- [ ] With no point of return saved, the amulet says "You have not chosen a point of return."
+      and stays in the inventory
+- [ ] Use a wing somewhere else and Cancel: you still go to the place of revival and the wing is
+      gone, but the amulet brings you back to the old point
+- [ ] Inside a time-space or raid, either item says it cannot be used here
+- [ ] Relog after using a wing: the amulet still knows the point of return
+
 ---
 
 ## Regression sweep
