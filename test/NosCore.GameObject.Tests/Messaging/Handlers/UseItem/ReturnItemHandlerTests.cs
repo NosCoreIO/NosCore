@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -147,12 +148,24 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task AmuletStartsTheDelay()
+        public async Task AmuletMarksTheReturnPoint()
         {
-            await new Spec("Amulet of Return with a saved point starts the delay bar without asking")
+            await new Spec("Amulet of Return with a saved point marks it on the map before leaving")
                 .Given(ItemInInventory_, TeleportEffectValue.AmuletOfReturn)
                 .And(AReturnPointIsSaved)
                 .WhenAsync(UsingItemWithMode_, (byte)0)
+                .Then(ReturnPointShouldBeMarked)
+                .And(NoMapChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConfirmedAmuletStartsTheDelay()
+        {
+            await new Spec("Clicking the marked point starts the delay bar")
+                .Given(ItemInInventory_, TeleportEffectValue.AmuletOfReturn)
+                .And(AReturnPointIsSaved)
+                .WhenAsync(UsingItemWithMode_, (byte)1)
                 .Then(DelayPacketShouldReplayMode_, (byte)2)
                 .And(NoMapChange)
                 .ExecuteAsync();
@@ -233,6 +246,14 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(Game18NConstString.AmuletMessageToSavePositionAndReturnToVillage, dialog.Question);
             Assert.AreEqual((byte)1, ((UseItemPacket)dialog.YesPacket!).Mode);
             Assert.AreEqual((byte)2, ((UseItemPacket)dialog.NoPacket!).Mode);
+            Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+        }
+
+        private void ReturnPointShouldBeMarked()
+        {
+            var rp = _session.LastPackets.OfType<RpPacket>().Single();
+            Assert.AreEqual((2550, 20, 33), (rp.MapId, rp.X, rp.Y));
+            Assert.AreEqual((byte)1, ((UseItemPacket)rp.Packet!).Mode);
             Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
         }
 

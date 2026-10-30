@@ -15,13 +15,14 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Event;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     // The Wing of Return asks whether to save where it was used, then sends the character to its place
-    // of revival either way; the Amulet of Return brings it back to the saved point.
+    // of revival either way; the Amulet of Return marks the saved point and brings it back there.
     [UsedImplicitly]
     public sealed class ReturnItemHandler(IRespawnService respawnService, IMapChangeService mapChangeService)
     {
@@ -29,6 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         private const byte DontSaveAnswered = 2;
         private const byte SaveAndLeave = 3;
         private const byte LeaveWithoutSaving = 4;
+        private const byte AmuletConfirmed = 1;
         private const byte AmuletLeave = 2;
 
         [UsedImplicitly]
@@ -112,14 +114,27 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            if (evt.Packet.Mode == 0)
+            var (mapId, x, y) = returnPoint.Value;
+            switch (evt.Packet.Mode)
             {
-                await SendDelayAsync(evt, AmuletLeave);
-                return;
+                case 0:
+                    var itemInstance = evt.InventoryItem;
+                    await session.SendPacketAsync(new RpPacket
+                    {
+                        MapId = mapId,
+                        X = x,
+                        Y = y,
+                        Packet = session.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, AmuletConfirmed, 0),
+                    });
+                    return;
+                case AmuletConfirmed:
+                    await SendDelayAsync(evt, AmuletLeave);
+                    return;
+                case AmuletLeave:
+                    await ConsumeAsync(evt);
+                    await mapChangeService.ChangeMapAsync(session, mapId, x, y);
+                    return;
             }
-
-            await ConsumeAsync(evt);
-            await mapChangeService.ChangeMapAsync(session, returnPoint.Value.MapId, returnPoint.Value.X, returnPoint.Value.Y);
         }
 
         private static Task SendDelayAsync(ItemUsedEvent evt, byte nextMode)
