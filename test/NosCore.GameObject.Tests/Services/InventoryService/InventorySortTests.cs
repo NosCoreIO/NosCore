@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Core.Configuration;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -40,6 +41,11 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 MainItem(1012, "Seed of Power", "Graine de puissance"),
                 MainItem(1013, "seed of power", "graine de puissance"),
                 new Item { Type = NoscorePocketType.Etc, VNum = 2024, Name = Name("Biscuits", "Biscuits") },
+                Specialist(901, 30, "Warrior"),
+                Specialist(902, 20, "Ninja"),
+                Specialist(903, 20, "Assassin"),
+                new Item { Type = NoscorePocketType.Costume, VNum = 4201, Name = Name("Bunny Ears", "Oreilles de lapin") },
+                new Item { Type = NoscorePocketType.Costume, VNum = 4075, Name = Name("Wedding Dress", "Robe de mariee") },
             };
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(Items,
                 NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
@@ -99,6 +105,33 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 .Execute();
         }
 
+        [TestMethod]
+        public void SpecialistsShouldGoByJobLevelRequirementThenVnum()
+        {
+            new Spec("Specialists should go by job level requirement then vnum")
+                .Given(SpecialistsAreScattered)
+                .When(Sorting_PocketIn_, NoscorePocketType.Specialist, RegionType.EN)
+                .Then(_PocketShouldRead_, NoscorePocketType.Specialist, "902 903 901")
+                .Execute();
+        }
+
+        [TestMethod]
+        public void CostumesShouldGoByVnum()
+        {
+            new Spec("Costumes should go by vnum")
+                .Given(CostumesAreScattered)
+                .When(Sorting_PocketIn_, NoscorePocketType.Costume, RegionType.EN)
+                .Then(_PocketShouldRead_, NoscorePocketType.Costume, "4075 4201")
+                .Execute();
+        }
+
+        private static Item Specialist(short vnum, byte jobLevel, string name) =>
+            new()
+            {
+                Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, VNum = vnum,
+                LevelJobMinimum = jobLevel, Name = Name(name, name)
+            };
+
         private static Item MainItem(short vnum, string english, string french) =>
             new() { Type = NoscorePocketType.Main, VNum = vnum, Name = Name(english, french) };
 
@@ -128,14 +161,32 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             Add(1012, 9, NoscorePocketType.Main, 2);
         }
 
+        private void SpecialistsAreScattered()
+        {
+            Add(901, 1, NoscorePocketType.Specialist, 1);
+            Add(903, 1, NoscorePocketType.Specialist, 4);
+            Add(902, 1, NoscorePocketType.Specialist, 7);
+        }
+
+        private void CostumesAreScattered()
+        {
+            Add(4201, 1, NoscorePocketType.Costume, 2);
+            Add(4075, 1, NoscorePocketType.Costume, 5);
+        }
+
         private void EtcItemInSlot_(int slot) => Add(2024, 1, NoscorePocketType.Etc, (short)slot);
 
         private void SortingMainPocketIn_(RegionType language) =>
             TouchedSlots = Inventory.SortPocket(NoscorePocketType.Main, language);
 
-        private void MainPocketShouldRead_(string expected)
+        private void Sorting_PocketIn_(NoscorePocketType pocket, RegionType language) =>
+            TouchedSlots = Inventory.SortPocket(pocket, language);
+
+        private void MainPocketShouldRead_(string expected) => _PocketShouldRead_(NoscorePocketType.Main, expected);
+
+        private void _PocketShouldRead_(NoscorePocketType type, string expected)
         {
-            var pocket = Inventory.Values.Where(i => i.Type == NoscorePocketType.Main).OrderBy(i => i.Slot).ToList();
+            var pocket = Inventory.Values.Where(i => i.Type == type).OrderBy(i => i.Slot).ToList();
             CollectionAssert.AreEqual(Enumerable.Range(0, pocket.Count).Select(s => (short)s).ToList(),
                 pocket.Select(i => i.Slot).ToList());
             var showsAmounts = expected.Contains('x');
