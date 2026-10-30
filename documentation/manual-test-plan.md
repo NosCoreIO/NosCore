@@ -202,14 +202,15 @@ Lose some HP first, otherwise there is nothing to watch.
 
 ### Wing and Amulet of Return
 
-- [ ] Away from the village, use a Wing of Return (`$CreateItem 2070`): after the five-second
-      bar you land on your place of revival, and the wing is gone
+- [ ] Away from the village, use a Wing of Return (`$CreateItem 2070`): it asks "Do you want to
+      save your position and return to the village?"
+- [ ] Confirm: after the five-second bar you land on your place of revival, and the wing is gone
 - [ ] Use an Amulet of Return (`$CreateItem 2071`): after the bar you are back where you used
       the wing, and the amulet is gone
 - [ ] With no point of return saved, the amulet says "You have not chosen a point of return."
       and stays in the inventory
-- [ ] Use a second wing: "You have already assigned a point of return. Overwrite?" appears;
-      Cancel keeps the old point, Confirm saves the new one and sends you away
+- [ ] Use a wing somewhere else and Cancel: you still go to the place of revival and the wing is
+      gone, but the amulet brings you back to the old point
 - [ ] Inside a time-space or raid, either item says it cannot be used here
 - [ ] Relog after using a wing: the amulet still knows the point of return
 

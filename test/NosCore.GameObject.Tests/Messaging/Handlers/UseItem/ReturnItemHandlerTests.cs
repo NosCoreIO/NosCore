@@ -71,43 +71,41 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await new Spec("Wing of Return is rejected inside an instance")
                 .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
                 .And(CharacterIsInsideNonBaseInstance)
-                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .WhenAsync(UsingItemWithMode_, (byte)0)
                 .Then(SayMessageShouldBe_, Game18NConstString.CanNotBeUsedHere)
                 .And(NoMapChange)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task WingWithoutReturnPointStartsTheDelay()
+        public async Task WingAsksWhetherToSaveThePosition()
         {
-            await new Spec("Wing of Return without a saved point goes straight to the delay bar")
+            await new Spec("Wing of Return asks whether to save the position before leaving")
                 .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
                 .WhenAsync(UsingItemWithMode_, (byte)0)
-                .Then(DelayPacketShouldReplayMode_, (byte)2)
+                .Then(SaveQuestionShouldBeAsked)
                 .And(NoMapChange)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task WingWithReturnPointAsksToOverwrite()
+        public async Task ConfirmStartsTheDelayToSaveAndLeave()
         {
-            await new Spec("Wing of Return with a saved point asks before overwriting it")
+            await new Spec("Confirming the save question starts the delay bar towards saving and leaving")
                 .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
-                .And(AReturnPointIsSaved)
-                .WhenAsync(UsingItemWithMode_, (byte)0)
-                .Then(OverwriteQuestionShouldBeAsked)
-                .And(NoMapChange)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ConfirmedOverwriteStartsTheDelay()
-        {
-            await new Spec("Answering yes to the overwrite question starts the delay bar")
-                .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
-                .And(AReturnPointIsSaved)
                 .WhenAsync(UsingItemWithMode_, (byte)1)
-                .Then(DelayPacketShouldReplayMode_, (byte)2)
+                .Then(DelayPacketShouldReplayMode_, (byte)3)
+                .And(NoMapChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CancelStillStartsTheDelayToLeave()
+        {
+            await new Spec("Cancelling the save question still starts the delay bar, towards leaving without saving")
+                .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
+                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .Then(DelayPacketShouldReplayMode_, (byte)4)
                 .And(NoMapChange)
                 .ExecuteAsync();
         }
@@ -115,11 +113,24 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task WingSavesTheSpotAndSendsToRevivalPoint()
         {
-            await new Spec("After the delay the Wing of Return is consumed, saves the spot and warps to the place of revival")
+            await new Spec("After a confirmed save the wing is consumed, saves the spot and warps to the place of revival")
                 .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
-                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .WhenAsync(UsingItemWithMode_, (byte)3)
                 .Then(ItemShouldBeConsumed)
                 .And(ReturnPointShouldBeSavedAtCurrentPosition)
+                .And(MapChangeShouldBeTo_, (short)1, (short)80, (short)116)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CancelledWingSendsToRevivalPointWithoutSaving()
+        {
+            await new Spec("After a cancelled save the wing is still consumed and warps to the place of revival, keeping the old point")
+                .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
+                .And(AReturnPointIsSaved)
+                .WhenAsync(UsingItemWithMode_, (byte)4)
+                .Then(ItemShouldBeConsumed)
+                .And(ReturnPointShouldNotBeSaved)
                 .And(MapChangeShouldBeTo_, (short)1, (short)80, (short)116)
                 .ExecuteAsync();
         }
@@ -212,15 +223,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void DelayPacketShouldReplayMode_(byte mode)
         {
-            var delay = _session.LastPackets.OfType<DelayPacket>().Single();
-            Assert.AreEqual(mode, ((UseItemPacket)delay.Packet!).Mode);
+            var useItem = (UseItemPacket)_session.LastPackets.OfType<DelayPacket>().Single().Packet!;
+            Assert.AreEqual(mode, useItem.Mode);
         }
 
-        private void OverwriteQuestionShouldBeAsked()
+        private void SaveQuestionShouldBeAsked()
         {
-            var qna = _session.LastPackets.OfType<QnaiPacket>().Single();
-            Assert.AreEqual(Game18NConstString.OverwriteReturnPoint, qna.Question);
-            Assert.AreEqual((byte)1, ((UseItemPacket)qna.YesPacket!).Mode);
+            var dialog = _session.LastPackets.OfType<DlgiPacket>().Single();
+            Assert.AreEqual(Game18NConstString.AmuletMessageToSavePositionAndReturnToVillage, dialog.Question);
+            Assert.AreEqual((byte)1, ((UseItemPacket)dialog.YesPacket!).Mode);
+            Assert.AreEqual((byte)2, ((UseItemPacket)dialog.NoPacket!).Mode);
             Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
         }
 
@@ -232,6 +244,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             var character = _session.Character;
             _respawnService.Verify(x => x.SetReturnPoint(character, character.MapInstance.Map.MapId,
                 character.PositionX, character.PositionY), Times.Once);
+        }
+
+        private void ReturnPointShouldNotBeSaved()
+        {
+            _respawnService.Verify(x => x.SetReturnPoint(It.IsAny<ICharacterEntity>(), It.IsAny<short>(),
+                It.IsAny<short>(), It.IsAny<short>()), Times.Never);
         }
 
         private void MapChangeShouldBeTo_(short mapId, short x, short y)

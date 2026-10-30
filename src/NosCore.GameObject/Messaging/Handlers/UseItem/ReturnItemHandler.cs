@@ -20,13 +20,16 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
-    // The Wing of Return saves where it was used and sends the character to its place of revival;
-    // the Amulet of Return brings it back to that saved point.
+    // The Wing of Return asks whether to save where it was used, then sends the character to its place
+    // of revival either way; the Amulet of Return brings it back to the saved point.
     [UsedImplicitly]
     public sealed class ReturnItemHandler(IRespawnService respawnService, IMapChangeService mapChangeService)
     {
-        private const byte ConfirmedMode = 1;
-        private const byte DelayedMode = 2;
+        private const byte SaveAnswered = 1;
+        private const byte DontSaveAnswered = 2;
+        private const byte SaveAndLeave = 3;
+        private const byte LeaveWithoutSaving = 4;
+        private const byte AmuletLeave = 2;
 
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -41,8 +44,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            var itemInstance = evt.InventoryItem;
-            var mode = evt.Packet.Mode;
 
             if (character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
@@ -56,49 +57,87 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var mapId = character.MapInstance.Map.MapId;
-            var returnPoint = respawnService.GetReturnPoint(character, mapId);
-            var isWing = item.EffectValue == (short)TeleportEffectValue.WingOfReturn;
+            if (item.EffectValue == (short)TeleportEffectValue.WingOfReturn)
+            {
+                await UseWingAsync(evt);
+                return;
+            }
 
-            if (!isWing && returnPoint == null)
+            await UseAmuletAsync(evt);
+        }
+
+        private async Task UseWingAsync(ItemUsedEvent evt)
+        {
+            var session = evt.ClientSession;
+            var character = session.Character;
+            var itemInstance = evt.InventoryItem;
+            var pocket = (PocketType)itemInstance.Type;
+            var mapId = character.MapInstance.Map.MapId;
+
+            switch (evt.Packet.Mode)
+            {
+                case 0:
+                    await session.SendPacketAsync(new DlgiPacket
+                    {
+                        YesPacket = character.GenerateUseItem(pocket, itemInstance.Slot, SaveAnswered, 0),
+                        NoPacket = character.GenerateUseItem(pocket, itemInstance.Slot, DontSaveAnswered, 0),
+                        Question = Game18NConstString.AmuletMessageToSavePositionAndReturnToVillage,
+                    });
+                    return;
+                case SaveAnswered:
+                case DontSaveAnswered:
+                    await SendDelayAsync(evt, evt.Packet.Mode == SaveAnswered ? SaveAndLeave : LeaveWithoutSaving);
+                    return;
+                case SaveAndLeave:
+                case LeaveWithoutSaving:
+                    await ConsumeAsync(evt);
+                    if (evt.Packet.Mode == SaveAndLeave)
+                    {
+                        respawnService.SetReturnPoint(character, mapId, character.PositionX, character.PositionY);
+                    }
+
+                    var (respawnMapId, x, y) = respawnService.GetRespawnLocation(character, respawnService.ResolveRespawnMapTypeId(mapId));
+                    await mapChangeService.ChangeMapAsync(session, respawnMapId, x, y);
+                    return;
+            }
+        }
+
+        private async Task UseAmuletAsync(ItemUsedEvent evt)
+        {
+            var session = evt.ClientSession;
+            var returnPoint = respawnService.GetReturnPoint(session.Character, session.Character.MapInstance.Map.MapId);
+            if (returnPoint == null)
             {
                 await SayAsync(session, Game18NConstString.NoReturnPoint);
                 return;
             }
 
-            if (mode < DelayedMode)
+            if (evt.Packet.Mode == 0)
             {
-                if (isWing && returnPoint != null && mode != ConfirmedMode)
-                {
-                    await session.SendPacketAsync(new QnaiPacket
-                    {
-                        YesPacket = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, ConfirmedMode, 0),
-                        Question = Game18NConstString.OverwriteReturnPoint,
-                    });
-                    return;
-                }
-
-                await session.SendPacketAsync(new DelayPacket
-                {
-                    Delay = 5000,
-                    Type = DelayPacketType.ItemInUse,
-                    Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, DelayedMode, 0)
-                });
+                await SendDelayAsync(evt, AmuletLeave);
                 return;
             }
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await ConsumeAsync(evt);
+            await mapChangeService.ChangeMapAsync(session, returnPoint.Value.MapId, returnPoint.Value.X, returnPoint.Value.Y);
+        }
 
-            if (isWing)
+        private static Task SendDelayAsync(ItemUsedEvent evt, byte nextMode)
+        {
+            var itemInstance = evt.InventoryItem;
+            return evt.ClientSession.SendPacketAsync(new DelayPacket
             {
-                respawnService.SetReturnPoint(character, mapId, character.PositionX, character.PositionY);
-                var (respawnMapId, x, y) = respawnService.GetRespawnLocation(character, respawnService.ResolveRespawnMapTypeId(mapId));
-                await mapChangeService.ChangeMapAsync(session, respawnMapId, x, y);
-                return;
-            }
+                Delay = 5000,
+                Type = DelayPacketType.ItemInUse,
+                Packet = evt.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, nextMode, 0)
+            });
+        }
 
-            await mapChangeService.ChangeMapAsync(session, returnPoint!.Value.MapId, returnPoint.Value.X, returnPoint.Value.Y);
+        private static Task ConsumeAsync(ItemUsedEvent evt)
+        {
+            var itemInstance = evt.InventoryItem;
+            evt.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+            return evt.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
         }
 
         private static Task SayAsync(ClientSession session, Game18NConstString message)
