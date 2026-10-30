@@ -158,6 +158,9 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] Relog: the sorted order is still there
 - [ ] On an account in another language, the order follows that language's names
 - [ ] With a personal shop or an exchange open, sorting does nothing
+- [ ] Leave gaps between the cards in the card inventory and between the costumes in the
+      costume inventory, then open them from the ADDITIONAL tab: the cards close up in order
+      of the job level they need, the costumes in item number order
 
 ### Potions
 

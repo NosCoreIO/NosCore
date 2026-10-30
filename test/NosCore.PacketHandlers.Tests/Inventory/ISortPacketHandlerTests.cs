@@ -40,6 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .WhenAsync(Sorting_, PocketType.Main)
                 .Then(ItemShouldBeInSlot_, 0)
                 .And(OneIvnShouldListSlots_, "0 1")
+                .And(Slot0ShouldBeSentWithTheItem)
                 .And(Slot1ShouldBeSentEmpty)
                 .ExecuteAsync();
         }
@@ -98,6 +99,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             var ivn = Session.LastPackets.OfType<IvnPacket>().Single();
             Assert.AreEqual(PocketType.Main, ivn.Type);
             Assert.AreEqual(slots, string.Join(" ", ivn.IvnSubPackets!.Select(s => s!.Slot)));
+        }
+
+        private void Slot0ShouldBeSentWithTheItem()
+        {
+            var item = Session.LastPackets.OfType<IvnPacket>().Single().IvnSubPackets!.Single(s => s!.Slot == 0)!;
+            Assert.AreEqual((short)1012, item.VNum);
+            Assert.AreEqual((short)7, item.RareAmount);
         }
 
         private void Slot1ShouldBeSentEmpty()
