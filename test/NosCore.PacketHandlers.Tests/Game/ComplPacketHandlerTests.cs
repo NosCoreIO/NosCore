@@ -6,6 +6,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NodaTime;
+using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.Player;
@@ -13,6 +15,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Tests.Shared;
 using SpecLight;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -25,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private ClientSession Session = null!;
         private ClientSession Target = null!;
         private short InitialCompliment;
+        private readonly List<MapTypeMapDto> MapTypeMaps = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -32,9 +36,9 @@ namespace NosCore.PacketHandlers.Tests.Game
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Target = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.Level = 30;
+            Session.Character.Level = 31;
             InitialCompliment = Target.Character.Compliment;
-            Handler = new ComplPacketHandler(TestHelpers.Instance.Clock, TestHelpers.Instance.SessionRegistry);
+            Handler = new ComplPacketHandler(TestHelpers.Instance.Clock, TestHelpers.Instance.SessionRegistry, MapTypeMaps);
         }
 
         [TestMethod]
@@ -51,10 +55,10 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task ComplimentBelowLevelThirtyShouldBeRefused()
+        public async Task ComplimentAtLevelThirtyShouldBeRefused()
         {
-            await new Spec("Compliment below level thirty should be refused")
-                .Given(SenderIsLevel_, (byte)29)
+            await new Spec("Compliment at level thirty should be refused")
+                .Given(SenderIsLevel_, (byte)30)
                 .And(OneHourHasPassedSinceConnection)
                 .WhenAsync(ComplimentingTargetAsync)
                 .Then(TargetComplimentShouldBeIncreasedBy_, 0)
@@ -109,6 +113,18 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
+        public async Task ComplimentInGlacernonShouldBeRefused()
+        {
+            await new Spec("Compliment in Glacernon should be refused")
+                .Given(SenderIsOnAMapOfType_, MapTypeType.Act4)
+                .And(OneHourHasPassedSinceConnection)
+                .WhenAsync(ComplimentingTargetAsync)
+                .Then(TargetComplimentShouldBeIncreasedBy_, 0)
+                .And(SenderShouldReceiveRefusal_, Game18NConstString.CannotLeadInGlacernon)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ComplimentingAbsentCharacterShouldSendNothing()
         {
             await new Spec("Complimenting absent character should send nothing")
@@ -117,6 +133,9 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .Then(SenderShouldReceiveNothing)
                 .ExecuteAsync();
         }
+
+        private void SenderIsOnAMapOfType_(MapTypeType type) =>
+            MapTypeMaps.Add(new MapTypeMapDto { MapId = Session.Character.MapInstance.Map.MapId, MapTypeId = (short)type });
 
         private void SenderIsLevel_(byte level) => Session.Character.Level = level;
 

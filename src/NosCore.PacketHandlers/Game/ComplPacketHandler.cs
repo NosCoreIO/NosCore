@@ -5,6 +5,8 @@
 //
 
 using NodaTime;
+using NosCore.Data.Enumerations.Map;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -13,14 +15,16 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class ComplPacketHandler(IClock clock, ISessionRegistry sessionRegistry)
+    public class ComplPacketHandler(IClock clock, ISessionRegistry sessionRegistry, List<MapTypeMapDto> mapTypeMaps)
         : PacketHandler<ComplPacket>, IWorldPacketHandler
     {
-        private const byte MinimumLevel = 30;
+        private const byte MinimumLevel = 31;
         private static readonly Duration DelayAfterConnection = Duration.FromMinutes(60);
 
         public override async Task ExecuteAsync(ComplPacket packet, ClientSession session)
@@ -29,6 +33,20 @@ namespace NosCore.PacketHandlers.Game
             if (packet.CharacterId == character.CharacterId
                 || !sessionRegistry.TryGetCharacter(s => s.CharacterId == packet.CharacterId, out var target))
             {
+                return;
+            }
+
+            var mapId = character.MapInstance.Map.MapId;
+            if (mapTypeMaps.Any(m => m.MapId == mapId
+                    && m.MapTypeId is (short)MapTypeType.Act4 or (short)MapTypeType.Act42))
+            {
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = character.CharacterId,
+                    Type = SayColorType.Red,
+                    Message = Game18NConstString.CannotLeadInGlacernon
+                });
                 return;
             }
 
