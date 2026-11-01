@@ -5,9 +5,7 @@
 //
 
 using NodaTime;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -19,14 +17,9 @@ using NosCore.Packets.ServerPackets.UI;
 using System;
 using System.Threading.Tasks;
 
-
-//TODO stop using obsolete
-#pragma warning disable 618
-
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class SpTransformPacketHandler(IClock clock, ITransformationService transformationService,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+    public class SpTransformPacketHandler(IClock clock, ITransformationService transformationService)
         : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
@@ -73,10 +66,10 @@ namespace NosCore.PacketHandlers.Inventory
                 {
                     if ((clientSession.Character.SpPoint == 0) && (clientSession.Character.SpAdditionPoint == 0))
                     {
-                        await clientSession.SendPacketAsync(new MsgPacket
+                        await clientSession.SendPacketAsync(new MsgiPacket
                         {
-                            Message = gameLanguageLocalizer[LanguageKey.SP_NOPOINTS,
-                                clientSession.Account.Language]
+                            Type = MessageType.Default,
+                            Message = Game18NConstString.ZeroPointsTransformationCancelled
                         });
                         return;
                     }

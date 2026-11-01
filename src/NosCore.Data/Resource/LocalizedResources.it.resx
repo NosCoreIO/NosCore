@@ -515,9 +515,6 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Altoparlante</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Non hai abbastanza punti SP per trasformarti!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Caricato con successo!</value>
   </data>

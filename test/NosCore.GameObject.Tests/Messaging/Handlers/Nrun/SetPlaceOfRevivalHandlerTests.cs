@@ -4,10 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking;
@@ -19,8 +22,6 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
-
-#pragma warning disable 618
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 {
@@ -79,6 +80,55 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TypeOneOnAnNpcSavesTheRespawnPoint()
+        {
+            await new Spec("Type=1 on an NPC saves its position as the respawn point and confirms with the client's own message")
+                .Given(AnNpcStandsAt_And_, (short)5, (short)6)
+                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
+                .Then(RespawnPointShouldBeSetTo_And_, (short)5, (short)6)
+                .And(RevivalPlaceChangedShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void AnNpcStandsAt_And_(short x, short y) =>
+            _session.Character.MapInstance.LoadNpcs(
+                new List<MapNpcDto>
+                {
+                    new()
+                    {
+                        MapNpcId = 100,
+                        MapId = _session.Character.MapInstance.Map.MapId,
+                        MapX = x,
+                        MapY = y,
+                        VNum = 1
+                    }
+                },
+                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+
+        private Task NrunIsHandledWithType_OnThatNpc(short type) =>
+            _handler.HandleAsync(_session, _session.Character.MapInstance.GetNpcById(100),
+                new NrunPacket
+                {
+                    Runner = NrunRunnerType.SetPlaceOfRevival,
+                    Type = type,
+                    VisualType = VisualType.Npc,
+                    VisualId = 100,
+                });
+
+        private void RespawnPointShouldBeSetTo_And_(short x, short y)
+        {
+            var mapId = _session.Character.MapInstance.Map.MapId;
+            _respawnService.Verify(r => r.SetRespawnPoint(It.IsAny<ICharacterEntity>(), mapId, x, y), Times.Once);
+        }
+
+        private void RevivalPlaceChangedShouldBeSent()
+        {
+            var msgi = _session.LastPackets.OfType<MsgiPacket>().Single();
+            Assert.AreEqual(MessageType.Default, msgi.Type);
+            Assert.AreEqual(Game18NConstString.RevivalPlaceChanged, msgi.Message);
+        }
+
         private void RunnerShouldBe_(NrunRunnerType expected) =>
             Assert.AreEqual(expected, _handler.Runner);
 
@@ -127,6 +177,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 It.IsAny<short>(), It.IsAny<short>(), It.IsAny<short>()), Times.Never);
 
         private void NoConfirmationMsgShouldBeSent() =>
-            Assert.IsFalse(_session.LastPackets.OfType<MsgPacket>().Any());
+            Assert.IsFalse(_session.LastPackets.OfType<MsgiPacket>().Any());
     }
 }

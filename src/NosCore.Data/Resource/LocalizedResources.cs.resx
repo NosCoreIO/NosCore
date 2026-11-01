@@ -395,9 +395,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Útoky byly úspěšně nahrány!</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Nemáš dostatek SP Bodů pro změnu.</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Úspeštně načtena!</value>
   </data>

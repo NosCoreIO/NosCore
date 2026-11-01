@@ -11,7 +11,6 @@ using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -50,8 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                     new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration,
                     new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
-                    new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object),
-                TestHelpers.Instance.GameLanguageLocalizer);
+                    new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object));
         }
 
         [TestMethod]
@@ -287,8 +285,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
         private void ShouldReceiveNoSpPointsMessage()
         {
-            var packet = (MsgPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgPacket);
-            Assert.IsTrue(packet?.Message == TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.SP_NOPOINTS, Session.Account.Language]);
+            var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.IsTrue(packet?.Type == MessageType.Default && packet?.Message == Game18NConstString.ZeroPointsTransformationCancelled);
         }
 
         private void ShouldReceiveDelayPacket()

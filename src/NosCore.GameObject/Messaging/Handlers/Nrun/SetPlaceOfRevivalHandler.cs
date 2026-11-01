@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                         VisualId = packet.VisualId,
                     },
                     Question = "#n_run^15^1^1 Do you want to save this location as your respawn point?",
-                }).ConfigureAwait(false);
+                });
                 return;
             }
 
@@ -49,13 +49,11 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             respawnService.SetRespawnPoint(character, character.MapInstance.Map.MapId,
                 npc.PositionX, npc.PositionY);
 
-#pragma warning disable CS0618
-            await session.SendPacketAsync(new MsgPacket
+            await session.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
-                Message = "Your respawn location has been changed."
-            }).ConfigureAwait(false);
-#pragma warning restore CS0618
+                Message = Game18NConstString.RevivalPlaceChanged
+            });
         }
     }
 }
