@@ -26,6 +26,12 @@ namespace NosCore.PacketHandlers.Game
         public override async Task ExecuteAsync(ComplPacket packet, ClientSession session)
         {
             var character = session.Character;
+            if (packet.CharacterId == character.CharacterId
+                || !sessionRegistry.TryGetCharacter(s => s.CharacterId == packet.CharacterId, out var target))
+            {
+                return;
+            }
+
             if (character.Level < MinimumLevel)
             {
                 await session.SendPacketAsync(new SayiPacket
@@ -64,12 +70,6 @@ namespace NosCore.PacketHandlers.Game
                     Type = SayColorType.Red,
                     Message = Game18NConstString.CanOnlyLeadOncePerDayAndAccount
                 });
-                return;
-            }
-
-            if (packet.CharacterId == character.CharacterId
-                || !sessionRegistry.TryGetCharacter(s => s.CharacterId == packet.CharacterId, out var target))
-            {
                 return;
             }
 

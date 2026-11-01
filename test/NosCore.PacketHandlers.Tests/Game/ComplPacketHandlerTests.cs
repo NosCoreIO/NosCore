@@ -108,6 +108,16 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ComplimentingAbsentCharacterShouldSendNothing()
+        {
+            await new Spec("Complimenting absent character should send nothing")
+                .Given(SenderIsLevel_, (byte)29)
+                .WhenAsync(ComplimentingAbsentCharacterAsync)
+                .Then(SenderShouldReceiveNothing)
+                .ExecuteAsync();
+        }
+
         private void SenderIsLevel_(byte level) => Session.Character.Level = level;
 
         private void OneHourHasPassedSinceConnection() => TestHelpers.Instance.Clock.AdvanceMinutes(60);
@@ -128,6 +138,14 @@ namespace NosCore.PacketHandlers.Tests.Game
             Session.LastPackets.Clear();
             await Handler.ExecuteAsync(new ComplPacket { CharacterId = Session.Character.CharacterId }, Session);
         }
+
+        private async Task ComplimentingAbsentCharacterAsync()
+        {
+            Session.LastPackets.Clear();
+            await Handler.ExecuteAsync(new ComplPacket { CharacterId = long.MaxValue }, Session);
+        }
+
+        private void SenderShouldReceiveNothing() => Assert.AreEqual(0, Session.LastPackets.Count);
 
         private void TargetComplimentShouldBeIncreasedBy_(int amount) =>
             Assert.AreEqual(InitialCompliment + amount, Target.Character.Compliment);

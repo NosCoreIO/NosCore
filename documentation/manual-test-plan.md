@@ -162,7 +162,9 @@ Needs two characters on the same channel. The commending one must be level 30 or
       the other player's compliment count in their info window goes up by one
 - [ ] Commend again the same day, from either character on the same account: a red "You
       can only commend the player once per day and account." line appears
-- [ ] Relog both — the compliment count and the daily limit are both still there
+- [ ] Relog both — the other player's compliment count is still there
+- [ ] Keep the sender online for another hour after the relog, then commend again: the
+      once-per-day line still appears, so the limit survived the relog
 
 ### Potions
 
