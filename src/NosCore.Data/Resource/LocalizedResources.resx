@@ -416,9 +416,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>You do not have sufficient SP points to transform!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
   </data>

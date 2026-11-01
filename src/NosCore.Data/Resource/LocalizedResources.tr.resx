@@ -408,9 +408,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Büyü işlendi!</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Dönüşüm için yeterli uzmanlık puanın yok.</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Başarıyla yüklendi!</value>
   </data>

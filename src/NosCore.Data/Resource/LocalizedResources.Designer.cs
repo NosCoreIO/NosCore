@@ -979,15 +979,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You do not have sufficient SP points to transform!.
-        /// </summary>
-        public static string SP_NOPOINTS {
-            get {
-                return ResourceManager.GetString("SP_NOPOINTS", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Successfully Loaded!.
         /// </summary>
         public static string SUCCESSFULLY_LOADED {

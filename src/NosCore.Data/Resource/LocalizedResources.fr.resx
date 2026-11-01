@@ -435,9 +435,6 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops parsés.</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Impossible de porter la SP, car vous n'avez plus de points.</value>
-  </data>
   <data name="TOO_RICH_SELLER" xml:space="preserve">
     <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
   </data>

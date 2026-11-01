@@ -414,9 +414,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Â¡{0} Skills Analizadas!</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Â¡No tienes suficientes puntos de SP para transformarte!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Â¡Cargado exitosamente!</value>
   </data>

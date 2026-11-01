@@ -495,9 +495,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Импортировано {0} навык(ов)!</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Недостаточно ОС для трансформации!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Загрузка завершена успешно!</value>
   </data>

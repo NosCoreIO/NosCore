@@ -136,6 +136,19 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       "cannot be traded after wearing" question opens, in the client's language
 - [ ] Answer yes: the item is worn; answer no: it stays in the inventory
 
+### Specialist transformation
+
+- [ ] Wear a specialist card with 0 SP points and 0 additional SP points, then transform:
+      the client's own "You have 0 specialist points. Transformation cancelled." appears,
+      in the client's language, and the character does not transform
+
+### Respawn point
+
+- [ ] Talk to a village NPC that offers to save the respawn point and confirm: the client's
+      own "This village is the designated place of revival." appears, in the client's
+      language
+- [ ] Die and choose to revive in the village: you come back at that NPC
+
 ### Dignity items
 
 The maximum comes from the parser, so re-run it on an existing database first.

@@ -411,9 +411,6 @@
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills wprowadzono!</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Nie masz wystarczającej liczby punktów SP do transformacji!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Pomyślnie załadowano!</value>
   </data>

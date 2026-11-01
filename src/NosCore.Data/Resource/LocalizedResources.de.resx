@@ -494,9 +494,6 @@
   <data name="SPEAKER" xml:space="preserve">
     <value>Servernachricht</value>
   </data>
-  <data name="SP_NOPOINTS" xml:space="preserve">
-    <value>Du hast nicht genügend SP Punkte um dich zu verwandeln!</value>
-  </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Erfolgreich geladen!</value>
   </data>
