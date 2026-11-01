@@ -15,5 +15,6 @@ public record struct PlayerStateComponent(
     bool CanFight,
     Instant LastPortal,
     Instant LastSp,
-    byte VehicleSpeed
+    byte VehicleSpeed,
+    Instant ConnectedAt
 );
