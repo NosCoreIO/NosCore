@@ -42,7 +42,17 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
 
         private Task BroadcastToListenersAsync(IPacket packet, string senderChannelId) =>
             Task.WhenAll(sessionRegistry.GetCharacters(c => !c.HeroChatBlocked && c.Channel?.Id != senderChannelId)
-                .Select(c => c.SendPacketAsync(packet)));
+                .Select(async c =>
+                {
+                    try
+                    {
+                        await c.SendPacketAsync(packet);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, "Speaker message to {CharacterId} failed", c.CharacterId);
+                    }
+                }));
 
         [UsedImplicitly]
         public async Task Handle(GuriPacketReceivedEvent evt)

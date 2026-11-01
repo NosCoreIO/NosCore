@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -34,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
-            Handler = new GopPacketHandler(PubSubHub.Object);
+            Handler = new GopPacketHandler(PubSubHub.Object, NullLogger<GopPacketHandler>.Instance);
         }
 
         [TestMethod]
@@ -92,6 +93,17 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
+        public async Task RejectedMasterUpdateStillAppliesLocally()
+        {
+            await new Spec("A whisper option the master server rejects still applies on this channel")
+                .Given(MasterServerRejectsUpdates)
+                .WhenAsync(SettingOption_To_, GopPacketType.WhisperBlocked, false)
+                .Then(WhispersShouldBeBlocked)
+                .And(MessageShouldBe_, Game18NConstString.WhisperBlocked)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task BlockingEmoticonsIsStored()
         {
             await new Spec("Blocking emoticons is stored and echoed in the stat packet")
@@ -133,6 +145,11 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         private void ExchangeIsBlocked() => Session.Character.ExchangeBlocked = true;
+
+        private void MasterServerRejectsUpdates() =>
+            PubSubHub.Setup(x => x.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(false);
+
+        private void WhispersShouldBeBlocked() => Assert.IsTrue(Session.Character.WhisperBlocked);
 
         private Task SettingOption_To_(GopPacketType option, bool isActive) =>
             Handler.ExecuteAsync(new GopPacket { Option = option, IsActive = isActive }, Session);

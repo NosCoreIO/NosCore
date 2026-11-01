@@ -12,11 +12,13 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GopPacketHandler(IPubSubHub pubSubHub) : PacketHandler<GopPacket>, IWorldPacketHandler
+    public class GopPacketHandler(IPubSubHub pubSubHub, ILogger<GopPacketHandler> logger)
+        : PacketHandler<GopPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GopPacket packet, ClientSession session)
         {
@@ -30,7 +32,7 @@ namespace NosCore.PacketHandlers.Game
             // so it has to see the new state.
             if (packet.Option is GopPacketType.FriendRequestBlocked or GopPacketType.WhisperBlocked)
             {
-                await pubSubHub.SubscribeAsync(new Subscriber
+                var published = await pubSubHub.SubscribeAsync(new Subscriber
                 {
                     Id = session.SessionId,
                     Name = session.Account.Name,
@@ -43,6 +45,11 @@ namespace NosCore.PacketHandlers.Game
                         WhisperBlocked = character.WhisperBlocked
                     }
                 });
+                if (!published)
+                {
+                    logger.LogWarning("The master server rejected the {Option} option of {CharacterId}; other channels keep the previous value until the next login",
+                        packet.Option, character.CharacterId);
+                }
             }
 
             if (message != null)
