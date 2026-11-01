@@ -17,6 +17,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 
@@ -38,6 +39,10 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             }
             return message.Trim();
         }
+
+        private Task BroadcastToListenersAsync(IPacket packet, string senderChannelId) =>
+            Task.WhenAll(sessionRegistry.GetCharacters(c => !c.HeroChatBlocked && c.Channel?.Id != senderChannelId)
+                .Select(c => c.SendPacketAsync(packet)));
 
         [UsedImplicitly]
         public async Task Handle(GuriPacketReceivedEvent evt)
@@ -75,14 +80,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                     return;
                 }
                 message = CraftMessage(message, valueSplit.Skip(2).ToArray()).Replace(' ', '|');
-                await sessionRegistry.BroadcastPacketAsync(
-                    session.Character.GenerateSayItem(message, deeplink), session.Channel!.Id);
+                await BroadcastToListenersAsync(session.Character.GenerateSayItem(message, deeplink), session.Channel!.Id);
             }
             else
             {
                 message = CraftMessage(message, valueSplit);
-                await sessionRegistry.BroadcastPacketAsync(
-                    session.Character.GenerateSay(message, (SayColorType)13), session.Channel!.Id);
+                await BroadcastToListenersAsync(session.Character.GenerateSay(message, (SayColorType)13), session.Channel!.Id);
             }
 
             session.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);

@@ -15,10 +15,12 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
@@ -127,6 +129,16 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .GivenAsync(CharacterHasModifiedGold)
                 .WhenAsync(SavingCharacter)
                 .ThenAsync(GoldShouldBePersisted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingCharacterShouldPersistOptions()
+        {
+            await new Spec("Saving character should persist the options window choices")
+                .Given(CharacterHasChangedOptions)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(OptionsShouldBePersisted)
                 .ExecuteAsync();
         }
 
@@ -317,6 +329,28 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private void NoExceptionShouldBeThrown()
         {
             Assert.IsTrue(SaveCompleted);
+        }
+
+        private void CharacterHasChangedOptions()
+        {
+            Session.Character.TryApplyOption(GopPacketType.ExchangeBlocked, false, out _);
+            Session.Character.TryApplyOption(GopPacketType.WhisperBlocked, false, out _);
+            Session.Character.TryApplyOption(GopPacketType.EmoticonsBlocked, true, out _);
+            Session.Character.TryApplyOption(GopPacketType.BuffBlocked, true, out _);
+            Session.Character.TryApplyOption(GopPacketType.MouseAimLock, true, out _);
+        }
+
+        private async Task OptionsShouldBePersisted()
+        {
+            var characterId = Session.Character.CharacterId;
+            var row = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
+            Assert.IsTrue(row!.ExchangeBlocked);
+            Assert.IsTrue(row.WhisperBlocked);
+            Assert.IsTrue(row.EmoticonsBlocked);
+            Assert.IsTrue(row.BuffBlocked);
+            Assert.IsTrue(row.MouseAimLock);
+            Assert.IsFalse(row.FriendRequestBlocked);
+            Assert.IsFalse(row.GroupRequestBlocked);
         }
     }
 }

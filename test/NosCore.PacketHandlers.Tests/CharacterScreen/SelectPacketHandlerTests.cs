@@ -14,11 +14,14 @@ using NosCore.Algorithm.SpeedService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
+using NosCore.Packets.Enumerations;
 using NosCore.Networking.SessionGroup;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
@@ -112,6 +115,55 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .Then(CharacterShouldNotBeSelected)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task SelectingCharacterRestoresSavedOptions()
+        {
+            await new Spec("Selecting a character restores the options saved on the previous session")
+                .GivenAsync(CharacterHasSavedOptions)
+                .WhenAsync(SelectingCharacterInSlot_, 1)
+                .Then(OptionsShouldBeRestored)
+                .And(StatPacketShouldEchoOptions)
+                .And(MasterServerShouldKnowWhispersAreBlocked)
+                .ExecuteAsync();
+        }
+
+        private async Task CharacterHasSavedOptions()
+        {
+            var accountId = Session.Account.AccountId;
+            var row = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.AccountId == accountId && s.Slot == 1);
+            row!.ExchangeBlocked = true;
+            row.WhisperBlocked = true;
+            row.GroupRequestBlocked = true;
+            row.HeroChatBlocked = true;
+            row.EmoticonsBlocked = true;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(row);
+        }
+
+        private void OptionsShouldBeRestored()
+        {
+            Assert.IsTrue(Session.Character.ExchangeBlocked);
+            Assert.IsTrue(Session.Character.WhisperBlocked);
+            Assert.IsTrue(Session.Character.GroupRequestBlocked);
+            Assert.IsTrue(Session.Character.HeroChatBlocked);
+            Assert.IsTrue(Session.Character.EmoticonsBlocked);
+            Assert.IsFalse(Session.Character.FriendRequestBlocked);
+        }
+
+        private void StatPacketShouldEchoOptions()
+        {
+            var expected = (1 << ((int)GopPacketType.ExchangeBlocked - 1))
+                | (1 << ((int)GopPacketType.WhisperBlocked - 1))
+                | (1 << ((int)GopPacketType.GroupRequestBlocked - 1))
+                | (1 << ((int)GopPacketType.MouseAimLock - 1))
+                | (1 << ((int)GopPacketType.HeroChatBlocked - 1))
+                | (1 << ((int)GopPacketType.EmoticonsBlocked - 1));
+            Assert.AreEqual(expected, Session.Character.GenerateStat().Option);
+        }
+
+        private void MasterServerShouldKnowWhispersAreBlocked() =>
+            TestHelpers.Instance.PubSubHub.Verify(x => x.SubscribeAsync(It.Is<Subscriber>(s =>
+                s.ConnectedCharacter != null && s.ConnectedCharacter.WhisperBlocked)), Times.AtLeastOnce);
 
         private async Task SelectingCharacterInSlot_(int slot)
         {

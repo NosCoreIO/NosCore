@@ -92,6 +92,16 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
+                if (receiver.ConnectedCharacter?.WhisperBlocked == true)
+                {
+                    await session.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.ThisPersonRefuseWhisper
+                    });
+                    return;
+                }
+
                 var receiverOnSameChannel = sessionRegistry.TryGetCharacter(s => s.Name == receiverName, out _);
                 speakPacket.Message = receiverOnSameChannel ? speakPacket.Message :
                     $"{speakPacket.Message} <{gameLanguageLocalizer[LanguageKey.CHANNEL, receiver.Language]}: {channel.ChannelId}>";

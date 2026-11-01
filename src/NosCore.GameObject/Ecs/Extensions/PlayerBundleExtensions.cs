@@ -350,7 +350,7 @@ public static class PlayerBundleExtensions
             Mp = player.Mp,
             MpMaximum = player.MaxMp,
             Unknown = 0,
-            Option = 0
+            Option = player.StatOption
         };
     }
 

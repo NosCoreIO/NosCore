@@ -348,7 +348,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             Mp = characterEntity.Mp,
             MpMaximum = characterEntity.MaxMp,
             Unknown = 0,
-            Option = 0
+            Option = characterEntity.StatOption
         };
 
         private static FdPacket GenerateFdPacket(ICharacterEntity characterEntity) => new()

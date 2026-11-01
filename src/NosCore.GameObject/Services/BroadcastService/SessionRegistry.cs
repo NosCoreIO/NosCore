@@ -209,7 +209,8 @@ namespace NosCore.GameObject.Services.BroadcastService
                         {
                             Name = clientSession.Character.Name,
                             Id = clientSession.Character.CharacterId,
-                            FriendRequestBlocked = clientSession.Character.FriendRequestBlocked
+                            FriendRequestBlocked = clientSession.Character.FriendRequestBlocked,
+                            WhisperBlocked = clientSession.Character.WhisperBlocked
                         }
                         : null
                 };

@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Group
                         await clientSession.SendPacketAsync(new MsgiPacket
                         {
                             Type = MessageType.Default,
-                            Message = Game18NConstString.GroupBlocked
+                            Message = Game18NConstString.TargetGroupBlocked
                         });
                         return;
                     }

@@ -102,6 +102,18 @@ namespace NosCore.PacketHandlers.Tests.Chat
         }
 
         [TestMethod]
+        public async Task WhisperingToPlayerWhoBlocksWhispersShouldBeRefused()
+        {
+            await new Spec("Whispering to a player who blocks whispers should be refused")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnlineBlockingWhispers)
+                .WhenAsync(WhisperingToTarget)
+                .Then(ShouldReceiveRefuseWhisperMessage)
+                .And(NoMessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task WhisperMessageShouldBeTruncatedIfTooLong()
         {
             await new Spec("Whisper message should be truncated if too long")
@@ -128,6 +140,23 @@ namespace NosCore.PacketHandlers.Tests.Chat
                         {
                             Id = TargetSession.Character.CharacterId,
                             Name = TargetSession.Character.Name
+                        }
+                    }
+                }));
+        }
+
+        private void TargetIsOnlineBlockingWhispers()
+        {
+            PubSubHub.Setup(x => x.GetSubscribersAsync())
+                .Returns(Task.FromResult(new List<Subscriber>
+                {
+                    new Subscriber
+                    {
+                        ConnectedCharacter = new Data.WebApi.Character
+                        {
+                            Id = TargetSession.Character.CharacterId,
+                            Name = TargetSession.Character.Name,
+                            WhisperBlocked = true
                         }
                     }
                 }));
@@ -182,6 +211,18 @@ namespace NosCore.PacketHandlers.Tests.Chat
             var packet = Session.LastPackets.OfType<InfoiPacket>().FirstOrDefault();
             Assert.IsNotNull(packet);
             Assert.AreEqual(Game18NConstString.AlreadyBlacklisted, packet.Message);
+        }
+
+        private void ShouldReceiveRefuseWhisperMessage()
+        {
+            var packet = Session.LastPackets.OfType<MsgiPacket>().FirstOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.ThisPersonRefuseWhisper, packet.Message);
+        }
+
+        private void NoMessageShouldBeSentViaPubSub()
+        {
+            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket>()), Times.Never);
         }
 
         private void MessageShouldBeSentViaPubSub()

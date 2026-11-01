@@ -97,6 +97,16 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task RequestingExchangeWhenTargetAllowsExchangeShouldInviteTarget()
+        {
+            await new Spec("Requesting exchange when target allows exchange should invite the target")
+                .Given(TargetAllowsExchange)
+                .WhenAsync(RequestingExchange)
+                .Then(TargetShouldBeAskedToTrade)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RequestingExchangeWithSelfShouldNotOpenExchange()
         {
             await new Spec("Requesting exchange with self should not open an exchange")
@@ -145,6 +155,14 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = true;
+            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
+        }
+
+        private void TargetAllowsExchange()
+        {
+            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            TargetSession.Character.MapInstance = Session.Character.MapInstance;
+            TargetSession.Character.ExchangeBlocked = false;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
@@ -222,6 +240,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             var packet = Session.LastPackets.FirstOrDefault(s => s is Infoi2Packet) as Infoi2Packet;
             Assert.IsNotNull(packet);
             Assert.AreEqual(Game18NConstString.BlockingTrades, packet.Message);
+        }
+
+        private void TargetShouldBeAskedToTrade()
+        {
+            var packet = TargetSession.LastPackets.OfType<Dlgi2Packet>().FirstOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.WantAcceptTrade, packet.Question);
         }
 
         private void ShouldReceiveBlacklistedMessage()

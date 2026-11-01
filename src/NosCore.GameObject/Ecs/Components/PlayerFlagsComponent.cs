@@ -14,6 +14,7 @@ public record struct PlayerFlagsComponent(
     bool HpBlocked,
     bool MinilandInviteBlocked,
     bool MouseAimLock,
+    bool BuffBlocked,
     AuthorityType Authority,
     bool UseSp,
     bool IsVehicled,

@@ -16,11 +16,13 @@ using NosCore.Networking.SessionGroup;
 using NosCore.PacketHandlers.Group;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Group
@@ -117,6 +119,60 @@ namespace NosCore.PacketHandlers.Tests.Group
                 .WhenAsync(Session_InvitesWithLongDelayAsync, 0)
                 .Then(TwoRequestsShouldExist)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task InvitingPlayerWhoBlocksGroupRequestsShouldBeRefused()
+        {
+            await new Spec("Inviting a player who blocks group requests should be refused")
+                .Given(Session1BlocksGroupRequests)
+                .WhenAsync(Session0InvitesSession1Async)
+                .Then(Session0ShouldBeToldTargetBlocksGroups)
+                .And(Session1ShouldNotBeInvited)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task InvitingPlayerWhoAllowsGroupRequestsShouldSendInvite()
+        {
+            await new Spec("Inviting a player who allows group requests should send the invite")
+                .Given(Session1AllowsGroupRequests)
+                .WhenAsync(Session0InvitesSession1Async)
+                .Then(Session1ShouldBeInvited)
+                .ExecuteAsync();
+        }
+
+        private void Session1BlocksGroupRequests() => Sessions[1].Character.GroupRequestBlocked = true;
+
+        private void Session1AllowsGroupRequests() => Sessions[1].Character.GroupRequestBlocked = false;
+
+        private async Task Session0InvitesSession1Async()
+        {
+            await PJoinPacketHandler.ExecuteAsync(new PjoinPacket
+            {
+                RequestType = GroupRequestType.Invited,
+                CharacterId = Sessions[1].Character.CharacterId
+            }, Sessions[0]);
+        }
+
+        private void Session0ShouldBeToldTargetBlocksGroups()
+        {
+            var packet = Sessions[0].LastPackets.OfType<MsgiPacket>().FirstOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.TargetGroupBlocked, packet.Message);
+        }
+
+        private void Session1ShouldNotBeInvited()
+        {
+            Assert.IsFalse(Sessions[1].LastPackets.OfType<Dlgi2Packet>().Any());
+            Assert.IsFalse(Sessions[0].Character.GroupRequestCharacterIds.ContainsKey(Sessions[1].Character.CharacterId));
+        }
+
+        private void Session1ShouldBeInvited()
+        {
+            var packet = Sessions[1].LastPackets.OfType<Dlgi2Packet>().FirstOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.GroupInvite, packet.Question);
         }
 
         private void Session1HasGroupRequestFromSession0()

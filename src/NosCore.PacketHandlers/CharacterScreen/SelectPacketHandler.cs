@@ -101,7 +101,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     {
                         Name = characterName,
                         Id = characterId,
-                        FriendRequestBlocked = characterDto.FriendRequestBlocked
+                        FriendRequestBlocked = characterDto.FriendRequestBlocked,
+                        WhisperBlocked = characterDto.WhisperBlocked
                     }
                 });
 
@@ -210,6 +211,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 clientSession.SetPlayerEntity(playerEntity, mapInstance.EcsWorld);
 
                 var character = clientSession.Character;
+                character.LoadOptions(characterDto);
                 group.JoinGroup(character);
 
 #pragma warning disable CS0618
