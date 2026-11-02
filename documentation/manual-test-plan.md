@@ -168,6 +168,28 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] The Legendary Medal of Honour (`$CreateItem 5892`) adds 30 000
 - [ ] A Specialist Card Holder (`$CreateItem 287`) does not grant reputation
 
+### Magic Lamp
+
+- [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove
+      your equipment" message appears and the lamp stays
+- [ ] Naked, use it: the client asks whether to use the Magic Lamp to change your gender;
+      Cancel keeps the lamp
+- [ ] Confirm: the character's gender changes on screen, the gender-changed message appears and
+      the lamp is gone
+- [ ] Mounted, the lamp does nothing
+
+### Wings of Friendship
+
+Needs two characters who are friends, both online on the same channel.
+
+- [ ] Open the friend list and choose to travel to the friend while holding Wings of Friendship
+      (`$CreateItem 2160`): a three-second bar runs, then you appear next to the friend and one
+      wing is gone
+- [ ] Without the wings: the client's no-Wings-of-Friendship line appears in chat
+- [ ] With the friend logged out: the friend-offline message appears and the wings stay
+- [ ] With either of you inside an instance (miniland, raid, time-space): the client's cannot-be-used-
+      here message and the wings stay
+
 ### Respawn point
 
 - [ ] Talk to a village NPC that offers to save the respawn point and confirm: the client's

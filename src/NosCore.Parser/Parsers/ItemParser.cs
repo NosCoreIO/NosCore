@@ -694,6 +694,7 @@ namespace NosCore.Parser.Parsers
                 var x when x >= 1894 && x <= 1903 => ItemEffectType.SealedTarotCard,
                 var x when x >= 4046 && x <= 4055 => ItemEffectType.TarotCard,
                 5119 => ItemEffectType.SpeedBooster,
+                var x when x == 2160 || x == 2312 || x == 10048 => ItemEffectType.FriendshipWings,
                 180 => ItemEffectType.AttackAmulet,
                 181 => ItemEffectType.DefenseAmulet,
                 _ => item.Effect,
