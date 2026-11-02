@@ -146,6 +146,28 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] With points, transform: the five-second bar runs and the character transforms when it
       ends, not before
 
+### Specialist wings
+
+- [ ] Without transforming, use Angel Wings (`$CreateItem 1685`): "You must first transform
+      into the specialist whose wings you want to change." appears and the item stays
+- [ ] Transform with a +0 specialist and use them: "You can only change the specialist's
+      wings when the specialist card has been upgraded to +1 or above." and the item stays
+- [ ] Transform with a +1 or higher specialist and use them: the client asks "Would you like
+      to change the wings of the current specialist?"; Cancel keeps the item
+- [ ] Confirm: the character gets angel wings, "Your specialist wings have been changed."
+      appears and the item is gone
+- [ ] Untransform and transform again, and relog: the wings stay
+- [ ] A second player who walks into the map, or logs in next to you, sees your specialist,
+      its upgrade glow, its wings and your fairy
+
+### Medals of Honour
+
+- [ ] `$CreateItem 5899` and use it, confirming the client's "Use the item." box: a green
+      "Reputation increased: +200" line appears in chat, the reputation window shows 200 more,
+      and the medal is gone
+- [ ] The Legendary Medal of Honour (`$CreateItem 5892`) adds 30 000
+- [ ] A Specialist Card Holder (`$CreateItem 287`) does not grant reputation
+
 ### Respawn point
 
 - [ ] Talk to a village NPC that offers to save the respawn point and confirm: the client's
