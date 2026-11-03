@@ -346,6 +346,8 @@ own message, in the client's language.
       does not see it, a third client on the map does. A cannot send emoticons while blocked
 - [ ] A blocks hero chat ("You cannot hear the speaker from now on."); B uses a speaker
       (`$CreateItem 2173`): A does not see the message, a third client does
+- [ ] With hero chat still blocked on A, a top-three player sends a hero message (see "Hero
+      chat" below): A does not see it, on A's channel or another, and a third client does
 - [ ] Toggle HP display, buff display, quick get-up, mouse aim lock and Miniland invites:
       each shows its own message (mouse aim lock shows none) and the checkbox stays where
       it was put

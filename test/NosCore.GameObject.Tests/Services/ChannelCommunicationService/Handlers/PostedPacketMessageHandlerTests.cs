@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
@@ -20,6 +21,7 @@ using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
@@ -53,6 +55,31 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 .Given(DeserializerReturnsPacket)
                 .WhenAsync(HandlingBroadcastToAll)
                 .Then(ShouldBroadcastToAll)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task HeroMessageSkipsPlayersBlockingHeroChat()
+        {
+            await new Spec("A hero message is not delivered to a player who blocks hero chat")
+                .Given(DeserializerReturnsPacket)
+                .AndAsync(TwoPlayersAreOnline)
+                .And(ListenerBlocksHeroChat)
+                .WhenAsync(HandlingHeroMessage)
+                .Then(ListenerShouldNotReceiveIt)
+                .And(OtherPlayerShouldReceiveIt)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task HeroMessageReachesPlayersAllowingHeroChat()
+        {
+            await new Spec("A hero message is delivered to a player who allows hero chat")
+                .Given(DeserializerReturnsPacket)
+                .AndAsync(TwoPlayersAreOnline)
+                .And(ListenerAllowsHeroChat)
+                .WhenAsync(HandlingHeroMessage)
+                .Then(ListenerShouldReceiveIt)
                 .ExecuteAsync();
         }
 
@@ -107,6 +134,38 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             Deserializer.Setup(x => x.Deserialize(It.IsAny<string>()))
                 .Returns(DeserializedPacket);
         }
+
+        private ClientSession Listener = null!;
+
+        private async Task TwoPlayersAreOnline()
+        {
+            Listener = await TestHelpers.Instance.GenerateSessionAsync();
+            var characters = new[] { Session.Character, Listener.Character };
+            SessionRegistry.Setup(x => x.GetCharacters(It.IsAny<System.Func<PlayerComponentBundle, bool>?>()))
+                .Returns((System.Func<PlayerComponentBundle, bool>? predicate) =>
+                    predicate == null ? characters : characters.Where(predicate));
+            Session.LastPackets.Clear();
+            Listener.LastPackets.Clear();
+        }
+
+        private void ListenerBlocksHeroChat() => Listener.Character.HeroChatBlocked = true;
+
+        private void ListenerAllowsHeroChat() => Listener.Character.HeroChatBlocked = false;
+
+        private async Task HandlingHeroMessage()
+        {
+            await Handler.Handle(new PostedPacket
+            {
+                Packet = "say Test message",
+                ReceiverType = ReceiverType.AllNoHeroBlocked
+            });
+        }
+
+        private void ListenerShouldNotReceiveIt() => Assert.AreEqual(0, Listener.LastPackets.Count);
+
+        private void ListenerShouldReceiveIt() => Assert.IsTrue(Listener.LastPackets.Count > 0);
+
+        private void OtherPlayerShouldReceiveIt() => Assert.IsTrue(Session.LastPackets.Count > 0);
 
         private void CharacterIsRegisteredByName()
         {
