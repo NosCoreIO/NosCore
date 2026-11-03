@@ -29,7 +29,9 @@ namespace NosCore.PacketHandlers.Game
             GopPacketType.FriendRequestBlocked,
             GopPacketType.FamilyRequestBlocked,
             GopPacketType.WhisperBlocked,
-            GopPacketType.GroupRequestBlocked
+            GopPacketType.GroupRequestBlocked,
+            GopPacketType.HatInVisible,
+            GopPacketType.LockInterface
         ];
 
         private static readonly Dictionary<GopPacketType, (Game18NConstString WhenSet, Game18NConstString WhenCleared)> Messages = new()

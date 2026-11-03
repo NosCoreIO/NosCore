@@ -179,7 +179,8 @@ namespace NosCore.PacketHandlers.Tests.Game
             var accepted = new[]
             {
                 GopPacketType.ExchangeBlocked, GopPacketType.FriendRequestBlocked, GopPacketType.FamilyRequestBlocked,
-                GopPacketType.WhisperBlocked, GopPacketType.GroupRequestBlocked
+                GopPacketType.WhisperBlocked, GopPacketType.GroupRequestBlocked,
+                GopPacketType.HatInVisible, GopPacketType.LockInterface
             };
             foreach (var option in Enum.GetValues<GopPacketType>())
             {
