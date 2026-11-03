@@ -16,6 +16,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ProductionService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Production;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -34,6 +35,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private ClientSession _session = null!;
         private IItemGenerationService _itemProvider = null!;
         private GameObject.Services.ProductionService.ProductionService _service = null!;
+        private InventoryItemInstance _materialStack = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -74,6 +76,18 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
                 .Then(TheCharacterShouldHave_Materials, 2)
                 .And(TheCharacterShouldHave_Products, 2)
                 .And(TheProductionShouldBeConfirmed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UsingUpAStackEmptiesItsSlot()
+        {
+            await new Spec("A material stack used up entirely shows as an empty slot")
+                .Given(AnNpcAt_CellsMakes_From_Materials, 0, (short)5)
+                .And(TheCharacterHas_Materials, (short)5)
+                .WhenAsync(TheItemIsProduced)
+                .Then(TheCharacterShouldHave_Materials, 0)
+                .And(TheMaterialSlotShouldBeSentEmpty)
                 .ExecuteAsync();
         }
 
@@ -133,8 +147,8 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         }
 
         private void TheCharacterHas_Materials(short amount) =>
-            _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(_itemProvider.Create(Material, amount), _session.Character.CharacterId));
+            _materialStack = _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_itemProvider.Create(Material, amount), _session.Character.CharacterId))![0];
 
         private Task TheProductionWindowIsOpened() =>
             _service.OpenAsync(_session, _session.Character.MapInstance.GetNpcById(NpcId)!.Value);
@@ -176,6 +190,15 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
             var guri = _session.LastPackets.OfType<GuriPacket>().Single();
             Assert.AreEqual(GuriPacketType.AfterSumming, guri.Type);
             Assert.AreEqual(1324u, guri.Value);
+        }
+
+        private void TheMaterialSlotShouldBeSentEmpty()
+        {
+            var update = _session.LastPackets.OfType<IvnPacket>()
+                .Where(s => s.Type == (PocketType)_materialStack.Type)
+                .SelectMany(s => s.IvnSubPackets!)
+                .Single(s => s.Slot == _materialStack.Slot);
+            Assert.AreNotEqual(Material, update.VNum);
         }
 
         private void RawMaterialsMissingShouldBeSent()

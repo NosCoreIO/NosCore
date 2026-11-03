@@ -99,9 +99,9 @@ namespace NosCore.GameObject.Services.ProductionService
                     }
 
                     var taken = (short)Math.Min(remaining, stack.ItemInstance.Amount);
-                    character.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
+                    var left = character.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
                     remaining -= taken;
-                    packets.Add(stack.GeneratePocketChange((PocketType)stack.Type, stack.Slot));
+                    packets.Add(left.GeneratePocketChange((PocketType)stack.Type, stack.Slot));
                 }
             }
 
