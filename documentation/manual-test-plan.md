@@ -229,6 +229,20 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Keep the sender online for another hour after the relog, then commend again: the
       once-per-day line still appears, so the limit survived the relog
 
+### Inventory sort
+
+- [ ] Scatter a few different items over the MAIN tab with gaps between them, press the sort
+      button at the top of the inventory and confirm: they move to the first slots, in
+      alphabetical order of their names, with no gaps
+- [ ] The same on the EQUIP and ETC tabs; the other tabs are not touched
+- [ ] Two stacks of the same item stay two stacks, the larger first
+- [ ] Relog: the sorted order is still there
+- [ ] On an account in another language, the order follows that language's names
+- [ ] With a personal shop or an exchange open, sorting does nothing
+- [ ] Leave gaps between the cards in the card inventory and between the costumes in the
+      costume inventory, then open them from the ADDITIONAL tab: the cards close up in order
+      of the job level they need, the costumes in item number order
+
 ### Potions
 
 - [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar
