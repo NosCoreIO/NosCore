@@ -220,7 +220,11 @@ namespace NosCore.GameObject.Services.SaveService
                     return;
                 }
 
-                await mateService.SaveAsync(character.Mates.Values);
+                if (!await mateService.SaveAsync(character.Mates.Values))
+                {
+                    Fail("Mate upsert");
+                    return;
+                }
 
                 await transaction.CommitAsync();
             }

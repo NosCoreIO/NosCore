@@ -15,7 +15,7 @@ namespace NosCore.GameObject.Services.MateService
     {
         Task<List<Mate>> LoadAsync(long characterId);
 
-        Task SaveAsync(IEnumerable<Mate> mates);
+        Task<bool> SaveAsync(IEnumerable<Mate> mates);
 
         Mate Adopt(MateDto row, NpcMonsterDto npcMonster, IEnumerable<Mate> existing);
     }
