@@ -163,6 +163,34 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         }
 
         [TestMethod]
+        public async Task InvitingAgainWhileAnInvitationIsPendingCostsNoSeed()
+        {
+            GiveSeeds(1);
+            await InviteAsync(_guest.Character.Name);
+
+            await InviteAsync(_guest.Character.Name);
+
+            Assert.AreEqual(1, _owner.Character.InventoryService.CountItem(SeedOfPower));
+            Assert.AreEqual(2, _guest.LastPackets.OfType<Dlgi2Packet>().Count());
+        }
+
+        [TestMethod]
+        public async Task ALockedMinilandKeepsTheInvitationForLater()
+        {
+            TestHelpers.Instance.FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
+                .ReturnsAsync(new List<CharacterRelationStatus>());
+            await InviteAsync(_guest.Character.Name);
+            _miniland.State = MinilandState.Lock;
+
+            await AcceptAsync();
+            _miniland.State = MinilandState.Open;
+            await AcceptAsync();
+
+            Assert.AreEqual(Game18NConstString.MinilandLocked, _guest.LastPackets.OfType<InfoiPacket>().First().Message);
+            _mapChangeService.Verify(s => s.ChangeMapInstanceAsync(_guest, _miniland.MapInstanceId, 5, 8), Times.Once);
+        }
+
+        [TestMethod]
         public async Task CancellingDropsTheInvitation()
         {
             TestHelpers.Instance.FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))

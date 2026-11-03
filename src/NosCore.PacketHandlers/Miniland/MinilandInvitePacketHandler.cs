@@ -58,27 +58,34 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            var seed = character.InventoryService.Values
-                .Where(s => s.ItemInstance.ItemVNum == SeedOfPowerVNum)
-                .OrderBy(s => s.Type).ThenBy(s => s.Slot)
-                .FirstOrDefault();
-            if (seed == null)
-            {
-                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotEnoughSeedToInvite });
-                return;
-            }
-
-            character.InventoryService.RemoveItemAmountFromInventory(1, seed.ItemInstanceId);
-            await session.SendPacketAsync(seed.GeneratePocketChange((PocketType)seed.Type, seed.Slot));
-            character.MinilandInviteCharacterIds.TryAdd(target.CharacterId, target.CharacterId);
-            await target.SendPacketAsync(new Dlgi2Packet
+            var question = new Dlgi2Packet
             {
                 YesPacket = new MJoinPacket { Type = VisualType.Player, VisualId = character.CharacterId },
                 NoPacket = new MJoinPacket { Type = VisualType.Npc, VisualId = character.CharacterId },
                 Question = Game18NConstString.HasInvitedToMiniland,
                 ArgumentType = 1,
                 Game18NArguments = { character.Name }
-            });
+            };
+            if (!character.MinilandInviteCharacterIds.TryAdd(target.CharacterId, target.CharacterId))
+            {
+                await target.SendPacketAsync(question);
+                return;
+            }
+
+            var seed = character.InventoryService.Values
+                .Where(s => s.ItemInstance.ItemVNum == SeedOfPowerVNum)
+                .OrderBy(s => s.Type).ThenBy(s => s.Slot)
+                .FirstOrDefault();
+            if (seed == null)
+            {
+                character.MinilandInviteCharacterIds.TryRemove(target.CharacterId, out _);
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotEnoughSeedToInvite });
+                return;
+            }
+
+            character.InventoryService.RemoveItemAmountFromInventory(1, seed.ItemInstanceId);
+            await session.SendPacketAsync(seed.GeneratePocketChange((PocketType)seed.Type, seed.Slot));
+            await target.SendPacketAsync(question);
         }
     }
 }

@@ -25,16 +25,18 @@ namespace NosCore.PacketHandlers.Miniland
     {
         public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
-            var invited = sessionRegistry.TryGetCharacter(s => s.VisualId == mJoinPacket.VisualId, out var owner)
-                && owner.MinilandInviteCharacterIds.TryRemove(session.Character.CharacterId, out _);
+            var invitations = sessionRegistry.TryGetCharacter(s => s.VisualId == mJoinPacket.VisualId, out var owner)
+                ? owner.MinilandInviteCharacterIds
+                : null;
 
             // A miniland invitation's Cancel answers with a non-player type: it only drops the invitation.
             if (mJoinPacket.Type != VisualType.Player)
             {
+                invitations?.TryRemove(session.Character.CharacterId, out _);
                 return;
             }
 
-            if (invited)
+            if (invitations?.ContainsKey(session.Character.CharacterId) == true)
             {
                 var invitedTo = minilandProvider.GetMiniland(mJoinPacket.VisualId);
                 if (invitedTo.State == MinilandState.Lock)
@@ -43,7 +45,11 @@ namespace NosCore.PacketHandlers.Miniland
                     return;
                 }
 
-                await mapChangeService.ChangeMapInstanceAsync(session, invitedTo.MapInstanceId, 5, 8);
+                if (invitations.TryRemove(session.Character.CharacterId, out _))
+                {
+                    await mapChangeService.ChangeMapInstanceAsync(session, invitedTo.MapInstanceId, 5, 8);
+                }
+
                 return;
             }
 
