@@ -561,4 +561,7 @@
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Üye</value>
   </data>
+  <data name="FAMILY_SHOUT" xml:space="preserve">
+    <value>&lt;Aile çağrısı&gt; {0}</value>
+  </data>
 </root>

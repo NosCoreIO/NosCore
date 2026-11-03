@@ -475,4 +475,7 @@
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Miembro</value>
   </data>
+  <data name="FAMILY_SHOUT" xml:space="preserve">
+    <value>&lt;Llamada de familia&gt; {0}</value>
+  </data>
 </root>

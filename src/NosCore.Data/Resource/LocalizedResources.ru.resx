@@ -569,4 +569,7 @@
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Участник</value>
   </data>
+  <data name="FAMILY_SHOUT" xml:space="preserve">
+    <value>&lt;Объявление семьи&gt; {0}</value>
+  </data>
 </root>
