@@ -215,6 +215,29 @@ Lose some HP first, otherwise there is nothing to watch.
 
 ---
 
+## Chat
+
+### Hero chat
+
+Run two world servers (two channels). You need a GM account to set reputation, and five
+ordinary player characters on the same server: A and B, plus C, D and E to fill the ranking.
+Staff are left out of the reputation ranking, so a GM cannot send hero messages. The ranking reads other characters' saved
+reputation, so have each player relog after a `$SetReputation` on them.
+
+- [ ] With the GM: `$SetReputation 100000 A`, and keep B and every other player character
+      on that server below it; A relogs
+- [ ] A on channel 1, B on channel 2. A opens the hero chat and sends "hello heroes": B sees
+      `[A]:hello heroes` shown as a hero message, and A sees it too
+- [ ] A sends a message with leading and trailing spaces: it arrives trimmed
+- [ ] A sends an empty message: nothing appears on either channel and no error shows
+- [ ] Give C, D and E more reputation than B (but less than A) and have them relog. B tries
+      the hero chat: the client's own "Only the top three players from the rankings can use
+      it." appears in red, in the client's language, and nothing reaches A
+- [ ] Give C, D and E more reputation than A and have them relog: A is now refused with the
+      same message
+
+---
+
 ## Regression sweep
 
 Quick pass after any combat or stat change:
