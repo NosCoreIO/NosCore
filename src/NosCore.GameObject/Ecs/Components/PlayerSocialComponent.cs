@@ -5,10 +5,12 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Concurrent;
 
 namespace NosCore.GameObject.Ecs.Components;
 
 public record struct PlayerSocialComponent(
     ConcurrentDictionary<long, long> GroupRequestCharacterIds,
-    Instant? LastGroupRequest);
+    Instant? LastGroupRequest,
+    Family? Family);

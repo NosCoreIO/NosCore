@@ -275,6 +275,23 @@ reputation, so have each player relog after a `$SetReputation` on them.
 
 ---
 
+## Family
+
+### Family membership
+
+No in-game command creates a family yet, so seed one: a `Family` row, then a
+`FamilyCharacter` row per member (`Authority` 0 head, 1 assistant, 2 manager, 3 member).
+Log two members in on the same map.
+
+- [ ] Each member sees the other's tag under their name as `Name(Rank)`, with the rank
+      in the viewer's own language
+- [ ] Your own tag shows under your own name after character select
+- [ ] A character with no family has no tag
+- [ ] Opening the family window shows the name, the head, the level bar and the notice,
+      with the notice's spaces intact
+
+---
+
 ## Regression sweep
 
 Quick pass after any combat or stat change:
@@ -295,9 +312,8 @@ Recorded so nobody spends time hunting for them:
   using a given subtype is wired to behaviour.
 - **The `st` percentage guard** — guards a zero maximum, which is not a state the game
   reaches. It cannot be triggered from the client by design.
-- **Family experience and the `gidx` family id** — the family feature itself is not merged
-  yet, so neither the corrected curve nor the flattened packet field has a path to the
-  client.
+- **Family experience** — nothing grants it yet, so the level bar only ever shows the
+  seeded value.
 - **Instances** — same, still open.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
