@@ -63,7 +63,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
             await new Spec("Top three player message is broadcast to every channel")
                 .Given(SenderIsTopThree)
                 .WhenAsync(SendingAHeroMessage)
-                .Then(HeroMessageShouldBePostedToEveryone)
+                .Then(HeroMessageShouldBePostedToPlayersAllowingHeroChat)
                 .And(SenderShouldNotBeRefused)
                 .ExecuteAsync();
         }
@@ -131,10 +131,10 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private Task SendingABlankHeroMessage() =>
             Handler.ExecuteAsync(new HeroPacket { Message = "   " }, Session);
 
-        private void HeroMessageShouldBePostedToEveryone()
+        private void HeroMessageShouldBePostedToPlayersAllowingHeroChat()
         {
             Assert.AreEqual(1, Posted.Count);
-            Assert.AreEqual(ReceiverType.All, Posted[0].ReceiverType);
+            Assert.AreEqual(ReceiverType.AllNoHeroBlocked, Posted[0].ReceiverType);
             Assert.AreEqual(Session.Character.CharacterId, Posted[0].SenderCharacter!.Id);
             var msg = Serialized.OfType<MsgPacket>().Single();
             Assert.AreEqual(MessageType.Hero, msg.Type);

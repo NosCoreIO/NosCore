@@ -6,11 +6,14 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System;
+using System.Linq;
 using System.Threading.Tasks;
 using PostedPacket = NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket;
 
@@ -26,6 +29,20 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             {
                 case ReceiverType.All:
                     await sessionRegistry.BroadcastPacketAsync(message);
+                    break;
+                case ReceiverType.AllNoHeroBlocked:
+                    await Task.WhenAll(sessionRegistry.GetCharacters(c => !c.HeroChatBlocked)
+                        .Select(async c =>
+                        {
+                            try
+                            {
+                                await c.SendPacketAsync(message);
+                            }
+                            catch (Exception ex)
+                            {
+                                logger.LogWarning(ex, "Hero message to {CharacterId} failed", c.CharacterId);
+                            }
+                        }));
                     break;
                 case ReceiverType.OnlySomeone:
                     ClientSession? receiverSession;

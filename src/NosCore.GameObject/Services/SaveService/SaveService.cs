@@ -9,6 +9,7 @@ using NosCore.GameObject.Services.MateService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
@@ -67,6 +68,7 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.SpPoint = character.SpPoint;
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
                 characterDto.CurrentScriptId = character.CurrentScriptId;
+                character.SaveOptions(characterDto);
 
                 await accountDao.TryInsertOrUpdateAsync(account);
                 await characterDao.TryInsertOrUpdateAsync(characterDto);

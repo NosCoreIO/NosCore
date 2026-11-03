@@ -64,6 +64,8 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         bool GroupRequestBlocked { get; }
 
+        double StatOption { get; }
+
         ConcurrentDictionary<long, long> GroupRequestCharacterIds { get; }
 
         List<QuicklistEntryDto> QuicklistEntries { get; set; }

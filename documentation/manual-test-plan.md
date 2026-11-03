@@ -325,6 +325,37 @@ NosVille alchemist, makes potions.
       taken
 - [ ] Walk away from him and produce with the window still open: nothing happens
 
+### Character options
+
+Two characters, A and B, on the same map and channel. Open the options window on A
+(the game menu's option tab) and toggle each line; every toggle should print the client's
+own message, in the client's language.
+
+- [ ] A turns exchange off ("You will block trades from now on."); B requests a trade with
+      A: B sees "A is blocking trades." and A gets no dialog
+- [ ] A turns exchange back on; B's trade request opens the usual dialog on A
+- [ ] A turns friend off; B adds A as a friend: B sees "A has blocked being chosen as a
+      friend." and A gets no dialog. Turn it back on and the request goes through
+- [ ] Same with B on a different channel: the friend block still applies
+- [ ] A turns whisper off; B whispers A: B sees "This person does not want to receive
+      whispers." and A receives nothing. Repeat with B on another channel. Turn it back on
+      and the whisper arrives
+- [ ] A turns party off; B invites A: B sees "This person's party option is blocked." and A
+      gets no invite. Turn it back on and the invite arrives
+- [ ] A blocks emoticons ("Some visual effects will now be hidden."); B uses an emoticon: A
+      does not see it, a third client on the map does. A cannot send emoticons while blocked
+- [ ] A blocks hero chat ("You cannot hear the speaker from now on."); B uses a speaker
+      (`$CreateItem 2173`): A does not see the message, a third client does
+- [ ] With hero chat still blocked on A, a top-three player sends a hero message (see "Hero
+      chat" below): A does not see it, on A's channel or another, and a third client does
+- [ ] Toggle every other line (family, pet and partner revive, HP display, buff display,
+      quick get-up, mouse aim lock, Miniland invites, and the rest of the window): each
+      shows the client's own message where it has one, and the checkbox stays where it was
+      put
+- [ ] Set a mix of options, log out and back in: every checkbox in the options window is
+      in the state it was left in, and the blocks above still apply
+- [ ] Change map with options set: nothing resets
+
 ---
 
 ## Chat
@@ -411,5 +442,11 @@ Recorded so nobody spends time hunting for them:
   do not run yet, so nothing past the first room can be checked.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
+- **Options with nothing behind them yet** — family invites, Miniland invites, pet and partner
+  auto-revive, group sharing, hat visibility and interface lock are stored and come back on
+  login, but no family invite, Miniland invite, revive or sharing flow reads them yet.
+- **HP display, buff display, quick get-up and mouse aim lock** — the client applies these
+  itself; the server only stores them and sends them back on login, so the relog check is
+  all there is to see.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.

@@ -5,18 +5,21 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
+using NosCore.GameObject.Networking.SessionMatchers;
+using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Guri
 {
     [UsedImplicitly]
-    public sealed class EmoticonHandler
+    public sealed class EmoticonHandler(ISessionRegistry sessionRegistry)
     {
         [UsedImplicitly]
         public Task Handle(GuriPacketReceivedEvent evt)
@@ -38,8 +41,13 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return Task.CompletedTask;
             }
 
-            return session.Character.MapInstance.SendPacketAsync(
-                session.Character.GenerateEff(Convert.ToInt32(packet.Data) + 4099));
+            var mapInstance = session.Character.MapInstance;
+            var blocking = sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId)
+                .Where(s => s.Character.EmoticonsBlocked && s.Channel != null)
+                .Select(s => s.Channel!.Id)
+                .ToHashSet();
+            return mapInstance.SendPacketAsync(
+                session.Character.GenerateEff(Convert.ToInt32(packet.Data) + 4099), new EveryoneExcept(blocking));
         }
     }
 }

@@ -120,6 +120,17 @@ namespace NosCore.GameObject.Tests.Services.FriendService
         }
 
         [TestMethod]
+        public async Task AddingFriendWhoBlocksFriendRequestsShouldBeRefused()
+        {
+            await new Spec("Adding a friend who blocks friend requests should be refused")
+                .GivenAsync(BothPlayersAreOnlineSameChannel)
+                .And(TargetBlocksFriendRequests)
+                .WhenAsync(AddingFriendWithoutExistingRequest)
+                .Then(ResultShouldBeFriendRequestBlocked)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task GetFriendsListShouldReturnFriends()
         {
             await new Spec("Get friends list should return friends")
@@ -168,6 +179,16 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 {
                     new Subscriber { ChannelId = 1, ConnectedCharacter = new Character { Id = CharacterId, FriendRequestBlocked = false } },
                     new Subscriber { ChannelId = 1, ConnectedCharacter = new Character { Id = TargetCharacterId, FriendRequestBlocked = false } }
+                });
+        }
+
+        private void TargetBlocksFriendRequests()
+        {
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(new List<Subscriber>
+                {
+                    new Subscriber { ChannelId = 1, ConnectedCharacter = new Character { Id = CharacterId, FriendRequestBlocked = false } },
+                    new Subscriber { ChannelId = 1, ConnectedCharacter = new Character { Id = TargetCharacterId, FriendRequestBlocked = true } }
                 });
         }
 
@@ -255,6 +276,11 @@ namespace NosCore.GameObject.Tests.Services.FriendService
             var relations = TestHelpers.Instance.CharacterRelationDao
                 .Where(s => s.RelationType == CharacterRelationType.Friend)?.ToList();
             Assert.IsTrue(relations == null || relations.Count == 0);
+        }
+
+        private void ResultShouldBeFriendRequestBlocked()
+        {
+            Assert.AreEqual(LanguageKey.FRIEND_REQUEST_BLOCKED, AddFriendResult);
         }
 
         private void ResultShouldBeAlreadyFriend()

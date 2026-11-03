@@ -12,5 +12,6 @@ namespace NosCore.Data.WebApi
 
         public long Id { get; set; }
         public bool FriendRequestBlocked { get; set; }
+        public bool WhisperBlocked { get; set; }
     }
 }

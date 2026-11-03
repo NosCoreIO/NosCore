@@ -15,10 +15,12 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
@@ -127,6 +129,16 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .GivenAsync(CharacterHasModifiedGold)
                 .WhenAsync(SavingCharacter)
                 .ThenAsync(GoldShouldBePersisted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingCharacterShouldPersistOptions()
+        {
+            await new Spec("Saving character should persist the options window choices")
+                .Given(CharacterHasChangedOptions)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(OptionsShouldBePersisted)
                 .ExecuteAsync();
         }
 
@@ -317,6 +329,37 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private void NoExceptionShouldBeThrown()
         {
             Assert.IsTrue(SaveCompleted);
+        }
+
+        private void CharacterHasChangedOptions()
+        {
+            foreach (var option in Enum.GetValues<GopPacketType>())
+            {
+                Session.Character.SetOption(option, true);
+            }
+        }
+
+        private async Task OptionsShouldBePersisted()
+        {
+            var characterId = Session.Character.CharacterId;
+            var row = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
+            Assert.IsTrue(row!.ExchangeBlocked);
+            Assert.IsTrue(row.FriendRequestBlocked);
+            Assert.IsTrue(row.FamilyRequestBlocked);
+            Assert.IsTrue(row.WhisperBlocked);
+            Assert.IsTrue(row.GroupRequestBlocked);
+            Assert.IsTrue(row.PetAutoRelive);
+            Assert.IsTrue(row.PartnerAutoRelive);
+            Assert.IsTrue(row.GroupSharing);
+            Assert.IsTrue(row.MouseAimLock);
+            Assert.IsTrue(row.HeroChatBlocked);
+            Assert.IsTrue(row.QuickGetUp);
+            Assert.IsTrue(row.EmoticonsBlocked);
+            Assert.IsTrue(row.HpBlocked);
+            Assert.IsTrue(row.BuffBlocked);
+            Assert.IsTrue(row.MinilandInviteBlocked);
+            Assert.IsTrue(row.HatInvisible);
+            Assert.IsTrue(row.LockInterface);
         }
     }
 }

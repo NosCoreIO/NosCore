@@ -1,4 +1,5 @@
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Attributes;
 using NosCore.GameObject.Ecs.Components;
 using NosCore.Packets.Interfaces;
@@ -42,6 +43,7 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
     public Arch.Core.Entity Handle => Entity;
     public long CharacterId => PlayerCharacterId;
     public bool InExchangeOrShop => InShop || InExchange;
+    public double StatOption => this.GenerateStatOption();
 
     public long HeroXp
     {

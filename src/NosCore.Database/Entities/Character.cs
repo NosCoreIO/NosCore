@@ -153,6 +153,16 @@ namespace NosCore.Database.Entities
 
         public bool MouseAimLock { get; set; }
 
+        public bool PetAutoRelive { get; set; }
+
+        public bool PartnerAutoRelive { get; set; }
+
+        public bool GroupSharing { get; set; }
+
+        public bool HatInvisible { get; set; }
+
+        public bool LockInterface { get; set; }
+
         public int Mp { get; set; }
 
         [MaxLength(25)]

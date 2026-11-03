@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Chat
                     Name = character.Name,
                     Id = character.CharacterId
                 },
-                ReceiverType = ReceiverType.All
+                ReceiverType = ReceiverType.AllNoHeroBlocked
             });
         }
     }
