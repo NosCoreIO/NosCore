@@ -123,6 +123,35 @@ namespace NosCore.PacketHandlers.Tests.Command
             Assert.AreEqual(Game18NConstString.UnknownCharacter, packet.Message);
         }
 
+        [TestMethod]
+        public async Task TheGiftMailCarriesTheItemAndTheSender()
+        {
+            CharacterIsOnMap();
+            TargetPlayerIsOnline();
+            MailRequest? sent = null;
+            MailHub.Setup(x => x.SendMailAsync(It.IsAny<MailRequest>()))
+                .Callback<MailRequest>(request => sent = request)
+                .ReturnsAsync(true);
+
+            await Handler.ExecuteAsync(new GiftPacket
+            {
+                CharacterName = "TargetPlayer",
+                VNum = 1,
+                Amount = 1,
+                Rare = 5,
+                Upgrade = 7
+            }, Session);
+
+            Assert.AreEqual((short?)1, sent!.VNum);
+            Assert.AreEqual((short?)1, sent.Amount);
+            Assert.AreEqual((sbyte?)5, sent.Rare);
+            Assert.AreEqual((byte?)7, sent.Upgrade);
+            Assert.AreEqual(12345, sent.Mail!.ReceiverId);
+            Assert.AreEqual(Session.Character.VisualId, sent.Mail.SenderId);
+            Assert.AreEqual(Session.Character.Name, sent.Mail.Title);
+            Assert.IsNull(sent.Mail.ItemInstanceId);
+        }
+
         private void MailShouldBeSent()
         {
             MailHub.Verify(x => x.SendMailAsync(It.IsAny<MailRequest>()), Times.Once);
