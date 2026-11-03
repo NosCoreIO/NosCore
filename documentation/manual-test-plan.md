@@ -338,6 +338,24 @@ Log two members in on the same map.
 
 ---
 
+## Instances
+
+### Time-space entrances
+
+No time-space ships in the seed data, so add one: a `ScriptedInstance` row with `Type` 0
+(time-space) on a map you can reach, its `Script` holding the definition XML (level range,
+required items, start room and coordinates). Stand on the stone.
+
+- [ ] Walking onto the stone opens the time-space panel with its name, level range and
+      rewards
+- [ ] A character outside the level range is refused with a message and stays put
+- [ ] A character without the required items is refused with a message and keeps what
+      they had
+- [ ] With the items, START moves you into the first room at its start coordinates
+- [ ] The required items leave the inventory, across stacks if split, and no more than asked
+
+---
+
 ## Regression sweep
 
 Quick pass after any combat or stat change:
@@ -360,7 +378,8 @@ Recorded so nobody spends time hunting for them:
   reaches. It cannot be triggered from the client by design.
 - **Family experience** — nothing grants it yet, so the level bar only ever shows the
   seeded value.
-- **Instances** — same, still open.
+- **Inside a time-space** — the entrance works, but rooms, objectives, lives and rewards
+  do not run yet, so nothing past the first room can be checked.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a

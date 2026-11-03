@@ -472,4 +472,13 @@
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Miembro</value>
   </data>
+  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
+    <value>Tu nivel no te permite entrar en este time-space.</value>
+  </data>
+  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
+    <value>Este time-space aún no está disponible.</value>
+  </data>
+  <data name="TIMESPACE_REQUIRED_ITEMS_MISSING" xml:space="preserve">
+    <value>No tienes los objetos que requiere este time-space.</value>
+  </data>
 </root>
