@@ -429,9 +429,6 @@
   <data name="CANT_CHANGE_SAME_CLASS" xml:space="preserve">
     <value>Vous avez déjà changé de classe, vous ne pouvez donc plus le refaire.</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Votre réputation a changée.</value>
-  </data>
   <data name="SHOPITEMS_LOADED" xml:space="preserve">
     <value>{0} ShopItem chargés.</value>
   </data>
@@ -443,9 +440,6 @@
   </data>
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops parsés.</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Impossible d'acheter l'objet car le propiétaire ne peut pas collecter tout l'or.</value>
   </data>
   <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
     <value>Une carte SP invalide a été détéctée.</value>
@@ -515,9 +509,6 @@
   </data>
   <data name="DIRECT_ACCESS_OBJECT_DETECTED" xml:space="preserve">
     <value>Un accès direct à l'objet a été détecté: {0} - {1}.</value>
-  </data>
-  <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>Cadeaux envoyés: {0} pcs.</value>
   </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>L'utilisateur n'est pas dans la liste d'amis.</value>

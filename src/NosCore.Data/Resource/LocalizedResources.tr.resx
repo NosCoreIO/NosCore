@@ -393,9 +393,6 @@
   <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
     <value>{0} ReputationLevels işlendi!</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>İtibarın değişti!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -419,9 +416,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Başarıyla yüklendi!</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Satıcı iade işlemi için yeterli alana sahip değil.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Grup daveti gönderilemedi!</value>
@@ -521,9 +515,6 @@
   </data>
   <data name="QUEST_PRIZES_PARSED" xml:space="preserve">
     <value>{0} Görev ödülleri işlendi!</value>
-  </data>
-  <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>{0} Hediye edildi.</value>
   </data>
   <data name="NOT_IN_FRIENDLIST" xml:space="preserve">
     <value>Arkadaşın değil.</value>

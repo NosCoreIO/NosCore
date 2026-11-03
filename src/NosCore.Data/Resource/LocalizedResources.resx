@@ -392,9 +392,6 @@
   <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
     <value>{0} ReputationLevels Parsed!</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Your reputation has changed!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Parsed!</value>
   </data>
@@ -427,9 +424,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Successfully Loaded!</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>The seller does not have sufficient space to handle your money.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Unable to request the group</value>

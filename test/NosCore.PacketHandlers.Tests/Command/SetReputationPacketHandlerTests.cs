@@ -14,6 +14,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -40,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             PubSubHub.Setup(x => x.GetSubscribersAsync())
                 .Returns(Task.FromResult(new List<Subscriber>()));
 
-            Handler = new SetReputationPacketHandler(PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer);
+            Handler = new SetReputationPacketHandler(PubSubHub.Object);
         }
 
         [TestMethod]
@@ -50,6 +51,28 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .Given(CharacterIsOnMap)
                 .WhenAsync(SettingOwnReputation)
                 .Then(ReputationShouldBeChanged)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RaisingOwnReputationShouldAnnounceTheGain()
+        {
+            await new Spec("Raising own reputation should announce the gain")
+                .Given(CharacterIsOnMap)
+                .And(CharacterHasReputation_, 40000L)
+                .WhenAsync(SettingOwnReputation)
+                .Then(ShouldReceiveReputationMessage_And_, Game18NConstString.ReputationIncreased, 60000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoweringOwnReputationShouldAnnounceTheLoss()
+        {
+            await new Spec("Lowering own reputation should announce the loss")
+                .Given(CharacterIsOnMap)
+                .And(CharacterHasReputation_, 150000L)
+                .WhenAsync(SettingOwnReputation)
+                .Then(ShouldReceiveReputationMessage_And_, Game18NConstString.ReputationReduced, 50000L)
                 .ExecuteAsync();
         }
 
@@ -87,6 +110,11 @@ namespace NosCore.PacketHandlers.Tests.Command
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+        }
+
+        private void CharacterHasReputation_(long reputation)
+        {
+            Session.Character.Reputation = reputation;
         }
 
         private void TargetPlayerIsOnline()
@@ -151,6 +179,13 @@ namespace NosCore.PacketHandlers.Tests.Command
             var packet = Session.LastPackets.OfType<InfoiPacket>().FirstOrDefault();
             Assert.IsNotNull(packet);
             Assert.AreEqual(Game18NConstString.UnknownCharacter, packet.Message);
+        }
+
+        private void ShouldReceiveReputationMessage_And_(Game18NConstString message, long amount)
+        {
+            var packet = Session.LastPackets.OfType<SayiPacket>().Single(p => p.Message == message);
+            Assert.AreEqual(amount, packet.Game18NArguments[0]);
+            Assert.AreEqual(100000L, Session.Character.Reputation);
         }
 
         private void StatDataShouldBeSent()

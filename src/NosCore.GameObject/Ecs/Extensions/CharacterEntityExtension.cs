@@ -568,10 +568,10 @@ namespace NosCore.GameObject.Ecs.Extensions
             {
                 if (price + shop.OwnerCharacter.Gold > worldConfiguration.Value.MaxGoldAmount)
                 {
-                    await characterEntity.SendPacketAsync(new SMemoPacket
+                    await characterEntity.SendPacketAsync(new SMemoiPacket
                     {
                         Type = SMemoType.FailPlayer,
-                        Message = localizer[LanguageKey.TOO_RICH_SELLER, characterEntity.AccountLanguage]
+                        Message = Game18NConstString.TradeFailedMaxMoney
                     });
                     return;
                 }

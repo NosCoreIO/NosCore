@@ -290,9 +290,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} Items sincronizzati!</value>
   </data>
-  <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>Hai invitato {0} item.</value>
-  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Non è stato trovato alcun item.</value>
   </data>
@@ -488,9 +485,6 @@
   <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
     <value>{0} ReputationLevels sincronizzati!</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>La reputazione è cambiata!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes Caricati!</value>
   </data>
@@ -529,9 +523,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Il negoziante non ha abbastanza spazio per ricevere il tuo oro.</value>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Ha provato ad utilizzare il vecchio metodo di autorizzazione {0}.</value>

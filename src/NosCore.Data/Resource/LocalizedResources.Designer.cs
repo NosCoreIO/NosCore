@@ -898,15 +898,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your reputation has changed!.
-        /// </summary>
-        public static string REPUTATION_CHANGED {
-            get {
-                return ResourceManager.GetString("REPUTATION_CHANGED", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} RespawnTypes Parsed!.
         /// </summary>
         public static string RESPAWNTYPE_PARSED {
@@ -1020,15 +1011,6 @@ namespace NosCore.Data.Resource {
         public static string SUPPORT {
             get {
                 return ResourceManager.GetString("SUPPORT", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The seller does not have sufficient space to handle your money..
-        /// </summary>
-        public static string TOO_RICH_SELLER {
-            get {
-                return ResourceManager.GetString("TOO_RICH_SELLER", resourceCulture);
             }
         }
         

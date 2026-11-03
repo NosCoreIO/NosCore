@@ -399,9 +399,6 @@
   <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
     <value>¡{0} ReputationLevels Analizados!</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Â¡Tu reptuaciÃ³n ha cambiado!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>Â¡{0} RespawnTypes Analizados!</value>
   </data>
@@ -425,9 +422,6 @@
   </data>
   <data name="SUCCESSFULLY_LOADED" xml:space="preserve">
     <value>Â¡Cargado exitosamente!</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>El vendedor no tiene suficiente espacio para recibir tus oros.</value>
   </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Incapaz de enviar la peticiÃ³n de grupo.</value>
