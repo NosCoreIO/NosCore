@@ -5,6 +5,7 @@
 //
 
 using Json.Patch;
+using Mapster;
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 using NosCore.Dao.Interfaces;
@@ -182,13 +183,16 @@ namespace NosCore.GameObject.Services.MailService
                 return true;
             }
 
-            mailref.IsSenderCopy = true;
-            mailref.MailId = 0;
-            itemInstance.Id = new Guid();
-            itemInstance = await itemInstanceDao.TryInsertOrUpdateAsync(itemInstance);
-            mailref.ItemInstanceId = itemInstance?.Id;
-            mailref = await mailDao.TryInsertOrUpdateAsync(mailref);
-            var mailDataCopy = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance!, receiverName);
+            // The receiver's MailData still references mailref and itemInstance until the bus serializes it.
+            var senderCopy = mailref.Adapt<MailDto>();
+            senderCopy.IsSenderCopy = true;
+            senderCopy.MailId = 0;
+            var senderItem = (IItemInstanceDto)itemInstance.Adapt(itemInstance.GetType(), itemInstance.GetType())!;
+            senderItem.Id = new Guid();
+            senderItem = await itemInstanceDao.TryInsertOrUpdateAsync(senderItem);
+            senderCopy.ItemInstanceId = senderItem?.Id;
+            senderCopy = await mailDao.TryInsertOrUpdateAsync(senderCopy);
+            var mailDataCopy = await GenerateMailDataAsync(senderCopy, (short?)it?.ItemType ?? -1, senderItem!, receiverName);
             parcelRegistry.AddMail(mailref.ReceiverId, mailDataCopy.MailDto.IsSenderCopy, mailDataCopy.MailId, mailDataCopy);
             await NotifyAsync(0, receiver, mailDataCopy);
 

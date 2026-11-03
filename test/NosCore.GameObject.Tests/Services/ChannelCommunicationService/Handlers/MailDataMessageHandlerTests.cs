@@ -68,6 +68,16 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SenderCopyShouldNotAnnounceTheParcelAgain()
+        {
+            await new Spec("Sender copy should not announce the parcel again")
+                .Given(CharacterIsRegistered)
+                .WhenAsync(HandlingSenderCopyWithItem)
+                .Then(ShouldNotSendSayPacket)
+                .ExecuteAsync();
+        }
+
         private void CharacterIsRegistered()
         {
             SessionRegistry.Setup(x => x.GetSession(It.IsAny<System.Func<ClientSession, bool>>()))
@@ -107,6 +117,27 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                     ItemVNum = 1012
                 }
             });
+        }
+
+        private async Task HandlingSenderCopyWithItem()
+        {
+            await Handler.Handle(new MailData
+            {
+                ReceiverName = Session.Character.Name,
+                MailId = 1,
+                MailDto = new MailDto { Title = "Test Mail with Item", IsSenderCopy = true },
+                SenderName = "Sender",
+                ItemInstance = new ItemInstanceDto
+                {
+                    Amount = 5,
+                    ItemVNum = 1012
+                }
+            });
+        }
+
+        private void ShouldNotSendSayPacket()
+        {
+            Assert.IsFalse(Session.LastPackets.OfType<SayiPacket>().Any());
         }
 
         private void ShouldSendMailPacket()

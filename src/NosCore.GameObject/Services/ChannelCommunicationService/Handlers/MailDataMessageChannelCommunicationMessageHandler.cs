@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             }
 
             var character = session.Character;
-            if (data.ItemInstance != null)
+            if (data.ItemInstance != null && !data.MailDto.IsSenderCopy)
             {
                 await session.SendPacketAsync(new SayiPacket
                 {
