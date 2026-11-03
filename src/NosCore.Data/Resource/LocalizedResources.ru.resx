@@ -569,13 +569,4 @@
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Участник</value>
   </data>
-  <data name="TIMESPACE_LEVEL_NOT_ALLOWED" xml:space="preserve">
-    <value>Ваш уровень не позволяет войти в этот тайм-спейс.</value>
-  </data>
-  <data name="TIMESPACE_NOT_AVAILABLE" xml:space="preserve">
-    <value>Этот тайм-спейс пока недоступен.</value>
-  </data>
-  <data name="TIMESPACE_REQUIRED_ITEMS_MISSING" xml:space="preserve">
-    <value>У тебя нет предметов, необходимых для этого time-space.</value>
-  </data>
 </root>

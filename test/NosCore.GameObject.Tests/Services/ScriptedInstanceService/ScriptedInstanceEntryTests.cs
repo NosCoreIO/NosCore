@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public void NothingRequiredLetsAnyoneIn()
         {
-            Assert.IsTrue(_session.Character.HoldsRequiredItems(new ScriptedInstance()));
+            Assert.IsNull(_session.Character.MissingRequiredItem(new ScriptedInstance()));
         }
 
         [TestMethod]
@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             Give(1);
 
-            Assert.IsFalse(_session.Character.HoldsRequiredItems(Needing(2)));
+            Assert.AreEqual(SeedVnum, _session.Character.MissingRequiredItem(Needing(2))?.VNum);
         }
 
         [TestMethod]
@@ -76,7 +76,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Give(5);
             var entrance = Needing(2);
 
-            Assert.IsTrue(_session.Character.HoldsRequiredItems(entrance));
+            Assert.IsNull(_session.Character.MissingRequiredItem(entrance));
             await _session.Character.TakeRequiredItemsAsync(entrance);
 
             Assert.AreEqual(3, Held());

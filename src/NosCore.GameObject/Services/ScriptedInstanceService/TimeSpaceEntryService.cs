@@ -4,19 +4,18 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class TimeSpaceEntryService(IScriptedInstanceService scriptedInstanceService,
-            IMapChangeService mapChangeService,
-            IGameLanguageLocalizer gameLanguageLocalizer)
+            IMapChangeService mapChangeService)
         : ITimeSpaceEntryService
     {
         public Task ShowAsync(ClientSession session, ScriptedInstance entrance)
@@ -31,20 +30,29 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             if (character.Level < entrance.EffectiveLevelMinimum
                 || character.Level > entrance.EffectiveLevelMaximum)
             {
-                await RefuseAsync(session, LanguageKey.TIMESPACE_LEVEL_NOT_ALLOWED);
+                await RefuseAsync(session, Game18NConstString.LevelDoesNotMatch);
                 return;
             }
 
-            if (!character.HoldsRequiredItems(entrance))
+            var missing = character.MissingRequiredItem(entrance);
+            if (missing != null)
             {
-                await RefuseAsync(session, LanguageKey.TIMESPACE_REQUIRED_ITEMS_MISSING);
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.FollowingItemRequired,
+                    ArgumentType = 2,
+                    Game18NArguments = { missing.VNum.ToString() }
+                });
                 return;
             }
 
             var run = await scriptedInstanceService.InstantiateAsync(entrance);
             if (run == null)
             {
-                await RefuseAsync(session, LanguageKey.TIMESPACE_NOT_AVAILABLE);
+                await RefuseAsync(session, Game18NConstString.TimespaceDoesNotExist);
                 return;
             }
 
@@ -55,10 +63,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 entrance.Definition.StartX, entrance.Definition.StartY);
         }
 
-        private Task RefuseAsync(ClientSession session, LanguageKey message)
+        private static Task RefuseAsync(ClientSession session, Game18NConstString message)
         {
-            return session.SendPacketAsync(session.Character.GenerateSay(
-                gameLanguageLocalizer[message, session.Character.AccountLanguage], SayColorType.Yellow));
+            return session.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = session.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = message
+            });
         }
     }
 }

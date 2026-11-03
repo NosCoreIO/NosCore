@@ -14,12 +14,12 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class ScriptedInstanceEntryExtensions
 {
-    public static bool HoldsRequiredItems(this PlayerComponentBundle player, ScriptedInstance entrance)
+    public static InstanceGift? MissingRequiredItem(this PlayerComponentBundle player, ScriptedInstance entrance)
     {
         var required = entrance.Definition?.RequiredItems ?? [];
-        return required.All(item => player.InventoryService.Values
+        return required.FirstOrDefault(item => player.InventoryService.Values
             .Where(s => s.ItemInstance.ItemVNum == item.VNum)
-            .Sum(s => s.ItemInstance.Amount) >= item.Amount);
+            .Sum(s => s.ItemInstance.Amount) < item.Amount);
     }
 
     public static async Task TakeRequiredItemsAsync(this PlayerComponentBundle player, ScriptedInstance entrance)
