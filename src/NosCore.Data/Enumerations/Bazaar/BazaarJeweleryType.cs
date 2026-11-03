@@ -12,7 +12,6 @@ namespace NosCore.Data.Enumerations.Bazaar
         Necklace = 1,
         Amulet = 5,
         Bracelet = 3,
-        Fairy = 4,
-        Box = 5
+        Fairy = 4
     }
 }

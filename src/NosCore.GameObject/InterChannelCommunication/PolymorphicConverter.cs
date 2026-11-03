@@ -13,6 +13,21 @@ namespace NosCore.GameObject.InterChannelCommunication;
 public class PolymorphicJsonConverter<T> : JsonConverter<T>
 {
     //Inspired by https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to?pivots=dotnet-6-0#support-polymorphic-deserialization
+    private JsonSerializerOptions? _payloadOptions;
+
+    // The payload keeps the caller's converters (NodaTime among them) but not this one, which would wrap it again.
+    private JsonSerializerOptions PayloadOptions(JsonSerializerOptions options)
+    {
+        if (_payloadOptions != null)
+        {
+            return _payloadOptions;
+        }
+
+        var payloadOptions = new JsonSerializerOptions(options);
+        payloadOptions.Converters.Remove(this);
+        return _payloadOptions = payloadOptions;
+    }
+
     public override bool CanConvert(Type typeToConvert)
     {
         return typeof(T).IsAssignableFrom(typeToConvert);
@@ -61,7 +76,7 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
             throw new JsonException();
         }
 
-        var rt = (T?)JsonSerializer.Deserialize(ref reader, tp ?? throw new InvalidOperationException(), new JsonSerializerOptions());
+        var rt = (T?)JsonSerializer.Deserialize(ref reader, tp ?? throw new InvalidOperationException(), PayloadOptions(options));
 
         while (reader.Read())
         {
@@ -75,7 +90,7 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
         writer.WriteStartObject();
         writer.WriteString("_type", value?.GetType().AssemblyQualifiedName ?? throw new InvalidOperationException());
         writer.WritePropertyName("_object");
-        JsonSerializer.Serialize(writer, value, value.GetType());
+        JsonSerializer.Serialize(writer, value, value.GetType(), PayloadOptions(options));
         writer.WriteEndObject();
     }
 }

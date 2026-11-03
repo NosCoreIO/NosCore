@@ -319,6 +319,16 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from
       it shows the client's "Trade failed because shop owner has too much money." and no gold moves
 
+### NosBazaar search
+
+- [ ] List a weapon, an armour, a hat, a ring, a potion and a snack from one character, then
+      open the NosBazaar on another
+- [ ] Each category tab (Weapon, Armour, Equipment, Jewellery, Main, Usable) shows only its items
+- [ ] Weapon and armour: the class drop-down, the level band (1-10 ... 81-90, Heroic), rarity and
+      upgrade each narrow the list; Equipment and Jewellery: the slot drop-down picks the slot
+- [ ] Searching an item by name shows only that item; searching with no name never empties the window
+- [ ] With more than 50 listings, page 2 continues the price order of page 1 instead of repeating it
+
 ### Production
 
 Recipes come from the parser, so re-run it on an existing database first. Malcolm Mix, the

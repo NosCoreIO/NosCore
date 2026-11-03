@@ -11,9 +11,8 @@ using System.Collections.Concurrent;
 using NodaTime.Serialization.SystemTextJson;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
 using System;
@@ -25,7 +24,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.BazaarService
 {
     public class BazaarService(IBazaarRegistry bazaarRegistry, IDao<BazaarItemDto, long> bazaarItemDao,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IClock clock, List<ItemDto> items)
         : IBazaarService
     {
         // Channels reach these through BazaarHub, and its message handlers run concurrently, so
@@ -38,17 +37,6 @@ namespace NosCore.GameObject.Services.BazaarService
         public List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter)
         {
-            var bzlist = new List<BazaarLink>();
-#pragma warning disable CS0219 // Variable is assigned but its value is never used
-            var applyRareFilter = false;
-            var applyUpgradeFilter = false;
-            var applySpLevelFilter = false;
-            var applyLevelFilter = false;
-            var applyClassFilter = false;
-            PocketType? pocketType = null;
-            ItemType? itemType = null;
-            byte? subtypeFilter = null;
-#pragma warning restore CS0219 // Variable is assigned but its value is never used
             IEnumerable<BazaarLink> bzlinks;
             if (id != -1)
             {
@@ -62,103 +50,24 @@ namespace NosCore.GameObject.Services.BazaarService
                     : bazaarRegistry.GetAll();
             }
 
-            foreach (var bz in bzlinks)
+            if (typeFilter is { } type && type != BazaarListType.Default)
             {
-                switch (typeFilter)
-                {
-                    case BazaarListType.Weapon:
-                        itemType = ItemType.Weapon;
-                        pocketType = PocketType.Equipment;
-                        applyClassFilter = true;
-                        applyLevelFilter = true;
-                        applyRareFilter = true;
-                        applyUpgradeFilter = true;
-                        break;
-
-                    case BazaarListType.Armor:
-                        itemType = ItemType.Armor;
-                        pocketType = PocketType.Equipment;
-                        applyClassFilter = true;
-                        applyLevelFilter = true;
-                        applyRareFilter = true;
-                        applyUpgradeFilter = true;
-                        break;
-
-                    case BazaarListType.Equipment:
-                        itemType = ItemType.Fashion;
-                        pocketType = PocketType.Equipment;
-                        if (subTypeFilter > 0)
-                        {
-                            var equipmentTypeFilter = (BazaarEquipmentType)subTypeFilter;
-                        }
-
-                        applyLevelFilter = true;
-                        break;
-
-                    case BazaarListType.Jewelery:
-                        itemType = ItemType.Jewelery;
-                        pocketType = PocketType.Equipment;
-                        if (subTypeFilter > 0)
-                        {
-                            var jeweleryTypeFilter = (BazaarJeweleryType)subTypeFilter;
-                        }
-
-                        applyLevelFilter = true;
-                        break;
-
-                    case BazaarListType.Specialist:
-                    case BazaarListType.Npc:
-                    case BazaarListType.Pet:
-                        pocketType = PocketType.Equipment;
-                        itemType = ItemType.Box;
-                        applySpLevelFilter = true;
-                        break;
-
-                    case BazaarListType.Shell:
-                        pocketType = PocketType.Equipment;
-                        itemType = ItemType.Shell;
-                        applySpLevelFilter = true;
-                        if (subTypeFilter > 0)
-                        {
-                            subtypeFilter = subTypeFilter++;
-                            applyRareFilter = true;
-                        }
-
-                        break;
-
-                    case BazaarListType.Main:
-                        pocketType = PocketType.Main;
-                        if (subTypeFilter > 0)
-                        {
-                            var mainTypeFilter = (BazaarMainType)subTypeFilter;
-                        }
-
-                        break;
-
-                    case BazaarListType.Usable:
-                        pocketType = PocketType.Etc;
-                        if (subTypeFilter > 0)
-                        {
-                            var bazaarTypeFilter = (BazaarUsableType)subTypeFilter;
-                        }
-
-                        break;
-
-                    case BazaarListType.Other:
-                        pocketType = PocketType.Equipment;
-                        itemType = ItemType.Box;
-                        break;
-
-                    case BazaarListType.Vehicle:
-                        itemType = ItemType.Box;
-                        break;
-                }
-
-                bzlist.Add(bz);
+                var links = bzlinks.Where(s => s.ItemInstance != null).ToList();
+                var vnums = links.Select(s => s.ItemInstance!.ItemVNum)
+                    .Concat(links.Select(s => (s.ItemInstance as BoxInstanceDto)?.HoldingVNum ?? 0))
+                    .ToHashSet();
+                var itemsByVNum = items.Where(s => vnums.Contains(s.VNum)).ToDictionary(s => s.VNum);
+                var filter = new BazaarFilter(type, subTypeFilter ?? 0, levelFilter ?? 0, rareFilter ?? 0, upgradeFilter ?? 0);
+                bzlinks = links.Where(s => itemsByVNum.TryGetValue(s.ItemInstance!.ItemVNum, out var item)
+                    && filter.Matches(s.ItemInstance, item, itemsByVNum));
             }
 
-            //todo this need to be move to the filter when done
-            return bzlist.Skip(index ?? 0 * pageSize ?? 0).Take((byte)(pageSize ?? bzlist.Count)).ToList();
+            if (pageSize is { } size)
+            {
+                bzlinks = bzlinks.Skip((index ?? 0) * size).Take(size);
+            }
+
+            return bzlinks.ToList();
         }
 
         public async Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null)

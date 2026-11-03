@@ -20,6 +20,8 @@ using NosCore.GameObject.Services.BazaarService;
 using NosCore.Tests.Shared.AutoFixture;
 using SpecLight;
 using System;
+using NosCore.Data.StaticEntities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -47,7 +49,7 @@ namespace NosCore.GameObject.Tests
 
             var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
             BazaarItemsHolder = new BazaarRegistry(MockBzDao.Object, MockItemDao.Object, mockCharacterDao.Object);
-            BazaarController = new BazaarHub(new BazaarService(BazaarItemsHolder, MockBzDao.Object, MockItemDao.Object, Fixture.Create<IClock>()));
+            BazaarController = new BazaarHub(new BazaarService(BazaarItemsHolder, MockBzDao.Object, MockItemDao.Object, Fixture.Create<IClock>(), new List<ItemDto>()));
             MockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
             MockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))

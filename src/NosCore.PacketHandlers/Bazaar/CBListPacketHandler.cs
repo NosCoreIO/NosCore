@@ -22,44 +22,36 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CBListPacketHandler(IBazaarHub bazaarHttpClient, List<ItemDto> items, IClock clock)
         : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
+        private const int PageSize = 50;
+
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
-            var itemssearch = packet.ItemVNumFilter?.FirstOrDefault() == 0 ? new List<short>() : packet.ItemVNumFilter;
+            var vnumFilter = packet.ItemVNumFilter?.Where(s => s != 0).ToHashSet() ?? new HashSet<short>();
 
-            var bzlist = await bazaarHttpClient.GetBazaar(-1, (byte?)packet.Index, 50, packet.TypeFilter, packet.SubTypeFilter,
+            var bzlist = await bazaarHttpClient.GetBazaar(-1, null, null, packet.TypeFilter, packet.SubTypeFilter,
                 packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
-            var bzlistsearched = bzlist.Where(s => itemssearch!.Contains(s.ItemInstance!.ItemVNum)).ToList();
+            var now = clock.GetCurrentInstant();
+            var searched = bzlist.Where(s => (vnumFilter.Count == 0 || vnumFilter.Contains(s.ItemInstance!.ItemVNum))
+                && s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration)) > now
+                && s.ItemInstance!.Amount > 0);
 
-            //price up price down quantity up quantity down
-            var definitivelist = itemssearch?.Any() == true ? bzlistsearched : bzlist;
-            definitivelist = packet.OrderFilter switch
-            {
-                0 => definitivelist
-                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenBy(s => s.BazaarItem!.Price)
-                    .ToList(),
-                1 => definitivelist
-                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenByDescending(s => s.BazaarItem!.Price)
-                    .ToList(),
-                2 => definitivelist
-                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenBy(s => s.BazaarItem!.Amount)
-                    .ToList(),
-                3 => definitivelist
-                    .OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
-                    .ThenByDescending(s => s.BazaarItem!.Amount)
-                    .ToList(),
-                _ => definitivelist.OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language])
-                    .ToList()
-            };
+            var byName = searched.OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language]);
+            var definitivelist = (packet.OrderFilter switch
+                {
+                    0 => byName.ThenBy(s => s.BazaarItem!.Price),
+                    1 => byName.ThenByDescending(s => s.BazaarItem!.Price),
+                    2 => byName.ThenBy(s => s.BazaarItem!.Amount),
+                    3 => byName.ThenByDescending(s => s.BazaarItem!.Amount),
+                    _ => byName
+                })
+                .Skip(packet.Index * PageSize)
+                .Take(PageSize)
+                .ToList();
 
             await clientSession.SendPacketAsync(new RcbListPacket
             {
                 PageIndex = packet.Index,
                 Items = definitivelist
-                    .Where(s => ((s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration))
-                         > clock.GetCurrentInstant()) && (s.ItemInstance!.Amount > 0)))
                     .Select(bzlink => new RcbListElementPacket
                     {
                         AuctionId = bzlink.BazaarItem!.BazaarItemId,
@@ -70,7 +62,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,
                         MinutesLeft =
-                            (long)(bzlink.BazaarItem.DateStart.Plus(Duration.FromHours(bzlink.BazaarItem.Duration)).Minus(clock.GetCurrentInstant()))
+                            (long)(bzlink.BazaarItem.DateStart.Plus(Duration.FromHours(bzlink.BazaarItem.Duration)).Minus(now))
                             .TotalMinutes,
                         Unknown1 = false,
                         Unknown = 2,
