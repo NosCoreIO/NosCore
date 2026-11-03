@@ -23,6 +23,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -140,6 +141,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .WhenAsync(CreatingShop)
                 .Then(ShouldReceiveItemsCannotBeTradedError)
                 .And(ShopShouldNotBeCreated)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClickingAnOpenShopListsItsItems()
+        {
+            await new Spec("Clicking an open shop lists its items")
+                .Given(CharacterHasTradableItems)
+                .AndAsync(ShopIsOpenAsync)
+                .WhenAsync(AnotherPlayerClicksTheShopAsync)
+                .Then(TheOtherPlayerShouldReceiveTheItemList)
                 .ExecuteAsync();
         }
 
@@ -306,6 +318,29 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             var packet = (SayiPacket?)Session.LastPackets.FirstOrDefault(s => s is SayiPacket);
             Assert.IsTrue(packet?.VisualType == VisualType.Player && packet?.VisualId == Session.Character.CharacterId && packet?.Type == SayColorType.Yellow && packet?.Message == Game18NConstString.NoItemToSell);
+        }
+
+        private async Task ShopIsOpenAsync()
+        {
+            await MShopPacketHandler.ExecuteAsync(ShopPacket, Session);
+        }
+
+        private ClientSession Visitor = null!;
+
+        private async Task AnotherPlayerClicksTheShopAsync()
+        {
+            Visitor = await TestHelpers.Instance.GenerateSessionAsync();
+            Visitor.LastPackets.Clear();
+            Session.Character.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(Visitor));
+        }
+
+        private void TheOtherPlayerShouldReceiveTheItemList()
+        {
+            var packet = Visitor.LastPackets.OfType<NInvPacket>().Single();
+            Assert.AreEqual(VisualType.Player, packet.VisualType);
+            Assert.AreEqual(Session.Character.VisualId, packet.VisualId);
+            Assert.AreEqual(Session.Character.Shop!.ShopItems.Count, packet.Items!.Count(i => i != null));
+            Assert.IsTrue(Session.Character.Shop.ShopItems.Count > 0);
         }
 
         private void NoErrorShouldBeSent()
