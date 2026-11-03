@@ -17,6 +17,8 @@ using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Ecs.Extensions;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -136,13 +138,58 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task UnhandledOptionIsIgnored()
+        public async Task TurningFamilyOffBlocksFamilyInvites()
         {
-            await new Spec("An option the server does not handle sends nothing back")
+            await new Spec("Turning the family option off is stored")
                 .WhenAsync(SettingOption_To_, GopPacketType.FamilyRequestBlocked, false)
+                .Then(FamilyRequestsShouldBeBlocked)
+                .And(MessageShouldBe_, Game18NConstString.FamilyBlocked)
+                .And(StatOptionBit_ShouldBe_, GopPacketType.FamilyRequestBlocked, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task EveryOptionIsStoredAndEchoed()
+        {
+            await new Spec("Every option of the window is stored and echoed in the stat packet")
+                .WhenAsync(TogglingEveryOption)
+                .Then(EveryOptionShouldBeStoredAndEchoed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UnknownOptionIsIgnored()
+        {
+            await new Spec("An option the client window does not have sends nothing back")
+                .WhenAsync(SettingOption_To_, (GopPacketType)99, true)
                 .Then(NothingShouldBeSent)
                 .ExecuteAsync();
         }
+
+        private async Task TogglingEveryOption()
+        {
+            foreach (var option in Enum.GetValues<GopPacketType>())
+            {
+                await SettingOption_To_(option, true);
+            }
+        }
+
+        private void EveryOptionShouldBeStoredAndEchoed()
+        {
+            var accepted = new[]
+            {
+                GopPacketType.ExchangeBlocked, GopPacketType.FriendRequestBlocked, GopPacketType.FamilyRequestBlocked,
+                GopPacketType.WhisperBlocked, GopPacketType.GroupRequestBlocked
+            };
+            foreach (var option in Enum.GetValues<GopPacketType>())
+            {
+                var expected = !accepted.Contains(option);
+                Assert.AreEqual(expected, Session.Character.GetOption(option), option.ToString());
+                StatOptionBit_ShouldBe_(option, expected != (option == GopPacketType.MouseAimLock));
+            }
+        }
+
+        private void FamilyRequestsShouldBeBlocked() => Assert.IsTrue(Session.Character.FamilyRequestBlocked);
 
         private void ExchangeIsBlocked() => Session.Character.ExchangeBlocked = true;
 

@@ -396,11 +396,17 @@ namespace NosCore.Database.Migrations
                     b.Property<bool>("GroupRequestBlocked")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("GroupSharing")
+                        .HasColumnType("boolean");
+
                     b.Property<byte>("HairColor")
                         .HasColumnType("smallint");
 
                     b.Property<byte>("HairStyle")
                         .HasColumnType("smallint");
+
+                    b.Property<bool>("HatInvisible")
+                        .HasColumnType("boolean");
 
                     b.Property<bool>("HeroChatBlocked")
                         .HasColumnType("boolean");
@@ -428,6 +434,9 @@ namespace NosCore.Database.Migrations
 
                     b.Property<long>("LevelXp")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("LockInterface")
+                        .HasColumnType("boolean");
 
                     b.Property<short>("MapId")
                         .HasColumnType("smallint");
@@ -461,6 +470,12 @@ namespace NosCore.Database.Migrations
                         .HasMaxLength(255)
                         .IsUnicode(false)
                         .HasColumnType("character varying(255)");
+
+                    b.Property<bool>("PartnerAutoRelive")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("PetAutoRelive")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Prefix")
                         .HasMaxLength(25)

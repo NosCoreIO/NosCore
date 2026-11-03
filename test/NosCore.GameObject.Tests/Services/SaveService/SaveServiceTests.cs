@@ -333,11 +333,10 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
         private void CharacterHasChangedOptions()
         {
-            Session.Character.TryApplyOption(GopPacketType.ExchangeBlocked, false, out _);
-            Session.Character.TryApplyOption(GopPacketType.WhisperBlocked, false, out _);
-            Session.Character.TryApplyOption(GopPacketType.EmoticonsBlocked, true, out _);
-            Session.Character.TryApplyOption(GopPacketType.BuffBlocked, true, out _);
-            Session.Character.TryApplyOption(GopPacketType.MouseAimLock, true, out _);
+            foreach (var option in Enum.GetValues<GopPacketType>())
+            {
+                Session.Character.SetOption(option, true);
+            }
         }
 
         private async Task OptionsShouldBePersisted()
@@ -345,12 +344,22 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             var characterId = Session.Character.CharacterId;
             var row = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
             Assert.IsTrue(row!.ExchangeBlocked);
+            Assert.IsTrue(row.FriendRequestBlocked);
+            Assert.IsTrue(row.FamilyRequestBlocked);
             Assert.IsTrue(row.WhisperBlocked);
-            Assert.IsTrue(row.EmoticonsBlocked);
-            Assert.IsTrue(row.BuffBlocked);
+            Assert.IsTrue(row.GroupRequestBlocked);
+            Assert.IsTrue(row.PetAutoRelive);
+            Assert.IsTrue(row.PartnerAutoRelive);
+            Assert.IsTrue(row.GroupSharing);
             Assert.IsTrue(row.MouseAimLock);
-            Assert.IsFalse(row.FriendRequestBlocked);
-            Assert.IsFalse(row.GroupRequestBlocked);
+            Assert.IsTrue(row.HeroChatBlocked);
+            Assert.IsTrue(row.QuickGetUp);
+            Assert.IsTrue(row.EmoticonsBlocked);
+            Assert.IsTrue(row.HpBlocked);
+            Assert.IsTrue(row.BuffBlocked);
+            Assert.IsTrue(row.MinilandInviteBlocked);
+            Assert.IsTrue(row.HatInvisible);
+            Assert.IsTrue(row.LockInterface);
         }
     }
 }

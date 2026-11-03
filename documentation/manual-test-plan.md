@@ -348,9 +348,10 @@ own message, in the client's language.
       (`$CreateItem 2173`): A does not see the message, a third client does
 - [ ] With hero chat still blocked on A, a top-three player sends a hero message (see "Hero
       chat" below): A does not see it, on A's channel or another, and a third client does
-- [ ] Toggle HP display, buff display, quick get-up, mouse aim lock and Miniland invites:
-      each shows its own message (mouse aim lock shows none) and the checkbox stays where
-      it was put
+- [ ] Toggle every other line (family, pet and partner revive, HP display, buff display,
+      quick get-up, mouse aim lock, Miniland invites, and the rest of the window): each
+      shows the client's own message where it has one, and the checkbox stays where it was
+      put
 - [ ] Set a mix of options, log out and back in: every checkbox in the options window is
       in the state it was left in, and the blocks above still apply
 - [ ] Change map with options set: nothing resets
@@ -422,10 +423,9 @@ Recorded so nobody spends time hunting for them:
 - **Instances** — same, still open.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
-- **Family invite option** — families are not merged yet, so the option is neither stored
-  nor enforced, and its checkbox comes back unticked after a relog.
-- **Miniland invite option** — stored and echoed on login, but there is no Miniland invite
-  flow yet for it to block.
+- **Options with nothing behind them yet** — family invites, Miniland invites, pet and partner
+  auto-revive, group sharing, hat visibility and interface lock are stored and come back on
+  login, but no family invite, Miniland invite, revive or sharing flow reads them yet.
 - **HP display, buff display, quick get-up and mouse aim lock** — the client applies these
   itself; the server only stores them and sends them back on login, so the relog check is
   all there is to see.
