@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             _friendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
             _sessionRegistry = new Mock<ISessionRegistry>();
             _mapChangeService = new Mock<IMapChangeService>();
-            _handler = new FriendshipWingsHandler(_friendHub.Object, _sessionRegistry.Object, _mapChangeService.Object);
+            _handler = new FriendshipWingsHandler(_friendHub.Object, _sessionRegistry.Object, _mapChangeService.Object, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -101,9 +101,38 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .Given(CharacterHasWings)
                 .And(TheOtherCharacterIsAFriend)
                 .And(TheFriendIsOnThisChannel)
+                .AndAsync(TheBarHasRun)
                 .WhenAsync(SendingArgument_, 2)
                 .Then(ThePlayerShouldBeSentToTheFriend)
                 .And(WingsCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TravelWithoutTheBarIsIgnored()
+        {
+            await new Spec("A travel request the server never started a bar for does nothing")
+                .Given(CharacterHasWings)
+                .And(TheOtherCharacterIsAFriend)
+                .And(TheFriendIsOnThisChannel)
+                .WhenAsync(SendingArgument_, 2)
+                .Then(NoMapChangeShouldHappen)
+                .And(WingsCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TravelBeforeTheBarEndsIsIgnored()
+        {
+            await new Spec("A travel request sent one second into the bar does nothing")
+                .Given(CharacterHasWings)
+                .And(TheOtherCharacterIsAFriend)
+                .And(TheFriendIsOnThisChannel)
+                .AndAsync(SendingArgument_, 1)
+                .And(SecondsPass_, 1)
+                .WhenAsync(SendingArgument_, 2)
+                .Then(NoMapChangeShouldHappen)
+                .And(WingsCountShouldBe_, 1)
                 .ExecuteAsync();
         }
 
@@ -113,6 +142,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             await new Spec("When the friend is not on this channel the player is told and keeps the wings")
                 .Given(CharacterHasWings)
                 .And(TheOtherCharacterIsAFriend)
+                .AndAsync(TheBarHasRun)
                 .WhenAsync(SendingArgument_, 2)
                 .Then(YourFriendIsOfflineShouldBeShown)
                 .And(WingsCountShouldBe_, 1)
@@ -150,6 +180,14 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             var friendId = _friend.Character.CharacterId;
             _sessionRegistry.Setup(s => s.GetSessionByCharacterId(friendId)).Returns(_friend);
         }
+
+        private async Task TheBarHasRun()
+        {
+            await SendingArgument_(1);
+            SecondsPass_(3);
+        }
+
+        private void SecondsPass_(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
 
         private async Task SendingArgument_(int argument)
         {

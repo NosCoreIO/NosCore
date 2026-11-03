@@ -7,6 +7,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NodaTime;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
@@ -25,7 +26,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
     // Argument 1 is the friend list's Go button; argument 2 comes back after the delay bar.
     [UsedImplicitly]
     public sealed class FriendshipWingsHandler(IFriendHub friendHub, ISessionRegistry sessionRegistry,
-        IMapChangeService mapChangeService)
+        IMapChangeService mapChangeService, IClock clock)
     {
         private const int Request = 1;
         private const int Travel = 2;
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
 
             if (packet.Argument == Request)
             {
-                await session.SendPacketAsync(new DelayPacket
+                await character.StartDelayAsync(new DelayPacket
                 {
                     Delay = 3000,
                     Type = DelayPacketType.InUse,
@@ -75,7 +76,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                         Argument = Travel,
                         VisualId = friendId
                     }
-                });
+                }, clock.GetCurrentInstant());
+                return;
+            }
+
+            if (!character.TryCompleteDelay(DelayPacketType.InUse, clock.GetCurrentInstant()))
+            {
                 return;
             }
 
