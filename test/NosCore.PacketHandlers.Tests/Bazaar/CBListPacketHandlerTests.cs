@@ -76,6 +76,42 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ListingWithoutAnItemFilterShouldNotThrow()
+        {
+            BazaarHasValidItems();
+            await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = null }, Session);
+            ShouldReceiveOneItem();
+        }
+
+        [TestMethod]
+        public async Task ItemFilterShouldKeepOnlyTheListedVNums()
+        {
+            BazaarHasValidItems();
+            await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short> { 1013 } }, Session);
+            ShouldReceiveEmptyList();
+        }
+
+        [TestMethod]
+        public async Task ListingShouldReturnTheRequestedPage()
+        {
+            var start = TestHelpers.Instance.Clock.GetCurrentInstant();
+            BazaarHttpClient.Setup(b => b.GetBazaar(-1, null, null, It.IsAny<BazaarListType?>(), It.IsAny<byte?>(),
+                    It.IsAny<byte?>(), It.IsAny<byte?>(), It.IsAny<byte?>(), null))
+                .ReturnsAsync(Enumerable.Range(1, 60).Select(i => new BazaarLink
+                {
+                    SellerName = "test",
+                    BazaarItem = new BazaarItemDto { BazaarItemId = i, Price = i, Amount = 1, DateStart = start, Duration = 200 },
+                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
+                }).ToList());
+
+            await CblistPacketHandler.ExecuteAsync(new CBListPacket { Index = 1, ItemVNumFilter = new List<short>() }, Session);
+
+            var packet = (RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
+            CollectionAssert.AreEqual(Enumerable.Range(51, 10).Select(i => (long)i).ToList(),
+                packet!.Items!.Select(s => s!.AuctionId).ToList());
+        }
+
         private void BazaarHasNoItems()
         {
             BazaarHttpClient.Setup(b =>
