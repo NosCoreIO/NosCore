@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NodaTime;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -22,7 +23,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     public sealed class VehicleHandler(
         ILogger<VehicleHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-        ITransformationService transformationService)
+        ITransformationService transformationService,
+        IClock clock)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -47,18 +49,23 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             character = session.Character;
             if (packet.Mode == 1 && !character.IsVehicled)
             {
-                await session.SendPacketAsync(new DelayPacket
+                await character.StartDelayAsync(new DelayPacket
                 {
                     Type = DelayPacketType.Locomotion,
                     Delay = 3000,
                     Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
-                });
+                }, clock.GetCurrentInstant());
                 return;
             }
 
             character = session.Character;
             if (packet.Mode == 2 && !character.IsVehicled)
             {
+                if (!character.TryCompleteDelay(DelayPacketType.Locomotion, clock.GetCurrentInstant()))
+                {
+                    return;
+                }
+
                 await transformationService.ChangeVehicleAsync(session, itemInstance.ItemInstance.Item);
                 return;
             }

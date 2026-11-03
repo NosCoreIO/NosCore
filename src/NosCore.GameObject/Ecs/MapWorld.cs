@@ -238,7 +238,8 @@ public class MapWorld : IDisposable
             new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false),
             new TimingComponent(now, Instant.MinValue),
             new SpeedComponent(speed),
-            new DigestionComponent(new DigestionState())
+            new DigestionComponent(new DigestionState()),
+            new PendingDelayComponent(null, Instant.MinValue)
         );
         return entity;
     }
@@ -270,11 +271,12 @@ public class MapWorld : IDisposable
         PlayerMatesComponent mates,
         DigestionComponent digestion)
     {
-        // World.Create stops short of 25 generic components, so the last one is added afterwards.
+        // World.Create stops short of 25 generic components, so the last ones are added afterwards.
         var entity = World.Create(identity, health, mana, position, visual, appearance, experience, gold,
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
             context, inventory, social, requests, mates);
         World.Add(entity, digestion);
+        World.Add(entity, new PendingDelayComponent(null, Instant.MinValue));
         return entity;
     }
 
