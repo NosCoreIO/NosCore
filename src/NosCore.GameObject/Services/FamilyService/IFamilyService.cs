@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Dto;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
@@ -11,5 +12,11 @@ namespace NosCore.GameObject.Services.FamilyService
     public interface IFamilyService
     {
         Task<Family?> GetFamilyAsync(long characterId);
+
+        Task AddMemberAsync(long familyId, long characterId);
+
+        Task RemoveMemberAsync(long characterId);
+
+        Task<CharacterDto?> FindCharacterAsync(string name);
     }
 }

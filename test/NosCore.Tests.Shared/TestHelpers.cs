@@ -445,7 +445,8 @@ namespace NosCore.Tests.Shared
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerSocialComponent(
                 new ConcurrentDictionary<long, long>(),
                 null,
-                null));
+                null,
+                new ConcurrentDictionary<long, long>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerMatesComponent(
                 new ConcurrentDictionary<long, NosCore.GameObject.Services.MateService.Mate>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerRequestsComponent(
