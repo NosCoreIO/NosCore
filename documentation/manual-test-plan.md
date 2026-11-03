@@ -444,6 +444,21 @@ same map.
 - [ ] `%Familydismiss <name>` from the head or an assistant removes a lower rank and
       the tag disappears; nobody can dismiss the head or their own rank
 
+### Family ranks and permissions
+
+Same seeded family, with a plain member on the same map as the head.
+
+- [ ] `%Familydeputy <name>` from the head says a new deputy was appointed and the
+      member's tag becomes `Testers(Familydeputy)`; a third deputy is refused
+- [ ] `%Familykeeper <name>` from the head or a deputy appoints a keeper; a deputy cannot
+      change the head or another deputy
+- [ ] `%Familyhead <name>` from the head to a deputy says the head changed and swaps both
+      tags; to a plain member it says only a deputy can become head
+- [ ] The family window's member list shows every member with level, class, rank and who
+      is online, and changing a rank there does the same as the commands
+- [ ] Ticking a keeper or member permission in the family window as the head keeps it
+      after reopening the window and relogging, and the keeper's invite and shout follow it
+
 ---
 
 ## Instances
