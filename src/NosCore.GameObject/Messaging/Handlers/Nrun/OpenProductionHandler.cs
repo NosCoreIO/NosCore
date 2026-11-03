@@ -9,28 +9,25 @@ using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ProductionService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class OpenProductionHandler : INrunEventHandler
+    public sealed class OpenProductionHandler(IProductionService productionService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.OpenProduction;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (target is not NpcComponentBundle)
+            if (target is not NpcComponentBundle npc)
             {
                 return Task.CompletedTask;
             }
 
-            return session.SendPacketAsync(new WopenPacket
-            {
-                Type = WindowType.Production,
-            });
+            return productionService.OpenAsync(session, npc);
         }
     }
 }

@@ -249,6 +249,7 @@ namespace NosCore.Tests.Shared
                 MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, NullLogger<MapChangeService>.Instance, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object);
             var mapChangeService = MapChangeService;
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),
+                new List<RecipeDto>(), new List<RecipeItemDto>(),
                 MapItemProvider,
                 MapNpcDao,
                 MapMonsterDao, PortalDao, ShopItemDao, NullLoggerFactory.Instance,

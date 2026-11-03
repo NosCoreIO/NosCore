@@ -348,6 +348,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Üretim ve Tarifleri işlemek (aktarmak) istiyor musun?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} tarif ayrıştırıldı!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} tarif yüklendi!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} tarif malzemesi yüklendi!</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Market eşyalarını işlemek (aktarmak) istiyor musun?</value>
   </data>

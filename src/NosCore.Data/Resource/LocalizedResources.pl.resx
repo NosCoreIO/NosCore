@@ -348,6 +348,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Czy chcesz wprowadzić Recipes?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>Wprowadzono: {0} Recipes!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>Załadowano: {0} Recipes!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>Załadowano: {0} RecipeItems!</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Czy chcesz wprowadzić Shopitems?</value>
   </data>

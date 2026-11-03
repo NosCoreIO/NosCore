@@ -415,6 +415,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Möchtest du die Rezepte laden?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} Rezepte geparsed!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} Rezepte geladen!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} Rezeptzutaten geladen!</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Möchtest du die ShopsItems laden?</value>
   </data>

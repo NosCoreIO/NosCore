@@ -407,6 +407,15 @@
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>{0} ShopItems Parsed!</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} Recipes parsed!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} Recipes loaded!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} RecipeItems loaded!</value>
+  </data>
   <data name="SHOPS_LOADED" xml:space="preserve">
     <value>{0} Shops Loaded!</value>
   </data>

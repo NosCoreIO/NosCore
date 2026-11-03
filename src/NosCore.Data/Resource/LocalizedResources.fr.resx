@@ -189,6 +189,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Voulez-vous analyser les recettes ?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} recettes parsées.</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} recettes chargées.</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} ingrédients de recettes chargés.</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Voulez-vous analyser les magasins d'objets ?</value>
   </data>

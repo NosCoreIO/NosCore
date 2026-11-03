@@ -343,6 +343,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Chceš nahrát Recepty?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} receptů zpracováno!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} receptů načteno!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} položek receptů načteno!</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Chceš nahrát Itemy v Obchodech?</value>
   </data>

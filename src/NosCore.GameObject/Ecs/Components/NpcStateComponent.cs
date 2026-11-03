@@ -2,6 +2,7 @@ using Arch.Core;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.ProductionService;
 using NosCore.GameObject.Services.ShopService;
 using System;
 using System.Collections.Concurrent;
@@ -18,6 +19,7 @@ public record struct NpcStateComponent(
     ConcurrentDictionary<Entity, int> HitList,
     Shop? Shop,
     Dictionary<int, Shop>? Shops,
+    IReadOnlyList<Recipe>? Recipes,
     Dictionary<Type, Subject<RequestData>> Requests,
     short? Dialog,
     bool IsDisabled
