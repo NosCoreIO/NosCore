@@ -5,11 +5,14 @@
 //
 
 using System;
+using System.Text.Json;
 using JasperFx.Core;
 using JasperFx.CodeGeneration.Model;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
 using NosCore.GameObject.InterChannelCommunication;
 using NosCore.Shared.Configuration;
 using Wolverine;
@@ -51,10 +54,16 @@ namespace NosCore.GameObject.Messaging
                 // Wolverine's code generation only sees the IServiceCollection, not Autofac, so
                 // handlers backed by Autofac registrations take IServiceProvider and resolve there.
                 opts.ServiceLocationPolicy = ServiceLocationPolicy.AlwaysAllowed;
-                opts.UseSystemTextJsonForSerialization(json => json.Converters.Add(new PolymorphicJsonConverter<IMessage>()));
+                opts.UseSystemTextJsonForSerialization(ConfigureMessageSerialization);
                 ConfigureTransport(opts, messaging, database, node);
                 configure?.Invoke(opts);
             }, ExtensionDiscovery.ManualOnly);
+        }
+
+        public static void ConfigureMessageSerialization(JsonSerializerOptions json)
+        {
+            json.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+            json.Converters.Add(new PolymorphicJsonConverter<IMessage>());
         }
 
         private static void ConfigureTransport(WolverineOptions opts, MessagingConfiguration messaging,
