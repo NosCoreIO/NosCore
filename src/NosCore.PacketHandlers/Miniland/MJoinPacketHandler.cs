@@ -13,6 +13,7 @@ using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,6 +25,34 @@ namespace NosCore.PacketHandlers.Miniland
     {
         public override async Task ExecuteAsync(MJoinPacket mJoinPacket, ClientSession session)
         {
+            var invitations = sessionRegistry.TryGetCharacter(s => s.VisualId == mJoinPacket.VisualId, out var owner)
+                ? owner.MinilandInviteCharacterIds
+                : null;
+
+            // A miniland invitation's Cancel answers with a non-player type: it only drops the invitation.
+            if (mJoinPacket.Type != VisualType.Player)
+            {
+                invitations?.TryRemove(session.Character.CharacterId, out _);
+                return;
+            }
+
+            if (invitations?.ContainsKey(session.Character.CharacterId) == true)
+            {
+                var invitedTo = minilandProvider.GetMiniland(mJoinPacket.VisualId);
+                if (invitedTo.State == MinilandState.Lock)
+                {
+                    await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.MinilandLocked });
+                    return;
+                }
+
+                if (invitations.TryRemove(session.Character.CharacterId, out _))
+                {
+                    await mapChangeService.ChangeMapInstanceAsync(session, invitedTo.MapInstanceId, 5, 8);
+                }
+
+                return;
+            }
+
             var friendList = await friendHttpClient.GetFriendsAsync(session.Character.CharacterId);
             if (sessionRegistry.TryGetCharacter(s => s.VisualId == mJoinPacket.VisualId, out var target) && friendList.Any(s => s.CharacterId == mJoinPacket.VisualId))
             {

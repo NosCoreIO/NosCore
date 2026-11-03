@@ -201,6 +201,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new ConcurrentDictionary<long, long>(),
                     null,
                     null,
+                    new ConcurrentDictionary<long, long>(),
                     new ConcurrentDictionary<long, long>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerMatesComponent(
                     new ConcurrentDictionary<long, Mate>()));

@@ -14,4 +14,5 @@ public record struct PlayerSocialComponent(
     ConcurrentDictionary<long, long> GroupRequestCharacterIds,
     Instant? LastGroupRequest,
     Family? Family,
-    ConcurrentDictionary<long, long> FamilyRequestCharacterIds);
+    ConcurrentDictionary<long, long> FamilyRequestCharacterIds,
+    ConcurrentDictionary<long, long> MinilandInviteCharacterIds);
