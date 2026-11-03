@@ -253,6 +253,7 @@ public static class PlayerBundleExtensions
 
     public static InPacket GenerateIn(this PlayerComponentBundle player, string prefix)
     {
+        var fairy = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
         return new InPacket
         {
             VisualType = VisualType.Player,
@@ -276,21 +277,21 @@ public static class PlayerBundleExtensions
                 },
                 IsSitting = player.IsSitting,
                 GroupId = player.Group.Count == 1 ? -1 : player.Group.GroupId,
-                Fairy = 0,
-                FairyElement = 0,
+                Fairy = (byte)(fairy == null ? 0 : 4),
+                FairyElement = (byte)(fairy?.Item.Element ?? 0),
                 FairyBooster = false,
-                FairyMorph = 0,
+                FairyMorph = (byte)(fairy?.Item.Morph ?? 0),
                 ShowInEffect = false,
-                Morph = 0,
+                Morph = player.UseSp && !player.IsVehicled ? (byte)player.Morph : (byte)0,
                 WeaponUpgradeRareSubPacket = player.GetWeaponUpgradeRareSubPacket(),
                 ArmorUpgradeRareSubPacket = player.GetArmorUpgradeRareSubPacket(),
                 FamilySubPacket = new FamilySubPacket(),
                 FamilyName = null,
                 ReputIco = GetIcon(player),
                 Invisible = false,
-                MorphUpgrade = 0,
+                MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
                 Faction = 0,
-                MorphUpgrade2 = 0,
+                MorphUpgrade2 = player.UseSp ? (byte)player.MorphDesign : (byte)0,
                 Level = player.Level,
                 FamilyLevel = 0,
                 FamilyIcons = new List<bool> { false, false, false },

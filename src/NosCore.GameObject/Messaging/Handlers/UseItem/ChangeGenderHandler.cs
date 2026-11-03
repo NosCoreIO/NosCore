@@ -14,6 +14,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
@@ -32,8 +33,28 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var session = evt.ClientSession;
             var character = session.Character;
 
-            if (character.IsVehicled || character.InventoryService.Values.Any(v => v.Type == NoscorePocketType.Wear))
+            if (character.IsVehicled)
             {
+                return;
+            }
+
+            if (character.InventoryService.Values.Any(v => v.Type == NoscorePocketType.Wear))
+            {
+                await session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.RemoveEquipment
+                });
+                return;
+            }
+
+            if (evt.Packet.Mode == 0)
+            {
+                await session.SendPacketAsync(new QnaiPacket
+                {
+                    YesPacket = character.GenerateUseItem((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot, 1, 0),
+                    Question = Game18NConstString.AskChangeGender
+                });
                 return;
             }
 
@@ -46,6 +67,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             character.InventoryService.RemoveItemAmountFromInventory(1, evt.InventoryItem.ItemInstanceId);
             await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
+            await session.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.GenderChanged
+            });
         }
     }
 }

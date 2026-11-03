@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
@@ -18,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -76,6 +78,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .WhenAsync(UsingTheItem)
                 .Then(GenderShouldBe_, GenderType.Male)
                 .And(ItemStackCountShouldBe_, (short)1)
+                .And(Message_ShouldBeSent, Game18NConstString.RemoveEquipment)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task FirstUseAsksBeforeChangingTheGender()
+        {
+            await new Spec("The first use only asks the client's own question")
+                .Given(ItemInInventoryWithEffect_, ItemEffectType.ChangeGender)
+                .And(CharacterGenderIs_, GenderType.Male)
+                .WhenAsync(UsingTheItemWithMode_, (byte)0)
+                .Then(GenderShouldBe_, GenderType.Male)
+                .And(ItemStackCountShouldBe_, (short)1)
+                .And(TheChangeGenderQuestionShouldBeAsked)
                 .ExecuteAsync();
         }
 
@@ -88,6 +104,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .WhenAsync(UsingTheItem)
                 .Then(GenderShouldBe_, GenderType.Female)
                 .And(ItemStackCountShouldBe_, (short)0)
+                .And(Message_ShouldBeSent, Game18NConstString.GenderChanged)
                 .ExecuteAsync();
         }
 
@@ -131,7 +148,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.InventoryService[worn.ItemInstanceId] = worn;
         }
 
-        private async Task UsingTheItem()
+        private Task UsingTheItem() => UsingTheItemWithMode_(1);
+
+        private void Message_ShouldBeSent(Game18NConstString message) =>
+            Assert.IsTrue(_session.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == message));
+
+        private void TheChangeGenderQuestionShouldBeAsked()
+        {
+            var qna = _session.LastPackets.OfType<QnaiPacket>().SingleOrDefault();
+            Assert.IsNotNull(qna);
+            Assert.AreEqual(Game18NConstString.AskChangeGender, qna.Question);
+            Assert.AreEqual((byte)1, ((UseItemPacket)qna.YesPacket!).Mode);
+        }
+
+        private async Task UsingTheItemWithMode_(byte mode)
         {
             var packet = new UseItemPacket
             {
@@ -139,7 +169,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 VisualId = _session.Character.CharacterId,
                 Type = PocketType.Main,
                 Slot = 0,
-                Mode = 1,
+                Mode = mode,
                 Parameter = 0,
             };
             await _handler.Handle(new ItemUsedEvent(_session, _item, packet));

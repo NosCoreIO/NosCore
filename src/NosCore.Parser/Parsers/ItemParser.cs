@@ -669,7 +669,7 @@ namespace NosCore.Parser.Parsers
 
             item.Effect = item.VNum switch
             {
-                var x when item.ItemType == ItemType.Special && ((x > 5891 && x < 5900) || (x > 9100 && x < 9109)) => ItemEffectType.Undefined,
+                var x when item.ItemType == ItemType.Special && ((x > 5891 && x < 5900) || (x > 9100 && x < 9109)) => ItemEffectType.MedalOfHonour,
                 var x when x > 2059 && x < 2070 => ItemEffectType.ApplyHairDie,
                 282 => ItemEffectType.RedAmulet,
                 283 => ItemEffectType.BlueAmulet,
@@ -694,6 +694,7 @@ namespace NosCore.Parser.Parsers
                 var x when x >= 1894 && x <= 1903 => ItemEffectType.SealedTarotCard,
                 var x when x >= 4046 && x <= 4055 => ItemEffectType.TarotCard,
                 5119 => ItemEffectType.SpeedBooster,
+                var x when x == 2160 || x == 2312 || x == 10048 => ItemEffectType.FriendshipWings,
                 180 => ItemEffectType.AttackAmulet,
                 181 => ItemEffectType.DefenseAmulet,
                 _ => item.Effect,
