@@ -310,6 +310,21 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Inside a time-space or raid, either item says it cannot be used here
 - [ ] Relog after using a wing: the amulet still knows the point of return
 
+### Production
+
+Recipes come from the parser, so re-run it on an existing database first. Malcolm Mix, the
+NosVille alchemist, makes potions.
+
+- [ ] Use Shop, then the Combine tab: the product list shows the potions he makes
+- [ ] Click Small Health Potion: the material list shows 3 Empty Bottles, 5 Magic Potions,
+      10 Herbs and 5 Red Fruits
+- [ ] With those materials, press Produce and confirm: the progress bar fills, then
+      "[Small Health Potion] has been produced." pops up, 10 Small Health Potions appear, the
+      materials are gone, and the production effect plays
+- [ ] With one material short, produce again: "Raw materials missing." appears and nothing is
+      taken
+- [ ] Walk away from him and produce with the window still open: nothing happens
+
 ---
 
 ## Chat

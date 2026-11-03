@@ -419,6 +419,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Импортировать рецепты?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} рецептов обработано!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} рецептов загружено!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} ингредиентов рецептов загружено!</value>
+  </data>
   <data name="PARSE_SHOPITEMS" xml:space="preserve">
     <value>Импортировать товары?</value>
   </data>

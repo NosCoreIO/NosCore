@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapItemGenerationService;
+using NosCore.GameObject.Services.ProductionService;
 using NosCore.Networking.SessionGroup;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.I18N;
@@ -31,7 +32,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
     public class MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters,
-            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos,
+            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos, List<RecipeDto> recipeDtos, List<RecipeItemDto> recipeItemDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
             ILoggerFactory loggerFactory, IMapInstanceRegistry mapInstanceRegistry,
@@ -80,6 +81,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             var npcs = mapNpcs.LoadAll().GroupBy(u => u.MapId)
                 .ToDictionary(group => group.Key, group => group.ToList());
 
+            var recipeItems = recipeItemDtos.GroupBy(s => s.RecipeId).ToDictionary(s => s.Key, s => s.ToList());
+            var recipes = recipeDtos.GroupBy(s => s.MapNpcId).ToDictionary(s => s.Key, s => (IReadOnlyList<Recipe>)s.Select(r =>
+            {
+                var recipe = r.Adapt<Recipe>();
+                recipe.Items = recipeItems.TryGetValue(r.RecipeId, out var items) ? items : new List<RecipeItemDto>();
+                return recipe;
+            }).ToList());
+
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
@@ -116,6 +125,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
                             bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider);
+                            if (recipes.TryGetValue(s.MapNpcId, out var npcRecipes))
+                            {
+                                var npcBundle = bundle.Value;
+                                npcBundle.Recipes = npcRecipes;
+                            }
                         });
                     }
                     return mapinstance;

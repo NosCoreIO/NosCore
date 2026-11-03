@@ -4,12 +4,15 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.DataAttributes;
+using NosCore.Data.Enumerations.I18N;
 using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
 {
+    [StaticMetaData(LoadedMessage = LogLanguageKey.RECIPES_LOADED)]
     public class Recipe : IStaticEntity
     {
         public Recipe()

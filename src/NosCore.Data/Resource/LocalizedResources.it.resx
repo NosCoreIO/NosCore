@@ -417,6 +417,15 @@
   <data name="PARSE_RECIPES" xml:space="preserve">
     <value>Vuoi sincronizzare le Ricette?</value>
   </data>
+  <data name="RECIPES_PARSED" xml:space="preserve">
+    <value>{0} ricette analizzate!</value>
+  </data>
+  <data name="RECIPES_LOADED" xml:space="preserve">
+    <value>{0} ricette caricate!</value>
+  </data>
+  <data name="RECIPEITEMS_LOADED" xml:space="preserve">
+    <value>{0} ingredienti delle ricette caricati!</value>
+  </data>
   <data name="PARSE_SCRIPTS" xml:space="preserve">
     <value>Vuoi aggiungere gli scripts?</value>
   </data>
