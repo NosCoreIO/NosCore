@@ -81,12 +81,17 @@ namespace NosCore.GameObject.Services.MateService
             return mate;
         }
 
-        public async Task SaveAsync(IEnumerable<Mate> mates)
+        public async Task<bool> SaveAsync(IEnumerable<Mate> mates)
         {
             foreach (var mate in mates)
             {
-                await mateDao.TryInsertOrUpdateAsync(mate.Adapt<MateDto>()).ConfigureAwait(false);
+                if (await mateDao.TryInsertOrUpdateAsync(mate.Adapt<MateDto>()) == null)
+                {
+                    return false;
+                }
             }
+
+            return true;
         }
 
         public static IEnumerable<NosCore.Packets.Interfaces.IPacket> GenerateScPackets(

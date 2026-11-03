@@ -6,6 +6,7 @@
 
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Localization;
 using Microsoft.Extensions.Options;
 using Moq;
@@ -137,6 +138,7 @@ namespace NosCore.Tests.Shared
 
         public static TestHelpers Instance => Lazy.Value;
 
+        public Func<DbContext> DbContextBuilder { get; private set; } = null!;
         public IDao<AccountDto, long> AccountDao { get; private set; } = null!;
         public IDao<MateDto, long> MateDao { get; private set; } = null!;
         public IDao<CharacterRelationDto, Guid> CharacterRelationDao { get; set; } = null!;
@@ -278,8 +280,10 @@ namespace NosCore.Tests.Shared
         public void InitDatabase()
         {
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
-                Guid.NewGuid().ToString());
+                Guid.NewGuid().ToString())
+                .ConfigureWarnings(w => w.Ignore(InMemoryEventId.TransactionIgnoredWarning));
             DbContext ContextBuilder() => new NosCoreContext(optionsBuilder.Options);
+            DbContextBuilder = ContextBuilder;
             CharacterRelationDao = new Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>(NullLogger<Dao<Database.Entities.CharacterRelation, CharacterRelationDto, Guid>>.Instance, ContextBuilder);
             AccountDao = new Dao<Account, AccountDto, long>(NullLogger<Dao<Account, AccountDto, long>>.Instance, ContextBuilder);
             MateDao = new Dao<Mate, MateDto, long>(NullLogger<Dao<Mate, MateDto, long>>.Instance, ContextBuilder);

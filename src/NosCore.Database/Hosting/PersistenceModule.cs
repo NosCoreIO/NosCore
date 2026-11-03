@@ -38,6 +38,12 @@ public sealed class PersistenceModule : Autofac.Module
     protected override void Load(ContainerBuilder builder)
     {
         builder.RegisterType<NosCoreContext>().As<DbContext>();
+        builder.Register(c =>
+            {
+                var contextFactory = c.Resolve<Func<DbContext>>();
+                return new DaoTransactionScope(contextFactory);
+            })
+            .As<IDaoTransactionScope>().SingleInstance();
 
         builder.Register(c => c.Resolve<IEnumerable<IDao<IDto>>>().OfType<IDao<II18NDto>>().ToDictionary(
                 x => x.GetType().GetGenericArguments()[1], y => y.LoadAll().GroupBy(x => x.Key ?? "")
@@ -82,6 +88,8 @@ public sealed class PersistenceModule : Autofac.Module
     public static void MirrorTo(IServiceCollection services)
     {
         services.AddTransient<DbContext, NosCoreContext>();
+        services.AddSingleton<IDaoTransactionScope>(sp =>
+            new DaoTransactionScope(() => sp.GetRequiredService<DbContext>()));
 
         foreach (var mapping in DiscoverDaoMappings())
         {
