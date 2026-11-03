@@ -161,6 +161,26 @@ The maximum comes from the parser, so re-run it on an existing database first.
 - [ ] Use another one at 100: "Dignity is at maximum." pops up and the item stays
 - [ ] Relog — the restored dignity is still there
 
+### Compliments
+
+Needs two characters on the same channel. The commending one must be level 31 or higher
+(`$SetLevel 31`).
+
+- [ ] Right after logging in, commend the other player from their context menu: a red
+      "You can commend someone again in N minute(s)." line appears, with N close to 60
+- [ ] At level 30, commend after an hour online: a red "Only players above level 30 can
+      commend other players." line appears and nothing changes
+- [ ] At level 31 after an hour online: a green "You have commended <name>." line for the
+      sender, a green "You have been commended by <name>." line for the other player, and
+      the other player's compliment count in their info window goes up by one
+- [ ] Commend again the same day, from either character on the same account: a red "You
+      can only commend the player once per day and account." line appears
+- [ ] In Glacernon (`$Teleport` to an Act 4 map), commend: a red "You cannot commend other
+      players in Glacernon." line appears and nothing changes
+- [ ] Relog both — the other player's compliment count is still there
+- [ ] Keep the sender online for another hour after the relog, then commend again: the
+      once-per-day line still appears, so the limit survived the relog
+
 ### Potions
 
 - [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar

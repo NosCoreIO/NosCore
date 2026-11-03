@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Database.Entities.Base;
 using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
@@ -60,5 +61,7 @@ namespace NosCore.Database.Entities
 
         [MaxLength(255)]
         public string? MfaSecret { get; set; }
+
+        public Instant? LastCompliment { get; set; }
     }
 }
