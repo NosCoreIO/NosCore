@@ -154,8 +154,7 @@ namespace NosCore.PacketHandlers.Shops
                     });
 
                     clientSession.Character.Requests[typeof(NpcDialogRequestSubject)].Subscribe(data =>
-                        data.ClientSession.SendPacketAsync(
-                            clientSession.Character.GenerateNpcReq(clientSession.Character.Shop.ShopId)));
+                        data.ClientSession.SendPacketAsync(clientSession.Character.GenerateNInv(0, 0)));
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
                         new EveryoneBut(clientSession.Channel!.Id));
                     clientSession.Character.IsSitting = true;
