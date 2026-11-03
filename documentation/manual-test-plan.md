@@ -448,6 +448,7 @@ same map.
       family; Confirm puts `Testers(Member)` under their name on both screens and every
       member reads `<name> has joined your family.`
 - [ ] Cancel tells the head the player does not want to join
+- [ ] `%Familyinvite <name>` from a character with no family does nothing at all
 - [ ] A plain member's invite, a manager's while the family forbids it, an invite to
       someone in another family or blocking family requests, and an invite into a full
       family each give their own message and send nothing
@@ -523,5 +524,8 @@ Recorded so nobody spends time hunting for them:
 - **HP display, buff display, quick get-up and mouse aim lock** — the client applies these
   itself; the server only stores them and sends them back on login, so the relog check is
   all there is to see.
+- **Family commands on a non-English client** — each client language types its own word
+  for the family commands (`%Invitationdefamille`, `%Familieneinladung`, `%Caccia` and so
+  on). The cloud client is English only, so only the unit tests cover the other words.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.

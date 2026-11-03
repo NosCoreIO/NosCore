@@ -105,6 +105,18 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task APlayerWithoutAFamilyCannotInvite()
+        {
+            var third = await TestHelpers.Instance.GenerateSessionAsync();
+            third.Character.Family = null;
+
+            await InviteAsync(_other, third.Character.Name);
+
+            Assert.AreEqual(0, third.LastPackets.OfType<Dlgi2Packet>().Count());
+            Assert.IsEmpty(_other.Character.FamilyRequestCharacterIds);
+        }
+
+        [TestMethod]
         public async Task APlainMemberCannotInvite()
         {
             _other.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Head), (_other.Character.CharacterId, FamilyAuthority.Member));
