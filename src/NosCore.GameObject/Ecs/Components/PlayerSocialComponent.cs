@@ -13,4 +13,5 @@ namespace NosCore.GameObject.Ecs.Components;
 public record struct PlayerSocialComponent(
     ConcurrentDictionary<long, long> GroupRequestCharacterIds,
     Instant? LastGroupRequest,
-    Family? Family);
+    Family? Family,
+    ConcurrentDictionary<long, long> FamilyRequestCharacterIds);

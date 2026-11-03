@@ -7,6 +7,7 @@
 using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Family;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,5 +49,26 @@ namespace NosCore.GameObject.Services.FamilyService
 
             return family;
         }
+
+        public Task AddMemberAsync(long familyId, long characterId) =>
+            familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
+            {
+                FamilyId = familyId,
+                CharacterId = characterId,
+                Authority = FamilyAuthority.Member,
+                DailyMessage = string.Empty
+            });
+
+        public async Task RemoveMemberAsync(long characterId)
+        {
+            var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
+            if (membership != null)
+            {
+                await familyCharacterDao.TryDeleteAsync(membership.FamilyCharacterId);
+            }
+        }
+
+        public async Task<CharacterDto?> FindCharacterAsync(string name) =>
+            await characterDao.FirstOrDefaultAsync(s => s.Name == name && s.State == CharacterState.Active);
     }
 }

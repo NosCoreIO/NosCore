@@ -427,6 +427,23 @@ Same seeded family, with a third character outside it.
 - [ ] The same shout from a manager works only while the family lets managers shout,
       and does nothing from a plain member
 
+### Family invite, leave and dismiss
+
+Same seeded family, plus a second account whose character has no family, both on the
+same map.
+
+- [ ] `%Familyinvite <name>` from the head asks the other player whether to join the
+      family; Confirm puts `Testers(Member)` under their name on both screens and every
+      member reads `<name> has joined your family.`
+- [ ] Cancel tells the head the player does not want to join
+- [ ] A plain member's invite, a manager's while the family forbids it, an invite to
+      someone in another family or blocking family requests, and an invite into a full
+      family each give their own message and send nothing
+- [ ] `%Familyleave` from the member says they left and the tag disappears on both
+      screens; from the head it says the head cannot leave
+- [ ] `%Familydismiss <name>` from the head or an assistant removes a lower rank and
+      the tag disappears; nobody can dismiss the head or their own rank
+
 ---
 
 ## Instances
