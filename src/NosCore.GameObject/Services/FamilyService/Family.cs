@@ -22,5 +22,12 @@ namespace NosCore.GameObject.Services.FamilyService
         public FamilyAuthority AuthorityOf(long characterId) =>
             Members.FirstOrDefault(s => s.CharacterId == characterId)?.Authority
             ?? FamilyAuthority.Member;
+
+        public bool CanInvite(long characterId) => AuthorityOf(characterId) switch
+        {
+            FamilyAuthority.Head or FamilyAuthority.Assistant => true,
+            FamilyAuthority.Manager => ManagerCanInvite,
+            _ => false
+        };
     }
 }

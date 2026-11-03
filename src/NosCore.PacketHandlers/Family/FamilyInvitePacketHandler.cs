@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -30,8 +29,7 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            var authority = family.AuthorityOf(session.Character.CharacterId);
-            if (authority == FamilyAuthority.Member || (authority == FamilyAuthority.Manager && !family.ManagerCanInvite))
+            if (!family.CanInvite(session.Character.CharacterId))
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotAuthorizedToAcceptFamily });
                 return;
@@ -74,7 +72,7 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            session.Character.FamilyRequestCharacterIds.TryAdd(target.CharacterId, target.CharacterId);
+            session.Character.FamilyRequestCharacterIds[target.CharacterId] = family.FamilyId;
             await session.SendPacketAsync(new Infoi2Packet
             {
                 Message = Game18NConstString.YouInvitedToGroup,

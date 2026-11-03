@@ -177,6 +177,30 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task AnInvitationDoesNotFollowTheInviterIntoAnotherFamily()
+        {
+            await InviteAsync(_head, _other.Character.Name);
+            var otherFamily = Family((_head.Character.CharacterId, FamilyAuthority.Head));
+            otherFamily.FamilyId = FamilyId + 1;
+            _head.Character.Family = otherFamily;
+
+            await AnswerAsync(1);
+
+            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AnInvitationLapsesWhenTheInviterLosesTheRightToInvite()
+        {
+            await InviteAsync(_head, _other.Character.Name);
+            _head.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Member));
+
+            await AnswerAsync(1);
+
+            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task AnsweringWithoutAnInvitationDoesNothing()
         {
             await AnswerAsync(1);

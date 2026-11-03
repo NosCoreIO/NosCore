@@ -24,7 +24,7 @@ namespace NosCore.PacketHandlers.Family
         public override async Task ExecuteAsync(JoinFamilyPacket packet, ClientSession session)
         {
             if (!sessionRegistry.TryGetCharacter(s => s.VisualId == packet.CharacterId, out var inviter)
-                || !inviter.FamilyRequestCharacterIds.TryRemove(session.Character.CharacterId, out _))
+                || !inviter.FamilyRequestCharacterIds.TryRemove(session.Character.CharacterId, out var invitedFamilyId))
             {
                 return;
             }
@@ -36,7 +36,8 @@ namespace NosCore.PacketHandlers.Family
             }
 
             var family = inviter.Family;
-            if (family == null || session.Character.Family != null)
+            if (family == null || family.FamilyId != invitedFamilyId || !family.CanInvite(inviter.CharacterId)
+                || session.Character.Family != null)
             {
                 return;
             }
