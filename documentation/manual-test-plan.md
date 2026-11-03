@@ -114,7 +114,7 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 
 ### Mounts
 
-- [ ] Mount a vehicle: the sprite changes **and** you move faster
+- [ ] Mount a vehicle: a three-second bar runs, then the sprite changes **and** you move faster
 - [ ] Dismount: the speed returns to the class value
 - [ ] Speed survives a map change while mounted
 
@@ -141,6 +141,8 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Wear a specialist card with 0 SP points and 0 additional SP points, then transform:
       the client's own "You have 0 specialist points. Transformation cancelled." appears,
       in the client's language, and the character does not transform
+- [ ] With points, transform: the five-second bar runs and the character transforms when it
+      ends, not before
 
 ### Respawn point
 
@@ -297,5 +299,7 @@ Recorded so nobody spends time hunting for them:
   yet, so neither the corrected curve nor the flattened packet field has a path to the
   client.
 - **Instances** — same, still open.
+- **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
+  the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.

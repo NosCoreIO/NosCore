@@ -6,6 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -78,16 +79,19 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            await transformationService.ChangeSpAsync(clientSession);
+                            if (clientSession.Character.TryCompleteDelay(DelayPacketType.Locomotion, clock.GetCurrentInstant()))
+                            {
+                                await transformationService.ChangeSpAsync(clientSession);
+                            }
                         }
                         else
                         {
-                            await clientSession.SendPacketAsync(new DelayPacket
+                            await clientSession.Character.StartDelayAsync(new DelayPacket
                             {
                                 Type = DelayPacketType.Locomotion,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
-                            });
+                            }, clock.GetCurrentInstant());
                             await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
                                 Type = GuriPacketType.Dance,

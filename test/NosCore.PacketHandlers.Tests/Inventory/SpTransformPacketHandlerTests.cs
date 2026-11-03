@@ -100,8 +100,34 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .Given(CharacterHasSpPoints)
                 .And(CharacterHasHighReputation)
                 .And(CharacterHasSpEquipped)
+                .AndAsync(TheTransformationBarHasRun)
                 .WhenAsync(AttemptingToTransformWithWearAndTransform)
                 .Then(CharacterShouldBeTransformed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingWithoutTheBarShouldBeIgnored()
+        {
+            await new Spec("The bar's follow-up sent without the bar having run should not transform")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasHighReputation)
+                .And(CharacterHasSpEquipped)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(CharacterShouldNotBeTransformed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TransformingBeforeTheBarEndsShouldBeIgnored()
+        {
+            await new Spec("The bar's follow-up sent before its five seconds have run should not transform")
+                .Given(CharacterHasSpPoints)
+                .And(CharacterHasHighReputation)
+                .And(CharacterHasSpEquipped)
+                .AndAsync(AttemptingToTransform)
+                .WhenAsync(AttemptingToTransformWithWearAndTransform)
+                .Then(CharacterShouldNotBeTransformed)
                 .ExecuteAsync();
         }
 
@@ -112,6 +138,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .Given(CharacterHasSpPoints)
                 .And(CharacterHasHighReputation)
                 .And(CharacterHasSpAndMismatchedFairyEquipped)
+                .AndAsync(TheTransformationBarHasRun)
                 .WhenAsync(AttemptingToTransformWithWearAndTransform)
                 .Then(ShouldReceiveDifferentElementMessage)
                 .ExecuteAsync();
@@ -123,6 +150,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await new Spec("Transforming with low reputation should fail")
                 .Given(CharacterHasSpPoints)
                 .And(CharacterHasSpEquipped)
+                .AndAsync(TheTransformationBarHasRun)
                 .WhenAsync(AttemptingToTransformWithWearAndTransform)
                 .Then(ShouldReceiveLowReputationMessage)
                 .ExecuteAsync();
@@ -225,6 +253,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private async Task AttemptingToTransform()
         {
             await SpTransformPacketHandler.ExecuteAsync(new SpTransformPacket { Type = SlPacketType.WearSp }, Session);
+        }
+
+        private async Task TheTransformationBarHasRun()
+        {
+            await AttemptingToTransform();
+            TestHelpers.Instance.Clock.AdvanceSeconds(5);
+            Session.LastPackets.Clear();
         }
 
         private async Task AttemptingToTransformWithWearAndTransform()

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _minilandService.Setup(x => x.GetMiniland(It.IsAny<long>()))
                 .Returns(new Miniland { MapInstanceId = _minilandInstanceId, MinilandMessage = "Test" });
 
-            _handler = new MinilandBellHandler(_minilandService.Object, _mapChangeService.Object);
+            _handler = new MinilandBellHandler(_minilandService.Object, _mapChangeService.Object, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -105,14 +106,42 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task UsingBellWithNonZeroModeConsumesItemAndTeleportsToMinilandAt5And8()
+        public async Task TheBarsFollowUpConsumesItemAndTeleportsToMinilandAt5And8()
         {
-            await new Spec("Bell handler with Mode=1 consumes one bell and teleports the player to miniland at 5/8")
+            await new Spec("Once the five-second bar has run, its follow-up consumes one bell and teleports the player to miniland at 5/8")
                 .Given(BellInInventoryWithEffect_AndValue_, ItemEffectType.Teleport, (short)2)
                 .And(CharacterIsOnBaseMap)
-                .WhenAsync(UsingBellWithMode_, (byte)1)
+                .AndAsync(UsingBellWithMode_, (byte)0)
+                .And(_SecondsPass, 5)
+                .WhenAsync(UsingBellWithMode_, (byte)2)
                 .Then(BellStackCountShouldBe_, (short)0)
                 .And(ChangeMapInstanceAsyncWasCalledForMinilandWith_, 5, 8)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFollowUpWithoutTheBarIsIgnored()
+        {
+            await new Spec("A follow-up sent without the bar having been started keeps the bell and the player")
+                .Given(BellInInventoryWithEffect_AndValue_, ItemEffectType.Teleport, (short)2)
+                .And(CharacterIsOnBaseMap)
+                .WhenAsync(UsingBellWithMode_, (byte)2)
+                .Then(BellStackCountShouldBe_, (short)1)
+                .And(ChangeMapInstanceAsyncWasNotCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFollowUpBeforeTheBarEndsIsIgnored()
+        {
+            await new Spec("A follow-up sent before the bar has run its five seconds keeps the bell and the player")
+                .Given(BellInInventoryWithEffect_AndValue_, ItemEffectType.Teleport, (short)2)
+                .And(CharacterIsOnBaseMap)
+                .AndAsync(UsingBellWithMode_, (byte)0)
+                .And(_SecondsPass, 2)
+                .WhenAsync(UsingBellWithMode_, (byte)2)
+                .Then(BellStackCountShouldBe_, (short)1)
+                .And(ChangeMapInstanceAsyncWasNotCalled)
                 .ExecuteAsync();
         }
 
@@ -131,6 +160,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _bell.Type = NoscorePocketType.Main;
             _session.Character.InventoryService[_bell.ItemInstanceId] = _bell;
         }
+
+        private void _SecondsPass(int seconds) =>
+            TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
 
         private void CharacterIsOnBaseMap()
         {

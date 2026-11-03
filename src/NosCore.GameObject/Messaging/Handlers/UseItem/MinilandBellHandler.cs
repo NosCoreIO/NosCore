@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NodaTime;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
@@ -20,7 +21,7 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService)
+    public sealed class MinilandBellHandler(IMinilandService minilandProvider, IMapChangeService mapChangeService, IClock clock)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -64,16 +65,21 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (packet.Mode == 0)
             {
                 character = session.Character;
-                await session.SendPacketAsync(new DelayPacket
+                await character.StartDelayAsync(new DelayPacket
                 {
                     Delay = 5000,
                     Type = DelayPacketType.ItemInUse,
                     Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
-                });
+                }, clock.GetCurrentInstant());
                 return;
             }
 
             character = session.Character;
+            if (!character.TryCompleteDelay(DelayPacketType.ItemInUse, clock.GetCurrentInstant()))
+            {
+                return;
+            }
+
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             var characterId = character.CharacterId;
             await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
