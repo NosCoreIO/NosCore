@@ -375,6 +375,18 @@ own message, in the client's language.
       in the state it was left in, and the blocks above still apply
 - [ ] Change map with options set: nothing resets
 
+### Miniland invite
+
+Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of Power.
+
+- [ ] Outside the miniland, `$Invite <name>` says invitations only work in the miniland
+- [ ] Inside an open miniland, `$Invite <name>` uses one Seed of Power and asks the other
+      player whether to visit; Confirm puts them in the owner's miniland and the visitor
+      counter goes up
+- [ ] Cancel leaves them where they are, and a later Confirm on a stale dialog does nothing
+- [ ] With the miniland locked, without a seed, to someone offline, or to someone blocking
+      Miniland invites in their options: each gives its own message and no seed is used
+
 ---
 
 ## Chat
@@ -505,9 +517,9 @@ Recorded so nobody spends time hunting for them:
   do not run yet, so nothing past the first room can be checked.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
-- **Options with nothing behind them yet** — family invites, Miniland invites, pet and partner
-  auto-revive, group sharing, hat visibility and interface lock are stored and come back on
-  login, but no family invite, Miniland invite, revive or sharing flow reads them yet.
+- **Options with nothing behind them yet** — family invites, pet and partner auto-revive,
+  group sharing, hat visibility and interface lock are stored and come back on login, but
+  no family invite, revive or sharing flow reads them yet.
 - **HP display, buff display, quick get-up and mouse aim lock** — the client applies these
   itself; the server only stores them and sends them back on login, so the relog check is
   all there is to see.
