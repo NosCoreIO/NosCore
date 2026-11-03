@@ -387,6 +387,8 @@ namespace NosCore.Tests.Shared
                 characterDto.HeroXp,
                 characterDto.Gold,
                 characterDto.Reput,
+                characterDto.SpPoint,
+                characterDto.SpAdditionPoint,
                 (short)characterDto.Dignity,
                 (short)characterDto.Compliment,
                 characterDto.Gender,

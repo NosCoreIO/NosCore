@@ -138,6 +138,8 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 
 ### Specialist transformation
 
+- [ ] With SP points, log out and back in: the SP bar under the portrait still shows them, and
+      transforming works
 - [ ] Wear a specialist card with 0 SP points and 0 additional SP points, then transform:
       the client's own "You have 0 specialist points. Transformation cancelled." appears,
       in the client's language, and the character does not transform

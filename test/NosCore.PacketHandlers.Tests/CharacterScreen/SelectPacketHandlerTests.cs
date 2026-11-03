@@ -85,6 +85,16 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task SelectingACharacterKeepsItsSpecialistPoints()
+        {
+            await new Spec("Selecting a character loads the specialist points it was saved with")
+                .GivenAsync(TheCharacterInSlot_HasSpecialistPoints_AndAdditionalPoints_, 1, 4000, 250)
+                .WhenAsync(SelectingCharacterInSlot_, 1)
+                .Then(TheCharacterShouldHaveSpecialistPoints_AndAdditionalPoints_, 4000, 250)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task SelectingEmptySlotShouldFail()
         {
             await new Spec("Selecting empty slot should fail")
@@ -109,6 +119,20 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 Slot = (byte)slot
             };
             await SelectPacketHandler.ExecuteAsync(packet, Session);
+        }
+
+        private async Task TheCharacterInSlot_HasSpecialistPoints_AndAdditionalPoints_(int slot, int points, int additional)
+        {
+            var dto = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.Slot == slot))!;
+            dto.SpPoint = points;
+            dto.SpAdditionPoint = additional;
+            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(dto);
+        }
+
+        private void TheCharacterShouldHaveSpecialistPoints_AndAdditionalPoints_(int points, int additional)
+        {
+            Assert.AreEqual(points, Session.Character.SpPoint);
+            Assert.AreEqual(additional, Session.Character.SpAdditionPoint);
         }
 
         private void CharacterShouldBeSelected()
