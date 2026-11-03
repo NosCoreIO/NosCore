@@ -496,8 +496,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
             Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider,
-            IGameLanguageLocalizer localizer)
+            IItemGenerationService itemProvider)
         {
             if (amount <= 0)
             {
