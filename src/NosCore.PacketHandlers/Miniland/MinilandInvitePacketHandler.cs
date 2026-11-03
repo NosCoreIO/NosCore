@@ -83,8 +83,8 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, seed.ItemInstanceId);
-            await session.SendPacketAsync(seed.GeneratePocketChange((PocketType)seed.Type, seed.Slot));
+            var left = character.InventoryService.RemoveItemAmountFromInventory(1, seed.ItemInstanceId);
+            await session.SendPacketAsync(left.GeneratePocketChange((PocketType)seed.Type, seed.Slot));
             await target.SendPacketAsync(question);
         }
     }
