@@ -10,6 +10,9 @@ using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Shared.Enumerations;
+using NosCore.Data.Dto;
+using NosCore.GameObject.Services.FamilyService;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NosCore.GameObject.Ecs.Extensions;
@@ -92,4 +95,45 @@ public static class FamilyExtensions
 
         return $"{family.Name}({localizer[rank, viewerLanguage]})";
     }
+
+    public static GmbrPacket GenerateGmbr(this Family family, IEnumerable<CharacterDto> characters,
+        IReadOnlySet<long> connectedCharacterIds)
+    {
+        var byId = characters.ToDictionary(s => s.CharacterId);
+        return new GmbrPacket
+        {
+            Members = family.Members
+                .Where(s => byId.ContainsKey(s.CharacterId))
+                .Select(member =>
+                {
+                    var character = byId[member.CharacterId];
+                    return (GmbrSubPacket?)new GmbrSubPacket
+                    {
+                        CharacterId = member.CharacterId,
+                        FamilyId = family.FamilyId,
+                        Name = character.Name,
+                        Level = character.Level,
+                        Class = character.Class,
+                        Authority = (Packets.Enumerations.FamilyAuthority)member.Authority,
+                        Rank = (Packets.Enumerations.FamilyMemberRank)member.Rank,
+                        IsConnected = connectedCharacterIds.Contains(member.CharacterId),
+                        HeroLevel = character.HeroLevel
+                    };
+                }).ToList()
+        };
+    }
+
+    public static GmsgPacket GenerateGmsg(this Family family) => new()
+    {
+        Entries = family.Members
+            .Select(s => (GmsgSubPacket?)new GmsgSubPacket { CharacterId = s.CharacterId, Message = s.DailyMessage })
+            .ToList()
+    };
+
+    public static GexpPacket GenerateGexp(this Family family) => new()
+    {
+        Entries = family.Members
+            .Select(s => (GexpSubPacket?)new GexpSubPacket { CharacterId = s.CharacterId, Experience = s.Experience })
+            .ToList()
+    };
 }

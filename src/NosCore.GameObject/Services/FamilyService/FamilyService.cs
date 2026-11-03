@@ -19,6 +19,8 @@ namespace NosCore.GameObject.Services.FamilyService
         IDao<FamilyCharacterDto, long> familyCharacterDao,
         IDao<CharacterDto, long> characterDao) : IFamilyService
     {
+        private const int MaxAssistants = 2;
+
         public async Task<Family?> GetFamilyAsync(long characterId)
         {
             var membership = await familyCharacterDao
@@ -70,5 +72,56 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public async Task<CharacterDto?> FindCharacterAsync(string name) =>
             await characterDao.FirstOrDefaultAsync(s => s.Name == name && s.State == CharacterState.Active);
+
+        public Task<IReadOnlyList<CharacterDto>> GetMemberCharactersAsync(Family family)
+        {
+            var ids = family.Members.Select(s => s.CharacterId).ToHashSet();
+            IReadOnlyList<CharacterDto> characters = characterDao.Where(s => ids.Contains(s.CharacterId))?.ToList()
+                ?? new List<CharacterDto>();
+            return Task.FromResult(characters);
+        }
+
+        public async Task<FamilyAuthorityChange> ChangeAuthorityAsync(Family family, long actorId, long targetId, FamilyAuthority authority)
+        {
+            var membership = family.Members.FirstOrDefault(s => s.CharacterId == targetId);
+            if (membership == null)
+            {
+                return FamilyAuthorityChange.NotInFamily;
+            }
+
+            var actorAuthority = family.AuthorityOf(actorId);
+            if (actorAuthority is not (FamilyAuthority.Head or FamilyAuthority.Assistant)
+                || targetId == actorId || membership.Authority == FamilyAuthority.Head)
+            {
+                return FamilyAuthorityChange.NotAuthorized;
+            }
+
+            switch (authority)
+            {
+                case FamilyAuthority.Head when actorAuthority != FamilyAuthority.Head:
+                case FamilyAuthority.Assistant when actorAuthority != FamilyAuthority.Head:
+                    return FamilyAuthorityChange.NotAuthorized;
+                case FamilyAuthority.Head when membership.Authority != FamilyAuthority.Assistant:
+                    return FamilyAuthorityChange.OnlyAssistantCanBecomeHead;
+                case FamilyAuthority.Assistant when family.Members.Count(s => s.Authority == FamilyAuthority.Assistant) >= MaxAssistants:
+                    return FamilyAuthorityChange.TooManyAssistants;
+                case FamilyAuthority.Manager or FamilyAuthority.Member
+                    when membership.Authority == FamilyAuthority.Assistant && actorAuthority != FamilyAuthority.Head:
+                    return FamilyAuthorityChange.NotAuthorized;
+            }
+
+            if (authority == FamilyAuthority.Head)
+            {
+                var head = family.Members.First(s => s.CharacterId == actorId);
+                head.Authority = FamilyAuthority.Assistant;
+                await familyCharacterDao.TryInsertOrUpdateAsync(head);
+            }
+
+            membership.Authority = authority;
+            await familyCharacterDao.TryInsertOrUpdateAsync(membership);
+            return FamilyAuthorityChange.Changed;
+        }
+
+        public Task SaveAsync(Family family) => familyDao.TryInsertOrUpdateAsync(family.Adapt<FamilyDto>());
     }
 }
