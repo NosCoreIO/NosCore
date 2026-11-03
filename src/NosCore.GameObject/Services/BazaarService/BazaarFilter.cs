@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.BazaarService
@@ -20,6 +21,13 @@ namespace NosCore.GameObject.Services.BazaarService
 
         // Specialist sub-type filters 2 to 16 follow the bazaar's own order; from 17 on they are the morph plus one.
         private static readonly short[] SpecialistMorphs = { 10, 11, 2, 3, 13, 5, 12, 4, 7, 15, 6, 14, 9, 8, 1 };
+
+        // The client's class drop-down lists the adventurer after the three specialist classes.
+        private static readonly CharacterClassType[] ClassFilters =
+        {
+            CharacterClassType.Swordsman, CharacterClassType.Archer, CharacterClassType.Mage,
+            CharacterClassType.Adventurer, CharacterClassType.MartialArtist
+        };
 
         public bool Matches(ItemInstanceDto instance, ItemDto item, IReadOnlyDictionary<short, ItemDto> items)
         {
@@ -51,7 +59,8 @@ namespace NosCore.GameObject.Services.BazaarService
 
         private static bool IsBox(ItemDto item, byte subType) => IsEquipment(item, ItemType.Box) && item.ItemSubType == subType;
 
-        private bool MatchesClass(ItemDto item) => SubType == 0 || (((item.Class + 1) >> SubType) & 1) == 1;
+        private bool MatchesClass(ItemDto item) =>
+            SubType == 0 || (SubType <= ClassFilters.Length && ((item.Class >> (byte)ClassFilters[SubType - 1]) & 1) == 1);
 
         private bool MatchesItemLevel(ItemDto item) =>
             Level == 0 || (Level == HeroicLevelFilter && item.IsHeroic) || InLevelBand(item.LevelMinimum);

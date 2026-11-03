@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
         private const short SpecialistCard = 7;
         private const short SpecialistHolder = 8;
         private const short PetBead = 9;
+        private const short AnyClassStick = 10;
 
         private readonly List<ItemDto> _items = new()
         {
@@ -45,6 +46,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             new Item { VNum = SpecialistCard, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, Morph = 10 },
             new Item { VNum = SpecialistHolder, Type = NoscorePocketType.Equipment, ItemType = ItemType.Box, ItemSubType = 2, Flag9 = true },
             new Item { VNum = PetBead, Type = NoscorePocketType.Equipment, ItemType = ItemType.Box, ItemSubType = 0 },
+            new Item { VNum = AnyClassStick, Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon, Class = 15, LevelMinimum = 1 },
         };
 
         private readonly List<BazaarLink> _links = new();
@@ -61,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             List(Snack);
             List(SpecialistHolder, new BoxInstanceDto { ItemVNum = SpecialistHolder, HoldingVNum = SpecialistCard, SpLevel = 45 });
             List(SpecialistHolder, new BoxInstanceDto { ItemVNum = SpecialistHolder });
+            List(AnyClassStick);
             List(PetBead, new BoxInstanceDto { ItemVNum = PetBead, HoldingVNum = 333, SpLevel = 12 });
 
             var registry = new Mock<GameObject.Services.BazaarService.IBazaarRegistry>();
@@ -93,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
         }
 
         [DataTestMethod]
-        [DataRow(BazaarListType.Weapon, new short[] { Sword, HeroicBow })]
+        [DataRow(BazaarListType.Weapon, new short[] { Sword, HeroicBow, AnyClassStick })]
         [DataRow(BazaarListType.Equipment, new short[] { Hat })]
         [DataRow(BazaarListType.Jewelery, new short[] { Ring })]
         [DataRow(BazaarListType.Main, new short[] { Potion })]
@@ -107,8 +110,8 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
         }
 
         [DataTestMethod]
-        [DataRow((byte)1, new short[0])]
-        [DataRow((byte)0, new short[] { Sword, HeroicBow })]
+        [DataRow((byte)1, new short[] { AnyClassStick })]
+        [DataRow((byte)0, new short[] { Sword, HeroicBow, AnyClassStick })]
         [DataRow((byte)3, new short[] { Sword })]
         [DataRow((byte)11, new short[] { HeroicBow })]
         [DataRow((byte)9, new short[] { HeroicBow })]
@@ -117,11 +120,15 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             CollectionAssert.AreEquivalent(expected, Search(BazaarListType.Weapon, level: level));
         }
 
-        [TestMethod]
-        public void WeaponClassFilterReadsTheClassBits()
+        [DataTestMethod]
+        [DataRow((byte)1, new short[] { Sword, AnyClassStick }, DisplayName = "Swordsman")]
+        [DataRow((byte)2, new short[] { HeroicBow, AnyClassStick }, DisplayName = "Archer")]
+        [DataRow((byte)3, new short[] { AnyClassStick }, DisplayName = "Magician")]
+        [DataRow((byte)4, new short[] { AnyClassStick }, DisplayName = "Adventurer")]
+        [DataRow((byte)5, new short[0], DisplayName = "Martial artist")]
+        public void WeaponClassFilterFollowsTheClientDropDown(byte subType, short[] expected)
         {
-            CollectionAssert.AreEquivalent(new[] { Sword }, Search(BazaarListType.Weapon, subType: 1));
-            CollectionAssert.AreEquivalent(new[] { HeroicBow }, Search(BazaarListType.Weapon, subType: 2));
+            CollectionAssert.AreEquivalent(expected, Search(BazaarListType.Weapon, subType: subType));
         }
 
         [TestMethod]
@@ -176,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
 
             CollectionAssert.AreEqual(_links.Take(4).ToList(), firstPage);
             CollectionAssert.AreEqual(_links.Skip(4).Take(4).ToList(), secondPage);
-            Assert.AreEqual(1, lastPage.Count);
+            Assert.AreEqual(2, lastPage.Count);
         }
     }
 }
