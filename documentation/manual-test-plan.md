@@ -415,6 +415,18 @@ Log two members in on the same map.
 - [ ] Opening the family window shows the name, the head, the level bar and the notice,
       with the notice's spaces intact
 
+### Family chat and shout
+
+Same seeded family, with a third character outside it.
+
+- [ ] `:hello` from any member shows in every member's Family tab as `[Name]:hello`,
+      and nowhere for the outsider
+- [ ] A member on another map sees the line with the sender's name in it
+- [ ] `%Familyshout hello` from the head or an assistant puts `<Family shout> hello`
+      in the middle of every member's screen, in the reader's language
+- [ ] The same shout from a manager works only while the family lets managers shout,
+      and does nothing from a plain member
+
 ---
 
 ## Instances

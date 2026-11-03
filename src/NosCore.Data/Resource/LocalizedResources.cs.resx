@@ -551,4 +551,7 @@
   <data name="FAMILY_AUTHORITY_MEMBER" xml:space="preserve">
     <value>Člen</value>
   </data>
+  <data name="FAMILY_SHOUT" xml:space="preserve">
+    <value>&lt;Rodinné volání&gt; {0}</value>
+  </data>
 </root>
