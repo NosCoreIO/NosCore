@@ -22,4 +22,10 @@ public interface IRespawnService
     // Upserts the character's Respawn row for the MapType group to (mapId, x, y).
     // No-op if the map has no RespawnMapTypeId.
     void SetRespawnPoint(ICharacterEntity character, short mapId, short x, short y);
+
+    // The point of return saved on a map of the same MapType group, or null if none was saved.
+    (short MapId, short X, short Y)? GetReturnPoint(ICharacterEntity character, short mapId);
+
+    // Upserts the character's point of return for the map's MapType group (Act 1 when it has none).
+    void SetReturnPoint(ICharacterEntity character, short mapId, short x, short y);
 }

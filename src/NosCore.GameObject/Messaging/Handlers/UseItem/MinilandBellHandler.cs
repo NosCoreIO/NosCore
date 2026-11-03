@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
-            if (item.Effect != ItemEffectType.Teleport || item.EffectValue != 2)
+            if (item.Effect != ItemEffectType.Teleport || item.EffectValue != (short)TeleportEffectValue.Miniland)
             {
                 return;
             }

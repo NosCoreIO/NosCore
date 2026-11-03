@@ -63,7 +63,33 @@ public sealed class RespawnService(
         var respawnMapTypeId = ResolveRespawnMapTypeId(mapId);
         if (!respawnMapTypeId.HasValue) return;
 
-        var existing = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == respawnMapTypeId.Value);
+        Upsert(character, respawnMapTypeId.Value, mapId, x, y);
+    }
+
+    public (short MapId, short X, short Y)? GetReturnPoint(ICharacterEntity character, short mapId)
+    {
+        var returnMapTypeId = ResolveReturnMapTypeId(mapId);
+        var saved = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == returnMapTypeId);
+        return saved == null ? null : (saved.MapId, saved.X, saved.Y);
+    }
+
+    public void SetReturnPoint(ICharacterEntity character, short mapId, short x, short y)
+    {
+        Upsert(character, ResolveReturnMapTypeId(mapId), mapId, x, y);
+    }
+
+    // Same fallback as the place of revival: a map without a return group counts as Act 1.
+    private long ResolveReturnMapTypeId(short mapId)
+    {
+        var mapTypeIds = mapTypeMaps.Where(m => m.MapId == mapId).Select(m => m.MapTypeId).ToList();
+        return mapTypes.Where(t => mapTypeIds.Contains(t.MapTypeId))
+            .Select(t => t.ReturnMapTypeId)
+            .FirstOrDefault(id => id.HasValue) ?? (long)RespawnType.ReturnAct1;
+    }
+
+    private static void Upsert(ICharacterEntity character, long respawnMapTypeId, short mapId, short x, short y)
+    {
+        var existing = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == respawnMapTypeId);
         if (existing == null)
         {
             character.Respawns.Add(new RespawnDto
@@ -73,7 +99,7 @@ public sealed class RespawnService(
                 MapId = mapId,
                 X = x,
                 Y = y,
-                RespawnMapTypeId = respawnMapTypeId.Value,
+                RespawnMapTypeId = respawnMapTypeId,
             });
         }
         else
