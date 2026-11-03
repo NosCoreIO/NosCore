@@ -4,17 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.I18N;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Shared.Enumerations;
 using System.Threading.Tasks;
 using MailData = NosCore.GameObject.InterChannelCommunication.Messages.MailData;
 
 namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
-    public class MailDataMessageChannelCommunicationMessageHandler(IGameLanguageLocalizer gameLanguageLocalizer, ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<MailData>
+    public class MailDataMessageChannelCommunicationMessageHandler(ISessionRegistry sessionRegistry) : ChannelCommunicationMessageHandler<MailData>
     {
         public override async Task Handle(MailData data)
         {
@@ -26,11 +26,17 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             }
 
             var character = session.Character;
-            if (data.ItemInstance != null)
+            if (data.ItemInstance != null && !data.MailDto.IsSenderCopy)
             {
-                await session.SendPacketAsync(character.GenerateSay(
-                    string.Format(gameLanguageLocalizer[LanguageKey.ITEM_GIFTED, character.AccountLanguage],
-                        data.ItemInstance.Amount), SayColorType.Green));
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = character.CharacterId,
+                    Type = SayColorType.Green,
+                    Message = Game18NConstString.ParcelReceived,
+                    ArgumentType = 2,
+                    Game18NArguments = { data.ItemInstance.ItemVNum.ToString(), data.ItemInstance.Amount }
+                });
             }
 
             await session.GenerateMailAsync(new[] { data });

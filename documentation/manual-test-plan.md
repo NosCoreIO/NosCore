@@ -310,6 +310,15 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Inside a time-space or raid, either item says it cannot be used here
 - [ ] Relog after using a wing: the amulet still knows the point of return
 
+### Parcels and private shops
+
+- [ ] `$Gift 1012 5 0 0 <your name>`: chat shows "Gift has been delivered." and, once,
+      "Parcel received >> Seed of Power x 5" in the client's language; the parcel icon lights up
+- [ ] `$SetReputation` above the current value shows "Reputation increased: +N" in green, below it
+      "Reputation reduced: -N" in red, with N the difference; the same value shows nothing
+- [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from
+      it shows the client's "Trade failed because shop owner has too much money." and no gold moves
+
 ### Production
 
 Recipes come from the parser, so re-run it on an existing database first. Malcolm Mix, the

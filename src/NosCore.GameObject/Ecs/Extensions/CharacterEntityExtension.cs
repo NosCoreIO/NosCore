@@ -496,8 +496,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
             Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider,
-            IGameLanguageLocalizer localizer)
+            IItemGenerationService itemProvider)
         {
             if (amount <= 0)
             {
@@ -568,10 +567,10 @@ namespace NosCore.GameObject.Ecs.Extensions
             {
                 if (price + shop.OwnerCharacter.Gold > worldConfiguration.Value.MaxGoldAmount)
                 {
-                    await characterEntity.SendPacketAsync(new SMemoPacket
+                    await characterEntity.SendPacketAsync(new SMemoiPacket
                     {
                         Type = SMemoType.FailPlayer,
-                        Message = localizer[LanguageKey.TOO_RICH_SELLER, characterEntity.AccountLanguage]
+                        Message = Game18NConstString.TradeFailedMaxMoney
                     });
                     return;
                 }

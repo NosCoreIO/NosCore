@@ -28,7 +28,7 @@ public static class GiftHelper
             IsSenderCopy = false,
             ItemInstanceId = itemInstance?.Id,
             Title = isNosmall ? "NOSMALL" : title ?? characterEntity.Name,
-            Message = text,
+            Message = text ?? string.Empty,
             SenderId = isNosmall ? null : characterEntity.VisualId,
             SenderCharacterClass = isNosmall ? null : characterEntity.Class,
             SenderGender = isNosmall ? null : characterEntity.Gender,

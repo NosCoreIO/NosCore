@@ -296,9 +296,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>Импортировано {0} предметов!</value>
   </data>
-  <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>Подарков отправлено: {0} шт.</value>
-  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Предмет не найден {0} {1}</value>
   </data>
@@ -477,9 +474,6 @@
   <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
     <value>Импортировано {0} ReputationLevels!</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Твоя репутация изменилась!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>Импортировано {0} RespawnTypes!</value>
   </data>
@@ -509,9 +503,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Поддержка</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>У продавца слишком много денег.</value>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Попробуйте использователь старый метод аутентификации {0}</value>

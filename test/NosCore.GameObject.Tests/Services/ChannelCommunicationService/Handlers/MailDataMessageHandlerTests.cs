@@ -4,20 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Core.I18N;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
-using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System.Linq;
@@ -31,7 +28,6 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         private MailDataMessageChannelCommunicationMessageHandler Handler = null!;
         private ClientSession Session = null!;
         private Mock<ISessionRegistry> SessionRegistry = null!;
-        private Mock<IGameLanguageLocalizer> GameLanguageLocalizer = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -39,10 +35,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
-            GameLanguageLocalizer = new Mock<IGameLanguageLocalizer>();
-            GameLanguageLocalizer.Setup(x => x[It.IsAny<LanguageKey>(), It.IsAny<RegionType>()])
-                .Returns(new LocalizedString("key", "Item gifted: {0}"));
-            Handler = new MailDataMessageChannelCommunicationMessageHandler(GameLanguageLocalizer.Object, SessionRegistry.Object);
+            Handler = new MailDataMessageChannelCommunicationMessageHandler(SessionRegistry.Object);
         }
 
         [TestMethod]
@@ -66,12 +59,22 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         }
 
         [TestMethod]
-        public async Task HandleWithItemShouldSendSayMessage()
+        public async Task HandleWithItemShouldAnnounceTheParcel()
         {
-            await new Spec("Handle with item should send say message")
+            await new Spec("Handle with item should announce the parcel")
                 .Given(CharacterIsRegistered)
                 .WhenAsync(HandlingMailDataWithItem)
                 .Then(ShouldSendSayPacket)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SenderCopyShouldNotAnnounceTheParcelAgain()
+        {
+            await new Spec("Sender copy should not announce the parcel again")
+                .Given(CharacterIsRegistered)
+                .WhenAsync(HandlingSenderCopyWithItem)
+                .Then(ShouldNotSendSayPacket)
                 .ExecuteAsync();
         }
 
@@ -116,6 +119,27 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             });
         }
 
+        private async Task HandlingSenderCopyWithItem()
+        {
+            await Handler.Handle(new MailData
+            {
+                ReceiverName = Session.Character.Name,
+                MailId = 1,
+                MailDto = new MailDto { Title = "Test Mail with Item", IsSenderCopy = true },
+                SenderName = "Sender",
+                ItemInstance = new ItemInstanceDto
+                {
+                    Amount = 5,
+                    ItemVNum = 1012
+                }
+            });
+        }
+
+        private void ShouldNotSendSayPacket()
+        {
+            Assert.IsFalse(Session.LastPackets.OfType<SayiPacket>().Any());
+        }
+
         private void ShouldSendMailPacket()
         {
             Assert.IsTrue(Session.LastPackets.Count > 0);
@@ -128,8 +152,11 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private void ShouldSendSayPacket()
         {
-            var sayPacket = Session.LastPackets.OfType<SayPacket>().FirstOrDefault();
+            var sayPacket = Session.LastPackets.OfType<SayiPacket>().FirstOrDefault();
             Assert.IsNotNull(sayPacket);
+            Assert.AreEqual(Game18NConstString.ParcelReceived, sayPacket.Message);
+            Assert.AreEqual("1012", sayPacket.Game18NArguments[0]);
+            Assert.AreEqual(5, System.Convert.ToInt32(sayPacket.Game18NArguments[1]));
         }
     }
 }

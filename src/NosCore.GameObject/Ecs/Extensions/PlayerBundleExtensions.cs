@@ -181,14 +181,23 @@ public static class PlayerBundleExtensions
         return new BlinitPacket { SubPackets = subpackets };
     }
 
-    public static async Task SetReputationAsync(this PlayerComponentBundle player, long reputation,
-        IGameLanguageLocalizer localizer)
+    public static async Task SetReputationAsync(this PlayerComponentBundle player, long reputation)
     {
+        var delta = reputation - player.Reputation;
         player.Reputation = reputation;
         await player.SendPacketAsync(player.GenerateFd());
-        await player.SendPacketAsync(player.GenerateSay(
-            localizer[LanguageKey.REPUTATION_CHANGED, player.Account.Language],
-            SayColorType.Red));
+        if (delta != 0)
+        {
+            await player.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = player.VisualId,
+                Type = delta > 0 ? SayColorType.Green : SayColorType.Red,
+                Message = delta > 0 ? Game18NConstString.ReputationIncreased : Game18NConstString.ReputationReduced,
+                ArgumentType = 4,
+                Game18NArguments = { Math.Abs(delta) }
+            });
+        }
         await player.MapInstance.SendPacketAsync(player.GenerateIn(""));
     }
 

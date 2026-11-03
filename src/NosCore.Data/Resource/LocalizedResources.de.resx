@@ -292,9 +292,6 @@
   <data name="ITEMS_PARSED" xml:space="preserve">
     <value>{0} items geladen!</value>
   </data>
-  <data name="ITEM_GIFTED" xml:space="preserve">
-    <value>{0} Item's wurde Verschenkt.</value>
-  </data>
   <data name="ITEM_NOT_FOUND" xml:space="preserve">
     <value>Item wurde nicht gefunden!</value>
   </data>
@@ -473,9 +470,6 @@
   <data name="REPUTATIONLEVELS_PARSED" xml:space="preserve">
     <value>{0} ReputationLevels wurden geparsed!</value>
   </data>
-  <data name="REPUTATION_CHANGED" xml:space="preserve">
-    <value>Dein Ruf hat sich geändert!</value>
-  </data>
   <data name="RESPAWNTYPE_PARSED" xml:space="preserve">
     <value>{0} RespawnTypes geladen!</value>
   </data>
@@ -508,9 +502,6 @@
   </data>
   <data name="SUPPORT" xml:space="preserve">
     <value>Supporter</value>
-  </data>
-  <data name="TOO_RICH_SELLER" xml:space="preserve">
-    <value>Der Verkäufer besitzt zu viel Gold!</value>
   </data>
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Alte Authentikation versuchen</value>

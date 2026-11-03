@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.I18N;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
@@ -20,14 +19,14 @@ using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetReputationPacketHandler(IPubSubHub pubSubHub, IGameLanguageLocalizer gameLanguageLocalizer)
+    public class SetReputationPacketHandler(IPubSubHub pubSubHub)
         : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetReputationPacket setReputationPacket, ClientSession session)
         {
             if ((setReputationPacket.Name == session.Character.Name) || string.IsNullOrEmpty(setReputationPacket.Name))
             {
-                await session.Character.SetReputationAsync(setReputationPacket.Reputation, gameLanguageLocalizer);
+                await session.Character.SetReputationAsync(setReputationPacket.Reputation);
                 return;
             }
 
