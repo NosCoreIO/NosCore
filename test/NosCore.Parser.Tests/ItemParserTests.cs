@@ -436,5 +436,62 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1, _savedItems.Count);
             Assert.AreEqual(0, _savedItems[0].LevelMinimum);
         }
+
+        // Cellons (vnum 1017-1026) are upgrade materials whose option tier sits in the third
+        // DATA value; without it every cellon looks like tier 0 and can never be applied.
+        [TestMethod]
+        public async Task ItemParser_CellonTierIsReadFromData()
+        {
+            CreateTestFile(CreateItemData(
+                vnum: 1022,
+                price: 3000,
+                indexType: 1,
+                indexSubType: 1,
+                indexItemType: 0,
+                equipmentSlot: 0,
+                data: "100\t0\t6\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemType.Upgrade, _savedItems[0].ItemType);
+            Assert.AreEqual(6, _savedItems[0].EffectValue);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_OtherUpgradeMaterialsKeepNoEffectValue()
+        {
+            CreateTestFile(CreateItemData(
+                vnum: 1014,
+                indexType: 1,
+                indexSubType: 1,
+                indexItemType: 0,
+                equipmentSlot: 0));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemType.Upgrade, _savedItems[0].ItemType);
+            Assert.AreEqual(0, _savedItems[0].EffectValue);
+        }
+
+        // A jewel declares how many options it holds and the strongest tier it accepts.
+        [TestMethod]
+        public async Task ItemParser_JewelDeclaresItsCellonCapacity()
+        {
+            CreateTestFile(CreateItemData(
+                vnum: 303,
+                indexType: 0,
+                indexSubType: 3,
+                indexItemType: 0,
+                equipmentSlot: (int)EquipmentType.Necklace,
+                data: "62\t6\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(6, _savedItems[0].MaxCellonLvl);
+            Assert.AreEqual(2, _savedItems[0].MaxCellon);
+        }
     }
 }

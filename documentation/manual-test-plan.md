@@ -387,6 +387,23 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] With the miniland locked, without a seed, to someone offline, or to someone blocking
       Miniland invites in their options: each gives its own message and no seed is used
 
+### Cellon options on accessories
+
+Talk to an NPC whose shop menu offers the accessory shop and "add option" (the Fashion Boutique,
+dialog 10), open the shop and switch to the second tab. Drag a necklace, ring or bracelet into
+Accessory and a Cellon (`$CreateItem 1017 20` gives twenty level 1 cellons) into Cellon, then Add Option and Confirm.
+
+- [ ] The window shows the price for the cellon's level (700 gold at level 1) and the option list
+- [ ] Confirm: "You have successfully added an option.", the gold drops by the price and one
+      cellon leaves the stack
+- [ ] Keep adding level 1 cellons to the same accessory: once a roll lands on a type it already
+      has, "The Cellon has disappeared because you failed to add options." appears, the gold still
+      drops by the price and one cellon still leaves the stack
+- [ ] A cellon above the accessory's option level: "The Cellon's level is higher than that of the
+      accessory.", nothing is charged and the cellon stack is unchanged
+- [ ] An accessory already holding its maximum number of options: "You cannot add any more
+      options.", nothing is charged and the cellon stack is unchanged
+
 ---
 
 ## Chat
@@ -541,5 +558,7 @@ Recorded so nobody spends time hunting for them:
 - **Family commands on a non-English client** — each client language types its own word
   for the family commands (`%Invitationdefamille`, `%Familieneinladung`, `%Caccia` and so
   on). The cloud client is English only, so only the unit tests cover the other words.
+- **Cellon options in the item tooltip and on the character** — options are stored, but the
+  server sends no `e_info` for accessories and nothing applies the options to stats yet.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.
