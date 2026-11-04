@@ -123,5 +123,8 @@ namespace NosCore.GameObject.Services.FamilyService
         }
 
         public Task SaveAsync(Family family) => familyDao.TryInsertOrUpdateAsync(family.Adapt<FamilyDto>());
+
+        public Task SaveMembersAsync(IEnumerable<FamilyCharacterDto> members) =>
+            familyCharacterDao.TryInsertOrUpdateAsync(members);
     }
 }

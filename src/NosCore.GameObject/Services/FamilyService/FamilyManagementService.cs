@@ -5,16 +5,22 @@
 //
 
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using FamilyMemberRank = NosCore.Data.Enumerations.Family.FamilyMemberRank;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Packets.Interfaces;
+using System.Linq;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Algorithm.FamilyExperienceService;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
-    public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub) : IFamilyManagementService
+    public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
+        IFamilyExperienceService familyExperienceService) : IFamilyManagementService
     {
         public async Task ChangeAuthorityAsync(ClientSession session, string? characterName, FamilyAuthority authority)
         {
@@ -76,5 +82,114 @@ namespace NosCore.GameObject.Services.FamilyService
 
             return result;
         }
-    }
+            public async Task SendMemberListAsync(ClientSession session)
+        {
+            var family = session.Character.Family;
+            if (family == null)
+            {
+                return;
+            }
+
+            var characters = await familyService.GetMemberCharactersAsync(family);
+            var connected = (await pubSubHub.GetSubscribersAsync())
+                .Where(s => s.ConnectedCharacter != null)
+                .Select(s => s.ConnectedCharacter!.Id)
+                .ToHashSet();
+            await session.SendPacketsAsync(new IPacket?[]
+            {
+                session.Character.GenerateGInfo(familyExperienceService),
+                family.GenerateGmbr(characters, connected),
+                family.GenerateGmsg(),
+                family.GenerateGexp()
+            }.OfType<IPacket>());
+        }
+
+        public async Task SetNoticeAsync(ClientSession session, string? message)
+        {
+            var family = session.Character.Family;
+            if (family == null)
+            {
+                return;
+            }
+
+            var canChange = family.AuthorityOf(session.Character.CharacterId) switch
+            {
+                FamilyAuthority.Head or FamilyAuthority.Assistant => true,
+                FamilyAuthority.Manager => family.ManagerCanNotice,
+                _ => false
+            };
+            if (!canChange)
+            {
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotAuthorizedToChangeNoticed });
+                return;
+            }
+
+            family.FamilyMessage = message?.Trim() ?? string.Empty;
+            await familyService.SaveAsync(family);
+            await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
+        }
+
+        public async Task SetDailyMessageAsync(ClientSession session, string? message)
+        {
+            var family = session.Character.Family;
+            var membership = family?.Members.FirstOrDefault(s => s.CharacterId == session.Character.CharacterId);
+            if (family == null || membership == null)
+            {
+                return;
+            }
+
+            membership.DailyMessage = message?.Trim() ?? string.Empty;
+            await familyService.SaveMembersAsync(new[] { membership });
+            await session.SendPacketAsync(family.GenerateGmsg());
+            await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
+        }
+
+        public async Task SetTitleAsync(ClientSession session, string? characterName, FamilyMemberRank rank)
+        {
+            var family = session.Character.Family;
+            if (family == null || string.IsNullOrWhiteSpace(characterName)
+                || family.AuthorityOf(session.Character.CharacterId) != FamilyAuthority.Head)
+            {
+                return;
+            }
+
+            var target = await familyService.FindCharacterAsync(characterName);
+            var membership = target == null ? null : family.Members.FirstOrDefault(s => s.CharacterId == target.CharacterId);
+            if (membership == null)
+            {
+                await session.SendPacketAsync(new Infoi2Packet
+                {
+                    Message = Game18NConstString.CanNotFind,
+                    ArgumentType = 1,
+                    Game18NArguments = { characterName }
+                });
+                return;
+            }
+
+            membership.Rank = rank;
+            await familyService.SaveMembersAsync(new[] { membership });
+            await SendMemberListAsync(session);
+            await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
+        }
+
+        public async Task SetHeadGenderAsync(ClientSession session, GenderType gender)
+        {
+            var family = session.Character.Family;
+            if (family == null || family.AuthorityOf(session.Character.CharacterId) != FamilyAuthority.Head)
+            {
+                return;
+            }
+
+            foreach (var member in family.Members)
+            {
+                member.Rank = FamilyMemberRank.Nothing;
+            }
+
+            family.FamilyHeadGender = gender;
+            await familyService.SaveMembersAsync(family.Members);
+            await familyService.SaveAsync(family);
+            await SendMemberListAsync(session);
+            await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
+        }
+}
 }
