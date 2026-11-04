@@ -232,6 +232,22 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task AMessageLongerThanItsColumnIsDropped()
+        {
+            var tooLong = new string('a', 256);
+
+            await new FamilyNoticePacketHandler(Management())
+                .ExecuteAsync(new FamilyNoticePacket { Message = tooLong }, _head);
+            await new FamilyTodayPacketHandler(Management())
+                .ExecuteAsync(new FamilyTodayPacket { Message = tooLong }, _head);
+
+            Assert.IsNull(_family.FamilyMessage);
+            Assert.AreNotEqual(tooLong, _family.Members.First(s => s.CharacterId == _headId).DailyMessage);
+            _familyService.Verify(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>()), Times.Never);
+            _familyService.Verify(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>()), Times.Never);
+        }
+
+        [TestMethod]
         public async Task TheHeadGivesAMemberATitle()
         {
             _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7, Name = "Buddy" });

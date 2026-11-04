@@ -22,6 +22,8 @@ namespace NosCore.GameObject.Services.FamilyService
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
         IFamilyExperienceService familyExperienceService) : IFamilyManagementService
     {
+        private const int MessageMaxLength = 255;
+
         public async Task ChangeAuthorityAsync(ClientSession session, string? characterName, FamilyAuthority authority)
         {
             if (session.Character.Family == null || string.IsNullOrWhiteSpace(characterName))
@@ -124,7 +126,13 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            family.FamilyMessage = message?.Trim() ?? string.Empty;
+            var notice = message?.Trim() ?? string.Empty;
+            if (notice.Length > MessageMaxLength)
+            {
+                return;
+            }
+
+            family.FamilyMessage = notice;
             await familyService.SaveAsync(family);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
@@ -133,12 +141,13 @@ namespace NosCore.GameObject.Services.FamilyService
         {
             var family = session.Character.Family;
             var membership = family?.Members.FirstOrDefault(s => s.CharacterId == session.Character.CharacterId);
-            if (family == null || membership == null)
+            var dailyMessage = message?.Trim() ?? string.Empty;
+            if (family == null || membership == null || dailyMessage.Length > MessageMaxLength)
             {
                 return;
             }
 
-            membership.DailyMessage = message?.Trim() ?? string.Empty;
+            membership.DailyMessage = dailyMessage;
             await familyService.SaveMembersAsync(new[] { membership });
             await session.SendPacketAsync(family.GenerateGmsg());
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
