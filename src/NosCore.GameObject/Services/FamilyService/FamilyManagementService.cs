@@ -15,12 +15,13 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.Dao.Interfaces;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
-        IFamilyExperienceService familyExperienceService) : IFamilyManagementService
+        IFamilyExperienceService familyExperienceService, IDaoTransactionScope daoTransactionScope) : IFamilyManagementService
     {
         private const int MessageMaxLength = 255;
 
@@ -189,14 +190,30 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            var previousRanks = family.Members.ToDictionary(s => s.CharacterId, s => s.Rank);
+            var previousGender = family.FamilyHeadGender;
             foreach (var member in family.Members)
             {
                 member.Rank = FamilyMemberRank.Nothing;
             }
 
             family.FamilyHeadGender = gender;
-            await familyService.SaveMembersAsync(family.Members);
-            await familyService.SaveAsync(family);
+            await using (var transaction = daoTransactionScope.Begin())
+            {
+                if (!await familyService.SaveMembersAsync(family.Members) || !await familyService.SaveAsync(family))
+                {
+                    foreach (var member in family.Members)
+                    {
+                        member.Rank = previousRanks[member.CharacterId];
+                    }
+
+                    family.FamilyHeadGender = previousGender;
+                    return;
+                }
+
+                await transaction.CommitAsync();
+            }
+
             await SendMemberListAsync(session);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }

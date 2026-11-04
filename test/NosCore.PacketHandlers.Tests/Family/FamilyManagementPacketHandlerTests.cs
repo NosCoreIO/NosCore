@@ -6,6 +6,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -59,10 +60,13 @@ namespace NosCore.PacketHandlers.Tests.Family
             _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            _familyService.Setup(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>())).ReturnsAsync(true);
             _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
         }
 
-        private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService());
+        private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService(),
+            new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
 
         private void ChangeReturns(FamilyAuthorityChange result) =>
             _familyService.Setup(s => s.ChangeAuthorityAsync(_family, _headId, It.IsAny<long>(), It.IsAny<FamilyAuthority>()))
@@ -296,6 +300,20 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.IsTrue(_family.Members.All(s => s.Rank == Data.Enumerations.Family.FamilyMemberRank.Nothing));
             _familyService.Verify(s => s.SaveAsync(_family), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
+        }
+
+        [TestMethod]
+        public async Task AFailedGenderSaveKeepsTheTitles()
+        {
+            _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
+            _familyService.Setup(s => s.SaveAsync(_family)).ReturnsAsync(false);
+
+            await new FamilyGenderPacketHandler(Management())
+                .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
+
+            Assert.AreEqual(GenderType.Male, _family.FamilyHeadGender);
+            Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Uncle, _family.Members.First(s => s.CharacterId == 7).Rank);
+            Assert.AreEqual(0, _published.Count);
         }
 
         [TestMethod]
