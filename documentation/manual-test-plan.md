@@ -391,7 +391,7 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 
 Talk to an NPC whose shop menu offers the accessory shop and "add option" (the Fashion Boutique,
 dialog 10), open the shop and switch to the second tab. Drag a necklace, ring or bracelet into
-Accessory and a Cellon (`$CreateItem 1017` for level 1) into Cellon, then Add Option and Confirm.
+Accessory and a Cellon (`$CreateItem 1017 20` gives twenty level 1 cellons) into Cellon, then Add Option and Confirm.
 
 - [ ] The window shows the price for the cellon's level (700 gold at level 1) and the option list
 - [ ] Confirm: "You have successfully added an option.", the gold drops by the price and one
