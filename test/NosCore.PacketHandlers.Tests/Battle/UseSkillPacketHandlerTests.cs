@@ -125,10 +125,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(TargetIsOnSameMap)
                 .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
                 .And(CharacterHasMp_, 50)
+                .And(HitTakes_Seconds, 2)
                 .WhenAsync(UsingSkillOnExistingPlayer)
                 .Then(BattleServiceShouldBeCalled)
                 .And(CharacterMpShouldBe_, 35)
-                .And(LastUseShouldHaveBeenStampedRecent)
+                .And(LastUseShouldBeWhenHitFinished)
                 .ExecuteAsync();
         }
 
@@ -208,6 +209,13 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void CharacterHasMp_(int mp)
         {
             Session.Character.Mp = mp;
+        }
+
+        private void HitTakes_Seconds(int seconds)
+        {
+            BattleService.Setup(s => s.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>()))
+                .Callback(() => TestHelpers.Instance.Clock.AdvanceSeconds(seconds))
+                .Returns(Task.CompletedTask);
         }
 
         private void SkillWasUsedJustNow()
@@ -290,7 +298,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Assert.AreEqual(expected, Session.Character.Mp);
         }
 
-        private void LastUseShouldHaveBeenStampedRecent()
+        private void LastUseShouldBeWhenHitFinished()
         {
             Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _learnedSkill.LastUse);
         }

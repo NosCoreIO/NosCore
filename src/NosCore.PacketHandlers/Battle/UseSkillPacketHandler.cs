@@ -101,8 +101,7 @@ namespace NosCore.PacketHandlers.Battle
                 // passing without needing an explicit skill setup step.
                 return true;
             }
-            var now = clock.GetCurrentInstant();
-            if (!skill.CanBeUsed(now))
+            if (!skill.CanBeUsed(clock.GetCurrentInstant()))
             {
                 return false;
             }
@@ -117,7 +116,7 @@ namespace NosCore.PacketHandlers.Battle
             var trackedSkill = skill;
             commit = () =>
             {
-                trackedSkill.LastUse = now;
+                trackedSkill.LastUse = clock.GetCurrentInstant();
                 character.Mp = System.Math.Max(0, character.Mp - mpCost);
             };
             return true;
