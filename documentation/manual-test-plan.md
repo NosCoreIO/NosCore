@@ -394,12 +394,15 @@ dialog 10), open the shop and switch to the second tab. Drag a necklace, ring or
 Accessory and a Cellon (`$CreateItem 1017` for level 1) into Cellon, then Add Option and Confirm.
 
 - [ ] The window shows the price for the cellon's level (700 gold at level 1) and the option list
-- [ ] Confirm: "You have successfully added an option." (or "The Cellon has disappeared because
-      you failed to add options."), the gold drops by the price and one cellon leaves the stack
+- [ ] Confirm: "You have successfully added an option.", the gold drops by the price and one
+      cellon leaves the stack
+- [ ] Keep adding level 1 cellons to the same accessory: once a roll lands on a type it already
+      has, "The Cellon has disappeared because you failed to add options." appears, the gold still
+      drops by the price and one cellon still leaves the stack
 - [ ] A cellon above the accessory's option level: "The Cellon's level is higher than that of the
-      accessory.", nothing is charged
+      accessory.", nothing is charged and the cellon stack is unchanged
 - [ ] An accessory already holding its maximum number of options: "You cannot add any more
-      options.", nothing is charged
+      options.", nothing is charged and the cellon stack is unchanged
 
 ---
 
