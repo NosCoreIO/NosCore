@@ -45,7 +45,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 BattleService.Object,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -211,7 +212,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void SkillWasUsedJustNow()
         {
-            _learnedSkill.LastUse = DateTime.Now;
+            _learnedSkill.LastUse = TestHelpers.Instance.Clock.GetCurrentInstant();
         }
 
         private async Task UsingSkill()
@@ -291,7 +292,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void LastUseShouldHaveBeenStampedRecent()
         {
-            Assert.IsTrue(DateTime.Now - _learnedSkill.LastUse < TimeSpan.FromSeconds(5));
+            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _learnedSkill.LastUse);
         }
     }
 }

@@ -20,6 +20,7 @@ using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using NodaTime;
 
 namespace NosCore.PacketHandlers.Battle
 {
@@ -31,7 +32,8 @@ namespace NosCore.PacketHandlers.Battle
         ILogger<UseSkillPacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IBattleService battleService,
-        ISessionRegistry sessionRegistry)
+        ISessionRegistry sessionRegistry,
+        IClock clock)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
@@ -86,7 +88,7 @@ namespace NosCore.PacketHandlers.Battle
         // test fixtures without skill population) we defer rejection to BattleService
         // so the packet path stays permissive and SkillResolver produces a single
         // consistent "unknown skill" response.
-        private static bool TryConsumeSkill(ClientSession session, long castId, out System.Action? commit)
+        private bool TryConsumeSkill(ClientSession session, long castId, out System.Action? commit)
         {
             commit = null;
             var character = session.Character;
@@ -99,7 +101,8 @@ namespace NosCore.PacketHandlers.Battle
                 // passing without needing an explicit skill setup step.
                 return true;
             }
-            if (!skill.CanBeUsed())
+            var now = clock.GetCurrentInstant();
+            if (!skill.CanBeUsed(now))
             {
                 return false;
             }
@@ -114,7 +117,7 @@ namespace NosCore.PacketHandlers.Battle
             var trackedSkill = skill;
             commit = () =>
             {
-                trackedSkill.LastUse = System.DateTime.Now;
+                trackedSkill.LastUse = now;
                 character.Mp = System.Math.Max(0, character.Mp - mpCost);
             };
             return true;
