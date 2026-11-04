@@ -150,7 +150,6 @@ namespace NosCore.GameObject.Services.FamilyService
 
             membership.DailyMessage = dailyMessage;
             await familyService.SaveMembersAsync(new[] { membership });
-            await session.SendPacketAsync(family.GenerateGmsg());
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
 
@@ -178,7 +177,6 @@ namespace NosCore.GameObject.Services.FamilyService
 
             membership.Rank = rank;
             await familyService.SaveMembersAsync(new[] { membership });
-            await SendMemberListAsync(session);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
 
@@ -214,7 +212,6 @@ namespace NosCore.GameObject.Services.FamilyService
                 await transaction.CommitAsync();
             }
 
-            await SendMemberListAsync(session);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
 }

@@ -7,6 +7,10 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
+using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -17,6 +21,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -50,8 +55,13 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             _familyService.Setup(s => s.GetFamilyAsync(It.IsAny<long>())).ReturnsAsync(_family);
             var bystanderId = _bystander.Character.CharacterId;
             _familyService.Setup(s => s.GetFamilyAsync(bystanderId)).ReturnsAsync((NosCore.GameObject.Services.FamilyService.Family?)null);
+            _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<NosCore.GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
+            var pubSubHub = new Mock<IPubSubHub>();
+            pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            var management = new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
+                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
-                TestHelpers.Instance.GameLanguageLocalizer, new FamilyExperienceService());
+                TestHelpers.Instance.GameLanguageLocalizer, management);
             foreach (var session in sessions)
             {
                 session.LastPackets.Clear();
@@ -68,6 +78,17 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             var tag = _bystander.LastPackets.OfType<GidxPacket>().Single();
             Assert.AreEqual(_joiner.Character.VisualId, tag.VisualId);
             Assert.AreEqual(42, tag.FamilyId);
+        }
+
+        [TestMethod]
+        public async Task EveryMemberGetsTheRefreshedMemberList()
+        {
+            await _handler.Handle(new FamilyChangedData { FamilyId = 42 });
+
+            Assert.IsTrue(_member.LastPackets.OfType<GInfoPacket>().Any());
+            Assert.IsTrue(_member.LastPackets.OfType<GmbrPacket>().Any());
+            Assert.IsTrue(_member.LastPackets.OfType<GmsgPacket>().Any());
+            Assert.AreEqual(0, _bystander.LastPackets.OfType<GmbrPacket>().Count());
         }
 
         [TestMethod]

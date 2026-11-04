@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Core.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -19,7 +18,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class FamilyChangedDataMessageChannelCommunicationMessageHandler(ISessionRegistry sessionRegistry,
             IFamilyService familyService, IGameLanguageLocalizer gameLanguageLocalizer,
-            IFamilyExperienceService familyExperienceService)
+            IFamilyManagementService familyManagementService)
         : ChannelCommunicationMessageHandler<FamilyChangedData>
     {
         public override async Task Handle(FamilyChangedData data)
@@ -31,11 +30,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             {
                 var character = session.Character;
                 character.Family = await familyService.GetFamilyAsync(character.CharacterId);
-                var info = character.GenerateGInfo(familyExperienceService);
-                if (info != null)
-                {
-                    await session.SendPacketAsync(info);
-                }
+                await familyManagementService.SendMemberListAsync(session);
 
                 if (data.JoinedCharacterName != null && character.Family != null)
                 {

@@ -232,7 +232,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             var mine = _family.Members.First(s => s.CharacterId == _headId);
             Assert.AreEqual("good morning", mine.DailyMessage);
             _familyService.Verify(s => s.SaveMembersAsync(It.Is<IEnumerable<FamilyCharacterDto>>(m => m.Single() == mine)), Times.Once);
-            Assert.AreEqual("good morning", _head.LastPackets.OfType<GmsgPacket>().Single().Entries!.Single(s => s!.CharacterId == _headId)!.Message);
+            Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
         [TestMethod]
