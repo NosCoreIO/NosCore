@@ -122,6 +122,9 @@ namespace NosCore.GameObject.Services.FamilyService
             return FamilyAuthorityChange.Changed;
         }
 
-        public Task SaveAsync(Family family) => familyDao.TryInsertOrUpdateAsync(family.Adapt<FamilyDto>());
+        public async Task<bool> SaveAsync(Family family) => await familyDao.TryInsertOrUpdateAsync(family.Adapt<FamilyDto>()) != null;
+
+        public Task<bool> SaveMembersAsync(IEnumerable<FamilyCharacterDto> members) =>
+            familyCharacterDao.TryInsertOrUpdateAsync(members);
     }
 }

@@ -472,6 +472,20 @@ Same seeded family, with a plain member on the same map as the head.
 - [ ] Ticking a keeper or member permission in the family window as the head keeps it
       after reopening the window and relogging, and the keeper's invite and shout follow it
 
+### Family notice, daily message, titles and head gender
+
+Same seeded family, with a plain member on the same map as the head.
+
+- [ ] `%Notice <text>` from the head or an assistant shows the text as the notice in the
+      family window of every member; a keeper's works only while the family lets keepers
+      post notices, and a plain member's says they are not authorised
+- [ ] `%Today <text>` from any member shows as that member's line in the family window's
+      member list
+- [ ] `%Title <name> <rank>` from the head changes that member's title in the member list;
+      a name outside the family says it cannot be found, and nobody else can give titles
+- [ ] `%Gender <0|1>` from the head switches the family's titles to the matching set and
+      clears every member's title
+
 ---
 
 ## Instances

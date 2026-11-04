@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Services.FamilyService
         Task<CharacterDto?> FindCharacterAsync(string name);
         Task<IReadOnlyList<CharacterDto>> GetMemberCharactersAsync(Family family);
         Task<FamilyAuthorityChange> ChangeAuthorityAsync(Family family, long actorId, long targetId, FamilyAuthority authority);
-        Task SaveAsync(Family family);
+        Task<bool> SaveAsync(Family family);
+        Task<bool> SaveMembersAsync(IEnumerable<FamilyCharacterDto> members);
     }
 }

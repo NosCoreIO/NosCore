@@ -6,6 +6,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -58,9 +59,14 @@ namespace NosCore.PacketHandlers.Tests.Family
             _familyService = new Mock<IFamilyService>();
             _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
+            _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            _familyService.Setup(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
         }
 
-        private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object);
+        private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService(),
+            new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
 
         private void ChangeReturns(FamilyAuthorityChange result) =>
             _familyService.Setup(s => s.ChangeAuthorityAsync(_family, _headId, It.IsAny<long>(), It.IsAny<FamilyAuthority>()))
@@ -83,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new() { ConnectedCharacter = new Character { Id = _headId } }
             });
 
-            await new GListPacketHandler(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService())
+            await new GListPacketHandler(Management())
                 .ExecuteAsync(new GListPacket { Type = 2 }, _head);
 
             var members = _head.LastPackets.OfType<GmbrPacket>().Single().Members!;
@@ -169,6 +175,157 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.IsFalse(_family.ManagerCanInvite);
             _familyService.Verify(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>()), Times.Never);
+        }
+
+        private void Become(FamilyAuthority authority) =>
+            _family.Members.First(s => s.CharacterId == _headId).Authority = authority;
+
+        [TestMethod]
+        public async Task TheHeadSetsTheFamilyNotice()
+        {
+            await new FamilyNoticePacketHandler(Management())
+                .ExecuteAsync(new FamilyNoticePacket { Message = "meet at the bank " }, _head);
+
+            Assert.AreEqual("meet at the bank", _family.FamilyMessage);
+            _familyService.Verify(s => s.SaveAsync(_family), Times.Once);
+            Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
+        }
+
+        [TestMethod]
+        public async Task AKeeperSetsTheNoticeOnlyWhenTheFamilyAllowsIt()
+        {
+            Become(FamilyAuthority.Manager);
+
+            await new FamilyNoticePacketHandler(Management())
+                .ExecuteAsync(new FamilyNoticePacket { Message = "hello" }, _head);
+
+            Assert.AreEqual(Game18NConstString.NotAuthorizedToChangeNoticed, LastInfo(_head));
+            Assert.IsNull(_family.FamilyMessage);
+
+            _family.ManagerCanNotice = true;
+            await new FamilyNoticePacketHandler(Management())
+                .ExecuteAsync(new FamilyNoticePacket { Message = "hello" }, _head);
+
+            Assert.AreEqual("hello", _family.FamilyMessage);
+        }
+
+        [TestMethod]
+        public async Task AMemberCannotSetTheNotice()
+        {
+            Become(FamilyAuthority.Member);
+
+            await new FamilyNoticePacketHandler(Management())
+                .ExecuteAsync(new FamilyNoticePacket { Message = "hello" }, _head);
+
+            Assert.AreEqual(Game18NConstString.NotAuthorizedToChangeNoticed, LastInfo(_head));
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        [TestMethod]
+        public async Task AnyMemberSetsTheirDailyMessage()
+        {
+            Become(FamilyAuthority.Member);
+
+            await new FamilyTodayPacketHandler(Management())
+                .ExecuteAsync(new FamilyTodayPacket { Message = "good morning" }, _head);
+
+            var mine = _family.Members.First(s => s.CharacterId == _headId);
+            Assert.AreEqual("good morning", mine.DailyMessage);
+            _familyService.Verify(s => s.SaveMembersAsync(It.Is<IEnumerable<FamilyCharacterDto>>(m => m.Single() == mine)), Times.Once);
+            Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
+        }
+
+        [TestMethod]
+        public async Task AMessageLongerThanItsColumnIsDropped()
+        {
+            var tooLong = new string('a', 256);
+
+            await new FamilyNoticePacketHandler(Management())
+                .ExecuteAsync(new FamilyNoticePacket { Message = tooLong }, _head);
+            await new FamilyTodayPacketHandler(Management())
+                .ExecuteAsync(new FamilyTodayPacket { Message = tooLong }, _head);
+
+            Assert.IsNull(_family.FamilyMessage);
+            Assert.AreNotEqual(tooLong, _family.Members.First(s => s.CharacterId == _headId).DailyMessage);
+            _familyService.Verify(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>()), Times.Never);
+            _familyService.Verify(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task TheHeadGivesAMemberATitle()
+        {
+            _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7, Name = "Buddy" });
+
+            await new FamilyTitlePacketHandler(Management())
+                .ExecuteAsync(new FamilyTitlePacket { CharacterName = "Buddy", Rank = Packets.Enumerations.FamilyMemberRank.Uncle }, _head);
+
+            Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Uncle, _family.Members.First(s => s.CharacterId == 7).Rank);
+            Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheHeadGivesTitles()
+        {
+            Become(FamilyAuthority.Assistant);
+            _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7, Name = "Buddy" });
+
+            await new FamilyTitlePacketHandler(Management())
+                .ExecuteAsync(new FamilyTitlePacket { CharacterName = "Buddy", Rank = Packets.Enumerations.FamilyMemberRank.Uncle }, _head);
+
+            Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Nothing, _family.Members.First(s => s.CharacterId == 7).Rank);
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        [TestMethod]
+        public async Task ATitleForSomeoneOutsideTheFamilyIsNotFound()
+        {
+            _familyService.Setup(s => s.FindCharacterAsync("Stranger")).ReturnsAsync(new CharacterDto { CharacterId = 99, Name = "Stranger" });
+
+            await new FamilyTitlePacketHandler(Management())
+                .ExecuteAsync(new FamilyTitlePacket { CharacterName = "Stranger", Rank = Packets.Enumerations.FamilyMemberRank.Uncle }, _head);
+
+            Assert.AreEqual(Game18NConstString.CanNotFind, LastInfo(_head));
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        [TestMethod]
+        public async Task ChangingTheHeadGenderClearsEveryTitle()
+        {
+            _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
+
+            await new FamilyGenderPacketHandler(Management())
+                .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
+
+            Assert.AreEqual(GenderType.Female, _family.FamilyHeadGender);
+            Assert.IsTrue(_family.Members.All(s => s.Rank == Data.Enumerations.Family.FamilyMemberRank.Nothing));
+            _familyService.Verify(s => s.SaveAsync(_family), Times.Once);
+            Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
+        }
+
+        [TestMethod]
+        public async Task AFailedGenderSaveKeepsTheTitles()
+        {
+            _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
+            _familyService.Setup(s => s.SaveAsync(_family)).ReturnsAsync(false);
+
+            await new FamilyGenderPacketHandler(Management())
+                .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
+
+            Assert.AreEqual(GenderType.Male, _family.FamilyHeadGender);
+            Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Uncle, _family.Members.First(s => s.CharacterId == 7).Rank);
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheHeadChangesTheHeadGender()
+        {
+            Become(FamilyAuthority.Assistant);
+
+            await new FamilyGenderPacketHandler(Management())
+                .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
+
+            Assert.AreEqual(GenderType.Male, _family.FamilyHeadGender);
+            Assert.AreEqual(0, _published.Count);
         }
     }
 }
