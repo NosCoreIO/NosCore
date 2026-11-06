@@ -23,6 +23,7 @@ namespace NosCore.Database.Entities
         {
             Drop = new HashSet<Drop>();
             Recipe = new HashSet<Recipe>();
+            ScrollRecipe = new HashSet<Recipe>();
             RollGeneratedItem = new HashSet<RollGeneratedItem>();
             RollGeneratedItem2 = new HashSet<RollGeneratedItem>();
             RecipeItem = new HashSet<RecipeItem>();
@@ -171,6 +172,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<Recipe> Recipe { get; set; }
 
         public virtual ICollection<RecipeItem> RecipeItem { get; set; }
+
+        public virtual ICollection<Recipe> ScrollRecipe { get; set; }
 
         public short ReduceOposantResistance { get; set; }
 

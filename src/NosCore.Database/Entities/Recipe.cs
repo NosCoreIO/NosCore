@@ -26,9 +26,13 @@ namespace NosCore.Database.Entities
 
         public short ItemVNum { get; set; }
 
-        public virtual MapNpc MapNpc { get; set; } = null!;
+        public virtual MapNpc? MapNpc { get; set; }
 
-        public int MapNpcId { get; set; }
+        public int? MapNpcId { get; set; }
+
+        public virtual Item? Scroll { get; set; }
+
+        public short? ScrollVNum { get; set; }
 
         [Key]
         public short RecipeId { get; set; }

@@ -442,6 +442,12 @@ namespace NosCore.Database
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Item>()
+                .HasMany(e => e.ScrollRecipe)
+                .WithOne(e => e.Scroll)
+                .HasForeignKey(e => e.ScrollVNum)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Item>()
                 .HasMany(e => e.RecipeItem)
                 .WithOne(e => e.Item)
                 .OnDelete(DeleteBehavior.Restrict);
