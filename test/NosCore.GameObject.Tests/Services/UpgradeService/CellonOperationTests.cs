@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.CellonService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -24,6 +25,7 @@ using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 
@@ -67,7 +69,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 });
 
             _operation = new CellonOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
-                _optionDao.Object);
+                _optionDao.Object, new CellonService());
         }
 
         [TestMethod]

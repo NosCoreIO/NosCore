@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Algorithm.CellonService;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -37,27 +38,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 public sealed class CellonOperation(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
-    IDao<EquipmentOptionDto, Guid> equipmentOptionDao)
+    IDao<EquipmentOptionDto, Guid> equipmentOptionDao,
+    ICellonService cellonService)
     : UpgradeOperation(random, localizer)
 {
-    private static readonly long[] GoldCostByCellonLevel =
-        { 0, 700, 1400, 3000, 5000, 10000, 20000, 32000, 58000, 95000, 134900 };
-
-    private static readonly CellonOption[][] OptionsByCellonLevel =
-    {
-        Array.Empty<CellonOption>(),
-        new CellonOption[] { new(CellonType.Hp, 30, 100), new(CellonType.Mp, 50, 120), new(CellonType.HpRecovery, 5, 10), new(CellonType.MpRecovery, 8, 15) },
-        new CellonOption[] { new(CellonType.Hp, 120, 200), new(CellonType.Mp, 150, 250), new(CellonType.HpRecovery, 14, 20), new(CellonType.MpRecovery, 16, 25) },
-        new CellonOption[] { new(CellonType.Hp, 220, 300), new(CellonType.Mp, 280, 330), new(CellonType.HpRecovery, 22, 28), new(CellonType.MpRecovery, 28, 35) },
-        new CellonOption[] { new(CellonType.Hp, 330, 400), new(CellonType.Mp, 350, 420), new(CellonType.HpRecovery, 30, 38), new(CellonType.MpRecovery, 38, 45) },
-        new CellonOption[] { new(CellonType.Hp, 430, 550), new(CellonType.Mp, 450, 550), new(CellonType.HpRecovery, 40, 50), new(CellonType.MpRecovery, 50, 60) },
-        new CellonOption[] { new(CellonType.Hp, 600, 750), new(CellonType.Mp, 600, 750), new(CellonType.HpRecovery, 55, 70), new(CellonType.MpRecovery, 65, 80), new(CellonType.MpConsumption, 1, 7), new(CellonType.CriticalDamageDecrease, 1, 10) },
-        new CellonOption[] { new(CellonType.Hp, 800, 1000), new(CellonType.Mp, 800, 1000), new(CellonType.HpRecovery, 75, 90), new(CellonType.MpRecovery, 75, 90), new(CellonType.MpConsumption, 8, 12), new(CellonType.CriticalDamageDecrease, 11, 20) },
-        new CellonOption[] { new(CellonType.Hp, 1000, 1300), new(CellonType.Mp, 1000, 1300), new(CellonType.HpRecovery, 100, 120), new(CellonType.MpRecovery, 100, 120), new(CellonType.MpConsumption, 13, 17), new(CellonType.CriticalDamageDecrease, 21, 35) },
-        new CellonOption[] { new(CellonType.Hp, 1100, 1500), new(CellonType.Mp, 1100, 1500), new(CellonType.HpRecovery, 110, 135), new(CellonType.MpRecovery, 110, 135), new(CellonType.MpConsumption, 14, 21), new(CellonType.CriticalDamageDecrease, 22, 45) },
-        new CellonOption[] { new(CellonType.Hp, 1200, 1700), new(CellonType.Mp, 1200, 1700), new(CellonType.HpRecovery, 120, 150), new(CellonType.MpRecovery, 120, 150), new(CellonType.MpConsumption, 15, 25), new(CellonType.CriticalDamageDecrease, 23, 55) },
-    };
-
     public override UpgradePacketType Kind => UpgradePacketType.CellonItem;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.OptionAdded;
@@ -89,20 +73,20 @@ public sealed class CellonOperation(
             return null;
         }
 
-        var level = cellonSlot.ItemInstance!.Item.EffectValue;
+        var level = (byte)cellonSlot.ItemInstance!.Item.EffectValue;
         return new UpgradeContext(
             Source: jewelSlot,
             Target: cellonSlot,
-            GoldCost: GoldCostByCellonLevel[level],
+            GoldCost: cellonService.GetPrice(level),
             MaterialCosts: Array.Empty<MaterialCost>(),
-            ExtraData: new CellonRollData(level, LoadOptionTypes(jewelSlot)));
+            ExtraData: new CellonRollData(level, cellonService.GetOptions(level), LoadOptionTypes(jewelSlot)));
     }
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
         var data = (CellonRollData)ctx.ExtraData!;
-        var options = OptionsByCellonLevel[data.Level];
-        data.Option = options[Math.Min((int)(roll * options.Length), options.Length - 1)];
+        var options = data.Options;
+        data.Option = options[Math.Min((int)(roll * options.Count), options.Count - 1)];
         return data.Taken.Contains((byte)data.Option.Type) ? UpgradeOutcome.Failure : UpgradeOutcome.Success;
     }
 
@@ -116,7 +100,7 @@ public sealed class CellonOperation(
         {
             Id = Guid.NewGuid(),
             WearableInstanceId = ctx.Source.ItemInstanceId,
-            Level = (byte)data.Level,
+            Level = data.Level,
             Type = (byte)option.Type,
             Value = option.Minimum + Roll(option.Maximum - option.Minimum + 1),
         };
@@ -150,7 +134,7 @@ public sealed class CellonOperation(
     }
 
     // Only an upgrade material carries a tier in EffectValue, and only a cellon among them.
-    private static bool TryResolve(ClientSession session, UpgradePacket packet,
+    private bool TryResolve(ClientSession session, UpgradePacket packet,
         out InventoryItemInstance jewelSlot, out InventoryItemInstance cellonSlot)
     {
         jewelSlot = null!;
@@ -165,8 +149,8 @@ public sealed class CellonOperation(
         var cellon = session.Character.InventoryService
             .LoadBySlotAndType(packet.CellonSlot.Value, (NoscorePocketType)packet.CellonInventoryType.Value);
         if (jewel?.ItemInstance is not WearableInstance { Item.MaxCellon: > 0 }
-            || cellon?.ItemInstance?.Item is not { ItemType: ItemType.Upgrade, EffectValue: > 0 } cellonItem
-            || cellonItem.EffectValue >= OptionsByCellonLevel.Length)
+            || cellon?.ItemInstance?.Item is not { ItemType: ItemType.Upgrade, EffectValue: > 0 and <= byte.MaxValue } cellonItem
+            || cellonService.GetOptions((byte)cellonItem.EffectValue).Count == 0)
         {
             return false;
         }
@@ -190,11 +174,11 @@ public sealed class CellonOperation(
             new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow },
         };
 
-    private sealed record CellonOption(CellonType Type, int Minimum, int Maximum);
-
-    private sealed class CellonRollData(int level, HashSet<byte> taken)
+    private sealed class CellonRollData(byte level, IReadOnlyList<CellonOption> options, HashSet<byte> taken)
     {
-        public int Level { get; } = level;
+        public byte Level { get; } = level;
+
+        public IReadOnlyList<CellonOption> Options { get; } = options;
 
         public HashSet<byte> Taken { get; } = taken;
 
