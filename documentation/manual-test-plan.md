@@ -215,6 +215,21 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] A +7 weapon of rarity 0 and one of rarity 8 show the same 5 % / 3 % / 92 % and the
       same 400,000 gold, 380 Cella Powder and 2 full gems
 
+### Specialist points
+
+- [ ] Wear a level 60 specialist card and right-click the SP button by the portrait: the card
+      window opens with its level, name and the skills it has unlocked
+- [ ] In the bag's EQUIP tab, right-click a specialist card: the same window opens for it
+- [ ] Transformed, spend points on attack, defence, element and HP/MP: the free points go
+      down by the cost of each level, and the character window's damage, defences,
+      resistances, element rate, HP and MP rise
+- [ ] Try to spend more points than the card has, or spend them untransformed: nothing is
+      spent; untransformed, the client says the card must be equipped
+- [ ] Use a Point Initialisation Potion (`$CreateItem 1366`) through the reset button: every
+      point comes back, one potion is gone and the client says the points were restored
+- [ ] Reset again with nothing spent: the client says the card was already reset and the
+      potion stays; reset without a potion: the matching message appears
+
 ### Soul Revival Stone
 
 - [ ] With a specialist card whose soul was destroyed in the bag, double-click a Soul Revival
