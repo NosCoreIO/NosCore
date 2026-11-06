@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace NosCore.GameObject.Services.ScriptedInstanceService
+namespace NosCore.Instances.Abstractions
 {
     public sealed class InstanceDefinitionBuilder
     {

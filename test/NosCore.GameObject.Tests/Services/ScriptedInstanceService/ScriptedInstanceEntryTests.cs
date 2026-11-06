@@ -13,6 +13,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using NosCore.Tests.Shared;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,11 +41,16 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private static ScriptedInstance Needing(short amount) => new()
         {
-            Definition = new ScriptedInstanceDefinition
+            Logic = new Defined(new ScriptedInstanceDefinition
             {
                 RequiredItems = [new InstanceGift(SeedVnum, amount)]
-            }
+            })
         };
+
+        private sealed class Defined : InstanceScript
+        {
+            public Defined(ScriptedInstanceDefinition definition) => Definition = definition;
+        }
 
         private void Give(short amount)
         {

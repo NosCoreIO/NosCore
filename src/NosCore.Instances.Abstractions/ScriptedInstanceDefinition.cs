@@ -6,7 +6,7 @@
 
 using System.Collections.Generic;
 
-namespace NosCore.GameObject.Services.ScriptedInstanceService
+namespace NosCore.Instances.Abstractions
 {
     public record InstanceGift(short VNum, short Amount, short Design = 0,
         bool IsRandomRare = false, bool IsHeroic = false);

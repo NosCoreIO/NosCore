@@ -21,10 +21,14 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         IEnumerable<WpPacket> GenerateWp(short mapId);
 
+        Task<bool> LoadAsync(ScriptedInstance entrance);
+
         Task<ScriptedInstanceRun?> InstantiateAsync(ScriptedInstance entrance);
 
         ScriptedInstanceRun? GetRun(Guid mapInstanceId);
 
         Task<bool> DisposeIfEmptyAsync(ScriptedInstanceRun run);
+
+        Task TickAsync();
     }
 }
