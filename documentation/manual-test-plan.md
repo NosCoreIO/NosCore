@@ -383,6 +383,20 @@ NosVille alchemist, makes potions.
       taken
 - [ ] Walk away from him and produce with the window still open: nothing happens
 
+### Production scrolls
+
+Scroll recipes are only imported when a capture shows the scroll in use, so seed them by hand
+otherwise (a `Recipe` row with `ScrollVNum` set and its `RecipeItem` rows). The Consumables
+Recipe (1241) makes Attack Potions from itself, 5 Empty Bottles, 5 Magic Potions, 5 Orichalcum
+and 5 Apples.
+
+- [ ] Double-click the scroll in the Main pocket, away from any NPC: the Combine window opens
+      with the scroll's products, and a Produce (Loop) button
+- [ ] Click Attack Potion: the material list shows the scroll, Empty Bottles, Magic Potions,
+      Orichalcum and Apples
+- [ ] Press Produce and confirm: after the bar, "[Attack Potion] has been produced." pops up,
+      the potion appears, the materials are gone and one scroll is used up
+
 ### Character options
 
 Two characters, A and B, on the same map and channel. Open the options window on A

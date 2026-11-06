@@ -163,6 +163,12 @@ namespace NosCore.Tests.Shared
         {
             new Item {Type = NoscorePocketType.Main, VNum = 1012, IsDroppable = true},
             new Item {Type = NoscorePocketType.Main, VNum = 1013},
+            new Item
+            {
+                Type = NoscorePocketType.Main, VNum = 1014, ItemType = ItemType.Production,
+                Effect = ItemEffectType.OpenProduction
+            },
+            new Item {Type = NoscorePocketType.Etc, VNum = 1015},
             new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
             new Item
             {

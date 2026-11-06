@@ -31,6 +31,8 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private const int NpcId = 100;
         private const short Material = 1012;
         private const short Product = 1013;
+        private const short Scroll = 1014;
+        private const short ScrollProduct = 1015;
 
         private ClientSession _session = null!;
         private IItemGenerationService _itemProvider = null!;
@@ -43,7 +45,61 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _itemProvider = TestHelpers.Instance.GenerateItemProvider();
-            _service = new GameObject.Services.ProductionService.ProductionService(_itemProvider, TestHelpers.Instance.DistanceCalculator);
+            _service = new GameObject.Services.ProductionService.ProductionService(_itemProvider, TestHelpers.Instance.DistanceCalculator,
+                new List<RecipeDto>
+                {
+                    new() { RecipeId = 1, ScrollVNum = Scroll, ItemVNum = ScrollProduct, Amount = 1 },
+                    new() { RecipeId = 2, ScrollVNum = Scroll, ItemVNum = 1, Amount = 0 },
+                    new() { RecipeId = 3, MapNpcId = NpcId, ItemVNum = Product, Amount = 2 }
+                },
+                new List<RecipeItemDto>
+                {
+                    new() { RecipeId = 1, ItemVNum = Material, Amount = 3 },
+                    new() { RecipeId = 3, ItemVNum = Material, Amount = 5 }
+                });
+        }
+
+        [TestMethod]
+        public async Task UsingAScrollListsItsRecipesInTheScrollWindow()
+        {
+            await new Spec("Using a production scroll lists what it makes, then opens the scroll's production window")
+                .WhenAsync(TheScrollIsUsed)
+                .Then(TheScrollRecipeListShouldBeSentBeforeTheWindow)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AScrollRecipeShowsItsMaterialsWhileTheScrollIsHeld()
+        {
+            await new Spec("pdtse 1 answers for a scroll recipe when the character holds the scroll")
+                .Given(TheCharacterHoldsTheScroll)
+                .WhenAsync(TheScrollRecipeIsShown)
+                .Then(TheScrollMaterialsShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ProducingFromAScrollNeedsNoNpc()
+        {
+            await new Spec("A scroll recipe is produced anywhere, taking the materials and keeping the scroll")
+                .Given(TheCharacterHoldsTheScroll)
+                .And(TheCharacterHas_Materials, (short)4)
+                .WhenAsync(TheScrollItemIsProduced)
+                .Then(TheCharacterShouldHave_Materials, 1)
+                .And(TheCharacterShouldHave_ScrollProducts, 1)
+                .And(TheCharacterShouldStillHoldTheScroll)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AScrollRecipeIsRefusedWithoutTheScroll()
+        {
+            await new Spec("Without the scroll in the inventory its recipes cannot be produced")
+                .Given(TheCharacterHas_Materials, (short)4)
+                .WhenAsync(TheScrollItemIsProduced)
+                .Then(TheCharacterShouldHave_Materials, 4)
+                .And(TheCharacterShouldHave_ScrollProducts, 0)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -149,6 +205,40 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private void TheCharacterHas_Materials(short amount) =>
             _materialStack = _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(_itemProvider.Create(Material, amount), _session.Character.CharacterId))![0];
+
+        private void TheCharacterHoldsTheScroll() =>
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_itemProvider.Create(Scroll, 1), _session.Character.CharacterId));
+
+        private Task TheScrollIsUsed() => _service.OpenScrollAsync(_session, Scroll);
+
+        private Task TheScrollRecipeIsShown() => _service.ShowRecipeAsync(_session, ScrollProduct);
+
+        private Task TheScrollItemIsProduced() => _service.ProduceAsync(_session, ScrollProduct);
+
+        private void TheScrollRecipeListShouldBeSentBeforeTheWindow()
+        {
+            var list = _session.LastPackets.OfType<MlistPacket>().Single();
+            CollectionAssert.AreEqual(new List<short> { ScrollProduct }, list.ItemVNums);
+            var wopen = _session.LastPackets.OfType<WopenPacket>().Single();
+            Assert.AreEqual(WindowType.Production2, wopen.Type);
+            var packets = _session.LastPackets.ToList();
+            Assert.IsTrue(packets.IndexOf(list) < packets.IndexOf(wopen));
+        }
+
+        private void TheScrollMaterialsShouldBeSent()
+        {
+            var materials = _session.LastPackets.OfType<MlistMaterialsPacket>().Single();
+            Assert.AreEqual(1, materials.Amount);
+            Assert.AreEqual(Material, materials.Materials.Single().VNum);
+            Assert.AreEqual(3, materials.Materials.Single().Amount);
+        }
+
+        private void TheCharacterShouldHave_ScrollProducts(int amount) =>
+            Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(ScrollProduct));
+
+        private void TheCharacterShouldStillHoldTheScroll() =>
+            Assert.AreEqual(1, _session.Character.InventoryService.CountItem(Scroll));
 
         private Task TheProductionWindowIsOpened() =>
             _service.OpenAsync(_session, _session.Character.MapInstance.GetNpcById(NpcId)!.Value);

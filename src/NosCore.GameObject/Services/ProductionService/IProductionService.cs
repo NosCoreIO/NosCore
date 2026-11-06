@@ -14,6 +14,8 @@ namespace NosCore.GameObject.Services.ProductionService
     {
         Task OpenAsync(ClientSession session, NpcComponentBundle npc);
 
+        Task OpenScrollAsync(ClientSession session, short scrollVNum);
+
         Task ShowRecipeAsync(ClientSession session, short itemVNum);
 
         Task ProduceAsync(ClientSession session, short itemVNum);

@@ -10,6 +10,7 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
@@ -50,8 +51,11 @@ namespace NosCore.Parser.Tests
             var mapNpcDao = new Mock<IDao<MapNpcDto, int>>();
             mapNpcDao.Setup(x => x.LoadAll()).Returns(new List<MapNpcDto> { new() { MapNpcId = 1897 }, new() { MapNpcId = 1895 } });
             var itemDao = new Mock<IDao<ItemDto, short>>();
-            itemDao.Setup(x => x.LoadAll()).Returns(new short[] { 1002, 1003, 2029, 2097, 2102, 2131 }
-                .Select(v => new ItemDto { VNum = v }).ToList());
+            itemDao.Setup(x => x.LoadAll()).Returns(new short[] { 1002, 1003, 2029, 2097, 2102, 2131, 1246 }
+                .Select(v => new ItemDto { VNum = v })
+                .Append(new ItemDto { VNum = 1241, ItemType = ItemType.Production, Effect = ItemEffectType.OpenProduction })
+                .Append(new ItemDto { VNum = 2024, ItemType = ItemType.Potion })
+                .ToList());
 
             _parser = new RecipeParser(_recipeDao.Object, _recipeItemDao.Object, mapNpcDao.Object, itemDao.Object,
                 new Mock<ILogger<RecipeParser>>().Object, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
@@ -115,6 +119,66 @@ namespace NosCore.Parser.Tests
                 "m_list 3 1 2097 5 -1"));
 
             Assert.AreEqual(1002, _savedRecipes.Single().ItemVNum);
+        }
+
+        [TestMethod]
+        public async Task AScrollRecipeIsTakenFromTheScrollUsedInTheMainPocket()
+        {
+            await _parser.InsertRecipesAsync(Packets(
+                "inv 1 0.2024.3 5.1241.1",
+                "u_i 1 610505 1 5 0 0",
+                "m_list 2 1246 -100",
+                "pdtse 1 1246",
+                "m_list 3 1 1241 1 2029 5 2097 5 -1"));
+
+            var recipe = _savedRecipes.Single();
+            Assert.AreEqual((short)1241, recipe.ScrollVNum);
+            Assert.IsNull(recipe.MapNpcId);
+            Assert.AreEqual(1246, recipe.ItemVNum);
+            CollectionAssert.AreEqual(new short[] { 1241, 2029, 2097 }, _savedItems.Select(s => s.ItemVNum).ToList());
+        }
+
+        [TestMethod]
+        public async Task UsingAnItemThatIsNotAScrollListsNothing()
+        {
+            await _parser.InsertRecipesAsync(Packets(
+                "inv 1 0.2024.3 5.1241.1",
+                "u_i 1 610505 1 0 0 0",
+                "m_list 2 1246 -100",
+                "pdtse 1 1246",
+                "m_list 3 1 2029 5 -1"));
+
+            Assert.AreEqual(0, _savedRecipes.Count);
+        }
+
+        [TestMethod]
+        public async Task AScrollMovedIntoASlotIsFollowed()
+        {
+            await _parser.InsertRecipesAsync(Packets(
+                "inv 1 0.2024.3",
+                "ivn 1 7.1241.1.0",
+                "u_i 1 610505 1 7 0 0",
+                "m_list 2 1246 -100",
+                "pdtse 1 1246",
+                "m_list 3 1 2029 5 -1"));
+
+            Assert.AreEqual((short)1241, _savedRecipes.Single().ScrollVNum);
+        }
+
+        [TestMethod]
+        public async Task AnNpcRecipeIsNotCreditedToAScrollUsedEarlier()
+        {
+            await _parser.InsertRecipesAsync(Packets(
+                "inv 1 5.1241.1",
+                "u_i 1 610505 1 5 0 0",
+                "n_run 14 17 2 1897",
+                "m_list 2 1002 -100",
+                "pdtse 1 1002",
+                "m_list 3 10 2029 10 -1"));
+
+            var recipe = _savedRecipes.Single();
+            Assert.AreEqual(1897, recipe.MapNpcId);
+            Assert.IsNull(recipe.ScrollVNum);
         }
     }
 }

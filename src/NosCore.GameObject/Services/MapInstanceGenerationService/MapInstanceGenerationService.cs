@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 .ToDictionary(group => group.Key, group => group.ToList());
 
             var recipeItems = recipeItemDtos.GroupBy(s => s.RecipeId).ToDictionary(s => s.Key, s => s.ToList());
-            var recipes = recipeDtos.GroupBy(s => s.MapNpcId).ToDictionary(s => s.Key, s => (IReadOnlyList<Recipe>)s.Select(r =>
+            var recipes = recipeDtos.Where(s => s.MapNpcId != null).GroupBy(s => s.MapNpcId!.Value).ToDictionary(s => s.Key, s => (IReadOnlyList<Recipe>)s.Select(r =>
             {
                 var recipe = r.Adapt<Recipe>();
                 recipe.Items = recipeItems.TryGetValue(r.RecipeId, out var items) ? items : new List<RecipeItemDto>();

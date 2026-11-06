@@ -16,6 +16,7 @@ namespace NosCore.Data.Enumerations.Items
         Speaker = 15,
         MarriageProposal = 34,
         MateCapture = 100,
+        OpenProduction = 100,
         Undefined = 69,
         MedalOfHonour = 69,
         SpCharger = 71,
