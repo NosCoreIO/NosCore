@@ -478,6 +478,17 @@ Accessory and a Cellon (`$CreateItem 1017 20` gives twenty level 1 cellons) into
 - [ ] An accessory already holding its maximum number of options: "You cannot add any more
       options.", nothing is charged and the cellon stack is unchanged
 
+### Cellon options on a worn accessory
+
+Add an HP and an MP option to a necklace, ring or bracelet, then wear it.
+
+- [ ] Wearing it raises the maximum HP and MP by the options' values; taking it off lowers them again
+- [ ] Sitting with an HP or MP recovery option, each tick refills that many more points than without it
+- [ ] With a critical damage decrease option, a monster's critical hit takes that percentage off its
+      critical bonus
+- [ ] With an MP consumption option, every skill costs that percentage less MP
+- [ ] The same jewel left in the bag changes nothing
+
 ---
 
 ## Chat
@@ -632,7 +643,5 @@ Recorded so nobody spends time hunting for them:
 - **Family commands on a non-English client** — each client language types its own word
   for the family commands (`%Invitationdefamille`, `%Familieneinladung`, `%Caccia` and so
   on). The cloud client is English only, so only the unit tests cover the other words.
-- **Cellon options in the item tooltip and on the character** — options are stored, but the
-  server sends no `e_info` for accessories and nothing applies the options to stats yet.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.

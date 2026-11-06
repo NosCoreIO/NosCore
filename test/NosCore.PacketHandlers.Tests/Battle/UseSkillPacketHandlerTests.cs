@@ -10,6 +10,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.PacketHandlers.Battle;
 using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Packets.ServerPackets.Battle;
@@ -40,14 +41,18 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
             BattleService = new Mock<IBattleService>();
+            Gear.Setup(g => g.Resolve(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>())).Returns(EquipmentStats.None);
 
             Handler = new UseSkillPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 BattleService.Object,
                 TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.Clock);
+                TestHelpers.Instance.Clock,
+                Gear.Object);
         }
+
+        private readonly Mock<IEquipmentStatsService> Gear = new();
 
         [TestMethod]
         public async Task UsingSkillWhenVehicledShouldSendCancelPacket()
@@ -132,6 +137,25 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(LastUseShouldBeWhenHitFinished)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AWornMpConsumptionDecreaseLowersTheCost()
+        {
+            await new Spec("A 20% MP consumption decrease on the gear makes a 15 MP skill cost 12")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
+                .And(CharacterHasMp_, 50)
+                .And(GearDecreasesMpConsumptionBy_, 20)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterMpShouldBe_, 38)
+                .ExecuteAsync();
+        }
+
+        private void GearDecreasesMpConsumptionBy_(int percent) =>
+            Gear.Setup(g => g.Resolve(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>()))
+                .Returns(EquipmentStats.None with { MpConsumptionDecrease = percent });
 
         [TestMethod]
         public async Task UsingKnownSkillOnCooldownSendsCancelAndSkipsBattleService()

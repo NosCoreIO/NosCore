@@ -122,6 +122,8 @@ public sealed class CellonOperation(
         if (rolled is not null)
         {
             await equipmentOptionDao.TryInsertOrUpdateAsync(rolled);
+            // Dropped rather than appended to: combat may be reading the list being replaced.
+            ((WearableInstance)ctx.Source.ItemInstance!).EquipmentOptions = null;
         }
     }
 

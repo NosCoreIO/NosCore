@@ -49,7 +49,9 @@ public readonly record struct EquipmentStats(
     // Kept apart from ElementRate the way CombatStats keeps it, so it can be shown on its own.
     int SpecialistElementRate = 0,
     // The worn fairy's element is the one a character attacks with.
-    ElementType Element = ElementType.Neutral)
+    ElementType Element = ElementType.Neutral,
+    // Percentage taken off every skill's MP cost.
+    int MpConsumptionDecrease = 0)
 {
     public static EquipmentStats None => new() { BCards = System.Array.Empty<BCardDto>() };
 }

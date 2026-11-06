@@ -101,6 +101,26 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(result.Damage >= 150, $"expected ≥150, got {result.Damage}");
         }
 
+        // A defender's critical damage decrease shrinks the critical bonus, not the whole hit.
+        [TestMethod]
+        public void ADefendersCriticalDamageDecreaseShrinksTheCriticalBonus()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 100, CriticalRate = 200,
+            };
+
+            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var halved = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.0 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default() with { CriticalDamageReceived = -50 }, MeleeSkill);
+
+            var baseDamage = full.Damage / 3;
+            Assert.AreEqual(SuPacketHitMode.CriticalAttack, halved.HitMode);
+            Assert.AreEqual(baseDamage * 2, halved.Damage);
+        }
+
         [TestMethod]
         public void MoraleAddsFlatDamage()
         {

@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
@@ -22,6 +24,8 @@ namespace NosCore.GameObject.Services.BattleService;
 public sealed class RegenerationService(
     ISessionRegistry sessionRegistry,
     IClock clock,
+    EquipmentService.IEquipmentStatsService equipmentStatsService,
+    IBuffService buffService,
     ILogger<RegenerationService> logger) : IRegenerationService, ISingletonService
 {
     private static readonly Duration SittingInterval = Duration.FromMilliseconds(1500);
@@ -45,6 +49,26 @@ public sealed class RegenerationService(
             : level <= 60 ? 30
             : 20;
         return restingRate * percent / 100;
+    }
+
+    // Flat points added to each regeneration tick, sitting or standing alike.
+    private (int Hp, int Mp) RecoveryBonus(ICharacterEntity character)
+    {
+        int hp = 0, mp = 0;
+        var cards = equipmentStatsService.Resolve(character).BCards
+            .Concat(buffService.GetActiveBuffs(character).SelectMany(b => b.BCards));
+        foreach (var card in cards)
+        {
+            switch (card.Effect())
+            {
+                case BCardEffect.RecoveryHpRecoveryIncreased: hp += BattleStatsProvider.ScaleByLevel(card, character.Level); break;
+                case BCardEffect.RecoveryHpRecoveryDecreased: hp -= BattleStatsProvider.ScaleByLevel(card, character.Level); break;
+                case BCardEffect.RecoveryMpRecoveryIncreased: mp += BattleStatsProvider.ScaleByLevel(card, character.Level); break;
+                case BCardEffect.RecoveryMpRecoveryDecreased: mp -= BattleStatsProvider.ScaleByLevel(card, character.Level); break;
+            }
+        }
+
+        return (hp, mp);
     }
 
     private readonly ConcurrentDictionary<long, Instant> _lastRegen = new();
@@ -95,6 +119,10 @@ public sealed class RegenerationService(
                 }
 
                 _lastRegen[character.CharacterId] = now;
+
+                var (hpBonus, mpBonus) = RecoveryBonus(character);
+                hpRate += hpBonus;
+                mpRate += mpBonus;
 
                 var changed = false;
                 if (character.Hp < character.MaxHp && hpRate > 0)

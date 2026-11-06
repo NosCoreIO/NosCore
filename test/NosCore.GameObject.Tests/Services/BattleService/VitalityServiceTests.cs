@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -11,6 +12,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
@@ -82,7 +85,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
 
             _service = new VitalityService(new HpService(), new MpService(),
-                new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects)),
+                new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects),
+                    new Mock<IDao<EquipmentOptionDto, Guid>>().Object),
                 buffs.Object);
         }
 
