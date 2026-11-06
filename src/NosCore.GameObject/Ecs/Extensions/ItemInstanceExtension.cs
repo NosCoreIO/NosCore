@@ -34,7 +34,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 RareAmount =
                     type != PocketType.Equipment ? itemInstance.Amount
                         : itemInstance.Rare,
-                UpgradeDesign = itemInstance.Upgrade
+                UpgradeDesign = itemInstance.Upgrade,
+                SecondUpgrade = itemInstance is SpecialistInstance specialist ? specialist.SpStoneUpgrade : (byte)0
             };
         }
 
