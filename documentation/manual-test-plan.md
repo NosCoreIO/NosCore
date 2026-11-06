@@ -620,7 +620,5 @@ Recorded so nobody spends time hunting for them:
 - **Family commands on a non-English client** — each client language types its own word
   for the family commands (`%Invitationdefamille`, `%Familieneinladung`, `%Caccia` and so
   on). The cloud client is English only, so only the unit tests cover the other words.
-- **Cellon options in the item tooltip and on the character** — options are stored, but the
-  server sends no `e_info` for accessories and nothing applies the options to stats yet.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.
