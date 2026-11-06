@@ -399,6 +399,20 @@ partner out plus one of each at home, one of them above your level.
       Miniland." in the centre and in chat, and it is standing in the Miniland next time
 - [ ] Target a NosMate: its level shows on the target bar instead of 0
 
+#### Partner equipment
+
+Partner weapons and armour are their own items (weapon sub-type 12, armour sub-type 4); any
+gloves and boots fit.
+
+- [ ] Character window, partner tab: drag a partner weapon onto the partner. It leaves the
+      Equipment bag and shows in the partner's weapon slot
+- [ ] Drag a second partner armour onto the same partner: the first one comes back to the bag
+- [ ] Drag your own weapon, or gear above the partner's level, onto the partner: "The partner
+      cannot use this equipment." and nothing moves
+- [ ] Take a piece off the partner: it is back in the Equipment bag; with a full bag it stays on
+      and the bag-full message shows
+- [ ] Log out and back in: the partner still wears its gear
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.

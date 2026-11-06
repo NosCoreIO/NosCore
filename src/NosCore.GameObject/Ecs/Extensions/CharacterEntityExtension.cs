@@ -174,6 +174,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                         break;
 
                     case NoscorePocketType.Wear:
+                    case NoscorePocketType.FirstPartnerInventory:
+                    case NoscorePocketType.SecondPartnerInventory:
+                    case NoscorePocketType.ThirdPartnerInventory:
                         break;
                     default:
                         logger.LogInformation(

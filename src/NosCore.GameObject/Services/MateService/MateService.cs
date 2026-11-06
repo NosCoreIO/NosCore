@@ -95,11 +95,11 @@ namespace NosCore.GameObject.Services.MateService
         }
 
         public static IEnumerable<NosCore.Packets.Interfaces.IPacket> GenerateScPackets(
-            IEnumerable<Mate> mates, RegionType language)
+            IEnumerable<Mate> mates, RegionType language, InventoryService.IInventoryService inventory)
         {
             return mates.Select(mate => mate.MateType == MateType.Pet
                 ? (NosCore.Packets.Interfaces.IPacket)mate.GenerateScp(language)
-                : mate.GenerateScn(language));
+                : mate.GenerateScn(language, inventory));
         }
     }
 }

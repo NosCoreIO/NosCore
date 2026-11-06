@@ -31,7 +31,8 @@ namespace NosCore.GameObject.Services.InventoryService
                 NoscorePocketType.Miniland => 50 + Expensions[pocket],
                 NoscorePocketType.Specialist => 45 + Expensions[pocket],
                 NoscorePocketType.Costume => 60 + Expensions[pocket],
-                NoscorePocketType.Wear => 17,
+                NoscorePocketType.Wear or NoscorePocketType.FirstPartnerInventory
+                    or NoscorePocketType.SecondPartnerInventory or NoscorePocketType.ThirdPartnerInventory => 17,
                 NoscorePocketType.Mount => 20 + Expensions[pocket],
                 NoscorePocketType.Raid => 63 + Expensions[pocket],
                 _ => configuration.Value.BackpackSize + Expensions[pocket]
@@ -49,6 +50,9 @@ namespace NosCore.GameObject.Services.InventoryService
             { NoscorePocketType.Wear, 0 },
             { NoscorePocketType.Mount, 0 },
             { NoscorePocketType.Raid, 0 },
+            { NoscorePocketType.FirstPartnerInventory, 0 },
+            { NoscorePocketType.SecondPartnerInventory, 0 },
+            { NoscorePocketType.ThirdPartnerInventory, 0 },
         };
 
         public InventoryItemInstance? LoadBySlotAndType(short slot, NoscorePocketType type)
@@ -256,7 +260,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             if (sourceInstance.ItemInstance is WearableInstance && (targetType != NoscorePocketType.Equipment) &&
-                (targetType != NoscorePocketType.Costume) && (targetType != NoscorePocketType.Wear))
+                (targetType != NoscorePocketType.Costume) && !IsWorn(targetType))
             {
                 var e = new InvalidOperationException("WearableInstance can't be move to this inventory");
                 logger.LogError(e.Message, e);
@@ -264,7 +268,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             if (sourceInstance.ItemInstance is SpecialistInstance && (targetType != NoscorePocketType.Equipment) &&
-                (targetType != NoscorePocketType.Specialist) && (targetType != NoscorePocketType.Wear))
+                (targetType != NoscorePocketType.Specialist) && !IsWorn(targetType))
             {
                 var e = new InvalidOperationException("SpecialistInstance can't be move to this inventory");
                 logger.LogError(e.Message, e);
@@ -302,12 +306,12 @@ namespace NosCore.GameObject.Services.InventoryService
 
             // check for free target slot
             short? nextFreeSlot;
-            if (targetType == NoscorePocketType.Wear)
+            if (IsWorn(targetType))
             {
                 nextFreeSlot =
                     LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
                         ? (short)sourceInstance.ItemInstance.Item.EquipmentSlot
-                        : (short)-1;
+                        : null;
             }
             else
             {
@@ -326,6 +330,10 @@ namespace NosCore.GameObject.Services.InventoryService
 
             return sourceInstance;
         }
+
+        private static bool IsWorn(NoscorePocketType type) => type is NoscorePocketType.Wear
+            or NoscorePocketType.FirstPartnerInventory or NoscorePocketType.SecondPartnerInventory
+            or NoscorePocketType.ThirdPartnerInventory;
 
         public bool TryMoveItem(NoscorePocketType sourcetype, short sourceSlot, short amount, short destinationSlot,
             out InventoryItemInstance? sourcePocket, out InventoryItemInstance? destinationPocket)
