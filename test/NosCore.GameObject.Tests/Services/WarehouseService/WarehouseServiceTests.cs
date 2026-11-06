@@ -127,6 +127,21 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AnItemInstanceThatIsAlreadySavedIsStoredAsItIs()
+        {
+            var saved = await ItemInstanceDao.TryInsertOrUpdateAsync(
+                new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = 3 });
+
+            Assert.IsTrue(await Service.DepositItemAsync(1, WarehouseType.FamilyWareHouse,
+                new ItemInstanceDto { Id = saved!.Id, ItemVNum = 1012, Amount = 3 }, 4));
+
+            var link = (await Service.GetItemsAsync(null, 1, WarehouseType.FamilyWareHouse, null)).Single();
+            Assert.AreEqual(saved.Id, link.ItemInstance!.Id);
+            Assert.AreEqual((await Service.GetWarehouseItemsAsync(1, WarehouseType.FamilyWareHouse)).Single().Id,
+                link.WarehouseItemId);
+        }
+
         private bool DepositResult;
         private bool WithdrawResult;
         private bool MoveResult;
