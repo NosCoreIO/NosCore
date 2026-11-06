@@ -384,6 +384,25 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from
       it shows the client's "Trade failed because shop owner has too much money." and no gold moves
 
+### Cuarry Bank
+
+The packet trace has no Cuarry Bank Representative on any map yet; for a test, add a `MapNpc` row with
+VNum 2692 and Dialog 535 next to the character.
+
+- [ ] Talk to the Cuarry Bank Representative and pick "Use Bank Facilities": the Bank window opens
+      with the credit rating and fee of the character's reputation (Red Elite: "Gold 1", "Fee 66,000"),
+      the gold in custody and the gold carried
+- [ ] Deposit 1500: the question reads "Do you want to deposit 1500,000 Gold?"; Confirm moves
+      1 500 000 gold from "Gold in possession" to "Gold in custody" and the log shows "You deposit"
+      and "Balance" lines; Cancel moves nothing
+- [ ] Withdraw 500: the question quotes the fee; Confirm adds 500 000 minus the fee to the gold
+      carried and logs "You withdraw ... (Fee: ...)"
+- [ ] Withdraw with less gold carried than the fee: "You don't have enough Gold to pay the fee." and
+      nothing moves; withdrawing past the gold cap: "You have exceeded the amount of Gold you may carry."
+- [ ] With a private shop open, "Use Bank Facilities" answers "You cannot use the bank services while
+      you have a private shop open."
+- [ ] Log out and back in: both balances are kept
+
 ### NosBazaar search
 
 - [ ] List a weapon, an armour, a hat, a ring, a potion and a snack from one character, then

@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Options;
+using NosCore.Algorithm.BankService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Data.Enumerations.I18N;
@@ -35,6 +36,7 @@ using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Bank;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
@@ -368,6 +370,19 @@ public static class PlayerBundleExtensions
     public static GoldPacket GenerateGold(this PlayerComponentBundle player)
     {
         return new GoldPacket { Gold = player.Gold };
+    }
+
+    public static GbPacket GenerateGb(this PlayerComponentBundle player, BankActionType type, IBankService bankService)
+    {
+        var reputation = ReputationLevels.FromReputation(player.Reputation);
+        return new GbPacket
+        {
+            Type = type,
+            GoldBank = player.BankGold / 1000,
+            Gold = (int)player.Gold,
+            BankRank = bankService.GetRank(reputation),
+            BankTax = (int)bankService.GetWithdrawalFee(reputation)
+        };
     }
 
     public static LevPacket GenerateLev(this PlayerComponentBundle player,
