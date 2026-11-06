@@ -34,7 +34,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 RareAmount =
                     type != PocketType.Equipment ? itemInstance.Amount
                         : itemInstance.Rare,
-                UpgradeDesign = itemInstance.Upgrade
+                UpgradeDesign = itemInstance.Upgrade,
+                SecondUpgrade = itemInstance is SpecialistInstance specialist ? specialist.SpStoneUpgrade : (byte)0
             };
         }
 
@@ -56,15 +57,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = type,
                 IvnSubPackets = new List<IvnSubPacket>
                 {
-                    new()
-                    {
-                        Slot = slot,
-                        VNum = itemInstance.ItemInstance.ItemVNum,
-                        RareAmount =
-                            itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
-                                : itemInstance.ItemInstance.Rare,
-                        UpgradeDesign = itemInstance.ItemInstance.Upgrade
-                    }
+                    itemInstance.ItemInstance.GenerateIvnSubPacket((PocketType)itemInstance.Type, slot)
                 }
             };
         }

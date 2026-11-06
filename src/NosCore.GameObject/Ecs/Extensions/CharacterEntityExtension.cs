@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                         {
                             if (inv.ItemInstance is SpecialistInstance specialistInstance)
                             {
-                                inv7.IvnSubPackets.Add(new IvnSubPacket
+                                inv0.IvnSubPackets.Add(new IvnSubPacket
                                 {
                                     Slot = inv.Slot,
                                     VNum = inv.ItemInstance.ItemVNum,
