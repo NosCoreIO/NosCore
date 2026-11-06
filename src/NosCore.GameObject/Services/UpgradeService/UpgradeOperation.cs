@@ -91,7 +91,11 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
         await EmitOutcomeEffectsAsync(session, ctx, outcome, packets).ConfigureAwait(false);
 
-        packets.Add(BuildSay(session, ctx, outcome, SayMessageFor(outcome)));
+        if (BuildSay(session, ctx, outcome, SayMessageFor(outcome)) is { } say)
+        {
+            packets.Add(say);
+        }
+
         packets.Add(BuildMsgi(ctx, outcome, MsgMessageFor(outcome)));
         packets.Add(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
         packets.AddRange(BuildPocketRefresh(ctx, outcome));
@@ -222,7 +226,7 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     protected int Roll(int exclusiveUpperBound) =>
         Math.Min((int)(random.NextDouble() * exclusiveUpperBound), exclusiveUpperBound - 1);
 
-    protected virtual SayiPacket BuildSay(ClientSession session, UpgradeContext ctx,
+    protected virtual SayiPacket? BuildSay(ClientSession session, UpgradeContext ctx,
         UpgradeOutcome outcome, Game18NConstString message) => new()
     {
         VisualType = VisualType.Player,

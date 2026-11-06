@@ -230,6 +230,17 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Reset again with nothing spent: the client says the card was already reset and the
       potion stays; reset without a potion: the matching message appears
 
+### Specialist card perfection
+
+- [ ] Put a specialist card in the bag with its perfection stones (a Warrior card takes Small
+      Rubies of Completion), open an Alchemist's shop, press the SP Perfection button and drag
+      the card in: the window asks 5 000 gold and 1 piece
+- [ ] Press Upgrade: on success "Perfecting the SP successful: +1 (...)" names the stat that
+      went up, and the gold and one stone are gone
+- [ ] On a failure "Perfecting the SP failed" appears and the gold and stone are still spent
+- [ ] With a card at perfection 20 the window asks 10 000 gold and 2 pieces
+- [ ] Without the card's own stone, "Not enough ingredients" appears and nothing is spent
+
 ### Soul Revival Stone
 
 - [ ] With a specialist card whose soul was destroyed in the bag, double-click a Soul Revival
