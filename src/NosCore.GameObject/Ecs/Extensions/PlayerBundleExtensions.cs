@@ -80,7 +80,7 @@ public static class PlayerBundleExtensions
 
     public static IEnumerable<IPacket> GenerateMateRoster(this PlayerComponentBundle player) =>
         new IPacket[] { new PclearPacket() }
-            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage));
+            .Concat(MateService.GenerateScPackets(player.Mates.Values, player.AccountLanguage, player.InventoryService));
 
     public static Task RestAsync(this PlayerComponentBundle player)
     {

@@ -19,11 +19,19 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Inventory
 {
     public class RemovePacketHandler(NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
-            NosCore.GameObject.Services.BattleService.IBattleStatsProvider battleStatsProvider)
+            NosCore.GameObject.Services.BattleService.IBattleStatsProvider battleStatsProvider,
+            NosCore.GameObject.Services.MateService.IPartnerEquipmentService partnerEquipmentService)
         : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
         {
+            if (removePacket.Type != 0)
+            {
+                await partnerEquipmentService.RemoveAsync(clientSession.Character, removePacket.InventorySlot,
+                    removePacket.Type);
+                return;
+            }
+
             if (clientSession.Character.InExchangeOrShop)
             {
                 return;
