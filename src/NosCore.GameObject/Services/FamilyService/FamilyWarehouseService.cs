@@ -58,7 +58,8 @@ namespace NosCore.GameObject.Services.FamilyService
             }
 
             var source = session.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)pocket);
-            if (source?.ItemInstance == null || amount <= 0 || amount > source.ItemInstance.Amount
+            if (source?.ItemInstance == null || !source.ItemInstance.Item.IsTradable || source.ItemInstance.BoundCharacterId != null
+                || amount <= 0 || amount > source.ItemInstance.Amount
                 || warehouseSlot < 0 || warehouseSlot >= family.WarehouseSize
                 || (await GetItemsAsync(family.FamilyId)).Any(s => s.Slot == warehouseSlot))
             {
@@ -112,6 +113,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            var whole = amount == stored.Item.Amount;
+            if (whole && !await warehouseHub.DeleteWarehouseItemAsync(stored.LinkId))
+            {
+                return;
+            }
+
             var taken = (IItemInstance)stored.Item.Clone();
             taken.Id = Guid.NewGuid();
             taken.Amount = amount;
@@ -119,16 +126,17 @@ namespace NosCore.GameObject.Services.FamilyService
                 InventoryItemInstance.Create(taken, session.Character.CharacterId));
             if (added == null || added.Count == 0)
             {
+                if (whole)
+                {
+                    await RestoreAsync(family.FamilyId, stored.Item, warehouseSlot);
+                }
+
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
                 return;
             }
 
             IItemInstance? left = null;
-            if (amount == stored.Item.Amount)
-            {
-                await warehouseHub.DeleteWarehouseItemAsync(stored.LinkId);
-            }
-            else
+            if (!whole)
             {
                 stored.Item.Amount -= amount;
                 await itemInstanceDao.TryInsertOrUpdateAsync(stored.Item);
@@ -197,6 +205,18 @@ namespace NosCore.GameObject.Services.FamilyService
             {
                 await warehouseHub.DeleteWarehouseItemAsync(link.WarehouseItemId);
             }
+        }
+
+        private async Task RestoreAsync(long familyId, IItemInstance item, short slot)
+        {
+            await itemInstanceDao.TryInsertOrUpdateAsync(item);
+            await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
+            {
+                OwnerId = familyId,
+                WarehouseType = WarehouseType.FamilyWareHouse,
+                ItemInstance = item.Adapt<ItemInstanceDto>(),
+                Slot = slot
+            });
         }
 
         private static bool CanPut(ClientSession session, Family family) => family.AuthorityOf(session.Character.CharacterId) switch

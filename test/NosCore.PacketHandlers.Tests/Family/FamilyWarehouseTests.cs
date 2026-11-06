@@ -4,18 +4,22 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Miniland;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Warehouse;
 using NosCore.Packets.ClientPackets.Warehouse;
 using NosCore.Packets.Enumerations;
@@ -39,13 +43,19 @@ namespace NosCore.PacketHandlers.Tests.Family
         private IItemGenerationService _items = null!;
         private readonly Dictionary<Guid, IItemInstanceDto> _instances = new();
         private readonly List<(Guid Id, short Slot, Guid ItemInstanceId)> _stored = new();
+        private bool _takenElsewhere;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _items = TestHelpers.Instance.GenerateItemProvider();
+            _items = new ItemGenerationService(new List<ItemDto>
+            {
+                new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
+                new Item { Type = NoscorePocketType.Main, VNum = 1013 },
+                new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon, IsTradable = true }
+            }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             JoinFamily(FamilyAuthority.Head, 21);
         }
 
@@ -82,7 +92,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                     return true;
                 });
             hub.Setup(s => s.DeleteWarehouseItemAsync(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid id) => _stored.RemoveAll(s => s.Id == id) == 1);
+                .ReturnsAsync((Guid id) => !_takenElsewhere && _stored.RemoveAll(s => s.Id == id) == 1);
             hub.Setup(s => s.MoveWarehouseItemAsync(FamilyId, WarehouseType.FamilyWareHouse, It.IsAny<short>(), It.IsAny<short>()))
                 .ReturnsAsync((long _, WarehouseType _, short from, short to) =>
                 {
@@ -226,6 +236,60 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(0, _stored.Count);
             Assert.AreEqual(5, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task AnUntradableItemCannotBeDeposited()
+        {
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_items.Create(1013, 10), _session.Character.CharacterId));
+
+            await new FDepositPacketHandler(Service()).ExecuteAsync(
+                new FDepositPacket { Inventory = PocketType.Main, Slot = 0, Amount = 10, NewSlot = 0 }, _session);
+
+            Assert.AreEqual(0, _stored.Count);
+            Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1013));
+        }
+
+        [TestMethod]
+        public async Task ABoundItemCannotBeDeposited()
+        {
+            var weapon = _items.Create(1, 1);
+            weapon.BoundCharacterId = _session.Character.CharacterId;
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(weapon, _session.Character.CharacterId));
+
+            await new FDepositPacketHandler(Service()).ExecuteAsync(
+                new FDepositPacket { Inventory = PocketType.Equipment, Slot = 0, Amount = 1, NewSlot = 0 }, _session);
+
+            Assert.AreEqual(0, _stored.Count);
+        }
+
+        [TestMethod]
+        public async Task AStackAlreadyTakenFromAnotherSessionIsNotGivenTwice()
+        {
+            Store(1012, 5, 3);
+            _takenElsewhere = true;
+
+            await new FWithdrawPacketHandler(Service()).ExecuteAsync(new FWithdrawPacket { Slot = 3, Amount = 5 }, _session);
+
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
+        }
+
+        [TestMethod]
+        public async Task WithdrawingIntoAFullInventoryKeepsTheItemInTheWarehouse()
+        {
+            while (_session.Character.InventoryService.AddItemToPocket(
+                       InventoryItemInstance.Create(_items.Create(1013, 999), _session.Character.CharacterId)) is { Count: > 0 })
+            {
+            }
+
+            Store(1012, 5, 3);
+
+            await new FWithdrawPacketHandler(Service()).ExecuteAsync(new FWithdrawPacket { Slot = 3, Amount = 5 }, _session);
+
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
+            Assert.AreEqual(5, At(3).Amount);
+            Assert.AreEqual(Game18NConstString.NotEnoughSpace, _session.LastPackets.OfType<MsgiPacket>().Last().Message);
         }
 
         [TestMethod]
