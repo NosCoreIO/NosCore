@@ -175,6 +175,16 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Try a +5 card below job level 41, or with too few feathers: the matching message
       appears and nothing is spent
 
+### Soul Revival Stone
+
+- [ ] With a specialist card whose soul was destroyed in the bag, double-click a Soul Revival
+      Stone (1365 or 9039) and click the card: the client asks "Would you like to use Soul
+      Revival Stone?"
+- [ ] Cancel: nothing changes. Confirm: "The soul finds a new lease of life." appears, one
+      stone is gone, the SP bar fills by 10 000 points and the card can be worn again
+- [ ] Drop the stone on a card whose soul is intact, or on any other item: nothing happens and
+      the stone stays
+
 ### Specialist wings
 
 - [ ] Without transforming, use Angel Wings (`$CreateItem 1685`): "You must first transform
