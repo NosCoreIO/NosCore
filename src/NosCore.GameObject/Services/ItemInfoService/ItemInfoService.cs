@@ -5,19 +5,33 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using NosCore.Algorithm.SpExperienceService;
+using NosCore.Algorithm.SpecialistPointService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Inventory;
 
 namespace NosCore.GameObject.Services.ItemInfoService;
 
-public sealed class ItemInfoService(IDao<EquipmentOptionDto, Guid> equipmentOptionDao) : IItemInfoService
+public sealed class ItemInfoService(
+    IDao<EquipmentOptionDto, Guid> equipmentOptionDao,
+    List<SkillDto> skills,
+    ISpExperienceService spExperienceService,
+    ISpecialistPointService specialistPointService,
+    ISpecialistCardService specialistCardService) : IItemInfoService
 {
+    private const int PyjamaSpecialistClass = 32;
+    private const int ListedSpecialistSkills = 10;
+
     private const byte AdventurerClass = 1;
     private const byte SwordsmanClass = 2;
     private const byte ArcherClass = 4;
@@ -27,6 +41,7 @@ public sealed class ItemInfoService(IDao<EquipmentOptionDto, Guid> equipmentOpti
     {
         return itemInstance switch
         {
+            SpecialistInstance specialist => GenerateSpecialistInfo(specialist),
             WearableInstance wearable => wearable.Item.EquipmentSlot switch
             {
                 EquipmentType.MainWeapon or EquipmentType.SecondaryWeapon => GenerateWeaponInfo(wearable),
@@ -130,6 +145,56 @@ public sealed class ItemInfoService(IDao<EquipmentOptionDto, Guid> equipmentOpti
             CellonOptionCount = (byte)options.Count,
             Price = jewel.Item.Price,
             CellonOptions = options,
+        };
+    }
+
+    public SlInfoPacket GenerateSpecialistInfo(SpecialistInstance specialist)
+    {
+        var item = specialist.Item;
+        var cardSkills = skills
+            .Where(s => s.Class >= PyjamaSpecialistClass && s.UpgradeType == item.Morph && s.LevelMinimum <= specialist.SpLevel)
+            .OrderBy(s => s.SkillVNum)
+            .ToList();
+        // The first skill is the card's basic attack, which the window does not list.
+        var listed = cardSkills.Skip(1)
+            .Where(s => s.SkillVNum <= cardSkills[0].SkillVNum + ListedSpecialistSkills)
+            .Take(ListedSpecialistSkills)
+            .Select(s => s.SkillVNum.ToString(CultureInfo.InvariantCulture))
+            .ToList();
+
+        return new SlInfoPacket
+        {
+            InventoryType = PocketType.Equipment,
+            ItemVnum = specialist.ItemVNum,
+            ItemMorph = item.Morph,
+            SpLevel = specialist.SpLevel,
+            LevelJobMinimum = item.LevelJobMinimum,
+            ReputationMinimum = item.ReputationMinimum,
+            SpType = item.SpType,
+            FireResistance = item.FireResistance,
+            WaterResistance = item.WaterResistance,
+            LightResistance = item.LightResistance,
+            DarkResistance = item.DarkResistance,
+            Xp = specialist.Xp ?? 0,
+            SpXpData = spExperienceService.GetSpExperience(specialist.SpLevel, isSecondarySp: false),
+            Skill = cardSkills.Count == 0 ? "-1" : string.Join('.', listed),
+            TransportId = specialist.TransportId,
+            FreeSpPoints = specialistCardService.GetFreePoints(specialist),
+            SlHit = specialistPointService.GetAttackLevel(specialist.SlDamage),
+            SlDefense = specialistPointService.GetDefenceLevel(specialist.SlDefence),
+            SlElement = specialistPointService.GetElementLevel(specialist.SlElement),
+            SlHp = specialistPointService.GetHpMpLevel(specialist.SlHp),
+            Upgrade = specialist.Upgrade,
+            IsSpDestroyed = specialist.Rare == -2,
+            SpStoneUpgrade = specialist.SpStoneUpgrade,
+            AttackPoints = specialist.SpDamage,
+            DefensePoints = specialist.SpDefence,
+            ElementPoints = specialist.SpElement,
+            HpMpPoints = specialist.SpHp,
+            SpFireResistance = specialist.SpFire,
+            SpWaterResistance = specialist.SpWater,
+            SpLightResistance = specialist.SpLight,
+            SpDarkResistance = specialist.SpDark,
         };
     }
 }

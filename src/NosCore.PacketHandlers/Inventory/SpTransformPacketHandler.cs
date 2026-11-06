@@ -10,6 +10,9 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.ItemInfoService;
+using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Specialists;
@@ -20,14 +23,16 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class SpTransformPacketHandler(IClock clock, ITransformationService transformationService)
+    public class SpTransformPacketHandler(IClock clock, ITransformationService transformationService,
+            ISpecialistCardService specialistCardService, IItemInfoService itemInfoService,
+            IBattleStatsProvider battleStatsProvider, IVitalityService vitalityService)
         : PacketHandler<SpTransformPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SpTransformPacket spTransformPacket, ClientSession clientSession)
         {
             if (spTransformPacket.Type == SlPacketType.ChangePoints)
             {
-                //TODO set points
+                await SpendPointsAsync(spTransformPacket, clientSession);
             }
             else
             {
@@ -112,6 +117,32 @@ namespace NosCore.PacketHandlers.Inventory
                     }
                 }
             }
+        }
+        private async Task SpendPointsAsync(SpTransformPacket packet, ClientSession clientSession)
+        {
+            var character = clientSession.Character;
+            if (!character.UseSp
+                || character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+                    is not SpecialistInstance specialist
+                || packet.TransportId != specialist.TransportId)
+            {
+                await clientSession.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.SpecialistCardMustBeEquipped
+                });
+                return;
+            }
+
+            if (!specialistCardService.TrySpendPoints(specialist, packet.SpecialistDamage ?? 0,
+                    packet.SpecialistDefense ?? 0, packet.SpecialistElement ?? 0, packet.SpecialistHP ?? 0))
+            {
+                return;
+            }
+
+            await vitalityService.RefreshAndNotifyAsync(character);
+            await clientSession.SendPacketAsync(itemInfoService.GenerateInfo(specialist)!);
+            await clientSession.SendPacketAsync(character.GenerateSc(battleStatsProvider));
         }
     }
 }

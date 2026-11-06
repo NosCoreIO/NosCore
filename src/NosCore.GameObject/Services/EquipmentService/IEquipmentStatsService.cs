@@ -41,8 +41,7 @@ public readonly record struct EquipmentStats(
     int WaterResistance,
     int LightResistance,
     int DarkResistance,
-    // Raise the entity's maximum rather than feeding CombatStats, and nothing consumes them
-    // yet — max HP is still class and level alone.
+    // Raise the entity's maximum rather than feeding CombatStats.
     int Hp,
     int Mp,
     IReadOnlyList<BCardDto> BCards,
@@ -51,7 +50,9 @@ public readonly record struct EquipmentStats(
     // The worn fairy's element is the one a character attacks with.
     ElementType Element = ElementType.Neutral,
     // Percentage taken off every skill's MP cost.
-    int MpConsumptionDecrease = 0)
+    int MpConsumptionDecrease = 0,
+    // Applied to the whole maximum, gear included, rather than added to it.
+    int SpecialistHpMpPercent = 0)
 {
     public static EquipmentStats None => new() { BCards = System.Array.Empty<BCardDto>() };
 }

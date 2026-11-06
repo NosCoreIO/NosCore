@@ -25,6 +25,9 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 
         public Item Item { get; set; } = null!;
 
+        // The card window sends it back when points are spent, naming the card it showed.
+        public int TransportId => Id.GetHashCode() & int.MaxValue;
+
         public object Clone()
         {
             return (SpecialistInstance)MemberwiseClone();

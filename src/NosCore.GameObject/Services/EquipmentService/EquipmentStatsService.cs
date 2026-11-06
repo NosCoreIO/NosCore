@@ -28,7 +28,8 @@ namespace NosCore.GameObject.Services.EquipmentService;
 // instance carries what upgrade and rarity changed.
 public sealed class EquipmentStatsService(
     BattleService.ICardCatalog cardCatalog,
-    IDao<EquipmentOptionDto, Guid> equipmentOptionDao)
+    IDao<EquipmentOptionDto, Guid> equipmentOptionDao,
+    SpecialistCardService.ISpecialistCardService specialistCardService)
     : IEquipmentStatsService, ISingletonService
 {
     public EquipmentStats Resolve(IAliveEntity entity)
@@ -169,14 +170,15 @@ public sealed class EquipmentStatsService(
 
     // The card adds to both the melee and the ranged profile, since a transformed character
     // attacks with the card's skills whatever the weapon.
-    private static EquipmentStats AddSpecialist(EquipmentStats stats, SpecialistInstance specialist)
+    private EquipmentStats AddSpecialist(EquipmentStats stats, SpecialistInstance specialist)
     {
         var item = specialist.Item;
-        var minHit = Sum(specialist.DamageMinimum, item?.DamageMinimum);
-        var maxHit = Sum(specialist.DamageMaximum, item?.DamageMaximum);
-        var hitRate = Sum(specialist.HitRate, item?.HitRate);
-        var criticalChance = Sum(specialist.CriticalLuckRate, item?.CriticalLuckRate);
-        var criticalRate = Sum(specialist.CriticalRate, item?.CriticalRate);
+        var points = specialistCardService.GetBonus(specialist);
+        var minHit = Sum(specialist.DamageMinimum, item?.DamageMinimum) + points.Damage;
+        var maxHit = Sum(specialist.DamageMaximum, item?.DamageMaximum) + points.Damage;
+        var hitRate = Sum(specialist.HitRate, item?.HitRate) + points.HitRate;
+        var criticalChance = Sum(specialist.CriticalLuckRate, item?.CriticalLuckRate) + points.CriticalChance;
+        var criticalRate = Sum(specialist.CriticalRate, item?.CriticalRate) + points.CriticalRate;
         return stats with
         {
             MinHit = stats.MinHit + minHit,
@@ -189,22 +191,27 @@ public sealed class EquipmentStatsService(
             DistanceRate = stats.DistanceRate + hitRate,
             DistanceCriticalChance = stats.DistanceCriticalChance + criticalChance,
             DistanceCriticalRate = stats.DistanceCriticalRate + criticalRate,
-            CloseDefence = stats.CloseDefence + Sum(specialist.CloseDefence, item?.CloseDefence),
-            DistanceDefence = stats.DistanceDefence + Sum(specialist.DistanceDefence, item?.DistanceDefence),
-            MagicDefence = stats.MagicDefence + Sum(specialist.MagicDefence, item?.MagicDefence),
-            DefenceDodge = stats.DefenceDodge + Sum(specialist.DefenceDodge, item?.DefenceDodge),
+            CloseDefence = stats.CloseDefence + Sum(specialist.CloseDefence, item?.CloseDefence) + points.Defence,
+            DistanceDefence = stats.DistanceDefence + Sum(specialist.DistanceDefence, item?.DistanceDefence)
+                + points.Defence,
+            MagicDefence = stats.MagicDefence + Sum(specialist.MagicDefence, item?.MagicDefence)
+                + points.Defence + points.MagicDefence,
+            DefenceDodge = stats.DefenceDodge + Sum(specialist.DefenceDodge, item?.DefenceDodge) + points.Dodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge
-                + Sum(specialist.DistanceDefenceDodge, item?.DistanceDefenceDodge),
+                + Sum(specialist.DistanceDefenceDodge, item?.DistanceDefenceDodge) + points.Dodge,
             FireResistance = stats.FireResistance + Sum(specialist.FireResistance, item?.FireResistance)
-                + specialist.SpFire,
+                + specialist.SpFire + points.Resistance,
             WaterResistance = stats.WaterResistance + Sum(specialist.WaterResistance, item?.WaterResistance)
-                + specialist.SpWater,
+                + specialist.SpWater + points.Resistance,
             LightResistance = stats.LightResistance + Sum(specialist.LightResistance, item?.LightResistance)
-                + specialist.SpLight,
+                + specialist.SpLight + points.Resistance,
             DarkResistance = stats.DarkResistance + Sum(specialist.DarkResistance, item?.DarkResistance)
-                + specialist.SpDark,
+                + specialist.SpDark + points.Resistance,
             SpecialistElementRate = stats.SpecialistElementRate
-                + Sum(specialist.ElementRate, item?.ElementRate) + specialist.SpElement,
+                + Sum(specialist.ElementRate, item?.ElementRate) + specialist.SpElement + points.ElementRate,
+            Hp = stats.Hp + points.Hp,
+            Mp = stats.Mp + points.Mp,
+            SpecialistHpMpPercent = points.HpMpPercent,
         };
     }
 
