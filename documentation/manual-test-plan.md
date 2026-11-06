@@ -400,6 +400,18 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] With the miniland locked, without a seed, to someone offline, or to someone blocking
       Miniland invites in their options: each gives its own message and no seed is used
 
+### Item detail window
+
+Open the inventory and right-click a piece of equipment.
+
+- [ ] A weapon opens its detail window with its damage, hit rate, critical chance and price, the
+      upgrade and rarity bonus included (a +5 rarity 3 Short Sword reads 123-149)
+- [ ] An armour shows its melee, ranged and magic defence and its dodge
+- [ ] A fairy shows its element and its element rate
+- [ ] Gloves or boots show their defences and the four resistances
+- [ ] A ring, necklace or bracelet lists the cellon options added to it
+- [ ] Right-click a worn item in the character window: the same window opens
+
 ### Cellon options on accessories
 
 Talk to an NPC whose shop menu offers the accessory shop and "add option" (the Fashion Boutique,
