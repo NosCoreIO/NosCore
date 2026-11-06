@@ -20,6 +20,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         public NrunRunnerType Runner => NrunRunnerType.FamilyStartOrDisband;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
-            packet.Type == 0 ? familyManagementService.OfferCreationAsync(session) : Task.CompletedTask;
+            packet.Type == 0
+                ? familyManagementService.OfferCreationAsync(session)
+                : familyManagementService.OfferDisbandAsync(session);
     }
 }

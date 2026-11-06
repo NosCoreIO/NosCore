@@ -20,6 +20,8 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Data.Dto;
+using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using System.Collections.Generic;
@@ -181,6 +183,69 @@ namespace NosCore.PacketHandlers.Tests.Family
             await CreateAsync("FifteenLetters1");
             Assert.AreEqual(Game18NConstString.FamilyNameTooShortOrTooLong, LastInfo(_head));
             Assert.AreEqual(200000, _head.Character.Gold);
+        }
+
+        private void JoinFamily(FamilyAuthority authority)
+        {
+            _head.Character.Family = new GameObject.Services.FamilyService.Family
+            {
+                FamilyId = 7,
+                Name = "Testers",
+                Members = new List<FamilyCharacterDto>
+                {
+                    new() { FamilyId = 7, CharacterId = _head.Character.CharacterId, Authority = authority },
+                    new() { FamilyId = 7, CharacterId = _second.Character.CharacterId, Authority = FamilyAuthority.Member }
+                }
+            };
+        }
+
+        [TestMethod]
+        public async Task TheNpcAsksTheHeadToConfirmTheDisband()
+        {
+            JoinFamily(FamilyAuthority.Head);
+
+            await new FamilyStartOrDisbandHandler(Management())
+                .HandleAsync(_head, null, new NrunPacket { Runner = NrunRunnerType.FamilyStartOrDisband, Type = 1 });
+
+            var question = _head.LastPackets.OfType<QnaiPacket>().Single();
+            Assert.IsInstanceOfType<FamilyDismissPacket>(question.YesPacket);
+            Assert.AreEqual(Game18NConstString.AreYouSureToDisbandFamily, question.Question);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheHeadCanDisband()
+        {
+            JoinFamily(FamilyAuthority.Assistant);
+
+            await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
+
+            Assert.AreEqual(Game18NConstString.OnlyHeadCanDisbandFamily, LastInfo(_head));
+            _familyService.Verify(s => s.DisbandAsync(It.IsAny<GameObject.Services.FamilyService.Family>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task DisbandingRemovesEveryMember()
+        {
+            JoinFamily(FamilyAuthority.Head);
+            var family = _head.Character.Family!;
+            _familyService.Setup(s => s.DisbandAsync(family)).ReturnsAsync(true);
+
+            await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
+
+            Assert.AreEqual(Game18NConstString.FamilyDisbanded, LastInfo(_head));
+            CollectionAssert.AreEquivalent(new[] { _head.Character.CharacterId, _second.Character.CharacterId },
+                ((FamilyChangedData)_published.Single()).CharacterIds);
+        }
+
+        [TestMethod]
+        public async Task AFailedDisbandChangesNothing()
+        {
+            JoinFamily(FamilyAuthority.Head);
+
+            await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
+
+            Assert.AreEqual(Game18NConstString.FailedToDisbandFamily, LastInfo(_head));
+            Assert.IsFalse(_published.Any());
         }
     }
 }

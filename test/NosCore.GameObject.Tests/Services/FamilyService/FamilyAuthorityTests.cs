@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _memberships.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
                 .ReturnsAsync((FamilyCharacterDto dto) => dto);
             _service = new FamilyServiceImpl(new Mock<IDao<FamilyDto, long>>().Object, _memberships.Object,
-                new Mock<IDao<CharacterDto, long>>().Object);
+                new Mock<IDao<FamilyLogDto, long>>().Object, new Mock<IDao<CharacterDto, long>>().Object);
         }
 
         private FamilyAuthority AuthorityOf(long id) => _family.AuthorityOf(id);

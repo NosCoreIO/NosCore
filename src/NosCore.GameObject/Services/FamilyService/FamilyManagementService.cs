@@ -191,6 +191,57 @@ namespace NosCore.GameObject.Services.FamilyService
             await pubSubHub.SendMessageAsync(changed);
         }
 
+        public async Task OfferDisbandAsync(ClientSession session)
+        {
+            if (await GetDisbandableFamilyAsync(session) == null)
+            {
+                return;
+            }
+
+            await session.SendPacketAsync(new QnaiPacket
+            {
+                YesPacket = new FamilyDismissPacket(),
+                Question = Game18NConstString.AreYouSureToDisbandFamily
+            });
+        }
+
+        public async Task DisbandAsync(ClientSession session)
+        {
+            var family = await GetDisbandableFamilyAsync(session);
+            if (family == null)
+            {
+                return;
+            }
+
+            await using (var transaction = daoTransactionScope.Begin())
+            {
+                if (!await familyService.DisbandAsync(family))
+                {
+                    await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FailedToDisbandFamily });
+                    return;
+                }
+
+                await transaction.CommitAsync();
+            }
+
+            await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyDisbanded });
+            var changed = new FamilyChangedData { FamilyId = family.FamilyId };
+            changed.CharacterIds.AddRange(family.Members.Select(s => s.CharacterId));
+            await pubSubHub.SendMessageAsync(changed);
+        }
+
+        private async Task<Family?> GetDisbandableFamilyAsync(ClientSession session)
+        {
+            var family = session.Character.Family;
+            if (family?.AuthorityOf(session.Character.CharacterId) == FamilyAuthority.Head)
+            {
+                return family;
+            }
+
+            await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.OnlyHeadCanDisbandFamily });
+            return null;
+        }
+
         private async Task<List<PlayerComponentBundle>?> GetFoundersAsync(ClientSession session)
         {
             var group = session.Character.Group;

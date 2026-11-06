@@ -531,6 +531,16 @@ family NPC (Mimi Mentor in NosVille, dialog 3). The asker carries 200 000 gold.
       gold, a taken name, or a name of 2 or 15+ characters each get their own message and
       found nothing
 
+### Disbanding a family
+
+The head of a family next to the family NPC.
+
+- [ ] Families > "I want to disband my family." asks "Are you sure you want to disband your
+      family?"
+- [ ] Confirm: the head reads "Family disbanded." and every member's family tag disappears
+- [ ] A deputy, keeper or member, or someone with no family, gets "Only the family head can
+      disband a family." and no question
+
 ### Family membership
 
 Found a family as above, or seed one: a `Family` row, then a `FamilyCharacter` row per

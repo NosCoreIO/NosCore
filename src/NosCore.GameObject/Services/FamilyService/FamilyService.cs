@@ -17,6 +17,7 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyService(IDao<FamilyDto, long> familyDao,
         IDao<FamilyCharacterDto, long> familyCharacterDao,
+        IDao<FamilyLogDto, long> familyLogDao,
         IDao<CharacterDto, long> characterDao) : IFamilyService
     {
         private const int MaxAssistants = 2;
@@ -80,6 +81,17 @@ namespace NosCore.GameObject.Services.FamilyService
                     DailyMessage = string.Empty
                 });
             return await familyCharacterDao.TryInsertOrUpdateAsync(members) ? family.FamilyId : null;
+        }
+
+        public async Task<bool> DisbandAsync(Family family)
+        {
+            var logs = familyLogDao.Where(s => s.FamilyId == family.FamilyId)?.Select(s => s.FamilyLogId).ToList()
+                ?? new List<long>();
+            var members = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.Select(s => s.FamilyCharacterId).ToList()
+                ?? new List<long>();
+            return (logs.Count == 0 || await familyLogDao.TryDeleteAsync(logs) != null)
+                && (members.Count == 0 || await familyCharacterDao.TryDeleteAsync(members) != null)
+                && await familyDao.TryDeleteAsync(family.FamilyId) != null;
         }
 
         public Task AddMemberAsync(long familyId, long characterId) =>

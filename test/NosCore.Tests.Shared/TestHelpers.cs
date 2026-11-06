@@ -333,6 +333,7 @@ namespace NosCore.Tests.Shared
                     new NosCore.GameObject.Services.FamilyService.FamilyService(
                         new Mock<IDao<FamilyDto, long>>().Object,
                         new Mock<IDao<FamilyCharacterDto, long>>().Object,
+                        new Mock<IDao<FamilyLogDto, long>>().Object,
                         CharacterDao)),
                 new CSkillPacketHandler(Instance.Clock),
                 new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer),

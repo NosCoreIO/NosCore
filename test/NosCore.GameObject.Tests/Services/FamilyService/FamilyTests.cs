@@ -86,7 +86,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             characterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .ReturnsAsync((Expression<Func<CharacterDto, bool>> p) => characters.FirstOrDefault(p.Compile())!);
 
-            return new FamilyServiceImpl(familyDao.Object, membershipDao.Object, characterDao.Object);
+            return new FamilyServiceImpl(familyDao.Object, membershipDao.Object,
+                new Mock<IDao<FamilyLogDto, long>>().Object, characterDao.Object);
         }
 
         private static FamilyServiceImpl Nemesis()
@@ -163,6 +164,37 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 Assert.AreEqual(authority.ToString(),
                     ((PacketFamilyAuthority)authority).ToString());
             }
+        }
+
+        [TestMethod]
+        public async Task DisbandingDeletesTheLogsTheMembersAndTheFamilyAsync()
+        {
+            var familyDao = new Mock<IDao<FamilyDto, long>>();
+            familyDao.Setup(s => s.TryDeleteAsync(FamilyId)).ReturnsAsync(NemesisDto());
+            var memberships = new List<FamilyCharacterDto>
+            {
+                new() { FamilyCharacterId = 1, FamilyId = FamilyId, CharacterId = HeadId },
+                new() { FamilyCharacterId = 2, FamilyId = FamilyId, CharacterId = MemberId },
+                new() { FamilyCharacterId = 3, FamilyId = 1, CharacterId = 7 }
+            };
+            var membershipDao = new Mock<IDao<FamilyCharacterDto, long>>();
+            membershipDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyCharacterDto, bool>>>()))
+                .Returns((Expression<Func<FamilyCharacterDto, bool>> p) => memberships.Where(p.Compile()));
+            membershipDao.Setup(s => s.TryDeleteAsync(It.IsAny<IEnumerable<long>>()))
+                .ReturnsAsync(new List<FamilyCharacterDto>());
+            var logs = new List<FamilyLogDto> { new() { FamilyLogId = 9, FamilyId = FamilyId } };
+            var logDao = new Mock<IDao<FamilyLogDto, long>>();
+            logDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyLogDto, bool>>>()))
+                .Returns((Expression<Func<FamilyLogDto, bool>> p) => logs.Where(p.Compile()));
+            logDao.Setup(s => s.TryDeleteAsync(It.IsAny<IEnumerable<long>>())).ReturnsAsync(logs);
+            var service = new FamilyServiceImpl(familyDao.Object, membershipDao.Object, logDao.Object,
+                new Mock<IDao<CharacterDto, long>>().Object);
+
+            Assert.IsTrue(await service.DisbandAsync(new Family { FamilyId = FamilyId }));
+
+            logDao.Verify(s => s.TryDeleteAsync(It.Is<IEnumerable<long>>(ids => ids.SequenceEqual(new long[] { 9 }))));
+            membershipDao.Verify(s => s.TryDeleteAsync(It.Is<IEnumerable<long>>(ids => ids.SequenceEqual(new long[] { 1, 2 }))));
+            familyDao.Verify(s => s.TryDeleteAsync(FamilyId));
         }
     }
 }
