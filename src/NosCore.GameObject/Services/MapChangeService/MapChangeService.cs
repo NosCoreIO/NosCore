@@ -37,7 +37,8 @@ namespace NosCore.GameObject.Services.MapChangeService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger<MapChangeService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry, Wolverine.IMessageBus messageBus,
-            ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService)
+            ScriptedInstanceService.IScriptedInstanceService scriptedInstanceService,
+            BattleService.IBattleStatsProvider battleStatsProvider)
         : IMapChangeService
     {
         public async Task ChangeMapAsync(ClientSession session, short? mapId = null, short? mapX = null, short? mapY = null)
@@ -203,6 +204,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music));
                 await session.SendPacketAsync(character.GenerateCond());
                 await session.SendPacketAsync(newMapInstance.GenerateCMap(true));
+                await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
                 await session.SendPacketAsync(character.GeneratePairy(fairy));
                 await session.SendPacketsAsync(newMapInstance.GetMapItems(accountLanguage));
                 await session.SendPacketsAsync(newMapInstance.MapDesignObjects.Values.Select(mp => mp.GenerateEffect()));

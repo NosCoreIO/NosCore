@@ -13,6 +13,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Battle;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -21,6 +22,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
@@ -660,6 +662,45 @@ public static class PlayerBundleExtensions
             MaxAdditionalPoint = worldConfiguration.Value.MaxAdditionalSpPoints,
             SpPoint = player.SpPoint,
             MaxSpPoint = worldConfiguration.Value.MaxSpPoints
+        };
+    }
+
+    // The character window shows exactly what combat uses, worn gear and active effects included.
+    public static ScPacket GenerateSc(this PlayerComponentBundle player, IBattleStatsProvider battleStatsProvider)
+    {
+        var stats = battleStatsProvider.GetStats(player);
+        var (mainType, secondaryType) = player.Class switch
+        {
+            CharacterClassType.Archer => (AttackType.Ranged, AttackType.Melee),
+            CharacterClassType.Mage => (AttackType.Magical, AttackType.Ranged),
+            _ => (AttackType.Melee, AttackType.Ranged),
+        };
+        return new ScPacket
+        {
+            Type = (byte)mainType,
+            MainWeaponUpgrade = (byte)stats.MeleeUpgrade,
+            MinHit = stats.MinHit,
+            MaxHit = stats.MaxHit,
+            HitRate = stats.HitRate,
+            CriticalHitRate = (short)stats.CriticalChance,
+            CriticalHitMultiplier = stats.CriticalRate,
+            Type2 = (byte)secondaryType,
+            SecondaryWeaponUpgrade = (short)stats.RangedUpgrade,
+            SecondaryMinHit = (short)stats.MinDistance,
+            SecondaryMaxHit = (short)stats.MaxDistance,
+            SecondaryHitRate = (short)stats.DistanceRate,
+            SecondaryCriticalHitRate = (short)stats.DistanceCriticalChance,
+            SecondaryCriticalHitMultiplier = (short)stats.DistanceCriticalRate,
+            ArmorUpgrade = (byte)stats.DefenceUpgrade,
+            Defence = (short)stats.Defence,
+            DefenceRate = (short)stats.DefenceDodge,
+            DistanceDefence = (short)stats.DistanceDefence,
+            DistanceDefenceRate = (short)stats.DistanceDefenceDodge,
+            MagicalDefence = (short)stats.MagicDefence,
+            FireResistance = (short)stats.FireResistance,
+            WaterResistance = (short)stats.WaterResistance,
+            LightResistance = (short)stats.LightResistance,
+            DarkResistance = (short)stats.DarkResistance,
         };
     }
 

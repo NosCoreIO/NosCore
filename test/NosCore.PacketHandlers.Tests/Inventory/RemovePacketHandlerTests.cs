@@ -30,7 +30,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            RemovePacketHandler = new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
+            RemovePacketHandler = new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
 
         [TestMethod]

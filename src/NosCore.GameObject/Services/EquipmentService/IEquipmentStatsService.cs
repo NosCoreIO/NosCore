@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.EquipmentService;
 
@@ -44,7 +45,11 @@ public readonly record struct EquipmentStats(
     // yet — max HP is still class and level alone.
     int Hp,
     int Mp,
-    IReadOnlyList<BCardDto> BCards)
+    IReadOnlyList<BCardDto> BCards,
+    // Kept apart from ElementRate the way CombatStats keeps it, so it can be shown on its own.
+    int SpecialistElementRate = 0,
+    // The worn fairy's element is the one a character attacks with.
+    ElementType Element = ElementType.Neutral)
 {
     public static EquipmentStats None => new() { BCards = System.Array.Empty<BCardDto>() };
 }

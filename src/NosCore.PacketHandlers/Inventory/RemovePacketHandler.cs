@@ -18,7 +18,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class RemovePacketHandler(NosCore.GameObject.Services.BattleService.IVitalityService vitalityService)
+    public class RemovePacketHandler(NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
+            NosCore.GameObject.Services.BattleService.IBattleStatsProvider battleStatsProvider)
         : PacketHandler<RemovePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(RemovePacket removePacket, ClientSession clientSession)
@@ -61,6 +62,7 @@ namespace NosCore.PacketHandlers.Inventory
 
             await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq());
             await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment());
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateSc(battleStatsProvider));
 
             if (inv.ItemInstance.Item.EquipmentSlot == EquipmentType.Fairy)
             {

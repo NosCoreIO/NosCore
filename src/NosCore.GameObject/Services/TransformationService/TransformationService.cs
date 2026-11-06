@@ -33,7 +33,8 @@ namespace NosCore.GameObject.Services.TransformationService
             IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ILogger<TransformationService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
             SpeedCalculationService.ISpeedCalculationService speedCalculationService,
-            SkillService.ISkillService skillService)
+            SkillService.ISkillService skillService,
+            BattleService.IBattleStatsProvider battleStatsProvider)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -54,9 +55,11 @@ namespace NosCore.GameObject.Services.TransformationService
             var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService);
             var cModePacket = session.Character.GenerateCMode();
             var statPacket = session.Character.GenerateStat();
+            var scPacket = session.Character.GenerateSc(battleStatsProvider);
 
             await session.SendPacketAsync(condPacket);
             await session.SendPacketAsync(levPacket);
+            await session.SendPacketAsync(scPacket);
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
@@ -158,6 +161,7 @@ namespace NosCore.GameObject.Services.TransformationService
             await session.SendPacketAsync(spPointPacket);
             await session.SendPacketAsync(condPacket);
             await session.SendPacketAsync(statPacket);
+            await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
         }
 
         public async Task ChangeVehicleAsync(ClientSession session, Item item)

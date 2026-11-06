@@ -33,7 +33,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         IClock clock,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IOptions<WorldConfiguration> worldConfiguration,
-        Services.BattleService.IVitalityService vitalityService)
+        Services.BattleService.IVitalityService vitalityService,
+        Services.BattleService.IBattleStatsProvider battleStatsProvider)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -169,6 +170,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await session.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot));
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());
             await session.SendPacketAsync(session.Character.GenerateEquipment());
+            await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
 
             if (itemInstance.ItemInstance.Item.EquipmentSlot == EquipmentType.Sp)
             {

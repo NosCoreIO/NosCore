@@ -16,7 +16,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 namespace NosCore.GameObject.Services.EquipmentService;
 
 // Main weapon feeds melee, secondary feeds range, the rest feed defences and resistances. The
-// specialist card goes through SpecialistPointService instead.
+// specialist card counts only while the character is transformed into it.
 //
 // Each stat is summed from both the model and the instance: the model carries the base, the
 // instance carries what upgrade and rarity changed.
@@ -93,7 +93,15 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
             stats = stats with
             {
                 ElementRate = stats.ElementRate + Sum(fairy.ElementRate, fairy.Item?.ElementRate),
+                Element = fairy.Item?.Element ?? ElementType.Neutral,
             };
+        }
+
+        if (character.UseSp
+            && inventory.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
+                is SpecialistInstance specialist)
+        {
+            stats = AddSpecialist(stats, specialist);
         }
 
         for (byte slot = 0; slot < 16; slot++)
@@ -139,6 +147,47 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
 
         // Array.Empty so "nothing worn" compares equal to EquipmentStats.None.
         return stats with { BCards = bcards.Count == 0 ? System.Array.Empty<BCardDto>() : bcards };
+    }
+
+    // The card adds to both the melee and the ranged profile, since a transformed character
+    // attacks with the card's skills whatever the weapon.
+    private static EquipmentStats AddSpecialist(EquipmentStats stats, SpecialistInstance specialist)
+    {
+        var item = specialist.Item;
+        var minHit = Sum(specialist.DamageMinimum, item?.DamageMinimum);
+        var maxHit = Sum(specialist.DamageMaximum, item?.DamageMaximum);
+        var hitRate = Sum(specialist.HitRate, item?.HitRate);
+        var criticalChance = Sum(specialist.CriticalLuckRate, item?.CriticalLuckRate);
+        var criticalRate = Sum(specialist.CriticalRate, item?.CriticalRate);
+        return stats with
+        {
+            MinHit = stats.MinHit + minHit,
+            MaxHit = stats.MaxHit + maxHit,
+            HitRate = stats.HitRate + hitRate,
+            CriticalChance = stats.CriticalChance + criticalChance,
+            CriticalRate = stats.CriticalRate + criticalRate,
+            MinDistance = stats.MinDistance + minHit,
+            MaxDistance = stats.MaxDistance + maxHit,
+            DistanceRate = stats.DistanceRate + hitRate,
+            DistanceCriticalChance = stats.DistanceCriticalChance + criticalChance,
+            DistanceCriticalRate = stats.DistanceCriticalRate + criticalRate,
+            CloseDefence = stats.CloseDefence + Sum(specialist.CloseDefence, item?.CloseDefence),
+            DistanceDefence = stats.DistanceDefence + Sum(specialist.DistanceDefence, item?.DistanceDefence),
+            MagicDefence = stats.MagicDefence + Sum(specialist.MagicDefence, item?.MagicDefence),
+            DefenceDodge = stats.DefenceDodge + Sum(specialist.DefenceDodge, item?.DefenceDodge),
+            DistanceDefenceDodge = stats.DistanceDefenceDodge
+                + Sum(specialist.DistanceDefenceDodge, item?.DistanceDefenceDodge),
+            FireResistance = stats.FireResistance + Sum(specialist.FireResistance, item?.FireResistance)
+                + specialist.SpFire,
+            WaterResistance = stats.WaterResistance + Sum(specialist.WaterResistance, item?.WaterResistance)
+                + specialist.SpWater,
+            LightResistance = stats.LightResistance + Sum(specialist.LightResistance, item?.LightResistance)
+                + specialist.SpLight,
+            DarkResistance = stats.DarkResistance + Sum(specialist.DarkResistance, item?.DarkResistance)
+                + specialist.SpDark,
+            SpecialistElementRate = stats.SpecialistElementRate
+                + Sum(specialist.ElementRate, item?.ElementRate) + specialist.SpElement,
+        };
     }
 
     // The instance-level options added with cells are not reachable from a worn piece:

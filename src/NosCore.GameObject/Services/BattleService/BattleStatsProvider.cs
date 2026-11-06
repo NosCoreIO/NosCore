@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -64,7 +64,9 @@ public sealed class BattleStatsProvider(
             DefenceDodge = stats.DefenceDodge + gear.DefenceDodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + gear.DistanceDefenceDodge,
             DefenceUpgrade = stats.DefenceUpgrade + gear.ArmourUpgrade,
+            Element = stats.Element != 0 ? stats.Element : (byte)gear.Element,
             ElementRate = stats.ElementRate + gear.ElementRate,
+            ElementRateSp = stats.ElementRateSp + gear.SpecialistElementRate,
             FireResistance = stats.FireResistance + gear.FireResistance,
             WaterResistance = stats.WaterResistance + gear.WaterResistance,
             LightResistance = stats.LightResistance + gear.LightResistance,
