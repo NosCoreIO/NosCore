@@ -311,7 +311,7 @@ namespace NosCore.GameObject.Services.InventoryService
                 nextFreeSlot =
                     LoadBySlotAndType((short)sourceInstance.ItemInstance.Item.EquipmentSlot, targetType) == null
                         ? (short)sourceInstance.ItemInstance.Item.EquipmentSlot
-                        : (short)-1;
+                        : null;
             }
             else
             {
