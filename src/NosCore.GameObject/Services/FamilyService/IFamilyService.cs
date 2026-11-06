@@ -15,6 +15,10 @@ namespace NosCore.GameObject.Services.FamilyService
     {
         Task<Family?> GetFamilyAsync(long characterId);
 
+        Task<bool> IsNameTakenAsync(string name);
+
+        Task<long?> CreateAsync(string name, byte maxSize, long headId, IEnumerable<long> deputyIds);
+
         Task AddMemberAsync(long familyId, long characterId);
 
         Task RemoveMemberAsync(long characterId);

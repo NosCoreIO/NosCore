@@ -19,6 +19,10 @@ namespace NosCore.GameObject.Services.FamilyService
 
         Task SendMemberListAsync(ClientSession session);
 
+        Task OfferCreationAsync(ClientSession session);
+
+        Task CreateAsync(ClientSession session, string? name);
+
         Task SetNoticeAsync(ClientSession session, string? message);
 
         Task SetDailyMessageAsync(ClientSession session, string? message);

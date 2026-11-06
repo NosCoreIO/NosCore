@@ -149,7 +149,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             var gidx = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGidx(
                 TestHelpers.Instance.GameLanguageLocalizer, RegionType.EN) }).TrimEnd();
-            Assert.AreEqual(6, gidx.Split(' ').Length, $"the tag is one field: {gidx}");
+            Assert.AreEqual(7, gidx.Split(' ').Length, $"the tag is one field: {gidx}");
         }
 
         [TestMethod]
@@ -170,7 +170,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public void AFamilyGoesOutWithItsIdNameAndLevel()
         {
-            // gidx 1 521919 5052 -Nemesis-(...) 7
+            // gidx 1 521919 5052.-1 -Nemesis-(...) 7 0|0|0
             var serializer = BuildSerializer();
 
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
@@ -181,9 +181,10 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             var fields = line.Split(' ');
             Assert.AreEqual("gidx", fields[0]);
             Assert.AreEqual("1", fields[1]);
-            Assert.AreEqual("5052", fields[3]);
+            Assert.AreEqual("5052.-1", fields[3]);
             StringAssert.StartsWith(fields[4], "-Nemesis-(");
             Assert.AreEqual("7", fields[5]);
+            Assert.AreEqual("0|0|0", fields[6]);
         }
 
         private static Serializer BuildSerializer() => new(typeof(IPacket).Assembly.GetTypes()
