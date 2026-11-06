@@ -511,6 +511,7 @@ public static class PlayerBundleExtensions
             Unknown1 = null,
             GroupId = -1,
             FamilyId = (int)(player.Family?.FamilyId ?? -1),
+            FamilyTitle = player.Family == null ? null : (short)-1,
             FamilyName = player.GenerateFamilyTag(localizer, player.AccountLanguage),
             CharacterId = player.VisualId,
             Authority = player.Authority,
