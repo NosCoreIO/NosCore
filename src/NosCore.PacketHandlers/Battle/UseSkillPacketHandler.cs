@@ -66,15 +66,20 @@ namespace NosCore.PacketHandlers.Battle
 
             // Reach, cooldown (SkillDto.Cooldown * 100ms since LastUse) and MP gate. Mana and
             // cooldown are only spent once BattleService accepts the cast.
-            AcceptReportedPosition(clientSession.Character, packet);
+            // The reported cell only sticks when the cast goes through, so refused casts can't
+            // be used to step the character around.
+            var character = clientSession.Character;
+            var (previousX, previousY) = (character.PositionX, character.PositionY);
+            AcceptReportedPosition(character, packet);
 
             if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed))
             {
+                (character.PositionX, character.PositionY) = (previousX, previousY);
                 await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack }).ConfigureAwait(false);
                 return;
             }
 
-            var accepted = await battleService.Hit(clientSession.Character, target, new HitArguments
+            var accepted = await battleService.Hit(character, target, new HitArguments
             {
                 SkillId = packet.CastId,
             });
@@ -84,6 +89,10 @@ namespace NosCore.PacketHandlers.Battle
             if (accepted)
             {
                 consumed?.Invoke();
+            }
+            else
+            {
+                (character.PositionX, character.PositionY) = (previousX, previousY);
             }
         }
 

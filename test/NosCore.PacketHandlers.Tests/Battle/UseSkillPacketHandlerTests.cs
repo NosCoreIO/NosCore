@@ -256,6 +256,39 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ARefusedCastDoesNotKeepTheReportedCell()
+        {
+            await new Spec("A reported cell is dropped again when the cast is refused, so refused casts can't move the character")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)1)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)20)
+                .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
+                .Then(ShouldReceiveCancelPacket)
+                .And(CharacterShouldBeAt_, (short)0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACastBattleServiceRefusesDoesNotKeepTheReportedCell()
+        {
+            await new Spec("A reported cell is dropped again when BattleService refuses the cast")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)1)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)6)
+                .And(BattleServiceRefusesTheCast)
+                .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterShouldBeAt_, (short)0)
+                .ExecuteAsync();
+        }
+
         private void SkillHasRange_(byte range)
         {
             _learnedSkill.Skill!.Range = range;

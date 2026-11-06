@@ -253,8 +253,14 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                 return session.Character;
             }
         }
-        if (map.FindMonster(m => m.VisualId == visualId) is { } monster) return monster;
-        if (map.FindNpc(n => n.VisualId == visualId) is { } npc) return npc;
+        foreach (var monster in map.EnumerateMonsters())
+        {
+            if (monster.VisualId == visualId) return monster;
+        }
+        foreach (var npc in map.EnumerateNpcs())
+        {
+            if (npc.VisualId == visualId) return npc;
+        }
         return null;
     }
 
@@ -328,8 +334,11 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
         var cache = _pathCache.GetValueOrDefault(entity.Handle);
         var goalMoved = cache == null || cache.TargetX != goalX || cache.TargetY != goalY;
+        // A path cached before the entity was moved elsewhere (a respawn) no longer starts next to it.
+        var leftPath = cache is { Path.Count: > 0 }
+            && Math.Max(Math.Abs(cache.Path[0].Item1 - entity.PositionX), Math.Abs(cache.Path[0].Item2 - entity.PositionY)) > 1;
 
-        if (cache == null || goalMoved || cache.Path.Count == 0)
+        if (cache == null || goalMoved || leftPath || cache.Path.Count == 0)
         {
             var pathfinder = pathfindingService.ForMap(map.Map);
             var path = pathfinder.FindPath(

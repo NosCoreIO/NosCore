@@ -198,6 +198,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterMovedOffItsCachedPathPlansAgain()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 6);
+            await _ai.TickAsync(monster);
+            monster.PositionY = 1;
+
+            await _ai.TickAsync(monster);
+
+            Assert.AreEqual((short)4, monster.PositionY, "walks 3 cells from where it stands, not on from the old path");
+        }
+
+        [TestMethod]
         public async Task AMonsterAwayFromHomeWalksBackAtItsChaseSpeed()
         {
             var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
