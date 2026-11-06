@@ -57,15 +57,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = type,
                 IvnSubPackets = new List<IvnSubPacket>
                 {
-                    new()
-                    {
-                        Slot = slot,
-                        VNum = itemInstance.ItemInstance.ItemVNum,
-                        RareAmount =
-                            itemInstance.Type != NoscorePocketType.Equipment ? itemInstance.ItemInstance.Amount
-                                : itemInstance.ItemInstance.Rare,
-                        UpgradeDesign = itemInstance.ItemInstance.Upgrade
-                    }
+                    itemInstance.ItemInstance.GenerateIvnSubPacket((PocketType)itemInstance.Type, slot)
                 }
             };
         }

@@ -72,5 +72,27 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
 
             Assert.AreEqual((byte)3, card.GenerateIvnSubPacket(PocketType.Equipment, 4).SecondUpgrade);
         }
+
+        [TestMethod]
+        public void ASpecialistCardsPocketChangeKeepsItsPerfection()
+        {
+            var card = new SpecialistInstance(new Item
+            {
+                VNum = 901, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp
+            })
+            {
+                Amount = 1,
+                Upgrade = 7,
+                SpStoneUpgrade = 3,
+            };
+            var inventoryItem = InventoryItemInstance.Create(card, _session.Character.CharacterId);
+            inventoryItem.Type = NoscorePocketType.Equipment;
+
+            var listed = inventoryItem.GeneratePocketChange(PocketType.Equipment, 4).IvnSubPackets!.Single();
+
+            Assert.AreEqual((short)4, listed.Slot);
+            Assert.AreEqual((short)7, listed.UpgradeDesign);
+            Assert.AreEqual((byte)3, listed.SecondUpgrade);
+        }
     }
 }
