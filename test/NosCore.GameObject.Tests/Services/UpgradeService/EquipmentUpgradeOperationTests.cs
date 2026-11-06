@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.EquipmentUpgradeService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Networking;
@@ -25,11 +26,6 @@ using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.UpgradeService
 {
-    // Locks in the OpenNos-faithful equipment-upgrade behavior:
-    //   - 3-way roll: rnd < upfix → Fixed, rnd < upfix+upfail → Failure, else → Success
-    //   - For Rare<8 at Upgrade 0: upfix=0, upfail=0 → 100% success path (rnd < 0 is false twice)
-    //   - For Rare<8 at Upgrade 5: upfix=20, upfail=40 → 20% Fixed, 40% Fail, 40% Success
-    //   - Materials: Cellon (1014) + Gem (1015 if Upgrade<5 else 1016) + Scroll (1218) for Protected
     [TestClass]
     public class EquipmentUpgradeOperationTests
     {
@@ -52,14 +48,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
-            _unprotected = new UpgradeItemOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer);
-            _protected = new UpgradeItemProtectedOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer);
+            _unprotected = new UpgradeItemOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
+                new EquipmentUpgradeService());
+            _protected = new UpgradeItemProtectedOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
+                new EquipmentUpgradeService());
         }
 
         [TestMethod]
         public async Task SuccessAtUpgradeZeroIncrementsAndChargesCellonAndGem()
         {
-            // Upgrade 0, low-rare: upfix=0, upfail=0, gold=500, cellon=20, gem=1.
             await new Spec("Successful upgrade at +0 increments to +1, consumes cellon+gem, charges 500 gold")
                 .Given(WearableAtUpgrade_, (byte)0)
                 .And(MaterialsInInventory)
@@ -77,7 +74,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task FixedRollLocksTheItem()
         {
-            // Upgrade 5, low-rare: upfix=20 → roll 0.10 falls in the Fixed band.
             await new Spec("A roll inside the Fixed band sets IsFixed=true and consumes materials")
                 .Given(WearableAtUpgrade_, (byte)5)
                 .And(MaterialsInInventory)
@@ -92,7 +88,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task UnprotectedFailureDestroysTheWearable()
         {
-            // Upgrade 5, low-rare: upfix=20, upfail=40 → roll 0.50 falls in Failure band (0.20..0.60).
             await new Spec("Unprotected failure destroys the wearable and charges materials")
                 .Given(WearableAtUpgrade_, (byte)5)
                 .And(MaterialsInInventory)
@@ -119,42 +114,42 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
-        public async Task HighRareFailureBandFiresBeforeFixedBand()
+        public async Task HighRareItemUsesTheSameFailureBand()
         {
-            await new Spec("Rare>=8 at +2 with roll 0.55 destroys the item (Failure, not Fixed)")
-                .Given(HighRareWearableAtUpgrade_, (byte)2)
+            await new Spec("Rare 8 at +7 with roll 0.50 destroys the item, as for any rarity")
+                .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 10_000_000L)
-                .And(NextRollWillBe_, 0.55)
+                .And(NextRollWillBe_, 0.50)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
                 .Then(SourceSlotShouldBeEmpty)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task HighRareFixedBandFiresBetweenFailureAndSuccess()
+        public async Task HighRareItemUsesTheSameFixedBand()
         {
-            await new Spec("Rare>=8 at +2 with roll 0.65 locks the item (Fixed band)")
-                .Given(HighRareWearableAtUpgrade_, (byte)2)
+            await new Spec("Rare 8 at +7 with roll 0.02 locks the item, as for any rarity")
+                .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 10_000_000L)
-                .And(NextRollWillBe_, 0.65)
+                .And(NextRollWillBe_, 0.02)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
-                .Then(WearableUpgradeShouldBe_, (byte)2)
+                .Then(WearableUpgradeShouldBe_, (byte)7)
                 .And(WearableShouldBeFixed)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task HighRareSuccessBandFiresAboveFixed()
+        public async Task HighRareItemUsesTheSameSuccessBand()
         {
-            await new Spec("Rare>=8 at +2 with roll 0.75 succeeds (above the upfix band)")
-                .Given(HighRareWearableAtUpgrade_, (byte)2)
+            await new Spec("Rare 8 at +7 with roll 0.96 succeeds, as for any rarity")
+                .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 10_000_000L)
-                .And(NextRollWillBe_, 0.75)
+                .And(NextRollWillBe_, 0.96)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
-                .Then(WearableUpgradeShouldBe_, (byte)3)
+                .Then(WearableUpgradeShouldBe_, (byte)8)
                 .And(WearableShouldNotBeFixed)
                 .ExecuteAsync();
         }
@@ -162,13 +157,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task HighRareProtectedFailureConsumesScrollButDoesNotLockTheItem()
         {
-            await new Spec("Rare>=8 protected failure roll consumes scroll without locking the item")
-                .Given(HighRareWearableAtUpgrade_, (byte)2)
+            await new Spec("Rare 8 protected failure at +7 consumes the scroll without locking the item")
+                .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 10_000_000L)
-                .And(NextRollWillBe_, 0.55)
+                .And(NextRollWillBe_, 0.50)
                 .WhenAsync(ProtectedUpgradeIsExecuted)
-                .Then(WearableUpgradeShouldBe_, (byte)2)
+                .Then(WearableUpgradeShouldBe_, (byte)7)
                 .And(WearableShouldNotBeFixed)
                 .And(ScrollShouldHaveBeenConsumed)
                 .ExecuteAsync();
@@ -177,16 +172,41 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task UpgradeAboveFiveUsesFullGemInsteadOfSmallGem()
         {
-            // Upgrade 5+ uses FullGem (vnum 1016) per OpenNos.
             await new Spec("Upgrade at +5+ consumes the full-gem (1016), not the small-gem (1015)")
                 .Given(WearableAtUpgrade_, (byte)5)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 1_000_000L)
-                .And(NextRollWillBe_, 0.99)  // success band for upgrade 5 starts at 0.60
+                .And(NextRollWillBe_, 0.99)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
                 .Then(WearableUpgradeShouldBe_, (byte)6)
                 .And(SmallGemRemainingShouldBe_, (short)10) // unchanged
                 .And(FullGemRemainingShouldBe_, (short)9)   // -1
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UpgradeFromSevenSucceedsOnlyInTheTopFivePercent()
+        {
+            await new Spec("At +7 a roll of 0.94 destroys the item")
+                .Given(WearableAtUpgrade_, (byte)7)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillBe_, 0.94)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(SourceSlotShouldBeEmpty)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UpgradeFromSevenSucceedsAtTheTop()
+        {
+            await new Spec("At +7 a roll of 0.96 upgrades the item to +8")
+                .Given(WearableAtUpgrade_, (byte)7)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillBe_, 0.96)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)8)
                 .ExecuteAsync();
         }
 

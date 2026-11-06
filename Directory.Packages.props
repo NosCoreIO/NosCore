@@ -39,7 +39,7 @@
     <PackageVersion Include="NodaTime" Version="3.3.7" />
     <PackageVersion Include="NodaTime.Serialization.SystemTextJson" Version="1.4.0" />
     <PackageVersion Include="NodaTime.Testing" Version="3.3.7" />
-    <PackageVersion Include="NosCore.Algorithm" Version="2.4.0" />
+    <PackageVersion Include="NosCore.Algorithm" Version="4.0.0" />
     <PackageVersion Include="NosCore.Analyzers" Version="2.1.0" />
     <PackageVersion Include="NosCore.Dao" Version="5.1.1" />
     <PackageVersion Include="NosCore.Networking" Version="8.0.1" />
