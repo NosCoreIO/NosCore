@@ -45,6 +45,9 @@ namespace NosCore.PacketHandlers.Shops
                 case VisualType.Npc:
                     target = session.Character.MapInstance.FindNpc(s => s.VisualId == packet.VisualId);
                     break;
+                case VisualType.Monster:
+                    target = session.Character.MapInstance.FindMonster(s => s.VisualId == packet.VisualId);
+                    break;
                 case null:
                     target = null;
                     break;
