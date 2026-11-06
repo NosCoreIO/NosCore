@@ -86,7 +86,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _service = new VitalityService(new HpService(), new MpService(),
                 new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects),
-                    new Mock<IDao<EquipmentOptionDto, Guid>>().Object),
+                    new Mock<IDao<EquipmentOptionDto, Guid>>().Object,
+                    new NosCore.GameObject.Services.SpecialistCardService.SpecialistCardService(
+                        new NosCore.Algorithm.SpecialistPointService.SpecialistPointService())),
                 buffs.Object);
         }
 

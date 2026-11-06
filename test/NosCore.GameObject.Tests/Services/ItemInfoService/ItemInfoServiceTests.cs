@@ -17,6 +17,10 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemInfoService;
+using NosCore.GameObject.Services.SpecialistCardService;
+using NosCore.Algorithm.SpExperienceService;
+using NosCore.Algorithm.SpecialistPointService;
+using NosCore.Data.StaticEntities;
 using NosCore.Packets;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -32,6 +36,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             .ToList());
 
         private readonly List<EquipmentOptionDto> _options = new();
+        private readonly List<SkillDto> _skills = new();
         private GameObject.Services.ItemInfoService.ItemInfoService _service = null!;
 
         [TestInitialize]
@@ -40,7 +45,9 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             var optionDao = new Mock<IDao<EquipmentOptionDto, Guid>>();
             optionDao.Setup(d => d.Where(It.IsAny<Expression<Func<EquipmentOptionDto, bool>>>()))
                 .Returns((Expression<Func<EquipmentOptionDto, bool>> predicate) => _options.Where(predicate.Compile()));
-            _service = new GameObject.Services.ItemInfoService.ItemInfoService(optionDao.Object);
+            var pointService = new SpecialistPointService();
+            _service = new GameObject.Services.ItemInfoService.ItemInfoService(optionDao.Object, _skills,
+                new SpExperienceService(), pointService, new SpecialistCardService(pointService));
         }
 
         private static WearableInstance Wearable(Item item) =>
@@ -151,10 +158,44 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         public void AnItemWithoutADetailWindowGetsNoAnswer()
         {
             var costume = Wearable(new Item { VNum = 1, ItemType = ItemType.Fashion, EquipmentSlot = EquipmentType.CostumeSuit });
-            var card = new SpecialistInstance(new Item { VNum = 901, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp });
 
             Assert.IsNull(_service.GenerateInfo(costume));
-            Assert.IsNull(_service.GenerateInfo(card));
+        }
+
+        [TestMethod]
+        public void ASpecialistCardShowsItsSkillsLevelAndSkillPoints()
+        {
+            for (short vnum = 822; vnum <= 833; vnum++)
+            {
+                _skills.Add(new SkillDto { SkillVNum = vnum, Class = 34, UpgradeType = 3, LevelMinimum = vnum == 833 ? (byte)50 : (byte)1 });
+            }
+            var card = new SpecialistInstance(new Item
+            {
+                VNum = 902, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp, Morph = 3,
+                LevelJobMinimum = 35, ReputationMinimum = 7, SpType = 3, FireResistance = 3, WaterResistance = 11, LightResistance = 8
+            })
+            {
+                SpLevel = 40,
+                Upgrade = 3,
+                Xp = 1234,
+                SlDamage = 30,
+            };
+
+            var info = Info(card);
+
+            StringAssert.StartsWith(info,
+                $"slinfo 0 902 3 40 35 7 0 0 0 0 0 0 0 3 3 11 8 0 1234 554000 823.824.825.826.827.828.829.830.831.832 {card.TransportId} 19 45 0 0 0 3 0 0 0 ");
+        }
+
+        [TestMethod]
+        public void ASpecialistCardWithoutSkillsSendsMinusOne()
+        {
+            var card = new SpecialistInstance(new Item { VNum = 900, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp, Morph = 1 })
+            {
+                SpLevel = 1,
+            };
+
+            StringAssert.Contains(Info(card), " 15000 -1 ");
         }
     }
 }

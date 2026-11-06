@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -40,7 +40,7 @@ public sealed class VitalityService(
         var hp = baseHp + gear.Hp;
         var mp = baseMp + gear.Mp;
 
-        int hpPercent = 0, mpPercent = 0;
+        int hpPercent = gear.SpecialistHpMpPercent, mpPercent = gear.SpecialistHpMpPercent;
 
         int additionalHpPercent = 0, additionalHpCap = 0;
         int additionalMpPercent = 0, additionalMpCap = 0;

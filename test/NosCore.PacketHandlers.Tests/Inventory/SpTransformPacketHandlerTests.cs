@@ -15,6 +15,10 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.TransformationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ItemInfoService;
+using NosCore.GameObject.Services.SpecialistCardService;
+using NosCore.Algorithm.SpecialistPointService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
@@ -44,13 +48,117 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await TestHelpers.ResetAsync();
             Item = TestHelpers.Instance.GenerateItemProvider();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
+            ItemInfo.Setup(i => i.GenerateInfo(It.IsAny<NosCore.GameObject.Services.ItemGenerationService.Item.IItemInstance>()))
+                .Returns(new NosCore.Packets.ServerPackets.Inventory.SlInfoPacket());
             SpTransformPacketHandler = new SpTransformPacketHandler(TestHelpers.Instance.Clock,
                 new TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                     new Mock<ILogger<TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration,
                     new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
                     new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
-                    new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object));
+                    new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object),
+                new SpecialistCardService(new SpecialistPointService()),
+                ItemInfo.Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
+        }
+
+        private readonly Mock<IItemInfoService> ItemInfo = new();
+
+        [TestMethod]
+        public async Task SpendingSkillPointsOnTheWornCardShouldKeepThem()
+        {
+            await new Spec("Spending skill points on the worn card should keep them")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardIsLevelForty)
+                .WhenAsync(SpendingTenAttackAndFiveHpMp)
+                .Then(TheCardShouldHaveTenAttackAndFiveHpMp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SpendingMorePointsThanTheCardHasShouldChangeNothing()
+        {
+            await new Spec("Spending more points than the card has should change nothing")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardIsLevelForty)
+                .WhenAsync(SpendingSixtyOneAttack)
+                .Then(TheCardShouldHaveNoPointsSpent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SpendingPointsWithoutBeingTransformedShouldBeRefused()
+        {
+            await new Spec("Spending points without being transformed should be refused")
+                .Given(CharacterHasSpEquipped)
+                .And(TheCardIsLevelForty)
+                .WhenAsync(SpendingTenAttackAndFiveHpMp)
+                .Then(TheCardShouldHaveNoPointsSpent)
+                .And(ShouldReceiveCardMustBeEquippedMessage)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SpendingPointsOnAnotherCardShouldBeRefused()
+        {
+            await new Spec("Spending points for a card other than the worn one should be refused")
+                .Given(CharacterHasSpEquipped)
+                .And(CharacterIsTransformed)
+                .And(TheCardIsLevelForty)
+                .WhenAsync(SpendingPointsWithAnotherTransportId)
+                .Then(TheCardShouldHaveNoPointsSpent)
+                .ExecuteAsync();
+        }
+
+        private SpecialistInstance WornCard() =>
+            (SpecialistInstance)Session.Character.InventoryService
+                .LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)!.ItemInstance;
+
+        private void TheCardIsLevelForty()
+        {
+            WornCard().SpLevel = 40;
+        }
+
+        private Task SpendingTenAttackAndFiveHpMp() =>
+            SpTransformPacketHandler.ExecuteAsync(new SpTransformPacket
+            {
+                Type = SlPacketType.ChangePoints, TransportId = WornCard().TransportId,
+                SpecialistDamage = 10, SpecialistDefense = 0, SpecialistElement = 0, SpecialistHP = 5
+            }, Session);
+
+        private Task SpendingSixtyOneAttack() =>
+            SpTransformPacketHandler.ExecuteAsync(new SpTransformPacket
+            {
+                Type = SlPacketType.ChangePoints, TransportId = WornCard().TransportId,
+                SpecialistDamage = 61, SpecialistDefense = 0, SpecialistElement = 0, SpecialistHP = 0
+            }, Session);
+
+        private Task SpendingPointsWithAnotherTransportId() =>
+            SpTransformPacketHandler.ExecuteAsync(new SpTransformPacket
+            {
+                Type = SlPacketType.ChangePoints, TransportId = WornCard().TransportId + 1,
+                SpecialistDamage = 10, SpecialistDefense = 0, SpecialistElement = 0, SpecialistHP = 0
+            }, Session);
+
+        private void TheCardShouldHaveTenAttackAndFiveHpMp()
+        {
+            Assert.AreEqual(10, WornCard().SlDamage);
+            Assert.AreEqual(5, WornCard().SlHp);
+            ItemInfo.Verify(i => i.GenerateInfo(WornCard()), Times.Once);
+        }
+
+        private void TheCardShouldHaveNoPointsSpent()
+        {
+            Assert.AreEqual(0, WornCard().SlDamage + WornCard().SlDefence + WornCard().SlElement + WornCard().SlHp);
+        }
+
+        private void ShouldReceiveCardMustBeEquippedMessage()
+        {
+            var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
+            Assert.AreEqual(Game18NConstString.SpecialistCardMustBeEquipped, packet?.Message);
         }
 
         [TestMethod]

@@ -27,6 +27,8 @@ using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.SpecialistCardService;
+using NosCore.Algorithm.SpecialistPointService;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 
@@ -133,7 +135,9 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                     _optionReads++;
                     return _options.Where(filter.Compile()).ToList();
                 });
-            _service = new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects), optionDao.Object);
+            _service = new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects), optionDao.Object,
+                new SpecialistCardService(new SpecialistPointService()));
+
         }
 
         /// <summary>
@@ -440,6 +444,35 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             AddOption(necklace, CellonType.CriticalDamageDecrease, 15);
 
             Assert.AreEqual(-15, provider.GetStats(_session.Character).CriticalDamageReceived);
+        }
+
+        [TestMethod]
+        public void SkillPointsSpentOnTheCardAddToTheTransformedStats()
+        {
+            var card = WearSpecialist();
+            card.SlDamage = 10;
+            card.SlDefence = 10;
+            card.SlElement = 1;
+            card.SlHp = 10;
+            _session.Character.UseSp = true;
+
+            var stats = _service.Resolve(_session.Character);
+
+            Assert.AreEqual(30 + 50 + 5 + 10, stats.MinHit, "attack 10 adds 50, its first milestone 5, HP/MP 10 adds 10");
+            Assert.AreEqual(18 + 10, stats.CloseDefence, "defence 10 adds 10");
+            Assert.AreEqual(5, stats.DefenceDodge, "defence 10 adds 5 dodge");
+            Assert.AreEqual(17 + 1 + 2, stats.SpecialistElementRate, "element 1 adds 1, its first milestone 2");
+            Assert.AreEqual(10, stats.SpecialistHpMpPercent);
+        }
+
+        [TestMethod]
+        public void SkillPointsCountForNothingUntilTransformed()
+        {
+            var card = WearSpecialist();
+            card.SlDamage = 10;
+            _session.Character.UseSp = false;
+
+            Assert.AreEqual(EquipmentStats.None, _service.Resolve(_session.Character));
         }
     }
 }

@@ -18,6 +18,7 @@ namespace NosCore.PacketHandlers.Inventory
     {
         private const byte Worn = 0;
         private const byte EquipmentPocket = 1;
+        private const byte SpecialistPocket = 7;
 
         public override async Task ExecuteAsync(EquipmentInfoPacket packet, ClientSession clientSession)
         {
@@ -25,6 +26,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 Worn => NoscorePocketType.Wear,
                 EquipmentPocket => NoscorePocketType.Equipment,
+                SpecialistPocket => NoscorePocketType.Specialist,
                 _ => null
             };
             if (pocket == null)
