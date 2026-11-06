@@ -164,6 +164,37 @@ namespace NosCore.Parser.Tests
             return _savedSkills[0];
         }
 
+        private async Task<List<SkillDto>> ParseAllAsync(string content)
+        {
+            CreateTestFile(content);
+            var parser = new SkillParser(_bCardDaoMock.Object, _comboDaoMock.Object,
+                _skillDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertSkillsAsync(_tempFolder);
+            return _savedSkills;
+        }
+
+        // Every specialist skill line reads LEVEL 0. Locking them all behind an unreachable level
+        // left a transformed character with no skill at all, not even its basic attack.
+        [TestMethod]
+        public async Task ASpecialistUnlocksItsSkillsInCastOrder()
+        {
+            var content = string.Concat(Enumerable.Range(0, 11).Select(castId =>
+                CreateSkillData(skillVNum: (short)(811 + castId), castId: (short)castId, classType: 33)));
+
+            var skills = await ParseAllAsync(content);
+
+            CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 0, 0, 0, 4, 8, 12, 16, 20 },
+                skills.OrderBy(s => s.CastId).Select(s => s.LevelMinimum).ToArray());
+        }
+
+        [TestMethod]
+        public async Task AClassSkillKeepsTheLevelTheFileGivesIt()
+        {
+            var skill = await ParseOneAsync(CreateSkillData(skillVNum: 220, castId: 8, classType: 1, levelMinimum: 15));
+
+            Assert.AreEqual(15, skill.LevelMinimum);
+        }
+
         // An empty CELL is the overwhelming majority - 1890 of the 1958 skills - and has to come
         // out as nothing rather than as a pattern of zero-zero cells.
         [TestMethod]

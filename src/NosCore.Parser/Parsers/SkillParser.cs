@@ -21,6 +21,11 @@ namespace NosCore.Parser.Parsers
     public class SkillParser(IDao<BCardDto, int> bCardDao, IDao<ComboDto, int> comboDao,
         IDao<SkillDto, short> skillDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
+        private const byte SpecialistSkillClass = 32;
+        private const short SkillsUnlockedAtOnce = 5;
+        private const short LastLevelledCastId = 10;
+        private const int LevelsPerUnlock = 4;
+
         private readonly ILogger<SkillParser> _logger = loggerFactory.CreateLogger<SkillParser>();
         //  VNUM    {VNum}
         //	NAME    {Name}
@@ -84,29 +89,13 @@ namespace NosCore.Parser.Parsers
             var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var skills = await parser.GetDtosAsync();
 
-            foreach (var skill in skills.Where(s => s.Class > 31))
+            // The file gives a specialist's own skills no level: a card unlocks them in cast order,
+            // the first six straight away and then one every four specialist levels.
+            foreach (var skill in skills.Where(s => s.Class >= SpecialistSkillClass
+                                                    && s.LevelMinimum == 0
+                                                    && s.CastId is > SkillsUnlockedAtOnce and <= LastLevelledCastId))
             {
-                var firstskill = skills.Find(s => s.Class == skill.Class);
-                var skillscount = skills.Count(s => s.Class == skill.Class);
-                if ((firstskill == null) || (skill.SkillVNum <= firstskill.SkillVNum + 10))
-                {
-                    skill.LevelMinimum = skill.Class switch
-                    {
-                        8 => (byte)(skillscount - (1 * 10)),
-                        9 => (byte)(skillscount - (4 * 4)),
-                        16 => (byte)skillscount switch
-                        {
-                            6 => 20,
-                            5 => 15,
-                            4 => 10,
-                            3 => 5,
-                            2 => 3,
-                            _ => 0
-                        },
-                        _ => (byte)(skillscount - (5 * 4))
-                    };
-
-                }
+                skill.LevelMinimum = (byte)((skill.CastId - SkillsUnlockedAtOnce) * LevelsPerUnlock);
             }
 
             await skillDao.TryInsertOrUpdateAsync(skills);
