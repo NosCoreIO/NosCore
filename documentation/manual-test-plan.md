@@ -912,6 +912,10 @@ sells it. Members stand next to Salim (vnum 1431, dialog 462).
 - [ ] Closing and reopening shows the same contents; another member sees them too
 - [ ] A member whose rank has no warehouse rights gets "You are not qualified to use the
       warehouse."; with deposit-only rights they can put items in but not take them out
+- [ ] An untradable item, or equipment bound to the character, stays in the bag when
+      dragged onto the warehouse
+- [ ] With a full bag, dragging a stack out leaves it in the warehouse
+- [ ] Two members dragging the same stack out at once: only one of them receives it
 - [ ] Disbanding the family empties its warehouse
 
 ### Family membership
