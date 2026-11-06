@@ -4,14 +4,20 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.EquipmentService;
 
@@ -20,7 +26,9 @@ namespace NosCore.GameObject.Services.EquipmentService;
 //
 // Each stat is summed from both the model and the instance: the model carries the base, the
 // instance carries what upgrade and rarity changed.
-public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog)
+public sealed class EquipmentStatsService(
+    BattleService.ICardCatalog cardCatalog,
+    IDao<EquipmentOptionDto, Guid> equipmentOptionDao)
     : IEquipmentStatsService, ISingletonService
 {
     public EquipmentStats Resolve(IAliveEntity entity)
@@ -115,7 +123,17 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
 
             // Effects, HP and MP come off every piece including the weapons and armour handled
             // above; only the flat stats below skip them, having already been counted.
-            CollectBCards(bcards, piece);
+            bcards.AddRange(cardCatalog.GetItemBCards(piece.ItemVNum));
+            if (piece.Item.EquipmentSlot is EquipmentType.Necklace or EquipmentType.Ring or EquipmentType.Bracelet)
+            {
+                var options = CellonOptions(piece);
+                bcards.AddRange(options.Select(CellonBCard).OfType<BCardDto>());
+                stats = stats with
+                {
+                    MpConsumptionDecrease = stats.MpConsumptionDecrease
+                        + options.Where(o => o.Type == (byte)CellonType.MpConsumption).Sum(o => o.Value),
+                };
+            }
 
             stats = stats with
             {
@@ -190,11 +208,24 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
         };
     }
 
-    // The instance-level options added with cells are not reachable from a worn piece:
-    // WearableInstance has no navigation to EquipmentOption.
-    private void CollectBCards(List<BCardDto> into, WearableInstance piece)
+    private List<EquipmentOptionDto> CellonOptions(WearableInstance jewel) =>
+        jewel.EquipmentOptions ??= equipmentOptionDao.Where(o => o.WearableInstanceId == jewel.Id)?.ToList() ?? [];
+
+    // MP consumption has no effect card: it is read straight off the gear when a skill is paid for.
+    private static BCardDto? CellonBCard(EquipmentOptionDto option)
     {
-        into.AddRange(cardCatalog.GetItemBCards(piece.ItemVNum));
+        BCardEffect? effect = (CellonType)option.Type switch
+        {
+            CellonType.Hp => BCardEffect.MaxHpmpMaximumHpIncreased,
+            CellonType.Mp => BCardEffect.MaxHpmpMaximumMpIncreased,
+            CellonType.HpRecovery => BCardEffect.RecoveryHpRecoveryIncreased,
+            CellonType.MpRecovery => BCardEffect.RecoveryMpRecoveryIncreased,
+            CellonType.CriticalDamageDecrease => BCardEffect.CriticalDamageFromCriticalDecreased,
+            _ => null,
+        };
+        return effect is { } e
+            ? new BCardDto { Type = e.Type(), SubType = e.SubType(), FirstData = option.Value }
+            : null;
     }
 
     // The equipment slot is the index in the pocket, which is why a weapon in the bag does

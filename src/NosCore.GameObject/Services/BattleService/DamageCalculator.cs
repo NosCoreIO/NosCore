@@ -118,7 +118,8 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         var isCritical = false;
         if (skill.Type != 2 && random.NextDouble() * 100 <= context.MainCritChance)
         {
-            baseDamage += (int)(baseDamage * (context.MainCritHit / 100.0));
+            var critHit = context.MainCritHit * (100 + defender.CriticalDamageReceived) / 100.0;
+            baseDamage += (int)(baseDamage * (Math.Max(0, critHit) / 100.0));
             isCritical = true;
         }
 

@@ -59,4 +59,6 @@ public readonly record struct CombatStats(
     int EnemyDarkResistance = 0,
     // Type 16: overrides of the ordinary dodge roll, both as a percentage.
     int GuaranteedHitChance = 0,
-    int GuaranteedDodgeChance = 0);
+    int GuaranteedDodgeChance = 0,
+    // Percentage added to the critical bonus of hits this entity takes; negative shrinks it.
+    int CriticalDamageReceived = 0);

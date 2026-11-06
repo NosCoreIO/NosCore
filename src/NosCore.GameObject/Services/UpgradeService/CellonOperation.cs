@@ -122,6 +122,7 @@ public sealed class CellonOperation(
         if (rolled is not null)
         {
             await equipmentOptionDao.TryInsertOrUpdateAsync(rolled);
+            ((WearableInstance)ctx.Source.ItemInstance!).EquipmentOptions?.Add(rolled);
         }
     }
 

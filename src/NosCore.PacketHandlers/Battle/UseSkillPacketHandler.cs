@@ -33,7 +33,8 @@ namespace NosCore.PacketHandlers.Battle
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IBattleService battleService,
         ISessionRegistry sessionRegistry,
-        IClock clock)
+        IClock clock,
+        NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService equipmentStatsService)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
@@ -105,14 +106,15 @@ namespace NosCore.PacketHandlers.Battle
             {
                 return false;
             }
-            if (character.Mp < skill.Skill.MpCost)
+            var decrease = Math.Clamp(equipmentStatsService.Resolve(character).MpConsumptionDecrease, 0, 100);
+            var mpCost = skill.Skill.MpCost * (100 - decrease) / 100;
+            if (character.Mp < mpCost)
             {
                 return false;
             }
 
             // Deferred commit: hold the now-resolved CharacterSkill + mpCost in the closure
             // so the packet handler can fire them only if BattleService.Hit didn't bail.
-            var mpCost = skill.Skill.MpCost;
             var trackedSkill = skill;
             commit = () =>
             {

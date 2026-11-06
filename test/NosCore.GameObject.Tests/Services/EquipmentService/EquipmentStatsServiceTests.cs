@@ -4,7 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -12,6 +15,9 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using Moq;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
+using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -42,6 +48,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         private const short FairyVnum = 904;
         private const short EnchantedGlovesVnum = 905;
         private const short SpecialistVnum = 906;
+        private const short NecklaceVnum = 907;
 
         private static readonly List<ItemDto> Catalog = new()
         {
@@ -83,6 +90,11 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                 VNum = SpecialistVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
                 EquipmentSlot = EquipmentType.Sp, FireResistance = 4, WaterResistance = 13
             },
+            new Item
+            {
+                VNum = NecklaceVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
+                EquipmentSlot = EquipmentType.Necklace, MaxCellon = 3, MaxCellonLvl = 10
+            },
         };
 
         // The effects are not in the item: NosCore.Data keeps the navigation collections
@@ -102,6 +114,8 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         private EquipmentStatsService _service = null!;
         private ClientSession _session = null!;
         private IItemGenerationService _items = null!;
+        private List<EquipmentOptionDto> _options = null!;
+        private int _optionReads;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -110,7 +124,16 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer);
-            _service = new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects));
+            _options = new List<EquipmentOptionDto>();
+            _optionReads = 0;
+            var optionDao = new Mock<IDao<EquipmentOptionDto, Guid>>();
+            optionDao.Setup(d => d.Where(It.IsAny<Expression<Func<EquipmentOptionDto, bool>>>()))
+                .Returns((Expression<Func<EquipmentOptionDto, bool>> filter) =>
+                {
+                    _optionReads++;
+                    return _options.Where(filter.Compile()).ToList();
+                });
+            _service = new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects), optionDao.Object);
         }
 
         /// <summary>
@@ -118,13 +141,20 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         /// generator rather than building the instance by hand is the only way to have an object that
         /// behaves as it does in production.
         /// </summary>
-        private void Wear(EquipmentType slot, short vnum)
+        private IItemInstance Wear(EquipmentType slot, short vnum)
         {
             var item = _items.Create(vnum, 1);
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(item, _session.Character.CharacterId),
                 NoscorePocketType.Wear, (short)slot);
+            return item;
         }
+
+        private void AddOption(IItemInstance jewel, CellonType type, int value) =>
+            _options.Add(new EquipmentOptionDto
+            {
+                Id = Guid.NewGuid(), WearableInstanceId = jewel.Id, Level = 1, Type = (byte)type, Value = value
+            });
 
         [TestMethod]
         public void NothingWornMeansNoBonus()
@@ -340,5 +370,76 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Assert.AreEqual(17, provider.GetStats(_session.Character).ElementRateSp);
         }
 
+        [TestMethod]
+        public void AWornJewelsCellonOptionsBecomeEffects()
+        {
+            var necklace = Wear(EquipmentType.Necklace, NecklaceVnum);
+            AddOption(necklace, CellonType.Hp, 300);
+            AddOption(necklace, CellonType.Mp, 250);
+            AddOption(necklace, CellonType.HpRecovery, 20);
+            AddOption(necklace, CellonType.MpRecovery, 25);
+            AddOption(necklace, CellonType.CriticalDamageDecrease, 15);
+
+            var effects = _service.Resolve(_session.Character).BCards
+                .ToDictionary(b => b.Effect(), b => b.FirstData);
+
+            Assert.AreEqual(300, effects[BCardEffect.MaxHpmpMaximumHpIncreased]);
+            Assert.AreEqual(250, effects[BCardEffect.MaxHpmpMaximumMpIncreased]);
+            Assert.AreEqual(20, effects[BCardEffect.RecoveryHpRecoveryIncreased]);
+            Assert.AreEqual(25, effects[BCardEffect.RecoveryMpRecoveryIncreased]);
+            Assert.AreEqual(15, effects[BCardEffect.CriticalDamageFromCriticalDecreased]);
+        }
+
+        [TestMethod]
+        public void MpConsumptionOptionsAddUpAsAPercentage()
+        {
+            var necklace = Wear(EquipmentType.Necklace, NecklaceVnum);
+            AddOption(necklace, CellonType.MpConsumption, 7);
+            var ring = Wear(EquipmentType.Ring, NecklaceVnum);
+            AddOption(ring, CellonType.MpConsumption, 5);
+
+            var stats = _service.Resolve(_session.Character);
+
+            Assert.AreEqual(12, stats.MpConsumptionDecrease);
+            Assert.AreEqual(0, stats.BCards.Count, "It is not an effect card");
+        }
+
+        [TestMethod]
+        public void AJewelInTheBagGivesNoOption()
+        {
+            var necklace = _items.Create(NecklaceVnum, 1);
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(necklace, _session.Character.CharacterId),
+                NoscorePocketType.Equipment);
+            AddOption(necklace, CellonType.Hp, 300);
+
+            Assert.AreEqual(0, _service.Resolve(_session.Character).BCards.Count);
+        }
+
+        // Combat resolves the gear on every hit, so the options must not cost a query each time.
+        [TestMethod]
+        public void AJewelsOptionsAreReadOnce()
+        {
+            var necklace = Wear(EquipmentType.Necklace, NecklaceVnum);
+            AddOption(necklace, CellonType.Hp, 300);
+
+            _service.Resolve(_session.Character);
+            _service.Resolve(_session.Character);
+
+            Assert.AreEqual(1, _optionReads);
+        }
+
+        [TestMethod]
+        public void ACriticalDamageDecreaseReachesTheCombatStats()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
+                .Returns(new List<BuffInstance>());
+            var provider = new BattleStatsProvider(buffs.Object, _service);
+            var necklace = Wear(EquipmentType.Necklace, NecklaceVnum);
+            AddOption(necklace, CellonType.CriticalDamageDecrease, 15);
+
+            Assert.AreEqual(-15, provider.GetStats(_session.Character).CriticalDamageReceived);
+        }
     }
 }

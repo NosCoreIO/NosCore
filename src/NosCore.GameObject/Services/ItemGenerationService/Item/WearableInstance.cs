@@ -12,6 +12,7 @@ using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
@@ -38,6 +39,10 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             && (Item?.ItemType != ItemType.Weapon);
 
         public Item Item { get; set; } = null!;
+
+        // The options live in their own table, so they are read on first use rather than with
+        // the instance; null means not read yet.
+        public List<EquipmentOptionDto>? EquipmentOptions { get; set; }
         public object Clone()
         {
             return (WearableInstance)MemberwiseClone();

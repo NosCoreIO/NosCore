@@ -455,6 +455,17 @@ Accessory and a Cellon (`$CreateItem 1017 20` gives twenty level 1 cellons) into
 - [ ] An accessory already holding its maximum number of options: "You cannot add any more
       options.", nothing is charged and the cellon stack is unchanged
 
+### Cellon options on a worn accessory
+
+Add an HP and an MP option to a necklace, ring or bracelet, then wear it.
+
+- [ ] Wearing it raises the maximum HP and MP by the options' values; taking it off lowers them again
+- [ ] Sitting with an HP or MP recovery option, each tick refills that many more points than without it
+- [ ] With a critical damage decrease option, a monster's critical hit takes that percentage off its
+      critical bonus
+- [ ] With an MP consumption option, every skill costs that percentage less MP
+- [ ] The same jewel left in the bag changes nothing
+
 ---
 
 ## Chat
