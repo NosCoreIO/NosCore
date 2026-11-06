@@ -5,7 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using System.Linq;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService

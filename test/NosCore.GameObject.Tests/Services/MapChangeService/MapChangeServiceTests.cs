@@ -62,13 +62,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 TestHelpers.Instance.GameLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
                 new Mock<Wolverine.IMessageBus>().Object,
-                new GameObject.Services.ScriptedInstanceService.ScriptedInstanceService(
-                    new System.Collections.Generic.List<NosCore.Data.StaticEntities.ScriptedInstanceDto>(),
-                    new System.Collections.Generic.List<NosCore.Data.StaticEntities.MapDto>(),
-                    new System.Lazy<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>(new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object),
-                    new GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry(),
-                    TestHelpers.Instance.Clock,
-                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance),
+                new Mock<GameObject.Services.ScriptedInstanceService.IScriptedInstanceService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
 

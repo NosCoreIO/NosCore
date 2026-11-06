@@ -4,56 +4,63 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Packets.Enumerations;
 using System;
-using System.Collections.Generic;
 
 namespace NosCore.Instances.Abstractions
 {
     public readonly record struct Spot(short X, short Y);
 
-    public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsBoss = false);
+    public readonly record struct MonsterSpawn(short VNum, Spot At, bool IsHostile = true);
 
     // The verbs a script may use. Everything a script can do to a running instance goes
     // through here, so the engine behind it - csx today - stays swappable.
     public interface IInstanceRun
     {
-        int CurrentRoom { get; }
         TimeSpan Elapsed { get; }
 
         void Summon(int room, params MonsterSpawn[] monsters);
-        void SummonNpc(int room, short vNum, Spot at);
-        void SpawnPortal(int fromRoom, int toRoom, Spot at, bool locked = true);
+
+        void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true);
+
         void UnlockPortal(int fromRoom, int toRoom);
 
-        // A locker holds the room shut until the monsters it names are dead.
+        // A locker holds the room shut until that many of its monsters are dead.
         void SetMonsterLocker(int room, short count);
-        void SetButtonLocker(int room, short count);
 
         void StartClock(TimeSpan limit);
-        void StopClock();
 
-        void Message(string text);
-        void Effect(int room, short effectId);
+        void Message(Game18NConstString message);
 
         void Succeed();
+
         void Fail();
     }
 
     public interface IInstanceScript
     {
+        ScriptedInstanceDefinition Definition { get; }
+
         void OnFirstEnter(IInstanceRun run);
-        void OnMonsterKilled(IInstanceRun run, short vNum);
+
+        void OnMonsterKilled(IInstanceRun run, int room, short vNum);
+
         void OnRoomCleared(IInstanceRun run, int room);
+
         void OnTimeout(IInstanceRun run);
     }
 
-    // Scripts subclass this so they only override the triggers they use, the way real
-    // instance definitions omit whatever they do not have.
+    // Scripts subclass this so they only override the triggers they use.
     public abstract class InstanceScript : IInstanceScript
     {
+        public ScriptedInstanceDefinition Definition { get; protected init; } = new();
+
         public virtual void OnFirstEnter(IInstanceRun run) { }
-        public virtual void OnMonsterKilled(IInstanceRun run, short vNum) { }
+
+        public virtual void OnMonsterKilled(IInstanceRun run, int room, short vNum) { }
+
         public virtual void OnRoomCleared(IInstanceRun run, int room) { }
+
         public virtual void OnTimeout(IInstanceRun run) { }
     }
 }

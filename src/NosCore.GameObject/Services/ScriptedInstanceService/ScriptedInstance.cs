@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.StaticEntities;
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
 using System.Collections.Generic;
@@ -14,7 +15,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class ScriptedInstance : ScriptedInstanceDto
     {
-        public ScriptedInstanceDefinition? Definition { get; set; }
+        public IInstanceScript? Logic { get; set; }
+
+        public ScriptedInstanceDefinition? Definition => Logic?.Definition;
 
         public byte EffectiveLevelMinimum =>
             Definition is { LevelMinimum: > 0 } ? Definition.LevelMinimum : LevelMinimum;

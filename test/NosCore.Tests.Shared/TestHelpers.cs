@@ -269,7 +269,7 @@ namespace NosCore.Tests.Shared
             minilandServiceMock.Setup(s => s.GetMinilandPortals(It.IsAny<long>())).Returns(new List<GameObject.Map.Portal>());
             MapChangeService = new MapChangeService(new Mock<IExperienceService>().Object, new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                 MapInstanceAccessorService, Instance.Clock, Instance.LogLanguageLocalizer, minilandServiceMock.Object, NullLogger<MapChangeService>.Instance, Instance.LogLanguageLocalizer, Instance.GameLanguageLocalizer, SessionRegistry, new Mock<Wolverine.IMessageBus>().Object,
-                new GameObject.Services.ScriptedInstanceService.ScriptedInstanceService(new List<ScriptedInstanceDto>(), new List<MapDto>(), new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), TestHelpers.Instance.Clock, NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance),
+                new Mock<GameObject.Services.ScriptedInstanceService.IScriptedInstanceService>().Object,
                 new Mock<GameObject.Services.BattleService.IBattleStatsProvider>().Object);
             var mapChangeService = MapChangeService;
             var instanceGeneratorService = new MapInstanceGeneratorService(new List<MapDto> { map, mapShop, miniland }, new List<NpcMonsterDto>(), new List<NpcTalkDto>(), new List<ShopDto>(),

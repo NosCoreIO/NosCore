@@ -6,6 +6,7 @@
 
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using System;
 using System.Linq;

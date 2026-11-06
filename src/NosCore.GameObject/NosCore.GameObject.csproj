@@ -29,6 +29,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Core\NosCore.Core.csproj" />
+    <ProjectReference Include="..\NosCore.Instances.Abstractions\NosCore.Instances.Abstractions.csproj" />
   </ItemGroup>
 
   <ItemGroup>
