@@ -9,6 +9,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.Packets.ServerPackets.Warehouse;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -36,6 +37,33 @@ namespace NosCore.GameObject.Ecs.Extensions
                         : itemInstance.Rare,
                 UpgradeDesign = itemInstance.Upgrade,
                 SecondUpgrade = itemInstance is SpecialistInstance specialist ? specialist.SpStoneUpgrade : (byte)0
+            };
+        }
+
+        public static WarehouseSubPacket GenerateWarehouseSubPacket(this IItemInstance? itemInstance, short slot)
+        {
+            if (itemInstance == null)
+            {
+                return new WarehouseSubPacket { Slot = slot };
+            }
+
+            var type = (PocketType)itemInstance.Item.Type;
+            return type switch
+            {
+                PocketType.Equipment => new WarehouseSubPacket
+                {
+                    Slot = slot, VNum = itemInstance.ItemVNum, Type = type, Amount = itemInstance.Amount,
+                    Rare = itemInstance.Rare, Upgrade = itemInstance.Upgrade
+                },
+                PocketType.Specialist => new WarehouseSubPacket
+                {
+                    Slot = slot, VNum = itemInstance.ItemVNum, Type = type, Amount = itemInstance.Upgrade,
+                    Rare = itemInstance is SpecialistInstance specialist ? specialist.SpStoneUpgrade : (short)0
+                },
+                _ => new WarehouseSubPacket
+                {
+                    Slot = slot, VNum = itemInstance.ItemVNum, Type = type, Amount = itemInstance.Amount
+                }
             };
         }
 
