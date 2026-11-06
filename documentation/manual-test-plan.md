@@ -175,6 +175,15 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Try a +5 card below job level 41, or with too few feathers: the matching message
       appears and nothing is spent
 
+### Equipment upgrade
+
+- [ ] Put a +2 weapon of rarity 8 in the bag with Cella Powder (1014) and Soul Gems (1015),
+      open Teoman's Use Shop, pick the upgrade tab and drag the weapon in: the window shows
+      90 % success, 10 % fixed, 0 % fail, 3,000 gold, 80 Cella Powder and 2 gems
+- [ ] Press Upgrade and confirm: the item is never destroyed, and exactly 3,000 gold is taken
+- [ ] A +7 weapon of rarity 0 and one of rarity 8 show the same 5 % / 3 % / 92 % and the
+      same 400,000 gold, 380 Cella Powder and 2 full gems
+
 ### Soul Revival Stone
 
 - [ ] With a specialist card whose soul was destroyed in the bag, double-click a Soul Revival
