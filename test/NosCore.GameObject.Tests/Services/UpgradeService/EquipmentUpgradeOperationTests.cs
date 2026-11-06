@@ -34,6 +34,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short SmallGemVNum = 1015;
         private const short FullGemVNum = 1016;
         private const short ScrollVNum = 1218;
+        private const short DimensionalForceVNum = 2774;
+        private const short ShardVNum = 2748;
 
         private ClientSession _session = null!;
         private Mock<IRandomNumberSource> _random = null!;
@@ -119,6 +121,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("Rare 8 at +7 with roll 0.50 destroys the item, as for any rarity")
                 .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
                 .And(CharacterHasGold_, 10_000_000L)
                 .And(NextRollWillBe_, 0.50)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
@@ -132,6 +135,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("Rare 8 at +7 with roll 0.02 locks the item, as for any rarity")
                 .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
                 .And(CharacterHasGold_, 10_000_000L)
                 .And(NextRollWillBe_, 0.02)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
@@ -146,6 +150,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("Rare 8 at +7 with roll 0.96 succeeds, as for any rarity")
                 .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
                 .And(CharacterHasGold_, 10_000_000L)
                 .And(NextRollWillBe_, 0.96)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)
@@ -160,6 +165,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("Rare 8 protected failure at +7 consumes the scroll without locking the item")
                 .Given(HighRareWearableAtUpgrade_, (byte)7)
                 .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
                 .And(CharacterHasGold_, 10_000_000L)
                 .And(NextRollWillBe_, 0.50)
                 .WhenAsync(ProtectedUpgradeIsExecuted)
@@ -213,7 +219,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task UpgradeAtMaxLevelIsRejectedSilently()
         {
-            await new Spec("Upgrade at +13 cap is rejected with no inventory or gold change")
+            await new Spec("Upgrade at the +13 cap is rejected with no inventory or gold change")
                 .Given(WearableAtUpgrade_, (byte)13)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 1_000_000L)
@@ -249,7 +255,71 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task UpgradeFromTenUsesDimensionalForceAndShards()
+        {
+            await new Spec("At +10 a success spends Dimensional Force and a shard instead of a soul gem")
+                .Given(WearableAtUpgrade_, (byte)10)
+                .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.999)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)11)
+                .And(FullGemRemainingShouldBe_, (short)10)
+                .And(DimensionalForceRemainingShouldBe_, (short)6)
+                .And(ShardRemainingShouldBe_, (short)9)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMissFromTenFillsThePityGauge()
+        {
+            await new Spec("At +10 a protected miss adds the success chance, out of 1000, to the gauge")
+                .Given(WearableAtUpgrade_, (byte)10)
+                .And(PityGaugeIs_, (short)100)
+                .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.50)
+                .WhenAsync(ProtectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)10)
+                .And(PityGaugeShouldBe_, (short)105)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFullPityGaugeForcesTheNextUpgradeAndEmptiesIt()
+        {
+            await new Spec("A full gauge turns a failing roll into a success and resets the gauge")
+                .Given(WearableAtUpgrade_, (byte)11)
+                .And(PityGaugeIs_, (short)1000)
+                .And(MaterialsInInventory)
+                .And(MoreCellaPowder)
+                .And(CharacterHasGold_, 10_000_000L)
+                .And(NextRollWillBe_, 0.50)
+                .WhenAsync(UnprotectedUpgradeIsExecuted)
+                .Then(WearableUpgradeShouldBe_, (byte)12)
+                .And(PityGaugeShouldBe_, (short)0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMissBelowTenLeavesThePityGaugeEmpty()
+        {
+            await new Spec("Below +10 a protected miss does not fill the gauge")
+                .Given(WearableAtUpgrade_, (byte)5)
+                .And(MaterialsInInventory)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillBe_, 0.50)
+                .WhenAsync(ProtectedUpgradeIsExecuted)
+                .Then(PityGaugeShouldBe_, (short)0)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
+
+        private void PityGaugeIs_(short gauge) => ((WearableInstance)_wearable.ItemInstance).PityGauge = gauge;
 
         private void WearableAtUpgrade_(byte upgrade) => PlaceWearable(upgrade, 0);
 
@@ -279,7 +349,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             AddStack(SmallGemVNum, 10, slot: 1);
             AddStack(FullGemVNum, 10, slot: 2);
             AddStack(ScrollVNum, 5, slot: 3);
+            AddStack(DimensionalForceVNum, 10, slot: 4);
+            AddStack(ShardVNum, 10, slot: 5);
         }
+
+        private void MoreCellaPowder() => AddStack(CellonVNum, 2000, slot: 6);
 
         private void CellonAndGemInInventoryNoScroll()
         {
@@ -343,6 +417,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void FullGemRemainingShouldBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(FullGemVNum));
+
+        private void DimensionalForceRemainingShouldBe_(short expected) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(DimensionalForceVNum));
+
+        private void ShardRemainingShouldBe_(short expected) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(ShardVNum));
+
+        private void PityGaugeShouldBe_(short expected) =>
+            Assert.AreEqual(expected, ((WearableInstance)_wearable.ItemInstance).PityGauge);
 
         private void ScrollShouldHaveBeenConsumed() =>
             Assert.AreEqual(4, _session.Character.InventoryService.CountItem(ScrollVNum));

@@ -42,12 +42,18 @@ public abstract class SpUpgradeOperationBase(
     public const short DragonSkinVNum = 2511;
     public const short DragonBloodVNum = 2512;
     public const short DragonHeartVNum = 2513;
+    public const short DragonGemVNum = 2630;
+    public const short ShardVNum = 2748;
     public const short BlueScrollVNum = 1363;
     public const short RedScrollVNum = 1364;
     public const sbyte DestroyedSoulRare = -2;
 
     // Cards with a higher morph are upgraded with the dragon materials instead of souls.
     private const short LastSoulMorph = 16;
+
+    // The cards of the other dimensions, which also take shards from +15.
+    private const short FirstDimensionMorph = 55;
+    private const short LastDimensionMorph = 58;
 
     protected abstract bool IsProtected { get; }
 
@@ -97,8 +103,13 @@ public abstract class SpUpgradeOperationBase(
         {
             new(FeatherVNum, spUpgradeService.GetFeatherCost(upgrade)),
             new(FullMoonVNum, spUpgradeService.GetFullMoonCost(upgrade)),
-            new(SoulVNum(card), spUpgradeService.GetSoulCost(upgrade), OnSuccessOnly: true),
         };
+        AddIfNeeded(materials, SoulVNum(card), spUpgradeService.GetSoulCost(upgrade));
+        AddIfNeeded(materials, DragonGemVNum, spUpgradeService.GetDragonGemCost(upgrade));
+        if (card.Item.Morph is >= FirstDimensionMorph and <= LastDimensionMorph)
+        {
+            AddIfNeeded(materials, ShardVNum, spUpgradeService.GetShardCost(upgrade));
+        }
         if (IsProtected)
         {
             materials.Add(new MaterialCost(ScrollVNum(upgrade), 1));
@@ -226,6 +237,14 @@ public abstract class SpUpgradeOperationBase(
             < 10 => dragon ? DragonBloodVNum : RedSoulVNum,
             _ => dragon ? DragonHeartVNum : BlueSoulVNum,
         };
+    }
+
+    private static void AddIfNeeded(List<MaterialCost> materials, short vnum, short amount)
+    {
+        if (amount > 0)
+        {
+            materials.Add(new MaterialCost(vnum, amount, OnSuccessOnly: true));
+        }
     }
 
     private static short ScrollVNum(byte upgrade) => upgrade < 10 ? BlueScrollVNum : RedScrollVNum;

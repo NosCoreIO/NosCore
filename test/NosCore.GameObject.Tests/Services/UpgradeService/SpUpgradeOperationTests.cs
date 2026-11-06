@@ -170,12 +170,41 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(Game18NConstString.MaximumUpgradeReached, Sayi().Message);
         }
 
-        private void PlaceCard(byte upgrade, byte spLevel)
+        [TestMethod]
+        public async Task FromPlusFifteenACardSpendsDragonGemsInsteadOfSouls()
+        {
+            PlaceCard(upgrade: 15, spLevel: 99);
+            AddMaterials();
+            Roll(0.999);
+
+            await UpgradeAsync(_unprotected);
+
+            Assert.AreEqual((byte)16, _card.Upgrade);
+            Assert.AreEqual(100 - 2, Count(SpUpgradeOperationBase.DragonGemVNum));
+            Assert.AreEqual(100, Count(SpUpgradeOperationBase.BlueSoulVNum));
+            Assert.AreEqual(100, Count(SpUpgradeOperationBase.ShardVNum));
+        }
+
+        [TestMethod]
+        public async Task FromPlusFifteenACardOfAnotherDimensionAlsoSpendsShards()
+        {
+            PlaceCard(upgrade: 15, spLevel: 99, morph: 55);
+            AddMaterials();
+            Roll(0.999);
+
+            await UpgradeAsync(_unprotected);
+
+            Assert.AreEqual((byte)16, _card.Upgrade);
+            Assert.AreEqual(100 - 2, Count(SpUpgradeOperationBase.DragonGemVNum));
+            Assert.AreEqual(100 - 1, Count(SpUpgradeOperationBase.ShardVNum));
+        }
+
+        private void PlaceCard(byte upgrade, byte spLevel, short morph = 1)
         {
             _card = new SpecialistInstance(new Item
             {
                 VNum = 901, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
-                EquipmentSlot = EquipmentType.Sp, Morph = 1,
+                EquipmentSlot = EquipmentType.Sp, Morph = morph,
             })
             {
                 Amount = 1,
@@ -196,7 +225,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                          SpUpgradeOperationBase.FeatherVNum, SpUpgradeOperationBase.FullMoonVNum,
                          SpUpgradeOperationBase.GreenSoulVNum, SpUpgradeOperationBase.RedSoulVNum,
                          SpUpgradeOperationBase.BlueSoulVNum, SpUpgradeOperationBase.BlueScrollVNum,
-                         SpUpgradeOperationBase.RedScrollVNum,
+                         SpUpgradeOperationBase.RedScrollVNum, SpUpgradeOperationBase.DragonGemVNum,
+                         SpUpgradeOperationBase.ShardVNum,
                      })
             {
                 var inst = InventoryItemInstance.Create(

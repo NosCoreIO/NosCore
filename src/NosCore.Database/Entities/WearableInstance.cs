@@ -58,6 +58,8 @@ namespace NosCore.Database.Entities
 
         public short? MaxElementRate { get; set; }
 
+        public short PityGauge { get; set; }
+
         public short? Mp { get; set; }
 
         public byte? ShellRarity { get; set; }

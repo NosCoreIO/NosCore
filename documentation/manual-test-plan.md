@@ -115,6 +115,15 @@ distance the walk check uses.
 
 ---
 
+### Experience from kills
+
+- [ ] At level 5 and job level 5, kill a Baby Dander (60 XP, 120 job XP): `lev` shows 180
+      XP and 360 job XP, three times the monster's values
+- [ ] At level 15, the kill gives twice the experience; at level 20 and job level 21, the
+      plain amount
+- [ ] In a group of two at the same level, each member gets 75 % of the kill; in a group of
+      three, 70 %
+
 ## Monsters
 
 ### Aggro and chasing
@@ -205,6 +214,10 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       Card's soul was destroyed." appears and the card can no longer be upgraded
 - [ ] Try a +5 card below job level 41, or with too few feathers: the matching message
       appears and nothing is spent
+- [ ] Drag a +15 card in with 32 full moons, 80 feathers and 2 Dragon Gems (2630): the
+      window shows 1.2 % / 70 % / 28.8 %, 1,250,000 gold and the Dragon Gems, and Upgrade
+      rolls the attempt instead of saying the maximum was reached
+- [ ] A +20 card cannot be upgraded further
 
 ### Equipment upgrade
 
@@ -214,6 +227,11 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Press Upgrade and confirm: the item is never destroyed, and exactly 3,000 gold is taken
 - [ ] A +7 weapon of rarity 0 and one of rarity 8 show the same 5 % / 3 % / 92 % and the
       same 400,000 gold, 380 Cella Powder and 2 full gems
+- [ ] A +10 weapon shows 1,250,000 gold, 1200 Cella Powder, 4 Dimensional Force (2774) and
+      1 shard (2748), and can be upgraded up to +13
+- [ ] Each failed or protected attempt from +10 fills the pity gauge bar in the item
+      window's corner; a full bar makes the next attempt succeed and empties it
+- [ ] Below +10 the bar never appears
 
 ### Specialist points
 
@@ -229,6 +247,8 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       point comes back, one potion is gone and the client says the points were restored
 - [ ] Reset again with nothing spent: the client says the card was already reset and the
       potion stays; reset without a potion: the matching message appears
+- [ ] A level 99 card at +15 has 410 points; at +20 it has 486, and attack can be raised
+      past level 100 up to 120
 
 ### Specialist card perfection
 

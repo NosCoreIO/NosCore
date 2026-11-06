@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Algorithm.EquipmentUpgradeService;
@@ -35,6 +36,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     public const short SmallGemVNum = 1015;
     public const short FullGemVNum = 1016;
     public const short DimensionalForceVNum = 2774;
+    public const short ShardVNum = 2748;
     public const short NormalScrollVNum = 1218;
 
     protected abstract bool IsProtected { get; }
@@ -110,6 +112,11 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             new(CellonVNum, equipmentUpgradeService.GetCellaCost(upgrade)),
             new(gemVNum, equipmentUpgradeService.GetGemCost(upgrade)),
         };
+        var shards = equipmentUpgradeService.GetShardCost(upgrade);
+        if (shards > 0)
+        {
+            materials.Add(new MaterialCost(ShardVNum, shards));
+        }
         if (IsProtected)
         {
             materials.Add(new MaterialCost(NormalScrollVNum, 1));
@@ -126,7 +133,8 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     {
         var wearable = (WearableInstance)ctx.Source.ItemInstance!;
         var percent = roll * 100;
-        if (percent >= 100 - equipmentUpgradeService.GetSuccessRate(wearable.Upgrade))
+        if (wearable.PityGauge >= equipmentUpgradeService.PityGaugeMaximum
+            || percent >= 100 - equipmentUpgradeService.GetSuccessRate(wearable.Upgrade))
         {
             return UpgradeOutcome.Success;
         }
@@ -143,7 +151,19 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     {
         var wearable = (WearableInstance)ctx.Source.ItemInstance!;
         wearable.Upgrade = (byte)(wearable.Upgrade + 1);
+        wearable.PityGauge = 0;
     }
+
+    // Every roll that does not succeed fills the item's gauge, whether the item is fixed, saved
+    // by a scroll or destroyed; a full gauge makes the next attempt succeed.
+    private void FillPityGauge(UpgradeContext ctx)
+    {
+        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
+        wearable.PityGauge = (short)Math.Min(equipmentUpgradeService.PityGaugeMaximum,
+            wearable.PityGauge + equipmentUpgradeService.GetPityGaugeGain(wearable.Upgrade));
+    }
+
+    protected override void ApplyProtectedSave(ClientSession session, UpgradeContext ctx) => FillPityGauge(ctx);
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx)
     {
@@ -153,6 +173,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
     protected override void ApplyFixed(ClientSession session, UpgradeContext ctx)
     {
+        FillPityGauge(ctx);
         var wearable = (WearableInstance)ctx.Source.ItemInstance!;
         wearable.IsFixed = true;
     }
