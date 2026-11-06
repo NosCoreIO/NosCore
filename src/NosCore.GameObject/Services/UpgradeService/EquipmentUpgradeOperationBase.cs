@@ -34,6 +34,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     public const short CellonVNum = 1014;
     public const short SmallGemVNum = 1015;
     public const short FullGemVNum = 1016;
+    public const short DimensionalForceVNum = 2774;
     public const short NormalScrollVNum = 1218;
 
     protected abstract bool IsProtected { get; }
@@ -97,7 +98,12 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         }
 
         var upgrade = wearable.Upgrade;
-        var gemVNum = equipmentUpgradeService.UsesCompleteGem(upgrade) ? FullGemVNum : SmallGemVNum;
+        var gemVNum = equipmentUpgradeService.GetGemType(upgrade) switch
+        {
+            UpgradeGemType.DimensionalForce => DimensionalForceVNum,
+            UpgradeGemType.CompleteSoulGem => FullGemVNum,
+            _ => SmallGemVNum,
+        };
 
         var materials = new List<MaterialCost>
         {

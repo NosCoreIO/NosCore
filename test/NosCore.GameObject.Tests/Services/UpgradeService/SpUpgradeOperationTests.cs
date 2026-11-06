@@ -160,9 +160,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
-        public async Task APlusFifteenCardIsRefused()
+        public async Task APlusTwentyCardIsRefused()
         {
-            PlaceCard(upgrade: 15, spLevel: 99);
+            PlaceCard(upgrade: 20, spLevel: 99);
             AddMaterials();
 
             await UpgradeAsync(_unprotected);

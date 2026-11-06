@@ -213,8 +213,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task UpgradeAtMaxLevelIsRejectedSilently()
         {
-            await new Spec("Upgrade at +10 cap is rejected with no inventory or gold change")
-                .Given(WearableAtUpgrade_, (byte)10)
+            await new Spec("Upgrade at +13 cap is rejected with no inventory or gold change")
+                .Given(WearableAtUpgrade_, (byte)13)
                 .And(MaterialsInInventory)
                 .And(CharacterHasGold_, 1_000_000L)
                 .WhenAsync(UnprotectedUpgradeIsExecuted)

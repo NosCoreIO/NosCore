@@ -197,5 +197,34 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
 
             StringAssert.Contains(Info(card), " 15000 -1 ");
         }
+
+        [TestMethod]
+        public void AWeaponListsItsShellOptions()
+        {
+            var sword = Wearable(new Item
+            {
+                VNum = 299, ItemType = ItemType.Weapon, EquipmentSlot = EquipmentType.MainWeapon, LevelMinimum = 70, Price = 100
+            });
+            sword.ShellRarity = 5;
+            sword.BoundCharacterId = 1;
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = sword.Id, Level = 2, Type = 15, Value = 12 });
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = sword.Id, Level = 1, Type = 1, Value = 50 });
+
+            Assert.AreEqual("e_info 0 299 0 0 0 70 0 0 0 0 0 0 0 100 -1 5 1 2 1.1.50 2.15.12 0", Info(sword));
+        }
+
+        [TestMethod]
+        public void AShellShowsItsLevelRarityAndOptions()
+        {
+            var shell = Wearable(new Item
+            {
+                VNum = 565, ItemType = ItemType.Shell, EquipmentSlot = EquipmentType.MainWeapon, Price = 200
+            });
+            shell.Upgrade = 60;
+            shell.Rare = 5;
+            _options.Add(new EquipmentOptionDto { WearableInstanceId = shell.Id, Level = 1, Type = 1, Value = 50 });
+
+            Assert.AreEqual("e_info 9 565 60 5 200 1 1.1.50", Info(shell));
+        }
     }
 }

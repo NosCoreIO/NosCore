@@ -100,6 +100,7 @@
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
 | ReputPrice | Int64 | FLAG[20] + VNUM[1] | Reputation price when FLAG[20] is set |
 | Sex | Byte | FLAG[16] + FLAG[17] | Gender restriction: 1=female, 2=male, 0=any |
+| ShellType | Nullable`1 | DATA[5] (shell only) | Shell kind, which decides the options it rolls |
 | Speed | Byte | DATA[varies] | Movement speed bonus / vehicle speed |
 | SpType | Byte | DATA[varies] (SP only) | SP transformation type |
 | Type | NoscorePocketType | FLAG[25] + DATA[0] + INDEX[0,1] | Pocket type: FLAG[25]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map |

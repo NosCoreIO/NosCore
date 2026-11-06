@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Database.Entities.Base;
 using NosCore.Packets.Enumerations;
+using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -166,6 +167,8 @@ namespace NosCore.Database.Entities
         public long Price { get; set; }
 
         public short PvpDefence { get; set; }
+
+        public ShellType? ShellType { get; set; }
 
         public byte PvpStrength { get; set; }
 
