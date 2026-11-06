@@ -5,14 +5,16 @@
 //
 
 using JetBrains.Annotations;
+using NosCore.Algorithm.EquipmentUpgradeService;
 using NosCore.Core.I18N;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
-public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
-    : EquipmentUpgradeOperationBase(random, localizer)
+public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IEquipmentUpgradeService equipmentUpgradeService)
+    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItem;
 
@@ -20,8 +22,9 @@ public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLangua
 }
 
 [UsedImplicitly]
-public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
-    : EquipmentUpgradeOperationBase(random, localizer)
+public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IEquipmentUpgradeService equipmentUpgradeService)
+    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItemProtected;
 

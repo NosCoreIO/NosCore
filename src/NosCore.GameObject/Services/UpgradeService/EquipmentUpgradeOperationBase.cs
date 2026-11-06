@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Algorithm.EquipmentUpgradeService;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
@@ -23,50 +24,17 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
-// Equipment upgrade flow modeled on OpenNos's WearableInstance.UpgradeItem (lines 667-897).
-//
-// 3-way roll per OpenNos:
-//   - rnd < upfix[Upgrade]                 → Fixed: item becomes IsFixed=true (locked)
-//   - rnd < upfix + upfail                 → Failure: item destroyed (or saved by scroll)
-//   - else                                 → Success: Upgrade += 1
-//
-// Two cost tiers indexed by source.Upgrade:
-//   - Rare < 8: standard tables
-//   - Rare >= 8: scaled-up tables (the "perfect rarity" tier)
-//
-// Materials per attempt:
-//   - Cellon (vnum 1014)
-//   - Gem: vnum 1015 if Upgrade<5, else 1016 (the "full" gem)
-//   - Protected variants additionally consume one Magic Pearl Scroll (vnum 1218); the
-//     scroll absorbs a Failure roll and turns it into a Fixed-style no-op (item preserved).
-//
-// Caps:
-//   - Upgrade >= 10 rejected upfront.
-//   - IsFixed items rejected upfront.
-public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer)
+// One roll against the item's upgrade level: the top of the range succeeds, the bottom fixes the
+// item at its level, and what is left fails. A failure destroys the item unless a scroll is
+// spent, in which case the item is kept and not fixed.
+public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IEquipmentUpgradeService equipmentUpgradeService)
     : UpgradeOperation(random, localizer)
 {
     public const short CellonVNum = 1014;
     public const short SmallGemVNum = 1015;
     public const short FullGemVNum = 1016;
     public const short NormalScrollVNum = 1218;
-    public const byte MaxUpgradeLevel = 10;
-    private const byte HighRarityThreshold = 8;
-
-    // OpenNos tables (rare < 8). Indexed by source Upgrade (0..9).
-    // upfix and upfail are "out of 100"; success rate = 100 - upfix - upfail.
-    private static readonly short[] LowRareUpfix    = { 0,    0,    10,   15,    20,    20,    20,     20,      15,      14 };
-    private static readonly short[] LowRareUpfail   = { 0,    0,    0,    5,     20,    40,    60,     70,      80,      85 };
-    private static readonly long[]  LowRareGold     = { 500,  1500, 3000, 10000, 30000, 80000, 150000, 400000,  700000,  1000000 };
-    private static readonly short[] LowRareCellon   = { 20,   50,   80,   120,   160,   220,   280,    380,     480,     600 };
-    private static readonly short[] LowRareGem      = { 1,    1,    2,    2,     3,     1,     1,      2,       2,       3 };
-
-    // OpenNos tables (rare >= 8). Same shape, scaled-up costs.
-    private static readonly short[] HighRareUpfix   = { 50,   40,   70,   65,    80,    90,    95,     97,      98,      99 };
-    private static readonly short[] HighRareUpfail  = { 50,   40,   60,   50,    60,    70,    75,     77,      83,      89 };
-    private static readonly long[]  HighRareGold    = { 5000, 15000, 30000, 100000, 300000, 800000, 1500000, 4000000, 7000000, 10000000 };
-    private static readonly short[] HighRareCellon  = { 40,   100,  160,  240,   320,   440,   560,    760,     960,     1200 };
-    private static readonly short[] HighRareGem     = { 2,    2,    4,    4,     6,     2,     2,      4,       4,       6 };
 
     protected abstract bool IsProtected { get; }
 
@@ -123,23 +91,18 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             return null;
         }
 
-        if (wearable.Upgrade >= MaxUpgradeLevel)
+        if (wearable.Upgrade >= equipmentUpgradeService.MaxUpgrade)
         {
             return null;
         }
 
-        var level = (int)wearable.Upgrade;
-        var isHighRare = wearable.Rare >= HighRarityThreshold;
-
-        var goldCost = (isHighRare ? HighRareGold : LowRareGold)[level];
-        var cellonCost = (isHighRare ? HighRareCellon : LowRareCellon)[level];
-        var gemCost = (isHighRare ? HighRareGem : LowRareGem)[level];
-        var gemVNum = level < 5 ? SmallGemVNum : FullGemVNum;
+        var upgrade = wearable.Upgrade;
+        var gemVNum = equipmentUpgradeService.UsesCompleteGem(upgrade) ? FullGemVNum : SmallGemVNum;
 
         var materials = new List<MaterialCost>
         {
-            new(CellonVNum, cellonCost),
-            new(gemVNum, gemCost),
+            new(CellonVNum, equipmentUpgradeService.GetCellaCost(upgrade)),
+            new(gemVNum, equipmentUpgradeService.GetGemCost(upgrade)),
         };
         if (IsProtected)
         {
@@ -149,45 +112,25 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         return new UpgradeContext(
             Source: source,
             Target: null,
-            GoldCost: goldCost,
-            MaterialCosts: materials,
-            ExtraData: new EquipmentUpgradeRollData(level, isHighRare));
+            GoldCost: equipmentUpgradeService.GetGoldCost(upgrade),
+            MaterialCosts: materials);
     }
 
-    // 3-way roll. OpenNos splits by rarity tier (WearableInstance.cs:822 vs :859):
-    //   - Low-rare (Rare < 8): band order is  upfix → upfail → Success  (cumulative).
-    //   - High-rare (Rare ≥ 8): band order is upfail → upfix → Success  (NOT cumulative: at
-    //     upfail=50/upfix=50 upgrade 0 you get 50% fail and 50% fixed, never success).
-    // Protected variant: a Failure-band roll is absorbed by the scroll → ProtectedSave (does NOT
-    // lock the item; OpenNos specifically skips the IsFixed write on this branch).
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
-        var data = (EquipmentUpgradeRollData)ctx.ExtraData!;
-        var upfix = (data.IsHighRare ? HighRareUpfix : LowRareUpfix)[data.Level] / 100.0;
-        var upfail = (data.IsHighRare ? HighRareUpfail : LowRareUpfail)[data.Level] / 100.0;
-
-        if (data.IsHighRare)
+        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
+        var percent = roll * 100;
+        if (percent >= 100 - equipmentUpgradeService.GetSuccessRate(wearable.Upgrade))
         {
-            if (roll < upfail)
-            {
-                return IsProtected ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
-            }
-            if (roll < upfix)
-            {
-                return UpgradeOutcome.Fixed;
-            }
             return UpgradeOutcome.Success;
         }
 
-        if (roll < upfix)
+        if (percent < equipmentUpgradeService.GetFixedRate(wearable.Upgrade))
         {
             return UpgradeOutcome.Fixed;
         }
-        if (roll < upfix + upfail)
-        {
-            return IsProtected ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
-        }
-        return UpgradeOutcome.Success;
+
+        return IsProtected ? UpgradeOutcome.ProtectedSave : UpgradeOutcome.Failure;
     }
 
     protected override void ApplySuccess(UpgradeContext ctx)
@@ -243,6 +186,4 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
         }
     }
-
-    private sealed record EquipmentUpgradeRollData(int Level, bool IsHighRare);
 }
