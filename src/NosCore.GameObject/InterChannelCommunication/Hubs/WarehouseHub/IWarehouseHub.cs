@@ -17,4 +17,5 @@ public interface IWarehouseHub
     Task<List<WarehouseLink>> GetWarehouseItems(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot);
     Task<bool> DeleteWarehouseItemAsync(Guid id);
     Task<bool> AddWarehouseItemAsync(WareHouseDepositRequest depositRequest);
+    Task<bool> MoveWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot);
 }

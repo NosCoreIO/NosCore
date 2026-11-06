@@ -71,6 +71,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                     {
                         list.Add(new WarehouseLink
                         {
+                            WarehouseItemId = warehouseItem.Id,
                             Slot = warehouseItem.Slot,
                             ItemInstance = itemInstance.Adapt<ItemInstanceDto>()
                         });
@@ -87,6 +88,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                     {
                         list.Add(new WarehouseLink
                         {
+                            WarehouseItemId = warehouseItem.Id,
                             Slot = warehouseItem.Slot,
                             ItemInstance = itemInstance.Adapt<ItemInstanceDto>()
                         });
@@ -201,9 +203,13 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            var item = itemInstance as IItemInstanceDto;
-            item!.Id = Guid.NewGuid();
-            item = await itemInstanceDao.TryInsertOrUpdateAsync(item);
+            var item = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == itemInstance.Id);
+            if (item == null)
+            {
+                item = itemInstance;
+                item.Id = Guid.NewGuid();
+                item = await itemInstanceDao.TryInsertOrUpdateAsync(item);
+            }
 
             var existingWarehouse = await warehouseDao.FirstOrDefaultAsync(s =>
                 s.Type == warehouseType &&

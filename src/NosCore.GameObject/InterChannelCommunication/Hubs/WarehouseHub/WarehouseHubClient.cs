@@ -22,5 +22,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
 
         public Task<bool> AddWarehouseItemAsync(WareHouseDepositRequest depositRequest) =>
             bus.RequestAsync<bool>(new AddWarehouseItemRequest(depositRequest));
+
+        public Task<bool> MoveWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot) =>
+            bus.RequestAsync<bool>(new MoveWarehouseItemRequest(ownerId, warehouseType, sourceSlot, destinationSlot));
     }
 }

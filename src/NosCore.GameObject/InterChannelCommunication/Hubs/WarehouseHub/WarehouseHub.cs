@@ -22,10 +22,16 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
 
         public Task<bool> AddWarehouseItemAsync(WareHouseDepositRequest depositRequest) => warehouseService.DepositItemAsync(depositRequest.OwnerId, depositRequest.WarehouseType, depositRequest.ItemInstance, depositRequest.Slot);
 
+        public Task<bool> MoveWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot) =>
+            warehouseService.MoveItemAsync(ownerId, warehouseType, sourceSlot, destinationSlot);
+
         public static async Task<Reply<List<WarehouseLink>>> Handle(GetWarehouseItemsRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<WarehouseHub>().GetWarehouseItems(r.Id, r.OwnerId, r.WarehouseType, r.Slot));
 
         public static async Task<Reply<bool>> Handle(DeleteWarehouseItemRequest r, IServiceProvider services) => new(await services.GetRequiredService<WarehouseHub>().DeleteWarehouseItemAsync(r.Id));
+
+        public static async Task<Reply<bool>> Handle(MoveWarehouseItemRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<WarehouseHub>().MoveWarehouseItemAsync(r.OwnerId, r.WarehouseType, r.SourceSlot, r.DestinationSlot));
 
         public static async Task<Reply<bool>> Handle(AddWarehouseItemRequest r, IServiceProvider services) => new(await services.GetRequiredService<WarehouseHub>().AddWarehouseItemAsync(r.DepositRequest));
     }
