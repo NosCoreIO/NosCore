@@ -28,6 +28,11 @@
   <ItemGroup>
     <ProjectReference Include="..\NosCore.Database\NosCore.Database.csproj" />
     <ProjectReference Include="..\NosCore.PacketHandlers\NosCore.PacketHandlers.csproj" />
+    <ProjectReference Include="..\NosCore.Instances.Scripting\NosCore.Instances.Scripting.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\instances\*.csx" Link="instances\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
   <ItemGroup>
