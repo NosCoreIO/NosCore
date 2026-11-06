@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return new WarehouseSubPacket { Slot = slot };
             }
 
-            var type = (PocketType)itemInstance.Item.Type;
+            var type = itemInstance is SpecialistInstance ? PocketType.Specialist : (PocketType)itemInstance.Item.Type;
             return type switch
             {
                 PocketType.Equipment => new WarehouseSubPacket
