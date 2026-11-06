@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService(),
-            new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
+            new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry);
 
         private void ChangeReturns(FamilyAuthorityChange result) =>
             _familyService.Setup(s => s.ChangeAuthorityAsync(_family, _headId, It.IsAny<long>(), It.IsAny<FamilyAuthority>()))

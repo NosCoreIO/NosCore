@@ -533,15 +533,40 @@ reputation, so have each player relog after a `$SetReputation` on them.
 
 ## Family
 
+### Founding a family
+
+Three characters with a class (not Adventurer) and no family, in one party, next to the
+family NPC (Mimi Mentor in NosVille, dialog 3). The asker carries 200 000 gold.
+
+- [ ] Families > "I want to start a family." opens an "Enter a family name." box
+- [ ] Confirm with a 3 to 14 character name: everyone on the channel reads "Congratulations!
+      The '<name>' Family has been created!", 200 000 gold leaves the asker, and the asker
+      gets `<name>(Familyhead)` and the other two `<name>(Familydeputy)`
+- [ ] With only two in the party the NPC answers "You need three members in your party."
+      and no box opens
+- [ ] A party member already in a family, an Adventurer in the party, less than 200 000
+      gold, a taken name, or a name of 2 or 15+ characters each get their own message and
+      found nothing
+
+### Disbanding a family
+
+The head of a family next to the family NPC.
+
+- [ ] Families > "I want to disband my family." asks "Are you sure you want to disband your
+      family?"
+- [ ] Confirm: the head reads "Family disbanded." and every member's family tag disappears
+- [ ] A deputy, keeper or member, or someone with no family, gets "Only the family head can
+      disband a family." and no question
+
 ### Family membership
 
-No in-game command creates a family yet, so seed one: a `Family` row, then a
-`FamilyCharacter` row per member (`Authority` 0 head, 1 assistant, 2 manager, 3 member).
-Log two members in on the same map.
+Found a family as above, or seed one: a `Family` row, then a `FamilyCharacter` row per
+member (`Authority` 0 head, 1 assistant, 2 manager, 3 member). Log two members in on the
+same map.
 
 - [ ] Each member sees the other's tag under their name as `Name(Rank)`, with the rank
-      in the viewer's own language
-- [ ] Your own tag shows under your own name after character select
+      in the viewer's own language, and nothing printed after it
+- [ ] Your own tag shows under your own name after character select, with nothing after it
 - [ ] A character with no family has no tag
 - [ ] Opening the family window shows the name, the head, the level bar and the notice,
       with the notice's spaces intact
