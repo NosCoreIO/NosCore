@@ -25,9 +25,12 @@ compute and will mask a regression.
 
 ### Worn equipment contributes to stats
 
-- [ ] Naked, open the stat window and note min/max attack and the three defences
+- [ ] Naked, open the stat window and note min/max attack and the three defences: they are
+      the level and class values, not zeros
 - [ ] `$CreateItem` a weapon and an armour, equip both
-- [ ] The stat window changes, and the numbers include the piece's own values
+- [ ] The stat window changes as soon as each piece goes on, and again when it comes off,
+      and the numbers include the piece's own values
+- [ ] Level up with the window open: the base attack and defences go up
 - [ ] Hit a monster before and after equipping — the damage is visibly different
 - [ ] An upgraded piece (`$CreateItem <vnum> 1 <upgrade>`) contributes more than a +0 of
       the same vnum
@@ -145,6 +148,11 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       in the client's language, and the character does not transform
 - [ ] With points, transform: the five-second bar runs and the character transforms when it
       ends, not before
+- [ ] Wear a specialist card whose instance carries attack and defence, hit a monster, then
+      transform and hit it again: the transformed hits are larger by about the card's attack
+- [ ] Untransform: the hits go back to the untransformed size
+- [ ] Open the character window while transformed and untransformed: attack, defence and
+      the resistances move with the card, and the card counts for nothing until transformed
 
 ### Specialist wings
 

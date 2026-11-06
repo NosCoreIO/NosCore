@@ -49,7 +49,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 TestHelpers.Instance.Clock,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.WorldConfiguration,
-                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
 
         [TestMethod]

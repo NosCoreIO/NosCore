@@ -66,7 +66,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                     new System.Lazy<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>(new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object),
                     new GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry(),
                     TestHelpers.Instance.Clock,
-                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance));
+                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance),
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
 
         [TestMethod]

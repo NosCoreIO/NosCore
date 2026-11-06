@@ -40,7 +40,8 @@ namespace NosCore.GameObject.Services.ExperienceService
         ISpExperienceService spExperienceService,
         IFairyExperienceService fairyExperienceService,
         ISkillService skillService,
-        BattleService.IVitalityService vitalityService) : IExperienceProgressionService
+        BattleService.IVitalityService vitalityService,
+        BattleService.IBattleStatsProvider battleStatsProvider) : IExperienceProgressionService
     {
         private const byte MaxLevel = 99;
         private const byte MaxJobLevel = 80;
@@ -206,6 +207,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                 await player.SendPacketAsync(new LevelUpPacket { CharacterId = player.CharacterId });
                 await player.SendPacketAsync(player.GenerateStat());
                 await player.SendPacketAsync(player.GenerateStatInfo());
+                await player.SendPacketAsync(player.GenerateSc(battleStatsProvider));
 
                 if (leveledUp)
                 {

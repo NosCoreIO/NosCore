@@ -44,7 +44,9 @@ public readonly record struct EquipmentStats(
     // yet — max HP is still class and level alone.
     int Hp,
     int Mp,
-    IReadOnlyList<BCardDto> BCards)
+    IReadOnlyList<BCardDto> BCards,
+    // Kept apart from ElementRate the way CombatStats keeps it, so it can be shown on its own.
+    int SpecialistElementRate = 0)
 {
     public static EquipmentStats None => new() { BCards = System.Array.Empty<BCardDto>() };
 }

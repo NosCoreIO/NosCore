@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         private const short HatVnum = 903;
         private const short FairyVnum = 904;
         private const short EnchantedGlovesVnum = 905;
+        private const short SpecialistVnum = 906;
 
         private static readonly List<ItemDto> Catalog = new()
         {
@@ -76,6 +77,11 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             {
                 VNum = EnchantedGlovesVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
                 EquipmentSlot = EquipmentType.Gloves
+            },
+            new Item
+            {
+                VNum = SpecialistVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
+                EquipmentSlot = EquipmentType.Sp, FireResistance = 4, WaterResistance = 13
             },
         };
 
@@ -261,6 +267,61 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
 
             Assert.AreEqual(20, gear.CloseDefence, "l'armatura porta la sua difesa piatta");
             Assert.AreEqual(1, gear.BCards.Count, "i guanti portano il loro effetto, l'armatura no");
+        }
+
+        private SpecialistInstance WearSpecialist()
+        {
+            var card = (SpecialistInstance)_items.Create(SpecialistVnum, 1);
+            card.DamageMinimum = 30;
+            card.DamageMaximum = 45;
+            card.CloseDefence = 18;
+            card.SpWater = 5;
+            card.ElementRate = 10;
+            card.SpElement = 7;
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(card, _session.Character.CharacterId),
+                NoscorePocketType.Wear, (short)EquipmentType.Sp);
+            return card;
+        }
+
+        [TestMethod]
+        public void AWornSpecialistCardCountsForNothingUntilTransformed()
+        {
+            WearSpecialist();
+            _session.Character.UseSp = false;
+
+            Assert.AreEqual(EquipmentStats.None, _service.Resolve(_session.Character));
+        }
+
+        [TestMethod]
+        public void TheSpecialistCardAddsItsStatsOnceTransformed()
+        {
+            WearSpecialist();
+            _session.Character.UseSp = true;
+
+            var stats = _service.Resolve(_session.Character);
+
+            Assert.AreEqual(30, stats.MinHit);
+            Assert.AreEqual(45, stats.MaxHit);
+            Assert.AreEqual(30, stats.MinDistance, "The card's skills hit from range too");
+            Assert.AreEqual(18, stats.CloseDefence);
+            Assert.AreEqual(4, stats.FireResistance);
+            Assert.AreEqual(18, stats.WaterResistance, "The card's own 13 plus 5 from perfection");
+            Assert.AreEqual(17, stats.SpecialistElementRate);
+            Assert.AreEqual(0, stats.ElementRate, "The card's element rate is kept apart from the fairy's");
+        }
+
+        [TestMethod]
+        public void TheSpecialistElementRateReachesTheCombatStats()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
+                .Returns(new List<BuffInstance>());
+            var provider = new BattleStatsProvider(buffs.Object, _service);
+            WearSpecialist();
+            _session.Character.UseSp = true;
+
+            Assert.AreEqual(17, provider.GetStats(_session.Character).ElementRateSp);
         }
 
     }
