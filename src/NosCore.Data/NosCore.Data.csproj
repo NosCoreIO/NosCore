@@ -36,6 +36,7 @@
     <PackageReference Include="Mapster" />
     <PackageReference Include="Mapster.JsonNet" />
     <PackageReference Include="NosCore.Packets" />
+    <PackageReference Include="NosCore.Shared" />
     <PackageReference Include="NodaTime" />
   </ItemGroup>
   <ItemGroup>

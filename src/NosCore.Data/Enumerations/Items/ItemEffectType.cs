@@ -50,6 +50,8 @@ namespace NosCore.Data.Enumerations.Items
         InventoryTicketUpgrade = 1009,
         CuarryBankVipMedal = 1010,
         CuarryBankSavingsBook = 1011,
+        ShellIdentification = 1012,
+        ShellOptionRemoval = 1013,
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

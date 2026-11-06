@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
@@ -131,6 +132,8 @@ namespace NosCore.Parser.Parsers
                     source: "DATA[varies]", description: "Max cellon level")
                 .Field(x => x.MaxCellon, chunk => ImportMaxCellon(chunk),
                     source: "DATA[varies]", description: "Max cellons slotted")
+                .Field(x => x.ShellType, chunk => ImportShellType(chunk),
+                    source: "DATA[5] (shell only)", description: "Shell kind, which decides the options it rolls")
                 .Field(x => x.DistanceDefenceDodge, chunk => ImportDistanceDefenceDodge(chunk),
                     source: "DATA[varies]", description: "Ranged dodge chance")
                 .Field(x => x.MaximumAmmo, chunk => ImportMaximumAmmo(chunk),
@@ -413,6 +416,11 @@ namespace NosCore.Parser.Parsers
                 ItemType.Jewelery when ImportEquipmentType(chunk) != EquipmentType.Amulet && ImportEquipmentType(chunk) != EquipmentType.Fairy => chunk["DATA"][0][3],
                 _ => "0"
             });
+        }
+
+        private ShellType? ImportShellType(Dictionary<string, string[][]> chunk)
+        {
+            return ImportItemType(chunk) == ItemType.Shell ? (ShellType)Convert.ToByte(chunk["DATA"][0][5]) : null;
         }
 
         private byte ImportMaxCellon(Dictionary<string, string[][]> chunk)
@@ -703,6 +711,8 @@ namespace NosCore.Parser.Parsers
                 181 => ItemEffectType.DefenseAmulet,
                 var x when x == 5838 || x == 5839 || x == 9118 || x == 9119 => ItemEffectType.CuarryBankVipMedal,
                 5836 => ItemEffectType.CuarryBankSavingsBook,
+                1429 => ItemEffectType.ShellIdentification,
+                1430 => ItemEffectType.ShellOptionRemoval,
                 _ => item.Effect,
             };
 

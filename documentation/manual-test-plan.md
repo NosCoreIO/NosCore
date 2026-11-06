@@ -582,6 +582,32 @@ Add an HP and an MP option to a necklace, ring or bracelet, then wear it.
 - [ ] With an MP consumption option, every skill costs that percentage less MP
 - [ ] The same jewel left in the bag changes nothing
 
+### Shells
+
+Give yourself a level 60 rarity 5 weapon shell (`$CreateItem 565 5 60`), a level 70 weapon such as
+a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a Magic Eraser
+(`$CreateItem 1430 1`), and wear the weapon.
+
+- [ ] Right-click the shell: the window shows "RequiredLevel: 60Lv", the rarity and no options yet
+- [ ] Double-click a Rainbow Pearl: the "Item appraisal" window opens; drop the shell in and it
+      reads "Required: 11" (level / 10 + rarity)
+- [ ] Appraisal: "The options have been identified.", 11 pearls leave the stack and the shell's
+      window now lists its options
+- [ ] Appraise the same shell again: "The options have already been identified." and no pearls go
+- [ ] Not enough pearls: nothing is identified and the pearls stay
+- [ ] Double-click the shell, then click the worn weapon in the Character window: "Do you want to
+      add a shell to the item?"; Confirm shows "A new option has been added." and the shell leaves
+      the bag
+- [ ] The weapon's window shows "Rarity of the effects", "This is your exclusive weapon." and the
+      shell's options
+- [ ] An unidentified shell, an armour shell on a weapon, a weapon of lower rarity or a weapon
+      below the shell's level is refused with its own message and the shell stays
+- [ ] A shell on a weapon that already has options asks whether to replace them; confirming
+      either replaces them or breaks the shell ("The shell has been broken.")
+- [ ] Double-click the Magic Eraser, then click the worn weapon: "All the options have been
+      removed.", the eraser is used and the weapon's window no longer lists options
+- [ ] The eraser on a weapon without options: "There are no options on this item." and it stays
+
 ---
 
 ## Chat
@@ -765,3 +791,6 @@ Recorded so nobody spends time hunting for them:
   on). The cloud client is English only, so only the unit tests cover the other words.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.
+- **What shell options do** — the options are rolled, shown and kept on the equipment, but no
+  combat, experience or gold formula reads them yet, so there is nothing to observe beyond the
+  item window.

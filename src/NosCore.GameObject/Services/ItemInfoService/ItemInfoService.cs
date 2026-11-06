@@ -42,6 +42,7 @@ public sealed class ItemInfoService(
         return itemInstance switch
         {
             SpecialistInstance specialist => GenerateSpecialistInfo(specialist),
+            WearableInstance { Item.ItemType: ItemType.Shell } shell => GenerateShellInfo(shell),
             WearableInstance wearable => wearable.Item.EquipmentSlot switch
             {
                 EquipmentType.MainWeapon or EquipmentType.SecondaryWeapon => GenerateWeaponInfo(wearable),
@@ -60,9 +61,10 @@ public sealed class ItemInfoService(
         };
     }
 
-    private static EInfoWeaponPacket GenerateWeaponInfo(WearableInstance weapon)
+    private EInfoWeaponPacket GenerateWeaponInfo(WearableInstance weapon)
     {
         var item = weapon.Item;
+        var options = LoadShellOptions(weapon);
         return new EInfoWeaponPacket
         {
             Type = (item.EquipmentSlot, item.Class) switch
@@ -87,12 +89,15 @@ public sealed class ItemInfoService(
             Price = item.Price,
             ShellRarity = weapon.ShellRarity ?? 0,
             BoundCharacterId = weapon.BoundCharacterId ?? 0,
+            ShellOptionCount = (byte)options.Count,
+            ShellOptions = options,
         };
     }
 
-    private static EInfoArmorPacket GenerateArmorInfo(WearableInstance armor)
+    private EInfoArmorPacket GenerateArmorInfo(WearableInstance armor)
     {
         var item = armor.Item;
+        var options = LoadShellOptions(armor);
         return new EInfoArmorPacket
         {
             ItemVNum = armor.ItemVNum,
@@ -107,6 +112,8 @@ public sealed class ItemInfoService(
             Price = item.Price,
             ShellRarity = armor.ShellRarity ?? 0,
             BoundCharacterId = armor.BoundCharacterId ?? 0,
+            ShellOptionCount = (byte)options.Count,
+            ShellOptions = options,
         };
     }
 
@@ -129,6 +136,26 @@ public sealed class ItemInfoService(
             Upgrade = accessory.Upgrade,
         };
     }
+
+    private EInfoShellPacket GenerateShellInfo(WearableInstance shell)
+    {
+        var options = LoadShellOptions(shell);
+        return new EInfoShellPacket
+        {
+            ItemVNum = shell.ItemVNum,
+            Level = shell.Upgrade,
+            Rare = shell.Rare,
+            Price = shell.Item.Price,
+            ShellOptionCount = (byte)options.Count,
+            ShellOptions = options,
+        };
+    }
+
+    private List<EInfoShellOptionSubPacket> LoadShellOptions(WearableInstance piece) =>
+        equipmentOptionDao.Where(o => o.WearableInstanceId == piece.Id)?
+            .OrderBy(o => o.Level)
+            .Select(o => new EInfoShellOptionSubPacket { Level = o.Level, Type = o.Type, Value = o.Value })
+            .ToList() ?? [];
 
     private EInfoJewelryPacket GenerateJewelryInfo(WearableInstance jewel)
     {
