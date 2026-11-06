@@ -114,7 +114,7 @@ public sealed class RewardService(
             parties[key] = (MembersOnMap(player, victim), damage);
         }
 
-        foreach (var (members, damage) in parties.Values)
+        foreach (var (members, damage) in parties.Values.Where(p => p.Members.Count > 0))
         {
             var share = damage / (double)totalDamage;
             var groupSize = (byte)Math.Max(1, members[0].Group.Count);
@@ -137,7 +137,7 @@ public sealed class RewardService(
         return player.Group.Values
             .Select(s => s.Item2)
             .OfType<PlayerComponentBundle>()
-            .Where(s => s.MapInstance == victim.MapInstance)
+            .Where(s => s.World == victim.MapInstance.EcsWorld && s.World.World.IsAlive(s.Handle))
             .ToList();
     }
 
