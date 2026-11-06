@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
@@ -13,8 +12,8 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MinilandService;
-using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Warehouse;
@@ -90,19 +89,20 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             {
                 var links = await warehouseHttpClient.GetWarehouseItems(null, clientSession.Character.CharacterId,
                     WarehouseType.Warehouse, null);
-                var warehouseItems = new List<WarehouseItem>();
+                var warehouseItems = new List<(short Slot, IItemInstance Item)>();
                 foreach (var warehouselink in links)
                 {
-                    var warehouseItem = warehouselink.Warehouse!.Adapt<WarehouseItem>();
                     var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == warehouselink.ItemInstance!.Id);
-                    warehouseItem.ItemInstance = itemProvider.Convert(itemInstance!);
-                    warehouseItems.Add(warehouseItem);
+                    if (itemInstance != null)
+                    {
+                        warehouseItems.Add((warehouselink.Slot, itemProvider.Convert(itemInstance)));
+                    }
                 }
                 await clientSession.SendPacketAsync(new StashAllPacket
                 {
                     WarehouseSize =
                         (byte)minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
-                    Items = warehouseItems.Select(invItem => invItem.ItemInstance.GenerateWarehouseSubPacket(invItem.Slot)).ToList()
+                    Items = warehouseItems.Select(s => s.Item.GenerateWarehouseSubPacket(s.Slot)).ToList()
                 });
             }
         }
