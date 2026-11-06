@@ -387,7 +387,9 @@ Lose some HP first, otherwise there is nothing to watch.
 ### Cuarry Bank
 
 The packet trace has no Cuarry Bank Representative on any map yet; for a test, add a `MapNpc` row with
-VNum 2692 and Dialog 535 next to the character.
+VNum 2692 and Dialog 535 (bank) or 536 (VIP services, savings book) next to the character. Items
+are easiest to use from the quick bar: a `QuicklistEntry` with Type 0, IconType = pocket and
+IconVNum = slot puts an inventory slot on it.
 
 - [ ] Talk to the Cuarry Bank Representative and pick "Use Bank Facilities": the Bank window opens
       with the credit rating and fee of the character's reputation (Red Elite: "Gold 1", "Fee 66,000"),
@@ -402,6 +404,15 @@ VNum 2692 and Dialog 535 next to the character.
 - [ ] With a private shop open, "Use Bank Facilities" answers "You cannot use the bank services while
       you have a private shop open."
 - [ ] Log out and back in: both balances are kept
+- [ ] Use a Cuarry Bank VIP Medal (5838, 10 days; 5839, 30 days): the chat shows "Cuarry Bank VIP
+      Medal (10 Days) effect activated" and the medal is used up; the Bank window then reads "VIP" with
+      "Fee 0", and a withdrawal logs "(Fee: 0 Gold)" and charges nothing. A second medal is not used
+      while the first is active
+- [ ] With the Representative on Dialog 536, "Create Savings Book" gives one Cuarry Bank Savings Book
+      ("You have received: 1x Cuarry Bank Savings Book"); asking again while holding one gives nothing
+- [ ] Use the savings book anywhere: the Bank window opens without the deposit and withdraw buttons and
+      logs the "Balance" line; the book is kept
+- [ ] Close the Bank window with its X: nothing is logged as a decoding error on the server
 
 ### NosBazaar search
 

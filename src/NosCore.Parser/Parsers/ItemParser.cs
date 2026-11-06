@@ -620,6 +620,8 @@ namespace NosCore.Parser.Parsers
                 var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 2 => 70000,
                 var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 3 => 180000,
                 var _ when item.Effect == ItemEffectType.SpecialistMedal => 30_000,
+                var x when x == 5838 || x == 9118 => 10,
+                var x when x == 5839 || x == 9119 => 30,
                 var x when x == 9031 || x == 1332 => 5108,
                 var x when x == 9032 || x == 1333 => 5109,
                 1334 => 5111,
@@ -699,6 +701,8 @@ namespace NosCore.Parser.Parsers
                 var x when x == 2160 || x == 2312 || x == 10048 => ItemEffectType.FriendshipWings,
                 180 => ItemEffectType.AttackAmulet,
                 181 => ItemEffectType.DefenseAmulet,
+                var x when x == 5838 || x == 5839 || x == 9118 || x == 9119 => ItemEffectType.CuarryBankVipMedal,
+                5836 => ItemEffectType.CuarryBankSavingsBook,
                 _ => item.Effect,
             };
 

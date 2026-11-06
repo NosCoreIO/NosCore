@@ -374,16 +374,32 @@ public static class PlayerBundleExtensions
 
     public static GbPacket GenerateGb(this PlayerComponentBundle player, BankActionType type, IBankService bankService)
     {
-        var reputation = ReputationLevels.FromReputation(player.Reputation);
         return new GbPacket
         {
             Type = type,
             GoldBank = player.BankGold / 1000,
             Gold = (int)player.Gold,
-            BankRank = bankService.GetRank(reputation),
-            BankTax = (int)bankService.GetWithdrawalFee(reputation)
+            BankRank = player.GetBankRank(bankService),
+            BankTax = (int)player.GetBankWithdrawalFee(bankService)
         };
     }
+
+    public static SMemoi2Packet GenerateBankBalance(this PlayerComponentBundle player) => new()
+    {
+        Type = SMemoType.BankNormal,
+        Message = Game18NConstString.BalanceBank,
+        ArgumentType = 3,
+        Game18NArguments = { player.BankGold / 1000, player.Gold }
+    };
+
+    public static bool HasBankVip(this PlayerComponentBundle player) =>
+        player.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.CuarryBankVip);
+
+    public static BankRankType GetBankRank(this PlayerComponentBundle player, IBankService bankService) =>
+        player.HasBankVip() ? BankRankType.Vip : bankService.GetRank(ReputationLevels.FromReputation(player.Reputation));
+
+    public static long GetBankWithdrawalFee(this PlayerComponentBundle player, IBankService bankService) =>
+        player.HasBankVip() ? 0 : bankService.GetWithdrawalFee(ReputationLevels.FromReputation(player.Reputation));
 
     public static LevPacket GenerateLev(this PlayerComponentBundle player,
         IExperienceService experienceService,
