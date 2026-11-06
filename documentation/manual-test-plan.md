@@ -159,6 +159,20 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Open the character window while transformed and untransformed: attack, defence and
       the resistances move with the card, and the card counts for nothing until transformed
 
+### Specialist card upgrade
+
+- [ ] Put a +0 specialist card in the bag with angel feathers, full moon crystals and green
+      souls, open an Alchemist's shop and press the card upgrade button, then drag the card in:
+      the window shows 80 % success, 0 % soul destroyed, 20 % failure, 200 000 gold, 1 full
+      moon, 3 feathers and 2 souls
+- [ ] Press Upgrade and confirm: on success "Upgrade to next level successful." appears, the
+      card turns +1 and the gold, feathers, full moon and souls go down
+- [ ] On a failure, the card keeps its level, the souls stay and the rest is spent
+- [ ] Upgrade a +9 card at job level 41 or more until the soul is destroyed: "Specialist
+      Card's soul was destroyed." appears and the card can no longer be upgraded
+- [ ] Try a +5 card below job level 41, or with too few feathers: the matching message
+      appears and nothing is spent
+
 ### Specialist wings
 
 - [ ] Without transforming, use Angel Wings (`$CreateItem 1685`): "You must first transform

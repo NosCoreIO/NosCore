@@ -80,9 +80,12 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
             case UpgradeOutcome.ProtectedSave:
                 ApplyProtectedSave(session, ctx);
                 break;
+            case UpgradeOutcome.Destroyed:
+                ApplyDestroyed(ctx);
+                break;
         }
 
-        ConsumeMaterials(session, ctx, packets);
+        ConsumeMaterials(session, ctx, outcome, packets);
         ConsumeFixedSlots(session, ctx);
         await session.Character.RemoveGoldAsync(ctx.GoldCost, localizer).ConfigureAwait(false);
 
@@ -116,6 +119,8 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     // ProtectedSave is a failure roll absorbed by a scroll. Default: no item mutation; materials
     // and gold are still consumed by the outer skeleton.
     protected virtual void ApplyProtectedSave(ClientSession session, UpgradeContext ctx) { }
+
+    protected virtual void ApplyDestroyed(UpgradeContext ctx) { }
 
     protected abstract Game18NConstString SuccessMessage { get; }
 
@@ -186,9 +191,10 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
         return true;
     }
 
-    private static void ConsumeMaterials(ClientSession session, UpgradeContext ctx, List<IPacket> outPackets)
+    private static void ConsumeMaterials(ClientSession session, UpgradeContext ctx, UpgradeOutcome outcome,
+        List<IPacket> outPackets)
     {
-        foreach (var cost in ctx.MaterialCosts)
+        foreach (var cost in ctx.MaterialCosts.Where(c => !c.OnSuccessOnly || outcome == UpgradeOutcome.Success))
         {
             var remaining = cost.Amount;
             var instances = session.Character.InventoryService

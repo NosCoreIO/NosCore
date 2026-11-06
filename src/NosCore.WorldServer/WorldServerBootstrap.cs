@@ -193,14 +193,6 @@ namespace NosCore.WorldServer
                 .SingleInstance()
                 .AutoActivate();
 
-            containerBuilder.RegisterType<NosCore.GameObject.Services.UpgradeService.RandomNumberSource>()
-                .As<NosCore.GameObject.Services.UpgradeService.IRandomNumberSource>().SingleInstance();
-            containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
-                .Where(t => typeof(NosCore.GameObject.Services.UpgradeService.IUpgradeOperation).IsAssignableFrom(t)
-                    && !t.IsInterface && !t.IsAbstract)
-                .AsImplementedInterfaces()
-                .SingleInstance();
-
             containerBuilder.RegisterAssemblyTypes(typeof(MapWorld).Assembly)
                 .Where(t => typeof(IDto).IsAssignableFrom(t))
                 .AsSelf();

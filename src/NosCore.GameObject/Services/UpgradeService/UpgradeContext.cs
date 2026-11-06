@@ -18,4 +18,4 @@ public sealed record UpgradeContext(
     IReadOnlyList<MaterialCost> MaterialCosts,
     object? ExtraData = null);
 
-public sealed record MaterialCost(short VNum, short Amount);
+public sealed record MaterialCost(short VNum, short Amount, bool OnSuccessOnly = false);
