@@ -94,7 +94,7 @@ namespace NosCore.PacketHandlers.Bank
 
         private async Task WithdrawAsync(GboxPacket packet, ClientSession clientSession, PlayerComponentBundle character, long gold)
         {
-            var fee = bankService.GetWithdrawalFee(ReputationLevels.FromReputation(character.Reputation));
+            var fee = character.GetBankWithdrawalFee(bankService);
             if (character.BankGold < gold)
             {
                 await SendErrorAsync(clientSession, Game18NConstString.NotEnoughFounds);
@@ -142,13 +142,7 @@ namespace NosCore.PacketHandlers.Bank
             await clientSession.SendPacketAsync(character.GenerateGold());
             await clientSession.SendPacketAsync(character.GenerateGb(type, bankService));
             await clientSession.SendPacketAsync(result);
-            await clientSession.SendPacketAsync(new SMemoi2Packet
-            {
-                Type = SMemoType.BankNormal,
-                Message = Game18NConstString.BalanceBank,
-                ArgumentType = 3,
-                Game18NArguments = { character.BankGold / GoldPerUnit, character.Gold }
-            });
+            await clientSession.SendPacketAsync(character.GenerateBankBalance());
         }
 
         private static Task SendErrorAsync(ClientSession clientSession, Game18NConstString message)

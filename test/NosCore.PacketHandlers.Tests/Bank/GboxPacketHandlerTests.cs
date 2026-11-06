@@ -10,12 +10,15 @@ using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Algorithm.BankService;
 using NosCore.Core.Configuration;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.PacketHandlers.Bank;
 using NosCore.Packets.ClientPackets.Bank;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bank;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared.BDD;
 using SpecLight;
 
@@ -167,6 +170,34 @@ namespace NosCore.PacketHandlers.Tests.Bank
                 .And(BankGoldShouldBe_, 0L)
                 .And(BankErrorShouldBe_, Game18NConstString.NoBankInShop)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task VipWithdrawsWithoutFee()
+        {
+            await new Spec("A Cuarry Bank VIP withdraws without paying any fee")
+                .Given(CharacterHasGold, 0L)
+                .And(BankGoldIs_, 1_000_000L)
+                .And(CharacterHasBankVip)
+                .WhenAsync(GboxIsSent_, BankActionType.WithdrawGold, 500L, true)
+                .Then(GoldShouldBe, 500_000L)
+                .And(BankGoldShouldBe_, 500_000L)
+                .And(BankWindowShouldShowRank_, BankRankType.Vip)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasBankVip() =>
+            Session.Character.StaticBonusList.Add(new StaticBonusDto
+            {
+                CharacterId = Session.Character.CharacterId,
+                StaticBonusType = StaticBonusType.CuarryBankVip,
+            });
+
+        private void BankWindowShouldShowRank_(BankRankType rank)
+        {
+            var gb = Session.LastPackets.OfType<GbPacket>().Single();
+            Assert.AreEqual(rank, gb.BankRank);
+            Assert.AreEqual(0, gb.BankTax);
         }
 
         private void BankGoldIs_(long gold) => Session.Character.BankGold = gold;

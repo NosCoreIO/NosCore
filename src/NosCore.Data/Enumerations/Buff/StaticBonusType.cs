@@ -13,6 +13,7 @@ namespace NosCore.Data.Enumerations.Buff
         BackPack = 2,
         PetBasket = 3,
         PetBackPack = 4,
-        InventoryTicketUpgrade = 5
+        InventoryTicketUpgrade = 5,
+        CuarryBankVip = 6
     }
 }

@@ -7,6 +7,7 @@
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
+using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
@@ -15,12 +16,17 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override Task ExecuteAsync(WearPacket wearPacket, ClientSession clientSession)
         {
+            if (wearPacket.PartnerSlot != 0)
+            {
+                return Task.CompletedTask;
+            }
+
             return clientSession.HandlePacketsAsync(new[]
             {
                 new UseItemPacket
                 {
                     Slot = wearPacket.InventorySlot,
-                    Type = wearPacket.Type
+                    Type = PocketType.Equipment
                 }
             });
         }
