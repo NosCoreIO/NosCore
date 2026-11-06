@@ -25,6 +25,9 @@ using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
+using NosCore.Algorithm.ExperienceShareService;
+using NosCore.Algorithm.LevelPenaltyService;
+using NosCore.Algorithm.LowLevelBoostService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -39,6 +42,9 @@ public sealed class RewardService(
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
     IExperienceProgressionService experienceProgression,
+    IExperienceShareService experienceShareService,
+    ILevelPenaltyService levelPenaltyService,
+    ILowLevelBoostService lowLevelBoostService,
     ILogger<RewardService> logger) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
@@ -86,8 +92,11 @@ public sealed class RewardService(
         }
     }
 
+    // A group splits the kill by its members' summed damage. Each member on the map receives
+    // the group's part times their share of it, whether they hit the monster or not.
     private async Task AwardExperienceAsync(IAliveEntity victim, NpcMonsterDto mob, int totalDamage, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
+        var parties = new Dictionary<long, (List<PlayerComponentBundle> Members, int Damage)>();
         foreach (var (handle, damage) in hitSnapshot)
         {
             if (!TryFindPlayer(victim, handle, out var player))
@@ -95,42 +104,81 @@ public sealed class RewardService(
                 continue;
             }
 
-            var share = damage / (double)totalDamage;
-            var levelXp = (long)(mob.Xp * share);
-            var jobXp = (long)(mob.JobXp * share);
-            var heroXp = (long)(mob.HeroXp * share);
-
-            var spXp = 0L;
-            if (player.UseSp)
+            var key = player.Group.Count > 1 ? player.Group.GroupId : -player.CharacterId - 1;
+            if (parties.TryGetValue(key, out var party))
             {
-                var spInstance = player.InventoryService
-                    .LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.Wear)
-                    ?.ItemInstance as SpecialistInstance;
-                if (spInstance != null)
+                parties[key] = (party.Members, party.Damage + damage);
+                continue;
+            }
+
+            parties[key] = (MembersOnMap(player, victim), damage);
+        }
+
+        foreach (var (members, damage) in parties.Values.Where(p => p.Members.Count > 0))
+        {
+            var share = damage / (double)totalDamage;
+            var groupSize = (byte)Math.Max(1, members[0].Group.Count);
+            foreach (var member in members)
+            {
+                await AwardMemberExperienceAsync(member, mob,
+                    share * experienceShareService.GetExperienceShare(groupSize),
+                    share * experienceShareService.GetJobExperienceShare(groupSize));
+            }
+        }
+    }
+
+    private static List<PlayerComponentBundle> MembersOnMap(PlayerComponentBundle player, IAliveEntity victim)
+    {
+        if (player.Group.Count <= 1)
+        {
+            return [player];
+        }
+
+        return player.Group.Values
+            .Select(s => s.Item2)
+            .OfType<PlayerComponentBundle>()
+            .Where(s => s.World == victim.MapInstance.EcsWorld && s.World.World.IsAlive(s.Handle))
+            .ToList();
+    }
+
+    private async Task AwardMemberExperienceAsync(PlayerComponentBundle player, NpcMonsterDto mob, double share, double jobShare)
+    {
+        var levelXp = (long)(mob.Xp * share
+            * levelPenaltyService.GetExperiencePenalty(player.Level, mob.Level)
+            * lowLevelBoostService.GetExperienceBoost(player.Level));
+        var jobXp = (long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.JobLevel));
+        var heroXp = (long)(mob.HeroXp * share);
+
+        var spXp = 0L;
+        if (player.UseSp)
+        {
+            var spInstance = player.InventoryService
+                .LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.Wear)
+                ?.ItemInstance as SpecialistInstance;
+            if (spInstance != null)
+            {
+                var multiplier = spInstance.SpLevel < 10 ? 10 : spInstance.SpLevel < 19 ? 5 : 1;
+                spXp = (long)(mob.JobXp * jobShare * multiplier);
+                if (spInstance.SpLevel > 19)
                 {
-                    var multiplier = spInstance.SpLevel < 10 ? 10 : spInstance.SpLevel < 19 ? 5 : 1;
-                    spXp = (long)(mob.JobXp * share * multiplier);
-                    if (spInstance.SpLevel > 19)
-                    {
-                        jobXp /= 2;
-                    }
+                    jobXp /= 2;
                 }
             }
-
-            // Fairy XP is a flat per-kill grant gated on the mob being within ±15 levels
-            // of the player (OpenNos Character.cs:5242). Out-of-bracket kills grant nothing,
-            // so early-game farming doesn't power-level fairies on low-level mobs.
-            var fairyXp = 0;
-            if (Math.Abs(player.Level - mob.Level) <= 15)
-            {
-                fairyXp = FairyXpRate;
-            }
-
-            await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
-
-            await AwardReputationAsync(player, mob).ConfigureAwait(false);
-            await AwardDignityAsync(player, mob).ConfigureAwait(false);
         }
+
+        // Fairy XP is a flat per-kill grant gated on the mob being within ±15 levels
+        // of the player (OpenNos Character.cs:5242). Out-of-bracket kills grant nothing,
+        // so early-game farming doesn't power-level fairies on low-level mobs.
+        var fairyXp = 0;
+        if (Math.Abs(player.Level - mob.Level) <= 15)
+        {
+            fairyXp = FairyXpRate;
+        }
+
+        await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
+
+        await AwardReputationAsync(player, mob).ConfigureAwait(false);
+        await AwardDignityAsync(player, mob).ConfigureAwait(false);
     }
 
     private static async Task AwardReputationAsync(PlayerComponentBundle player, NpcMonsterDto mob)

@@ -91,6 +91,7 @@ public sealed class ItemInfoService(
             BoundCharacterId = weapon.BoundCharacterId ?? 0,
             ShellOptionCount = (byte)options.Count,
             ShellOptions = options,
+            PityGauge = weapon.PityGauge,
         };
     }
 
@@ -114,6 +115,7 @@ public sealed class ItemInfoService(
             BoundCharacterId = armor.BoundCharacterId ?? 0,
             ShellOptionCount = (byte)options.Count,
             ShellOptions = options,
+            PityGauge = armor.PityGauge,
         };
     }
 
