@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             sword.DamageMaximum = 45;
             sword.HitRate = 41;
 
-            Assert.AreEqual("e_info 0 21 3 5 0 29 123 149 136 6 0 0 0 12180 -1 0 0 0", Info(sword));
+            Assert.AreEqual("e_info 0 21 3 5 0 29 123 149 136 6 0 0 0 12180 -1 0 0 0 0", Info(sword));
         }
 
         [TestMethod]
@@ -92,7 +92,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             armour.MagicDefence = 16;
             armour.BoundCharacterId = 7;
 
-            Assert.AreEqual("e_info 2 97 3 5 0 27 83 76 52 118 11340 -1 0 7 0", Info(armour));
+            Assert.AreEqual("e_info 2 97 3 5 0 27 83 76 52 118 11340 -1 0 7 0 0", Info(armour));
         }
 
         [TestMethod]
