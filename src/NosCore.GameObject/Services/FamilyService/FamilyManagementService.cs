@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
         IFamilyExperienceService familyExperienceService, IDaoTransactionScope daoTransactionScope,
-        ISessionRegistry sessionRegistry) : IFamilyManagementService
+        ISessionRegistry sessionRegistry, IFamilyWarehouseService familyWarehouseService) : IFamilyManagementService
     {
         private const int MessageMaxLength = 255;
         private const long CreationPrice = 200000;
@@ -213,6 +213,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            await familyWarehouseService.EmptyAsync(family.FamilyId);
             await using (var transaction = daoTransactionScope.Begin())
             {
                 if (!await familyService.DisbandAsync(family))

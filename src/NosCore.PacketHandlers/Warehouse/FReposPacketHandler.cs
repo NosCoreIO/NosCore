@@ -6,16 +6,16 @@
 
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class FReposPacketHandler : PacketHandler<FReposPacket>, IWorldPacketHandler
+    public class FReposPacketHandler(IFamilyWarehouseService familyWarehouseService)
+        : PacketHandler<FReposPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(FReposPacket freposPacket, ClientSession clientSession)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task ExecuteAsync(FReposPacket packet, ClientSession clientSession) =>
+            familyWarehouseService.MoveAsync(clientSession, packet.OldSlot, packet.Amount, packet.NewSlot);
     }
 }

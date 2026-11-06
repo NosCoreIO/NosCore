@@ -671,6 +671,23 @@ The head of a family next to the family NPC.
 - [ ] A deputy, keeper or member, or someone with no family, gets "Only the family head can
       disband a family." and no question
 
+### Family warehouse
+
+A family with a warehouse: set `Family.WarehouseSize` to 21 (or 49) until the family shop
+sells it. Members stand next to Salim (vnum 1431, dialog 462).
+
+- [ ] With `WarehouseSize` 0, "Open Family Warehouse" shows "You are not qualified to use the
+      warehouse."
+- [ ] With a warehouse, it opens "Family's warehouse" with `0/21` and the inventory beside it
+- [ ] Dragging a stack in stores it with its amount shown and empties the bag slot; the
+      counter goes to `1/21`
+- [ ] Dragging it to another warehouse slot moves it and leaves the old slot empty
+- [ ] Dragging it back into the bag returns the whole stack and empties the warehouse slot
+- [ ] Closing and reopening shows the same contents; another member sees them too
+- [ ] A member whose rank has no warehouse rights gets "You are not qualified to use the
+      warehouse."; with deposit-only rights they can put items in but not take them out
+- [ ] Disbanding the family empties its warehouse
+
 ### Family membership
 
 Found a family as above, or seed one: a `Family` row, then a `FamilyCharacter` row per

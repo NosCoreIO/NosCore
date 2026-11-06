@@ -15,3 +15,5 @@ public record GetWarehouseItemsRequest(Guid? Id, long? OwnerId, WarehouseType Wa
 public record DeleteWarehouseItemRequest(Guid Id) : IMasterRequest;
 
 public record AddWarehouseItemRequest(WareHouseDepositRequest DepositRequest) : IMasterRequest;
+
+public record MoveWarehouseItemRequest(long OwnerId, WarehouseType WarehouseType, short SourceSlot, short DestinationSlot) : IMasterRequest;

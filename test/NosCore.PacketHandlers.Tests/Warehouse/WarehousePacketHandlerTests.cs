@@ -72,41 +72,11 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         }
 
         [TestMethod]
-        public async Task FamilyDepositPacketShouldExecuteWithoutError()
-        {
-            await new Spec("Family deposit packet should execute without error")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(DepositingItemToFamilyWarehouse)
-                .Then(NoPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task FamilyWithdrawPacketShouldExecuteWithoutError()
-        {
-            await new Spec("Family withdraw packet should execute without error")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(WithdrawingItemFromFamilyWarehouse)
-                .Then(NoPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task FamilyStashEndPacketShouldExecuteWithoutError()
         {
             await new Spec("Family stash end packet should execute without error")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(ClosingFamilyWarehouse)
-                .Then(NoPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task FamilyReposPacketShouldExecuteWithoutError()
-        {
-            await new Spec("Family repos packet should execute without error")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(RearrangingFamilyWarehouseItems)
                 .Then(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
@@ -140,28 +110,10 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             await handler.ExecuteAsync(new ReposPacket(), Session);
         }
 
-        private async Task DepositingItemToFamilyWarehouse()
-        {
-            var handler = new FDepositPacketHandler();
-            await handler.ExecuteAsync(new FDepositPacket(), Session);
-        }
-
-        private async Task WithdrawingItemFromFamilyWarehouse()
-        {
-            var handler = new FWithdrawPacketHandler();
-            await handler.ExecuteAsync(new FWithdrawPacket(), Session);
-        }
-
         private async Task ClosingFamilyWarehouse()
         {
             var handler = new FStashEndPackettHandler();
             await handler.ExecuteAsync(new FStashEndPacket(), Session);
-        }
-
-        private async Task RearrangingFamilyWarehouseItems()
-        {
-            var handler = new FReposPacketHandler();
-            await handler.ExecuteAsync(new FReposPacket(), Session);
         }
 
         private void WarehouseHubShouldBeCalled()
