@@ -93,6 +93,7 @@ public sealed class EquipmentStatsService(BattleService.ICardCatalog cardCatalog
             stats = stats with
             {
                 ElementRate = stats.ElementRate + Sum(fairy.ElementRate, fairy.Item?.ElementRate),
+                Element = fairy.Item?.Element ?? ElementType.Neutral,
             };
         }
 

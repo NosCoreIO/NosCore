@@ -64,6 +64,7 @@ public sealed class BattleStatsProvider(
             DefenceDodge = stats.DefenceDodge + gear.DefenceDodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + gear.DistanceDefenceDodge,
             DefenceUpgrade = stats.DefenceUpgrade + gear.ArmourUpgrade,
+            Element = stats.Element != 0 ? stats.Element : (byte)gear.Element,
             ElementRate = stats.ElementRate + gear.ElementRate,
             ElementRateSp = stats.ElementRateSp + gear.SpecialistElementRate,
             FireResistance = stats.FireResistance + gear.FireResistance,

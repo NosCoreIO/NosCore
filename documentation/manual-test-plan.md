@@ -151,6 +151,11 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Wear a specialist card whose instance carries attack and defence, hit a monster, then
       transform and hit it again: the transformed hits are larger by about the card's attack
 - [ ] Untransform: the hits go back to the untransformed size
+- [ ] After re-running the parser on an existing database, transform with a card at
+      specialist level 0: the skill bar shows the card's first six skills and the basic attack
+      hits. At level 4 the seventh appears, and at level 20 all eleven
+- [ ] Wear a fire fairy and use a fire skill on a monster: the hits are larger than the same
+      skill with no fairy worn
 - [ ] Open the character window while transformed and untransformed: attack, defence and
       the resistances move with the card, and the card counts for nothing until transformed
 

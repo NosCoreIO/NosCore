@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             new Item
             {
                 VNum = FairyVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
-                EquipmentSlot = EquipmentType.Fairy, ElementRate = 30
+                EquipmentSlot = EquipmentType.Fairy, ElementRate = 30, Element = ElementType.Fire
             },
             // A piece with no stats of its own but declaring an effect: it tells the
             // two paths apart, because if the test used a piece with both there would be no telling
@@ -205,6 +205,22 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Wear(EquipmentType.Fairy, FairyVnum);
 
             Assert.AreEqual(30, _service.Resolve(_session.Character).ElementRate);
+        }
+
+        // Elemental damage only flows when the attacker has an element, and a character's is its
+        // fairy's: without it every element rate, fairy or specialist, was dead weight.
+        [TestMethod]
+        public void TheFairyGivesTheCharacterItsAttackElement()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
+                .Returns(new List<BuffInstance>());
+            var provider = new BattleStatsProvider(buffs.Object, _service);
+
+            Assert.AreEqual(0, provider.GetStats(_session.Character).Element);
+            Wear(EquipmentType.Fairy, FairyVnum);
+
+            Assert.AreEqual((byte)ElementType.Fire, provider.GetStats(_session.Character).Element);
         }
 
         [TestMethod]
