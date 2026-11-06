@@ -16,10 +16,13 @@ namespace NosCore.GameObject.Services.UpgradeService;
 //   ProtectedSave → a failure roll was absorbed by a scroll. Materials are consumed but the
 //                   item is saved in its original state (IsFixed is NOT set, unlike Fixed).
 //                   OpenNos emits "SCROLL_PROTECT_USED" + "UPGRADE_FAILED_ITEM_SAVED" for this.
+//   Destroyed     → the item stays in the inventory but can no longer be used (a specialist card
+//                   whose soul was destroyed).
 public enum UpgradeOutcome
 {
     Success,
     Failure,
     Fixed,
     ProtectedSave,
+    Destroyed,
 }

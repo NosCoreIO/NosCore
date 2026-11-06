@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NosCore.Core;
 using NosCore.Core.Services.IdService;
@@ -16,6 +17,7 @@ using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.PathFinder.Heuristic;
@@ -60,6 +62,13 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
         services.AddSingleton<IMateService, MateService>();
         services.AddSingleton<IFamilyService, FamilyService>();
+
+        services.AddSingleton<IRandomNumberSource, RandomNumberSource>();
+        foreach (var operation in typeof(IUpgradeOperation).Assembly.GetTypes()
+                     .Where(t => typeof(IUpgradeOperation).IsAssignableFrom(t) && t is { IsInterface: false, IsAbstract: false }))
+        {
+            services.AddSingleton(typeof(IUpgradeOperation), operation);
+        }
 
         // NosCore.DiGenerator emits these registrations at compile time. Lifetime still comes
         // from ISingletonService; a marked class matching no suffix now fails with NOSDI001.
