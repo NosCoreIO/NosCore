@@ -12,7 +12,7 @@
     <ProjectReference Include="..\..\src\NosCore.Instances.Scripting\NosCore.Instances.Scripting.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="instances\**" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="..\..\instances\*.csx" Link="instances\%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>

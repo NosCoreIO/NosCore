@@ -1,35 +1,45 @@
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Instances.Abstractions;
 using NosCore.Instances.Scripting;
+using NosCore.Packets.Enumerations;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.Instances.Tests
 {
-    // A script is only as good as what it can be held to. This drives the dropped-in file
+    // A script is only as good as what it can be held to. This drives the shipped file
     // against a recording run, so instance content is testable the way the rest is.
     public class RecordingRun : IInstanceRun
     {
         public List<string> Calls { get; } = [];
-        public int CurrentRoom { get; set; }
+
         public TimeSpan Elapsed { get; set; }
 
         public void Summon(int room, params MonsterSpawn[] monsters) =>
-            Calls.Add($"summon({room},{string.Join(",", Array.ConvertAll(monsters, m => m.VNum + (m.IsBoss ? "!" : "")))})");
-        public void SummonNpc(int room, short vNum, Spot at) => Calls.Add($"npc({room},{vNum})");
-        public void SpawnPortal(int fromRoom, int toRoom, Spot at, bool locked = true) =>
+            Calls.Add($"summon({room},{string.Join(",", monsters.Select(m => m.VNum))})");
+
+        public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
             Calls.Add($"portal({fromRoom}->{toRoom},{(locked ? "locked" : "open")})");
+
         public void UnlockPortal(int fromRoom, int toRoom) => Calls.Add($"unlock({fromRoom}->{toRoom})");
+
         public void SetMonsterLocker(int room, short count) => Calls.Add($"monsterLocker({room},{count})");
-        public void SetButtonLocker(int room, short count) => Calls.Add($"buttonLocker({room},{count})");
+
         public void StartClock(TimeSpan limit) => Calls.Add($"clock({limit.TotalMinutes}m)");
-        public void StopClock() => Calls.Add("stopClock");
-        public void Message(string text) => Calls.Add($"message({text})");
-        public void Effect(int room, short effectId) => Calls.Add($"effect({room},{effectId})");
+
+        public void Message(Game18NConstString message) => Calls.Add($"message({message})");
+
         public void Succeed() => Calls.Add("succeed");
+
         public void Fail() => Calls.Add("fail");
     }
 
@@ -37,10 +47,20 @@ namespace NosCore.Instances.Tests
     public class CsxInstanceScriptTests
     {
         private static CsxInstanceScriptLoader Loader() =>
-            new(Path.Combine(Directory.GetCurrentDirectory(), "instances"));
+            new(Path.Combine(AppContext.BaseDirectory, "instances"));
 
         [TestMethod]
-        public async Task ADroppedInScriptOpensTheInstance()
+        public async Task TheScriptDescribesItsRooms()
+        {
+            var script = await Loader().LoadAsync("timespace-01");
+
+            Assert.AreEqual(2, script.Definition.Rooms.Count);
+            Assert.AreEqual(20, script.Definition.StartX);
+            Assert.AreEqual(33, script.Definition.StartY);
+        }
+
+        [TestMethod]
+        public async Task EnteringOpensTheFirstRoom()
         {
             var script = await Loader().LoadAsync("timespace-01");
             var run = new RecordingRun();
@@ -49,11 +69,11 @@ namespace NosCore.Instances.Tests
 
             CollectionAssert.AreEqual(new[]
             {
-                "clock(20m)",
-                "message(Clear each room to open the way.)",
-                "summon(0,58,58,59)",
-                "monsterLocker(0,3)",
-                "portal(0->1,locked)"
+                "clock(10m)",
+                "message(EliminateAllMonsters)",
+                "summon(1,58,58,59)",
+                "monsterLocker(1,3)",
+                "portal(1->2,locked)"
             }, run.Calls);
         }
 
@@ -63,24 +83,20 @@ namespace NosCore.Instances.Tests
             var script = await Loader().LoadAsync("timespace-01");
             var run = new RecordingRun();
 
-            script.OnRoomCleared(run, 0);
+            script.OnRoomCleared(run, 1);
 
-            CollectionAssert.AreEqual(new[] { "unlock(0->1)", "effect(0,5000)" }, run.Calls);
+            CollectionAssert.AreEqual(new[] { "unlock(1->2)", "summon(2,200)", "monsterLocker(2,1)" }, run.Calls);
         }
 
         [TestMethod]
-        public async Task KillingTheBossEndsTheInstance()
+        public async Task ClearingTheLastRoomEndsTheInstance()
         {
             var script = await Loader().LoadAsync("timespace-01");
             var run = new RecordingRun();
 
-            script.OnRoomCleared(run, 1);
-            script.OnMonsterKilled(run, 200);
+            script.OnRoomCleared(run, 2);
 
-            CollectionAssert.AreEqual(new[]
-            {
-                "summon(1,200!)", "monsterLocker(1,1)", "message(The way out is open.)", "succeed"
-            }, run.Calls);
+            CollectionAssert.AreEqual(new[] { "message(TimeSpaceCompleted)", "succeed" }, run.Calls);
         }
 
         [TestMethod]
@@ -111,16 +127,10 @@ namespace NosCore.Instances.Tests
         public async Task CompilingIsPaidOnceThenCached()
         {
             var loader = Loader();
-            var cold = Stopwatch.StartNew();
-            await loader.LoadAsync("timespace-01");
-            cold.Stop();
+            var first = await loader.LoadAsync("timespace-01");
+            var second = await loader.LoadAsync("timespace-01");
 
-            var warm = Stopwatch.StartNew();
-            await loader.LoadAsync("timespace-01");
-            warm.Stop();
-
-            Console.WriteLine($"COLD {cold.ElapsedMilliseconds}ms  WARM {warm.ElapsedMilliseconds}ms");
-            Assert.IsTrue(warm.ElapsedMilliseconds <= 5, "a second entry must not recompile");
+            Assert.AreSame(first, second);
         }
     }
 }
