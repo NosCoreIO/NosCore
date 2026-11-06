@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
@@ -96,6 +97,20 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .Then(StInfoPacketShouldBeSent)
                 .And(LastStPacketShouldHaveType_, VisualType.Npc)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NcifForAMateReturnsItsLevel()
+        {
+            var pet = TestMates.Pet(Session.Character.CharacterId, level: 7);
+            Session.Character.Mates[pet.MateTransportId] = pet;
+            await pet.SpawnAsync(Session.Character, Session.Character.MapInstance, 2, 2);
+
+            await Handler.ExecuteAsync(new NcifPacket { Type = VisualType.Npc, TargetId = pet.MateTransportId }, Session);
+
+            var st = Session.LastPackets.OfType<StPacket>().Last();
+            Assert.AreEqual(pet.MateTransportId, st.VisualId);
+            Assert.AreEqual((byte)7, st.Level);
         }
 
         [TestMethod]

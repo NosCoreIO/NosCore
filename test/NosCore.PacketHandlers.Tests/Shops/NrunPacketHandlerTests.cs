@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = null, VisualId = 0, Type = 0 }, _session);
 
         private Task ExecutingNrunPacketWithUnknownType() => _nrunPacketHandler.ExecuteAsync(
-            new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = VisualType.Monster, VisualId = 1, Type = 0 }, _session);
+            new NrunPacket { Runner = NrunRunnerType.ChangeClass, VisualType = VisualType.Object, VisualId = 1, Type = 0 }, _session);
 
         private Task ExecutingNrunPacketWithUnregisteredRunner() => _nrunPacketHandler.ExecuteAsync(
             new NrunPacket { Runner = NrunRunnerType.OpenProduction, VisualType = null, VisualId = 0, Type = 0 }, _session);

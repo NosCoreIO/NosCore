@@ -325,6 +325,23 @@ under half health first.
 - [ ] Log out and back in: every pet, its level and loyalty are still there
 - [ ] With a second client on the map, log out: your pet disappears from their screen too
 
+Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
+under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a
+partner out plus one of each at home, one of them above your level.
+
+- [ ] Enter your Miniland: the NosMates that are not out stand there, and they are still there
+      after leaving and coming back
+- [ ] In the Miniland, Company on a NosMate at home: it replaces the one of the same kind in the
+      party panel, and the one it replaced stays in the Miniland
+- [ ] Company on a NosMate above your level: "Cannot set up NosMates whose level is higher than
+      the player's." and nothing changes
+- [ ] In the Miniland, Stay or Send back on the one following you: it leaves the party panel and
+      stays where it stood
+- [ ] Outside the Miniland, Send back: "Should the NosMate return to the Miniland?"; Confirm shows
+      a three-second bar, then the NosMate disappears with "<name> has been sent back to the
+      Miniland." in the centre and in chat, and it is standing in the Miniland next time
+- [ ] Target a NosMate: its level shows on the target bar instead of 0
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.

@@ -35,6 +35,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         private static readonly ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService> Logger = new Mock<ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService>>().Object;
         private IMapChangeService Service = null!;
         private ClientSession Session = null!;
+        private Mock<IMinilandService> MinilandService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -44,6 +45,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
 
             var minilandService = new Mock<IMinilandService>();
+            MinilandService = minilandService;
             minilandService.Setup(s => s.GetMinilandPortals(It.IsAny<long>()))
                 .Returns(new System.Collections.Generic.List<Map.Portal>());
 
@@ -170,6 +172,36 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             var pinit = Session.LastPackets.OfType<PinitPacket>().Last();
             Assert.IsTrue(pinit.PinitSubPackets!.Any(s => s!.VisualId == pet.MateTransportId));
             Assert.IsNotNull(pet.Entity, "the pet must be on the new map before the panel names it");
+        }
+
+        [TestMethod]
+        public async Task NosMatesAtHomeStandInTheOwnersMiniland()
+        {
+            var ownerId = Session.Character.CharacterId;
+            MinilandService.Setup(s => s.GetMinilandFromMapInstanceId(TestHelpers.Instance.MinilandId))
+                .Returns(new Miniland { OwnerId = ownerId });
+            var home = TestMates.Pet(ownerId, false);
+            home.MapX = 4;
+            home.MapY = 1;
+            Session.Character.Mates[home.MateTransportId] = home;
+
+            await ChangingToMinilandInstance();
+
+            Assert.IsNotNull(home.Entity);
+            Assert.AreEqual(((short)4, (short)1), (home.PositionX, home.PositionY));
+            Assert.IsFalse(Session.LastPackets.OfType<PinitPacket>().Last().PinitSubPackets!
+                .Any(s => s!.VisualId == home.MateTransportId), "a NosMate at home is not in the party panel");
+        }
+
+        [TestMethod]
+        public async Task NosMatesAtHomeStayOffOtherMaps()
+        {
+            var home = TestMates.Pet(Session.Character.CharacterId, false);
+            Session.Character.Mates[home.MateTransportId] = home;
+
+            await ChangingToBaseMap1();
+
+            Assert.IsNull(home.Entity);
         }
 
         [TestMethod]

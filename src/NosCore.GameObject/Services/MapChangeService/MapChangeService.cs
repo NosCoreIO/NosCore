@@ -242,7 +242,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     if (!otherCharacter.Invisible)
                     {
                         await session.SendPacketsAsync(otherCharacter.Mates.Values
-                            .Where(m => m.IsTeamMember)
+                            .Where(m => m.Entity != null)
                             .Select(m => m.GenerateIn(accountLanguage)));
                     }
 
@@ -282,6 +282,15 @@ namespace NosCore.GameObject.Services.MapChangeService
                 foreach (var mate in teamMates)
                 {
                     await mate.SpawnAsync(character, newMapInstance, mate.PositionX, mate.PositionY);
+                }
+
+                if (minilandProvider.GetMinilandFromMapInstanceId(mapInstanceId)?.OwnerId == characterId)
+                {
+                    foreach (var mate in character.Mates.Values.Where(s => !s.IsTeamMember))
+                    {
+                        var (x, y) = MatePlacement.MinilandSpot(mate, newMapInstance.Map);
+                        await mate.SpawnAsync(character, newMapInstance, x, y);
+                    }
                 }
 
                 await session.SendPacketAsync(character.GeneratePinit());

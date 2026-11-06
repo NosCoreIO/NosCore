@@ -14,6 +14,7 @@ using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
@@ -35,7 +36,8 @@ namespace NosCore.PacketHandlers.Game
                     entity = session.Character.MapInstance.FindMonster(s => s.VisualId == ncifPacket.TargetId);
                     break;
                 case VisualType.Npc:
-                    entity = session.Character.MapInstance.FindNpc(s => s.VisualId == ncifPacket.TargetId);
+                    entity = session.Character.MapInstance.FindNpc(s => s.VisualId == ncifPacket.TargetId)
+                        ?? FindMate(session, ncifPacket.TargetId);
                     break;
                 default:
                     logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN],
@@ -47,6 +49,16 @@ namespace NosCore.PacketHandlers.Game
             {
                 await session.SendPacketAsync(entity.GenerateStatInfo());
             }
+        }
+
+        // Mates are drawn as NPCs but live on their owner rather than in the map's NPC list.
+        private IAliveEntity? FindMate(ClientSession session, long transportId)
+        {
+            var mapInstanceId = session.Character.MapInstanceId;
+            return sessionRegistry
+                .GetSessions(s => s.HasPlayerEntity && s.Character.MapInstanceId == mapInstanceId)
+                .Select(s => s.Character.Mates.TryGetValue(transportId, out var mate) ? mate.Entity : null)
+                .FirstOrDefault(s => s != null);
         }
     }
 }
