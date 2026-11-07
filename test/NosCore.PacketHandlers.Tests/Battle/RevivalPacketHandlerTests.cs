@@ -165,6 +165,19 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task SeedReviveInsideAnArenaIsRefused()
+        {
+            await new Spec("A revival 0 sent after an arena fall is ignored, so the arena fee cannot be skipped")
+                .Given(CharacterIsDeadAtLevel_, (byte)10)
+                .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
+                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .Then(GoldShouldBe_, 5000L)
+                .And(CharacterShouldStillBeDead)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ArenaReviveOutsideAnArenaIsRefused()
         {
             await new Spec("A revival 2 sent outside an arena is ignored: no gold taken, still dead")
