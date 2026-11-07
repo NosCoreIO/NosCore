@@ -491,6 +491,9 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops geparsed!</value>
   </data>
+  <data name="TELEPORTERS_PARSED" xml:space="preserve">
+    <value>{0} Teleporter geparsed!</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills geladen!</value>
   </data>

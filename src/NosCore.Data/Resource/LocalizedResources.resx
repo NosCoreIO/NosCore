@@ -419,6 +419,9 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops Parsed!</value>
   </data>
+  <data name="TELEPORTERS_PARSED" xml:space="preserve">
+    <value>{0} Teleporters Parsed!</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Skills Parsed!</value>
   </data>

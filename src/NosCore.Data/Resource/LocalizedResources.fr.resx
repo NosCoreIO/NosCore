@@ -441,6 +441,9 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Shops parsés.</value>
   </data>
+  <data name="TELEPORTERS_PARSED" xml:space="preserve">
+    <value>{0} Téléporteurs parsés.</value>
+  </data>
   <data name="USE_SP_WITHOUT_SP_ERROR" xml:space="preserve">
     <value>Une carte SP invalide a été détéctée.</value>
   </data>

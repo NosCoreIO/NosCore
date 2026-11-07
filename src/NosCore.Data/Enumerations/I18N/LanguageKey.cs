@@ -110,6 +110,7 @@ namespace NosCore.Data.Enumerations.I18N
         USER_NOT_IN_EXCHANGE,
         INVALID_EXCHANGE_LIST,
         SHOPS_PARSED,
+        TELEPORTERS_PARSED,
         SHOPITEMS_PARSED,
         RECIPES_PARSED,
         RECIPES_LOADED,

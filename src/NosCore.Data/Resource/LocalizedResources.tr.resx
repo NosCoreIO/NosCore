@@ -411,6 +411,9 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>{0} Market işlendi!</value>
   </data>
+  <data name="TELEPORTERS_PARSED" xml:space="preserve">
+    <value>{0} Işınlayıcı işlendi!</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>{0} Büyü işlendi!</value>
   </data>
