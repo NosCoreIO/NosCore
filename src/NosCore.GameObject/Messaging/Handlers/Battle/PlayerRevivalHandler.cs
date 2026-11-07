@@ -7,6 +7,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -23,6 +24,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // refreshed stats, then ask the client which revive branch to take via a `dlgi`
     // dialog. The client routes the yes/no answer back as a `revival` client packet,
     // which RevivalPacketHandler turns into the actual tp + revive + stat sequence.
+    //
+    // A fall in an arena costs neither dignity nor reputation; the fighter is offered a paid revive
+    // on the spot instead.
     //
     // Dialog text id depends on level:
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
@@ -48,6 +52,18 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 player.IsAlive = false;
                 player.Hp = 0;
                 player.Mp = 0;
+
+                if (player.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance)
+                {
+                    await player.SendPacketAsync(player.GenerateStat());
+                    await player.SendPacketAsync(new DlgiPacket
+                    {
+                        YesPacket = new RevivalPacket { Type = 2 },
+                        NoPacket = new RevivalPacket { Type = 1 },
+                        Question = Game18NConstString.AskRevive,
+                    });
+                    return;
+                }
 
                 player.Dignity = (short)Math.Max(DignityFloor, player.Dignity - DignityLossPerDeath);
 

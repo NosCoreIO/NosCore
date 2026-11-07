@@ -7,6 +7,8 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NodaTime;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -29,14 +31,16 @@ namespace NosCore.PacketHandlers.Battle
     //            fall through to the save-point branch with an info message.
     //   Type 1 — "save point": warp to the respawn stored by IRespawnService,
     //            full HP/MP restore.
-    //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map.
+    //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map, and a few
+    //            seconds out of reach of other fighters. Only offered inside an arena.
     //
     // Every branch ends with `tp` (position) + `revive` + refreshed `stat`, mirroring
     // the death.txt trace at lines 6338–6344.
     public class RevivalPacketHandler(
         ILogger<RevivalPacketHandler> logger,
         IMapChangeService mapChangeService,
-        IRespawnService respawnService)
+        IRespawnService respawnService,
+        IClock clock)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedOfPowerVNum = 1012;
@@ -56,7 +60,9 @@ namespace NosCore.PacketHandlers.Battle
                 {
                     case 0: await ReviveInPlaceAsync(session).ConfigureAwait(false); break;
                     case 1: await ReviveAtSavePointAsync(session).ConfigureAwait(false); break;
-                    case 2: await ReviveInArenaAsync(session).ConfigureAwait(false); break;
+                    case 2 when character.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance:
+                        await ReviveInArenaAsync(session);
+                        break;
                     default:
                         character.IsAlive = false;
                         return;
@@ -99,7 +105,7 @@ namespace NosCore.PacketHandlers.Battle
             }
 
             RestoreLife(session, percent);
-            await BroadcastReviveAsync(session, character.MapX, character.MapY).ConfigureAwait(false);
+            await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
         }
 
         private async Task ReviveAtSavePointAsync(ClientSession session)
@@ -119,9 +125,10 @@ namespace NosCore.PacketHandlers.Battle
             if (character.Gold < ArenaReviveCost) { await ReviveAtSavePointAsync(session).ConfigureAwait(false); return; }
 
             character.Gold -= ArenaReviveCost;
+            character.LastPvpRevive = clock.GetCurrentInstant();
             RestoreLife(session, 100);
             await session.SendPacketAsync(character.GenerateGold()).ConfigureAwait(false);
-            await BroadcastReviveAsync(session, character.MapX, character.MapY).ConfigureAwait(false);
+            await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
         }
 
         private static void RestoreLife(ClientSession session, int percent)
