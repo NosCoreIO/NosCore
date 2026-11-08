@@ -141,6 +141,33 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task RequestNpcOnACollectableStartsTheCollectWithoutADialog()
+        {
+            await new Spec("req_npc on a collectable map object publishes the talk for the collect and opens no dialog")
+                .Given(CollectableNpcWithDialogExistsOnMap)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(NpcTalkedEventShouldBePublished)
+                .And(NoDialogShouldBeRecorded)
+                .ExecuteAsync();
+        }
+
+        private void CollectableNpcWithDialogExistsOnMap()
+        {
+            var npc = new MapNpcDto
+            {
+                MapNpcId = 100,
+                Dialog = 1,
+                MapId = _session.Character.MapInstance.Map.MapId,
+                MapX = 1,
+                MapY = 1,
+                VNum = 1
+            };
+            _session.Character.MapInstance.LoadNpcs(
+                new List<MapNpcDto> { npc },
+                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, CanCollect = true } });
+        }
+
         private void CharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
 
         private void NoNInvPacketShouldBeSent() => Assert.IsFalse(_session.LastPackets.Any(p => p is NInvPacket));

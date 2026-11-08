@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,7 +17,9 @@ using NosCore.GameObject.Messaging.Handlers.Guri;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.CollectService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -82,6 +85,20 @@ namespace NosCore.GameObject.Tests.Services.CollectService
                 .Then(ThePlayerShouldHave_OfTheItem, 1)
                 .And(TheObjectShouldBeOut)
                 .And(TheCollectShouldBePublished)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CollectingOntoAStackReportsTheAmountReceived()
+        {
+            await new Spec("Collecting an item the player already holds reports the one received, not what is left after stacking")
+                .Given(AMapObjectWhoseCollectFlagIs_, true)
+                .And(ThePlayerAlreadyHasOneOfTheItem)
+                .AndAsync(OpeningTheObject)
+                .And(SecondsPass_, 5)
+                .WhenAsync(SendingTheCollectGuri)
+                .Then(ThePlayerShouldHave_OfTheItem, 2)
+                .And(TheReceivedMessageShouldSay_, 1)
                 .ExecuteAsync();
         }
 
@@ -155,6 +172,16 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         private void NoBarShouldBeSent()
         {
             Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+        }
+
+        private void ThePlayerAlreadyHasOneOfTheItem() =>
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                TestHelpers.Instance.GenerateItemProvider().Create(ItemVNum, 1), _session.Character.CharacterId));
+
+        private void TheReceivedMessageShouldSay_(int amount)
+        {
+            var message = _session.LastPackets.OfType<SayiPacket>().Single(p => p.Message == Game18NConstString.ReceivedThisItem);
+            Assert.AreEqual(amount, Convert.ToInt32(message.Game18NArguments[1]));
         }
 
         private void TheOpeningShouldBeRefused()

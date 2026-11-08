@@ -62,7 +62,8 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
         var drop = catalog.GetDrops(mapObject.NpcMonsterVNum).FirstOrDefault();
         if (drop != null)
         {
-            var item = itemProvider.Create(drop.VNum, (short)(drop.Amount > 0 ? drop.Amount : 1));
+            var amount = (short)(drop.Amount > 0 ? drop.Amount : 1);
+            var item = itemProvider.Create(drop.VNum, amount);
             var added = character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault();
             if (added == null)
@@ -85,7 +86,7 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
                 Type = SayColorType.Green,
                 Message = Game18NConstString.ReceivedThisItem,
                 ArgumentType = 2,
-                Game18NArguments = { drop.VNum.ToString(), item.Amount }
+                Game18NArguments = { drop.VNum.ToString(), amount }
             });
         }
 
