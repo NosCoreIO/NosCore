@@ -990,6 +990,26 @@ Same seeded family, with a plain member on the same map as the head.
 - [ ] `%Gender <0|1>` from the head switches the family's titles to the matching set and
       clears every member's title
 
+### Family history log
+
+Same seeded family, with a plain member on the same map as the head. The history window
+cannot show these rows yet (see "Not verifiable yet"), so read them from the `FamilyLog`
+table: `select "FamilyLogType", "FamilyLogData", "Timestamp" from "FamilyLog" order by "Timestamp";`
+
+- [ ] `%Today <text>` from a member writes a row of type 1 with `<name>|<text>`; a second
+      `%Today` from the same member within a day says `Only possible once per day` and
+      leaves both the member list line and the table unchanged
+- [ ] Accepting a `%Familyinvite` writes type 11 with `<newcomer>|<inviter>`; cancelling
+      writes nothing
+- [ ] `%Familyleave` from the member and `%Familydismiss <name>` from the head each write
+      type 10 with the name of whoever left; the head's refused leave writes nothing
+- [ ] `%Familykeeper <name>` from the head writes type 9 with `<head>|2|<name>`; a refused
+      appointment (a third deputy) writes nothing
+- [ ] Ticking "keepers can read the history" in the family window as the head writes
+      type 8 with `<head>|2|4|1`
+- [ ] Levelling a family member from 29 to 30 writes type 6 with `<name>|30`; 30 to 31
+      writes nothing, and every level past 80 writes one row
+
 ---
 
 ## Instances
@@ -1067,6 +1087,9 @@ Recorded so nobody spends time hunting for them:
 - **A family name with a space** — the client's name prompt refuses a space itself ("Can not use
   Space in name") and sends nothing, so the server's refusal ("Contains an invalid character.
   Choose another name.") cannot be produced from an unmodified client; the unit tests cover it.
+- **Family history, ranking and daily message windows** — the client asks for them
+  (`fhis_cts`, `frank_cts`, `today_cts`), but the answers are not in the packet library
+  NosCore uses yet, so the windows stay empty; only the `FamilyLog` rows can be checked.
 - **Family experience** — nothing grants it yet, so the level bar only ever shows the
   seeded value.
 - **Inside a time-space** — the entrance works, but rooms, objectives, lives and rewards

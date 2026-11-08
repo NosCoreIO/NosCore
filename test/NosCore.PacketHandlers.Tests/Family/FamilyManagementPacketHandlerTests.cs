@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService(),
             new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry,
-            new Mock<IFamilyWarehouseService>().Object);
+            new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
 
         private void ChangeReturns(FamilyAuthorityChange result) =>
             _familyService.Setup(s => s.ChangeAuthorityAsync(_family, _headId, It.IsAny<long>(), It.IsAny<FamilyAuthority>()))
@@ -155,7 +155,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task TheHeadLetsKeepersInvite()
         {
-            await new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object)
+            await new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsTrue(_family.ManagerCanInvite);
@@ -171,7 +171,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new() { FamilyId = FamilyId, CharacterId = _headId, Authority = FamilyAuthority.Assistant }
             };
 
-            await new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object)
+            await new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsFalse(_family.ManagerCanInvite);

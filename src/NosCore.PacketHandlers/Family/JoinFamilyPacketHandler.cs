@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -18,7 +19,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Family
 {
-    public class JoinFamilyPacketHandler(ISessionRegistry sessionRegistry, IFamilyService familyService, IPubSubHub pubSubHub)
+    public class JoinFamilyPacketHandler(ISessionRegistry sessionRegistry, IFamilyService familyService, IPubSubHub pubSubHub,
+            IFamilyLogService familyLogService)
         : PacketHandler<JoinFamilyPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(JoinFamilyPacket packet, ClientSession session)
@@ -49,6 +51,7 @@ namespace NosCore.PacketHandlers.Family
             }
 
             await familyService.AddMemberAsync(family.FamilyId, session.Character.CharacterId);
+            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.UserManaged, session.Character.Name, inviter.Name);
             await pubSubHub.SendMessageAsync(new FamilyChangedData
             {
                 FamilyId = family.FamilyId,

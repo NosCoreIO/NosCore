@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             return new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
                 new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry,
-                _warehouse.Object);
+                _warehouse.Object, new Mock<IFamilyLogService>().Object);
         }
 
         private static Game18NConstString? LastInfo(ClientSession session) =>
