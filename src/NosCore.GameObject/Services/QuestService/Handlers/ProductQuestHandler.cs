@@ -12,7 +12,7 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-// DATA: item vnum, amount. Only items made by production count, not ones picked up or bought.
+// Only items made by production count, not ones picked up or bought.
 [UsedImplicitly]
 public sealed class ProductQuestHandler : ItemQuestHandlerBase
 {
@@ -21,7 +21,7 @@ public sealed class ProductQuestHandler : ItemQuestHandlerBase
     public override Task<ItemQuestProgress> OnItemProducedAsync(ICharacterEntity character, CharacterQuest quest, short vNum, short amount)
     {
         var progressed = false;
-        foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.FirstData == vNum))
+        foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.ItemVNum(QuestType) == vNum))
         {
             var previous = quest.ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var p) ? p : 0;
             progressed |= RaiseProgress(quest, objective, previous + amount);

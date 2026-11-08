@@ -10,25 +10,25 @@ using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-// DATA: npc vnum, amount, item vnum. Talking to the NPC while carrying the items hands them all
-// in at once; carrying them alone does not count, so a q_pay step cannot pay out before it.
+// Talking to the NPC while carrying the items hands them all in at once; carrying them alone does
+// not count, so a q_pay step cannot pay out before it.
 public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
 {
     public override async Task<ItemQuestProgress> OnNpcDialogRequestedAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum)
     {
         var due = quest.Quest.QuestObjectives
-            .Where(o => o.FirstData == npcVNum && o.ThirdData != null
-                && !(quest.ObjectiveProgress.TryGetValue(o.QuestObjectiveId, out var c) && c >= (o.SecondData ?? 0)))
+            .Where(o => o.NpcVNum(QuestType) == npcVNum && o.ItemVNum(QuestType) != null
+                && !(quest.ObjectiveProgress.TryGetValue(o.QuestObjectiveId, out var c) && c >= o.RequiredAmount(QuestType)))
             .ToList();
-        if (due.Count == 0 || due.Any(o => CountCarried(character, o.ThirdData!.Value) < (o.SecondData ?? 0)))
+        if (due.Count == 0 || due.Any(o => CountCarried(character, o.ItemVNum(QuestType)!.Value) < o.RequiredAmount(QuestType)))
         {
             return ItemQuestProgress.None;
         }
 
         foreach (var objective in due)
         {
-            var amount = objective.SecondData ?? 0;
-            await character.SendPacketsAsync(TakeCarried(character, objective.ThirdData!.Value, amount));
+            var amount = objective.RequiredAmount(QuestType);
+            await character.SendPacketsAsync(TakeCarried(character, objective.ItemVNum(QuestType)!.Value, amount));
             quest.ObjectiveProgress[objective.QuestObjectiveId] = amount;
         }
 

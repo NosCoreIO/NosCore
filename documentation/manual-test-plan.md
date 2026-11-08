@@ -1048,25 +1048,30 @@ Quick pass after any combat or stat change:
 
 ### Item objectives
 
-The data layout read for each type: Collect and Needed list an item and an amount; Brings and
-Required list an NPC, an amount and an item; Product lists an item and an amount; Use and Wear
-list an item. Before testing, pick one quest of each type from the parsed data and check
-that its `QuestObjective` row matches that layout. A row that does not match is a finding:
-record it rather than testing around it.
+DATA columns read per type: Collect is monster, item, amount; Brings is item, NPC, amount;
+Required is NPC, item, amount; Wear reads its item from the second column; Use, Needed and
+Product read the item from the first column and Needed and Product the amount from the
+second. Use, Wear, Collect, Brings and Required are checked against parsed rows; Needed and
+Product are not yet, so check one row of each before testing them and record a mismatch as a
+finding.
+
+Quests to try: Use 5978 (Summoning Horn 2420), Wear 1546 (Kovolt Mask 206) and 5928 (Pumpkin
+Hat 4169), Collect 1523, Brings 309 and 1598, Required 1518. For Needed and Product:
 
 ```sql
 SELECT DISTINCT ON (q."QuestType") q."QuestId", q."QuestType", q."LevelMin",
        o."FirstData", o."SecondData", o."ThirdData", o."FourthData"
 FROM "Quest" q JOIN "QuestObjective" o ON o."QuestId" = q."QuestId"
-WHERE q."QuestType" IN (4, 8, 14, 15, 16, 17, 21)
+WHERE q."QuestType" IN (8, 16)
 ORDER BY q."QuestType", q."LevelMin", q."QuestId";
 ```
 
 Give yourself the quest through its script, or by walking the quest line that leads to it.
 
 - [ ] **Collect (17)**: drop part of the item with `$CreateItem`, then pick it up: the quest
-      window counter moves to what you carry. Pick up the rest: "Quest complete" appears and
-      the items stay in the bag. Picking up another item leaves the counter alone
+      window counter moves to what you carry, out of the amount in the third column. Pick up
+      the rest: "Quest complete" appears and the items stay in the bag. Picking up another item
+      leaves the counter alone
 - [ ] **Needed (16)**: picking up fewer than asked leaves the quest open; picking up the last
       one completes it and nothing is taken
 - [ ] **Brings (4)**: with the items in the bag the counter stays at 0 and the quest stays
@@ -1078,7 +1083,8 @@ Give yourself the quest through its script, or by walking the quest line that le
       amount made and the quest completes once it is reached. Items of that kind picked up or
       bought do not count
 - [ ] **Use (21)**: using the listed item completes the quest; using any other item does not
-- [ ] **Wear (15)**: equipping the listed item completes the quest; equipping another does not
+- [ ] **Wear (15)**: equipping the Kovolt Mask on 1546 completes it; equipping another item
+      does not
 - [ ] For a quest with a `q_pay` step, the reward is only given once the objectives above are
       met, and for Brings and Required only after the hand-in
 - [ ] Relog halfway through a Collect or Product quest: the counter comes back where it was

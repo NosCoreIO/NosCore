@@ -68,7 +68,7 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
 
     protected static bool RaiseProgress(CharacterQuest quest, QuestObjectiveDto objective, int value)
     {
-        var required = objective.SecondData ?? 0;
+        var required = objective.RequiredAmount(quest.Quest.QuestType);
         var capped = required > 0 ? Math.Min(value, required) : value;
         var previous = quest.ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var p) ? p : 0;
         if (capped <= previous)

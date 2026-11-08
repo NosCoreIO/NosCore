@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Services.QuestService
             }
             return Quest.QuestObjectives.All(o =>
             {
-                var required = o.SecondData ?? 0;
+                var required = o.RequiredAmount(Quest.QuestType);
                 if (required <= 0) return true;
                 return ObjectiveProgress.TryGetValue(o.QuestObjectiveId, out var c) && c >= required;
             });
@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Services.QuestService
             for (var i = 0; i < Quest.QuestObjectives.Count && i < 5; i++)
             {
                 var objective = Quest.QuestObjectives[i];
-                var required = countable ? (short)(objective.SecondData ?? 0) : (short)0;
+                var required = countable ? (short)objective.RequiredAmount(Quest.QuestType) : (short)0;
                 var current = countable
                     && ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var c)
                     ? (short)c

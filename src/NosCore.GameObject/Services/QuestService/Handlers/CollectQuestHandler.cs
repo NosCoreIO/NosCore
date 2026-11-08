@@ -12,7 +12,7 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-// DATA: item vnum, amount. The items stay with the character.
+// The items stay with the character.
 [UsedImplicitly]
 public sealed class CollectQuestHandler : ItemQuestHandlerBase
 {
@@ -21,7 +21,7 @@ public sealed class CollectQuestHandler : ItemQuestHandlerBase
     public override Task<ItemQuestProgress> OnItemsReceivedAsync(ICharacterEntity character, CharacterQuest quest, short vNum)
     {
         var progressed = false;
-        foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.FirstData == vNum))
+        foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.ItemVNum(QuestType) == vNum))
         {
             progressed |= RaiseProgress(quest, objective, CountCarried(character, vNum));
         }

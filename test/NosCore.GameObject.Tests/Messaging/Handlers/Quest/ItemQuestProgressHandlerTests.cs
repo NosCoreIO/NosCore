@@ -37,6 +37,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         private const short OtherItem = 1013;
         private const short Npc = 300;
         private const short OtherNpc = 301;
+        private const short Monster = 333;
 
         private ClientSession _session = null!;
         private IItemGenerationService _itemProvider = null!;
@@ -78,6 +79,27 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
                 .Then(TheObjectiveShouldRead_, 2)
                 .And(TheProgressShouldBeSentToTheClient)
                 .And(TheQuestShouldNotBeCompleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheQuestWindowCountsTowardsTheAmountColumn()
+        {
+            await new Spec("A collect quest's counter is out of the amount in its third column, not the item in its second")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.Collect, 5, QuestItem)
+                .And(TheCharacterCarries_Of_, 2, QuestItem)
+                .WhenAsync(TheCharacterReceives_, QuestItem)
+                .Then(TheQuestWindowShouldRead_Of_, 2, 5)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheMonsterColumnIsNotTheCollectedItem()
+        {
+            await new Spec("Receiving an item whose vnum matches a collect quest's monster column changes nothing")
+                .Given(TheCharacterHasA_QuestFor_Of_, QuestType.Collect, 5, QuestItem)
+                .WhenAsync(TheCharacterReceives_, Monster)
+                .Then(TheObjectiveShouldRead_, 0)
                 .ExecuteAsync();
         }
 
@@ -326,16 +348,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         }
 
         private void TheCharacterHasA_QuestFor_Of_(QuestType type, int amount, short vNum) =>
-            GiveQuest(type, new QuestObjectiveDto
+            GiveQuest(type, type switch
             {
-                QuestObjectiveId = Guid.NewGuid(), QuestId = 1, FirstData = vNum, SecondData = amount == 0 ? null : amount
+                QuestType.Collect => Objective(Monster, vNum, amount),
+                QuestType.Wear => Objective(-1, vNum, null),
+                _ => Objective(vNum, amount == 0 ? null : amount, null)
             });
 
         private void TheCharacterHasA_QuestToBring_Of_To_(QuestType type, int amount, short vNum, short npc) =>
-            GiveQuest(type, new QuestObjectiveDto
-            {
-                QuestObjectiveId = Guid.NewGuid(), QuestId = 1, FirstData = npc, SecondData = amount, ThirdData = vNum
-            });
+            GiveQuest(type, type == QuestType.Brings ? Objective(vNum, npc, amount) : Objective(npc, vNum, amount));
+
+        private static QuestObjectiveDto Objective(int first, int? second, int? third) => new()
+        {
+            QuestObjectiveId = Guid.NewGuid(), QuestId = 1, FirstData = first, SecondData = second, ThirdData = third
+        };
 
         private void GiveQuest(QuestType type, QuestObjectiveDto objective)
         {
@@ -392,6 +418,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
 
         private void TheProgressShouldBeSentToTheClient() =>
             Assert.AreEqual(_quest.QuestId, _session.LastPackets.OfType<QstiPacket>().Last().QuestSubPacket.QuestId);
+
+        private void TheQuestWindowShouldRead_Of_(int current, int required)
+        {
+            var sub = _session.LastPackets.OfType<QstiPacket>().Last().QuestSubPacket;
+            Assert.AreEqual(current, sub.Objective1Current);
+            Assert.AreEqual(required, sub.Objective1Required);
+        }
 
         private void TheQuestShouldBeCompleted() =>
             _questService.Verify(s => s.CompleteQuestAsync(It.IsAny<ICharacterEntity>(), _quest), Times.Once);

@@ -12,7 +12,7 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
-// DATA: item vnum, amount. Done once every listed item is carried in its amount; nothing is taken.
+// Done once every listed item is carried in its amount; nothing is taken.
 [UsedImplicitly]
 public sealed class NeededQuestHandler : ItemQuestHandlerBase
 {
@@ -21,12 +21,13 @@ public sealed class NeededQuestHandler : ItemQuestHandlerBase
     public override Task<ItemQuestProgress> OnItemsReceivedAsync(ICharacterEntity character, CharacterQuest quest, short vNum)
     {
         var objectives = quest.Quest.QuestObjectives;
-        if (objectives.All(o => o.FirstData != vNum))
+        if (objectives.All(o => o.ItemVNum(QuestType) != vNum))
         {
             return Task.FromResult(ItemQuestProgress.None);
         }
 
-        var carried = objectives.All(o => CountCarried(character, o.FirstData) >= (o.SecondData ?? 1));
+        var carried = objectives.All(o => o.ItemVNum(QuestType) is { } item
+            && CountCarried(character, item) >= System.Math.Max(1, o.RequiredAmount(QuestType)));
         return Task.FromResult(carried ? ItemQuestProgress.Completed : ItemQuestProgress.None);
     }
 }
