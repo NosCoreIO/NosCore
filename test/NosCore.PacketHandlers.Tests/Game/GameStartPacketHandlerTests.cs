@@ -6,6 +6,8 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Family;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -23,6 +25,7 @@ using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
+using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -253,6 +256,41 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .Then(ThePartyPanelShouldListThePet)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task GameStartLetsAFamilyMemberAskForTheHistory()
+        {
+            await new Spec("A family member logging in is told to ask for the family history")
+                .Given(CharacterIsReadyToStart)
+                .And(CharacterIsInAFamily)
+                .WhenAsync(ExecutingGameStart)
+                .Then(TheHistoryRefreshShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GameStartWithoutAFamilySendsNoHistoryRefresh()
+        {
+            await new Spec("A character without a family is not told to ask for a history")
+                .Given(CharacterIsReadyToStart)
+                .WhenAsync(ExecutingGameStart)
+                .Then(NoHistoryRefreshShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsInAFamily() => Session.Character.Family = new NosCore.GameObject.Services.FamilyService.Family
+        {
+            FamilyId = 1,
+            Name = "Testers",
+            Members = new List<FamilyCharacterDto>
+            {
+                new() { FamilyId = 1, CharacterId = Session.Character.CharacterId, Authority = FamilyAuthority.Head }
+            }
+        };
+
+        private void TheHistoryRefreshShouldBeSent() => Assert.IsTrue(Session.LastPackets.Any(p => p is FhisStcPacket));
+
+        private void NoHistoryRefreshShouldBeSent() => Assert.IsFalse(Session.LastPackets.Any(p => p is FhisStcPacket));
 
         private NosCore.GameObject.Services.MateService.Mate _pet = null!;
 

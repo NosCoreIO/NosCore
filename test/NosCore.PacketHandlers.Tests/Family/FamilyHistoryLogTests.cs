@@ -101,10 +101,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task JoiningAFamilyIsLogged()
         {
-            await new Spec("Accepting an invite logs the newcomer and who invited them")
+            await new Spec("Accepting an invite logs who invited the newcomer, then the newcomer")
                 .Given(TheHeadInvitedTheOtherPlayer)
                 .WhenAsync(TheOtherPlayerAnswers_, FamilyInviteAnswerType.Accept)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, new[] { "{other}", "{head}" })
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, new[] { "{head}", "{other}" })
                 .ExecuteAsync();
         }
 

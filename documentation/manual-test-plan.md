@@ -1020,7 +1020,7 @@ windows"); the table shows the stored arguments:
 - [ ] `%Today <text>` from a member writes a row of type 1 with arguments `<name>`, `<text>`; a second
       `%Today` from the same member within a day says `Only possible once per day` and
       leaves both the member list line and the table unchanged
-- [ ] Accepting a `%Familyinvite` writes type 11 with `<newcomer>`, `<inviter>`; cancelling
+- [ ] Accepting a `%Familyinvite` writes type 11 with `<inviter>`, `<newcomer>`; cancelling
       writes nothing
 - [ ] `%Familyleave` from the member and `%Familydismiss <name>` from the head each write
       type 10 with the name of whoever left; the head's refused leave writes nothing
