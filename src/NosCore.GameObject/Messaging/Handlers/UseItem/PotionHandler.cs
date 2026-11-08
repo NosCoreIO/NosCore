@@ -10,12 +10,13 @@ using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.PotionService;
 using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class PotionHandler
+    public sealed class PotionHandler(IPotionCooldownService potionCooldown)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -30,10 +31,12 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var character = session.Character;
             var restoresHp = item.Hp > 0 && character.Hp < character.MaxHp;
             var restoresMp = item.Mp > 0 && character.Mp < character.MaxMp;
-            if (!character.IsAlive || (!restoresHp && !restoresMp))
+            if (!character.IsAlive || (!restoresHp && !restoresMp) || !potionCooldown.IsReady(character))
             {
                 return;
             }
+
+            potionCooldown.Start(character);
 
             var itemInstance = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
