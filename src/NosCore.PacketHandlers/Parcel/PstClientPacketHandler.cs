@@ -29,8 +29,9 @@ namespace NosCore.PacketHandlers.Parcel
         public override async Task ExecuteAsync(PstClientPacket pstClientPacket, ClientSession clientSession)
         {
             var isCopy = pstClientPacket.Type == 2;
-            var mails = await mailHttpClient.GetMails(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
-            var mail = mails.FirstOrDefault();
+            var mail = pstClientPacket.Id < 0 ? null
+                : (await mailHttpClient.GetMails(pstClientPacket.Id, clientSession.Character.VisualId, isCopy))
+                    .FirstOrDefault(s => s.MailId == pstClientPacket.Id);
             switch (pstClientPacket.ActionType)
             {
                 case 3:
@@ -44,12 +45,12 @@ namespace NosCore.PacketHandlers.Parcel
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type));
                     break;
                 case 2:
-                    if (mail == null)
+                    if (mail == null
+                        || !await mailHttpClient.DeleteMailAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy))
                     {
                         return;
                     }
 
-                    await mailHttpClient.DeleteMailAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy);
                     await clientSession.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,

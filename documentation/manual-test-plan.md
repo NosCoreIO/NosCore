@@ -627,6 +627,12 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
 
 - [ ] `$Gift 1012 5 0 0 <your name>`: chat shows "Gift has been delivered." and, once,
       "Parcel received >> Seed of Power x 5" in the client's language; the parcel icon lights up
+- [ ] Send yourself three gifts in a row, then open the parcel window: each is listed once, and
+      taking each one puts exactly that item in the inventory and removes only that parcel
+- [ ] With the main inventory full, take a parcel: "Not enough space" shows, the parcel stays in
+      the list, and taking it again after freeing a slot delivers it
+- [ ] Delete a parcel and a note from the post box: each disappears and stays gone after a relog
+- [ ] Restart the master server with parcels waiting, then log in at once: every parcel is listed
 - [ ] `$SetReputation` above the current value shows "Reputation increased: +N" in green, below it
       "Reputation reduced: -N" in red, with N the difference; the same value shows nothing
 - [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from

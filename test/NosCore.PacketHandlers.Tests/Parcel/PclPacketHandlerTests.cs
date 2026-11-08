@@ -87,6 +87,29 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AGiftIdBelowZeroIsIgnored()
+        {
+            await new Spec("A gift id below zero is ignored")
+                .Given(GiftExists)
+                .WhenAsync(ReceivingGiftWithIdBelowZero)
+                .Then(NoItemShouldBeReceived)
+                .And(NoMailShouldBeDeleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AGiftThatCouldNotBeClaimedIsNotReceived()
+        {
+            await new Spec("A gift that could not be claimed is not received")
+                .Given(GiftExists)
+                .And(GiftWasAlreadyClaimed)
+                .WhenAsync(ReceivingGift)
+                .Then(NoItemShouldBeReceived)
+                .And(NoParcelPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
         private void NoGiftExists()
         {
             var characterId = Session.Character.CharacterId;
@@ -99,6 +122,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             Mail = new MailData
             {
                 ItemInstance = (ItemInstanceDto)item,
+                MailId = 1,
                 MailDto = new MailDto
                 {
                     ItemInstanceId = item.Id
@@ -108,6 +132,32 @@ namespace NosCore.PacketHandlers.Tests.Parcel
                 .ReturnsAsync(item);
             var characterId = Session.Character.CharacterId;
             MailHttpClient.Setup(s => s.GetMails(1, characterId, false)).ReturnsAsync(new List<MailData> { Mail });
+            MailHttpClient.Setup(s => s.GetMails(-1, characterId, false)).ReturnsAsync(new List<MailData> { Mail });
+            MailHttpClient.Setup(s => s.DeleteMailAsync(1, characterId, false)).ReturnsAsync(true);
+        }
+
+        private void GiftWasAlreadyClaimed()
+        {
+            MailHttpClient.Setup(s => s.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>())).ReturnsAsync(false);
+        }
+
+        private async Task ReceivingGiftWithIdBelowZero()
+        {
+            await PclPacketHandler.ExecuteAsync(new PclPacket
+            {
+                Type = 4,
+                GiftId = -1
+            }, Session);
+        }
+
+        private void NoItemShouldBeReceived()
+        {
+            Assert.AreEqual(0, Session.Character.InventoryService.Count);
+        }
+
+        private void NoMailShouldBeDeleted()
+        {
+            MailHttpClient.Verify(s => s.DeleteMailAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
         }
 
         private void InventoryIsFull()
