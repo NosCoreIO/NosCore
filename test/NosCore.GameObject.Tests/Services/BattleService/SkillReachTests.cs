@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [DataRow(7, 9, false)]
         public void ATargetedSkillReachesItsRangePlusOneCell(int range, int distance, bool inReach)
         {
-            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, (byte)range, distance));
+            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, (byte)range, targetRange: 0, distance));
         }
 
         [DataTestMethod]
@@ -28,19 +28,25 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [DataRow(3, 6, false)]
         public void AMonstersAreaWidensTheReach(int area, int distance, bool inReach)
         {
-            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, range: 1, distance, (byte)area));
+            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, range: 1, targetRange: 0, distance, (byte)area));
         }
 
-        [TestMethod]
-        public void ARangeOfZeroIsNotGated()
+        [DataTestMethod]
+        [DataRow(2, true)]
+        [DataRow(3, false)]
+        [DataRow(50, false)]
+        public void ARangeOfZeroIsMeleeReach(int distance, bool inReach)
         {
-            Assert.IsTrue(SkillReach.IsInReach(targetType: 0, range: 0, distance: 50));
+            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 0, range: 0, targetRange: 0, distance));
         }
 
-        [TestMethod]
-        public void ACasterCentredSkillIsNotGated()
+        [DataTestMethod]
+        [DataRow(4, true)]
+        [DataRow(5, false)]
+        [DataRow(50, false)]
+        public void ACasterCentredSkillReachesItsAreaPlusOneCell(int distance, bool inReach)
         {
-            Assert.IsTrue(SkillReach.IsInReach(targetType: 1, range: 2, distance: 50));
+            Assert.AreEqual(inReach, SkillReach.IsInReach(targetType: 1, range: 2, targetRange: 3, distance));
         }
 
         [DataTestMethod]

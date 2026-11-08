@@ -131,6 +131,11 @@ distance the walk check uses.
 - [ ] Step back in and cast immediately: it lands, so the refused cast started nothing
 - [ ] A skill centred on yourself (a buff, an area around you) still casts with nothing
       in reach
+- [ ] Select a monster far away and cast an area skill centred on yourself: the cast is
+      refused; walk up until the monster is inside the area and cast again: it lands, and
+      only the monsters around you take damage, not the ones around the selected monster
+- [ ] A melee skill whose data has no range (most basic attacks) lands next to a monster and
+      is refused from two cells further away
 - [ ] Cast while walking: the hit lands and you are not pulled back to an old cell
 
 ### Area skills and bystanders
@@ -501,6 +506,12 @@ under half health first.
 - [ ] With a pet already out, catch another: it joins the pet window only
 - [ ] A failed roll says the capture failed; a monster above your level or above half health
       says why it cannot be caught
+- [ ] Capture spends its mana and goes on cooldown, whether the roll succeeds or fails; casting
+      it again before the cooldown is over is refused
+- [ ] Capture from further away than the skill's range is refused and catches nothing
+- [ ] Order a pet out with you to attack a monster: it hits, then waits its usual attack delay
+      before the next hit even if the order is spammed
+- [ ] Order the pet to attack a monster far from where the pet stands: nothing happens
 - [ ] Open the pet window: the list stays, it does not empty
 - [ ] Change map: the pet comes along and stays in the party panel
 - [ ] Log out and back in: every pet, its level and loyalty are still there
@@ -1198,8 +1209,6 @@ Recorded so nobody spends time hunting for them:
   reached. Once the field opens, offer bank gold that would push the other player's custody past
   the cap, from both sides of the trade: that player sees the message in their own language and no
   gold moves.
-- **Casting range of skills with a range of 0** — the skill data does not say how far they
-  reach, so they are not gated and there is nothing to observe.
 - **NPC services sent without the NPC** — an unmodified client only sends a dialog choice, a
   purchase or a bank, NosBazaar or upgrade request from a window it was shown, so the refusals for a
   dialog that was never opened, a player named as the NPC or a request from another map cannot be

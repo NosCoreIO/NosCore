@@ -4,24 +4,29 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
+
 namespace NosCore.GameObject.Services.BattleService;
 
 // Distances are the truncated octile distance, the same integer the walk handler and the
 // monster AI compare with.
 public static class SkillReach
 {
-    private const byte TargetedSkill = 0;
+    public const byte TargetedSkill = 0;
 
     // The target may have stepped once between the click and the packet arriving.
     private const int LatencyCells = 1;
 
-    // A range of 0 says nothing about reach in the skill data, so it is not gated. A monster's
-    // body area widens the reach, so a large monster can be hit from its edge.
-    public static bool IsInReach(byte targetType, byte range, int distance, byte targetArea = 0)
+    // A skill without a range in its data is a melee one.
+    private const int MeleeRange = 1;
+
+    // A targeted skill reaches its range; any other skill is centred on the caster, so the
+    // target it names has to stand inside its area. A monster's body area widens the reach,
+    // so a large monster can be hit from its edge.
+    public static bool IsInReach(byte targetType, byte range, byte targetRange, int distance, byte targetArea = 0)
     {
-        return targetType != TargetedSkill
-            || range == 0
-            || distance <= range + LatencyCells + targetArea;
+        var reach = targetType == TargetedSkill ? Math.Max((int)range, MeleeRange) : targetRange;
+        return distance <= reach + LatencyCells + targetArea;
     }
 
     // Same allowance the walk handler gives one step at the entity's speed.

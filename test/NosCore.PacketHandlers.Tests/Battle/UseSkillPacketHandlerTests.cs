@@ -299,7 +299,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsOnMap)
                 .And(TargetIsOnSameMap)
                 .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
-                .And(SkillHasRange_, (byte)0)
+                .And(SkillHasRange_, (byte)10)
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
                 .And(TargetIsAt_, (short)6)
                 .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
@@ -315,7 +315,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsOnMap)
                 .And(TargetIsOnSameMap)
                 .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
-                .And(SkillHasRange_, (byte)0)
+                .And(SkillHasRange_, (byte)10)
                 .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
                 .And(TargetIsAt_, (short)6)
                 .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
@@ -358,6 +358,148 @@ namespace NosCore.PacketHandlers.Tests.Battle
             TestHelpers.Instance.Clock.AdvanceSeconds(5);
             Assert.IsFalse(Session.Character.TryCompleteDelay(NosCore.Packets.Enumerations.DelayPacketType.Locomotion,
                 BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant()));
+        }
+
+        [TestMethod]
+        public async Task ASkillCarryingAnUpgradeLinkWithoutBeingAnUpgradeSpendsMpAndCooldown()
+        {
+            await new Spec("A learned skill with a non-zero UpgradeSkill that is not an upgrade, such as Capture, spends its mana and cooldown")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)50)
+                .And(SkillCarriesAnUpgradeLinkWithoutBeingAnUpgrade)
+                .And(CharacterHasMp_, 50)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterMpShouldBe_, 35)
+                .And(LastUseShouldBeWhenHitFinished)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASkillCarryingAnUpgradeLinkWithoutBeingAnUpgradeHonoursItsCooldown()
+        {
+            await new Spec("A learned skill with a non-zero UpgradeSkill that is not an upgrade is refused while on cooldown")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)300)
+                .And(SkillCarriesAnUpgradeLinkWithoutBeingAnUpgrade)
+                .And(SkillWasUsedJustNow)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(ShouldReceiveCancelPacket)
+                .And(BattleServiceShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACasterCentredSkillNamingATargetOutsideItsAreaIsRefused()
+        {
+            await new Spec("A skill centred on the caster is refused when the target it names stands outside its area")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
+                .And(SkillIsCentredOnTheCasterWithArea_, (byte)2)
+                .And(CharacterHasMp_, 50)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)10)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(ShouldReceiveCancelPacket)
+                .And(BattleServiceShouldNotBeCalled)
+                .And(CharacterMpShouldBe_, 50)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACasterCentredSkillNamingATargetInsideItsAreaGoesThrough()
+        {
+            await new Spec("A skill centred on the caster goes through when the target it names stands inside its area")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)15, (short)1)
+                .And(SkillIsCentredOnTheCasterWithArea_, (byte)2)
+                .And(CharacterHasMp_, 50)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)2)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(BattleServiceShouldBeCalled)
+                .And(CharacterMpShouldBe_, 35)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATargetedSkillWithoutARangeOnlyReachesMeleeDistance()
+        {
+            await new Spec("A targeted skill whose data has no range is refused on a target beyond melee reach")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)0)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)20)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(ShouldReceiveCancelPacket)
+                .And(BattleServiceShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANormalRotationOfSkillsGoesThrough()
+        {
+            await new Spec("Two skills cast back to back both go through, and the first is usable again once its cooldown is over")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)10, (short)10)
+                .And(CharacterAlsoKnowsSkillWithCastId_, (short)2)
+                .And(CharacterHasMp_, 100)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)1)
+                .WhenAsync(UsingSkill_OnExistingPlayer, (short)1)
+                .AndAsync(UsingSkill_OnExistingPlayer, (short)2)
+                .And(TimePasses_Seconds, 2)
+                .AndAsync(UsingSkill_OnExistingPlayer, (short)1)
+                .Then(BattleServiceShouldBeCalled_Times, 3)
+                .And(CharacterMpShouldBe_, 70)
+                .ExecuteAsync();
+        }
+
+        private void SkillCarriesAnUpgradeLinkWithoutBeingAnUpgrade()
+        {
+            _learnedSkill.Skill!.UpgradeSkill = 200;
+            _learnedSkill.Skill.SkillType = 1;
+        }
+
+        private void SkillIsCentredOnTheCasterWithArea_(byte area)
+        {
+            _learnedSkill.Skill!.TargetType = 1;
+            _learnedSkill.Skill.Range = 0;
+            _learnedSkill.Skill.TargetRange = area;
+        }
+
+        private void CharacterAlsoKnowsSkillWithCastId_(short castId)
+        {
+            Session.Character.Skills[2] = new CharacterSkill
+            {
+                Skill = new SkillDto { SkillVNum = 2, CastId = castId, MpCost = 10, Cooldown = 10, Range = 2 },
+            };
+        }
+
+        private void TimePasses_Seconds(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+
+        private async Task UsingSkill_OnExistingPlayer(short castId)
+        {
+            await Handler.ExecuteAsync(new UseSkillPacket
+            {
+                CastId = castId,
+                TargetVisualType = VisualType.Player,
+                TargetId = TargetSession.Character.VisualId
+            }, Session);
+        }
+
+        private void BattleServiceShouldBeCalled_Times(int times)
+        {
+            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>(),
+                It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
+                It.IsAny<HitArguments>()), Times.Exactly(times));
         }
 
         private void SkillHasRange_(byte range)
