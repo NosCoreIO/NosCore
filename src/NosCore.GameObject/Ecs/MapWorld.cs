@@ -110,8 +110,9 @@ public class MapWorld : IDisposable
     }
 
     // Reads and writes through the handle of a player who has since changed map reach the
-    // entity they have now. The lookup happens outside this world's lock, so two worlds are
-    // never locked here in an order the map change could contradict.
+    // entity they have now - again if they moved once more in between. The lookup happens
+    // outside this world's lock, so two worlds are never locked here in an order the map
+    // change could contradict.
     public T? TryGetComponent<T>(Entity entity) where T : struct
     {
         lock (_sync)
@@ -122,32 +123,40 @@ public class MapWorld : IDisposable
             }
         }
 
-        return MovedTo(entity) is { } moved ? moved.World.TryGetComponentHere<T>(moved.Entity) : null;
+        while (MovedTo(entity) is { } moved)
+        {
+            if (moved.World.TryGetComponentHere<T>(moved.Entity, out var component))
+            {
+                return component;
+            }
+        }
+
+        return null;
     }
 
-    private T? TryGetComponentHere<T>(Entity entity) where T : struct
+    // False only when the entity is gone; a missing component reads as null.
+    private bool TryGetComponentHere<T>(Entity entity, out T? component) where T : struct
     {
         lock (_sync)
         {
-            return !_disposed && _world.IsAlive(entity) && _world.Has<T>(entity) ? _world.Get<T>(entity) : null;
+            component = null;
+            if (_disposed || !_world.IsAlive(entity))
+            {
+                return false;
+            }
+
+            if (_world.Has<T>(entity))
+            {
+                component = _world.Get<T>(entity);
+            }
+
+            return true;
         }
     }
 
     public void SetComponent<T>(Entity entity, T component) where T : struct
     {
-        lock (_sync)
-        {
-            if (!_disposed && _world.IsAlive(entity))
-            {
-                _world.Set(entity, component);
-                return;
-            }
-        }
-
-        if (MovedTo(entity) is { } moved)
-        {
-            moved.World.UpdateHere<T, T>(moved.Entity, component, static (_, value) => value);
-        }
+        Update<T, T>(entity, component, static (_, value) => value);
     }
 
     // Read-modify-write of one component as a single step, so two writers of different
@@ -155,37 +164,40 @@ public class MapWorld : IDisposable
     // when the entity is gone or lacks the component.
     public bool Update<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
     {
-        lock (_sync)
+        var outcome = UpdateHere(entity, state, update);
+        while (outcome == UpdateOutcome.Gone && MovedTo(entity) is { } moved)
         {
-            if (!_disposed && _world.IsAlive(entity))
-            {
-                if (!_world.Has<T>(entity))
-                {
-                    return false;
-                }
-
-                ref var component = ref _world.Get<T>(entity);
-                component = update(component, state);
-                return true;
-            }
+            outcome = moved.World.UpdateHere(moved.Entity, state, update);
         }
 
-        return MovedTo(entity) is { } moved && moved.World.UpdateHere(moved.Entity, state, update);
+        return outcome == UpdateOutcome.Done;
     }
 
-    private bool UpdateHere<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
+    private UpdateOutcome UpdateHere<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
     {
         lock (_sync)
         {
-            if (_disposed || !_world.IsAlive(entity) || !_world.Has<T>(entity))
+            if (_disposed || !_world.IsAlive(entity))
             {
-                return false;
+                return UpdateOutcome.Gone;
+            }
+
+            if (!_world.Has<T>(entity))
+            {
+                return UpdateOutcome.Missing;
             }
 
             ref var component = ref _world.Get<T>(entity);
             component = update(component, state);
-            return true;
+            return UpdateOutcome.Done;
         }
+    }
+
+    private enum UpdateOutcome
+    {
+        Done,
+        Missing,
+        Gone,
     }
 
     private PlayerComponentBundle? MovedTo(Entity entity)
