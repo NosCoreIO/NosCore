@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace NosCore.Core.Services.IdService
 {
@@ -14,7 +15,7 @@ namespace NosCore.Core.Services.IdService
 
         public long GetNextId()
         {
-            return ++firstId;
+            return Interlocked.Increment(ref firstId);
         }
     }
 }

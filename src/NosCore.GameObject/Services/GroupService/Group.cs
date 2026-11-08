@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Core.Concurrency;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -17,6 +18,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 
 
 namespace NosCore.GameObject.Services.GroupService
@@ -28,13 +30,16 @@ namespace NosCore.GameObject.Services.GroupService
 
         private int _lastId;
 
+        // Held while a group is formed or grown, which reads one group and writes another.
+        public static AsyncLock MembershipLock { get; } = new();
+
         public ConcurrentQueue<IPacket> LastPackets { get; } = new();
 
         public long GroupId { get; set; } = -1;
 
         public GroupType Type { get; set; } = type;
 
-        public bool IsGroupFull => Count == (long)Type;
+        public bool IsGroupFull => Count >= (long)Type;
 
         public new bool IsEmpty => Keys.Count(s => s.Item1 == VisualType.Player) <= 1;
 
@@ -87,7 +92,7 @@ namespace NosCore.GameObject.Services.GroupService
             }
 
             TryAdd(new Tuple<VisualType, long>(namedEntity.VisualType, namedEntity.VisualId),
-                new Tuple<int, INamedEntity>(++_lastId, namedEntity));
+                new Tuple<int, INamedEntity>(Interlocked.Increment(ref _lastId), namedEntity));
         }
 
         public void LeaveGroup(INamedEntity namedEntity)

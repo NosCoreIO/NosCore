@@ -93,6 +93,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
     // Cached path per entity — invalidated when the target moves far enough that
     // JPS's result is no longer useful.
+    private static readonly Duration UnreachableRetry = Duration.FromSeconds(2);
+
     private readonly ConcurrentDictionary<Entity, CachedPath> _pathCache = new();
 
     public async Task<bool> TickAsync(INonPlayableEntity entity)
@@ -333,6 +335,15 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (map == null) return false;
 
         var cache = _pathCache.GetValueOrDefault(entity.Handle);
+        var now = clock.GetCurrentInstant();
+
+        // A goal the last search found no way to is searched for again only after a pause; a
+        // target out of reach would otherwise cost a full search on every tick.
+        if (cache is { Unreachable: true } && now - cache.LastStepAt < UnreachableRetry)
+        {
+            return false;
+        }
+
         var goalMoved = cache == null || cache.TargetX != goalX || cache.TargetY != goalY;
         // A path cached before the entity was moved elsewhere (a respawn) no longer starts next to it.
         var leftPath = cache is { Path.Count: > 0 }
@@ -345,7 +356,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                     (entity.PositionX, entity.PositionY),
                     (goalX, goalY))
                 .ToList();
-            cache = new CachedPath(goalX, goalY, path, clock.GetCurrentInstant());
+            cache = new CachedPath(goalX, goalY, path, now, path.Count == 0);
             _pathCache[entity.Handle] = cache;
         }
 
@@ -367,7 +378,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
     // Cached pathfinding result. Mutable only on replan or step-advance so the record
     // stays cheap to copy in concurrent tick scenarios.
-    private sealed record CachedPath(short TargetX, short TargetY, List<(short X, short Y)> Path, Instant LastStepAt);
+    private sealed record CachedPath(short TargetX, short TargetY, List<(short X, short Y)> Path, Instant LastStepAt,
+        bool Unreachable);
 
     private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs);
 }
