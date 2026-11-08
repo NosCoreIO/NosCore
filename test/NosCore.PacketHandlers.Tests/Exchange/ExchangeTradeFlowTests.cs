@@ -215,6 +215,18 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task ANegativeGoldOfferIsRefused()
+        {
+            await new Spec("An exc_list with a negative gold or bank amount is not stored")
+                .GivenAsync(ExchangeIsOpened)
+                .And(RequesterGoldIs_, 1_000L)
+                .WhenAsync(RequesterOffersGold_, -500L)
+                .AndAsync(RequesterOffersBankUnits_, -5L)
+                .Then(NoGoldIsOffered)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task BalancesAreCheckedAgainAtConfirmation()
         {
             await new Spec("An offer the balance no longer covers at confirmation is not traded")
@@ -434,6 +446,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void TargetBankGoldShouldBe_(long gold) => Assert.AreEqual(gold, Target.Character.BankGold);
 
         private void TargetGoldShouldBe_(long gold) => Assert.AreEqual(gold, Target.Character.Gold);
+
+        private void NoGoldIsOffered()
+        {
+            var offer = Exchange.GetData(Requester.Character.VisualId);
+            Assert.AreEqual(0L, offer.Gold);
+            Assert.AreEqual(0L, offer.BankGold);
+        }
 
         private void NothingIsOffered()
         {

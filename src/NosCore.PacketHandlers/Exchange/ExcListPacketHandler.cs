@@ -42,7 +42,8 @@ namespace NosCore.PacketHandlers.Exchange
                 return;
             }
 
-            if ((packet.Gold > character.Gold) || (packet.BankGold > character.BankGold / BankUnits.GoldPerUnit))
+            if ((packet.Gold < 0) || (packet.BankGold < 0)
+                || (packet.Gold > character.Gold) || (packet.BankGold > character.BankGold / BankUnits.GoldPerUnit))
             {
                 logger.LogError(logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
                 return;
