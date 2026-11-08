@@ -13,10 +13,12 @@ using NodaTime;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Shared.Enumerations;
@@ -38,7 +40,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.Level = 30;
             _miniland = new Mock<IMinilandService>();
-            _handler = new PetManagementHandler(_miniland.Object, TestHelpers.Instance.Clock);
+            _handler = new PetManagementHandler(_miniland.Object, TestHelpers.Instance.Clock,
+                new PartnerSpecialistService(TestHelpers.Instance.Clock));
         }
 
         private GameObject.Services.MateService.Mate Add(GameObject.Services.MateService.Mate mate)
@@ -83,6 +86,20 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             Assert.AreEqual((short)5, out1.MapX);
             Assert.IsNotNull(out1.Entity, "The replaced pet stays in the Miniland.");
             Assert.IsTrue(_session.LastPackets.OfType<PinitPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task ATransformedPartnerSentHomeTurnsBack()
+        {
+            InOwnMiniland();
+            var partner = Add(TestMates.Partner(_session.Character.CharacterId));
+            await partner.SpawnAsync(_session.Character, _session.Character.MapInstance, 6, 7);
+            partner.SpecialistMorph = 2041;
+
+            await RunAsync(4, partner);
+
+            Assert.IsNull(partner.SpecialistMorph);
+            Assert.AreEqual(30, _session.LastPackets.OfType<PsdPacket>().Single().SpCooldown);
         }
 
         [TestMethod]

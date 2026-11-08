@@ -71,6 +71,17 @@ namespace NosCore.GameObject.Ecs.Extensions
                 ? (NoscorePocketType)((byte)NoscorePocketType.FirstPartnerInventory + mate.PetSlot)
                 : null;
 
+        /// <summary>The partner specialist card the partner wears, whether or not it is transformed.</summary>
+        public static SpecialistInstance? Specialist(this Mate mate, IInventoryService inventory)
+        {
+            var pocket = mate.EquipmentPocket();
+            return pocket == null
+                ? null
+                : inventory.LoadBySlotAndType((short)EquipmentType.Sp, pocket.Value)?.ItemInstance as SpecialistInstance;
+        }
+
+        public static short Morph(this Mate mate) => mate.SpecialistMorph ?? (mate.Skin != 0 ? mate.Skin : (short)-1);
+
         public static ScnPacket GenerateScn(this Mate mate, RegionType language, IInventoryService inventory)
         {
             return new ScnPacket
@@ -109,9 +120,11 @@ namespace NosCore.GameObject.Ecs.Extensions
                 IsTeamMember = mate.IsTeamMember,
                 LevelXp = (int)mate.XpLoad,
                 Name = mate.DisplayName(language),
-                MorphId = mate.Skin != 0 ? mate.Skin : -1,
+                MorphId = mate.Morph(),
                 IsSummonable = mate.IsSummonable,
-                SpDetails = null,
+                SpDetails = mate.Specialist(inventory) is { } specialist
+                    ? new ScnPacket.ScSpDetails { ItemId = specialist.ItemVNum }
+                    : null,
                 Skill1Details = null,
                 Skill2Details = null,
                 Skill3Details = null
@@ -141,7 +154,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                     Owner = mate.CharacterId,
                     SpawnEffect = SpawnEffectType.NoEffect,
                     IsSitting = false,
-                    Morph = (short?)(mate.Skin != 0 ? mate.Skin : -1),
+                    Morph = mate.Morph(),
                     Name = mate.DisplayName(language),
                     Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 0)
                 }
@@ -168,7 +181,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             mate.PositionX = x;
             mate.PositionY = y;
             var handle = mapInstance.EcsWorld.CreateMate((int)mate.MateTransportId, mate, mapInstance, x, y, 2);
-            mate.Entity = new MateComponentBundle(handle, mapInstance.EcsWorld);
+            mate.Entity = new MateComponentBundle(handle, mapInstance.EcsWorld) { Morph = mate.Morph() };
 
             // A hidden owner's pet would put the owner back on screen.
             var spawn = mate.GenerateIn(owner.AccountLanguage);

@@ -535,6 +535,26 @@ gloves and boots fit.
       and the bag-full message shows
 - [ ] Log out and back in: the partner still wears its gear
 
+#### Partner specialist cards
+
+A partner specialist card is a specialist with sub-type 4. Bring a partner out and have such a card
+in the Equipment bag; a second player on the map watches the partner.
+
+- [ ] Drag the card onto the partner: it shows in the partner's specialist slot. A player's own
+      specialist card is refused with "The partner cannot use this equipment."
+- [ ] Press the partner's transform button: a five-second bar runs and the partner dances. Walking
+      during the bar cancels it
+- [ ] When the bar ends the partner takes the card's look, for you and for the watcher, with the
+      transformation effect; its speed is unchanged
+- [ ] Press the button again: the partner turns back at once, "Duration of transformation side
+      effects: 30 seconds" shows in red and the button greys out
+- [ ] Press it within the 30 seconds: "Cannot transform because of transformation side effects"
+      with the seconds left, and no bar. After 30 seconds the bar runs again
+- [ ] Transformed, take the card off, or send the partner home: it turns back and the cooldown
+      starts
+- [ ] Without a card on the partner the button says "No Specialist Card equipped."
+- [ ] Transformed, change map: the partner arrives transformed
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.
@@ -1208,6 +1228,8 @@ Recorded so nobody spends time hunting for them:
   Harbour Guard Tom", press his report button) — the report button at any other NPC must do
   nothing, and opening Tom without pressing it must not complete 5045. Quest 5064 names four
   chests, and must stay open until all four are inspected.
+- **Partner specialist agility and skills** — the card's agility is always sent as 0 and the
+  partner keeps its own skills while transformed, since neither is stored or wired yet.
 - **Inspect quests and the item they name** — inspecting completes the objective at once.
   The trade goods themselves come from the chest's own drop, which needs the map-object
   collection flow (`guri 400`) that is not wired yet.

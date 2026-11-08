@@ -24,7 +24,8 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class PetManagementHandler(IMinilandService minilandService, IClock clock) : INrunEventHandler
+    public sealed class PetManagementHandler(IMinilandService minilandService, IClock clock,
+            IPartnerSpecialistService partnerSpecialistService) : INrunEventHandler
     {
         private const int BarDuration = 3000;
 
@@ -193,8 +194,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         // A mate that stays behind keeps the square it stood on as its Miniland spot; one leaving
         // from elsewhere disappears and is placed when the owner next enters the Miniland.
-        private static async Task StayAsync(PlayerComponentBundle character, Services.MateService.Mate mate, bool inOwnMiniland)
+        private async Task StayAsync(PlayerComponentBundle character, Services.MateService.Mate mate, bool inOwnMiniland)
         {
+            await partnerSpecialistService.UntransformAsync(character, mate);
             mate.IsTeamMember = false;
             if (inOwnMiniland)
             {
