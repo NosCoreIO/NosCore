@@ -28,23 +28,30 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             var session = evt.ClientSession;
-            var character = session.Character;
-            var restoresHp = item.Hp > 0 && character.Hp < character.MaxHp;
-            var restoresMp = item.Mp > 0 && character.Mp < character.MaxMp;
-            if (!character.IsAlive || (!restoresHp && !restoresMp) || !potionCooldown.IsReady(character))
+            var itemInstance = evt.InventoryItem;
+            var drunk = await session.Character.OnMapAsync(() =>
+            {
+                var character = session.Character;
+                var restoresHp = item.Hp > 0 && character.Hp < character.MaxHp;
+                var restoresMp = item.Mp > 0 && character.Mp < character.MaxMp;
+                if (!character.IsAlive || (!restoresHp && !restoresMp) || !potionCooldown.IsReady(character))
+                {
+                    return Task.FromResult(false);
+                }
+
+                potionCooldown.Start(character);
+                character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+                character.Hp = Math.Min(character.MaxHp, character.Hp + item.Hp);
+                character.Mp = Math.Min(character.MaxMp, character.Mp + item.Mp);
+                return Task.FromResult(true);
+            });
+            if (!drunk)
             {
                 return;
             }
 
-            potionCooldown.Start(character);
-
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
-
-            character.Hp = Math.Min(character.MaxHp, character.Hp + item.Hp);
-            character.Mp = Math.Min(character.MaxMp, character.Mp + item.Mp);
-            await session.SendPacketAsync(character.GenerateStat());
+            await session.SendPacketAsync(session.Character.GenerateStat());
         }
     }
 }

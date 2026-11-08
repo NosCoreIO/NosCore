@@ -6,8 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.Concurrent;
-using System.Threading.Channels;
 using System.Threading.Tasks;
 using Arch.Core;
 using NodaTime;
@@ -16,7 +14,9 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.Core.Concurrency;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Entities;
@@ -24,13 +24,10 @@ using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// Per-target FIFO queue. When the first attacker hits a target we lazily spin up a
-// Channel + background worker task keyed by Entity handle. Subsequent attackers enqueue
-// into the same channel; the worker drains hits sequentially so HP arithmetic is
-// race-free without needing SemaphoreSlim.WaitAsync at the callsite.
-//
-// The worker exits when its channel stays idle long enough (checked on each drain
-// iteration) which keeps us from leaking a task per corpse.
+// Hits are applied on the target's map executor, one at a time and in arrival order, so
+// they are serialized with everything else that changes HP on that map: the life tick's
+// regeneration, potions, rewards. A target that has left the map or is gone by the time
+// its turn comes is not hit.
 public sealed class HitQueue(
     IDamageCalculator damageCalculator,
     IBattleStatsProvider statsProvider,
@@ -43,77 +40,64 @@ public sealed class HitQueue(
     // A fighter revived in an arena cannot hit or be hit for this long.
     private static readonly Duration PvpRevivalProtection = Duration.FromSeconds(5);
 
-    private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
+    // For entities that are on no map at all.
+    private readonly AsyncLock _offMap = new();
 
-    public Task<HitOutcome> EnqueueAsync(HitRequest request)
+    public async Task<HitOutcome> EnqueueAsync(HitRequest request)
     {
-        // Dead targets bypass the queue entirely — no point spinning up a worker for
-        // someone we're not going to touch. The orchestrator also checks but racing
-        // callers might slip past that check before the worker processes; this is a
-        // second line of defense.
         if (!request.Target.IsAlive)
         {
-            request.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
-            return request.Completion.Task;
+            Cancel(request);
+            return await request.Completion.Task;
         }
 
-        var channel = _channels.GetOrAdd(request.Target.Handle, _ => CreateChannel(request.Target));
-        if (!channel.Writer.TryWrite(request))
+        try
         {
-            request.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
+            var map = request.Target.MapInstance;
+            if (map == null)
+            {
+                using (await _offMap.AcquireAsync())
+                {
+                    await TryApplyHit(request);
+                }
+            }
+            else if (MapExecutor.IsInsideAny && !map.Executor.IsCurrent)
+            {
+                // Work on one map does not wait for another; the target is not where the blow is.
+                Cancel(request);
+            }
+            else
+            {
+                await map.Executor.RunAsync(() => ApplyOnMapAsync(map, request));
+            }
         }
-        return request.Completion.Task;
+        catch (ObjectDisposedException)
+        {
+            Cancel(request);
+        }
+
+        return await request.Completion.Task;
     }
+
+    private Task ApplyOnMapAsync(MapInstance map, HitRequest request)
+    {
+        if (!map.EcsWorld.IsAlive(request.Target.Handle))
+        {
+            Cancel(request);
+            return Task.CompletedTask;
+        }
+
+        return TryApplyHit(request);
+    }
+
+    private static void Cancel(HitRequest request) =>
+        request.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
 
     private async Task RefreshVitalityAsync(IAliveEntity entity)
     {
         if (entity is ICharacterEntity character)
         {
-            await vitalityService.RefreshAndNotifyAsync(character).ConfigureAwait(false);
-        }
-    }
-
-    private Channel<HitRequest> CreateChannel(IAliveEntity target)
-    {
-        var channel = Channel.CreateUnbounded<HitRequest>(new UnboundedChannelOptions
-        {
-            SingleReader = true,
-            // Writers are the ECS/packet handlers; multiple attackers write in parallel.
-            SingleWriter = false,
-        });
-        _ = Task.Run(() => ProcessAsync(target, channel));
-        return channel;
-    }
-
-    private async Task ProcessAsync(IAliveEntity target, Channel<HitRequest> channel)
-    {
-        try
-        {
-            while (await channel.Reader.WaitToReadAsync().ConfigureAwait(false))
-            {
-                while (channel.Reader.TryRead(out var request))
-                {
-                    await TryApplyHit(request).ConfigureAwait(false);
-                }
-
-                // If the target died during this batch, drain the rest as cancelled so
-                // queued attackers see a consistent "target was dead when you swung"
-                // outcome. We also close the channel so the worker exits.
-                if (!target.IsAlive)
-                {
-                    channel.Writer.TryComplete();
-                    DrainAsCancelled(channel);
-                    break;
-                }
-            }
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Hit queue worker for entity {Handle} crashed", target.Handle);
-        }
-        finally
-        {
-            _channels.TryRemove(target.Handle, out _);
+            await vitalityService.RefreshAndNotifyAsync(character);
         }
     }
 
@@ -270,14 +254,6 @@ public sealed class HitQueue(
             case PlayerComponentBundle p: p.IsAlive = alive; break;
             case MonsterComponentBundle m: m.IsAlive = alive; break;
             case NpcComponentBundle n: n.IsAlive = alive; break;
-        }
-    }
-
-    private static void DrainAsCancelled(Channel<HitRequest> channel)
-    {
-        while (channel.Reader.TryRead(out var pending))
-        {
-            pending.Completion.TrySetResult(new HitOutcome(HitStatus.Cancelled, 0, SuPacketHitMode.SuccessAttack, false));
         }
     }
 

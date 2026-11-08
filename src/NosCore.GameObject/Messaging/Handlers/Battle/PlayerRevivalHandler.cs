@@ -49,9 +49,13 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             try
             {
-                player.IsAlive = false;
-                player.Hp = 0;
-                player.Mp = 0;
+                await player.OnMapAsync(() =>
+                {
+                    player.IsAlive = false;
+                    player.Hp = 0;
+                    player.Mp = 0;
+                    return Task.CompletedTask;
+                });
 
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance)
                 {

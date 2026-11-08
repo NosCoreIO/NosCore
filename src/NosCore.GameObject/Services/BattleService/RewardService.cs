@@ -81,7 +81,9 @@ public sealed class RewardService(
                 return;
             }
 
-            await AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot);
+            // Kills are rewarded in parallel; each one's experience goes in on the map, so two
+            // kills credited to one player at once neither lose experience nor level up twice.
+            await mapInstance.Executor.RunAsync(() => AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot));
             await SpawnDropsAsync(victim, mob, mapInstance);
             await SpawnGoldAsync(victim, mob, mapInstance);
             _ = killer;
