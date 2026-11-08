@@ -29,6 +29,11 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 
         public Task<bool> Ping() => throw new InvalidOperationException("The master server is not a channel");
 
+        public Task<bool> IsInMaintenanceAsync() => throw new InvalidOperationException("The master server is not a channel");
+
+        public bool IsChannelInMaintenance(string channelKey) =>
+            masterClientList.Channels.TryGetValue(channelKey, out var channel) && channel.IsMaintenance;
+
         public Task<List<ChannelInfo>> GetCommunicationChannels()
         {
             return Task.FromResult(masterClientList.Channels.Values.ToList());
@@ -114,6 +119,9 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
 
         public static void Handle(BindChannelRequest request, IServiceProvider services) =>
             services.GetRequiredService<ChannelHub>().BindChannel(request.ChannelKey, request.Channel);
+
+        public static Reply<bool> Handle(IsInMaintenanceRequest request, IServiceProvider services) =>
+            new(services.GetRequiredService<ChannelHub>().IsChannelInMaintenance(request.ChannelKey));
 
         public static async Task<Reply<List<ChannelInfo>>> Handle(GetCommunicationChannelsRequest _, IServiceProvider services) =>
             new(await services.GetRequiredService<ChannelHub>().GetCommunicationChannels());

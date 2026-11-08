@@ -17,6 +17,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
     [UsedImplicitly]
     public sealed class MfaHandler
     {
+        public const int MaxAttempts = 3;
+
         [UsedImplicitly]
         public async Task Handle(GuriPacketReceivedEvent evt)
         {
@@ -43,13 +45,20 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return;
             }
 
+            session.FailedMfaAttempts++;
+            await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.IncorrectPassword });
+            if (session.FailedMfaAttempts >= MaxAttempts)
+            {
+                await session.DisconnectAsync();
+                return;
+            }
+
             await session.SendPacketAsync(new NosCore.Packets.ServerPackets.UI.GuriPacket
             {
                 Type = GuriPacketType.TextInput,
                 Argument = 3,
                 EntityId = 0
             });
-            await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.IncorrectPassword });
         }
     }
 }

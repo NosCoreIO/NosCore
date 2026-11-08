@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 new EntryPointPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
                     TestHelpers.Instance.MateDao, NullLogger<EntryPointPacketHandler>.Instance, AuthHub,
-                    TestHelpers.Instance.WorldConfiguration, sessionRefHolder,
+                    TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.WorldConfiguration, sessionRefHolder,
                     TestHelpers.Instance.LogLanguageLocalizer)
             });
             AccountName = Session.Account.Name;

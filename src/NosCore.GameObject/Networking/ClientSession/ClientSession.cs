@@ -107,6 +107,8 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public bool MfaValidated { get; set; }
 
+        public int FailedMfaAttempts { get; set; }
+
         public bool IsClosing { get; private set; }
 
         public int LastKeepAliveIdentity { get; set; }

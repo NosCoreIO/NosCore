@@ -7,6 +7,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using NosCore.Networking;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Guri;
@@ -98,6 +100,50 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .And(SessionShouldStillBeUnvalidated)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task SessionIsDisconnectedAfterTooManyIncorrectCodes()
+        {
+            await new Spec("Session is disconnected after too many incorrect codes")
+                .Given(AccountHasMfaSecret)
+                .And(SessionChannelIsWatched)
+                .WhenAsync(HandlingIncorrectCodes_Times, MfaHandler.MaxAttempts)
+                .Then(SessionShouldBeDisconnected)
+                .And(SessionShouldStillBeUnvalidated)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SessionStaysConnectedBelowTheAttemptLimit()
+        {
+            await new Spec("Session stays connected below the attempt limit")
+                .Given(AccountHasMfaSecret)
+                .And(SessionChannelIsWatched)
+                .WhenAsync(HandlingIncorrectCodes_Times, MfaHandler.MaxAttempts - 1)
+                .Then(SessionShouldNotBeDisconnected)
+                .ExecuteAsync();
+        }
+
+        private Mock<IChannel> _channel = null!;
+
+        private void SessionChannelIsWatched()
+        {
+            _channel = new Mock<IChannel>();
+            _channel.Setup(c => c.Id).Returns(System.Guid.NewGuid().ToString());
+            _session.RegisterChannel(_channel.Object);
+        }
+
+        private async Task HandlingIncorrectCodes_Times(int times)
+        {
+            for (var i = 0; i < times; i++)
+            {
+                await HandlingGuri_(GuriPacketType.TextInput, 3, 0L, "000000");
+            }
+        }
+
+        private void SessionShouldBeDisconnected() => _channel.Verify(c => c.DisconnectAsync(), Times.Once);
+
+        private void SessionShouldNotBeDisconnected() => _channel.Verify(c => c.DisconnectAsync(), Times.Never);
 
         private void AccountHasMfaSecret() =>
             _session.Account.MfaSecret = new TwoFactorAuth().CreateSecret();

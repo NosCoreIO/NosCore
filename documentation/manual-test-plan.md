@@ -1222,6 +1222,19 @@ Run the WebApi, the master, the login server and two world servers (two channels
 - [ ] Pick up an item and close the client right away (kill the process). Log back in
       immediately: the item is in the inventory
 
+### MFA, authority and maintenance
+
+- [ ] On an account with MFA, log in without the launcher: the game asks for the code before
+      the character list, and nothing on the character screen (select, create, delete)
+      works until a correct code is entered
+- [ ] Enter three wrong codes: the client is disconnected after the third
+- [ ] Set an account's authority to Banned in the database and try to enter the world with
+      it: the world server disconnects it
+- [ ] On a User account, `$SetMaintenance` and the other GM commands do nothing; on a GM
+      account they work
+- [ ] `$SetMaintenance 0 1` on a GM account (this channel only), then log a User account in
+      and pick that channel: it is disconnected; a GM account still gets in
+
 ---
 
 ## Regression sweep
