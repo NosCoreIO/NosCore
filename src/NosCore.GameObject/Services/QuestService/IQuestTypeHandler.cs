@@ -26,4 +26,6 @@ public interface IQuestTypeHandler
 
     // Returns true once every objective of the quest is met.
     Task<bool> OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) => Task.FromResult(false);
+
+    Task<bool> OnMapEntityCollectedAsync(ICharacterEntity character, NpcMonsterDto mapObject, CharacterQuest quest) => Task.FromResult(false);
 }
