@@ -10,7 +10,9 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.BankService;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Exchanges;
@@ -25,32 +27,47 @@ namespace NosCore.PacketHandlers.Exchange
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
         : PacketHandler<ExcListPacket>, IWorldPacketHandler
     {
+        private static readonly HashSet<PocketType> TradablePockets =
+        [
+            PocketType.Equipment, PocketType.Main, PocketType.Etc, PocketType.Specialist, PocketType.Costume
+        ];
+
         public override async Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
         {
-            if ((packet.Gold > clientSession.Character.Gold) || (packet.BankGold > clientSession.Account.BankMoney))
+            var character = clientSession.Character;
+            var targetId = exchangeService.GetTargetId(character.VisualId);
+            if (!targetId.HasValue)
+            {
+                logger.LogError(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
+                return;
+            }
+
+            if ((packet.Gold > character.Gold) || (packet.BankGold > character.BankGold / BankUnits.GoldPerUnit))
             {
                 logger.LogError(logLanguage[LogLanguageKey.NOT_ENOUGH_GOLD]);
                 return;
             }
 
             var subPacketList = new List<ServerExcListSubPacket?>();
+            var offer = new Dictionary<InventoryItemInstance, short>();
 
             var hasTarget = sessionRegistry.TryGetCharacter(s =>
-                (s.VisualId == exchangeService.GetTargetId(clientSession.Character.VisualId)) &&
-                (s.MapInstanceId == clientSession.Character.MapInstanceId), out var target);
+                (s.VisualId == targetId.Value) &&
+                (s.MapInstanceId == character.MapInstanceId), out var target);
 
             if ((packet.SubPackets?.Count > 0) && hasTarget)
             {
                 byte i = 0;
                 foreach (var value in packet.SubPackets)
                 {
-                    var item = clientSession.Character.InventoryService.LoadBySlotAndType(value!.Slot,
-                        (NoscorePocketType)value.PocketType);
+                    var item = value == null || value.Amount <= 0 || value.Slot < 0 || !TradablePockets.Contains(value.PocketType)
+                        ? null
+                        : character.InventoryService.LoadBySlotAndType(value.Slot, (NoscorePocketType)value.PocketType);
 
-                    if ((item == null) || (item.ItemInstance.Amount < value.Amount))
+                    if ((item == null) || (item.ItemInstance.Amount < value!.Amount) || offer.ContainsKey(item))
                     {
                         var closeExchange =
-                            exchangeService.CloseExchange(clientSession.Character.VisualId,
+                            exchangeService.CloseExchange(character.VisualId,
                                 ExchangeResultType.Failure);
                         await clientSession.SendPacketAsync(closeExchange);
                         await target.SendPacketAsync(closeExchange);
@@ -60,15 +77,16 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (!item.ItemInstance.Item.IsTradable)
                     {
-                        await clientSession.SendPacketAsync(exchangeService.CloseExchange(clientSession.Character.CharacterId,
-                            ExchangeResultType.Failure));
-                        await target.SendPacketAsync(exchangeService.CloseExchange(target.VisualId, ExchangeResultType.Failure));
+                        var closeExchange = exchangeService.CloseExchange(character.CharacterId,
+                            ExchangeResultType.Failure);
+                        await clientSession.SendPacketAsync(closeExchange);
+                        await target.SendPacketAsync(closeExchange);
                         logger.LogError(
                             logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
                         return;
                     }
 
-                    exchangeService.AddItems(clientSession.Character.CharacterId, item, value.Amount);
+                    offer[item] = value.Amount;
 
                     var subPacket = new ServerExcListSubPacket
                     {
@@ -89,11 +107,15 @@ namespace NosCore.PacketHandlers.Exchange
                 subPacketList.Add(new ServerExcListSubPacket { ExchangeSlot = null });
             }
 
-            exchangeService.SetGold(clientSession.Character.CharacterId, packet.Gold, packet.BankGold);
+            if (!exchangeService.SetOffer(character.CharacterId, packet.Gold, packet.BankGold * BankUnits.GoldPerUnit, offer))
+            {
+                return;
+            }
+
             if (hasTarget)
             {
                 await target.SendPacketAsync(
-                    clientSession.Character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
+                    character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
             }
         }
     }

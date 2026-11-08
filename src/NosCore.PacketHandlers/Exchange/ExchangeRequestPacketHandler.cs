@@ -78,8 +78,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(clientSession.Character.VisualId);
-                    if (blacklisteds.Any(s => s.CharacterId == target.VisualId))
+                    if (await IsBlacklistedByAsync(clientSession.Character.VisualId, target.VisualId))
                     {
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
@@ -99,6 +98,31 @@ namespace NosCore.PacketHandlers.Exchange
                         });
                         return;
                     }
+
+                    if (await IsBlacklistedByAsync(target.VisualId, clientSession.Character.VisualId))
+                    {
+                        await clientSession.SendPacketAsync(new Infoi2Packet
+                        {
+                            Message = Game18NConstString.BlockingTrades,
+                            ArgumentType = 1,
+                            Game18NArguments = { target.Name }
+                        });
+                        return;
+                    }
+
+                    var cooldown = exchangeService.GetRequestCooldown(clientSession.Character);
+                    if (cooldown.HasValue)
+                    {
+                        await clientSession.SendPacketAsync(new InfoiPacket
+                        {
+                            Message = Game18NConstString.CannotSendInvite,
+                            ArgumentType = 4,
+                            Game18NArguments = { (int)Math.Ceiling(cooldown.Value.TotalSeconds) }
+                        });
+                        return;
+                    }
+
+                    exchangeService.RegisterRequest(clientSession.Character, target.VisualId);
 
                     await clientSession.SendPacketAsync(new Infoi2Packet
                     {
@@ -120,19 +144,35 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.List:
-                    if (!exchangeService.OpenExchange(clientSession.Character.VisualId, hasTarget ? target.CharacterId : 0))
+                    if (!hasTarget || !exchangeService.TakeRequest(target, clientSession.Character.VisualId))
+                    {
+                        logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                        return;
+                    }
+
+                    if (clientSession.Character.ExchangeBlocked || target.ExchangeBlocked
+                        || await IsBlacklistedByAsync(clientSession.Character.VisualId, target.VisualId)
+                        || await IsBlacklistedByAsync(target.VisualId, clientSession.Character.VisualId))
+                    {
+                        return;
+                    }
+
+                    if (!exchangeService.OpenExchange(clientSession.Character.VisualId, target.CharacterId))
                     {
                         return;
                     }
 
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateServerExcListPacket(null, null, null));
-                    if (hasTarget)
-                    {
-                        await target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null));
-                    }
+                    await target.SendPacketAsync(target.GenerateServerExcListPacket(null, null, null));
                     return;
 
                 case RequestExchangeType.Declined:
+                    if (!hasTarget || !exchangeService.TakeRequest(target, clientSession.Character.VisualId))
+                    {
+                        logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                        return;
+                    }
+
                     await clientSession.SendPacketAsync(new Sayi2Packet
                     {
                         VisualType = VisualType.Player,
@@ -140,18 +180,15 @@ namespace NosCore.PacketHandlers.Exchange
                         Type = SayColorType.Yellow,
                         Message = Game18NConstString.CancelledTrade,
                         ArgumentType = 1,
-                        Game18NArguments = { hasTarget ? target.Name : "" }
+                        Game18NArguments = { target.Name }
                     });
-                    if (hasTarget)
+                    await target.SendPacketAsync(new SayiPacket
                     {
-                        await target.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = target.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.TradeCancelled2
-                        });
-                    }
+                        VisualType = VisualType.Player,
+                        VisualId = target.CharacterId,
+                        Type = SayColorType.Yellow,
+                        Message = Game18NConstString.TradeCancelled2
+                    });
                     return;
 
                 case RequestExchangeType.Confirmed:
@@ -170,10 +207,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    exchangeService.ConfirmExchange(clientSession.Character.VisualId);
-
-                    if (!exchangeService.IsExchangeConfirmed(clientSession.Character.VisualId) ||
-                        !exchangeService.IsExchangeConfirmed(exchangeTarget.VisualId))
+                    if (!exchangeService.ConfirmExchange(clientSession.Character.VisualId))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -182,9 +216,12 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
+                    var sessionData = exchangeService.GetData(clientSession.Character.CharacterId);
+                    var targetData = exchangeService.GetData(exchangeTarget.VisualId);
                     var success = exchangeService.ValidateExchange(clientSession, exchangeTarget);
+                    var result = success.Item1;
 
-                    if (success.Item1 == ExchangeResultType.Failure)
+                    if (result == ExchangeResultType.Failure)
                     {
                         foreach (var infoPacket in success.Item2!)
                         {
@@ -204,37 +241,42 @@ namespace NosCore.PacketHandlers.Exchange
                     }
                     else
                     {
-                        var itemList = exchangeService.ProcessExchange(clientSession.Character.VisualId,
+                        var itemList = await exchangeService.ProcessExchangeAsync(clientSession.Character.VisualId,
                             exchangeTarget.VisualId, clientSession.Character.InventoryService, exchangeTarget.InventoryService);
 
-                        foreach (var item in itemList)
+                        if (itemList == null)
                         {
-                            if (item.Key == clientSession.Character.CharacterId)
-                            {
-                                await clientSession.SendPacketAsync(item.Value);
-                            }
-                            else
-                            {
-                                await exchangeTarget.SendPacketAsync(item.Value);
-                            }
+                            result = ExchangeResultType.Failure;
                         }
+                        else
+                        {
+                            foreach (var item in itemList)
+                            {
+                                if (item.Key == clientSession.Character.CharacterId)
+                                {
+                                    await clientSession.SendPacketAsync(item.Value);
+                                }
+                                else
+                                {
+                                    await exchangeTarget.SendPacketAsync(item.Value);
+                                }
+                            }
 
-                        var getSessionData = exchangeService.GetData(clientSession.Character.CharacterId);
-                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
-                        clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
+                            await clientSession.Character.RemoveGoldAsync(sessionData.Gold, gameLanguageLocalizer);
+                            clientSession.Character.RemoveBankGold(sessionData.BankGold);
 
-                        await exchangeTarget.AddGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
-                        exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
+                            await exchangeTarget.AddGoldAsync(sessionData.Gold, gameLanguageLocalizer);
+                            exchangeTarget.AddBankGold(sessionData.BankGold);
 
-                        var getTargetData = exchangeService.GetData(exchangeTarget.VisualId);
-                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
-                        exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
+                            await exchangeTarget.RemoveGoldAsync(targetData.Gold, gameLanguageLocalizer);
+                            exchangeTarget.RemoveBankGold(targetData.BankGold);
 
-                        await clientSession.Character.AddGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
-                        clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
+                            await clientSession.Character.AddGoldAsync(targetData.Gold, gameLanguageLocalizer);
+                            clientSession.Character.AddBankGold(targetData.BankGold);
+                        }
                     }
 
-                    closeExchange = exchangeService.CloseExchange(clientSession.Character.VisualId, success.Item1)!;
+                    closeExchange = exchangeService.CloseExchange(clientSession.Character.VisualId, result)!;
                     await exchangeTarget.SendPacketAsync(closeExchange);
                     await clientSession.SendPacketAsync(closeExchange);
                     return;
@@ -259,6 +301,12 @@ namespace NosCore.PacketHandlers.Exchange
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private async Task<bool> IsBlacklistedByAsync(long characterId, long otherId)
+        {
+            var blacklisted = await blacklistHttpClient.GetBlacklistedAsync(characterId);
+            return blacklisted.Any(s => s.CharacterId == otherId);
         }
     }
 }

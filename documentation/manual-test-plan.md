@@ -795,6 +795,29 @@ own message, in the client's language.
       in the state it was left in, and the blocks above still apply
 - [ ] Change map with options set: nothing resets
 
+### Trading
+
+Two characters, A and B, on the same map, both with exchange allowed in the options window.
+
+- [ ] A requests a trade with B: A sees "You invited B to trade." and B gets the dialog; B
+      accepts and the trade window opens on both
+- [ ] A requests again, B declines: A sees that B cancelled the trade and B sees that the trade
+      was cancelled; no window opens
+- [ ] A requests twice within five seconds: the second request shows the client's wait message
+      with the seconds left, and B gets one dialog only
+- [ ] A requests, B waits more than 30 seconds before accepting: no window opens
+- [ ] B puts A on the blacklist; A requests a trade: A sees "B is blocking trades." and B gets
+      no dialog. Remove A from the blacklist and the request goes through
+- [ ] A offers 1 000 gold and B confirms; A changes the offer to 500 and confirms: the trade does
+      not complete until B confirms again, and then 500 gold moves
+- [ ] A offers part of a stack B already holds (5 of 10 Seeds of Power into B's 10): B's stack
+      reads 15 and A's 5
+- [ ] A offers a weapon with rarity, upgrade and shell options: B's item window shows the same
+      rarity, upgrade and options. Both log out and back in: B still has it with its options and
+      A no longer has it
+- [ ] A trades a specialist card with job level and upgrades: B's card shows the same level,
+      upgrades and points
+
 ### Miniland invite
 
 Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of Power.
@@ -1302,7 +1325,14 @@ Recorded so nobody spends time hunting for them:
   offers bank gold and the bank-cap check of a trade ("You cannot deposit any more.") cannot be
   reached. Once the field opens, offer bank gold that would push the other player's custody past
   the cap, from both sides of the trade: that player sees the message in their own language and no
-  gold moves.
+  gold moves. Then check that the field counts in thousands like the bank window (offering 5 moves
+  5 000 gold), that an offer above the custody is refused, and that spending the custody before
+  both confirm makes the trade fail with nothing moved.
+- **Both sides confirming a trade at the same moment** — two people cannot click within the same
+  instant reliably; an automated test sends both confirmations concurrently and checks the trade
+  settles once.
+- **Casting range of skills with a range of 0** — the skill data does not say how far they
+  reach, so they are not gated and there is nothing to observe.
 - **NPC services sent without the NPC** — an unmodified client only sends a dialog choice, a
   purchase or a bank, NosBazaar or upgrade request from a window it was shown, so the refusals for a
   dialog that was never opened, a player named as the NPC or a request from another map cannot be
