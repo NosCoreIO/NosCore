@@ -124,6 +124,24 @@ namespace NosCore.Instances.Tests
         }
 
         [TestMethod]
+        [DataRow("../outside")]
+        [DataRow("sub/inside")]
+        [DataRow("..")]
+        [DataRow("")]
+        public async Task OnlyScriptsDirectlyInTheFolderAreLoaded(string name)
+        {
+            var root = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            var dir = Path.Combine(root, "instances");
+            Directory.CreateDirectory(Path.Combine(dir, "sub"));
+            const string valid = "class S : InstanceScript { } return new S();";
+            await File.WriteAllTextAsync(Path.Combine(root, "outside.csx"), valid);
+            await File.WriteAllTextAsync(Path.Combine(dir, "sub", "inside.csx"), valid);
+
+            await Assert.ThrowsExactlyAsync<ArgumentException>(
+                () => new CsxInstanceScriptLoader(dir).LoadAsync(name));
+        }
+
+        [TestMethod]
         public async Task CompilingIsPaidOnceThenCached()
         {
             var loader = Loader();

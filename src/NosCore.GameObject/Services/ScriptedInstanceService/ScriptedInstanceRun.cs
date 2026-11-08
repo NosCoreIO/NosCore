@@ -185,11 +185,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 _summoned++;
-                _pending.Add(() =>
+                _pending.Add(() => mapInstance.Executor.RunAsync(() =>
                 {
                     var monster = mapInstance.SummonMonster(npcMonster, spawn.At.X, spawn.At.Y, spawn.IsHostile);
                     return mapInstance.SendPacketAsync(monster.GenerateIn());
-                });
+                }));
             }
         }
 
@@ -210,25 +210,25 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 DestinationMapInstanceId = to.MapInstanceId,
                 Type = locked ? PortalType.Closed : PortalType.Open
             };
-            _pending.Add(() =>
+            _pending.Add(() => from.Executor.RunAsync(() =>
             {
                 from.Portals.Add(portal);
                 return from.SendPacketAsync(portal.GenerateGp());
-            });
+            }));
         }
 
         public void UnlockPortal(int fromRoom, int toRoom)
         {
             var from = _rooms[fromRoom];
             var to = _rooms[toRoom].MapInstanceId;
-            _pending.Add(async () =>
+            _pending.Add(() => from.Executor.RunAsync(async () =>
             {
                 foreach (var portal in from.Portals.Where(s => s.DestinationMapInstanceId == to).ToList())
                 {
                     portal.Type = PortalType.Open;
                     await from.SendPacketAsync(portal.GenerateGp());
                 }
-            });
+            }));
         }
 
         public void SetMonsterLocker(int room, short count)
@@ -344,7 +344,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             foreach (var step in work)
             {
-                await step();
+                try
+                {
+                    await step();
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, "A step of instance {ScriptedInstanceId} failed",
+                        Entrance.ScriptedInstanceId);
+                }
             }
         }
     }

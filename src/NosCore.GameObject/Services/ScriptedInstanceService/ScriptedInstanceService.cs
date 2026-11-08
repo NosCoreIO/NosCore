@@ -169,7 +169,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         {
             foreach (var run in _runsByRoom.Values.Distinct().ToList())
             {
-                await run.TickAsync();
+                try
+                {
+                    await run.TickAsync();
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, "The tick of instance {ScriptedInstanceId} failed",
+                        run.Entrance.ScriptedInstanceId);
+                }
             }
         }
 

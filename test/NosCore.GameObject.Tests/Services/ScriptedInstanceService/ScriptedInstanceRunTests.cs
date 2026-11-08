@@ -116,6 +116,48 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task ASummonWaitsForWorkAlreadyOnTheRoomAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Summon(2, new MonsterSpawn(Grunt, new Spot(1, 1))) });
+            var release = new TaskCompletionSource();
+            var entered = new TaskCompletionSource();
+            var holder = _second.Executor.RunAsync(async () =>
+            {
+                entered.SetResult();
+                await release.Task;
+            });
+            await entered.Task;
+
+            var start = run.StartAsync();
+            await Task.Delay(50);
+            var countWhileHeld = _second.Monsters.Count;
+            release.SetResult();
+            await Task.WhenAll(holder, start);
+
+            Assert.AreEqual(0, countWhileHeld);
+            Assert.AreEqual(1, _second.Monsters.Count);
+        }
+
+        [TestMethod]
+        public async Task AFailingStepDoesNotCostTheOthersAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                    r.Summon(2, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                }
+            });
+            await _first.Executor.CloseAsync();
+
+            await run.StartAsync();
+
+            Assert.AreEqual(0, _first.Monsters.Count);
+            Assert.AreEqual(1, _second.Monsters.Count);
+        }
+
+        [TestMethod]
         public async Task TheRoomClearsWhenItsLockerRunsOutAsync()
         {
             var script = new Script { Enter = r => r.SetMonsterLocker(1, 2) };
