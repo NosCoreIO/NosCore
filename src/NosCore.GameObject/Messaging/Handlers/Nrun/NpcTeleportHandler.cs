@@ -20,7 +20,8 @@ using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
-    // An NPC's teleport menu: the option index picks one of the destinations recorded for that NPC.
+    // An NPC's teleport menu: the option index picks one of the destinations recorded for that NPC
+    // under this menu's runner, which also sets the fare.
     public abstract class NpcTeleportHandler(IMapChangeService mapChangeService, List<TeleporterDto> teleporters)
         : INrunEventHandler
     {
@@ -38,7 +39,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             var index = packet.Type ?? 0;
-            var destination = teleporters.FirstOrDefault(s => s.MapNpcId == npc.VisualId && s.Index == index);
+            var destination = teleporters.FirstOrDefault(s =>
+                s.MapNpcId == npc.VisualId && s.Runner == Runner && s.Index == index);
             if (destination == null)
             {
                 return;

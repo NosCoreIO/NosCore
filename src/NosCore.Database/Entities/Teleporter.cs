@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.Database.Entities.Base;
+using NosCore.Packets.Enumerations;
 using System.ComponentModel.DataAnnotations;
 
 namespace NosCore.Database.Entities
@@ -27,6 +28,9 @@ namespace NosCore.Database.Entities
         public short MapX { get; set; }
 
         public short MapY { get; set; }
+
+        // The n_run runner of the NPC menu offering this destination.
+        public NrunRunnerType? Runner { get; set; }
 
         [Key]
         public short TeleporterId { get; set; }

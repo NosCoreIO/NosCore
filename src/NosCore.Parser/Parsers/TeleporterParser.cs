@@ -36,16 +36,16 @@ namespace NosCore.Parser.Parsers
         public async Task InsertTeleportersAsync(List<string[]> packetList)
         {
             var npcs = mapNpcDao.LoadAll().ToDictionary(s => s.MapNpcId);
-            var existing = teleporterDao.LoadAll().Select(s => (s.MapNpcId, s.Index)).ToHashSet();
-            var captured = new Dictionary<(int MapNpcId, short Index), TeleporterDto>();
-            (int MapNpcId, short Index)? pending = null;
+            var stored = teleporterDao.LoadAll().ToList();
+            var captured = new Dictionary<(int MapNpcId, NrunRunnerType Runner, short Index), TeleporterDto>();
+            (int MapNpcId, NrunRunnerType Runner, short Index)? pending = null;
 
             foreach (var packet in packetList)
             {
-                if (packet.Length > 4 && packet[0] == "n_run" && IsTeleportRunner(packet[1])
+                if (packet.Length > 4 && packet[0] == "n_run" && TryGetTeleportRunner(packet[1], out var runner)
                     && short.TryParse(packet[2], out var index) && int.TryParse(packet[4], out var npcId))
                 {
-                    pending = npcs.ContainsKey(npcId) ? (npcId, index) : null;
+                    pending = npcs.ContainsKey(npcId) ? (npcId, runner, index) : null;
                     continue;
                 }
 
@@ -65,6 +65,7 @@ namespace NosCore.Parser.Parsers
                 captured[key] = new TeleporterDto
                 {
                     MapNpcId = key.MapNpcId,
+                    Runner = key.Runner,
                     Index = key.Index,
                     MapId = mapId,
                     MapX = short.Parse(packet[3]),
@@ -78,14 +79,15 @@ namespace NosCore.Parser.Parsers
             foreach (var group in npcs.Values.GroupBy(s => (s.MapId, s.VNum, s.Dialog)))
             {
                 var known = captured.Values.Where(t => group.Any(n => n.MapNpcId == t.MapNpcId))
-                    .GroupBy(t => t.Index).Select(g => g.First()).ToList();
+                    .GroupBy(t => (t.Runner, t.Index)).Select(g => g.First()).ToList();
                 foreach (var npc in group)
                 {
-                    foreach (var teleporter in known.Where(t => !captured.ContainsKey((npc.MapNpcId, t.Index))))
+                    foreach (var teleporter in known.Where(t => !captured.ContainsKey((npc.MapNpcId, t.Runner!.Value, t.Index))))
                     {
-                        captured[(npc.MapNpcId, teleporter.Index)] = new TeleporterDto
+                        captured[(npc.MapNpcId, teleporter.Runner!.Value, teleporter.Index)] = new TeleporterDto
                         {
                             MapNpcId = npc.MapNpcId,
+                            Runner = teleporter.Runner,
                             Index = teleporter.Index,
                             MapId = teleporter.MapId,
                             MapX = teleporter.MapX,
@@ -96,12 +98,35 @@ namespace NosCore.Parser.Parsers
                 }
             }
 
-            var teleporters = captured.Where(s => !existing.Contains(s.Key)).Select(s => s.Value).ToList();
+            // A destination stored before its runner was recorded takes the runner it was captured under.
+            var teleporters = new List<TeleporterDto>();
+            foreach (var teleporter in captured.Values)
+            {
+                if (stored.Any(s => s.MapNpcId == teleporter.MapNpcId && s.Runner == teleporter.Runner && s.Index == teleporter.Index))
+                {
+                    continue;
+                }
+
+                var withoutRunner = stored.FirstOrDefault(s => s.MapNpcId == teleporter.MapNpcId && s.Runner == null && s.Index == teleporter.Index);
+                if (withoutRunner != null)
+                {
+                    stored.Remove(withoutRunner);
+                    withoutRunner.Runner = teleporter.Runner;
+                    teleporters.Add(withoutRunner);
+                    continue;
+                }
+
+                teleporters.Add(teleporter);
+            }
+
             await teleporterDao.TryInsertOrUpdateAsync(teleporters);
             logger.LogInformation(logLanguage[LogLanguageKey.TELEPORTERS_PARSED], teleporters.Count);
         }
 
-        private static bool IsTeleportRunner(string runner) =>
-            short.TryParse(runner, out var value) && TeleportRunners.Contains((NrunRunnerType)value);
+        private static bool TryGetTeleportRunner(string value, out NrunRunnerType runner)
+        {
+            runner = (NrunRunnerType)(short.TryParse(value, out var raw) ? raw : 0);
+            return TeleportRunners.Contains(runner);
+        }
     }
 }

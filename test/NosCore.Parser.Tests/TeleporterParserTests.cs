@@ -17,6 +17,8 @@ using NosCore.Data.Enumerations.Interaction;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
+using NosCore.Packets.Enumerations;
+using SpecLight;
 
 namespace NosCore.Parser.Tests
 {
@@ -119,11 +121,64 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task TeleportersAlreadyStoredAreKept()
         {
-            _existing.Add(new TeleporterDto { MapNpcId = 1899, Index = 1, MapId = 20, MapX = 1, MapY = 1 });
+            _existing.Add(new TeleporterDto { MapNpcId = 1899, Runner = NrunRunnerType.Teleport, Index = 1, MapId = 20, MapX = 1, MapY = 1 });
 
             await _parser.InsertTeleportersAsync([P("n_run 16 1 2 1899"), P("at 1 20 8 87 2 0 0 1 -1")]);
 
             Assert.IsFalse(_saved.Any(s => s.MapNpcId == 1899));
         }
+
+        [TestMethod]
+        public async Task TheMenuOfADestinationIsStored()
+        {
+            await new Spec("A destination is stored with the runner of the menu it was picked from")
+                .WhenAsync(TheTraceIs_, new[] { "n_run 26 1 2 9821", "at 1 177 148 71 2 0 0 1 -1" })
+                .Then(TheDestinationOf_Option_ShouldBeUnder_, 9821, (short)1, NrunRunnerType.TeleportActV)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheSameOptionOfTwoMenusIsKeptApart()
+        {
+            await new Spec("The same option index under two menus of one NPC gives two destinations")
+                .WhenAsync(TheTraceIs_, new[]
+                {
+                    "n_run 16 1 2 9821", "at 1 20 8 87 2 0 0 1 -1",
+                    "n_run 26 1 2 9821", "at 1 177 148 71 2 0 0 1 -1",
+                })
+                .Then(TheDestinationOf_Option_ShouldBeUnder_, 9821, (short)1, NrunRunnerType.Teleport)
+                .And(TheDestinationOf_Option_ShouldBeUnder_, 9821, (short)1, NrunRunnerType.TeleportActV)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AStoredDestinationWithoutAMenuTakesTheCapturedOne()
+        {
+            await new Spec("A destination stored without its menu is given the captured runner instead of a duplicate")
+                .Given(ADestinationWithoutAMenuIsStoredFor_Option_, 1899, (short)1)
+                .WhenAsync(TheTraceIs_, new[] { "n_run 16 1 2 1899", "at 1 20 8 87 2 0 0 1 -1" })
+                .Then(TheStoredDestinationShouldNowBeUnder_, NrunRunnerType.Teleport)
+                .And(DestinationsSavedFor_ShouldBe_, 1899, 1)
+                .ExecuteAsync();
+        }
+
+        private const short StoredTeleporterId = 7;
+
+        private void ADestinationWithoutAMenuIsStoredFor_Option_(int npcId, short index) =>
+            _existing.Add(new TeleporterDto
+            {
+                TeleporterId = StoredTeleporterId, MapNpcId = npcId, Index = index, MapId = 20, MapX = 8, MapY = 87
+            });
+
+        private Task TheTraceIs_(string[] lines) => _parser.InsertTeleportersAsync(lines.Select(P).ToList());
+
+        private void TheDestinationOf_Option_ShouldBeUnder_(int npcId, short index, NrunRunnerType runner) =>
+            Assert.AreEqual(1, _saved.Count(s => s.MapNpcId == npcId && s.Index == index && s.Runner == runner));
+
+        private void TheStoredDestinationShouldNowBeUnder_(NrunRunnerType runner) =>
+            Assert.AreEqual(runner, _saved.Single(s => s.TeleporterId == StoredTeleporterId).Runner);
+
+        private void DestinationsSavedFor_ShouldBe_(int npcId, int count) =>
+            Assert.AreEqual(count, _saved.Count(s => s.MapNpcId == npcId));
     }
 }

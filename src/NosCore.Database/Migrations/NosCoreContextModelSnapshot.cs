@@ -2934,6 +2934,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short>("MapY")
                         .HasColumnType("smallint");
 
+                    b.Property<short?>("Runner")
+                        .HasColumnType("smallint");
+
                     b.Property<byte>("Type")
                         .HasColumnType("smallint");
 
