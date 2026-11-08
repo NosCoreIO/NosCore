@@ -83,10 +83,10 @@ namespace NosCore.PacketHandlers.Shops
                 Message = Game18NConstString.TradeSuccessfull
             });
 
-            clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
+            var remaining = clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
                 inv.ItemInstanceId);
             await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            await clientSession.SendPacketAsync(remaining.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
         }
     }
 }
