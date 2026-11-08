@@ -27,6 +27,7 @@ using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapChangeService
@@ -72,13 +73,58 @@ namespace NosCore.GameObject.Services.MapChangeService
 
         public async Task ChangeMapInstanceAsync(ClientSession session, Guid mapInstanceId, int? mapX = null, int? mapY = null)
         {
+            // Work running on a map must not wait for a session; the change runs once that work is over.
+            if (MapExecutor.IsInsideAny)
+            {
+                RunDetached(() => ChangeMapInstanceAsync(session, mapInstanceId, mapX, mapY));
+                return;
+            }
+
+            using (await session.AcquirePacketLockUnlessHeldAsync())
+            {
+                if (!session.TryBeginMapChange())
+                {
+                    return;
+                }
+
+                try
+                {
+                    await ChangeMapInstanceClaimedAsync(session, mapInstanceId, mapX, mapY);
+                }
+                finally
+                {
+                    session.EndMapChange();
+                }
+            }
+        }
+
+        private void RunDetached(Func<Task> work)
+        {
+            using (ExecutionContext.SuppressFlow())
+            {
+                _ = Task.Run(async () =>
+                {
+                    try
+                    {
+                        await work();
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.LogWarning(ex, logLanguage[LogLanguageKey.ERROR_CHANGE_MAP]);
+                    }
+                });
+            }
+        }
+
+        private async Task ChangeMapInstanceClaimedAsync(ClientSession session, Guid mapInstanceId, int? mapX, int? mapY)
+        {
             if (!session.HasPlayerEntity)
             {
                 return;
             }
 
             var character = session.Character;
-            if (character.MapInstance == null || character.IsChangingMapInstance)
+            if (character.MapInstance == null)
             {
                 return;
             }
@@ -87,7 +133,13 @@ namespace NosCore.GameObject.Services.MapChangeService
             try
             {
                 var currentMapInstance = character.MapInstance;
-                var newMapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId)!;
+                var newMapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId);
+                if (newMapInstance == null || newMapInstance.Executor.IsClosed)
+                {
+                    logger.LogError(logLanguageLocalizer[LogLanguageKey.MAP_DONT_EXIST, session.Account.Language]);
+                    return;
+                }
+
                 var characterId = character.CharacterId;
 
                 if (newMapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)
@@ -100,43 +152,33 @@ namespace NosCore.GameObject.Services.MapChangeService
                     }
                 }
 
-                var oldWorld = character.World;
-                var oldEntity = character.Entity;
-
-                var identity = oldWorld.TryGetComponent<EntityIdentityComponent>(oldEntity) ?? default;
-                var health = oldWorld.TryGetComponent<HealthComponent>(oldEntity) ?? default;
-                var mana = oldWorld.TryGetComponent<ManaComponent>(oldEntity) ?? default;
-                var position = oldWorld.TryGetComponent<PositionComponent>(oldEntity) ?? default;
-                var visual = oldWorld.TryGetComponent<VisualComponent>(oldEntity) ?? default;
-                var appearance = oldWorld.TryGetComponent<AppearanceComponent>(oldEntity) ?? default;
-                var experience = oldWorld.TryGetComponent<ExperienceComponent>(oldEntity) ?? default;
-                var goldComp = oldWorld.TryGetComponent<GoldComponent>(oldEntity) ?? default;
-                var reputation = oldWorld.TryGetComponent<ReputationComponent>(oldEntity) ?? default;
-                var sp = oldWorld.TryGetComponent<SpComponent>(oldEntity) ?? default;
-                var nameComp = oldWorld.TryGetComponent<NameComponent>(oldEntity) ?? default;
-                var combat = oldWorld.TryGetComponent<CombatComponent>(oldEntity) ?? default;
-                var buffs = oldWorld.TryGetComponent<BuffStateComponent>(oldEntity) ?? default;
-                var playerComp = oldWorld.TryGetComponent<PlayerComponent>(oldEntity) ?? default;
-                var playerFlags = oldWorld.TryGetComponent<PlayerFlagsComponent>(oldEntity) ?? default;
-                var timing = oldWorld.TryGetComponent<TimingComponent>(oldEntity) ?? default;
-                var speedComp = oldWorld.TryGetComponent<SpeedComponent>(oldEntity) ?? default;
-                var state = oldWorld.TryGetComponent<PlayerStateComponent>(oldEntity) ?? default;
-                var network = oldWorld.TryGetComponent<PlayerNetworkComponent>(oldEntity) ?? default;
-                var context = oldWorld.TryGetComponent<PlayerContextComponent>(oldEntity) ?? default;
-                var inventory = oldWorld.TryGetComponent<PlayerInventoryComponent>(oldEntity) ?? default;
-                var social = oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default;
-                var requests = oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default;
-                var mates = oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default;
-                var digestion = oldWorld.TryGetComponent<DigestionComponent>(oldEntity)
-                    ?? new DigestionComponent(new DigestionState());
-
                 if (session.Channel?.Id != null)
                 {
                     currentMapInstance.Sessions.Remove(session.Channel);
                 }
                 await session.SendPacketAsync(currentMapInstance.GenerateCMap(false));
                 currentMapInstance.LastUnregister = clock.GetCurrentInstant();
-                await LeaveMapAsync(session);
+                await currentMapInstance.SendPacketAsync(character.GenerateOut(), new EveryoneBut(session.Channel!.Id));
+                foreach (var mate in character.Mates.Values)
+                {
+                    await mate.DespawnAsync(currentMapInstance);
+                }
+
+                // Holding both maps keeps their own work away from the player while they move;
+                // holding both worlds keeps everything else away for the copy itself.
+                var leaving = currentMapInstance.Executor.IsClosed ? newMapInstance.Executor : currentMapInstance.Executor;
+                var moved = false;
+                await MapExecutor.RunExclusiveAsync(leaving, newMapInstance.Executor, () =>
+                {
+                    moved = MovePlayer(session, currentMapInstance, newMapInstance, mapX, mapY);
+                    return Task.CompletedTask;
+                });
+                if (!moved)
+                {
+                    return;
+                }
+
+                await session.SendPacketAsync(new MapOutPacket());
                 if (currentMapInstance.Sessions.Count == 0)
                 {
                     currentMapInstance.IsSleeping = true;
@@ -144,39 +186,6 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 var abandonedRun = scriptedInstanceService.GetRun(currentMapInstance.MapInstanceId);
 
-                var playerEntity = newMapInstance.EcsWorld.ClonePlayer(
-                    identity,
-                    health,
-                    mana,
-                    position with
-                    {
-                        MapInstanceId = newMapInstance.MapInstanceId,
-                        PositionX = mapX != null ? (short)mapX : position.PositionX,
-                        PositionY = mapY != null ? (short)mapY : position.PositionY
-                    },
-                    visual with { IsSitting = false },
-                    appearance,
-                    experience,
-                    goldComp,
-                    reputation,
-                    sp,
-                    nameComp,
-                    combat,
-                    buffs,
-                    playerComp,
-                    playerFlags,
-                    timing,
-                    speedComp,
-                    state,
-                    network,
-                    context with { MapInstance = newMapInstance },
-                    inventory,
-                    social,
-                    requests,
-                    mates,
-                    digestion);
-
-                session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;
 
                 if (abandonedRun != null)
@@ -317,6 +326,66 @@ namespace NosCore.GameObject.Services.MapChangeService
             }
         }
 
+        private static bool MovePlayer(ClientSession session, MapInstance from, MapInstance to, int? mapX, int? mapY)
+        {
+            var moved = false;
+            MapWorld.Exclusive(from.EcsWorld, to.EcsWorld, () =>
+            {
+                if (!session.HasPlayerEntity)
+                {
+                    return;
+                }
+
+                var oldWorld = session.Character.World;
+                var oldEntity = session.Character.Entity;
+                if (oldWorld != from.EcsWorld)
+                {
+                    return;
+                }
+
+                var position = oldWorld.TryGetComponent<PositionComponent>(oldEntity) ?? default;
+                var visual = oldWorld.TryGetComponent<VisualComponent>(oldEntity) ?? default;
+                var context = oldWorld.TryGetComponent<PlayerContextComponent>(oldEntity) ?? default;
+                var playerEntity = to.EcsWorld.ClonePlayer(
+                    oldWorld.TryGetComponent<EntityIdentityComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<HealthComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<ManaComponent>(oldEntity) ?? default,
+                    position with
+                    {
+                        MapInstanceId = to.MapInstanceId,
+                        PositionX = mapX != null ? (short)mapX : position.PositionX,
+                        PositionY = mapY != null ? (short)mapY : position.PositionY
+                    },
+                    visual with { IsSitting = false },
+                    oldWorld.TryGetComponent<AppearanceComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<ExperienceComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<GoldComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<ReputationComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<SpComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<NameComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<CombatComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<BuffStateComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerFlagsComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<TimingComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<SpeedComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerStateComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerNetworkComponent>(oldEntity) ?? default,
+                    context with { MapInstance = to },
+                    oldWorld.TryGetComponent<PlayerInventoryComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<DigestionComponent>(oldEntity) ?? new DigestionComponent(new DigestionState()));
+
+                session.SetPlayerEntity(playerEntity, to.EcsWorld);
+                oldWorld.Forward(oldEntity, session);
+                oldWorld.DestroyEntity(oldEntity);
+                moved = true;
+            });
+            return moved;
+        }
+
         public async Task ChangeMapByCharacterIdAsync(long characterId, short mapId, short mapX, short mapY)
         {
             var sender = sessionRegistry.GetSenderByCharacterId(characterId);
@@ -325,22 +394,5 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await ChangeMapAsync(session, mapId, mapX, mapY);
             }
         }
-
-        private async Task LeaveMapAsync(ClientSession session)
-        {
-            var character = session.Character;
-            var outPacket = character.GenerateOut();
-            var mapInstance = character.MapInstance;
-            var channelId = session.Channel!.Id;
-            await mapInstance.SendPacketAsync(outPacket, new EveryoneBut(channelId));
-            foreach (var mate in character.Mates.Values)
-            {
-                await mate.DespawnAsync(mapInstance);
-            }
-
-            session.ClearPlayerEntity();
-            await session.SendPacketAsync(new MapOutPacket());
-        }
-
     }
 }

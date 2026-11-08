@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
         private Mock<ISaveService> SaveService = null!;
         private Mock<ISessionRegistry> SessionRegistry = null!;
         private FakeClock Clock = null!;
-        private AsyncLock.Releaser? HeldLock;
+        private ClientSession.PacketLockScope? HeldLock;
         private Task Job = Task.CompletedTask;
         private int Saves;
 

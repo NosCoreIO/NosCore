@@ -353,6 +353,21 @@ of teleporter NPC with at least 10 000 gold.
 - [ ] Below the fare: the client's not-enough-gold message in yellow, the gold stays and
       nobody moves
 
+### Changing map
+
+Two clients, A and B.
+
+- [ ] A walks through a portal onto B's map: B sees A appear once, and A sees the new map's
+      monsters, NPCs, items and B
+- [ ] A, while a monster is hitting them, uses a return item: A arrives with the HP the last
+      hit left, and the players on the old map see A disappear
+- [ ] A steps on a portal and uses a return item in the same instant: A ends up on one map,
+      can keep walking, and the server log shows no map-change warning
+- [ ] A leaves a map as its last player while B walks onto it: half a minute later the
+      monsters there still move for B
+- [ ] A opens their miniland, B visits, A closes it: B is sent back to their own map and A's
+      miniland keeps working on the next visit
+
 ### Respawn point
 
 - [ ] Talk to a village NPC that offers to save the respawn point and confirm: the client's
