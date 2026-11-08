@@ -19,11 +19,12 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using Wolverine;
 
 namespace NosCore.GameObject.Messaging.Handlers.MapItem
 {
     [UsedImplicitly]
-    public sealed class DropHandler
+    public sealed class DropHandler(IMessageBus messageBus)
     {
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
@@ -85,6 +86,8 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                         Game18NArguments = { $"{session.Character.Name} {inv.ItemInstance.Item.VNum}" }
                     });
                 }
+
+                await messageBus.PublishAsync(new ItemsReceivedEvent(session.Character, inv.ItemInstance.ItemVNum, amount));
             }
             else
             {

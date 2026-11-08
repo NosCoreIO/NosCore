@@ -38,6 +38,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private WearHandler _handler = null!;
         private InventoryItemInstance _item = null!;
 
+        private Mock<Wolverine.IMessageBus> _messageBus = null!;
+
         [TestInitialize]
         public async Task SetupAsync()
         {
@@ -50,7 +52,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.WorldConfiguration,
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
+                (_messageBus = new Mock<Wolverine.IMessageBus>()).Object);
         }
 
         [TestMethod]
@@ -122,6 +125,39 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .And(NoCanNotWearPacketSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task SuccessfulEquipAnnouncesTheWornItem()
+        {
+            await new Spec("Successful equip publishes which item is now worn")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(CharacterIsLevel_, (byte)50)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(TheWornItemShouldBePublished)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RefusedEquipAnnouncesNothing()
+        {
+            await new Spec("An item the character cannot wear publishes nothing")
+                .Given(ItemInInventoryOfType_, ItemType.Armor)
+                .And(ItemRequiresLevel_, (byte)99)
+                .And(CharacterIsLevel_, (byte)1)
+                .WhenAsync(UsingTheItemWithMode_, (byte)1)
+                .Then(NoWornItemShouldBePublished)
+                .ExecuteAsync();
+        }
+
+        private void TheWornItemShouldBePublished() =>
+            _messageBus.Verify(b => b.PublishAsync(
+                It.Is<NosCore.GameObject.Messaging.Events.ItemWornEvent>(e => e.VNum == _item.ItemInstance.ItemVNum),
+                It.IsAny<Wolverine.DeliveryOptions?>()), Times.Once);
+
+        private void NoWornItemShouldBePublished() =>
+            _messageBus.Verify(b => b.PublishAsync(
+                It.IsAny<NosCore.GameObject.Messaging.Events.ItemWornEvent>(),
+                It.IsAny<Wolverine.DeliveryOptions?>()), Times.Never);
 
         [TestMethod]
         public async Task SuccessfulEquipWithValidTimeStampsItemDeleteTime()

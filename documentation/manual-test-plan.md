@@ -1044,6 +1044,45 @@ Quick pass after any combat or stat change:
 
 ---
 
+## Quests
+
+### Item objectives
+
+The data layout read for each type: Collect and Needed list an item and an amount; Brings and
+Required list an NPC, an amount and an item; Product lists an item and an amount; Use and Wear
+list an item. Before testing, pick one quest of each type from the parsed data and check
+that its `QuestObjective` row matches that layout. A row that does not match is a finding:
+record it rather than testing around it.
+
+```sql
+SELECT DISTINCT ON (q."QuestType") q."QuestId", q."QuestType", q."LevelMin",
+       o."FirstData", o."SecondData", o."ThirdData", o."FourthData"
+FROM "Quest" q JOIN "QuestObjective" o ON o."QuestId" = q."QuestId"
+WHERE q."QuestType" IN (4, 8, 14, 15, 16, 17, 21)
+ORDER BY q."QuestType", q."LevelMin", q."QuestId";
+```
+
+Give yourself the quest through its script, or by walking the quest line that leads to it.
+
+- [ ] **Collect (17)**: drop part of the item with `$CreateItem`, then pick it up: the quest
+      window counter moves to what you carry. Pick up the rest: "Quest complete" appears and
+      the items stay in the bag. Picking up another item leaves the counter alone
+- [ ] **Needed (16)**: picking up fewer than asked leaves the quest open; picking up the last
+      one completes it and nothing is taken
+- [ ] **Brings (4)**: with the items in the bag the counter stays at 0 and the quest stays
+      open. Talk to the NPC from the data: the items leave the bag, the counter fills and the
+      quest completes. With one item short, talking to the NPC takes nothing. Talking to
+      another NPC takes nothing
+- [ ] **Required (14)**: same checks as Brings
+- [ ] **Product (8)**: produce the item at an NPC or with a scroll: the counter rises by the
+      amount made and the quest completes once it is reached. Items of that kind picked up or
+      bought do not count
+- [ ] **Use (21)**: using the listed item completes the quest; using any other item does not
+- [ ] **Wear (15)**: equipping the listed item completes the quest; equipping another does not
+- [ ] For a quest with a `q_pay` step, the reward is only given once the objectives above are
+      met, and for Brings and Required only after the hand-in
+- [ ] Relog halfway through a Collect or Product quest: the counter comes back where it was
+
 ## Not verifiable yet
 
 Recorded so nobody spends time hunting for them:
@@ -1084,6 +1123,8 @@ Recorded so nobody spends time hunting for them:
   on). The cloud client is English only, so only the unit tests cover the other words.
 - **Food and snacks in a miniland** — minilands are created after start-up and never get a
   life loop, so nothing that ticks per map (regeneration, digestion) runs there yet.
+- **Collect-from-a-map-object quests (type 20)** — the ice flowers and water spots they use
+  are not on the maps yet, so those quests are still never completed.
 - **What shell options do** — the options are rolled, shown and kept on the equipment, but no
   combat, experience or gold formula reads them yet, so there is nothing to observe beyond the
   item window.

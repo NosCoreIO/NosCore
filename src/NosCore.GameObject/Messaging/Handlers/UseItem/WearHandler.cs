@@ -34,7 +34,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IOptions<WorldConfiguration> worldConfiguration,
         Services.BattleService.IVitalityService vitalityService,
-        Services.BattleService.IBattleStatsProvider battleStatsProvider)
+        Services.BattleService.IBattleStatsProvider battleStatsProvider,
+        Wolverine.IMessageBus messageBus)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -197,6 +198,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await vitalityService.RefreshAndNotifyAsync(session.Character).ConfigureAwait(false);
+            await messageBus.PublishAsync(new ItemWornEvent(session.Character, itemInstance.ItemInstance.ItemVNum));
         }
     }
 }
