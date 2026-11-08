@@ -162,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             var targetVisualId = TargetSession.Character.VisualId;
             ExchangeService.Setup(x => x.GetTargetId(visualId))
                 .Returns(targetVisualId);
-            ExchangeService.Setup(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()))
+            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<long>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
 
@@ -220,7 +220,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeShouldNotBeClosed()
         {
-            ExchangeService.Verify(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()), Times.Never);
+            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<long>()), Times.Never);
         }
 
         private void ExchangeGoldShouldBeSet()
@@ -233,7 +233,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void ExchangeShouldBeClosed()
         {
             var visualId = Session.Character.VisualId;
-            ExchangeService.Verify(x => x.CloseExchange(visualId, ExchangeResultType.Failure), Times.Once);
+            ExchangeService.Verify(x => x.CancelExchange(visualId), Times.Once);
         }
 
         private void ItemShouldBeAddedToExchange()

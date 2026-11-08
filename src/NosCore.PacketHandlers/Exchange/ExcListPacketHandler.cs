@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -67,21 +68,14 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if ((item == null) || (item.ItemInstance.Amount < value!.Amount) || offer.ContainsKey(item))
                     {
-                        var closeExchange =
-                            exchangeService.CloseExchange(character.VisualId,
-                                ExchangeResultType.Failure);
-                        await clientSession.SendPacketAsync(closeExchange);
-                        await target.SendPacketAsync(closeExchange);
+                        await CancelAsync(clientSession, target);
                         logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);
                         return;
                     }
 
                     if (!item.ItemInstance.Item.IsTradable)
                     {
-                        var closeExchange = exchangeService.CloseExchange(character.CharacterId,
-                            ExchangeResultType.Failure);
-                        await clientSession.SendPacketAsync(closeExchange);
-                        await target.SendPacketAsync(closeExchange);
+                        await CancelAsync(clientSession, target);
                         logger.LogError(
                             logLanguage[LogLanguageKey.CANNOT_TRADE_NOT_TRADABLE_ITEM]);
                         return;
@@ -118,6 +112,18 @@ namespace NosCore.PacketHandlers.Exchange
                 await target.SendPacketAsync(
                     character.GenerateServerExcListPacket(packet.Gold, packet.BankGold, subPacketList));
             }
+        }
+
+        private async Task CancelAsync(ClientSession clientSession, PlayerComponentBundle target)
+        {
+            var closeExchange = exchangeService.CancelExchange(clientSession.Character.VisualId);
+            if (closeExchange == null)
+            {
+                return;
+            }
+
+            await clientSession.SendPacketAsync(closeExchange);
+            await target.SendPacketAsync(closeExchange);
         }
     }
 }

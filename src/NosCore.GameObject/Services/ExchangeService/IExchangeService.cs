@@ -17,6 +17,8 @@ using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
+    public sealed record ClaimedExchange(ExchangeData Own, ExchangeData Partner);
+
     public interface IExchangeService
     {
         Duration? GetRequestCooldown(PlayerComponentBundle requester);
@@ -26,9 +28,14 @@ namespace NosCore.GameObject.Services.ExchangeService
         bool SetOffer(long visualId, long gold, long bankGold, IReadOnlyDictionary<InventoryItemInstance, short> items);
 
         Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
-            ICharacterEntity targetSession);
+            ICharacterEntity targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo);
 
-        bool ConfirmExchange(long visualId);
+        // Records the confirmation. Returns both sides' offers to the one call that completes the
+        // pair, which then owns the settlement; every other call gets null.
+        ClaimedExchange? ConfirmExchange(long visualId);
+
+        // Closes the exchange as failed unless it has already been claimed for settlement.
+        ExcClosePacket? CancelExchange(long visualId);
         bool IsExchangeConfirmed(long visualId);
         ExchangeData GetData(long visualId);
         bool CheckExchange(long visualId);

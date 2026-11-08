@@ -193,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.GetTargetId(It.IsAny<long>()))
                 .Returns((long?)TargetSession.Character.CharacterId);
-            ExchangeService.Setup(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()))
+            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<long>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
 
@@ -259,7 +259,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeShouldBeClosed()
         {
-            ExchangeService.Verify(x => x.CloseExchange(It.IsAny<long>(), ExchangeResultType.Failure), Times.Once);
+            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<long>()), Times.Once);
         }
     }
 }

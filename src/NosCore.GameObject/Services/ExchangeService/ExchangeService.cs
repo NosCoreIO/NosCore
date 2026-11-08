@@ -91,10 +91,8 @@ namespace NosCore.GameObject.Services.ExchangeService
         }
 
         public Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
-            ICharacterEntity targetSession)
+            ICharacterEntity targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo)
         {
-            var exchangeInfo = GetData(session.Character.CharacterId);
-            var targetInfo = GetData(targetSession.VisualId);
             var dictionary = new Dictionary<long, IPacket>();
 
             if (exchangeInfo.Gold > session.Character.Gold || exchangeInfo.BankGold > session.Character.BankGold)
@@ -201,32 +199,54 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         }
 
-        public bool ConfirmExchange(long visualId)
+        public ClaimedExchange? ConfirmExchange(long visualId)
         {
             var data = exchangeRegistry.GetExchangeData(visualId);
             var targetId = GetTargetId(visualId);
             var partner = targetId.HasValue ? exchangeRegistry.GetExchangeData(targetId.Value) : null;
             if (data == null || partner == null)
             {
-                return false;
+                return null;
             }
 
             lock (data.Settlement)
             {
                 if (data.Settlement.IsClaimed)
                 {
-                    return false;
+                    return null;
                 }
 
                 data.ExchangeConfirmed = true;
                 if (!partner.ExchangeConfirmed)
                 {
-                    return false;
+                    return null;
                 }
 
                 data.Settlement.IsClaimed = true;
-                return true;
+                return new ClaimedExchange(data, partner);
             }
+        }
+
+        public ExcClosePacket? CancelExchange(long visualId)
+        {
+            var settlement = exchangeRegistry.GetExchangeData(visualId)?.Settlement;
+            if (settlement == null)
+            {
+                logger.LogError(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
+                return null;
+            }
+
+            lock (settlement)
+            {
+                if (settlement.IsClaimed)
+                {
+                    return null;
+                }
+
+                settlement.IsClaimed = true;
+            }
+
+            return CloseExchange(visualId, ExchangeResultType.Failure);
         }
 
         public bool IsExchangeConfirmed(long visualId)

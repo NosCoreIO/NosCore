@@ -37,7 +37,6 @@ namespace NosCore.PacketHandlers.Exchange
             var hasTarget = sessionRegistry.TryGetCharacter(s =>
                 (s.VisualId == packet.VisualId) &&
                 (s.MapInstanceId == clientSession.Character.MapInstanceId), out var target);
-            ExcClosePacket closeExchange;
 
             if (hasTarget && ((packet.RequestType == RequestExchangeType.Confirmed) ||
                 (packet.RequestType == RequestExchangeType.Cancelled)))
@@ -207,7 +206,8 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (!exchangeService.ConfirmExchange(clientSession.Character.VisualId))
+                    var claim = exchangeService.ConfirmExchange(clientSession.Character.VisualId);
+                    if (claim == null)
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -225,13 +225,13 @@ namespace NosCore.PacketHandlers.Exchange
                     {
                         using (await partnerSession.AcquirePacketLockAsync())
                         {
-                            result = await SettleAsync(clientSession, exchangeTarget);
+                            result = await SettleAsync(clientSession, exchangeTarget, claim);
                         }
                     }
 
-                    closeExchange = exchangeService.CloseExchange(clientSession.Character.VisualId, result)!;
-                    await exchangeTarget.SendPacketAsync(closeExchange);
-                    await clientSession.SendPacketAsync(closeExchange);
+                    var settled = exchangeService.CloseExchange(clientSession.Character.VisualId, result);
+                    await exchangeTarget.SendPacketAsync(settled);
+                    await clientSession.SendPacketAsync(settled);
                     return;
 
                 case RequestExchangeType.Cancelled:
@@ -242,13 +242,17 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    closeExchange =
-                        exchangeService.CloseExchange(clientSession.Character.VisualId, ExchangeResultType.Failure)!;
+                    var cancelled = exchangeService.CancelExchange(clientSession.Character.VisualId);
+                    if (cancelled == null)
+                    {
+                        return;
+                    }
+
                     if (sessionRegistry.TryGetCharacter(s => s.VisualId == cancelId.Value, out var cancelTarget))
                     {
-                        await cancelTarget.SendPacketAsync(closeExchange);
+                        await cancelTarget.SendPacketAsync(cancelled);
                     }
-                    await clientSession.SendPacketAsync(closeExchange);
+                    await clientSession.SendPacketAsync(cancelled);
                     return;
 
                 default:
@@ -256,9 +260,10 @@ namespace NosCore.PacketHandlers.Exchange
             }
         }
 
-        private async Task<ExchangeResultType> SettleAsync(ClientSession clientSession, PlayerComponentBundle exchangeTarget)
+        private async Task<ExchangeResultType> SettleAsync(ClientSession clientSession, PlayerComponentBundle exchangeTarget,
+            ClaimedExchange claim)
         {
-            var validation = exchangeService.ValidateExchange(clientSession, exchangeTarget);
+            var validation = exchangeService.ValidateExchange(clientSession, exchangeTarget, claim.Own, claim.Partner);
             if (validation.Item1 == ExchangeResultType.Failure)
             {
                 foreach (var infoPacket in validation.Item2!)
@@ -277,8 +282,8 @@ namespace NosCore.PacketHandlers.Exchange
             }
 
             var character = clientSession.Character;
-            var sessionOffer = exchangeService.GetData(character.CharacterId).ToOffer();
-            var targetOffer = exchangeService.GetData(exchangeTarget.VisualId).ToOffer();
+            var sessionOffer = claim.Own.ToOffer();
+            var targetOffer = claim.Partner.ToOffer();
             var itemList = await transferService.TransferAsync(character, sessionOffer, exchangeTarget, targetOffer);
             if (itemList == null)
             {

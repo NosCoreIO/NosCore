@@ -245,7 +245,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private Task ValidatingExchange()
         {
-            _validationResult = _realExchange!.ValidateExchange(_sessionA!, _sessionB!.Character);
+            _validationResult = _realExchange!.ValidateExchange(_sessionA!, _sessionB!.Character,
+                _realExchange.GetData(_sessionA!.Character.CharacterId), _realExchange.GetData(_sessionB.Character.VisualId));
             return Task.CompletedTask;
         }
 

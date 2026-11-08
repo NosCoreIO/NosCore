@@ -266,6 +266,28 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task AClaimedTradeCannotBeCancelled()
+        {
+            await new Spec("Once both confirmations claimed the trade, a cancel from the partner is refused")
+                .GivenAsync(ExchangeIsOpened)
+                .And(BothConfirmationsClaimTheTrade)
+                .WhenAsync(TargetCancels)
+                .Then(ExchangeIsOpen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AClaimedTradeIsNotClosedByAnInvalidOffer()
+        {
+            await new Spec("Once both confirmations claimed the trade, an invalid exc_list from the partner does not close it")
+                .GivenAsync(ExchangeIsOpened)
+                .And(BothConfirmationsClaimTheTrade)
+                .WhenAsync(TargetOffersAnEmptySlot)
+                .Then(ExchangeIsOpen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConcurrentConfirmationsSettleTheTradeOnce()
         {
             await new Spec("Both sides confirming at the same moment settle the trade once")
@@ -343,6 +365,22 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         private void SecondsPass_(int seconds) => Clock.AdvanceSeconds(seconds);
+
+        private void BothConfirmationsClaimTheTrade()
+        {
+            Assert.IsNull(Exchange.ConfirmExchange(Target.Character.VisualId));
+            Assert.IsNotNull(Exchange.ConfirmExchange(Requester.Character.VisualId));
+        }
+
+        private Task TargetCancels() =>
+            RequestHandler.ExecuteAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Cancelled }, Target);
+
+        private Task TargetOffersAnEmptySlot() => ListHandler.ExecuteAsync(new ExcListPacket
+        {
+            Gold = 0,
+            BankGold = 0,
+            SubPackets = new List<ExcListSubPacket?> { new() { Slot = 5, PocketType = PocketType.Main, Amount = 1 } }
+        }, Target);
 
         private void TargetBlacklistedRequester()
         {
