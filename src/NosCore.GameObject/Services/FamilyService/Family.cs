@@ -29,5 +29,12 @@ namespace NosCore.GameObject.Services.FamilyService
             FamilyAuthority.Manager => ManagerCanInvite,
             _ => false
         };
+
+        public bool CanGetHistory(long characterId) => AuthorityOf(characterId) switch
+        {
+            FamilyAuthority.Head or FamilyAuthority.Assistant => true,
+            FamilyAuthority.Manager => ManagerCanGetHistory,
+            _ => MemberCanGetHistory
+        };
     }
 }

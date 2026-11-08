@@ -7,17 +7,21 @@ using NodaTime;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
-    public class FamilyLogService(IDao<FamilyLogDto, long> familyLogDao, IClock clock) : IFamilyLogService
+    public class FamilyLogService(IDao<FamilyLogDto, long> familyLogDao, IClock clock, IPubSubHub pubSubHub) : IFamilyLogService
     {
         private const int MaxArguments = 4;
         private const int ArgumentMaxLength = 255;
+        private const int HistoryLength = 50;
 
         public async Task AddAsync(long familyId, FamilyLogType type, params object[] arguments)
         {
@@ -36,7 +40,16 @@ namespace NosCore.GameObject.Services.FamilyService
                 FourthArgument = ArgumentAt(arguments, 3),
                 Timestamp = clock.GetCurrentInstant()
             });
+            await pubSubHub.SendMessageAsync(new FamilyHistoryChangedData { FamilyId = familyId });
         }
+
+        public IReadOnlyList<FamilyLogDto> GetHistory(long familyId) =>
+            familyLogDao.Where(s => s.FamilyId == familyId
+                    && s.FamilyLogType != FamilyLogType.WareHouseAdded
+                    && s.FamilyLogType != FamilyLogType.WareHouseRemoved)?
+                .OrderByDescending(s => s.Timestamp)
+                .Take(HistoryLength)
+                .ToList() ?? new List<FamilyLogDto>();
 
         public async Task AddLevelUpsAsync(long familyId, string characterName, byte previousLevel, byte level)
         {
