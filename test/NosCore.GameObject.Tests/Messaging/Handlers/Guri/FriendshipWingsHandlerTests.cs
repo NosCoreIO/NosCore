@@ -25,6 +25,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.GameObject.Messaging.Handlers.Battle;
 using NosCore.Tests.Shared;
 using SpecLight;
 using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
@@ -37,6 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         private const short WingsVNum = 2160;
         private ClientSession _session = null!;
         private ClientSession _friend = null!;
+        private ClientSession _otherFriend = null!;
         private Mock<IFriendHub> _friendHub = null!;
         private Mock<ISessionRegistry> _sessionRegistry = null!;
         private Mock<IMapChangeService> _mapChangeService = null!;
@@ -48,6 +50,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _friend = await TestHelpers.Instance.GenerateSessionAsync();
+            _otherFriend = await TestHelpers.Instance.GenerateSessionAsync();
+            _otherFriend.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             _friend.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             _friend.Character.MapId = 1;
@@ -148,6 +152,69 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .And(WingsCountShouldBe_, 1)
                 .And(NoMapChangeShouldHappen)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ABarForOneFriendDoesNotTravelToAnother()
+        {
+            await new Spec("A travel request naming a different friend than the bar was started for does nothing")
+                .Given(CharacterHasWings)
+                .And(BothOtherCharactersAreFriends)
+                .And(BothFriendsAreOnThisChannel)
+                .AndAsync(TheBarHasRun)
+                .WhenAsync(SendingTravelTowardsTheOtherFriend)
+                .Then(NoMapChangeShouldHappen)
+                .And(WingsCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BeingHitInterruptsTheBar()
+        {
+            await new Spec("A hit taken during the bar cancels it, so the travel request that follows does nothing")
+                .Given(CharacterHasWings)
+                .And(TheOtherCharacterIsAFriend)
+                .And(TheFriendIsOnThisChannel)
+                .AndAsync(SendingArgument_, 1)
+                .AndAsync(ThePlayerIsHit)
+                .And(SecondsPass_, 3)
+                .WhenAsync(SendingArgument_, 2)
+                .Then(NoMapChangeShouldHappen)
+                .And(WingsCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        private void BothOtherCharactersAreFriends()
+        {
+            var selfId = _session.Character.CharacterId;
+            _friendHub.Setup(s => s.GetFriendsAsync(selfId)).ReturnsAsync(new List<CharacterRelationStatus>
+            {
+                new() { CharacterId = _friend.Character.CharacterId, RelationType = CharacterRelationType.Friend, IsConnected = true },
+                new() { CharacterId = _otherFriend.Character.CharacterId, RelationType = CharacterRelationType.Friend, IsConnected = true }
+            });
+        }
+
+        private void BothFriendsAreOnThisChannel()
+        {
+            TheFriendIsOnThisChannel();
+            var otherId = _otherFriend.Character.CharacterId;
+            _sessionRegistry.Setup(s => s.GetSessionByCharacterId(otherId)).Returns(_otherFriend);
+        }
+
+        private Task SendingTravelTowardsTheOtherFriend()
+        {
+            return _handler.Handle(new GuriPacketReceivedEvent(_session, new ClientGuriPacket
+            {
+                Type = GuriPacketType.FriendshipWings,
+                Argument = 2,
+                VisualId = _otherFriend.Character.CharacterId
+            }));
+        }
+
+        private Task ThePlayerIsHit()
+        {
+            return new DelayInterruptionHandler().Handle(
+                new EntityDamagedEvent(_friend.Character, _session.Character, 10, false));
         }
 
         private void CharacterHasWings()

@@ -54,14 +54,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     Type = DelayPacketType.Locomotion,
                     Delay = 3000,
                     Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
-                }, clock.GetCurrentInstant());
+                }, itemInstance.ItemInstanceId, clock.GetCurrentInstant());
                 return;
             }
 
             character = session.Character;
             if (packet.Mode == 2 && !character.IsVehicled)
             {
-                if (!character.TryCompleteDelay(DelayPacketType.Locomotion, clock.GetCurrentInstant()))
+                if (!character.TryCompleteDelay(DelayPacketType.Locomotion, itemInstance.ItemInstanceId, clock.GetCurrentInstant()))
                 {
                     return;
                 }

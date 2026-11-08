@@ -78,12 +78,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                         Type = DelayPacketType.BackToMiniland,
                         Delay = BarDuration,
                         Packet = Follow(PetManagementAction.SentBack, mate)
-                    }, clock.GetCurrentInstant());
+                    }, (PetManagementAction.SentBack, mate.MateTransportId), clock.GetCurrentInstant());
                     return;
 
                 case PetManagementAction.SentBack:
                     if (inOwnMiniland || !mate.IsTeamMember
-                        || !character.TryCompleteDelay(DelayPacketType.BackToMiniland, clock.GetCurrentInstant()))
+                        || !character.TryCompleteDelay(DelayPacketType.BackToMiniland, (PetManagementAction.SentBack, mate.MateTransportId), clock.GetCurrentInstant()))
                     {
                         return;
                     }
@@ -130,13 +130,13 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                         Type = DelayPacketType.BackToMiniland,
                         Delay = BarDuration,
                         Packet = Follow(PetManagementAction.Summoned, mate)
-                    }, clock.GetCurrentInstant());
+                    }, (PetManagementAction.Summoned, mate.MateTransportId), clock.GetCurrentInstant());
                     return;
 
                 case PetManagementAction.Summoned:
                     if (mate.IsTeamMember
                         || character.Mates.Values.Any(s => s.IsTeamMember && s.MateType == mate.MateType)
-                        || !character.TryCompleteDelay(DelayPacketType.BackToMiniland, clock.GetCurrentInstant())
+                        || !character.TryCompleteDelay(DelayPacketType.BackToMiniland, (PetManagementAction.Summoned, mate.MateTransportId), clock.GetCurrentInstant())
                         || !await CheckLevelAsync(character, mate))
                     {
                         return;

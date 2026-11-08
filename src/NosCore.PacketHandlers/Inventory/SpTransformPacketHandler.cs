@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Inventory
                     {
                         if (spTransformPacket.Type == SlPacketType.WearSpAndTransform)
                         {
-                            if (clientSession.Character.TryCompleteDelay(DelayPacketType.Locomotion, clock.GetCurrentInstant()))
+                            if (clientSession.Character.TryCompleteDelay(DelayPacketType.Locomotion, specialistInstance.Id, clock.GetCurrentInstant()))
                             {
                                 await transformationService.ChangeSpAsync(clientSession);
                             }
@@ -96,7 +96,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 Type = DelayPacketType.Locomotion,
                                 Delay = 5000,
                                 Packet = new SpTransformPacket { Type = SlPacketType.WearSpAndTransform }
-                            }, clock.GetCurrentInstant());
+                            }, specialistInstance.Id, clock.GetCurrentInstant());
                             await clientSession.Character.MapInstance.SendPacketAsync(new GuriPacket
                             {
                                 Type = GuriPacketType.Dance,
