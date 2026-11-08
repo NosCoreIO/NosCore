@@ -217,11 +217,20 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         [TestMethod]
         public async Task ANegativeGoldOfferIsRefused()
         {
-            await new Spec("An exc_list with a negative gold or bank amount is not stored")
+            await new Spec("An exc_list with a negative gold amount is not stored")
                 .GivenAsync(ExchangeIsOpened)
                 .And(RequesterGoldIs_, 1_000L)
                 .WhenAsync(RequesterOffersGold_, -500L)
-                .AndAsync(RequesterOffersBankUnits_, -5L)
+                .Then(NoGoldIsOffered)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANegativeBankGoldOfferIsRefused()
+        {
+            await new Spec("An exc_list with a negative bank amount is not stored")
+                .GivenAsync(ExchangeIsOpened)
+                .WhenAsync(RequesterOffersBankUnits_, -5L)
                 .Then(NoGoldIsOffered)
                 .ExecuteAsync();
         }
