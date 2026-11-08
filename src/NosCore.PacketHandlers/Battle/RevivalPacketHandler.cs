@@ -133,14 +133,21 @@ namespace NosCore.PacketHandlers.Battle
             await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
 
             var protection = cardCatalog.GetCard(ArenaRevivalProtectionCardId);
-            if (protection != null)
+            if (protection == null)
+            {
+                logger.LogWarning("Arena revival protection card {CardId} is missing", ArenaRevivalProtectionCardId);
+                return;
+            }
+
+            // The client has already been told the fighter is back; losing the protection must not undo that.
+            try
             {
                 await buffService.ApplyAsync(character, protection,
                     cardCatalog.GetCardBCards(ArenaRevivalProtectionCardId), character);
             }
-            else
+            catch (Exception ex)
             {
-                logger.LogWarning("Arena revival protection card {CardId} is missing", ArenaRevivalProtectionCardId);
+                logger.LogWarning(ex, "Arena revival protection failed for character {CharacterId}", character.CharacterId);
             }
         }
 

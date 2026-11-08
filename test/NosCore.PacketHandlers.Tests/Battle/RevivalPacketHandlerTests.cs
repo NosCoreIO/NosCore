@@ -159,6 +159,21 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task AFailedProtectionDoesNotUndoTheArenaRevive()
+        {
+            await new Spec("If the protection card cannot be applied, the fighter stays revived and the fee stays paid")
+                .Given(CharacterIsDeadAtLevel_, (byte)30)
+                .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
+                .And(ApplyingTheProtectionFails)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
+                .Then(CharacterShouldBeAlive)
+                .And(HpShouldBeFullyRestored)
+                .And(GoldShouldBe_, 4900L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ReviveInPlaceGrantsNoProtection()
         {
             await new Spec("Reviving in place outside an arena gives no protection card")
@@ -280,6 +295,26 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Returns(Task.CompletedTask);
             _session.Character.MapInstance.Sessions = mapSessions.Object;
         }
+
+        private void ApplyingTheProtectionFails()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.ApplyAsync(It.IsAny<IAliveEntity>(), It.IsAny<NosCore.Data.StaticEntities.CardDto>(),
+                    It.IsAny<IReadOnlyList<NosCore.Data.StaticEntities.BCardDto>>(), It.IsAny<IAliveEntity>(), It.IsAny<int>()))
+                .ThrowsAsync(new InvalidOperationException());
+            var catalog = new Mock<ICardCatalog>();
+            catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
+            catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
+            _handler = new RevivalPacketHandler(
+                new Mock<ILogger<RevivalPacketHandler>>().Object,
+                _mapChangeService.Object,
+                _respawnService.Object,
+                buffs.Object,
+                catalog.Object);
+        }
+
+        private void CharacterShouldBeAlive() =>
+            Assert.IsTrue(_session.Character.IsAlive);
 
         private void CharacterShouldHoldTheRevivalProtection() =>
             Assert.IsTrue(_buffs.HasBuff(_session.Character, RevivalProtectionCard.CardId));
