@@ -659,6 +659,35 @@ a Flamberge (`$CreateItem 299 5`), Rainbow Pearls (`$CreateItem 1429 20`) and a 
 
 ---
 
+## Arena
+
+### Individual Arena and Arena of Glory
+
+Two characters with at least 1 000 gold each, in different groups, next to the arena NPC
+(Titus Trip, NosVille). Keep one of them low on HP so the fall comes quickly.
+
+- [ ] Talk to the NPC: the menu offers the arenas
+- [ ] Individual Arena: 500 gold leaves the gold counter and the player lands on the arena
+      floor, never on the central platform where the arena merchants stand
+- [ ] Arena of Glory: 1 000 gold and the player lands in that arena
+- [ ] With less than the fee: the client's not-enough-gold message in yellow, the gold stays and
+      nobody moves
+- [ ] Asking twice within four seconds: the second request is refused
+- [ ] Both players inside: each can target and hit the other, and the damage is half what the
+      same skill does to a monster of similar defence
+- [ ] Two players in the same group cannot hit each other
+- [ ] A player standing on the central platform can neither hit nor be hit
+- [ ] Bring one player to 0 HP: they fall and are asked "When you are revived, your HP and MP
+      are fully restored and in PvP mode you are invincible for 5 seconds..."; no dignity or
+      reputation is lost
+- [ ] Confirm: 100 gold is taken, HP and MP are full and the player stands on the cell they
+      fell on
+- [ ] Hits in the first five seconds after the revive show "MISS"; after that they land again
+- [ ] Cancel instead: the player is sent to their respawn point and the arena keeps no gold
+- [ ] Walk onto the arena's exit portal: the player is back on the map and cell they entered from
+
+---
+
 ## Chat
 
 ### Hero chat

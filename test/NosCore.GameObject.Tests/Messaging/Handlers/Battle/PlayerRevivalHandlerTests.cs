@@ -8,11 +8,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Battle;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -114,6 +116,44 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
                 .Then(VictimReputationShouldBe_, 40000L)
                 .And(KillerReputationShouldBe_, 0L)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnArenaFallOffersThePaidRevive()
+        {
+            await new Spec("Falling in an arena asks whether to revive on the spot (revival 2) or go home (revival 1)")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInAnArena)
+                .WhenAsync(PlayerDiesKilledByOtherPlayer)
+                .Then(DialogQuestionShouldBe_, Game18NConstString.AskRevive)
+                .And(TheDialogShouldAnswerWith_And_, (byte)2, (byte)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnArenaFallCostsNeitherDignityNorReputation()
+        {
+            await new Spec("An arena fall leaves dignity and reputation untouched")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(CharacterLevelIs_, (byte)10)
+                .And(VictimHasReputation_, 60000L)
+                .And(TheCharacterIsInAnArena)
+                .WhenAsync(PlayerDiesKilledByOtherPlayer)
+                .Then(DignityShouldBe_, (short)0)
+                .And(VictimReputationShouldBe_, 60000L)
+                .And(KillerReputationShouldBe_, 0L)
+                .And(HpShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterIsInAnArena() =>
+            _session.Character.MapInstance.MapInstanceType = MapInstanceType.ArenaInstance;
+
+        private void TheDialogShouldAnswerWith_And_(byte yes, byte no)
+        {
+            var dlg = _session.LastPackets.OfType<DlgiPacket>().First();
+            Assert.AreEqual(yes, ((RevivalPacket)dlg.YesPacket!).Type);
+            Assert.AreEqual(no, ((RevivalPacket)dlg.NoPacket!).Type);
         }
 
         private void CharacterHasHpMpAndDignity_(int hp, int mp, short dignity)

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using System.Threading.Channels;
 using System.Threading.Tasks;
 using Arch.Core;
+using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -36,8 +37,12 @@ public sealed class HitQueue(
     IBuffService buffService,
     IRegenerationService regenerationService,
     IVitalityService vitalityService,
+    IClock clock,
     ILogger<HitQueue> logger) : IHitQueue, ISingletonService
 {
+    // A fighter revived in an arena cannot hit or be hit for this long.
+    private static readonly Duration PvpRevivalProtection = Duration.FromSeconds(5);
+
     private readonly ConcurrentDictionary<Entity, Channel<HitRequest>> _channels = new();
 
     public Task<HitOutcome> EnqueueAsync(HitRequest request)
@@ -112,6 +117,10 @@ public sealed class HitQueue(
         }
     }
 
+    private bool IsRevivalProtected(IAliveEntity entity) =>
+        entity is PlayerComponentBundle player
+        && clock.GetCurrentInstant() - player.LastPvpRevive < PvpRevivalProtection;
+
     // async because the effects a blow carries are awaited below: they have to follow the
     // blow, not race it.
     private async Task TryApplyHit(HitRequest request)
@@ -131,9 +140,20 @@ public sealed class HitQueue(
                 return;
             }
 
+            var isPvp = request.Origin is ICharacterEntity && target is ICharacterEntity;
+            if (isPvp && (IsRevivalProtected(request.Origin) || IsRevivalProtected(target)))
+            {
+                request.Completion.TrySetResult(new HitOutcome(HitStatus.Missed, 0, SuPacketHitMode.Miss, false));
+                return;
+            }
+
             var attackerStats = statsProvider.GetStats(request.Origin);
             var defenderStats = statsProvider.GetStats(target);
             var damage = damageCalculator.Calculate(attackerStats, defenderStats, request.Skill);
+            if (isPvp)
+            {
+                damage = damage with { Damage = damage.Damage / 2 };
+            }
 
             if (damage.HitMode == SuPacketHitMode.Miss || damage.Damage <= 0)
             {

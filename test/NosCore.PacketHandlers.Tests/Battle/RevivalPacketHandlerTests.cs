@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using NosCore.Packets.ServerPackets.Entities;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,6 +24,9 @@ using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Data.Enumerations.Map;
+using NosCore.Networking.SessionGroup;
+using System.Collections.Generic;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
@@ -37,6 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private ClientSession _session = null!;
         private Mock<IMapChangeService> _mapChangeService = null!;
         private Mock<IRespawnService> _respawnService = null!;
+        private readonly List<IPacket> _broadcast = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -53,7 +58,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _handler = new RevivalPacketHandler(
                 new Mock<ILogger<RevivalPacketHandler>>().Object,
                 _mapChangeService.Object,
-                _respawnService.Object);
+                _respawnService.Object,
+                TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -123,10 +129,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("Arena revive (Type 2) charges 100 gold and restores full HP/MP without changing map")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
                 .WhenAsync(SendingRevivalOfType_, (byte)2)
                 .Then(GoldShouldBe_, 4900L)
                 .And(HpShouldBeFullyRestored)
                 .And(MapChangeShouldNotBeCalled)
+                .And(CharacterShouldBeProtectedFromNow)
                 .ExecuteAsync();
         }
 
@@ -136,9 +144,49 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("Arena revive without 100 gold falls back to the save-point revive at full HP")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 50L)
+                .And(CharacterIsInAnArena)
                 .WhenAsync(SendingRevivalOfType_, (byte)2)
                 .Then(GoldShouldBe_, 50L)
                 .And(MapChangeShouldHaveBeenCalledWith_, (short)1, (short)50, (short)60)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ArenaReviveHappensWhereTheFighterFell()
+        {
+            await new Spec("Reviving in an arena puts the fighter back on the cell they fell on, not the spot they entered from")
+                .Given(CharacterIsDeadAtLevel_, (byte)30)
+                .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
+                .And(CharacterFellAt_And_WhileTheSavedSpotIs_And_, (short)4, (short)5, (short)1, (short)1)
+                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .Then(TheRevivalShouldTeleportTo_And_, (short)4, (short)5)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SeedReviveInsideAnArenaIsRefused()
+        {
+            await new Spec("A revival 0 sent after an arena fall is ignored, so the arena fee cannot be skipped")
+                .Given(CharacterIsDeadAtLevel_, (byte)10)
+                .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
+                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .Then(GoldShouldBe_, 5000L)
+                .And(CharacterShouldStillBeDead)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ArenaReviveOutsideAnArenaIsRefused()
+        {
+            await new Spec("A revival 2 sent outside an arena is ignored: no gold taken, still dead")
+                .Given(CharacterIsDeadAtLevel_, (byte)30)
+                .And(CharacterHasGold_, 5000L)
+                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .Then(GoldShouldBe_, 5000L)
+                .And(CharacterShouldStillBeDead)
+                .And(MapChangeShouldNotBeCalled)
                 .ExecuteAsync();
         }
 
@@ -152,6 +200,37 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(MapChangeShouldNotBeCalled)
                 .ExecuteAsync();
         }
+
+        private void CharacterFellAt_And_WhileTheSavedSpotIs_And_(short x, short y, short mapX, short mapY)
+        {
+            _session.Character.PositionX = x;
+            _session.Character.PositionY = y;
+            _session.Character.MapX = mapX;
+            _session.Character.MapY = mapY;
+        }
+
+        private void TheRevivalShouldTeleportTo_And_(short x, short y)
+        {
+            var tp = _broadcast.OfType<TpPacket>().Last();
+            Assert.AreEqual(x, tp.X);
+            Assert.AreEqual(y, tp.Y);
+        }
+
+        private void CharacterIsInAnArena()
+        {
+            _session.Character.MapInstance.MapInstanceType = MapInstanceType.ArenaInstance;
+            var mapSessions = new Mock<ISessionGroup>();
+            mapSessions.Setup(s => s.Broadcast(It.IsAny<IPacket[]>(), It.IsAny<ISessionMatcher>()))
+                .Callback<IPacket[], ISessionMatcher>((packets, _) => _broadcast.AddRange(packets))
+                .Returns(Task.CompletedTask);
+            mapSessions.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
+                .Callback<IPacket[]>(packets => _broadcast.AddRange(packets))
+                .Returns(Task.CompletedTask);
+            _session.Character.MapInstance.Sessions = mapSessions.Object;
+        }
+
+        private void CharacterShouldBeProtectedFromNow() =>
+            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _session.Character.LastPvpRevive);
 
         private void CharacterIsAlive()
         {

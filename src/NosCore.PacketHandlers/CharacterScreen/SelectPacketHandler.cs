@@ -183,7 +183,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     now,
                     now,
                     0,
-                    now
+                    now,
+                    Instant.MinValue
                 );
 
                 mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);

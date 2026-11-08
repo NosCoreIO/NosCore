@@ -15,6 +15,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.ArenaService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -249,6 +250,10 @@ namespace NosCore.GameObject.Services.BattleService
             if (!origin.IsAlive || !target.IsAlive) return false;
             if (origin.NoAttack) return false;
             if (target.NoAttack) return false;
+            if (origin is ICharacterEntity attacker && target is ICharacterEntity defender)
+            {
+                return Arena.AreOpponents(attacker, defender);
+            }
             if (AreAllies(origin, target)) return false;
             return true;
         }

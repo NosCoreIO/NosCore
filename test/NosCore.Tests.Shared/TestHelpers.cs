@@ -436,7 +436,8 @@ namespace NosCore.Tests.Shared
                 now,
                 now,
                 0,
-                now
+                now,
+                NodaTime.Instant.MinValue
             );
 
             mapInstance.EcsWorld.AddComponent(playerEntity, playerStateComponent);
