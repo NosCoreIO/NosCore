@@ -91,6 +91,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             _parcelRegistry = new Mock<IParcelRegistry>();
+            _parcelRegistry.Setup(s => s.TryAddMail(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<MailData>())).Returns(true);
 
             _service = new GameObject.Services.MailService.MailService(mails.Object, itemInstances.Object, _pubSubHub.Object,
                 channels.Object, _items, new ItemGenerationService(_items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer),
@@ -145,7 +146,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             Assert.IsFalse(_savedMails[0].IsSenderCopy);
             Assert.IsTrue(_savedMails[1].IsSenderCopy);
             Assert.AreNotEqual(_savedMails[0].ItemInstanceId, _savedMails[1].ItemInstanceId);
-            _parcelRegistry.Verify(s => s.AddMail(ReceiverId, It.IsAny<bool>(), It.IsAny<long>(), It.IsAny<MailData>()), Times.Exactly(2));
+            _parcelRegistry.Verify(s => s.TryAddMail(ReceiverId, It.IsAny<bool>(), It.IsAny<MailData>()), Times.Exactly(2));
         }
 
         [TestMethod]
@@ -154,7 +155,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             await _service.SendMailAsync(Gift(senderId: null), Seed, 1, 0, 0);
 
             Assert.AreEqual(1, _savedMails.Count);
-            _parcelRegistry.Verify(s => s.AddMail(ReceiverId, false, It.IsAny<long>(),
+            _parcelRegistry.Verify(s => s.TryAddMail(ReceiverId, false,
                 It.Is<MailData>(m => m.SenderName == "NOSMALL" && m.ReceiverName == "Receiver")), Times.Once);
         }
 

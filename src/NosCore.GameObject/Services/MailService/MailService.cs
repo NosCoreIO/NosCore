@@ -58,22 +58,17 @@ namespace NosCore.GameObject.Services.MailService
 
         public async Task<bool> DeleteMailAsync(long id, long characterId, bool senderCopy)
         {
-            var mail = parcelRegistry.GetMail(characterId, senderCopy, id);
-            if (mail == null)
-            {
-                return false;
-            }
-
-            await mailDao.TryDeleteAsync(mail.MailDto.MailId);
-            if (mail.ItemInstance != null)
-            {
-                await itemInstanceDao.TryDeleteAsync(mail.ItemInstance.Id);
-            }
-
             if (!parcelRegistry.RemoveMail(characterId, senderCopy, id, out var maildata) || maildata == null)
             {
                 return false;
             }
+
+            await mailDao.TryDeleteAsync(maildata.MailDto.MailId);
+            if (maildata.ItemInstance != null)
+            {
+                await itemInstanceDao.TryDeleteAsync(maildata.ItemInstance.Id);
+            }
+
             var servers = await channelHub.GetCommunicationChannels();
             var accounts = await pubSubHub.GetSubscribersAsync();
             var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
@@ -175,7 +170,11 @@ namespace NosCore.GameObject.Services.MailService
                 return false;
             }
             var mailData = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
-            parcelRegistry.AddMail(mailref.ReceiverId, mailData.MailDto.IsSenderCopy, mailData.MailId, mailData);
+            if (!await TryRegisterAsync(mailref.ReceiverId, mailData))
+            {
+                return false;
+            }
+
             await NotifyAsync(0, receiver, mailData);
 
             if (mailref.SenderId == null)
@@ -193,22 +192,40 @@ namespace NosCore.GameObject.Services.MailService
             senderCopy.ItemInstanceId = senderItem?.Id;
             senderCopy = await mailDao.TryInsertOrUpdateAsync(senderCopy);
             var mailDataCopy = await GenerateMailDataAsync(senderCopy, (short?)it?.ItemType ?? -1, senderItem!, receiverName);
-            parcelRegistry.AddMail(mailref.ReceiverId, mailDataCopy.MailDto.IsSenderCopy, mailDataCopy.MailId, mailDataCopy);
+            if (!await TryRegisterAsync(mailref.ReceiverId, mailDataCopy))
+            {
+                return false;
+            }
+
             await NotifyAsync(0, receiver, mailDataCopy);
 
             return true;
         }
 
+        private async Task<bool> TryRegisterAsync(long characterId, MailData mailData)
+        {
+            if (parcelRegistry.TryAddMail(characterId, mailData.MailDto.IsSenderCopy, mailData))
+            {
+                return true;
+            }
+
+            await mailDao.TryDeleteAsync(mailData.MailDto.MailId);
+            if (mailData.ItemInstance != null)
+            {
+                await itemInstanceDao.TryDeleteAsync(mailData.ItemInstance.Id);
+            }
+
+            return false;
+        }
+
         private async Task<MailData> GenerateMailDataAsync(MailDto mailref, short itemType, IItemInstanceDto itemInstance,
             string receiverName)
         {
-            var nextMailId = parcelRegistry.GetNextMailId(mailref.ReceiverId, mailref.IsSenderCopy);
             var sender = mailref.SenderId != null
                 ? (await characterDto.FirstOrDefaultAsync(s => s.CharacterId == mailref.SenderId))?.Name : "NOSMALL";
             return new MailData
             {
                 ReceiverName = receiverName,
-                MailId = (short)nextMailId,
                 MailDto = mailref,
                 ItemInstance = (ItemInstanceDto)itemInstance,
                 ItemType = itemType,
