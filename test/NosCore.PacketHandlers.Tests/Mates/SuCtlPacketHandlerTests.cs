@@ -33,12 +33,14 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private const int PetCastId = 3;
         private const int NearMonsterId = 200;
         private const int FarMonsterId = 201;
+        private const short LongReachSkillVNum = 701;
 
         private SuCtlPacketHandler _handler = null!;
         private ClientSession _session = null!;
         private ClientSession _otherSession = null!;
         private MapInstance _map = null!;
         private Mock<IBattleService> _battleService = null!;
+        private Mock<INpcCombatCatalog> _catalog = null!;
         private Mate _pet = null!;
 
         [TestInitialize]
@@ -61,16 +63,17 @@ namespace NosCore.PacketHandlers.Tests.Mates
             _battleService = new Mock<IBattleService>();
             _battleService.Setup(s => s.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
                 .ReturnsAsync(true);
-            var catalog = new Mock<INpcCombatCatalog>();
-            catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>
+            _catalog = new Mock<INpcCombatCatalog>();
+            _catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>
             {
                 new() { NpcMonsterVNum = 333, SkillVNum = PetSkillVNum }
             });
             var skills = new List<SkillDto>
             {
-                new() { SkillVNum = PetSkillVNum, CastId = PetCastId, Range = 2, TargetType = 0, Cooldown = 10 }
+                new() { SkillVNum = PetSkillVNum, CastId = PetCastId, Range = 2, TargetType = 0, Cooldown = 10 },
+                new() { SkillVNum = LongReachSkillVNum, CastId = 0, Range = 20, TargetType = 0, Cooldown = 10 }
             };
-            _handler = new SuCtlPacketHandler(MateControl.Service(_battleService.Object, catalog.Object, skills));
+            _handler = new SuCtlPacketHandler(MateControl.Service(_battleService.Object, _catalog.Object, skills));
         }
 
         [TestMethod]
@@ -154,6 +157,26 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .WhenAsync(TheOwnerOrdersCast_OnMonster_, PetCastId, NearMonsterId)
                 .Then(ThePetShouldHaveHit_Times, 2)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CastZeroIsCheckedOnTheSkillTheResolverCasts()
+        {
+            await new Spec("Cast 0 is the pet's first skill, so a far monster is out of that skill's reach")
+                .GivenAsync(APetOf_IsOut, "owner")
+                .And(ThePetsSecondSkillHasCastZeroAndAMuchLongerRange)
+                .WhenAsync(TheOwnerOrdersCast_OnMonster_, 0, FarMonsterId)
+                .Then(NothingShouldBeHit)
+                .ExecuteAsync();
+        }
+
+        private void ThePetsSecondSkillHasCastZeroAndAMuchLongerRange()
+        {
+            _catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>
+            {
+                new() { NpcMonsterVNum = 333, SkillVNum = PetSkillVNum },
+                new() { NpcMonsterVNum = 333, SkillVNum = LongReachSkillVNum }
+            });
         }
 
         private async Task APetOf_IsOut(string whose)

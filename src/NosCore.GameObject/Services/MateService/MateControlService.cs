@@ -81,10 +81,11 @@ namespace NosCore.GameObject.Services.MateService
                 return false;
             }
 
-            // Only a skill in the creature's own roster: the resolver would otherwise fall back to its basic attack.
+            // Only a skill in the creature's own roster, picked as the resolver picks it (cast 0 means its first
+            // skill), so reach and cooldown are checked on the skill that is actually cast.
             var skill = catalog.GetSkills(mate.VNum)
                 .Select(s => _skillsByVnum.GetValueOrDefault(s.SkillVNum))
-                .FirstOrDefault(s => s != null && s.CastId == castId);
+                .FirstOrDefault(s => s != null && (s.CastId == castId || castId == 0));
             if (skill == null)
             {
                 return false;
