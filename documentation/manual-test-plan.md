@@ -253,15 +253,16 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 
 ### Specialist card holder
 
-The holders are the box items with effect 69 and effect value 1 or 2:
+The holders are the box items with effect 69 and effect value 1 or 2, such as 287; the others:
 `SELECT "VNum" FROM "Item" WHERE "ItemType" = 5 AND "Effect" = 69 AND "EffectValue" IN (1, 2);`
 
-- [ ] `$CreateItem` an empty holder and a specialist card, raise the card (`$CreateItem <card> 1 7`,
+- [ ] `$CreateItem 287` and a specialist card, raise the card (`$CreateItem <card> 1 7`,
       spend some points, perfect it once). Double-click the holder: the card holder window opens
 - [ ] Drop the card on the window: the window closes, "You have placed the Specialist Card in
-      the Card Holder." appears, the card leaves the bag and the holder stays in its slot
+      the Card Holder." appears, the card's slot empties and the holder stays in its slot
+- [ ] Log out and back in: the filled holder is still in the bag
 - [ ] Double-click the filled holder: "The Specialist Card has been removed from the Card
-      Holder." appears, the holder is gone and the card is back. Its window shows the same
+      Holder." appears, the holder's slot empties and the card is back. Its window shows the same
       level, upgrade, perfection and spent points as before
 - [ ] Trade the filled holder to a second character, who takes the card out: the card arrives
       with its progress intact

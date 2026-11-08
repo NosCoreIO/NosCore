@@ -60,8 +60,8 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             specialistHolderService.Store(card, holder);
-            character.InventoryService.RemoveItemAmountFromInventory(1, cardItem.ItemInstanceId);
-            await clientSession.SendPacketAsync(cardItem.GeneratePocketChange((PocketType)cardItem.Type, cardItem.Slot));
+            var remaining = character.InventoryService.RemoveItemAmountFromInventory(1, cardItem.ItemInstanceId);
+            await clientSession.SendPacketAsync(remaining.GeneratePocketChange((PocketType)cardItem.Type, cardItem.Slot));
             await clientSession.SendPacketAsync(holderItem.GeneratePocketChange((PocketType)holderItem.Type, holderItem.Slot));
             await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
             await clientSession.SendPacketAsync(new MsgiPacket

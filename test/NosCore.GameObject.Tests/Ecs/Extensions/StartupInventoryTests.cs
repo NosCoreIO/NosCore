@@ -63,6 +63,28 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         }
 
         [TestMethod]
+        public void ACardHolderInTheBagIsListedInTheEquipmentPocket()
+        {
+            var holder = new BoxInstance(new Item
+            {
+                VNum = 287, Type = NoscorePocketType.Equipment, ItemType = ItemType.Box, ItemSubType = 2
+            })
+            {
+                Amount = 1,
+                HoldingVNum = 901,
+                Upgrade = 5,
+            };
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(holder, _session.Character.CharacterId), NoscorePocketType.Equipment, 0);
+
+            var listed = Pocket(PocketType.Equipment).IvnSubPackets!.Single();
+
+            Assert.AreEqual((short)287, listed.VNum);
+            Assert.AreEqual((short)0, listed.Slot);
+            Assert.AreEqual((short)5, listed.UpgradeDesign);
+        }
+
+        [TestMethod]
         public void ASpecialistCardMovedIntoTheBagKeepsItsPerfection()
         {
             var card = new SpecialistInstance(new Item { VNum = 901, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp })

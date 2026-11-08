@@ -20,6 +20,7 @@ using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -67,6 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .And(AnEmptyHolder)
                 .WhenAsync(TheCardIsDroppedOnTheHolder)
                 .Then(TheCardIsGone)
+                .And(TheCardSlotIsCleared)
                 .And(TheHolderKeepsTheCard)
                 .And(TheWindowClosesWith_, Game18NConstString.SpecialistInTheHolder)
                 .ExecuteAsync();
@@ -81,6 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .AndAsync(TheCardIsDroppedOnTheHolder)
                 .WhenAsync(TheHolderIsUsed)
                 .Then(TheHolderIsGone)
+                .And(TheHolderSlotIsCleared)
                 .And(TheCardCameBackUnchanged)
                 .And(TheClientIsTold_, Game18NConstString.SpecialistOutOfHolder)
                 .ExecuteAsync();
@@ -254,6 +257,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             CollectionAssert.AreEqual(new short[] { 40, 30, 20, 10 },
                 new[] { card.SlDamage, card.SlDefence, card.SlElement, card.SlHp });
         }
+
+        private IvnSubPacket LastRedrawOf(short slot) =>
+            Session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets!).Last(i => i.Slot == slot);
+
+        private void TheCardSlotIsCleared() => Assert.AreNotEqual(CardVNum, LastRedrawOf(CardSlot).VNum);
+
+        private void TheHolderSlotIsCleared() => Assert.AreNotEqual(HolderVNum, LastRedrawOf(HolderSlot).VNum);
 
         private void TheClientIsTold_(Game18NConstString message) =>
             Assert.IsTrue(Session.LastPackets.OfType<MsgiPacket>().Any(m => m.Message == message));
