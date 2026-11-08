@@ -35,5 +35,11 @@ namespace NosCore.GameObject.Services.WarehouseService
         Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, IItemInstance itemInstance);
 
         Task<bool> MoveItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot);
+
+        Task<bool> TakeItemAsync(Guid id, short amount);
+
+        Task<bool> ReturnItemAsync(long ownerId, WarehouseType warehouseType, short slot, ItemInstanceDto itemInstance);
+
+        Task<bool> SplitItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot, ItemInstanceDto split);
     }
 }

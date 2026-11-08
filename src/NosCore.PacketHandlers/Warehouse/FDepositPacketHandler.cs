@@ -6,16 +6,16 @@
 
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class FDepositPacketHandler : PacketHandler<FDepositPacket>, IWorldPacketHandler
+    public class FDepositPacketHandler(IFamilyWarehouseService familyWarehouseService)
+        : PacketHandler<FDepositPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(FDepositPacket fdepositPacket, ClientSession clientSession)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task ExecuteAsync(FDepositPacket packet, ClientSession clientSession) =>
+            familyWarehouseService.DepositAsync(clientSession, packet.Inventory, packet.Slot, packet.Amount, packet.NewSlot);
     }
 }

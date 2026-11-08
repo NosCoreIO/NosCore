@@ -33,6 +33,7 @@ using SpecLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using UseObjPacket = NosCore.Packets.ClientPackets.Miniland.UseObjPacket;
 
@@ -117,6 +118,17 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task UseWarehouseObjectShouldShowStoredItemsAtTheirSlot()
+        {
+            await new Spec("Use warehouse object should show stored items at their slot")
+                .Given(WarehouseObjectExistsAndPlaced)
+                .And(WarehouseHubReturnsAnItemAtSlot_, (short)7)
+                .WhenAsync(UsingWarehouseObject)
+                .Then(TheWarehousePacketShouldListAnItemAtSlot_, (short)7)
+                .ExecuteAsync();
+        }
+
         private void MinigameObjectExistsAndPlaced()
         {
             var item = _itemProvider.Create(3000, 1);
@@ -161,6 +173,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .ReturnsAsync(new List<WarehouseLink>());
         }
 
+        private void WarehouseHubReturnsAnItemAtSlot_(short slot)
+        {
+            var stored = _itemProvider.Create(3000, 1);
+            var characterId = _session.Character.CharacterId;
+            _warehouseHubMock.Setup(x => x.GetWarehouseItems(null, characterId, WarehouseType.Warehouse, null))
+                .ReturnsAsync(new List<WarehouseLink>
+                {
+                    new() { WarehouseItemId = Guid.NewGuid(), Slot = slot, ItemInstance = new ItemInstanceDto { Id = stored.Id } }
+                });
+            _itemInstanceDaoMock.Setup(x => x.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(stored);
+        }
+
         private async Task UsingNonExistentObject()
         {
             var useobjPacket = new UseObjPacket(_session.Character.Name)
@@ -197,6 +222,12 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var lastPacket = (MloInfoPacket?)_session.LastPackets.FirstOrDefault(s => s is MloInfoPacket);
             Assert.IsNotNull(lastPacket);
+        }
+
+        private void TheWarehousePacketShouldListAnItemAtSlot_(short slot)
+        {
+            var stash = _session.LastPackets.OfType<StashAllPacket>().Single();
+            Assert.AreEqual(slot, stash.Items!.Single().Slot);
         }
 
         private void ShouldReceiveWarehousePacket()

@@ -37,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private ClientSession _second = null!;
         private ClientSession _third = null!;
         private Mock<IFamilyService> _familyService = null!;
+        private readonly Mock<IFamilyWarehouseService> _warehouse = new();
         private readonly List<IMessage> _published = new();
 
         [TestInitialize]
@@ -70,7 +71,8 @@ namespace NosCore.PacketHandlers.Tests.Family
             var pubSubHub = new Mock<IPubSubHub>();
             pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             return new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
-                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry);
+                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry,
+                _warehouse.Object);
         }
 
         private static Game18NConstString? LastInfo(ClientSession session) =>
@@ -248,6 +250,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
 
             Assert.AreEqual(Game18NConstString.FamilyDisbanded, LastInfo(_head));
+            _warehouse.Verify(s => s.EmptyAsync(7), Times.Once);
             CollectionAssert.AreEquivalent(new[] { _head.Character.CharacterId, _second.Character.CharacterId },
                 ((FamilyChangedData)_published.Single()).CharacterIds);
         }

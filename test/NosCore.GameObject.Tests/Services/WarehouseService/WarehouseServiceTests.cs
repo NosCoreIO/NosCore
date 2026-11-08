@@ -127,6 +127,127 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AnItemInstanceThatIsAlreadySavedIsStoredAsItIs()
+        {
+            var saved = await ItemInstanceDao.TryInsertOrUpdateAsync(
+                new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = 3 });
+
+            Assert.IsTrue(await Service.DepositItemAsync(1, WarehouseType.FamilyWareHouse,
+                new ItemInstanceDto { Id = saved!.Id, ItemVNum = 1012, Amount = 3 }, 4));
+
+            var link = (await Service.GetItemsAsync(null, 1, WarehouseType.FamilyWareHouse, null)).Single();
+            Assert.AreEqual(saved.Id, link.ItemInstance!.Id);
+            Assert.AreEqual((await Service.GetWarehouseItemsAsync(1, WarehouseType.FamilyWareHouse)).Single().Id,
+                link.WarehouseItemId);
+        }
+
+        [TestMethod]
+        public async Task TakingPartOfAStackLeavesTheRest()
+        {
+            var id = await StoreStackAsync(10, 3);
+            Assert.IsTrue(await Service.TakeItemAsync(id, 6));
+            Assert.AreEqual<short?>(4, await AmountAtAsync(3));
+        }
+
+        [TestMethod]
+        public async Task TakingAWholeStackFreesTheSlot()
+        {
+            var id = await StoreStackAsync(10, 3);
+            Assert.IsTrue(await Service.TakeItemAsync(id, 10));
+            Assert.IsNull(await Service.GetItemBySlotAsync(OwnerId, WarehouseType.FamilyWareHouse, 3));
+        }
+
+        [TestMethod]
+        public async Task TakingMoreThanIsStoredChangesNothing()
+        {
+            var id = await StoreStackAsync(10, 3);
+            Assert.IsFalse(await Service.TakeItemAsync(id, 11));
+            Assert.AreEqual<short?>(10, await AmountAtAsync(3));
+        }
+
+        [TestMethod]
+        public async Task ConcurrentTakesNeverHandOutMoreThanIsStored()
+        {
+            for (var run = 0; run < 25; run++)
+            {
+                var slot = (short)(run % 40);
+                var id = await StoreStackAsync(10, slot);
+                var results = await Task.WhenAll(
+                    Task.Run(() => Service.TakeItemAsync(id, 6)),
+                    Task.Run(() => Service.TakeItemAsync(id, 6)));
+                Assert.AreEqual(1, results.Count(r => r), $"run {run}");
+                Assert.AreEqual<short?>(4, await AmountAtAsync(slot), $"run {run}");
+                Assert.IsTrue(await Service.TakeItemAsync(id, 4));
+            }
+        }
+
+        [TestMethod]
+        public async Task ConcurrentWithdrawalsOfOneStackSucceedOnce()
+        {
+            for (var run = 0; run < 25; run++)
+            {
+                var id = await StoreStackAsync(5, (short)(run % 40));
+                var results = await Task.WhenAll(
+                    Task.Run(() => Service.WithdrawItemAsync(id)),
+                    Task.Run(() => Service.WithdrawItemAsync(id)));
+                Assert.AreEqual(1, results.Count(r => r), $"run {run}");
+            }
+        }
+
+        [TestMethod]
+        public async Task ReturningAnAmountMergesIntoTheSameItem()
+        {
+            await StoreStackAsync(4, 3);
+            Assert.IsTrue(await Service.ReturnItemAsync(OwnerId, WarehouseType.FamilyWareHouse, 3,
+                new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = 6 }));
+            Assert.AreEqual<short?>(10, await AmountAtAsync(3));
+        }
+
+        [TestMethod]
+        public async Task SplittingMovesPartOfAStackToAnEmptySlot()
+        {
+            await StoreStackAsync(10, 3);
+            var split = await SavedInstanceAsync(4);
+            Assert.IsTrue(await Service.SplitItemAsync(OwnerId, WarehouseType.FamilyWareHouse, 3, 7, split));
+            Assert.AreEqual<short?>(6, await AmountAtAsync(3));
+            Assert.AreEqual<short?>(4, await AmountAtAsync(7));
+        }
+
+        [TestMethod]
+        public async Task SplittingOntoAnOccupiedSlotChangesNothing()
+        {
+            await StoreStackAsync(10, 3);
+            await StoreStackAsync(1, 7);
+            Assert.IsFalse(await Service.SplitItemAsync(OwnerId, WarehouseType.FamilyWareHouse, 3, 7, await SavedInstanceAsync(4)));
+            Assert.AreEqual<short?>(10, await AmountAtAsync(3));
+        }
+
+        private async Task<ItemInstanceDto> SavedInstanceAsync(short amount)
+        {
+            var instance = new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = amount };
+            await ItemInstanceDao.TryInsertOrUpdateAsync(instance);
+            return instance;
+        }
+
+        private async Task<Guid> StoreStackAsync(short amount, short slot)
+        {
+            Assert.IsTrue(await Service.DepositItemAsync(OwnerId, WarehouseType.FamilyWareHouse,
+                new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = amount }, slot));
+            return (await Service.GetItemBySlotAsync(OwnerId, WarehouseType.FamilyWareHouse, slot))!.Id;
+        }
+
+        private async Task<short?> AmountAtAsync(short slot)
+        {
+            var item = await Service.GetItemBySlotAsync(OwnerId, WarehouseType.FamilyWareHouse, slot);
+            if (item == null)
+            {
+                return null;
+            }
+
+            return (await ItemInstanceDao.FirstOrDefaultAsync(i => i!.Id == item.ItemInstanceId))?.Amount;
+        }
+
         private bool DepositResult;
         private bool WithdrawResult;
         private bool MoveResult;

@@ -5,12 +5,15 @@
 //
 
 using NosCore.Data.Dto;
+using System;
 
 namespace NosCore.Data.WebApi
 {
     public class WarehouseLink
     {
         public WarehouseDto? Warehouse { get; set; }
+
+        public Guid WarehouseItemId { get; set; }
 
         public short Slot { get; set; }
 

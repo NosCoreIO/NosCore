@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
 using System;
@@ -22,5 +23,16 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
 
         public Task<bool> AddWarehouseItemAsync(WareHouseDepositRequest depositRequest) =>
             bus.RequestAsync<bool>(new AddWarehouseItemRequest(depositRequest));
+
+        public Task<bool> MoveWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot) =>
+            bus.RequestAsync<bool>(new MoveWarehouseItemRequest(ownerId, warehouseType, sourceSlot, destinationSlot));
+
+        public Task<bool> TakeWarehouseItemAsync(Guid id, short amount) => bus.RequestAsync<bool>(new TakeWarehouseItemRequest(id, amount));
+
+        public Task<bool> ReturnWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short slot, ItemInstanceDto itemInstance) =>
+            bus.RequestAsync<bool>(new ReturnWarehouseItemRequest(ownerId, warehouseType, slot, itemInstance));
+
+        public Task<bool> SplitWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot, ItemInstanceDto split) =>
+            bus.RequestAsync<bool>(new SplitWarehouseItemRequest(ownerId, warehouseType, sourceSlot, destinationSlot, split));
     }
 }
