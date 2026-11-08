@@ -28,8 +28,9 @@ public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
         foreach (var objective in due)
         {
             var amount = objective.RequiredAmount(QuestType);
-            await character.SendPacketsAsync(TakeCarried(character, objective.ItemVNum(QuestType)!.Value, amount));
+            var packets = TakeCarried(character, objective.ItemVNum(QuestType)!.Value, amount);
             quest.ObjectiveProgress[objective.QuestObjectiveId] = amount;
+            await character.SendPacketsAsync(packets);
         }
 
         return Outcome(quest, true);
