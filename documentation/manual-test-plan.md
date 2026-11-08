@@ -817,6 +817,9 @@ Two characters, A and B, on the same map, both with exchange allowed in the opti
       A no longer has it
 - [ ] A trades a specialist card with job level and upgrades: B's card shows the same level,
       upgrades and points
+- [ ] Complete a trade of gold and an item, then stop the WorldServer process straight away (before
+      the next save). After a restart both characters show the traded gold and items, and neither
+      has both or neither copy
 
 ### Miniland invite
 

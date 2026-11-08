@@ -5,7 +5,9 @@
 //
 
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.TransferService;
 using System.Collections.Concurrent;
+using System.Linq;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
@@ -23,6 +25,8 @@ namespace NosCore.GameObject.Services.ExchangeService
         // Shared by both sides of one trade: it is the lock their offers and confirmations
         // change under, and records whether one side has already taken the trade to settle.
         public ExchangeSettlement Settlement { get; init; } = new();
+
+        public TransferOffer ToOffer() => new(Gold, BankGold, ExchangeItems.ToDictionary(s => s.Key, s => s.Value));
     }
 
     public sealed class ExchangeSettlement

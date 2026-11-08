@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs;
@@ -13,6 +12,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.TransferService;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Exchange
 {
     public class ExchangeRequestPackettHandler(IExchangeService exchangeService, ILogger<ExchangeRequestPackettHandler> logger,
             IBlacklistHub blacklistHttpClient, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry, IGameLanguageLocalizer gameLanguageLocalizer)
+            ISessionRegistry sessionRegistry, ITransferService transferService)
         : PacketHandler<ExchangeRequestPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ExchangeRequestPacket packet, ClientSession clientSession)
@@ -216,63 +216,16 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var sessionData = exchangeService.GetData(clientSession.Character.CharacterId);
-                    var targetData = exchangeService.GetData(exchangeTarget.VisualId);
-                    var success = exchangeService.ValidateExchange(clientSession, exchangeTarget);
-                    var result = success.Item1;
-
-                    if (result == ExchangeResultType.Failure)
+                    // This handler already holds its own session's packet lock. Only the side whose
+                    // confirmation claimed the trade gets here, and a player is in one trade at a
+                    // time, so taking the partner's lock as well cannot wait in a cycle.
+                    var partnerSession = sessionRegistry.GetSessionByCharacterId(exchangeTarget.VisualId);
+                    var result = ExchangeResultType.Failure;
+                    if (partnerSession != null)
                     {
-                        foreach (var infoPacket in success.Item2!)
+                        using (await partnerSession.AcquirePacketLockAsync())
                         {
-                            if (infoPacket.Key == clientSession.Character.CharacterId)
-                            {
-                                await clientSession.SendPacketAsync(infoPacket.Value);
-                            }
-                            else if (infoPacket.Key == exchangeTarget.VisualId)
-                            {
-                                await exchangeTarget.SendPacketAsync(infoPacket.Value);
-                            }
-                            else
-                            {
-                                logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var itemList = await exchangeService.ProcessExchangeAsync(clientSession.Character.VisualId,
-                            exchangeTarget.VisualId, clientSession.Character.InventoryService, exchangeTarget.InventoryService);
-
-                        if (itemList == null)
-                        {
-                            result = ExchangeResultType.Failure;
-                        }
-                        else
-                        {
-                            foreach (var item in itemList)
-                            {
-                                if (item.Key == clientSession.Character.CharacterId)
-                                {
-                                    await clientSession.SendPacketAsync(item.Value);
-                                }
-                                else
-                                {
-                                    await exchangeTarget.SendPacketAsync(item.Value);
-                                }
-                            }
-
-                            await clientSession.Character.RemoveGoldAsync(sessionData.Gold, gameLanguageLocalizer);
-                            clientSession.Character.RemoveBankGold(sessionData.BankGold);
-
-                            await exchangeTarget.AddGoldAsync(sessionData.Gold, gameLanguageLocalizer);
-                            exchangeTarget.AddBankGold(sessionData.BankGold);
-
-                            await exchangeTarget.RemoveGoldAsync(targetData.Gold, gameLanguageLocalizer);
-                            exchangeTarget.RemoveBankGold(targetData.BankGold);
-
-                            await clientSession.Character.AddGoldAsync(targetData.Gold, gameLanguageLocalizer);
-                            clientSession.Character.AddBankGold(targetData.BankGold);
+                            result = await SettleAsync(clientSession, exchangeTarget);
                         }
                     }
 
@@ -301,6 +254,50 @@ namespace NosCore.PacketHandlers.Exchange
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+        }
+
+        private async Task<ExchangeResultType> SettleAsync(ClientSession clientSession, PlayerComponentBundle exchangeTarget)
+        {
+            var validation = exchangeService.ValidateExchange(clientSession, exchangeTarget);
+            if (validation.Item1 == ExchangeResultType.Failure)
+            {
+                foreach (var infoPacket in validation.Item2!)
+                {
+                    if (infoPacket.Key == clientSession.Character.CharacterId)
+                    {
+                        await clientSession.SendPacketAsync(infoPacket.Value);
+                    }
+                    else if (infoPacket.Key == exchangeTarget.VisualId)
+                    {
+                        await exchangeTarget.SendPacketAsync(infoPacket.Value);
+                    }
+                }
+
+                return ExchangeResultType.Failure;
+            }
+
+            var character = clientSession.Character;
+            var sessionOffer = exchangeService.GetData(character.CharacterId).ToOffer();
+            var targetOffer = exchangeService.GetData(exchangeTarget.VisualId).ToOffer();
+            var itemList = await transferService.TransferAsync(character, sessionOffer, exchangeTarget, targetOffer);
+            if (itemList == null)
+            {
+                return ExchangeResultType.Failure;
+            }
+
+            foreach (var item in itemList)
+            {
+                await (item.Key == character.CharacterId ? clientSession.SendPacketAsync(item.Value)
+                    : exchangeTarget.SendPacketAsync(item.Value));
+            }
+
+            if (sessionOffer.Gold != 0 || targetOffer.Gold != 0)
+            {
+                await character.AddGoldAsync();
+                await exchangeTarget.AddGoldAsync();
+            }
+
+            return ExchangeResultType.Success;
         }
 
         private async Task<bool> IsBlacklistedByAsync(long characterId, long otherId)

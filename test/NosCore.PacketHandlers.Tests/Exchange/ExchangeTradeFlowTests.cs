@@ -11,7 +11,7 @@ using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NosCore.Core.Configuration;
-using NosCore.Dao.Interfaces;
+using NosCore.Dao;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -23,7 +23,7 @@ using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.GameObject.Services.TransferService;
 using NosCore.PacketHandlers.Exchange;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
@@ -36,6 +36,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
+using DbEquipmentOption = NosCore.Database.Entities.EquipmentOption;
+using DbInventoryItemInstance = NosCore.Database.Entities.InventoryItemInstance;
+using DbItemInstance = NosCore.Database.Entities.ItemInstance;
 
 namespace NosCore.PacketHandlers.Tests.Exchange
 {
@@ -69,8 +73,6 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Blacklist.Setup(x => x.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns(Task.FromResult(new List<CharacterRelationStatus>()));
 
-            var shellOptions = new Mock<IShellOptionService>();
-            shellOptions.Setup(s => s.Load(It.IsAny<Guid>())).Returns(new List<EquipmentOptionDto>());
             Exchange = new ExchangeService(
                 Options.Create(new WorldConfiguration
                 {
@@ -80,12 +82,11 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     MaxBankGoldAmount = 100_000_000_000
                 }),
                 NullLogger<ExchangeService>.Instance, new ExchangeRequestRegistry(),
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry, Clock,
-                shellOptions.Object, new Mock<IDao<IItemInstanceDto?, Guid>>().Object);
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry, Clock);
 
             RequestHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
                 Blacklist.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.GameLanguageLocalizer);
+                CreateTransferService());
             ListHandler = new ExcListPacketHandler(Exchange, NullLogger<ExcListPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
 
@@ -98,6 +99,24 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     EquipmentSlot = EquipmentType.Armor
                 }
             }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+        }
+
+        private static TransferService CreateTransferService()
+        {
+            var context = TestHelpers.Instance.DbContextBuilder;
+            return new TransferService(
+                Options.Create(new WorldConfiguration
+                {
+                    BackpackSize = 48,
+                    MaxItemAmount = 999,
+                    MaxGoldAmount = 1_000_000_000,
+                    MaxBankGoldAmount = 100_000_000_000
+                }),
+                NullLogger<TransferService>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
+                new DaoTransactionScope(context), TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
+                new Dao<DbItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<DbItemInstance, IItemInstanceDto?, Guid>>.Instance, context),
+                new Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>(NullLogger<Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, context),
+                new Dao<DbEquipmentOption, EquipmentOptionDto, Guid>(NullLogger<Dao<DbEquipmentOption, EquipmentOptionDto, Guid>>.Instance, context));
         }
 
         [TestMethod]

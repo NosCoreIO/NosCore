@@ -7,8 +7,6 @@
 using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core.Configuration;
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -16,12 +14,9 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Exchanges;
-using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -29,14 +24,12 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
     public class ExchangeService(IOptions<WorldConfiguration> worldConfiguration, ILogger<ExchangeService> logger,
             IExchangeRequestRegistry exchangeRegistry, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            ISessionRegistry sessionRegistry, IClock clock, IShellOptionService shellOptionService,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao)
+            ISessionRegistry sessionRegistry, IClock clock)
         : IExchangeService
     {
         public static readonly Duration RequestLifetime = Duration.FromSeconds(30);
@@ -341,159 +334,6 @@ namespace NosCore.GameObject.Services.ExchangeService
             SetInExchange(visualId, true);
             SetInExchange(targetVisualId, true);
             return true;
-        }
-
-        public async Task<List<KeyValuePair<long, IvnPacket>>?> ProcessExchangeAsync(long firstUser, long secondUser,
-            IInventoryService sessionInventory, IInventoryService targetInventory)
-        {
-            var transfers = new List<(
-                IInventoryService OriginInventory,
-                IInventoryService DestInventory,
-                InventoryItemInstance OriginalItem,
-                short Amount,
-                long TargetId,
-                long SessionId
-            )>();
-
-            foreach (var user in new[] { firstUser, secondUser })
-            {
-                var userData = exchangeRegistry.GetExchangeData(user);
-                if (userData == null)
-                {
-                    logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
-                    return null;
-                }
-
-                var origin = user == firstUser ? sessionInventory : targetInventory;
-                var dest = user == firstUser ? targetInventory : sessionInventory;
-                var targetId = user == firstUser ? secondUser : firstUser;
-                foreach (var item in userData.ExchangeItems)
-                {
-                    transfers.Add((origin, dest, item.Key, item.Value, targetId, user));
-                }
-            }
-
-            // The offer holds references taken when the item was put in the window: each one must
-            // still be there, at least at the offered amount.
-            foreach (var transfer in transfers)
-            {
-                if (transfer.Amount <= 0
-                    || !transfer.OriginInventory.TryGetValue(transfer.OriginalItem.ItemInstanceId, out var live)
-                    || !ReferenceEquals(live, transfer.OriginalItem)
-                    || live.ItemInstance == null
-                    || live.ItemInstance.Amount < transfer.Amount)
-                {
-                    logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
-                    return null;
-                }
-            }
-
-            var options = transfers
-                .Where(t => t.OriginalItem.ItemInstance is WearableInstance)
-                .ToDictionary(t => t.OriginalItem.ItemInstanceId,
-                    t => shellOptionService.Load(t.OriginalItem.ItemInstanceId));
-
-            var snapshots = new[] { Snapshot(sessionInventory), Snapshot(targetInventory) };
-            var removals = new List<KeyValuePair<long, IvnPacket>>();
-            var additions = new List<KeyValuePair<long, IvnPacket>>();
-            var clones = new List<(Guid SourceId, IItemInstance Clone)>();
-
-            foreach (var transfer in transfers)
-            {
-                var original = transfer.OriginalItem;
-                InventoryItemInstance? remaining = null;
-                if (transfer.Amount == original.ItemInstance.Amount)
-                {
-                    transfer.OriginInventory.Remove(original.ItemInstanceId);
-                }
-                else
-                {
-                    remaining = transfer.OriginInventory.RemoveItemAmountFromInventory(transfer.Amount, original.ItemInstanceId);
-                }
-
-                removals.Add(new KeyValuePair<long, IvnPacket>(transfer.SessionId,
-                    remaining.GeneratePocketChange((PocketType)original.Type, original.Slot)));
-            }
-
-            foreach (var transfer in transfers)
-            {
-                var clone = CloneForReceiver(transfer.OriginalItem.ItemInstance, transfer.Amount);
-                var before = transfer.DestInventory.Values
-                    .Where(s => s.ItemInstance.ItemVNum == clone.ItemVNum)
-                    .ToDictionary(s => s.ItemInstanceId, s => s.ItemInstance.Amount);
-                var touched = transfer.DestInventory.AddItemToPocket(
-                    InventoryItemInstance.Create(clone, transfer.TargetId)) ?? [];
-                var received = touched.Sum(s =>
-                    s.ItemInstance.Amount - (before.TryGetValue(s.ItemInstanceId, out var was) ? was : 0));
-
-                if (received != transfer.Amount)
-                {
-                    foreach (var snapshot in snapshots)
-                    {
-                        Restore(snapshot);
-                    }
-
-                    logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
-                    return null;
-                }
-
-                clones.Add((transfer.OriginalItem.ItemInstanceId, clone));
-                additions.AddRange(touched.Select(s => new KeyValuePair<long, IvnPacket>(transfer.TargetId,
-                    s.GeneratePocketChange((PocketType)s.Type, s.Slot))));
-            }
-
-            foreach (var (sourceId, clone) in clones)
-            {
-                if (clone is not WearableInstance || !options.TryGetValue(sourceId, out var cloneOptions)
-                    || cloneOptions.Count == 0)
-                {
-                    continue;
-                }
-
-                await itemInstanceDao.TryInsertOrUpdateAsync(clone);
-                await shellOptionService.SaveAsync(clone.Id, cloneOptions);
-            }
-
-            return removals.Concat(additions).ToList();
-        }
-
-        private static IItemInstance CloneForReceiver(IItemInstance source, short amount)
-        {
-            var clone = (IItemInstance)source.Clone();
-            clone.Id = Guid.NewGuid();
-            clone.Amount = amount;
-            if (clone is WearableInstance { EquipmentOptions: { } equipmentOptions } wearable)
-            {
-                wearable.EquipmentOptions = equipmentOptions.Select(o => new EquipmentOptionDto
-                {
-                    Id = Guid.NewGuid(),
-                    WearableInstanceId = clone.Id,
-                    Level = o.Level,
-                    Type = o.Type,
-                    Value = o.Value
-                }).ToList();
-            }
-
-            return clone;
-        }
-
-        private static (IInventoryService Inventory, List<(InventoryItemInstance Item, short Amount)> Items) Snapshot(
-            IInventoryService inventory) =>
-            (inventory, inventory.Values.Select(s => (s, s.ItemInstance.Amount)).ToList());
-
-        private static void Restore((IInventoryService Inventory, List<(InventoryItemInstance Item, short Amount)> Items) snapshot)
-        {
-            var kept = snapshot.Items.Select(s => s.Item.ItemInstanceId).ToHashSet();
-            foreach (var added in snapshot.Inventory.Keys.Where(id => !kept.Contains(id)).ToList())
-            {
-                snapshot.Inventory.Remove(added);
-            }
-
-            foreach (var (item, amount) in snapshot.Items)
-            {
-                item.ItemInstance.Amount = amount;
-                snapshot.Inventory[item.ItemInstanceId] = item;
-            }
         }
     }
 }

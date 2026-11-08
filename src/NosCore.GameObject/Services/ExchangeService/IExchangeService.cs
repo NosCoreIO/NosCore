@@ -12,10 +12,8 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Exchanges;
-using NosCore.Packets.ServerPackets.Inventory;
 using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
@@ -38,8 +36,5 @@ namespace NosCore.GameObject.Services.ExchangeService
         bool CheckExchange(long visualId, long targetId);
         ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType);
         bool OpenExchange(long visualId, long targetVisualId);
-
-        Task<List<KeyValuePair<long, IvnPacket>>?> ProcessExchangeAsync(long firstUser, long secondUser,
-            IInventoryService sessionInventory, IInventoryService targetInventory);
     }
 }
