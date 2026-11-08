@@ -4,12 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -45,11 +47,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 .ExecuteAsync();
         }
 
-        private Task PickingUp_Of_(int amount, short vNum) =>
-            new DropHandler(_messageBus.Object).Handle(new MapItemPickedUpEvent(
-                _session, 100001, vNum, (short)amount,
-                TestHelpers.Instance.GenerateItemProvider().Create(vNum, (short)amount),
-                new GetPacket { PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = 100001 }));
+        private Task PickingUp_Of_(int amount, short vNum)
+        {
+            var item = _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                TestHelpers.Instance.GenerateItemProvider().Create(vNum, (short)amount), _session.Character.CharacterId))!.First().ItemInstance;
+            var mapItem = _session.Character.MapInstance.PutItem((short)amount, item, _session)!.Value;
+            return new DropHandler(_messageBus.Object).Handle(new MapItemPickedUpEvent(
+                _session, mapItem.VisualId, vNum, (short)amount, mapItem.ItemInstance,
+                new GetPacket { PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = mapItem.VisualId }));
+        }
 
         private void TheCharacterShouldCarry_Of_(int amount, short vNum) =>
             Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(vNum));

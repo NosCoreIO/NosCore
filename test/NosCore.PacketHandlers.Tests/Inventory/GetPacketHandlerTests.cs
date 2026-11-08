@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Networking.ClientSession;
@@ -39,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             ItemProvider = TestHelpers.Instance.GenerateItemProvider();
-            var dropHandler = new DropHandler();
+            var dropHandler = new DropHandler(new Mock<Wolverine.IMessageBus>().Object);
             var goldHandler = new GoldDropHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.ItemList);
             var spChargerHandler = new SpChargerHandler(TestHelpers.Instance.WorldConfiguration);
             Bus = new InlineOrDeferredMessageBus<MapItemPickedUpEvent>(async evt =>
