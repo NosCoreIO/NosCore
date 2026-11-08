@@ -74,8 +74,7 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    var blacklisteds = await blacklistHttpCLient.GetBlacklistedAsync(clientSession.Character.VisualId);
-                    if (blacklisteds != null && blacklisteds.Any(s => s.CharacterId == pjoinPacket.CharacterId))
+                    if (await blacklistHttpCLient.IsBlacklistedEitherWayAsync(clientSession.Character.VisualId, pjoinPacket.CharacterId))
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {

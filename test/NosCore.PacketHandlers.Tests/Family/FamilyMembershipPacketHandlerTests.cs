@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs;
@@ -21,6 +22,7 @@ using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
+using SpecLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -81,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         };
 
         private Task InviteAsync(ClientSession inviter, string name) =>
-            new FamilyInvitePacketHandler(_sessionRegistry.Object, _blacklistHub.Object)
+            new FamilyInvitePacketHandler(_sessionRegistry.Object, _blacklistHub.Object, TestHelpers.Instance.Clock)
                 .ExecuteAsync(new FamilyInvitePacket { CharacterName = name }, inviter);
 
         private Task AnswerAsync(FamilyInviteAnswerType type) =>
@@ -174,6 +176,52 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(Game18NConstString.CanNotFind, LastInfo(_head));
         }
+
+        [TestMethod]
+        public async Task APlayerWhoBlacklistedTheInviterCannotBeInvited()
+        {
+            await new Spec("A player who blacklisted the inviter cannot be invited")
+                .Given(TheOtherBlacklistedTheHead)
+                .WhenAsync(TheHeadInvitesTheOtherAsync)
+                .Then(TheHeadIsTold_, Game18NConstString.AlreadyBlacklisted)
+                .And(TheOtherIsAsked_Times, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task InvitingTheSamePlayerTwiceWithinTheCooldownAsksOnce()
+        {
+            await new Spec("Inviting the same player twice within the cooldown asks once")
+                .WhenAsync(TheHeadInvitesTheOtherAsync)
+                .AndAsync(TheHeadInvitesTheOtherAsync)
+                .Then(TheOtherIsAsked_Times, 1)
+                .And(TheHeadIsTold_, Game18NConstString.CannotSendInvite)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task InvitingTheSamePlayerAfterTheCooldownAsksAgain()
+        {
+            await new Spec("Inviting the same player after the cooldown asks again")
+                .WhenAsync(TheHeadInvitesTheOtherAsync)
+                .And(TheCooldownPasses)
+                .AndAsync(TheHeadInvitesTheOtherAsync)
+                .Then(TheOtherIsAsked_Times, 2)
+                .ExecuteAsync();
+        }
+
+        private void TheOtherBlacklistedTheHead() =>
+            _blacklistHub.Setup(s => s.GetBlacklistedAsync(_otherId))
+                .ReturnsAsync(new List<CharacterRelationStatus> { new() { CharacterId = _head.Character.CharacterId } });
+
+        private Task TheHeadInvitesTheOtherAsync() => InviteAsync(_head, _otherName);
+
+        private static void TheCooldownPasses() => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(6));
+
+        private void TheHeadIsTold_(Game18NConstString message) => Assert.AreEqual(message, LastInfo(_head));
+
+        private void TheOtherIsAsked_Times(int times) =>
+            Assert.AreEqual(times, _other.LastPackets.OfType<Dlgi2Packet>().Count());
 
         [TestMethod]
         public async Task AcceptingAnInvitationJoinsTheFamily()

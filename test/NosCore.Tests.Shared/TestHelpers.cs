@@ -331,7 +331,7 @@ namespace NosCore.Tests.Shared
                         new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, NullLoggerFactory.Instance),
                 new BlInsPackettHandler(BlacklistHttpClient.Object, new Mock<NosCore.GameObject.Services.BlackListService.IBlacklistCacheService>().Object, NullLogger<BlInsPackettHandler>.Instance, Instance.LogLanguageLocalizer),
                 new UseItemPacketHandler(new Mock<Wolverine.IMessageBus>().Object),
-                new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
+                new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry, Instance.Clock),
                 new SelectPacketHandler(CharacterDao, NullLogger<SelectPacketHandler>.Instance, NullLoggerFactory.Instance, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,
                     ItemInstanceDao, InventoryItemInstanceDao, StaticBonusDao, new Mock<IDao<QuicklistEntryDto, Guid>>().Object, new Mock<IDao<TitleDto, Guid>>().Object, new Mock<IDao<CharacterQuestDto, Guid>>().Object,
                     new Mock<IDao<CharacterQuestObjectiveDto, Guid>>().Object,
@@ -466,7 +466,8 @@ namespace NosCore.Tests.Shared
                 new ConcurrentDictionary<long, long>(),
                 new ConcurrentDictionary<long, long>(),
                 new ConcurrentDictionary<long, Instant>(),
-                null));
+                null,
+                new ConcurrentDictionary<(GameObject.Ecs.Extensions.InviteType Type, long TargetId), Instant>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerMatesComponent(
                 new ConcurrentDictionary<long, NosCore.GameObject.Services.MateService.Mate>()));
             mapInstance.EcsWorld.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerRequestsComponent(
