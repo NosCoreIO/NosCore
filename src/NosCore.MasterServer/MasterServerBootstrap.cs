@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.GameObject.Messaging;
 using NosCore.Core.Observability;
@@ -83,8 +84,10 @@ namespace NosCore.MasterServer
         private static WebApplication BuildApp(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
-            builder.Configuration.AddConfiguration(
-                ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" }));
+            var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "master.yml" });
+            RequiredSecrets.EnsureSet(configuration, RequiredSecrets.MasterPassword(nameof(MasterConfiguration.WebApi)),
+                RequiredSecrets.DatabasePassword);
+            builder.Configuration.AddConfiguration(configuration);
 
             ConsoleHelper.SetTitle(Title);
             Logger.PrintHeader(ConsoleText);

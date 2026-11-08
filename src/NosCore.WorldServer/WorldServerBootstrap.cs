@@ -221,6 +221,8 @@ namespace NosCore.WorldServer
         private static IHost BuildHost(string[] args)
         {
             var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "world.yml" });
+            RequiredSecrets.EnsureSet(configuration, RequiredSecrets.MasterPassword(nameof(WorldConfiguration.MasterCommunication)),
+                RequiredSecrets.DatabasePassword);
             var server = configuration.Get<ServerConfiguration>()!;
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()

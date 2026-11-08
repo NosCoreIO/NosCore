@@ -7,14 +7,12 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NosCore.Shared.Authentication;
-using NosCore.Shared.Configuration;
+using NosCore.Core.Configuration;
 using System;
-using System.Text;
 
 namespace NosCore.Core
 {
-    public class ConfigureJwtBearerOptions(IOptions<WebApiConfiguration> webApiConfiguration, IHasher hasher)
+    public class ConfigureJwtBearerOptions(IOptions<JwtConfiguration> jwtConfiguration)
         : IConfigureNamedOptions<JwtBearerOptions>
     {
         public void Configure(string? name, JwtBearerOptions options)
@@ -24,15 +22,13 @@ namespace NosCore.Core
                 throw new ArgumentNullException(nameof(options));
             }
 
-            var password = hasher.Hash(webApiConfiguration.Value.Password!, webApiConfiguration.Value.Salt);
             if (name == JwtBearerDefaults.AuthenticationScheme)
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
                 options.TokenValidationParameters = new TokenValidationParameters
                 {
-                    IssuerSigningKey = new SymmetricSecurityKey(
-                        Encoding.Default.GetBytes(password)),
+                    IssuerSigningKey = jwtConfiguration.Value.CreateSigningKey(),
                     ValidAudience = "Audience",
                     ValidIssuer = "Issuer",
                     ValidateIssuerSigningKey = true,

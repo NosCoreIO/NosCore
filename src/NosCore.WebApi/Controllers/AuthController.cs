@@ -9,12 +9,12 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NosCore.Core.Configuration;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.Shared.Authentication;
-using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System;
@@ -23,7 +23,6 @@ using System.Globalization;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading.Tasks;
 using TwoFactorAuthNet;
 
@@ -32,7 +31,7 @@ namespace NosCore.WebApi.Controllers
     [ApiController]
     [Route("api/v1/auth/thin")]
     [Route("api/[controller]")]
-    public class AuthController(IOptions<WebApiConfiguration> apiConfiguration, IDao<AccountDto, long> accountDao,
+    public class AuthController(IOptions<JwtConfiguration> jwtConfiguration, IDao<AccountDto, long> accountDao,
             ILogger<AuthController> logger, IHasher hasher, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IAuthHub authHub)
         : Controller
@@ -74,10 +73,7 @@ namespace NosCore.WebApi.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var password = hasher.Hash(apiConfiguration.Value.Password!, apiConfiguration.Value.Salt);
-
-            var keyByteArray = Encoding.Default.GetBytes(password);
-            var signinKey = new SymmetricSecurityKey(keyByteArray);
+            var signinKey = jwtConfiguration.Value.CreateSigningKey();
             var handler = new JwtSecurityTokenHandler();
             var securityToken = handler.CreateToken(new SecurityTokenDescriptor
             {

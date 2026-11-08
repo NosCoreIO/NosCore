@@ -1,3 +1,5 @@
+# Secrets come from the environment or from a .env file next to this one; copy .env.example
+# to .env and fill it in. Every server refuses to start while a secret is unset.
 services:
   db:
     container_name: noscore-db
@@ -5,15 +7,16 @@ services:
     restart: unless-stopped
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=password
+      - POSTGRES_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD, see .env.example}
       - POSTGRES_DB=noscore
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres -d noscore"]
       interval: 5s
       timeout: 3s
       retries: 12
+    # Reachable from this machine only, for running a server or the parser outside Docker.
     ports:
-      - 5432:5432
+      - 127.0.0.1:5432:5432
     # PG17 cannot read a PG12 data directory. A dedicated path forces a clean
     # init on upgrade — existing developers just rename ./postgres out of the
     # way (or dump+restore) and let PG17 initialise ./postgres17 from scratch.
@@ -46,6 +49,8 @@ services:
       - PORT=5000
       - DB_HOST=db
       - WEBAPI_HOST=http://master
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD, see .env.example}
+      - MASTER_PASSWORD=${MASTER_PASSWORD:?Set MASTER_PASSWORD, see .env.example}
     build:
       context: ./
       dockerfile: deploy/Dockerfile
@@ -78,6 +83,8 @@ services:
       - MASTER_HOST=http://master
       - DB_HOST=db
       - HOST=127.0.0.1
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD, see .env.example}
+      - MASTER_PASSWORD=${MASTER_PASSWORD:?Set MASTER_PASSWORD, see .env.example}
     build:
       context: ./
       dockerfile: deploy/Dockerfile
@@ -110,6 +117,8 @@ services:
       - MASTER_HOST=http://master
       - DB_HOST=db
       - HOST=127.0.0.1
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD, see .env.example}
+      - MASTER_PASSWORD=${MASTER_PASSWORD:?Set MASTER_PASSWORD, see .env.example}
     build:
       context: ./
       dockerfile: deploy/Dockerfile
@@ -137,6 +146,7 @@ services:
         condition: service_healthy
     environment:
       - DB_HOST=db
+      - DB_PASSWORD=${DB_PASSWORD:?Set DB_PASSWORD, see .env.example}
     build:
       context: ./
       dockerfile: deploy/Dockerfile

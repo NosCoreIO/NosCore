@@ -4,4 +4,4 @@ Database:
   Port: 5432
   Database: noscore
   Username: ${DB_USER,postgres}
-  Password: ${DB_PASSWORD,password}
+  Password: ${DB_PASSWORD,CHANGE_ME}

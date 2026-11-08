@@ -4,18 +4,21 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Core.Encryption;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.AuthService;
-using NosCore.Shared.Configuration;
 using NosCore.Tests.Shared;
 using NosCore.WebApi.Controllers;
 using SpecLight;
@@ -32,6 +35,7 @@ namespace NosCore.WebApi.Tests.ApiTests
     [TestClass]
     public class AuthControllerTests
     {
+        private const string SigningKey = "an-api-signing-key-of-at-least-32-characters";
         private AuthController Controller = null!;
         private ClientSession Session = null!;
         private Mock<ILogger<AuthController>> Logger = null!;
@@ -45,9 +49,9 @@ namespace NosCore.WebApi.Tests.ApiTests
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Logger = new Mock<ILogger<AuthController>>();
-            Controller = new AuthController(Options.Create(new WebApiConfiguration()
+            Controller = new AuthController(Options.Create(new JwtConfiguration
             {
-                Password = "123"
+                SigningKey = SigningKey
             }), TestHelpers.Instance.AccountDao, Logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
                new AuthHub(AuthCodeService));
         }
@@ -82,6 +86,27 @@ namespace NosCore.WebApi.Tests.ApiTests
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
+        }
+
+        [TestMethod]
+        public async Task IssuedTokenValidatesAgainstTheConfiguredSigningKey()
+        {
+            var result = (OkObjectResult)await Controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = Session.Account.Name,
+                GfLang = "EN",
+                Password = "test",
+                Locale = "en-GB"
+            });
+            var token = (string)result.Value!.GetType().GetProperty("token")!.GetValue(result.Value)!;
+            var options = new JwtBearerOptions();
+            new ConfigureJwtBearerOptions(Options.Create(new JwtConfiguration { SigningKey = SigningKey }))
+                .Configure(JwtBearerDefaults.AuthenticationScheme, options);
+            options.TokenValidationParameters.ValidateLifetime = false;
+
+            var validation = await new JsonWebTokenHandler().ValidateTokenAsync(token, options.TokenValidationParameters);
+
+            Assert.IsTrue(validation.IsValid, validation.Exception?.Message);
         }
 
         [TestMethod]

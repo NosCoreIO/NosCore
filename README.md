@@ -55,6 +55,21 @@ We recommend usage of :
 - Use update-database
 - Parse all
 
+### Required secrets ###
+Every server refuses to start while one of these is empty or left at a shipped default such as `CHANGE_ME`, and logs which setting to set. Copy `.env.example` to `.env` for Docker Compose, or export the variables in the environment of each server you run outside Docker.
+
+| Variable | Used by |
+|---|---|
+| `DB_PASSWORD` | the database container, every server and the parser |
+| `MASTER_PASSWORD` | master, world, login and web API servers |
+| `JWT_SIGNING_KEY` | web API, signs launcher session tokens (at least 32 characters) |
+| `MALL_SIGNATURE_KEY` | web API, the key the client signs NosMall requests with |
+| `RABBITMQ_URI` | every server, only when `MESSAGING_TRANSPORT` is `RabbitMq`; must carry its own credentials |
+
+`docker-compose.yml` publishes PostgreSQL on `127.0.0.1` only. A `postgres17` data directory created before `DB_PASSWORD` was required keeps its old password; change it with `ALTER USER postgres PASSWORD '...'` or start from a fresh directory.
+
+The web API only trusts `X-Forwarded-For` from the addresses listed under `ForwardedHeaders` in `api.yml` (`KnownProxies` for single addresses, `KnownNetworks` for CIDR ranges); leave both empty when clients connect to it directly.
+
 ## 3. Use the NuGet Package Manager to Update the Database ##
 - Go to Tools -> NuGet Package Manager -> Package Manager Console
 - Choose Project NosCore.Database

@@ -1,5 +1,5 @@
 MasterCommunication:
-  Password: ${MASTER_PASSWORD,NosCorePassword}
+  Password: ${MASTER_PASSWORD,CHANGE_ME}
   Host: ${MASTER_HOST,http://localhost}
   Port: 5000
 Host: ${HOST,127.0.0.1}
@@ -10,8 +10,16 @@ Database:
   Port: 5432
   Database: noscore
   Username: ${DB_USER,postgres}
-  Password: ${DB_PASSWORD,password}
+  Password: ${DB_PASSWORD,CHANGE_ME}
 Messaging:
   Transport: ${MESSAGING_TRANSPORT,Postgresql}
   PollingIntervalMs: 20
-  RabbitMqUri: ${RABBITMQ_URI,amqp://guest:guest@localhost:5672}
+  RabbitMqUri: ${RABBITMQ_URI,amqp://CHANGE_ME:CHANGE_ME@localhost:5672}
+Jwt:
+  SigningKey: ${JWT_SIGNING_KEY,CHANGE_ME}
+Mall:
+  SignatureKey: ${MALL_SIGNATURE_KEY,CHANGE_ME}
+# Only these addresses may set X-Forwarded-For. Leave both empty when clients connect directly.
+ForwardedHeaders:
+  KnownProxies: []
+  KnownNetworks: []

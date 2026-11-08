@@ -159,6 +159,8 @@ namespace NosCore.LoginServer
         private static IHost BuildHost(string[] args)
         {
             var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "login.yml" });
+            RequiredSecrets.EnsureSet(configuration, RequiredSecrets.MasterPassword(nameof(LoginConfiguration.MasterCommunication)),
+                RequiredSecrets.DatabasePassword);
             var server = configuration.Get<ServerConfiguration>()!;
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()

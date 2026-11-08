@@ -1,15 +1,15 @@
 WebApi:
   Host: ${WEBAPI_HOST,http://localhost}
   Port: 5000
-  Password: ${MASTER_PASSWORD,NosCorePassword}
+  Password: ${MASTER_PASSWORD,CHANGE_ME}
 Language: en
 Database:
   Host: ${DB_HOST,localhost}
   Port: 5432
   Database: noscore
   Username: ${DB_USER,postgres}
-  Password: ${DB_PASSWORD,password}
+  Password: ${DB_PASSWORD,CHANGE_ME}
 Messaging:
   Transport: ${MESSAGING_TRANSPORT,Postgresql}
   PollingIntervalMs: 20
-  RabbitMqUri: ${RABBITMQ_URI,amqp://guest:guest@localhost:5672}
+  RabbitMqUri: ${RABBITMQ_URI,amqp://CHANGE_ME:CHANGE_ME@localhost:5672}

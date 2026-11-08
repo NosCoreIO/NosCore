@@ -13,6 +13,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NosCore.Core;
+using NosCore.Core.Configuration;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -54,6 +55,7 @@ namespace NosCore.Parser
         {
             var parserConfiguration = new ParserConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" });
+            RequiredSecrets.EnsureSet(conf, RequiredSecrets.DatabasePassword);
             conf.Bind(parserConfiguration);
             services.AddDbContext<NosCoreContext>(
                 builder => builder.UseNpgsql(parserConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
