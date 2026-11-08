@@ -850,6 +850,28 @@ required items, start room and coordinates). Stand on the stone.
 
 ---
 
+## Quests
+
+### Talk, pay, inspect and hand-in objectives
+
+Quests of these types used to be accepted and then never advance. A new character with the
+opening scene follows the main story script, which hands most of them out.
+
+- [ ] **Talk to an NPC** (Dialog1) — Rookie Training quest 1503, "Go to Calvin Coach to
+      improve your skills!": talk to Calvin Coach. "Quest complete" shows, the quest window
+      marks it done and the story moves on to its next step
+- [ ] Talking to any other NPC while 1503 is open changes nothing in the quest window
+- [ ] **Pay an NPC** (TransmitGold) — Whirl of War quest 1659, "Accept Teodor Topp's offer!",
+      asks for 10 000 gold. With less than that, talk to Teodor Topp: "not enough gold" shows
+      in chat, the gold is untouched and the quest stays open
+- [ ] With at least 10 000 gold, talk to him again: exactly 10 000 gold leaves the purse, the
+      gold display updates and the quest completes
+- [ ] Talk to him once more: no further gold is taken
+- [ ] The other paid quests take the amount their text names, for example Glacerus the Ice
+      Cold quest 5986, "Pay Serena 100000 Gold"
+
+---
+
 ## Regression sweep
 
 Quick pass after any combat or stat change:
@@ -899,3 +921,16 @@ Recorded so nobody spends time hunting for them:
   item window.
 - **What a filled card holder contains** — the item window has no description of a holder yet,
   so its card is only visible once taken out.
+- **Inspect and Dialog2 quests in the client** — both are wired (inspecting the object, and the
+  "report" button that sends `n_run 200 <quest>`), but every quest of either type is handed
+  out by a chain that starts at an NPC's `n_run 3006 <quest>` button, which does nothing yet.
+  Once it does, check Lost Trade Goods quest 5044 ("Look for the lost trade goods", inspect the
+  Abandoned Amakur Merchant Chest in the Port Surroundings), then quest 5045 ("Bring them to
+  Harbour Guard Tom", press his report button) — the report button at any other NPC must do
+  nothing, and opening Tom without pressing it must not complete 5045. Quest 5064 names four
+  chests, and must stay open until all four are inspected.
+- **Inspect quests and the item they name** — inspecting completes the objective at once.
+  The trade goods themselves come from the chest's own drop, which needs the map-object
+  collection flow (`guri 400`) that is not wired yet.
+- **Reputation target quests** (TargetReput) — no quest in the current client data uses this
+  type, so there is nothing to implement or to check.

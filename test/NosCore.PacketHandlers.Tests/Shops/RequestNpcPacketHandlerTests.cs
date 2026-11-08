@@ -34,6 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     {
         private RequestNpcPacketHandler _requestNpcPacketHandler = null!;
         private ClientSession _session = null!;
+        private readonly Mock<Wolverine.IMessageBus> MessageBus = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -50,7 +51,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 NullLogger<RequestNpcPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry,
+                MessageBus.Object);
         }
 
         [TestMethod]
@@ -92,6 +94,27 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
                 .Then(NInvPacketShouldBeSent)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RequestNpcPublishesThatTheNpcWasTalkedTo()
+        {
+            await new Spec("Opening an NPC publishes that the character talked to it, for quest objectives")
+                .Given(NpcWithDialogExistsOnMap)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(NpcTalkedEventShouldBePublished)
+                .ExecuteAsync();
+        }
+
+        private void NpcTalkedEventShouldBePublished()
+        {
+            var published = MessageBus.Invocations
+                .Where(i => i.Method.Name == nameof(Wolverine.IMessageBus.PublishAsync))
+                .Select(i => i.Arguments[0])
+                .OfType<NosCore.GameObject.Messaging.Events.NpcTalkedEvent>()
+                .Single();
+            Assert.AreEqual(_session.Character.VisualId, published.Character.VisualId);
+            Assert.AreEqual(1, published.Npc.NpcMonster.NpcMonsterVNum);
         }
 
         private void NpcWithDialogExistsOnMap()

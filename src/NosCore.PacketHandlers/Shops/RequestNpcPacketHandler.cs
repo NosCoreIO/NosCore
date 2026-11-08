@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -16,10 +17,11 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class RequestNpcPacketHandler(ILogger<RequestNpcPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
+    public class RequestNpcPacketHandler(ILogger<RequestNpcPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
+            Wolverine.IMessageBus messageBus)
         : PacketHandler<RequestNpcPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
+        public override async Task ExecuteAsync(RequestNpcPacket requestNpcPacket, ClientSession clientSession)
         {
             switch (requestNpcPacket.Type)
             {
@@ -27,7 +29,7 @@ namespace NosCore.PacketHandlers.Shops
                     if (sessionRegistry.TryGetCharacter(s => s.VisualId == requestNpcPacket.TargetId, out var player))
                     {
                         player.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
-                        return Task.CompletedTask;
+                        return;
                     }
                     break;
                 case VisualType.Npc:
@@ -35,16 +37,16 @@ namespace NosCore.PacketHandlers.Shops
                     if (npc.HasValue)
                     {
                         npc.Value.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
-                        return Task.CompletedTask;
+                        await messageBus.PublishAsync(new NpcTalkedEvent(clientSession.Character, npc.Value));
+                        return;
                     }
                     break;
                 default:
                     logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], requestNpcPacket.Type);
-                    return Task.CompletedTask;
+                    return;
             }
 
             logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);
-            return Task.CompletedTask;
         }
     }
 }
