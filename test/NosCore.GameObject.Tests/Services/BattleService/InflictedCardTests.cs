@@ -70,9 +70,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         // NpcStateComponent and is left null, so ApplyAsync stores the buff and sends no packet.
         private IAliveEntity Entity() =>
             new MonsterComponentBundle(
-                _world.World.Create(
+                _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
-                    new NpcStateComponent(null!, null!, null!, null!, null, null, null, null!, null, false)),
+                    new NpcStateComponent(null!, null!, null!, null!, null, null, null, null!, null, false))),
                 _world);
 
         private void RollGives(int value) => _random.Setup(r => r.Next(0, 100)).Returns(value);

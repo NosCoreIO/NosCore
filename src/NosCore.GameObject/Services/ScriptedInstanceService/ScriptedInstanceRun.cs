@@ -7,6 +7,7 @@
 using NodaTime;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
@@ -26,5 +27,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public short ReturnX { get; } = entrance.PositionX;
 
         public short ReturnY { get; } = entrance.PositionY;
+
+        private int _closed;
+
+        // True for exactly one caller: the one that gets to tear the rooms down.
+        public bool TryClose() => Interlocked.Exchange(ref _closed, 1) == 0;
     }
 }

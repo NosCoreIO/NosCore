@@ -103,6 +103,15 @@ namespace NosCore.GameObject.Services.MinilandService
         public async Task<Miniland> InitializeAsync(PlayerComponentBundle player, IMapInstanceGeneratorService generator)
         {
             var characterId = player.CharacterId;
+
+            // Selecting the character again keeps the miniland it already has; a second map
+            // instance would never be registered under the character and so never removed.
+            var existing = minilandRegistry.GetByCharacterId(characterId);
+            if (existing != null && mapInstanceAccessorService.GetMapInstance(existing.MapInstanceId) != null)
+            {
+                return existing;
+            }
+
             var minilandInfoDto = await minilandDao.FirstOrDefaultAsync(s => s.OwnerId == characterId);
             if (minilandInfoDto == null)
             {

@@ -137,7 +137,7 @@ public sealed class RewardService(
         return player.Group.Values
             .Select(s => s.Item2)
             .OfType<PlayerComponentBundle>()
-            .Where(s => s.World == victim.MapInstance.EcsWorld && s.World.World.IsAlive(s.Handle))
+            .Where(s => s.World == victim.MapInstance.EcsWorld && s.World.IsAlive(s.Handle))
             .ToList();
     }
 
@@ -260,7 +260,7 @@ public sealed class RewardService(
         if (victim.MapInstance is not null)
         {
             var world = victim.MapInstance.EcsWorld;
-            if (world.World.IsAlive(handle))
+            if (world.IsAlive(handle))
             {
                 var identity = world.TryGetComponent<Ecs.Components.EntityIdentityComponent>(handle);
                 if (identity is { VisualType: Shared.Enumerations.VisualType.Player })

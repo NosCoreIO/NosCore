@@ -31,7 +31,7 @@ public class MovementSystem
     {
         var now = _clock.GetCurrentInstant();
 
-        world.World.Query(in _movableQuery, (Entity entity, ref PositionComponent position, ref NpcDataComponent npcData, ref SpawnComponent spawn, ref TimingComponent timing, ref HealthComponent health) =>
+        world.Exclusive(w => w.Query(in _movableQuery, (Entity entity, ref PositionComponent position, ref NpcDataComponent npcData, ref SpawnComponent spawn, ref TimingComponent timing, ref HealthComponent health) =>
         {
             if (!health.IsAlive || !spawn.IsMoving || npcData.Speed <= 0)
             {
@@ -64,7 +64,7 @@ public class MovementSystem
             position = position with { PositionX = mapX, PositionY = mapY };
 
             onMove(entity, new MoveData(mapX, mapY, npcData.Speed));
-        });
+        }));
     }
 }
 
