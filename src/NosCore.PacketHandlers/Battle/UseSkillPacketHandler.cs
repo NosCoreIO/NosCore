@@ -14,6 +14,10 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MovementService;
+using NosCore.GameObject.Ecs;
+using NosCore.Networking;
+using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
@@ -36,7 +40,8 @@ namespace NosCore.PacketHandlers.Battle
         ISessionRegistry sessionRegistry,
         IClock clock,
         NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService equipmentStatsService,
-        IHeuristic distanceCalculator)
+        IHeuristic distanceCalculator,
+        IWalkService walkService)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseSkillPacket packet, ClientSession clientSession)
@@ -70,7 +75,7 @@ namespace NosCore.PacketHandlers.Battle
             // be used to step the character around.
             var character = clientSession.Character;
             var (previousX, previousY) = (character.PositionX, character.PositionY);
-            AcceptReportedPosition(character, packet);
+            var moved = AcceptReportedPosition(character, packet);
 
             if (!TryConsumeSkill(clientSession, packet.CastId, target, out var consumed))
             {
@@ -89,6 +94,11 @@ namespace NosCore.PacketHandlers.Battle
             if (accepted)
             {
                 consumed?.Invoke();
+                if (moved)
+                {
+                    await character.MapInstance.SendPacketAsync(character.GenerateMove(),
+                        new EveryoneBut(clientSession.Channel!.Id));
+                }
             }
             else
             {
@@ -96,19 +106,20 @@ namespace NosCore.PacketHandlers.Battle
             }
         }
 
-        // The reported cell is only taken when it is one walk step from the cell the server
-        // already has; anything further would let a client cast from wherever it likes.
-        private void AcceptReportedPosition(ICharacterEntity character, UseSkillPacket packet)
+        // The reported cell is only taken when the character could have walked there since its
+        // last accepted move; anything further would let a client cast from wherever it likes.
+        private bool AcceptReportedPosition(PlayerComponentBundle character, UseSkillPacket packet)
         {
             if (packet is not { MapX: { } x, MapY: { } y }
-                || character.MapInstance?.Map.IsWalkable(x, y) == false
-                || !SkillReach.IsWithinOneStep((int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (x, y)), character.Speed))
+                || (x == character.PositionX && y == character.PositionY)
+                || !walkService.TryStep(character, x, y))
             {
-                return;
+                return false;
             }
 
             character.PositionX = x;
             character.PositionY = y;
+            return true;
         }
 
         // Verifies reach, MP and cooldown WHEN the character owns the skill. For casts the

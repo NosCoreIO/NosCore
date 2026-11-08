@@ -21,6 +21,30 @@ compute and will mask a regression.
 
 ---
 
+## Movement
+
+### Walking pace
+
+The server allows each walk packet only once the time since the last accepted one covers the
+cells it moves, at 2500 / speed milliseconds a cell with some slack. That rate is the one the
+walk check has always assumed; it has not been timed against a client, so this section is what
+confirms it. The server log line `walk dropped` names every refused packet.
+
+- [ ] Walk across a large open map by clicking far ahead, then by holding the mouse down, for a
+      minute each: the character never snaps back and the log shows no `walk dropped`
+- [ ] Do the same on a vehicle, and with a speed buff active: no snap-back
+- [ ] Let a speed buff run out, or dismount, in the middle of a long walk: the walk carries on
+- [ ] Walk with a second client watching: the walker moves smoothly on both screens and stops on
+      the same cell on both
+- [ ] Walk along and around walls, through doorways and round corners: nothing is refused
+- [ ] On a laggy connection (throttle the client's network), walk for a while: an occasional
+      snap-back is acceptable, a steady stream of them is not
+- [ ] Cast skills while walking: the casts land and the character is not pulled back
+- [ ] Not verifiable from a stock client: packets sent faster than the character walks, or to a
+      cell behind a wall, are refused and the client is put back on the server's cell
+
+---
+
 ## Combat
 
 ### Worn equipment contributes to stats
