@@ -27,6 +27,7 @@ using NosCore.Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 
@@ -143,7 +144,19 @@ namespace NosCore.GameObject.Ecs.Extensions
 
             var distance = (int)distanceCalculator.GetDistance((nonPlayableEntity.PositionX, nonPlayableEntity.PositionY), (mapX, mapY));
             var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
-            _ = ArriveAsync(nonPlayableEntity, nonPlayableEntity.MapInstance, mapX, mapY, TimeSpan.FromMilliseconds(value));
+            // Started from the tick, the arrival must not inherit the tick's hold on the map's
+            // executor: it would run alongside the tick if the delay ended before the tick did.
+            if (ExecutionContext.IsFlowSuppressed())
+            {
+                _ = ArriveAsync(nonPlayableEntity, nonPlayableEntity.MapInstance, mapX, mapY, TimeSpan.FromMilliseconds(value));
+            }
+            else
+            {
+                using (ExecutionContext.SuppressFlow())
+                {
+                    _ = ArriveAsync(nonPlayableEntity, nonPlayableEntity.MapInstance, mapX, mapY, TimeSpan.FromMilliseconds(value));
+                }
+            }
 
             nonPlayableEntity.LastMove = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(value));
             return nonPlayableEntity.MapInstance.SendPacketAsync(
