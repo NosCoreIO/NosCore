@@ -18,4 +18,9 @@ public interface IQuestTypeHandler
     Task<bool> ValidateAsync(ICharacterEntity character, CharacterQuest quest) => Task.FromResult(false);
 
     Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) => Task.CompletedTask;
+
+    // The two NPC hooks below return true once every objective of the quest is met.
+    Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
+
+    Task<bool> OnQuestDialogAnsweredAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
 }
