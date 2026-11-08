@@ -4,16 +4,18 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NodaTime;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.MovementService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Movement;
+using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Shared.Enumerations;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -22,8 +24,8 @@ using Wolverine;
 
 namespace NosCore.PacketHandlers.Movement
 {
-    public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger<WalkPacketHandler> logger, IClock clock,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
+    public class WalkPacketHandler(IHeuristic distanceCalculator, ILogger<WalkPacketHandler> logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus, IWalkService walkService)
         : PacketHandler<WalkPacket>, IWorldPacketHandler
     {
         // this is used to avoid network issue to be counted as speed hack.
@@ -40,6 +42,7 @@ namespace NosCore.PacketHandlers.Movement
                     session.Character.Speed, walkPacket.Speed, session.Character.VisualId,
                     session.Character.PositionX, session.Character.PositionY,
                     walkPacket.XCoordinate, walkPacket.YCoordinate);
+                await ResyncAsync(session);
                 return;
             }
 
@@ -50,6 +53,7 @@ namespace NosCore.PacketHandlers.Movement
                     distance, session.Character.Speed / 2, session.Character.VisualId,
                     session.Character.PositionX, session.Character.PositionY,
                     walkPacket.XCoordinate, walkPacket.YCoordinate, walkPacket.Speed);
+                await ResyncAsync(session);
                 return;
             }
 
@@ -68,13 +72,13 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            if (!session.Character.MapInstance.Map.IsWalkable(walkPacket.XCoordinate, walkPacket.YCoordinate))
+            if (!walkService.TryStep(session.Character, walkPacket.XCoordinate, walkPacket.YCoordinate))
             {
                 logger.LogWarning(
-                    "walk dropped: destination not walkable for character {VisualId} from ({FromX},{FromY}) to ({ToX},{ToY})",
-                    session.Character.VisualId,
-                    session.Character.PositionX, session.Character.PositionY,
-                    walkPacket.XCoordinate, walkPacket.YCoordinate);
+                    "walk dropped: character {VisualId} cannot reach ({ToX},{ToY}) from ({FromX},{FromY}) at speed {Speed} yet",
+                    session.Character.VisualId, walkPacket.XCoordinate, walkPacket.YCoordinate,
+                    session.Character.PositionX, session.Character.PositionY, session.Character.Speed);
+                await ResyncAsync(session);
                 return;
             }
 
@@ -89,7 +93,6 @@ namespace NosCore.PacketHandlers.Movement
                 session.Character.MapX = walkPacket.XCoordinate;
                 session.Character.MapY = walkPacket.YCoordinate;
             }
-            session.Character.LastMove = clock.GetCurrentInstant();
 
             logger.LogInformation(
                 "walk accepted: character {VisualId} wrote ({WrittenX},{WrittenY}); ECS now reads PositionX/Y=({StoredX},{StoredY}) MapX/Y=({StoredMapX},{StoredMapY})",
@@ -106,6 +109,18 @@ namespace NosCore.PacketHandlers.Movement
                 session.Character.MapX,
                 session.Character.MapY,
                 session.Character.MapId));
+        }
+
+        // The client has already started walking, so it is put back where the server has it.
+        private static Task ResyncAsync(ClientSession session)
+        {
+            return session.SendPacketAsync(new TpPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = session.Character.VisualId,
+                X = session.Character.PositionX,
+                Y = session.Character.PositionY,
+            });
         }
     }
 }

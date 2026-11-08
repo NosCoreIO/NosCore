@@ -16,6 +16,7 @@ using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Services.MovementService;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
@@ -52,7 +53,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.Clock,
                 Gear.Object,
-                TestHelpers.Instance.DistanceCalculator);
+                TestHelpers.Instance.DistanceCalculator,
+                new WalkService(TestHelpers.Instance.Clock));
         }
 
         private readonly Mock<IEquipmentStatsService> Gear = new();
@@ -287,6 +289,44 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Then(BattleServiceShouldBeCalled)
                 .And(CharacterShouldBeAt_, (short)0)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReportedCellsAreNotTakenFasterThanTheCharacterCanWalk()
+        {
+            await new Spec("A second cast reporting a cell the character could not have walked to yet keeps the earlier cell")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)0)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)6)
+                .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
+                .AndAsync(UsingSkillOnExistingPlayerReportingCell_After_Milliseconds, (short)0, 200)
+                .Then(CharacterShouldBeAt_, (short)5)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReportedCellsAtWalkingPaceAreTaken()
+        {
+            await new Spec("Casts while walking at the character's pace each take the reported cell")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .And(CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_, (short)1, (short)0, (short)1)
+                .And(SkillHasRange_, (byte)0)
+                .And(CharacterIsAt_WithSpeed_, (short)0, (byte)10)
+                .And(TargetIsAt_, (short)6)
+                .WhenAsync(UsingSkillOnExistingPlayerReportingCell_, (short)5)
+                .AndAsync(UsingSkillOnExistingPlayerReportingCell_After_Milliseconds, (short)0, 1250)
+                .Then(CharacterShouldBeAt_, (short)0)
+                .ExecuteAsync();
+        }
+
+        private Task UsingSkillOnExistingPlayerReportingCell_After_Milliseconds(short x, int milliseconds)
+        {
+            TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
+            return UsingSkillOnExistingPlayerReportingCell_(x);
         }
 
         private void SkillHasRange_(byte range)
