@@ -19,6 +19,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ServerPackets.Inventory;
+using NosCore.GameObject.Ecs;
 using NosCore.Packets.ServerPackets.Exchanges;
 using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 using NosCore.GameObject.Services.ExchangeService;
@@ -304,6 +306,23 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task LeavingWaitsForASlowSettlement()
+        {
+            await new Spec("A player leaving while a slow settlement writes waits for its real outcome")
+                .GivenAsync(ExchangeIsOpened)
+                .And(TheTransferIsHeld)
+                .AndAsync(TargetConfirms)
+                .And(RequesterConfirmsWhileTheTransferIsHeld)
+                .When(TargetDisconnects)
+                .Then(TheDisconnectIsStillWaiting)
+                .And(RequesterReceivedNoFailure)
+                .AndAsync(TheTransferCompletes)
+                .And(RequesterWasToldTheTradeSucceeded)
+                .And(RequesterReceivedNoFailure)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task LeavingAnOpenTradeClosesIt()
         {
             await new Spec("A player leaving a trade nobody is settling closes it as failed")
@@ -401,6 +420,36 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         private Task? _disconnect;
+        private Task? _settlement;
+        private readonly TaskCompletionSource<List<KeyValuePair<long, IvnPacket>>?> _heldTransfer = new();
+        private ExchangeRequestPackettHandler? _heldHandler;
+
+        private void TheTransferIsHeld()
+        {
+            var transfer = new Mock<ITransferService>();
+            transfer.Setup(t => t.TransferAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<TransferOffer>(),
+                    It.IsAny<PlayerComponentBundle>(), It.IsAny<TransferOffer>()))
+                .Returns(_heldTransfer.Task);
+            _heldHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
+                Blacklist.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry,
+                transfer.Object);
+        }
+
+        private void RequesterConfirmsWhileTheTransferIsHeld()
+        {
+            _settlement = _heldHandler!.ExecuteAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Confirmed }, Requester);
+            Assert.IsFalse(_settlement.IsCompleted);
+        }
+
+        private async Task TheTransferCompletes()
+        {
+            _heldTransfer.SetResult(new List<KeyValuePair<long, IvnPacket>>());
+            await _settlement!.WaitAsync(TimeSpan.FromSeconds(5));
+            await _disconnect!.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private void RequesterWasToldTheTradeSucceeded() =>
+            Assert.IsTrue(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Success));
 
         private void TargetDisconnects() =>
             _disconnect = new ExchangeDisconnectHandler(Exchange, TestHelpers.Instance.SessionRegistry).HandleDisconnectAsync(Target);

@@ -220,11 +220,11 @@ namespace NosCore.PacketHandlers.Exchange
                     // This handler already holds its own session's packet lock. Only the side whose
                     // confirmation claimed the trade gets here, and a player is in one trade at a
                     // time, so taking the partner's lock as well cannot wait in a cycle.
-                    var partnerSession = sessionRegistry.GetSessionByCharacterId(exchangeTarget.VisualId);
                     var result = ExchangeResultType.Failure;
                     ExcClosePacket? settled;
                     try
                     {
+                        var partnerSession = sessionRegistry.GetSessionByCharacterId(exchangeTarget.VisualId);
                         if (partnerSession != null)
                         {
                             using var timeout = new CancellationTokenSource(ExchangeService.PartnerLockWait);

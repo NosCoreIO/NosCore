@@ -37,10 +37,8 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         public static readonly Duration RequestCooldown = Duration.FromSeconds(5);
 
-        // How long a leaving player waits for a trade that is already settling. Longer than the
-        // settling side waits for the partner's packet lock, so that side gives up first.
-        public static readonly TimeSpan SettlementWait = TimeSpan.FromSeconds(10);
-
+        // Every claim ends in a close: the settling side waits this long at most for the partner's
+        // packet lock and closes the trade whatever happens, which is what a leaving player waits for.
         public static readonly TimeSpan PartnerLockWait = TimeSpan.FromSeconds(5);
 
         private readonly object _openLock = new();
@@ -273,14 +271,7 @@ namespace NosCore.GameObject.Services.ExchangeService
 
             if (settling)
             {
-                try
-                {
-                    await settlement.Closed.Task.WaitAsync(SettlementWait);
-                }
-                catch (TimeoutException)
-                {
-                    logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
-                }
+                await settlement.Closed.Task;
             }
 
             return GetTargetId(visualId).HasValue ? CloseExchange(visualId, ExchangeResultType.Failure) : null;
