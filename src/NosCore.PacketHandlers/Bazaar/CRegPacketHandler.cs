@@ -17,6 +17,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -31,11 +32,17 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHub bazaarHttpClient,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao)
+            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao,
+            INpcDialogService npcDialogService)
         : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CRegPacket cRegPacket, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bazaar))
+            {
+                return;
+            }
+
             if (cRegPacket.Amount <= 0 || cRegPacket.Price < 0)
             {
                 return;

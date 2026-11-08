@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -16,16 +17,20 @@ using NosCore.Packets.ServerPackets.UI;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class UpgradeItemHandler : INrunEventHandler
+    public sealed class UpgradeItemHandler(INpcDialogService npcDialogService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.UpgradeItem;
 
+        public bool RequiresNpc => true;
+
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (target is not NpcComponentBundle)
+            if (target is not NpcComponentBundle npc)
             {
                 return Task.CompletedTask;
             }
+
+            npcDialogService.Open(session.Character, npc, NpcDialogWindow.Upgrade);
 
             return session.SendPacketAsync(new WopenPacket
             {

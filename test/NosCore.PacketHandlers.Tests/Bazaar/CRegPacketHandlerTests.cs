@@ -21,6 +21,7 @@ using NosCore.Tests.Shared.BDD.Steps;
 using SpecLight;
 using System;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.NpcDialogService;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
@@ -36,6 +37,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
+            Session.WithNpcAt(100, 1, 1);
+            Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             InventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
             ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
@@ -45,7 +48,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 TestHelpers.Instance.WorldConfiguration,
                 BazaarHttpClient.Object,
                 ItemInstanceDao.Object,
-                InventoryItemInstanceDao.Object);
+                InventoryItemInstanceDao.Object, TestHelpers.Instance.NpcDialogService);
             ItemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
         }

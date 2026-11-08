@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -24,11 +25,17 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CModPacketHandler(IBazaarHub bazaarHttpClient, ILogger<CModPacketHandler> logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            INpcDialogService npcDialogService)
         : PacketHandler<CModPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CModPacket packet, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bazaar))
+            {
+                return;
+            }
+
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&

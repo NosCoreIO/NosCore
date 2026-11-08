@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _respawnService = new Mock<IRespawnService>();
-            _handler = new SetPlaceOfRevivalHandler(_respawnService.Object);
+            _handler = new SetPlaceOfRevivalHandler(_respawnService.Object, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -53,7 +53,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task TypeTwoSendsConfirmationDialog()
         {
             await new Spec("n_run Type=2 prompts a Qna dialog whose YesPacket is the Type=1 commit")
-                .WhenAsync(NrunIsHandledWithType_, (short)2)
+                .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
+                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)2)
                 .Then(QnaWithYesPacketTypeOneShouldHaveBeenSent)
                 .And(RespawnPointShouldNotHaveBeenUpdated)
                 .And(NoConfirmationMsgShouldBeSent)
@@ -84,14 +85,41 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task TypeOneOnAnNpcSavesTheRespawnPoint()
         {
             await new Spec("Type=1 on an NPC saves its position as the respawn point and confirms with the client's own message")
-                .Given(AnNpcStandsAt_And_, (short)5, (short)6)
+                .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
+                .AndAsync(NrunIsHandledWithType_OnThatNpc, (short)2)
                 .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
                 .Then(RespawnPointShouldBeSetTo_And_, (short)5, (short)6)
                 .And(RevivalPlaceChangedShouldBeSent)
                 .ExecuteAsync();
         }
 
-        private void AnNpcStandsAt_And_(short x, short y) =>
+        [TestMethod]
+        public async Task ConfirmingWithoutTheQuestionIsIgnored()
+        {
+            await new Spec("Type=1 without the NPC having asked the question saves nothing")
+                .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
+                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
+                .Then(RespawnPointShouldNotHaveBeenUpdated)
+                .And(NoConfirmationMsgShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConfirmingTwiceSavesOnce()
+        {
+            await new Spec("One question allows one confirmation")
+                .Given(TheCharacterStandsNextToAnNpcAt_And_, (short)5, (short)6)
+                .AndAsync(NrunIsHandledWithType_OnThatNpc, (short)2)
+                .WhenAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
+                .AndAsync(NrunIsHandledWithType_OnThatNpc, (short)1)
+                .Then(RespawnPointShouldBeSetTo_And_, (short)5, (short)6)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterStandsNextToAnNpcAt_And_(short x, short y)
+        {
+            _session.Character.PositionX = x;
+            _session.Character.PositionY = (short)(y - 1);
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto>
                 {
@@ -105,6 +133,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                     }
                 },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+        }
 
         private Task NrunIsHandledWithType_OnThatNpc(short type) =>
             _handler.HandleAsync(_session, _session.Character.MapInstance.GetNpcById(100),
@@ -131,16 +160,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 
         private void RunnerShouldBe_(NrunRunnerType expected) =>
             Assert.AreEqual(expected, _handler.Runner);
-
-        private Task NrunIsHandledWithType_(short type) =>
-            _handler.HandleAsync(_session, new Mock<IAliveEntity>().Object,
-                new NrunPacket
-                {
-                    Runner = NrunRunnerType.SetPlaceOfRevival,
-                    Type = type,
-                    VisualType = VisualType.Npc,
-                    VisualId = 1,
-                });
 
         private Task NrunIsHandledWithType_AndNullTarget(short type) =>
             _handler.HandleAsync(_session, null,

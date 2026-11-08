@@ -417,7 +417,8 @@ public class MapWorld : IDisposable
             new SpeedComponent(speed),
             new DigestionComponent(new DigestionState()),
             new PendingDelayComponent(null, Instant.MinValue, null),
-            new WalkAllowanceComponent(0)
+            new WalkAllowanceComponent(0),
+            new NpcDialogComponent(null)
         );
         return entity;
     }
@@ -458,6 +459,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, digestion);
         _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue, null));
         _world.Add(entity, new WalkAllowanceComponent(0));
+        _world.Add(entity, new NpcDialogComponent(null));
         return entity;
     }
 

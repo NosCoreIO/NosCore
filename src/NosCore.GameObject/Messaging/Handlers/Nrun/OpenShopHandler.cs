@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -18,9 +19,11 @@ using Microsoft.Extensions.Logging;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class OpenShopHandler(ILogger<OpenShopHandler> logger) : INrunEventHandler
+    public sealed class OpenShopHandler(ILogger<OpenShopHandler> logger, INpcDialogService npcDialogService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.ProbabilityUIs;
+
+        public bool RequiresNpc => true;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
@@ -39,6 +42,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return Task.CompletedTask;
             }
 
+            npcDialogService.Open(session.Character, npc, NpcDialogWindow.Upgrade);
             return session.SendPacketAsync(new WopenPacket
             {
                 Type = (WindowType)raw,

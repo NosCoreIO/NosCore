@@ -13,17 +13,21 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Services.NpcDialogService;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class OpenBankHandler(IBankService bankService) : INrunEventHandler
+    public sealed class OpenBankHandler(IBankService bankService, INpcDialogService npcDialogService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.OpenBankFacilities;
 
+        public bool RequiresNpc => true;
+
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (target == null)
+            if (target is not NpcComponentBundle npc)
             {
                 return;
             }
@@ -39,6 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
+            npcDialogService.Open(character, npc, NpcDialogWindow.Bank);
             await session.SendPacketAsync(character.GenerateGb(BankActionType.OpenBank, bankService));
         }
     }

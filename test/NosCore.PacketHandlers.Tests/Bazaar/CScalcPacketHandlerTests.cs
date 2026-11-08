@@ -29,6 +29,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
@@ -47,11 +49,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session.WithNpcAt(100, 1, 1);
+            Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             ItemProvider = new Mock<IItemGenerationService>();
             ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             CScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                BazaarHttpClient.Object, ItemProvider.Object, Logger, ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                BazaarHttpClient.Object, ItemProvider.Object, Logger, ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
 
             BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new BazaarLink

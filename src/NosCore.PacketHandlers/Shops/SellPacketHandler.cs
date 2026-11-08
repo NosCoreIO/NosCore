@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
@@ -19,11 +20,17 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
-    public class SellPacketHandler(IOptions<WorldConfiguration> worldConfiguration) : PacketHandler<SellPacket>,
+    public class SellPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
+            INpcDialogService npcDialogService) : PacketHandler<SellPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SellPacket sellPacket, ClientSession clientSession)
         {
+            if (npcDialogService.FindOpenNpc(clientSession.Character, NpcDialogWindow.Shop) == null)
+            {
+                return;
+            }
+
             var type = (NoscorePocketType)sellPacket.Data;
 
             if (sellPacket.Amount <= 0)

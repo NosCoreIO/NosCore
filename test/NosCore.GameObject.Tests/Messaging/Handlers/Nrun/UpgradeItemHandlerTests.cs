@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new UpgradeItemHandler();
+            _handler = new UpgradeItemHandler(TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]

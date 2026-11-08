@@ -24,6 +24,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.GetXQuestFromDialog2Quest;
 
+        public bool RequiresNpc => true;
+
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             if (target is not INonPlayableEntity { NpcMonster: { } npc } || packet.Type is not { } questId)

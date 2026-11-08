@@ -8,12 +8,17 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.BDD.Steps;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Shops
@@ -22,7 +27,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
     public class BuyPacketHandlerTests
     {
         private BuyPacketHandler Handler = null!;
+        private const int ShopNpcId = 100;
         private ClientSession Session = null!;
+        private ClientSession Seller = null!;
         private readonly ILogger<BuyPacketHandler> Logger = new Mock<ILogger<BuyPacketHandler>>().Object;
 
         [TestInitialize]
@@ -35,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.WorldConfiguration,
-                TestHelpers.Instance.GenerateItemProvider());
+                TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -67,6 +74,133 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Then(NoErrorPacketShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task BuyingFromAnOpenNpcShopNearbySucceeds()
+        {
+            await new Spec("Buying from the NPC shop the player opened and still stands at takes the price")
+                .Given(AShopNpcStandsAt_, (short)2, (short)2)
+                .And(CharacterHasGold_, 1_000L)
+                .And(TheShopWindowWasOpenedAtTheNpc)
+                .WhenAsync(BuyingFromTheNpc)
+                .Then(GoldShouldBe_, 900L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingWithoutOpeningTheNpcShopIsIgnored()
+        {
+            await new Spec("Buying from an NPC shop that was never opened does nothing")
+                .Given(AShopNpcStandsAt_, (short)2, (short)2)
+                .And(CharacterHasGold_, 1_000L)
+                .WhenAsync(BuyingFromTheNpc)
+                .Then(GoldShouldBe_, 1_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingAfterWalkingAwayFromTheNpcShopIsIgnored()
+        {
+            await new Spec("Buying from an NPC shop the player has walked away from does nothing")
+                .Given(AShopNpcStandsAt_, (short)2, (short)2)
+                .And(CharacterHasGold_, 1_000L)
+                .And(TheShopWindowWasOpenedAtTheNpc)
+                .And(CharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(BuyingFromTheNpc)
+                .Then(GoldShouldBe_, 1_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingFromANearbyPlayerShopSucceeds()
+        {
+            await new Spec("Buying from a player shop opened next to its owner takes the price")
+                .GivenAsync(APlayerShopStandsAt_, (short)1, (short)1)
+                .And(CharacterHasGold_, 1_000L)
+                .And(TheShopWindowWasOpenedAtThePlayer)
+                .WhenAsync(BuyingFromThePlayer)
+                .Then(GoldShouldBe_, 900L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingFromAPlayerShopOnAnotherMapIsIgnored()
+        {
+            await new Spec("Buying from a player shop on another map does nothing")
+                .GivenAsync(APlayerShopStandsAt_, (short)1, (short)1)
+                .And(CharacterHasGold_, 1_000L)
+                .And(TheShopWindowWasOpenedAtThePlayer)
+                .And(TheSellerIsOnAnotherMap)
+                .WhenAsync(BuyingFromThePlayer)
+                .Then(GoldShouldBe_, 1_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingFromAPlayerShopWithoutOpeningItIsIgnored()
+        {
+            await new Spec("Buying from a player shop that was never opened does nothing")
+                .GivenAsync(APlayerShopStandsAt_, (short)1, (short)1)
+                .And(CharacterHasGold_, 1_000L)
+                .WhenAsync(BuyingFromThePlayer)
+                .Then(GoldShouldBe_, 1_000L)
+                .ExecuteAsync();
+        }
+
+        private static Shop AShop()
+        {
+            var shopItems = new ConcurrentDictionary<int, ShopItem>();
+            shopItems[0] = new ShopItem
+            {
+                Slot = 0,
+                Price = 100,
+                ItemInstance = TestHelpers.Instance.GenerateItemProvider().Create(1012, 1)
+            };
+            return new Shop { ShopItems = shopItems };
+        }
+
+        private void AShopNpcStandsAt_(short x, short y)
+        {
+            var npc = Session.WithNpcAt(ShopNpcId, x, y);
+            npc.Shop = AShop();
+        }
+
+        private async Task APlayerShopStandsAt_(short x, short y)
+        {
+            Seller = await TestHelpers.Instance.GenerateSessionAsync();
+            Seller.WalkTo(x, y);
+            Seller.Character.Shop = AShop();
+            Seller.IsRegistered();
+        }
+
+        private void CharacterHasGold_(long gold) => Session.Character.Gold = gold;
+
+        private void CharacterWalksTo_(short x, short y) => Session.WalkTo(x, y);
+
+        private void TheShopWindowWasOpenedAtTheNpc() => Session.WithWindowOpenedAt(ShopNpcId, NpcDialogWindow.Shop);
+
+        private void TheShopWindowWasOpenedAtThePlayer() =>
+            TestHelpers.Instance.NpcDialogService.Open(Session.Character, Seller.Character, NpcDialogWindow.Shop);
+
+        private void TheSellerIsOnAnotherMap() => Seller.Character.MapInstanceId = Guid.NewGuid();
+
+        private Task BuyingFromTheNpc() => Handler.ExecuteAsync(new BuyPacket
+        {
+            VisualType = VisualType.Npc,
+            VisualId = ShopNpcId,
+            Slot = 0,
+            Amount = 1
+        }, Session);
+
+        private Task BuyingFromThePlayer() => Handler.ExecuteAsync(new BuyPacket
+        {
+            VisualType = VisualType.Player,
+            VisualId = Seller.Character.VisualId,
+            Slot = 0,
+            Amount = 1
+        }, Session);
+
+        private void GoldShouldBe_(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
 
         private void CharacterIsOnMap()
         {

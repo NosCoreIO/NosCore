@@ -16,6 +16,10 @@ using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Threading.Tasks;
+using NosCore.Tests.Shared.BDD.Steps;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShopService;
+using System.Linq;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -39,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 Logger,
                 DignityService.Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -71,6 +75,43 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Then(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ShoppingWithoutTalkingToTheNpcIsIgnored()
+        {
+            await new Spec("Shopping at an NPC whose dialog was never opened sends no shop")
+                .Given(AShopNpcStandsNextToTheCharacter)
+                .WhenAsync(ShoppingFromTheShopNpc)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ShoppingAfterTalkingToTheNpcSendsTheShop()
+        {
+            await new Spec("Shopping at an NPC the character is talking to sends its shop")
+                .Given(AShopNpcStandsNextToTheCharacter)
+                .And(TheNpcsDialogIsOpen)
+                .WhenAsync(ShoppingFromTheShopNpc)
+                .Then(TheShopShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void AShopNpcStandsNextToTheCharacter()
+        {
+            var npc = Session.WithNpcAt(100, 1, 1);
+            var shopItems = new System.Collections.Concurrent.ConcurrentDictionary<int, ShopItem>();
+            shopItems[0] = new ShopItem { Slot = 0, Price = 100, ItemInstance = TestHelpers.Instance.GenerateItemProvider().Create(1012, 1) };
+            npc.Shop = new Shop { ShopItems = shopItems };
+        }
+
+        private void TheNpcsDialogIsOpen() => Session.WithWindowOpenedAt(100, NpcDialogWindow.Conversation);
+
+        private Task ShoppingFromTheShopNpc() =>
+            Handler.ExecuteAsync(new ShoppingPacket { VisualType = VisualType.Npc, VisualId = 100 }, Session);
+
+        private void TheShopShouldBeSent() =>
+            Assert.IsTrue(Session.LastPackets.Any(p => p is NosCore.Packets.ServerPackets.Shop.NInvPacket));
 
         private void CharacterIsOnMap()
         {

@@ -24,6 +24,7 @@ using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.NpcDialogService;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 {
@@ -41,7 +42,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.Reputation = 0;
-            _handler = new CuarryBankSavingsBookHandler(new BankService());
+            _handler = new CuarryBankSavingsBookHandler(new BankService(), TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -64,8 +65,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Then(SavingsBookWindowShouldShow_Units, 2_000L)
                 .And(BalanceLineShouldShow_Units, 2_000L)
                 .And(BookCountShouldBe_, 1)
+                .And(TheBankShouldBeUsable)
                 .ExecuteAsync();
         }
+
+        private void TheBankShouldBeUsable() =>
+            Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(_session.Character, NpcDialogWindow.Bank));
 
         private void BookInInventoryWithEffect_(ItemEffectType effect)
         {

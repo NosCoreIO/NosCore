@@ -17,6 +17,7 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.BDD.Steps;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
@@ -31,6 +32,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private NrunPacketHandler _nrunPacketHandler = null!;
         private ClientSession _session = null!;
         private Mock<INrunEventHandler> _fakeHandlerMock = null!;
+        private Mock<INrunEventHandler> _npcHandlerMock = null!;
+        private RequestNpcPacketHandler _requestNpcPacketHandler = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,11 +45,24 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _fakeHandlerMock
                 .Setup(h => h.HandleAsync(It.IsAny<ClientSession>(), It.IsAny<IAliveEntity?>(), It.IsAny<NrunPacket>()))
                 .Returns(Task.CompletedTask);
+            _npcHandlerMock = new Mock<INrunEventHandler>();
+            _npcHandlerMock.SetupGet(h => h.Runner).Returns(NrunRunnerType.OpenBankFacilities);
+            _npcHandlerMock.SetupGet(h => h.RequiresNpc).Returns(true);
+            _npcHandlerMock
+                .Setup(h => h.HandleAsync(It.IsAny<ClientSession>(), It.IsAny<IAliveEntity?>(), It.IsAny<NrunPacket>()))
+                .Returns(Task.CompletedTask);
             _nrunPacketHandler = new NrunPacketHandler(
                 Logger,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
-                new[] { _fakeHandlerMock.Object });
+                TestHelpers.Instance.NpcDialogService,
+                new[] { _fakeHandlerMock.Object, _npcHandlerMock.Object });
+            _requestNpcPacketHandler = new RequestNpcPacketHandler(
+                new Mock<ILogger<RequestNpcPacketHandler>>().Object,
+                TestHelpers.Instance.LogLanguageLocalizer,
+                TestHelpers.Instance.SessionRegistry,
+                new Mock<Wolverine.IMessageBus>().Object,
+                TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -95,6 +111,110 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Then(HandlerShouldBeCalled)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task NpcChoiceAfterTalkingToTheNpcNearbyIsHandled()
+        {
+            await new Spec("A dialog choice sent to the NPC the character is talking to, next to it, is handled")
+                .Given(NpcsStandAt_And_, (short)1, (short)1)
+                .AndAsync(TheCharacterTalksToNpc_, 100)
+                .WhenAsync(TheCharacterPicksAChoiceOfNpc_, 100L)
+                .Then(NpcHandlerShouldBeCalledWithNpc_, 100L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NpcChoiceWithoutTalkingToTheNpcIsIgnored()
+        {
+            await new Spec("A dialog choice sent to an NPC whose dialog was never opened is ignored")
+                .Given(NpcsStandAt_And_, (short)1, (short)1)
+                .WhenAsync(TheCharacterPicksAChoiceOfNpc_, 100L)
+                .Then(NpcHandlerShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NpcChoiceAfterWalkingAwayIsIgnored()
+        {
+            await new Spec("A dialog choice sent after walking away from the NPC is ignored")
+                .Given(NpcsStandAt_And_, (short)1, (short)1)
+                .AndAsync(TheCharacterTalksToNpc_, 100)
+                .And(TheCharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(TheCharacterPicksAChoiceOfNpc_, 100L)
+                .Then(NpcHandlerShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NpcChoiceSentToAnotherNpcIsIgnored()
+        {
+            await new Spec("A dialog choice sent to another NPC than the one talked to is ignored")
+                .Given(NpcsStandAt_And_, (short)1, (short)1)
+                .AndAsync(TheCharacterTalksToNpc_, 100)
+                .WhenAsync(TheCharacterPicksAChoiceOfNpc_, 101L)
+                .Then(NpcHandlerShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NpcChoiceFromADialogOpenedOnAnotherMapIsIgnored()
+        {
+            await new Spec("A dialog choice whose dialog was opened on another map is ignored")
+                .Given(NpcsStandAt_And_, (short)1, (short)1)
+                .AndAsync(TheCharacterTalksToNpc_, 100)
+                .And(TheDialogWasLeftOnAnotherMap)
+                .WhenAsync(TheCharacterPicksAChoiceOfNpc_, 100L)
+                .Then(NpcHandlerShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task NpcChoiceSentToAPlayerIsIgnored()
+        {
+            await new Spec("A dialog choice naming a player instead of an NPC is ignored")
+                .Given(PlayerIsRegistered)
+                .WhenAsync(TheCharacterPicksAChoiceNamingAPlayer)
+                .Then(NpcHandlerShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingFromTooFarDoesNotOpenTheDialog()
+        {
+            await new Spec("Talking to an NPC out of reach opens no dialog, so its choices are ignored")
+                .Given(NpcsStandAt_And_, (short)20, (short)20)
+                .AndAsync(TheCharacterTalksToNpc_, 100)
+                .WhenAsync(TheCharacterPicksAChoiceOfNpc_, 100L)
+                .Then(NpcHandlerShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        private void NpcsStandAt_And_(short x, short y) =>
+            _session.WithNpcs(
+                new NosCore.Data.Dto.MapNpcDto { MapNpcId = 100, MapX = x, MapY = y, Dialog = 1 },
+                new NosCore.Data.Dto.MapNpcDto { MapNpcId = 101, MapX = x, MapY = y, Dialog = 1 });
+
+        private Task TheCharacterTalksToNpc_(int npcId) => _requestNpcPacketHandler.ExecuteAsync(
+            new RequestNpcPacket { Type = VisualType.Npc, TargetId = npcId }, _session);
+
+        private void TheCharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
+
+        private void TheDialogWasLeftOnAnotherMap() => _session.WithDialogLeftOnAnotherMap();
+
+        private Task TheCharacterPicksAChoiceOfNpc_(long npcId) => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.OpenBankFacilities, VisualType = VisualType.Npc, VisualId = npcId, Type = 0 }, _session);
+
+        private Task TheCharacterPicksAChoiceNamingAPlayer() => _nrunPacketHandler.ExecuteAsync(
+            new NrunPacket { Runner = NrunRunnerType.OpenBankFacilities, VisualType = VisualType.Player, VisualId = _session.Character.VisualId, Type = 0 }, _session);
+
+        private void NpcHandlerShouldBeCalledWithNpc_(long npcId) =>
+            _npcHandlerMock.Verify(h => h.HandleAsync(_session,
+                It.Is<IAliveEntity?>(t => t != null && t.VisualType == VisualType.Npc && t.VisualId == npcId),
+                It.IsAny<NrunPacket>()), Times.Once);
+
+        private void NpcHandlerShouldNotBeCalled() =>
+            _npcHandlerMock.Verify(h => h.HandleAsync(
+                It.IsAny<ClientSession>(), It.IsAny<IAliveEntity?>(), It.IsAny<NrunPacket>()), Times.Never);
 
         private void NpcExistsOnMap()
         {

@@ -18,6 +18,8 @@ using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
@@ -33,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
-            CskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock);
+            CskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -64,6 +66,31 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .Then(NoErrorShouldOccur)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task TheMedalBazaarStaysUsableAwayFromAnyNpc()
+        {
+            await new Spec("A bazaar opened with a medal is usable without any NPC nearby")
+                .Given(CharacterHasBazaarMedal)
+                .WhenAsync(OpeningBazaar)
+                .And(CharacterWalksTo_, (short)30, (short)30)
+                .Then(TheBazaarShouldBeUsable_, true)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WithoutAMedalTheBazaarStaysClosed()
+        {
+            await new Spec("Without a medal the bazaar skill opens nothing")
+                .WhenAsync(OpeningBazaar)
+                .Then(TheBazaarShouldBeUsable_, false)
+                .ExecuteAsync();
+        }
+
+        private void CharacterWalksTo_(short x, short y) => Session.WalkTo(x, y);
+
+        private void TheBazaarShouldBeUsable_(bool usable) =>
+            Assert.AreEqual(usable, TestHelpers.Instance.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.Bazaar));
 
         private void CharacterIsInShop()
         {

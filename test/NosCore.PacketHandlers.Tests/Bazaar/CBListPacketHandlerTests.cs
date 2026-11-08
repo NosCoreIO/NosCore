@@ -23,6 +23,8 @@ using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
@@ -38,12 +40,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session.WithNpcAt(100, 1, 1);
+            Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             var items = new List<ItemDto>
             {
                 new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true}
             };
-            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, items, TestHelpers.Instance.Clock);
+            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, items, TestHelpers.Instance.Clock, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -111,6 +115,21 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             CollectionAssert.AreEqual(Enumerable.Range(51, 10).Select(i => (long)i).ToList(),
                 packet!.Items!.Select(s => s!.AuctionId).ToList());
         }
+
+        [TestMethod]
+        public async Task ListingWithoutTheBazaarOpenSendsNothing()
+        {
+            await new Spec("Listing the bazaar without its window open sends no list")
+                .Given(BazaarHasValidItems)
+                .And(NoBazaarWindowIsOpen)
+                .WhenAsync(ListingBazaarItems)
+                .Then(NoListShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void NoBazaarWindowIsOpen() => Session.Character.NpcDialog = null;
+
+        private void NoListShouldBeSent() => Assert.IsFalse(Session.LastPackets.Any(s => s is RcbListPacket));
 
         private void BazaarHasNoItems()
         {

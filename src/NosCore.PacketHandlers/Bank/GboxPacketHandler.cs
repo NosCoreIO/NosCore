@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bank;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
@@ -19,13 +20,19 @@ using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.PacketHandlers.Bank
 {
-    public class GboxPacketHandler(IBankService bankService, IOptions<WorldConfiguration> worldConfiguration)
+    public class GboxPacketHandler(IBankService bankService, IOptions<WorldConfiguration> worldConfiguration,
+            INpcDialogService npcDialogService)
         : PacketHandler<GboxPacket>, IWorldPacketHandler
     {
         private const long GoldPerUnit = 1000;
 
         public override async Task ExecuteAsync(GboxPacket packet, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bank))
+            {
+                return;
+            }
+
             var character = clientSession.Character;
             if (packet.Amount <= 0 || packet.Type is not (BankActionType.DepositGold or BankActionType.WithdrawGold))
             {

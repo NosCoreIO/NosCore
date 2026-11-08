@@ -11,6 +11,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -20,7 +21,8 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Shops
 {
     public class ShoppingPacketHandler(ILogger<ShoppingPacketHandler> logger, IDignityService dignityService,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRegistry sessionRegistry,
+            INpcDialogService npcDialogService)
         : PacketHandler<ShoppingPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(ShoppingPacket shoppingPacket, ClientSession clientSession)
@@ -58,10 +60,15 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
+            if (!npcDialogService.IsOpenWith(clientSession.Character, aliveEntity))
+            {
+                return;
+            }
+
             if (aliveEntity.Shop?.ShopItems.IsEmpty == false)
             {
-                await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType))
-                    ;
+                npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
+                await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType));
             }
         }
     }

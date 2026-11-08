@@ -30,6 +30,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         public NrunRunnerType Runner => NrunRunnerType.PetManagement;
 
+        public bool RequiresNpc => false;
+
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             var character = session.Character;

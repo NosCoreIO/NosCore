@@ -16,5 +16,9 @@ public interface INrunEventHandler
 {
     NrunRunnerType Runner { get; }
 
+    // A choice offered in an NPC's dialog: only taken from an NPC on the player's map whose dialog
+    // the player opened and who still stands within reach.
+    bool RequiresNpc { get; }
+
     Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet);
 }

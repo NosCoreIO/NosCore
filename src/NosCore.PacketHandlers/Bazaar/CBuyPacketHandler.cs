@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -30,11 +31,17 @@ namespace NosCore.PacketHandlers.Bazaar
 {
     public class CBuyPacketHandler(IBazaarHub bazaarHttpClient, IItemGenerationService itemProvider,
             ILogger<CBuyPacketHandler> logger,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            INpcDialogService npcDialogService)
         : PacketHandler<CBuyPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CBuyPacket packet, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bazaar))
+            {
+                return;
+            }
+
             if (packet.Amount <= 0)
             {
                 return;

@@ -38,6 +38,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog;
 
+        public bool RequiresNpc => false;
+
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
             TsDialogAdvance.AdvanceAsync(questService, session);
     }
@@ -46,6 +48,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     public sealed class FinishedTsDialog2Handler(IQuestService questService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTSDialog2;
+
+        public bool RequiresNpc => false;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
             TsDialogAdvance.AdvanceAsync(questService, session);
@@ -56,6 +60,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTs;
 
+        public bool RequiresNpc => false;
+
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
             TsDialogAdvance.AdvanceAsync(questService, session);
     }
@@ -64,6 +70,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     public sealed class FinishedTs2Handler(IQuestService questService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.FinishedTS2;
+
+        public bool RequiresNpc => false;
 
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
             TsDialogAdvance.AdvanceAsync(questService, session);

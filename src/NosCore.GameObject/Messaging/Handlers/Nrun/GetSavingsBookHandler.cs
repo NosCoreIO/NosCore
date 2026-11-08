@@ -17,6 +17,7 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
@@ -27,10 +28,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
         public NrunRunnerType Runner => NrunRunnerType.GetSavingsBook;
 
+        public bool RequiresNpc => true;
+
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             var character = session.Character;
-            if (target == null || character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == SavingsBookVNum))
+            if (target is not NpcComponentBundle || character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == SavingsBookVNum))
             {
                 return;
             }

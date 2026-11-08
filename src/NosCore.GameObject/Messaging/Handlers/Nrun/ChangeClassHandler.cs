@@ -22,6 +22,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
@@ -38,9 +39,11 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.ChangeClass;
 
+        public bool RequiresNpc => true;
+
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (packet.Type is null or <= 0 or >= 4 || target == null)
+            if (packet.Type is null or <= 0 or >= 4 || target is not NpcComponentBundle)
             {
                 return;
             }

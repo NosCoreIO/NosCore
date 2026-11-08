@@ -13,6 +13,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -24,6 +25,7 @@ namespace NosCore.PacketHandlers.Shops
             ILogger<NrunPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry,
+            INpcDialogService npcDialogService,
             IEnumerable<INrunEventHandler> handlers)
         : PacketHandler<NrunPacket>, IWorldPacketHandler
     {
@@ -36,17 +38,34 @@ namespace NosCore.PacketHandlers.Shops
                 return Task.CompletedTask;
             }
 
+            var character = session.Character;
+            if (handler.RequiresNpc)
+            {
+                var npc = packet.VisualType == VisualType.Npc
+                    ? character.MapInstance.FindNpc(s => s.VisualId == packet.VisualId)
+                    : null;
+                if (npc is not { } dialogNpc || !npcDialogService.IsOpenWith(character, dialogNpc))
+                {
+                    logger.LogDebug("n_run {Runner} without an open dialog with NPC {VisualId}", packet.Runner, packet.VisualId);
+                    return Task.CompletedTask;
+                }
+
+                return handler.HandleAsync(session, dialogNpc, packet);
+            }
+
             IAliveEntity? target;
             switch (packet.VisualType)
             {
                 case VisualType.Player:
-                    target = sessionRegistry.TryGetCharacter(s => s.VisualId == packet.VisualId, out var runner) ? runner : null;
+                    target = sessionRegistry.TryGetCharacter(
+                        s => s.VisualId == packet.VisualId && s.MapInstanceId == character.MapInstanceId,
+                        out var player) ? player : null;
                     break;
                 case VisualType.Npc:
-                    target = session.Character.MapInstance.FindNpc(s => s.VisualId == packet.VisualId);
+                    target = character.MapInstance.FindNpc(s => s.VisualId == packet.VisualId);
                     break;
                 case VisualType.Monster:
-                    target = session.Character.MapInstance.FindMonster(s => s.VisualId == packet.VisualId);
+                    target = character.MapInstance.FindMonster(s => s.VisualId == packet.VisualId);
                     break;
                 case null:
                     target = null;

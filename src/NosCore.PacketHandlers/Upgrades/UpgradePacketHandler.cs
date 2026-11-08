@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Shared.I18N;
@@ -23,11 +24,17 @@ namespace NosCore.PacketHandlers.Upgrades
     public sealed class UpgradePacketHandler(
         IEnumerable<IUpgradeOperation> operations,
         ILogger<UpgradePacketHandler> logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+        INpcDialogService npcDialogService)
         : PacketHandler<UpgradePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UpgradePacket packet, ClientSession session)
         {
+            if (!npcDialogService.IsOpen(session.Character, NpcDialogWindow.Upgrade))
+            {
+                return;
+            }
+
             var operation = operations.FirstOrDefault(o => o.Kind == packet.UpgradeType);
             if (operation == null)
             {

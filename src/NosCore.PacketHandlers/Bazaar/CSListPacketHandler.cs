@@ -8,6 +8,7 @@ using NodaTime;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Auction;
@@ -17,11 +18,17 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CSListPacketHandler(IBazaarHub bazaarHttpClient, IClock clock) : PacketHandler<CSListPacket>,
+    public class CSListPacketHandler(IBazaarHub bazaarHttpClient, IClock clock,
+            INpcDialogService npcDialogService) : PacketHandler<CSListPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CSListPacket packet, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bazaar))
+            {
+                return;
+            }
+
             var list = new List<RcsListPacket.RcsListElementPacket?>();
             var bzlist = await bazaarHttpClient.GetBazaar(-1, packet.Index, 50, 0, 0, 0, 0, 0,
                 clientSession.Character.CharacterId);
