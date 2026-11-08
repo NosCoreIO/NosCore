@@ -29,6 +29,14 @@ namespace NosCore.Instances.Scripting
 
         private async Task<IInstanceScript> CompileAsync(string name)
         {
+            // A script runs with the server's full rights, so only files directly in the
+            // instances folder are loaded, whatever the database row names.
+            if (string.IsNullOrWhiteSpace(name) || Path.GetFileName(name) != name
+                || name.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || name.Contains(".."))
+            {
+                throw new ArgumentException($"{name} is not a script name.", nameof(name));
+            }
+
             var path = Path.Combine(folder, name + ".csx");
             var options = ScriptOptions.Default
                 .WithReferences(typeof(IInstanceRun).Assembly, typeof(Game18NConstString).Assembly)
