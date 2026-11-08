@@ -475,6 +475,34 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Food and a snack eaten together both heal
 - [ ] At full HP, food and snacks are still used up
 
+### Ordering NosMates
+
+Have a pet and a partner out, and a second client on the same map watching.
+
+- [ ] Order the pet to a free cell a few steps away: it walks there on your screen and on the
+      second client's, and stays there until you walk
+- [ ] Order the pet and the partner together: both walk, each to its own cell
+- [ ] Walk after ordering: both NosMates come back to your side
+- [ ] Order the pet onto a wall or into water: it does not move on the second client's screen
+- [ ] Become invisible (`$Invisible`) and order the pet: the second client does not see it move,
+      and you still do
+- [ ] Send the pet back to the Miniland, then try to order it from the party panel: nothing
+      happens
+- [ ] Become visible again and take the pet back out with you, then make it talk: a speech
+      bubble with your sentence shows over the pet on both screens, and the sentence is not cut
+      at its first space
+- [ ] With a pet that has skills of its own (a pet without any only sends a move order when a
+      monster is clicked), select a monster next to the pet and use one of the pet's skills on
+      it: the pet plays the skill, the damage number shows on both screens and the monster's bar
+      drops
+- [ ] Use the same pet skill again at once: nothing happens until its cooldown is over
+- [ ] Kill a monster with a pet skill: it collapses as it does from your own hits, and what falls
+      is what an ordinary kill of the same monster on the same map drops (drops are rolled, so
+      compare a few kills); the pet's share of the damage gives no experience yet, to you or the
+      pet
+- [ ] Use a pet skill on a monster across the map: the pet does not hit it
+- [ ] Use a pet skill on another player or on an NPC: nothing happens
+
 ### Wing and Amulet of Return
 
 - [ ] Away from the village, use a Wing of Return (`$CreateItem 2070`): it asks "Do you want to
