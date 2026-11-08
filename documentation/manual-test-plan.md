@@ -266,6 +266,13 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Each failed or protected attempt from +10 fills the pity gauge bar in the item
       window's corner; a full bar makes the next attempt succeed and empties it
 - [ ] Below +10 the bar never appears
+- [ ] With a Gold Upgrade Scroll (`$CreateItem 5369`) in the bag, upgrade through the gold
+      scroll option: one gold scroll is used, any plain scrolls (1218) stay, and a failed
+      attempt keeps the item instead of destroying it
+- [ ] With plain scrolls but no gold scroll, the gold scroll option is refused with the
+      missing ingredients message and nothing is taken
+- [ ] Note the gold and Cella Powder the gold scroll option takes: the server charges the same
+      as the plain protected upgrade, and a lower price in the client would mean it should not
 
 ### Specialist points
 

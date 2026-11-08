@@ -38,8 +38,11 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     public const short DimensionalForceVNum = 2774;
     public const short ShardVNum = 2748;
     public const short NormalScrollVNum = 1218;
+    public const short GoldScrollVNum = 5369;
 
     protected abstract bool IsProtected { get; }
+
+    protected virtual short ProtectionScrollVNum => NormalScrollVNum;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.UpgradeSuccessful;
 
@@ -119,7 +122,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         }
         if (IsProtected)
         {
-            materials.Add(new MaterialCost(NormalScrollVNum, 1));
+            materials.Add(new MaterialCost(ProtectionScrollVNum, 1));
         }
 
         return new UpgradeContext(
