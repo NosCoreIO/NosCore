@@ -29,5 +29,10 @@ namespace NosCore.GameObject.Services.QuestService
         // Subscribers to other domain events (move, kill, item-used) should
         // call this once they have decided a quest is done.
         Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest);
+
+        // Validates or achieves the script step the character is currently on.
+        Task RunCurrentScriptStepAsync(ICharacterEntity character, QuestActionType type);
+
+        Task GiveUpQuestAsync(ICharacterEntity character, int questId);
     }
 }
