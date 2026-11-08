@@ -1,6 +1,6 @@
 WebApi:
   Host: ${WEBAPI_HOST,http://localhost}
-  Port: 5000
+  Port: ${MASTER_PORT,5000}
   Password: ${MASTER_PASSWORD,NosCorePassword}
 Language: en
 Database:
