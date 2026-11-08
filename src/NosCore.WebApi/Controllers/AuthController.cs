@@ -48,20 +48,17 @@ namespace NosCore.WebApi.Controllers
             }
 
             var account = await accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity);
-            if (account == null)
+            if (account == null
+                || (account.Password?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password))
+                    && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password, account.NewAuthSalt!))))
             {
-                return BadRequest(logLanguage[LogLanguageKey.AUTH_ERROR]);
+                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
+
             var tfa = new TwoFactorAuth();
             if (!string.IsNullOrEmpty(account.MfaSecret) && !tfa.VerifyCode(account.MfaSecret, session.Mfa))
             {
                 return BadRequest(logLanguage[LogLanguageKey.MFA_INCORRECT]);
-            }
-
-            if (account.Password?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password))
-                && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password, account.NewAuthSalt!)))
-            {
-                return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
 
             account.Language = Enum.Parse<RegionType>(session.GfLang?.ToUpper(CultureInfo.CurrentCulture) ?? "");

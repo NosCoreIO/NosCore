@@ -57,17 +57,7 @@ namespace NosCore.GameObject.Services.LoginService
                     username = await authHttpClient.GetAwaitingConnectionAsync(null, passwordToken, clientSession.SessionId);
                 }
 
-                var acc = await accountDao.FirstOrDefaultAsync(s => s.Name.ToLower() == (username ?? "").ToLower());
-
-                if ((acc != null) && (acc.Name != username))
-                {
-                    await clientSession.SendPacketAsync(new FailcPacket
-                    {
-                        Type = LoginFailType.WrongCaps
-                    });
-                    await clientSession.DisconnectAsync();
-                    return;
-                }
+                var acc = await accountDao.FirstOrDefaultAsync(s => s.Name == username);
 
                 if ((acc == null)
                     || (!useApiAuth && !string.Equals(acc.Password?.ToUpper(), passwordToken, StringComparison.Ordinal)))

@@ -109,11 +109,11 @@ namespace NosCore.WebApi.Tests.ApiTests
         }
 
         [TestMethod]
-        public async Task ConnectUserWithInvalidAccountShouldFail()
+        public async Task ConnectUserWithUnknownAccountGetsTheSameAnswerAsAWrongPassword()
         {
-            await new Spec("Connect user with invalid account should fail")
+            await new Spec("Connect user with unknown account gets the same answer as a wrong password")
                 .WhenAsync(UserConnectsWithInvalidAccount)
-                .Then(ShouldReturnAuthError)
+                .Then(ShouldReturnAuthIncorrectError)
                 .ExecuteAsync();
         }
 
@@ -121,13 +121,10 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             Result = await Controller.ConnectUserAsync(new ApiSession
             {
-                Identity = Session.Account.Name + "abc"
+                Identity = Session.Account.Name + "abc",
+                GfLang = "EN",
+                Password = "test"
             });
-        }
-
-        private void ShouldReturnAuthError()
-        {
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_ERROR])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
         }
 
         [TestMethod]
@@ -154,6 +151,8 @@ namespace NosCore.WebApi.Tests.ApiTests
             Result = await Controller.ConnectUserAsync(new ApiSession
             {
                 Identity = Session.Account.Name,
+                GfLang = "EN",
+                Password = "test",
                 Mfa = Tfa!.GetCode(string.Concat(Session.Account.MfaSecret!.Reverse())),
             });
         }
@@ -164,11 +163,32 @@ namespace NosCore.WebApi.Tests.ApiTests
         }
 
         [TestMethod]
+        public async Task ConnectUserWithWrongPasswordIsRefusedBeforeMfaIsChecked()
+        {
+            await new Spec("Connect user with wrong password is refused before MFA is checked")
+                .GivenAsync(UserHasMfaEnabled)
+                .WhenAsync(UserConnectsWithWrongPasswordAndInvalidMfaCode)
+                .Then(ShouldReturnAuthIncorrectError)
+                .ExecuteAsync();
+        }
+
+        private async Task UserConnectsWithWrongPasswordAndInvalidMfaCode()
+        {
+            Result = await Controller.ConnectUserAsync(new ApiSession
+            {
+                Identity = Session.Account.Name,
+                GfLang = "EN",
+                Password = "test2",
+                Mfa = Tfa!.GetCode(string.Concat(Session.Account.MfaSecret!.Reverse())),
+            });
+        }
+
+        [TestMethod]
         public async Task ConnectUserWithoutMfaShouldSucceed()
         {
             await new Spec("Connect user without MFA should succeed")
                 .WhenAsync(UserConnectsWithoutMfa)
-                .Then(ShouldNotReturnMfaIncorrectError)
+                .Then(ConnectionShouldSucceed)
                 .ExecuteAsync();
         }
 
@@ -176,13 +196,16 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             Result = await Controller.ConnectUserAsync(new ApiSession
             {
-                Identity = Session.Account.Name
+                Identity = Session.Account.Name,
+                GfLang = "EN",
+                Locale = "en-GB",
+                Password = "test"
             });
         }
 
-        private void ShouldNotReturnMfaIncorrectError()
+        private void ConnectionShouldSucceed()
         {
-            Assert.AreNotEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
+            Assert.IsInstanceOfType<OkObjectResult>(Result);
         }
 
         [TestMethod]
@@ -191,7 +214,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             await new Spec("Connect user with valid MFA should succeed")
                 .GivenAsync(UserHasMfaEnabled)
                 .WhenAsync(UserConnectsWithValidMfaCode)
-                .Then(ShouldNotReturnMfaIncorrectError)
+                .Then(ConnectionShouldSucceed)
                 .ExecuteAsync();
         }
 
@@ -200,6 +223,9 @@ namespace NosCore.WebApi.Tests.ApiTests
             Result = await Controller.ConnectUserAsync(new ApiSession
             {
                 Identity = Session.Account.Name,
+                GfLang = "EN",
+                Locale = "en-GB",
+                Password = "test",
                 Mfa = Tfa!.GetCode(Session.Account.MfaSecret!),
             });
         }
