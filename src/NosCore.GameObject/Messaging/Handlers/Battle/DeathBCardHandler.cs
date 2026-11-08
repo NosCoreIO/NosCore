@@ -30,23 +30,28 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             var bcards = catalog.GetDeathBCards(victim.NpcMonster.NpcMonsterVNum);
             if (bcards.Count == 0) return;
 
-            var changed = false;
-            foreach (var bcard in bcards)
+            var changed = await killer.OnMapAsync(() =>
             {
-                switch (bcard.Effect())
+                var adjusted = false;
+                foreach (var bcard in bcards)
                 {
-                    case BCardEffect.SpecialEffectsDecreaseKillerHp:
-                        var damage = killer.MaxHp * bcard.FirstData / 100;
-                        killer.Hp = Math.Max(1, killer.Hp - damage);
-                        changed = true;
-                        break;
-                    case BCardEffect.SpecialEffectsIncreaseKillerHp:
-                        var heal = killer.MaxHp * bcard.FirstData / 100;
-                        killer.Hp = Math.Min(killer.MaxHp, killer.Hp + heal);
-                        changed = true;
-                        break;
+                    switch (bcard.Effect())
+                    {
+                        case BCardEffect.SpecialEffectsDecreaseKillerHp:
+                            var damage = killer.MaxHp * bcard.FirstData / 100;
+                            killer.Hp = Math.Max(1, killer.Hp - damage);
+                            adjusted = true;
+                            break;
+                        case BCardEffect.SpecialEffectsIncreaseKillerHp:
+                            var heal = killer.MaxHp * bcard.FirstData / 100;
+                            killer.Hp = Math.Min(killer.MaxHp, killer.Hp + heal);
+                            adjusted = true;
+                            break;
+                    }
                 }
-            }
+
+                return Task.FromResult(adjusted);
+            });
 
             if (!changed) return;
 
