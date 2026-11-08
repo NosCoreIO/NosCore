@@ -5,6 +5,9 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -14,6 +17,21 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
 {
     //Inspired by https://learn.microsoft.com/en-us/dotnet/standard/serialization/system-text-json/converters-how-to?pivots=dotnet-6-0#support-polymorphic-deserialization
     private JsonSerializerOptions? _payloadOptions;
+
+    private readonly Dictionary<string, Type> _allowedTypes;
+
+    public PolymorphicJsonConverter() : this(typeof(T).Assembly)
+    {
+    }
+
+    // Only concrete implementations of T declared in these assemblies can be named by a payload.
+    public PolymorphicJsonConverter(params Assembly[] messageAssemblies)
+    {
+        _allowedTypes = messageAssemblies
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => typeof(T).IsAssignableFrom(type) && type is { IsAbstract: false, IsInterface: false, ContainsGenericParameters: false })
+            .ToDictionary(type => type.FullName!, StringComparer.Ordinal);
+    }
 
     // The payload keeps the caller's converters (NodaTime among them) but not this one, which would wrap it again.
     private JsonSerializerOptions PayloadOptions(JsonSerializerOptions options)
@@ -58,10 +76,12 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
         {
             throw new JsonException();
         }
-        var type = reader.GetString();
-
-
-        var tp = Type.GetType(type ?? throw new InvalidOperationException());
+        // Assembly-qualified names from older nodes are matched on their type name alone.
+        var typeName = reader.GetString()?.Split(',')[0];
+        if (typeName == null || !_allowedTypes.TryGetValue(typeName, out var tp))
+        {
+            throw new JsonException($"{typeName} is not a {typeof(T).Name} this node accepts");
+        }
 
         reader.Read();
         if (reader.TokenType != JsonTokenType.PropertyName)
@@ -76,7 +96,7 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
             throw new JsonException();
         }
 
-        var rt = (T?)JsonSerializer.Deserialize(ref reader, tp ?? throw new InvalidOperationException(), PayloadOptions(options));
+        var rt = (T?)JsonSerializer.Deserialize(ref reader, tp, PayloadOptions(options));
 
         while (reader.Read())
         {
@@ -87,10 +107,16 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
 
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
     {
+        var type = value?.GetType() ?? throw new InvalidOperationException();
+        if (!_allowedTypes.ContainsKey(type.FullName!))
+        {
+            throw new JsonException($"{type.FullName} is not a {typeof(T).Name} this node accepts");
+        }
+
         writer.WriteStartObject();
-        writer.WriteString("_type", value?.GetType().AssemblyQualifiedName ?? throw new InvalidOperationException());
+        writer.WriteString("_type", type.FullName);
         writer.WritePropertyName("_object");
-        JsonSerializer.Serialize(writer, value, value.GetType(), PayloadOptions(options));
+        JsonSerializer.Serialize(writer, value, type, PayloadOptions(options));
         writer.WriteEndObject();
     }
 }

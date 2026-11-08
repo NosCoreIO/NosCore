@@ -21,9 +21,19 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
     {
         private static readonly Instant Start = Instant.FromUtc(2026, 11, 3, 11, 30);
 
-        public record DatedMessage(Instant At) : IMessage
+        public record UnlistedMessage(Instant At) : IMessage
         {
             public System.Guid Id { get; set; }
+        }
+
+        public class ConstructionProbe
+        {
+            public static int Constructed;
+
+            public ConstructionProbe()
+            {
+                Constructed++;
+            }
         }
 
         private static T RoundTrip<T>(T value)
@@ -44,12 +54,40 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
             Assert.AreEqual(Start, RoundTrip(reply).Value[0].BazaarItem!.DateStart);
         }
 
+        private static IMessage? Read(string typeName)
+        {
+            var options = new JsonSerializerOptions();
+            WolverineHostExtensions.ConfigureMessageSerialization(options);
+            return JsonSerializer.Deserialize<IMessage>($"{{\"_type\":\"{typeName}\",\"_object\":{{}}}}", options);
+        }
+
         [TestMethod]
         public void DatesSurviveAPolymorphicMessage()
         {
-            var message = (DatedMessage)RoundTrip<IMessage>(new DatedMessage(Start));
+            var message = (MailData)RoundTrip<IMessage>(new MailData { ItemInstance = new ItemInstanceDto { ItemDeleteTime = Start } });
 
-            Assert.AreEqual(Start, message.At);
+            Assert.AreEqual(Start, message.ItemInstance!.ItemDeleteTime);
+        }
+
+        [TestMethod]
+        public void MessagesFromOlderNodesNamingTheAssemblyAreRead()
+        {
+            Assert.IsInstanceOfType<DeleteMailData>(Read(typeof(DeleteMailData).AssemblyQualifiedName!));
+        }
+
+        [TestMethod]
+        public void OnlyMessagesDeclaredByNosCoreAreRead()
+        {
+            Assert.ThrowsExactly<JsonException>(() => Read(typeof(UnlistedMessage).AssemblyQualifiedName!));
+        }
+
+        [TestMethod]
+        public void TypesThatAreNotMessagesAreNeverConstructed()
+        {
+            ConstructionProbe.Constructed = 0;
+
+            Assert.ThrowsExactly<JsonException>(() => Read(typeof(ConstructionProbe).AssemblyQualifiedName!));
+            Assert.AreEqual(0, ConstructionProbe.Constructed);
         }
     }
 }
