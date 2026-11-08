@@ -72,7 +72,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 (passwordLessConnection
                     ? await authHttpClient
                         .GetAwaitingConnectionAsync(accountName, password, sessionId)
-                         != null
+                         == "true"
                     : account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
                     true);
 
