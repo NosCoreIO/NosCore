@@ -111,6 +111,17 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         }
 
         [TestMethod]
+        public async Task ListingEquipmentKeepsItsOptions()
+        {
+            await new Spec("Listing equipment keeps its options")
+                .GivenAsync(TheSellerHoldsAWeaponWithAnOptionOfValue_, 7)
+                .And(TheSellerHas_Gold, 1000L)
+                .WhenAsync(TheSellerListsTheWeapon)
+                .Then(TheListedWeaponShouldHaveAnOptionOfValue_, 7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task CollectingUnsoldEquipmentKeepsItsOptions()
         {
             await new Spec("Collecting unsold equipment keeps its options")
@@ -326,6 +337,35 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             {
                 Id = Guid.NewGuid(), WearableInstanceId = weapon, Level = 1, Type = 1, Value = value
             });
+        }
+
+        private async Task TheSellerHoldsAWeaponWithAnOptionOfValue_(int value)
+        {
+            var weapon = TestHelpers.Instance.GenerateItemProvider().Create(1, 1);
+            weapon.Id = Guid.NewGuid();
+            weapon.Item.IsSoldable = true;
+            _seller.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(weapon, _seller.Character.CharacterId), NoscorePocketType.Equipment, 0);
+            await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
+            {
+                Id = Guid.NewGuid(), WearableInstanceId = weapon.Id, Level = 1, Type = 1, Value = value
+            });
+        }
+
+        private Task TheSellerListsTheWeapon() =>
+            new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration, _hub, _master.ItemInstanceDao,
+                    _saveService.Object, NullLogger<CRegPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
+                    TestHelpers.Instance.NpcDialogService, _options)
+                .ExecuteAsync(new CRegPacket
+                {
+                    Type = 0, Inventory = (byte)PocketType.Equipment, Slot = 0, Amount = 1, Price = 10,
+                    Durability = 1, IsPackage = false, Taxe = 0
+                }, _seller);
+
+        private void TheListedWeaponShouldHaveAnOptionOfValue_(int value)
+        {
+            var listed = _master.Registry.GetBySellerId(_seller.Character.CharacterId).Single().ItemInstance!.Id;
+            Assert.AreEqual(value, _options.Load(listed).Single().Value);
         }
 
         private void TheBuyersWeaponShouldHaveAnOptionOfValue_(int value) => WeaponShouldHaveAnOptionOfValue(_buyer, value);
