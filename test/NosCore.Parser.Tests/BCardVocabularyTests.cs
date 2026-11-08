@@ -51,8 +51,8 @@ namespace NosCore.Parser.Tests
             }
         }
 
-        // Opt-in: 231 declared effects have no name yet. Mirrors CheckEveryLanguageValueSet,
-        // which is optional for the same reason - the vocabulary is not finished.
+        // Opt-in: the rows it lists are declared by BCard.dat with no client sentence, so a name
+        // would be invented rather than read. Mirrors CheckEveryLanguageValueSet.
         [TestCategory("OPTIONAL-TEST")]
         [TestMethod]
         public void EveryDeclaredEffectIsNamed()
