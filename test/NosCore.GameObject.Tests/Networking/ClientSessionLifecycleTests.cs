@@ -9,6 +9,8 @@ using Moq;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
+using NosCore.GameObject.Services.SaveService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Movement;
 using NosCore.Tests.Shared;
@@ -117,6 +119,16 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         [TestMethod]
+        public async Task TheDisconnectSaveRunsUnderTheDisconnectLock()
+        {
+            await new Spec("The save run on disconnect completes while the disconnect holds the packet lock")
+                .Given(TheDisconnectRunsTheSaveHandler)
+                .WhenAsync(TheSessionDisconnectsWithinFiveSeconds)
+                .Then(TheDisconnectSaveShouldHaveRun)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task PacketQueuedBeforeTheDisconnectRunsBeforeTheSave()
         {
             await new Spec("Packet queued before the disconnect runs before the save")
@@ -154,6 +166,16 @@ namespace NosCore.GameObject.Tests.Networking
                         Events.Add("save");
                     }
                 });
+
+        private void TheDisconnectRunsTheSaveHandler()
+        {
+            var saveService = new Mock<ISaveService>();
+            saveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
+                .Callback(() => Events.Add("save"))
+                .Returns(Task.CompletedTask);
+            DisconnectHandler.Setup(h => h.HandleDisconnectAsync(It.IsAny<ClientSession>()))
+                .Returns((ClientSession session) => new SaveDisconnectHandler(saveService.Object).HandleDisconnectAsync(session));
+        }
 
         private async Task TheSessionDisconnectsWithinFiveSeconds() =>
             await Session.OnDisconnectedAsync().WaitAsync(TimeSpan.FromSeconds(5));
