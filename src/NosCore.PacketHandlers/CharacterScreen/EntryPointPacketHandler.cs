@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
-            IDao<AccountDto, long> accountDao, IPubSubHub pubSubHub, bool passwordLessConnection, string accountName, string password, int sessionId, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<AccountDto, long> accountDao, IPubSubHub pubSubHub, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var subscribers = await pubSubHub.GetSubscribersAsync();
             var alreadyConnnected = subscribers.Any(x => x.Name == accountName);
@@ -68,15 +68,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var awaitingConnection =
-                (passwordLessConnection
-                    ? await authHttpClient
-                        .GetAwaitingConnectionAsync(accountName, password, sessionId)
-                         == "true"
-                    : account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) ==
-                    true);
-
-            if (!awaitingConnection)
+            if (!await authorize(account))
             {
                 _logger.LogError(logLanguage[LogLanguageKey.INVALID_PASSWORD], new
                 {
@@ -105,19 +97,20 @@ namespace NosCore.PacketHandlers.CharacterScreen
         {
             if (clientSession.Account == null!) // we bypass this when Create new char
             {
-                var passwordLessConnection = packet.Password == "thisisgfmode";
+                var password = packet.Password ?? throw new InvalidOperationException();
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                    accountDao, pubSubHub, passwordLessConnection, packet.Name, packet.Password ?? throw new InvalidOperationException(),
-                    clientSession.SessionId, sessionRefHolder, logLanguage);
+                    accountDao, pubSubHub, packet.Name, password == "thisisgfmode"
+                        ? async _ =>
+                        {
+                            var grant = await authHttpClient.RedeemWorldEntryAsync(packet.Name, clientSession.SessionId);
+                            clientSession.MfaValidated = grant?.MfaValidated ?? false;
+                            return grant != null;
+                        }
+                        : account => Task.FromResult(account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) == true),
+                    sessionRefHolder, logLanguage);
                 if (clientSession.Account == null!)
                 {
                     return;
-                }
-
-                if (passwordLessConnection)
-                {
-                    //MFA can be validated on launcher
-                    clientSession.MfaValidated = true;
                 }
 
                 logger.LogInformation(logLanguage[LogLanguageKey.ACCOUNT_ARRIVED],

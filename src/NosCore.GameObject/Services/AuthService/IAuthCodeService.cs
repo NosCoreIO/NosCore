@@ -9,12 +9,13 @@ namespace NosCore.GameObject.Services.AuthService
     public interface IAuthCodeService
     {
         void StoreAuthCode(string authCode, string accountName);
-        string? GetAccountByAuthCode(string authCode);
-        bool TryRemoveAuthCode(string authCode, out string? accountName);
+        string? ConsumeAuthCode(string authCode);
 
         void MarkReadyForAuth(string accountName, long sessionId);
-        bool IsReadyForAuth(string accountName, long sessionId);
-        void ClearReadyForAuth(string accountName);
+        WorldEntryGrant? ConsumeReadyForAuth(string accountName, long sessionId);
+
+        void MarkReadyForChannelChange(string accountName, long channelId, bool mfaValidated);
+        WorldEntryGrant? ConsumeChannelChange(string accountName, long channelId);
 
         void RegisterSessionIp(string accountName, string ipAddress);
         void UnregisterSessionIp(string accountName);

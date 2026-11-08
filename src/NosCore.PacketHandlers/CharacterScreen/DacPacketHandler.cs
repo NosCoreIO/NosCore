@@ -29,7 +29,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                accountDao, pubSubHub, true, packet.AccountName, "thisisgfmode", -1, sessionRefHolder, logLanguage);
+                accountDao, pubSubHub, packet.AccountName, async _ =>
+                {
+                    var grant = await authHttpClient.RedeemChannelChangeAsync(packet.AccountName);
+                    clientSession.MfaValidated = grant?.MfaValidated ?? false;
+                    return grant != null;
+                }, sessionRefHolder, logLanguage);
             if (clientSession.Account == null!)
             {
                 return;

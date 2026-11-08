@@ -63,6 +63,17 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
         }
 
         [TestMethod]
+        public async Task MovingToExistingChannelShouldAwaitTheAccountOnThatChannelOnly()
+        {
+            await new Spec("Moving to existing channel should await the account on that channel only")
+                .Given(TargetChannelExists)
+                .And(MfaIsValidated)
+                .WhenAsync(MovingToChannel)
+                .Then(ChannelChangeShouldBeAwaitedOnTargetChannel)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task MovingToNonExistentChannelShouldDoNothing()
         {
             await new Spec("Moving to non-existent channel should do nothing")
@@ -96,6 +107,11 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
                         Port = 1234
                     }
                 });
+        }
+
+        private void MfaIsValidated()
+        {
+            Session.MfaValidated = true;
         }
 
         private void NoChannelsExist()
@@ -135,6 +151,11 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
         private void CharacterShouldBeSaved()
         {
             SaveService.Verify(s => s.SaveAsync(Session), Times.Once);
+        }
+
+        private void ChannelChangeShouldBeAwaitedOnTargetChannel()
+        {
+            AuthHub.Verify(s => s.SetAwaitingChannelChangeAsync(Session.Account.Name, 2, true), Times.Once);
         }
 
         private void NoPacketsShouldBeSent()

@@ -13,44 +13,48 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
 {
-    public class AuthHub : IAuthHub
+    public class AuthHub(IAuthCodeService authCodeService, MasterClientList masterClientList) : IAuthHub
     {
-        private readonly IAuthCodeService _authCodeService;
-
-        public AuthHub(IAuthCodeService authCodeService)
-        {
-            _authCodeService = authCodeService;
-        }
-
         public Task<string?> GetAwaitingConnectionAsync(string? id, string? token, int sessionId)
         {
-            if (token != "thisisgfmode")
+            if (token == null || token == "NONE_SESSION_TICKET")
             {
-                if (token == null || token == "NONE_SESSION_TICKET")
-                {
-                    return Task.FromResult<string?>(null);
-                }
-
-                var sessionGuid = HexStringToString(token);
-                var username = _authCodeService.GetAccountByAuthCode(sessionGuid);
-                if (username == null)
-                {
-                    return Task.FromResult<string?>(null);
-                }
-
-                _authCodeService.MarkReadyForAuth(username, sessionId);
-                return Task.FromResult<string?>(username);
+                return Task.FromResult<string?>(null);
             }
 
-            if (id != null && _authCodeService.IsReadyForAuth(id, sessionId))
+            var authCode = HexStringToString(token);
+            var username = authCode == null ? null : authCodeService.ConsumeAuthCode(authCode);
+            if (username == null)
             {
-                return Task.FromResult<string?>("true");
+                return Task.FromResult<string?>(null);
             }
 
-            return Task.FromResult<string?>("false");
+            authCodeService.MarkReadyForAuth(username, sessionId);
+            return Task.FromResult<string?>(username);
         }
 
-        private static string HexStringToString(string hexString)
+        public Task<WorldEntryGrant?> RedeemWorldEntryAsync(string accountName, int sessionId)
+        {
+            return Task.FromResult(authCodeService.ConsumeReadyForAuth(accountName, sessionId));
+        }
+
+        public Task SetAwaitingChannelChangeAsync(string accountName, long channelId, bool mfaValidated)
+        {
+            authCodeService.MarkReadyForChannelChange(accountName, channelId, mfaValidated);
+            return Task.CompletedTask;
+        }
+
+        public Task<WorldEntryGrant?> RedeemChannelChangeAsync(string accountName) =>
+            throw new InvalidOperationException("The master server is not a channel");
+
+        public WorldEntryGrant? RedeemChannelChange(string channelKey, string accountName)
+        {
+            return masterClientList.Channels.TryGetValue(channelKey, out var channel)
+                ? authCodeService.ConsumeChannelChange(accountName, channel.Id)
+                : null;
+        }
+
+        private static string? HexStringToString(string hexString)
         {
             // Older clients hex-encoded each ASCII char of the auth code (36
             // GUID chars → 72 hex chars); modern builds hand the raw GUID
@@ -61,6 +65,11 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
                 return hexString;
             }
 
+            if (hexString.Length % 2 != 0 || !hexString.All(Uri.IsHexDigit))
+            {
+                return null;
+            }
+
             var bb = Enumerable.Range(0, hexString.Length)
                 .Where(x => x % 2 == 0)
                 .Select(x => Convert.ToByte(hexString.Substring(x, 2), 16))
@@ -68,40 +77,40 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub
             return Encoding.UTF8.GetString(bb);
         }
 
-        public Task SetAwaitingConnectionAsync(long sessionId, string accountName)
-        {
-            _authCodeService.MarkReadyForAuth(accountName, sessionId);
-            return Task.CompletedTask;
-        }
-
         public Task StoreAuthCodeAsync(string authCode, string accountName)
         {
-            _authCodeService.StoreAuthCode(authCode, accountName);
+            authCodeService.StoreAuthCode(authCode, accountName);
             return Task.CompletedTask;
         }
 
         public Task RegisterSessionIpAsync(string accountName, string ipAddress)
         {
-            _authCodeService.RegisterSessionIp(accountName, ipAddress);
+            authCodeService.RegisterSessionIp(accountName, ipAddress);
             return Task.CompletedTask;
         }
 
         public Task UnregisterSessionIpAsync(string accountName)
         {
-            _authCodeService.UnregisterSessionIp(accountName);
+            authCodeService.UnregisterSessionIp(accountName);
             return Task.CompletedTask;
         }
 
         public Task<string?> GetSessionIpAsync(string accountName)
         {
-            return Task.FromResult(_authCodeService.GetSessionIp(accountName));
+            return Task.FromResult(authCodeService.GetSessionIp(accountName));
         }
 
         public static async Task<Reply<string?>> Handle(GetAwaitingConnectionRequest request, IServiceProvider services) =>
             new(await services.GetRequiredService<AuthHub>().GetAwaitingConnectionAsync(request.Name, request.Token, request.SessionId));
 
-        public static Task Handle(SetAwaitingConnectionRequest request, IServiceProvider services) =>
-            services.GetRequiredService<AuthHub>().SetAwaitingConnectionAsync(request.SessionId, request.AccountName);
+        public static async Task<Reply<WorldEntryGrant?>> Handle(RedeemWorldEntryRequest request, IServiceProvider services) =>
+            new(await services.GetRequiredService<AuthHub>().RedeemWorldEntryAsync(request.AccountName, request.SessionId));
+
+        public static Task Handle(SetAwaitingChannelChangeRequest request, IServiceProvider services) =>
+            services.GetRequiredService<AuthHub>().SetAwaitingChannelChangeAsync(request.AccountName, request.ChannelId, request.MfaValidated);
+
+        public static Reply<WorldEntryGrant?> Handle(RedeemChannelChangeRequest request, IServiceProvider services) =>
+            new(services.GetRequiredService<AuthHub>().RedeemChannelChange(request.ChannelKey, request.AccountName));
 
         public static Task Handle(StoreAuthCodeRequest request, IServiceProvider services) =>
             services.GetRequiredService<AuthHub>().StoreAuthCodeAsync(request.AuthCode, request.AccountName);

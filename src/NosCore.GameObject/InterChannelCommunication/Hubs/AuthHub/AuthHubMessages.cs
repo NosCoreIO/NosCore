@@ -8,7 +8,11 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 
 public record GetAwaitingConnectionRequest(string? Name, string? Token, int SessionId) : IMasterRequest;
 
-public record SetAwaitingConnectionRequest(long SessionId, string AccountName) : IMasterRequest;
+public record RedeemWorldEntryRequest(string AccountName, int SessionId) : IMasterRequest;
+
+public record SetAwaitingChannelChangeRequest(string AccountName, long ChannelId, bool MfaValidated) : IMasterRequest;
+
+public record RedeemChannelChangeRequest(string ChannelKey, string AccountName) : IMasterRequest;
 
 public record StoreAuthCodeRequest(string AuthCode, string AccountName) : IMasterRequest;
 

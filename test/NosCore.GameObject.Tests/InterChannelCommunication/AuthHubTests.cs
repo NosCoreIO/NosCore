@@ -5,6 +5,10 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NodaTime;
+using NodaTime.Testing;
+using NosCore.Core;
+using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.Services.AuthService;
 using SpecLight;
@@ -21,13 +25,19 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         private readonly string TokenGuid = Guid.NewGuid().ToString();
         private IAuthCodeService AuthCodeService = null!;
         private AuthHub Hub = null!;
+        private const string ChannelKey = "world-channel-2";
+        private const string OtherChannelKey = "world-channel-3";
         private string? Result;
+        private WorldEntryGrant? Grant;
 
         [TestInitialize]
         public void Setup()
         {
-            AuthCodeService = new AuthCodeService();
-            Hub = new AuthHub(AuthCodeService);
+            AuthCodeService = new AuthCodeService(new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)));
+            var masterClientList = new MasterClientList();
+            masterClientList.Channels[ChannelKey] = new ChannelInfo { Id = 2 };
+            masterClientList.Channels[OtherChannelKey] = new ChannelInfo { Id = 3 };
+            Hub = new AuthHub(AuthCodeService, masterClientList);
         }
 
         [TestMethod]
@@ -68,31 +78,87 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         }
 
         [TestMethod]
-        public async Task GetAwaitingConnectionShouldReturnTrueWhenGfModeAndExpecting()
+        public async Task AuthCodeIsAcceptedOnlyOnce()
         {
-            await new Spec("Get awaiting connection should return true when gf mode and expecting")
-                .Given(UserIsMarkedReadyForAuth)
-                .WhenAsync(GettingAwaitingConnectionInGfMode)
-                .Then(ShouldReturnTrue)
+            await new Spec("Auth code is accepted only once")
+                .Given(AuthCodeIsStored)
+                .AndAsync(AuthCodeWasRedeemed)
+                .WhenAsync(GettingAwaitingConnectionWithValidAuthCode)
+                .Then(ShouldReturnNull)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task GetAwaitingConnectionShouldReturnFalseWhenGfModeButWrongSessionId()
+        public async Task RedeemedAuthCodeLetsTheIssuedSessionEnterTheWorld()
         {
-            await new Spec("Get awaiting connection should return false when gf mode but wrong session id")
-                .Given(UserIsMarkedReadyForAuth)
-                .WhenAsync(GettingAwaitingConnectionInGfModeWithWrongSession)
-                .Then(ShouldReturnFalse)
+            await new Spec("Redeemed auth code lets the issued session enter the world")
+                .Given(AuthCodeIsStored)
+                .AndAsync(AuthCodeWasRedeemed)
+                .WhenAsync(RedeemingWorldEntry)
+                .Then(EntryShouldBeGranted)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task GetAwaitingConnectionShouldReturnFalseWhenGfModeAndNotExpecting()
+        public async Task WorldEntryIsRefusedForASessionLoginDidNotIssue()
         {
-            await new Spec("Get awaiting connection should return false when gf mode and not expecting")
-                .WhenAsync(GettingAwaitingConnectionInGfMode)
-                .Then(ShouldReturnFalse)
+            await new Spec("World entry is refused for a session login did not issue")
+                .Given(AuthCodeIsStored)
+                .AndAsync(AuthCodeWasRedeemed)
+                .WhenAsync(RedeemingWorldEntryWithAnotherSession)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WorldEntryIsGrantedOnlyOnce()
+        {
+            await new Spec("World entry is granted only once")
+                .Given(AuthCodeIsStored)
+                .AndAsync(AuthCodeWasRedeemed)
+                .AndAsync(WorldEntryWasRedeemed)
+                .WhenAsync(RedeemingWorldEntry)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WorldEntryIsRefusedWithoutLogin()
+        {
+            await new Spec("World entry is refused without login")
+                .WhenAsync(RedeemingWorldEntry)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ChannelChangeIsGrantedOnTheTargetChannel()
+        {
+            await new Spec("Channel change is granted on the target channel")
+                .GivenAsync(AccountIsMovingToChannel2)
+                .When(RedeemingChannelChangeOnChannel2)
+                .Then(EntryShouldBeGranted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ChannelChangeIsRefusedOnAnotherChannel()
+        {
+            await new Spec("Channel change is refused on another channel")
+                .GivenAsync(AccountIsMovingToChannel2)
+                .When(RedeemingChannelChangeOnChannel3)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ChannelChangeIsGrantedOnlyOnce()
+        {
+            await new Spec("Channel change is granted only once")
+                .GivenAsync(AccountIsMovingToChannel2)
+                .And(RedeemingChannelChangeOnChannel2)
+                .When(RedeemingChannelChangeOnChannel2)
+                .Then(EntryShouldBeRefused)
                 .ExecuteAsync();
         }
 
@@ -101,9 +167,39 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
             AuthCodeService.StoreAuthCode(TokenGuid, AccountName);
         }
 
-        private void UserIsMarkedReadyForAuth()
+        private async Task AuthCodeWasRedeemed()
         {
-            AuthCodeService.MarkReadyForAuth(AccountName, 1);
+            await GettingAwaitingConnectionWithValidAuthCode();
+        }
+
+        private async Task WorldEntryWasRedeemed()
+        {
+            await RedeemingWorldEntry();
+        }
+
+        private async Task RedeemingWorldEntry()
+        {
+            Grant = await Hub.RedeemWorldEntryAsync(AccountName, 1);
+        }
+
+        private async Task RedeemingWorldEntryWithAnotherSession()
+        {
+            Grant = await Hub.RedeemWorldEntryAsync(AccountName, 3);
+        }
+
+        private Task AccountIsMovingToChannel2()
+        {
+            return Hub.SetAwaitingChannelChangeAsync(AccountName, 2, true);
+        }
+
+        private void RedeemingChannelChangeOnChannel2()
+        {
+            Grant = Hub.RedeemChannelChange(ChannelKey, AccountName);
+        }
+
+        private void RedeemingChannelChangeOnChannel3()
+        {
+            Grant = Hub.RedeemChannelChange(OtherChannelKey, AccountName);
         }
 
         private async Task GettingAwaitingConnectionWithNullToken()
@@ -126,16 +222,6 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
             Result = await Hub.GetAwaitingConnectionAsync(AccountName, "NONE_SESSION_TICKET", 1);
         }
 
-        private async Task GettingAwaitingConnectionInGfMode()
-        {
-            Result = await Hub.GetAwaitingConnectionAsync(AccountName, "thisisgfmode", 1);
-        }
-
-        private async Task GettingAwaitingConnectionInGfModeWithWrongSession()
-        {
-            Result = await Hub.GetAwaitingConnectionAsync(AccountName, "thisisgfmode", 2);
-        }
-
         private void ShouldReturnNull()
         {
             Assert.IsNull(Result);
@@ -146,14 +232,14 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
             Assert.AreEqual(AccountName, Result);
         }
 
-        private void ShouldReturnTrue()
+        private void EntryShouldBeGranted()
         {
-            Assert.AreEqual("true", Result);
+            Assert.AreEqual(new WorldEntryGrant(true), Grant);
         }
 
-        private void ShouldReturnFalse()
+        private void EntryShouldBeRefused()
         {
-            Assert.AreEqual("false", Result);
+            Assert.IsNull(Grant);
         }
     }
 }
