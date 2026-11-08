@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.Shared.I18N;
@@ -26,7 +27,20 @@ namespace NosCore.GameObject.Messaging.ScheduledJobs
         public async Task Handle(SaveAllSessionsMessage _)
         {
             logger.LogInformation(logLanguage[LogLanguageKey.SAVING_ALL]);
-            await Task.WhenAll(sessionRegistry.GetSessions().Select(saveService.SaveAsync));
+            await Task.WhenAll(sessionRegistry.GetSessions().Select(SaveAsync));
+        }
+
+        private async Task SaveAsync(ClientSession session)
+        {
+            using (await session.AcquirePacketLockAsync())
+            {
+                if (!session.HasPlayerEntity)
+                {
+                    return;
+                }
+
+                await saveService.SaveAsync(session);
+            }
         }
     }
 }
