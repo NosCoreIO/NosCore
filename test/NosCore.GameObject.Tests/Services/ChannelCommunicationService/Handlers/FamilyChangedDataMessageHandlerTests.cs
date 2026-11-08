@@ -107,6 +107,25 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         }
 
         [TestMethod]
+        public async Task TheNewMemberIsToldTheHistoryCanBeRead()
+        {
+            await _handler.Handle(new FamilyChangedData { FamilyId = 42, CharacterIds = { _joiner.Character.CharacterId }, JoinedCharacterName = "Bob" });
+
+            Assert.AreEqual(1, _joiner.LastPackets.OfType<FhisStcPacket>().Count());
+            Assert.AreEqual(0, _member.LastPackets.OfType<FhisStcPacket>().Count());
+        }
+
+        [TestMethod]
+        public async Task SomeoneWhoLeftIsNotToldAboutTheHistory()
+        {
+            _bystander.Character.Family = _family;
+
+            await _handler.Handle(new FamilyChangedData { FamilyId = 42, CharacterIds = { _bystander.Character.CharacterId } });
+
+            Assert.AreEqual(0, _bystander.LastPackets.OfType<FhisStcPacket>().Count());
+        }
+
+        [TestMethod]
         public async Task SomeoneWhoLeftLosesTheFamily()
         {
             _bystander.Character.Family = _family;

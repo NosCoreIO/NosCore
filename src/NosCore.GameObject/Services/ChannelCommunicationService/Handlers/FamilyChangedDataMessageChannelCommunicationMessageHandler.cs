@@ -10,6 +10,7 @@ using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
 using System.Threading.Tasks;
@@ -46,6 +47,12 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 if (!data.CharacterIds.Contains(character.CharacterId))
                 {
                     continue;
+                }
+
+                // The history change that came with the join reached this session before it had the family.
+                if (character.Family != null)
+                {
+                    await session.SendPacketAsync(new FhisStcPacket());
                 }
 
                 var watchers = sessionRegistry.GetSessions(s => s.HasPlayerEntity && s.Character.MapInstanceId == character.MapInstanceId);
