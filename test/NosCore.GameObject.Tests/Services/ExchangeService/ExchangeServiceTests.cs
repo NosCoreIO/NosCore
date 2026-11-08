@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             };
 
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
-            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer,
+            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry);
         }
 
@@ -149,6 +149,32 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         }
 
         [TestMethod]
+        public async Task ValidateExchangeFailsWhenTargetsBankWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure + CanNotDepositAnymore to the target when the offered bank gold would overflow the target's bank")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(TargetBankGoldIs_, 99_000_000_000L)
+                .And(ExchangeOfferSessionsBankGoldIs_, 2_000_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
+                .And(DictionaryShouldContainPacketFor_WithMessage_, true, Game18NConstString.CanNotDepositAnymore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenSessionsBankWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure + CanNotDepositAnymore to the session when the target's bank gold would overflow the session's bank")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionBankGoldIs_, 99_000_000_000L)
+                .And(ExchangeOfferTargetsBankGoldIs_, 2_000_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
+                .And(DictionaryShouldContainPacketFor_WithMessage_, false, Game18NConstString.CanNotDepositAnymore)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ValidateExchangeFailsWhenNonTradableItemIsOffered()
         {
             await new Spec("Validate returns Failure + ItemCanNotBeSold when the exchange offer contains a non-tradable item")
@@ -185,7 +211,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
             _realExchange = new GameObject.Services.ExchangeService.ExchangeService(
                 ItemProvider!, WorldConfiguration!, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(),
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer,
+                TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry);
             _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
         }
@@ -196,6 +222,16 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private void ExchangeOfferTargetsGoldIs_(long gold) =>
             _realExchange!.SetGold(_sessionB!.Character.VisualId, gold, 0);
+
+        private void SessionBankGoldIs_(long bankGold) => _sessionA!.Character.BankGold = bankGold;
+
+        private void TargetBankGoldIs_(long bankGold) => _sessionB!.Character.BankGold = bankGold;
+
+        private void ExchangeOfferSessionsBankGoldIs_(long bankGold) =>
+            _realExchange!.SetGold(_sessionA!.Character.CharacterId, 0, bankGold);
+
+        private void ExchangeOfferTargetsBankGoldIs_(long bankGold) =>
+            _realExchange!.SetGold(_sessionB!.Character.VisualId, 0, bankGold);
 
         private void SessionOffersANonTradableItem()
         {

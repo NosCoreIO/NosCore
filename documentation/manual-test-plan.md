@@ -470,6 +470,9 @@ IconVNum = slot puts an inventory slot on it.
 - [ ] Use the savings book anywhere: the Bank window opens without the deposit and withdraw buttons and
       logs the "Balance" line; the book is kept
 - [ ] Close the Bank window with its X: nothing is logged as a decoding error on the server
+- [ ] In a trade, offer bank gold that would push the other player's custody past the bank cap: that
+      player sees the client's "You cannot deposit any more." in their own language and no gold moves.
+      Check it from both sides of the trade
 
 ### NosBazaar search
 

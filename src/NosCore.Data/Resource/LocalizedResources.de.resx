@@ -148,9 +148,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Ungültige Abwurfmenge</value>
   </data>
-  <data name="BANK_FULL" xml:space="preserve">
-    <value>Deine Bank ist voll</value>
-  </data>
   <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
     <value>Dein Item wurde leider nicht gekauft aufgrund eines Fehlers.</value>
   </data>

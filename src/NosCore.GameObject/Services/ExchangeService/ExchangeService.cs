@@ -6,7 +6,6 @@
 
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -29,7 +28,7 @@ namespace NosCore.GameObject.Services.ExchangeService
 {
     public class ExchangeService(IItemGenerationService itemBuilderService,
             IOptions<WorldConfiguration> worldConfiguration, ILogger<ExchangeService> logger, IExchangeRequestRegistry exchangeRegistry,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry)
         : IExchangeService
     {
@@ -70,9 +69,9 @@ namespace NosCore.GameObject.Services.ExchangeService
 
             if (exchangeInfo.BankGold + targetSession.BankGold > worldConfiguration.Value.MaxBankGoldAmount)
             {
-                dictionary.Add(targetSession.VisualId, new InfoPacket
+                dictionary.Add(targetSession.VisualId, new InfoiPacket
                 {
-                    Message = gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
+                    Message = Game18NConstString.CanNotDepositAnymore
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
                     dictionary);
@@ -80,9 +79,9 @@ namespace NosCore.GameObject.Services.ExchangeService
 
             if (targetInfo.BankGold + session.Account.BankMoney > worldConfiguration.Value.MaxBankGoldAmount)
             {
-                dictionary.Add(session.Character.CharacterId, new InfoPacket
+                dictionary.Add(session.Character.CharacterId, new InfoiPacket
                 {
-                    Message = gameLanguageLocalizer[LanguageKey.BANK_FULL, session.Account.Language]
+                    Message = Game18NConstString.CanNotDepositAnymore
                 });
                 return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
                     dictionary);
