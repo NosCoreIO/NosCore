@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var management = new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
                 new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, registry.Object,
-                new Mock<IFamilyWarehouseService>().Object);
+                new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
                 TestHelpers.Instance.GameLanguageLocalizer, management);
             foreach (var session in sessions)

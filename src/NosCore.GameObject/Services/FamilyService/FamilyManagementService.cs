@@ -6,6 +6,7 @@
 
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using FamilyMemberRank = NosCore.Data.Enumerations.Family.FamilyMemberRank;
+using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Packets.Interfaces;
 using System.Linq;
@@ -30,7 +31,8 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
         IFamilyExperienceService familyExperienceService, IDaoTransactionScope daoTransactionScope,
-        ISessionRegistry sessionRegistry, IFamilyWarehouseService familyWarehouseService) : IFamilyManagementService
+        ISessionRegistry sessionRegistry, IFamilyWarehouseService familyWarehouseService,
+        IFamilyLogService familyLogService) : IFamilyManagementService
     {
         private const int MessageMaxLength = 255;
         private const long CreationPrice = 200000;
@@ -88,6 +90,10 @@ namespace NosCore.GameObject.Services.FamilyService
 
             if (result == FamilyAuthorityChange.Changed)
             {
+                var targetName = (await familyService.GetMemberCharactersAsync(family))
+                    .FirstOrDefault(s => s.CharacterId == targetId)?.Name ?? string.Empty;
+                await familyLogService.AddAsync(family.FamilyId, FamilyLogType.AuthorityChanged,
+                    session.Character.Name, (byte)authority, targetName);
                 var changed = new FamilyChangedData { FamilyId = family.FamilyId, CharacterIds = { targetId } };
                 if (authority == FamilyAuthority.Head)
                 {
@@ -332,8 +338,15 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            if (await familyLogService.HasWrittenDailyMessageTodayAsync(family.FamilyId, session.Character.Name))
+            {
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.OnlyOncePerDay });
+                return;
+            }
+
             membership.DailyMessage = dailyMessage;
             await familyService.SaveMembersAsync(new[] { membership });
+            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.DailyMessage, session.Character.Name, dailyMessage);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
 

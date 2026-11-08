@@ -3,6 +3,7 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
+using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -15,7 +16,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Family
 {
-    public class FAuthPacketHandler(IFamilyService familyService, IPubSubHub pubSubHub)
+    public class FAuthPacketHandler(IFamilyService familyService, IPubSubHub pubSubHub,
+            IFamilyLogService familyLogService)
         : PacketHandler<FAuthPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FAuthPacket packet, ClientSession session)
@@ -40,6 +42,9 @@ namespace NosCore.PacketHandlers.Family
             }
 
             await familyService.SaveAsync(family);
+            // The history numbers rights from one where f_auth numbers them from zero; unverified in a client.
+            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.RightChanged, session.Character.Name,
+                (byte)packet.MemberType, packet.AuthorityId + 1, packet.Value);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
     }

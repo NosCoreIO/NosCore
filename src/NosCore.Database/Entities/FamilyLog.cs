@@ -20,6 +20,18 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string? FamilyLogData { get; set; }
 
+        [MaxLength(255)]
+        public string? FirstArgument { get; set; }
+
+        [MaxLength(255)]
+        public string? SecondArgument { get; set; }
+
+        [MaxLength(255)]
+        public string? ThirdArgument { get; set; }
+
+        [MaxLength(255)]
+        public string? FourthArgument { get; set; }
+
         [Key]
         public long FamilyLogId { get; set; }
 

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -17,7 +18,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Family
 {
-    public class FamilyLeavePacketHandler(IFamilyService familyService, IPubSubHub pubSubHub)
+    public class FamilyLeavePacketHandler(IFamilyService familyService, IPubSubHub pubSubHub,
+            IFamilyLogService familyLogService)
         : PacketHandler<FamilyLeavePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FamilyLeavePacket packet, ClientSession session)
@@ -35,6 +37,7 @@ namespace NosCore.PacketHandlers.Family
             }
 
             await familyService.RemoveMemberAsync(session.Character.CharacterId);
+            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.FamilyManaged, session.Character.Name);
             await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.LeftFamily });
             await pubSubHub.SendMessageAsync(new FamilyChangedData
             {

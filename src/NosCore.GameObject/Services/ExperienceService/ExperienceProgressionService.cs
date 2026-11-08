@@ -41,7 +41,8 @@ namespace NosCore.GameObject.Services.ExperienceService
         IFairyExperienceService fairyExperienceService,
         ISkillService skillService,
         BattleService.IVitalityService vitalityService,
-        BattleService.IBattleStatsProvider battleStatsProvider) : IExperienceProgressionService
+        BattleService.IBattleStatsProvider battleStatsProvider,
+        FamilyService.IFamilyLogService familyLogService) : IExperienceProgressionService
     {
         private const byte MaxLevel = 99;
         private const byte MaxJobLevel = 80;
@@ -53,6 +54,7 @@ namespace NosCore.GameObject.Services.ExperienceService
             long levelXpDelta, long jobXpDelta, long heroXpDelta,
             long spXpDelta, int fairyXpDelta)
         {
+            var previousLevel = player.Level;
             var leveledUp = false;
             var jobLeveledUp = false;
             var heroLeveledUp = false;
@@ -218,6 +220,10 @@ namespace NosCore.GameObject.Services.ExperienceService
                     });
                     await mapInstance.SendPacketAsync(player.GenerateEff(6));
                     await mapInstance.SendPacketAsync(player.GenerateEff(198));
+                    if (player.Family is { } family)
+                    {
+                        await familyLogService.AddLevelUpsAsync(family.FamilyId, player.Name, previousLevel, player.Level);
+                    }
                 }
 
                 if (jobLeveledUp)
