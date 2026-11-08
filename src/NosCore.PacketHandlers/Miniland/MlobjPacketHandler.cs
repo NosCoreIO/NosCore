@@ -23,7 +23,7 @@ namespace NosCore.PacketHandlers.Miniland
             var miniland = minilandProvider.GetMiniland(clientSession.Character.CharacterId);
             switch (mlEditPacket.Type)
             {
-                case 1:
+                case MinilandEditType.Intro:
                     await clientSession.SendPacketAsync(new MlintroPacket { Intro = mlEditPacket.MinilandInfo });
                     miniland.MinilandMessage = mlEditPacket.MinilandInfo;
                     await clientSession.SendPacketAsync(new InfoiPacket
@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Miniland
                     });
                     break;
 
-                case 2:
+                case MinilandEditType.State:
                     switch (mlEditPacket.Parameter)
                     {
                         case MinilandState.Private:

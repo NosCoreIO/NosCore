@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Packets.Enumerations;
 using AutoFixture;
 using AutoFixture.AutoMoq;
 using Microsoft.Extensions.Localization;
@@ -70,7 +71,7 @@ namespace NosCore.Tests.Shared.AutoFixture
                 .With(x => x.Slot, (short)0)
                 .With(x => x.Amount, 1)
                 .With(x => x.Price, 1000)
-                .With(x => x.Durability, 1)
+                .With(x => x.Durability, BazaarListingDuration.OneDay)
                 .With(x => x.IsPackage, () => false)
                 .With(x => x.Taxe, 0)
                 .With(x => x.MedalUsed, 0));

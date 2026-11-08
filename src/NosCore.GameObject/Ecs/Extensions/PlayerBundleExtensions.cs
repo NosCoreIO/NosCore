@@ -455,8 +455,6 @@ public static class PlayerBundleExtensions
             ElementRate = fairy?.Item?.ElementRate ?? 0,
             Class = player.Class,
             Gender = player.Gender,
-            // No family system yet; "-1 -" is how the card reads "no family".
-            Family = "-1 -",
             ReputationIco = (ExtendedReputationType)GetReputationIcon(player.Reputation),
             DignityIco = (CharacterDignity)GetDignityIcon(player.Dignity),
             HaveWeapon = weapon != null ? 1 : 0,

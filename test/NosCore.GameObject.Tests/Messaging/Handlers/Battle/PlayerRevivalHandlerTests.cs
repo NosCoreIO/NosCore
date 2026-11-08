@@ -126,7 +126,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
                 .And(TheCharacterIsInAnArena)
                 .WhenAsync(PlayerDiesKilledByOtherPlayer)
                 .Then(DialogQuestionShouldBe_, Game18NConstString.AskRevive)
-                .And(TheDialogShouldAnswerWith_And_, (byte)2, (byte)1)
+                .And(TheDialogShouldAnswerWith_And_, RevivalType.InArena, RevivalType.AtSavePoint)
                 .ExecuteAsync();
         }
 
@@ -149,7 +149,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         private void TheCharacterIsInAnArena() =>
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.ArenaInstance;
 
-        private void TheDialogShouldAnswerWith_And_(byte yes, byte no)
+        private void TheDialogShouldAnswerWith_And_(RevivalType yes, RevivalType no)
         {
             var dlg = _session.LastPackets.OfType<DlgiPacket>().First();
             Assert.AreEqual(yes, ((RevivalPacket)dlg.YesPacket!).Type);

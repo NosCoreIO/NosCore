@@ -62,8 +62,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     await player.SendPacketAsync(player.GenerateStat());
                     await player.SendPacketAsync(new DlgiPacket
                     {
-                        YesPacket = new RevivalPacket { Type = 2 },
-                        NoPacket = new RevivalPacket { Type = 1 },
+                        YesPacket = new RevivalPacket { Type = RevivalType.InArena },
+                        NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
                         Question = Game18NConstString.AskRevive,
                     });
                     return;
@@ -89,8 +89,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
                 await player.SendPacketAsync(new DlgiPacket
                 {
-                    YesPacket = new RevivalPacket { Type = 0 },
-                    NoPacket = new RevivalPacket { Type = 1 },
+                    YesPacket = new RevivalPacket { Type = RevivalType.InPlace },
+                    NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
                     Question = question,
                 }).ConfigureAwait(false);
             }

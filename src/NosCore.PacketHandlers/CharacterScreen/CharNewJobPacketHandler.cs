@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var forwarded = packet.Adapt<CharNewPacket>();
-            forwarded.TargetClass = (byte)targetClass.Value;
+            forwarded.TargetClass = targetClass.Value;
             await clientSession.HandlePacketsAsync(new[] { forwarded });
         }
 

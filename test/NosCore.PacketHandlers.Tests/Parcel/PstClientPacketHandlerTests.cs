@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Packets.Enumerations;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
@@ -88,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
 
         private async Task DeletingNote_(short id)
         {
-            await Handler.ExecuteAsync(new PstClientPacket { ActionType = 2, Type = 1, Id = id }, Session);
+            await Handler.ExecuteAsync(new PstClientPacket { ActionType = PostActionType.Delete, Type = 1, Id = id }, Session);
         }
 
         private void TheNoteShouldBeDeleted()

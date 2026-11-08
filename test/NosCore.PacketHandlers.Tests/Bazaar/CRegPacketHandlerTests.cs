@@ -200,7 +200,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .ExecuteAsync();
         }
 
-        private CRegPacket CreateCRegPacket(short amount = 1, long price = 1000, byte durability = 1)
+        private CRegPacket CreateCRegPacket(short amount = 1, long price = 1000, BazaarListingDuration durability = BazaarListingDuration.OneDay)
         {
             return new CRegPacket
             {
@@ -280,12 +280,12 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private async Task AttemptingToRegisterForExtendedDuration()
         {
-            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 1, durability: 2), Session);
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 1, durability: BazaarListingDuration.SevenDays), Session);
         }
 
         private async Task AttemptingToRegisterWithInvalidDuration()
         {
-            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 1, durability: 7), Session);
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: 1, durability: (BazaarListingDuration)7), Session);
         }
 
         private void CharacterHasManyItems()

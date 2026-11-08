@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await new Spec("Revival packet arriving when character is already alive is a no-op")
                 .Given(CharacterIsAlive)
-                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(HpShouldRemainAt_, 500)
                 .And(MapChangeShouldNotBeCalled)
                 .ExecuteAsync();
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("Level<=20 revive-in-place (Type 0) restores HP/MP to 100% without consuming seeds")
                 .Given(CharacterIsDeadAtLevel_, (byte)20)
                 .And(CharacterHasSeedsInInventory_, (short)5)
-                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(HpShouldBeFullyRestored)
                 .And(SeedStackShouldStillBe_, (short)5)
                 .And(MapChangeShouldNotBeCalled)
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("Level>20 revive-in-place consumes 5 seeds and restores HP/MP to 50%")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasSeedsInInventory_, (short)10)
-                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(HpShouldBeRestoredToPercent_, 50)
                 .And(SeedStackShouldStillBe_, (short)5)
                 .And(FivePowerSeedUsedMessageShouldBeSent)
@@ -106,7 +106,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("Level>20 without enough seeds emits NotEnoughPowerSeed and warps to the save point")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasSeedsInInventory_, (short)2)
-                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(NotEnoughPowerSeedMessageShouldBeSent)
                 .And(MapChangeShouldHaveBeenCalledWith_, (short)1, (short)50, (short)60)
                 .ExecuteAsync();
@@ -117,7 +117,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await new Spec("Type 1 warps the character to the respawn service's resolved location at full HP/MP")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
-                .WhenAsync(SendingRevivalOfType_, (byte)1)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.AtSavePoint)
                 .Then(MapChangeShouldHaveBeenCalledWith_, (short)1, (short)50, (short)60)
                 .And(HpShouldBeFullyRestored)
                 .ExecuteAsync();
@@ -130,7 +130,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 5000L)
                 .And(CharacterIsInAnArena)
-                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
                 .Then(GoldShouldBe_, 4900L)
                 .And(HpShouldBeFullyRestored)
                 .And(MapChangeShouldNotBeCalled)
@@ -145,7 +145,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 50L)
                 .And(CharacterIsInAnArena)
-                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
                 .Then(GoldShouldBe_, 50L)
                 .And(MapChangeShouldHaveBeenCalledWith_, (short)1, (short)50, (short)60)
                 .ExecuteAsync();
@@ -159,7 +159,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterHasGold_, 5000L)
                 .And(CharacterIsInAnArena)
                 .And(CharacterFellAt_And_WhileTheSavedSpotIs_And_, (short)4, (short)5, (short)1, (short)1)
-                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
                 .Then(TheRevivalShouldTeleportTo_And_, (short)4, (short)5)
                 .ExecuteAsync();
         }
@@ -171,7 +171,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsDeadAtLevel_, (byte)10)
                 .And(CharacterHasGold_, 5000L)
                 .And(CharacterIsInAnArena)
-                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(GoldShouldBe_, 5000L)
                 .And(CharacterShouldStillBeDead)
                 .ExecuteAsync();
@@ -183,7 +183,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             await new Spec("A revival 2 sent outside an arena is ignored: no gold taken, still dead")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 5000L)
-                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
                 .Then(GoldShouldBe_, 5000L)
                 .And(CharacterShouldStillBeDead)
                 .And(MapChangeShouldNotBeCalled)
@@ -195,7 +195,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await new Spec("Unknown revival Type leaves IsAlive=false (matches OpenNos default-case behaviour)")
                 .Given(CharacterIsDeadAtLevel_, (byte)10)
-                .WhenAsync(SendingRevivalOfType_, (byte)99)
+                .WhenAsync(SendingRevivalOfType_, (RevivalType)99)
                 .Then(CharacterShouldStillBeDead)
                 .And(MapChangeShouldNotBeCalled)
                 .ExecuteAsync();
@@ -267,7 +267,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session.Character.Gold = gold;
         }
 
-        private async Task SendingRevivalOfType_(byte type)
+        private async Task SendingRevivalOfType_(RevivalType type)
         {
             await _handler.ExecuteAsync(new RevivalPacket { Type = type }, _session);
         }

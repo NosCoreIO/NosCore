@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            if (packet.Type != 1)
+            if (packet.Type != FamilyInviteAnswerType.Accept)
             {
                 await inviter.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.PlayerRefusedFamilyInvite });
                 return;
