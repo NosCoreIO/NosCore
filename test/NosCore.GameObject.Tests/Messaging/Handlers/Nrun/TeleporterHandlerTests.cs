@@ -43,9 +43,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _mapChangeService = new Mock<IMapChangeService>();
             _teleporters = new List<TeleporterDto>
             {
-                new() { MapNpcId = TeleporterNpcId, Index = 0, MapId = 1, MapX = 81, MapY = 114 },
-                new() { MapNpcId = TeleporterNpcId, Index = 2, MapId = 145, MapX = 13, MapY = 114 },
-                new() { MapNpcId = OtherNpcId, Index = 1, MapId = 20, MapX = 8, MapY = 87 },
+                new() { MapNpcId = TeleporterNpcId, Runner = NrunRunnerType.Teleport, Index = 0, MapId = 1, MapX = 81, MapY = 114 },
+                new() { MapNpcId = TeleporterNpcId, Runner = NrunRunnerType.Teleport, Index = 2, MapId = 145, MapX = 13, MapY = 114 },
+                new() { MapNpcId = OtherNpcId, Runner = NrunRunnerType.Teleport, Index = 1, MapId = 20, MapX = 8, MapY = 87 },
             };
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto>
@@ -173,20 +173,62 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ADestinationOfAnotherMenuIsNotOffered()
+        {
+            await new Spec("A destination recorded under the town teleporter's menu is not reached through a free menu")
+                .Given(CharacterGoldIs_, 10_000L)
+                .And(TheMenuSentIsTheGlacerusCaveGuide)
+                .WhenAsync(Option_IsPickedAtNpc_, (short)2, TeleporterNpcId)
+                .Then(CharacterGoldShouldBe_, 10_000L)
+                .And(NoMapChangeShouldHaveBeenInvoked)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ADestinationWithoutARecordedMenuIsNotOffered()
+        {
+            await new Spec("A destination stored before its menu was recorded takes nobody anywhere")
+                .Given(CharacterGoldIs_, 10_000L)
+                .And(TheDestinationsOfNpc_HaveNoRecordedMenu, TeleporterNpcId)
+                .WhenAsync(Option_IsPickedAtNpc_, (short)2, TeleporterNpcId)
+                .Then(CharacterGoldShouldBe_, 10_000L)
+                .And(NoMapChangeShouldHaveBeenInvoked)
+                .ExecuteAsync();
+        }
+
+        private void TheMenuSentIsTheGlacerusCaveGuide() =>
+            _handler = new GlacerusCaveTeleporterHandler(_mapChangeService.Object, _teleporters);
+
+        private void TheDestinationsOfNpc_HaveNoRecordedMenu(int npcId) =>
+            _teleporters.Where(s => s.MapNpcId == npcId).ToList().ForEach(s => s.Runner = null);
+
+        private void TheDestinationsOfNpc_BelongTo_(int npcId, NrunRunnerType runner) =>
+            _teleporters.Where(s => s.MapNpcId == npcId).ToList().ForEach(s => s.Runner = runner);
+
         private void HandlerOf_ShouldAnswer_(System.Type type, NrunRunnerType runner)
         {
             var handler = (INrunEventHandler)System.Activator.CreateInstance(type, _mapChangeService.Object, _teleporters)!;
             Assert.AreEqual(runner, handler.Runner);
         }
 
-        private void TheMenuIsTheActVTeleporter() =>
+        private void TheMenuIsTheActVTeleporter()
+        {
             _handler = new ActVTeleporterHandler(_mapChangeService.Object, _teleporters);
+            TheDestinationsOfNpc_BelongTo_(TeleporterNpcId, _handler.Runner);
+        }
 
-        private void TheMenuIsTheWeddingGazeboFerry() =>
+        private void TheMenuIsTheWeddingGazeboFerry()
+        {
             _handler = new WeddingGazeboTeleporterHandler(_mapChangeService.Object, _teleporters);
+            TheDestinationsOfNpc_BelongTo_(TeleporterNpcId, _handler.Runner);
+        }
 
-        private void TheMenuIsTheGlacerusCaveGuide() =>
+        private void TheMenuIsTheGlacerusCaveGuide()
+        {
             _handler = new GlacerusCaveTeleporterHandler(_mapChangeService.Object, _teleporters);
+            TheDestinationsOfNpc_BelongTo_(TeleporterNpcId, _handler.Runner);
+        }
 
         private void CharacterGoldIs_(long gold) => _session.Character.Gold = gold;
 
