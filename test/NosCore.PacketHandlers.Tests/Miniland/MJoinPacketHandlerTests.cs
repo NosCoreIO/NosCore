@@ -19,6 +19,8 @@ using NosCore.PacketHandlers.Miniland;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
@@ -115,6 +117,62 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 .Then(ShouldReceiveMinilandLockedMessage)
                 .And(MapShouldNotChange)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task JoinFromATimeSpaceShouldFail()
+        {
+            await new Spec("Joining a friend's miniland from inside a time-space is refused")
+                .Given(TargetIsFriend)
+                .And(MinilandIsOpen)
+                .And(CharacterIsInAn_, MapInstanceType.TimeSpaceInstance)
+                .WhenAsync(JoiningTargetMiniland)
+                .Then(MapShouldNotChange)
+                .And(ShouldBeToldItCannotBeUsedHere)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task JoinFromAnArenaShouldFail()
+        {
+            await new Spec("Joining a friend's miniland from inside an arena is refused")
+                .Given(TargetIsFriend)
+                .And(MinilandIsOpen)
+                .And(CharacterIsInAn_, MapInstanceType.ArenaInstance)
+                .WhenAsync(JoiningTargetMiniland)
+                .Then(MapShouldNotChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task JoinFromAnotherMinilandShouldSucceed()
+        {
+            await new Spec("Joining a friend's miniland from another miniland still works")
+                .Given(TargetIsFriend)
+                .And(MinilandIsOpen)
+                .And(CharacterIsInAn_, MapInstanceType.NormalInstance)
+                .And(CharacterIsInAMiniland)
+                .WhenAsync(JoiningTargetMiniland)
+                .Then(MapShouldChangeToMiniland)
+                .ExecuteAsync();
+        }
+
+        private void CharacterIsInAn_(MapInstanceType type)
+        {
+            Session.Character.MapInstance.MapInstanceType = type;
+        }
+
+        private void CharacterIsInAMiniland()
+        {
+            var mapInstanceId = Session.Character.MapInstance.MapInstanceId;
+            MinilandProvider.Setup(s => s.GetMinilandFromMapInstanceId(mapInstanceId))
+                .Returns(new GameObject.Services.MinilandService.Miniland { MapInstanceId = mapInstanceId });
+        }
+
+        private void ShouldBeToldItCannotBeUsedHere()
+        {
+            var sayi = Session.LastPackets.OfType<SayiPacket>().LastOrDefault();
+            Assert.AreEqual(Game18NConstString.CanNotBeUsedHere, sayi?.Message);
         }
 
         private void TargetIsFriend()

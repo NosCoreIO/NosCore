@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -12,6 +13,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.ClientPackets.Miniland;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using System.Linq;
@@ -33,6 +35,20 @@ namespace NosCore.PacketHandlers.Miniland
             if (mJoinPacket.Type != VisualType.Player)
             {
                 invitations?.TryRemove(session.Character.CharacterId, out _);
+                return;
+            }
+
+            // Only from the open world or another miniland: an instance has its own way out.
+            if (session.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
+                && minilandProvider.GetMinilandFromMapInstanceId(session.Character.MapInstance.MapInstanceId) == null)
+            {
+                await session.SendPacketAsync(new SayiPacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = session.Character.CharacterId,
+                    Type = SayColorType.Yellow,
+                    Message = Game18NConstString.CanNotBeUsedHere
+                });
                 return;
             }
 
