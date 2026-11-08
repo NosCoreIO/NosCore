@@ -220,6 +220,9 @@ namespace NosCore.PacketHandlers.Exchange
                     // This handler already holds its own session's packet lock. Only the side whose
                     // confirmation claimed the trade gets here, and a player is in one trade at a
                     // time, so taking the partner's lock as well cannot wait in a cycle.
+                    // Taken while the partner is still in the trade: once the close below completes, a
+                    // partner who is leaving can have its entity cleared.
+                    var partnerSender = exchangeTarget.Sender;
                     var result = ExchangeResultType.Failure;
                     ExcClosePacket? settled;
                     try
@@ -243,8 +246,11 @@ namespace NosCore.PacketHandlers.Exchange
                         settled = exchangeService.CloseExchange(clientSession.Character.VisualId, result);
                     }
 
-                    await exchangeTarget.SendPacketAsync(settled);
                     await clientSession.SendPacketAsync(settled);
+                    if (partnerSender != null)
+                    {
+                        await partnerSender.SendPacketAsync(settled);
+                    }
                     return;
 
                 case RequestExchangeType.Cancelled:

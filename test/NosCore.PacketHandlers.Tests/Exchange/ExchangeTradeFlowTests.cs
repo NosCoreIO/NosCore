@@ -52,6 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     {
         private ClientSession Requester = null!;
         private ClientSession Target = null!;
+        private readonly List<ISessionDisconnectHandler> TargetDisconnectHandlers = new();
         private ExchangeService Exchange = null!;
         private ExchangeRequestPackettHandler RequestHandler = null!;
         private ExcListPacketHandler ListHandler = null!;
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         {
             await TestHelpers.ResetAsync();
             Requester = await TestHelpers.Instance.GenerateSessionAsync();
-            Target = await TestHelpers.Instance.GenerateSessionAsync();
+            Target = await TestHelpers.Instance.GenerateSessionAsync(disconnectHandlers: TargetDisconnectHandlers);
             Requester.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             Target.Character.MapInstance = Requester.Character.MapInstance;
             Requester.Character.Gold = 0;
@@ -323,6 +324,22 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task TheRemainingPlayerIsToldTheOutcomeWhenThePartnerLeavesDuringSettlement()
+        {
+            await new Spec("A partner whose whole session ends during settlement does not stop the other player hearing the outcome")
+                .GivenAsync(ExchangeIsOpened)
+                .And(TheTransferIsHeld)
+                .AndAsync(TargetConfirms)
+                .And(RequesterConfirmsWhileTheTransferIsHeld)
+                .When(TargetSessionEnds)
+                .Then(TheDisconnectIsStillWaiting)
+                .AndAsync(TheTransferCompletes)
+                .And(RequesterWasToldTheTradeSucceeded)
+                .And(RequesterReceivedNoFailure)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task LeavingAnOpenTradeClosesIt()
         {
             await new Spec("A player leaving a trade nobody is settling closes it as failed")
@@ -423,6 +440,12 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private Task? _settlement;
         private readonly TaskCompletionSource<List<KeyValuePair<long, IvnPacket>>?> _heldTransfer = new();
         private ExchangeRequestPackettHandler? _heldHandler;
+
+        private void TargetSessionEnds()
+        {
+            TargetDisconnectHandlers.Add(new ExchangeDisconnectHandler(Exchange, TestHelpers.Instance.SessionRegistry));
+            _disconnect = Target.OnDisconnectedAsync();
+        }
 
         private void TheTransferIsHeld()
         {
