@@ -385,7 +385,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .ExecuteAsync(new CRegPacket
                 {
                     Type = 0, Inventory = (byte)PocketType.Equipment, Slot = 0, Amount = 1, Price = 10,
-                    Durability = 1, IsPackage = false, Taxe = 0
+                    Durability = BazaarListingDuration.OneDay, IsPackage = false, Taxe = 0
                 }, _seller);
 
         private void TheListedWeaponShouldHaveAnOptionOfValue_(int value)
@@ -462,7 +462,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .ExecuteAsync(new CRegPacket
                 {
                     Type = 0, Inventory = (byte)PocketType.Main, Slot = 0, Amount = amount, Price = 10,
-                    Durability = 1, IsPackage = false, Taxe = 0
+                    Durability = BazaarListingDuration.OneDay, IsPackage = false, Taxe = 0
                 }, _seller);
 
         private void TheFirstBuyAnswerIsLostAfterTheMasterAppliedIt()
