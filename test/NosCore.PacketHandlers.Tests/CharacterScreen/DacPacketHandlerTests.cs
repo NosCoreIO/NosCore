@@ -38,6 +38,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
+            Logger.Invocations.Clear();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AccountName = Session.Account.Name;
@@ -85,6 +86,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task ConnectionWithAccountTheAuthHubRefusesShouldFail()
+        {
+            await new Spec("Connection with account the auth hub refuses should fail")
+                .Given(AccountIsNotInWaitingState)
+                .WhenAsync(ConnectingWithAccount)
+                .Then(InvalidPasswordErrorShouldBeLogged)
+                .And(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConnectionWithWaitingAccountShouldSucceed()
         {
             await new Spec("Connection with waiting account should succeed")
@@ -114,11 +126,18 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 });
         }
 
+        private void AccountIsNotInWaitingState()
+        {
+            AuthHttpClient.Setup(authHttpClient => authHttpClient
+                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync("false");
+        }
+
         private void AccountIsInWaitingState()
         {
             AuthHttpClient.Setup(authHttpClient => authHttpClient
                     .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("123");
+                .ReturnsAsync("true");
         }
 
         private async Task ConnectingWithAccount()

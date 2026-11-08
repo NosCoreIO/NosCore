@@ -35,6 +35,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
+            Logger.Invocations.Clear();
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AccountName = Session.Account.Name;
@@ -98,6 +99,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task ConnectionWithGfModeNotInWaitingStateShouldFail()
+        {
+            await new Spec("Connection with gf mode not in waiting state should fail")
+                .Given(AccountIsNotInWaitingState)
+                .WhenAsync(ConnectingWithGfMode)
+                .Then(InvalidPasswordErrorShouldBeLogged)
+                .And(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConnectionWithGfModeShouldSucceed()
         {
             await new Spec("Connection with gf mode should succeed")
@@ -146,11 +158,18 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             // Password "test" is already set in TestHelpers with Sha512 hash
         }
 
+        private void AccountIsNotInWaitingState()
+        {
+            AuthHttpClient.Setup(authHttpClient => authHttpClient
+                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync("false");
+        }
+
         private void AccountIsInWaitingState()
         {
             AuthHttpClient.Setup(authHttpClient => authHttpClient
                     .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("123");
+                .ReturnsAsync("true");
         }
 
         private async Task AccountHasMfaEnabled()
