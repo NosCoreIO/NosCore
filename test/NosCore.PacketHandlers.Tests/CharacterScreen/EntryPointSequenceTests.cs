@@ -45,11 +45,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             var sessionRefHolder = new SessionRefHolder();
             var pubSubHub = TestHelpers.Instance.PubSubHub;
             pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            pubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>
             {
                 new EntryPointPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
                     TestHelpers.Instance.MateDao, NullLogger<EntryPointPacketHandler>.Instance, AuthHub,
-                    pubSubHub.Object, TestHelpers.Instance.WorldConfiguration, sessionRefHolder,
+                    TestHelpers.Instance.WorldConfiguration, sessionRefHolder,
                     TestHelpers.Instance.LogLanguageLocalizer)
             });
             AccountName = Session.Account.Name;

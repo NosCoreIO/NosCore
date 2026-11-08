@@ -17,8 +17,13 @@ public class MasterClientList
     public readonly ConcurrentDictionary<string, ConcurrentDictionary<long, Subscriber>> ConnectedAccounts = new();
     public readonly ConcurrentDictionary<string, Instant> LastSeen = new();
 
+    // One world session per account name, across every channel.
+    public readonly ConcurrentDictionary<string, AccountClaim> AccountClaims = new();
+
     public int ConnectionCounter { get; set; }
     public ConcurrentDictionary<string, long> ReadyForAuth { get; } = new();
 
     public ConcurrentDictionary<string, string> AuthCodes { get; } = new();
 }
+
+public record AccountClaim(string ChannelKey, long SessionId);

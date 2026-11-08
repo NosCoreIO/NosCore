@@ -103,6 +103,13 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
                 channel.Id.ToString(CultureInfo.CurrentCulture),
                 channel.Name);
             masterClientList.ConnectedAccounts.TryRemove(channelKey, out _);
+            foreach (var claim in masterClientList.AccountClaims)
+            {
+                if (claim.Value.ChannelKey == channelKey)
+                {
+                    masterClientList.AccountClaims.TryRemove(claim);
+                }
+            }
         }
 
         public static void Handle(BindChannelRequest request, IServiceProvider services) =>

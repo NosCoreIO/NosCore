@@ -317,7 +317,8 @@ namespace NosCore.Tests.Shared
             TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
         }
 
-        public async Task<ClientSession> GenerateSessionAsync(List<IPacketHandler>? packetHandlers = null)
+        public async Task<ClientSession> GenerateSessionAsync(List<IPacketHandler>? packetHandlers = null,
+            List<ISessionDisconnectHandler>? disconnectHandlers = null)
         {
             LastId++;
             var acc = new AccountDto
@@ -358,7 +359,7 @@ namespace NosCore.Tests.Shared
                 TestHelpers.Instance.PubSubHub.Object,
                 new Mock<IEncoder>().Object,
                 new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance, Instance.LogLanguageLocalizer, sessionRefHolder),
-                new List<ISessionDisconnectHandler>(),
+                disconnectHandlers ?? new List<ISessionDisconnectHandler>(),
                 Instance.SessionRegistry,
                 new Mock<NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub.IAuthHub>().Object)
             {

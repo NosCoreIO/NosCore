@@ -7,6 +7,7 @@
 using Arch.Core;
 using NosCore.Core.Concurrency;
 using NosCore.Data.Dto;
+using NosCore.Data.WebApi;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
@@ -43,7 +44,10 @@ namespace NosCore.GameObject.Networking.ClientSession
     {
         private static readonly AsyncLocal<PacketLockHold?> HeldPacketLocks = new();
 
+        public static readonly TimeSpan DisconnectLockTimeout = TimeSpan.FromSeconds(10);
+
         private readonly AsyncLock _handlingPacketLock = new();
+        private long? _subscribedSessionId;
         private readonly ILogger<ClientSession> _logger = logger;
         private PlayerSlot? _player;
         private int _changingMap;
@@ -102,6 +106,8 @@ namespace NosCore.GameObject.Networking.ClientSession
         public bool GameStarted { get; set; }
 
         public bool MfaValidated { get; set; }
+
+        public bool IsClosing { get; private set; }
 
         public int LastKeepAliveIdentity { get; set; }
 
@@ -176,6 +182,22 @@ namespace NosCore.GameObject.Networking.ClientSession
         public bool TryBeginMapChange() => Interlocked.CompareExchange(ref _changingMap, 1, 0) == 0;
 
         public void EndMapChange() => Volatile.Write(ref _changingMap, 0);
+
+        public async Task<bool> ClaimAccountAsync(AccountDto account)
+        {
+            var claimed = await pubSubHub.SubscribeAsync(new Subscriber
+            {
+                Id = SessionId,
+                Name = account.Name,
+                Language = account.Language,
+            });
+            if (claimed)
+            {
+                _subscribedSessionId = SessionId;
+            }
+
+            return claimed;
+        }
 
         public void InitializeAccount(AccountDto accountDto)
         {
@@ -255,13 +277,24 @@ namespace NosCore.GameObject.Networking.ClientSession
             catch (Exception ex)
             {
                 _logger.LogError(logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
-                await pubSubHub.UnsubscribeAsync(SessionId);
                 await DisconnectAsync();
             }
         }
 
         public async Task OnDisconnectedAsync()
         {
+            PacketLockScope? packetLock = null;
+            try
+            {
+                using var timeout = new CancellationTokenSource(DisconnectLockTimeout);
+                packetLock = await AcquirePacketLockAsync(timeout.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogWarning("Session {SessionId} still had a packet in flight when it disconnected", SessionId);
+            }
+
+            IsClosing = true;
             try
             {
                 if (!HasSelectedCharacter)
@@ -305,7 +338,13 @@ namespace NosCore.GameObject.Networking.ClientSession
                     try { await authHub.UnregisterSessionIpAsync(Account.Name); }
                     catch (Exception ex) { _logger.LogWarning(ex, "Failed to unregister session IP for {Account}", Account.Name); }
                 }
-                await pubSubHub.UnsubscribeAsync(SessionId);
+                if (_subscribedSessionId is { } subscribedSessionId)
+                {
+                    _subscribedSessionId = null;
+                    await pubSubHub.UnsubscribeAsync(subscribedSessionId);
+                }
+
+                packetLock?.Dispose();
                 _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
         }

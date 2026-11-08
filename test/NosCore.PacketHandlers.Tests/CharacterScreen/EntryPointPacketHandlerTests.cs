@@ -46,13 +46,13 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             AuthHttpClient = new Mock<IAuthHub>();
             PubSubHub = TestHelpers.Instance.PubSubHub;
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            PubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             EntryPointPacketHandler = new EntryPointPacketHandler(
                 TestHelpers.Instance.CharacterDao,
                 TestHelpers.Instance.AccountDao,
                 TestHelpers.Instance.MateDao,
                 Logger.Object,
                 AuthHttpClient.Object,
-                PubSubHub.Object,
                 TestHelpers.Instance.WorldConfiguration,
                 new SessionRefHolder(),
                 TestHelpers.Instance.LogLanguageLocalizer);
@@ -155,15 +155,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AccountIsAlreadyConnected()
         {
-            PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
-                new List<Subscriber>
-                {
-                    new()
-                    {
-                        ChannelId = 1,
-                        Name = AccountName
-                    }
-                });
+            PubSubHub.Setup(o => o.SubscribeAsync(It.Is<Subscriber>(x => x.Name == AccountName))).ReturnsAsync(false);
         }
 
         private void AccountPasswordIsValid()

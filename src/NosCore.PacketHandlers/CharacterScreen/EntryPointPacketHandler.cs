@@ -16,7 +16,6 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -36,26 +35,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger<EntryPointPacketHandler> logger, IAuthHub authHttpClient,
-            IPubSubHub pubSubHub, IOptions<WorldConfiguration> configuration,
+            IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
-            IDao<AccountDto, long> accountDao, IPubSubHub pubSubHub, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<AccountDto, long> accountDao, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
-            var subscribers = await pubSubHub.GetSubscribersAsync();
-            var alreadyConnnected = subscribers.Any(x => x.Name == accountName);
-
-            if (alreadyConnnected)
-            {
-                _logger.LogError(logLanguage[LogLanguageKey.ALREADY_CONNECTED], new
-                {
-                    accountName
-                });
-                await clientSession.DisconnectAsync();
-                return;
-            }
-
             var account = await accountDao.FirstOrDefaultAsync(s => s.Name == accountName);
 
             if (account == null)
@@ -78,6 +64,16 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
+            if (!await clientSession.ClaimAccountAsync(account))
+            {
+                _logger.LogError(logLanguage[LogLanguageKey.ALREADY_CONNECTED], new
+                {
+                    accountName
+                });
+                await clientSession.DisconnectAsync();
+                return;
+            }
+
             var sessionMapping = sessionRefHolder
                 .FirstOrDefault(s => s.Value.SessionId == clientSession.SessionId);
             if (!sessionMapping.Equals(default(KeyValuePair<string, RegionTypeMapping>)))
@@ -85,12 +81,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 sessionMapping.Value.RegionType = account.Language;
             }
             clientSession.InitializeAccount(account);
-            await pubSubHub.SubscribeAsync(new Subscriber
-            {
-                Id = clientSession.SessionId,
-                Name = clientSession.Account.Name,
-                Language = clientSession.Account.Language,
-            });
         }
 
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
@@ -99,7 +89,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var password = packet.Password ?? throw new InvalidOperationException();
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                    accountDao, pubSubHub, packet.Name, password == "thisisgfmode"
+                    accountDao, packet.Name, password == "thisisgfmode"
                         ? async _ =>
                         {
                             var grant = await authHttpClient.RedeemWorldEntryAsync(packet.Name, clientSession.SessionId);

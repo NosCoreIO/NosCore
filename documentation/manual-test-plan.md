@@ -1199,6 +1199,14 @@ Run the WebApi, the master, the login server and two world servers (two channels
 - [ ] On an account with MFA set, log in through the launcher: the launcher asks for the
       code, the game does not ask again, and changing channel does not ask either
 
+### One session per account
+
+- [ ] Log in on channel 1, then log the same account in from a second client and pick
+      channel 2: the second client is disconnected and the first keeps playing
+- [ ] Close the first client, wait for its character to leave, then log in again: it works
+- [ ] Pick up an item and close the client right away (kill the process). Log back in
+      immediately: the item is in the inventory
+
 ---
 
 ## Regression sweep
