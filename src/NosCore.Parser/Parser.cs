@@ -110,6 +110,7 @@ namespace NosCore.Parser
             await factory.ImportMapNpcsAsync().ConfigureAwait(false);
             await factory.ImportMapMonstersAsync().ConfigureAwait(false);
             await factory.ImportShopsAsync().ConfigureAwait(false);
+            await factory.ImportTeleportersAsync();
             await factory.ImportShopItemsAsync().ConfigureAwait(false);
             await factory.ImportRecipesAsync();
             await factory.ImportScriptsAsync().ConfigureAwait(false);
@@ -189,7 +190,8 @@ namespace NosCore.Parser
             if (key.KeyChar != 'n') await factory.ImportShopsAsync().ConfigureAwait(false);
 
             logger.LogInformation($"{logLanguage[LogLanguageKey.PARSE_TELEPORTERS]} [Y/n]");
-            Console.ReadKey(true);
+            key = Console.ReadKey(true);
+            if (key.KeyChar != 'n') await factory.ImportTeleportersAsync();
 
             logger.LogInformation($"{logLanguage[LogLanguageKey.PARSE_SHOPITEMS]} [Y/n]");
             key = Console.ReadKey(true);

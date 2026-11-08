@@ -1015,6 +1015,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} Teleporters Parsed!.
+        /// </summary>
+        public static string TELEPORTERS_PARSED {
+            get {
+                return ResourceManager.GetString("TELEPORTERS_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to request the group.
         /// </summary>
         public static string UNABLE_TO_REQUEST_GROUP {

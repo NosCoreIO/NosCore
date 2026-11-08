@@ -417,6 +417,9 @@
   <data name="SHOPS_PARSED" xml:space="preserve">
     <value>Â¡{0} Shops Analizadas!</value>
   </data>
+  <data name="TELEPORTERS_PARSED" xml:space="preserve">
+    <value>{0} Teletransportadores analizados.</value>
+  </data>
   <data name="SKILLS_PARSED" xml:space="preserve">
     <value>Â¡{0} Skills Analizadas!</value>
   </data>

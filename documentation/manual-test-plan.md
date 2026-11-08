@@ -318,6 +318,21 @@ Needs two characters who are friends, both online on the same channel.
 - [ ] With either of you inside an instance (miniland, raid, time-space): the client's "cannot be
       used here" message appears and the wings stay
 
+### NPC teleporters
+
+Run the parser's teleporter import first (the full import does it), then stand next to each kind
+of teleporter NPC with at least 10 000 gold.
+
+- [ ] NosVille, Western Krem and Port Alveus Square teleporters: the NosVille option is free,
+      Krem costs 1 000 gold and Port Alveus 2 000, and each lands in the town the menu names
+- [ ] Act V teleporters (Mortaz Desert Port and the other two Act V camps): 0, 5 000 and
+      10 000 gold for the first, second and third destination
+- [ ] Port Alveus butler, "Go to Wedding Gazebo. (500 Gold)": 500 gold and the gazebo
+- [ ] The Water Grotto guide, the ferry to the Forgotten Archipelago and the ship back from
+      the Mortaz Desert Port are free and land on their map
+- [ ] Below the fare: the client's not-enough-gold message in yellow, the gold stays and
+      nobody moves
+
 ### Respawn point
 
 - [ ] Talk to a village NPC that offers to save the respawn point and confirm: the client's
