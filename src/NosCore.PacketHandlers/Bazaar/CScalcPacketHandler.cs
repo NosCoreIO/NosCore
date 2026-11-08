@@ -18,6 +18,8 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -38,7 +40,7 @@ namespace NosCore.PacketHandlers.Bazaar
             IItemGenerationService itemProvider, ILogger<CScalcPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISaveService saveService,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            INpcDialogService npcDialogService)
+            INpcDialogService npcDialogService, IShellOptionService shellOptionService)
         : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
@@ -104,6 +106,7 @@ namespace NosCore.PacketHandlers.Bazaar
             }
 
             List<InventoryItemInstance>? newInv = null;
+            IItemInstance? returned = null;
             var applicable = BazaarHubOperations.CanApply(clientSession)
                 && (clientSession.Character.Gold + claim.Gold <= worldConfiguration.Value.MaxGoldAmount);
             if (applicable && (claim.Item != null))
@@ -112,6 +115,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 var listedId = claim.Item.Id;
                 var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == listedId);
                 var item = itemProvider.Convert(listed ?? claim.Item);
+                returned = item;
                 item.Id = Guid.NewGuid();
                 item.Amount = claim.ReturnedAmount;
                 newInv = clientSession.Character.InventoryService.AddItemToPocket(
@@ -131,6 +135,12 @@ namespace NosCore.PacketHandlers.Bazaar
             }
 
             clientSession.Character.Gold += claim.Gold;
+            if (returned is WearableInstance && (claim.Item != null))
+            {
+                await itemInstanceDao.TryInsertOrUpdateAsync(returned);
+                await shellOptionService.CopyAsync(claim.Item.Id, returned.Id);
+            }
+
             await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
 
             var listing = claim.Listing;

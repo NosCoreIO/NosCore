@@ -55,7 +55,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             CScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
                 BazaarHttpClient.Object, ItemProvider.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer,
                 new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, TestHelpers.Instance.NpcDialogService);
+                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, TestHelpers.Instance.NpcDialogService,
+                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
 
             var ownListing = new BazaarLink
             {

@@ -15,6 +15,8 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -33,7 +35,7 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CBuyPacketHandler(IBazaarHub bazaarHttpClient, IItemGenerationService itemProvider,
             ILogger<CBuyPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISaveService saveService,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            INpcDialogService npcDialogService)
+            INpcDialogService npcDialogService, IShellOptionService shellOptionService)
         : PacketHandler<CBuyPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CBuyPacket packet, ClientSession clientSession)
@@ -125,6 +127,12 @@ namespace NosCore.PacketHandlers.Bazaar
                             }
 
                             clientSession.Character.Gold -= price;
+                            if (item is WearableInstance)
+                            {
+                                await itemInstanceDao.TryInsertOrUpdateAsync(item);
+                                await shellOptionService.CopyAsync(listedId, item.Id);
+                            }
+
                             await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
                             await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
                             await clientSession.SendPacketAsync(newInv.GeneratePocketChange());

@@ -50,7 +50,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 ItemInstanceDao.Object,
                 new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
                 Microsoft.Extensions.Logging.Abstractions.NullLogger<CRegPacketHandler>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService,
+                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
             ItemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
         }

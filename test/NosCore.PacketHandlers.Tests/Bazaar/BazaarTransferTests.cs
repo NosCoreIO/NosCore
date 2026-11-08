@@ -20,6 +20,12 @@ using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Algorithm.ShellService;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
+using EquipmentOption = NosCore.Database.Entities.EquipmentOption;
+using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.BDD.Steps;
 using SpecLight;
@@ -39,6 +45,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private BazaarTestMaster _master = null!;
         private InterceptingHub _hub = null!;
         private Mock<ISaveService> _saveService = null!;
+        private IDao<EquipmentOptionDto, Guid> _optionDao = null!;
+        private ShellOptionService _options = null!;
         private ClientSession _seller = null!;
         private ClientSession _buyer = null!;
         private ClientSession _third = null!;
@@ -59,6 +67,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _master = new BazaarTestMaster();
             _hub = new InterceptingHub(_master.Hub);
             _saveService = new Mock<ISaveService>();
+            _optionDao = new Dao<EquipmentOption, EquipmentOptionDto, Guid>(
+                NullLogger<Dao<EquipmentOption, EquipmentOptionDto, Guid>>.Instance, TestHelpers.Instance.DbContextBuilder);
+            _options = new ShellOptionService(new ShellService(), new Mock<IRandomNumberSource>().Object, _optionDao);
         }
 
         [TestMethod]
@@ -84,6 +95,29 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .And(TheListingReachesTheBuyerAsTheBaseItemType)
                 .WhenAsync(TheBuyerBuys_, (short)1)
                 .Then(TheBuyersWeaponShouldHaveMaximumDamage_, (short)123)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingEquipmentKeepsItsOptions()
+        {
+            await new Spec("Buying equipment keeps its options")
+                .GivenAsync(AWeaponListingWithMaximumDamage_, (short)123)
+                .AndAsync(TheListedWeaponHasAnOptionOfValue_, 7)
+                .And(TheBuyerHas_Gold, 1000L)
+                .WhenAsync(TheBuyerBuys_, (short)1)
+                .Then(TheBuyersWeaponShouldHaveAnOptionOfValue_, 7)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CollectingUnsoldEquipmentKeepsItsOptions()
+        {
+            await new Spec("Collecting unsold equipment keeps its options")
+                .GivenAsync(AWeaponListingWithMaximumDamage_, (short)123)
+                .AndAsync(TheListedWeaponHasAnOptionOfValue_, 7)
+                .WhenAsync(TheSellerCollects)
+                .Then(TheSellersWeaponShouldHaveAnOptionOfValue_, 7)
                 .ExecuteAsync();
         }
 
@@ -252,12 +286,12 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private CBuyPacketHandler NewCBuy() =>
             new(_hub, TestHelpers.Instance.GenerateItemProvider(), NullLogger<CBuyPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer, _saveService.Object, _master.ItemInstanceDao,
-                TestHelpers.Instance.NpcDialogService);
+                TestHelpers.Instance.NpcDialogService, _options);
 
         private CScalcPacketHandler NewCScalc() =>
             new(TestHelpers.Instance.WorldConfiguration, _hub, TestHelpers.Instance.GenerateItemProvider(),
                 NullLogger<CScalcPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer, _saveService.Object,
-                _master.ItemInstanceDao, TestHelpers.Instance.NpcDialogService);
+                _master.ItemInstanceDao, TestHelpers.Instance.NpcDialogService, _options);
 
         private async Task AListingOf_At_(short amount, long price) =>
             _listingId = await _master.ListAsync(_seller.Character.CharacterId, _seller.Character.Name, ItemVNum,
@@ -283,6 +317,25 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 }
             };
             _hub.Get = () => new List<BazaarLink> { copy };
+        }
+
+        private async Task TheListedWeaponHasAnOptionOfValue_(int value)
+        {
+            var weapon = _master.Registry.GetById(_listingId)!.ItemInstance!.Id;
+            await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
+            {
+                Id = Guid.NewGuid(), WearableInstanceId = weapon, Level = 1, Type = 1, Value = value
+            });
+        }
+
+        private void TheBuyersWeaponShouldHaveAnOptionOfValue_(int value) => WeaponShouldHaveAnOptionOfValue(_buyer, value);
+
+        private void TheSellersWeaponShouldHaveAnOptionOfValue_(int value) => WeaponShouldHaveAnOptionOfValue(_seller, value);
+
+        private void WeaponShouldHaveAnOptionOfValue(ClientSession session, int value)
+        {
+            var weapon = session.Character.InventoryService.Values.Single(i => i.ItemInstance.ItemVNum == 1).ItemInstanceId;
+            Assert.AreEqual(value, _options.Load(weapon).Single().Value);
         }
 
         private void TheBuyersWeaponShouldHaveMaximumDamage_(short damage)
@@ -339,7 +392,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private Task TheSellerLists_(short amount) =>
             new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration, _hub, _master.ItemInstanceDao,
                     _saveService.Object, NullLogger<CRegPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                    TestHelpers.Instance.NpcDialogService)
+                    TestHelpers.Instance.NpcDialogService, _options)
                 .ExecuteAsync(new CRegPacket
                 {
                     Type = 0, Inventory = (byte)PocketType.Main, Slot = 0, Amount = amount, Price = 10,

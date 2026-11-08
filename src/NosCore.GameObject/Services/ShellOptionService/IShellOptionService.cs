@@ -22,4 +22,7 @@ public interface IShellOptionService
     Task SaveAsync(Guid wearableInstanceId, IEnumerable<EquipmentOptionDto> options);
 
     Task ClearAsync(Guid wearableInstanceId);
+
+    // Options belong to one instance id: an item handed over under a new id needs its own copy.
+    Task CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId);
 }

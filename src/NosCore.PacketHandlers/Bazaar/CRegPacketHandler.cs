@@ -20,6 +20,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -37,7 +38,7 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHub bazaarHttpClient,
             IDao<IItemInstanceDto?, Guid> itemInstanceDao, ISaveService saveService, ILogger<CRegPacketHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
-            INpcDialogService npcDialogService)
+            INpcDialogService npcDialogService, IShellOptionService shellOptionService)
         : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CRegPacket cRegPacket, ClientSession clientSession)
@@ -142,6 +143,11 @@ namespace NosCore.PacketHandlers.Bazaar
             if (await itemInstanceDao.TryInsertOrUpdateAsync(listed) == null)
             {
                 return;
+            }
+
+            if (listed is WearableInstance)
+            {
+                await shellOptionService.CopyAsync(bazar.ItemInstance.Id, listed.Id);
             }
 
             var operationId = Guid.NewGuid();
