@@ -595,9 +595,8 @@ Have a pet and a partner out, and a second client on the same map watching.
 - [ ] Relog after using a wing: the amulet still knows the point of return
 - [ ] Use a wing, then walk during the bar: the bar stops and you stay where you are, with the
       wing still in the inventory
-- [ ] Use a wing while a monster is hitting you: the first hit stops the bar and nothing happens
-      when it would have ended. Check whether the client's own bar disappears on the hit or keeps
-      running to the end; if it keeps running, note it here
+- [ ] Use a wing while a monster is hitting you: the client drops the bar on the hit, sends no
+      follow-up, and you stay with the wing
 
 ### Parcels and private shops
 
