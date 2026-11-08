@@ -56,7 +56,7 @@ We recommend usage of :
 - Parse all
 
 ### Required secrets ###
-Every server refuses to start while one of these is empty or left at a shipped default such as `CHANGE_ME`, and logs which setting to set. Copy `.env.example` to `.env` for Docker Compose, or export the variables in the environment of each server you run outside Docker.
+Every server refuses to start while one of these is empty or left at a shipped default such as `CHANGE_ME`, and logs which setting to set. Copy `.env.example` to `.env` for Docker Compose, or export the variables in the environment of each server you run outside Docker. Avoid `$` in these values: both the configuration loader and Compose treat it specially.
 
 | Variable | Used by |
 |---|---|
