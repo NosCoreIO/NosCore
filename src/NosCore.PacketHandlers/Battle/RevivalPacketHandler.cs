@@ -138,6 +138,10 @@ namespace NosCore.PacketHandlers.Battle
                 await buffService.ApplyAsync(character, protection,
                     cardCatalog.GetCardBCards(ArenaRevivalProtectionCardId), character);
             }
+            else
+            {
+                logger.LogWarning("Arena revival protection card {CardId} is missing", ArenaRevivalProtectionCardId);
+            }
         }
 
         private static void RestoreLife(ClientSession session, int percent)
