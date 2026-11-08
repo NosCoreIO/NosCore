@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -101,7 +101,8 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             Caster: caster,
             StartedAt: now,
             ExpiresAt: now.Plus(Duration.FromMilliseconds(skillDuration * 100)),
-            BCards: lasting);
+            BCards: lasting,
+            FromSkill: true);
 
         buffs.AddOrUpdate(skillVnum, buff, (_, _) => buff);
         return Task.CompletedTask;
@@ -160,6 +161,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
         }
 
+        foreach (var buff in expired)
+        {
+            await ApplyTimeoutBuffAsync(target, buff);
+        }
+
         return expired;
     }
 
@@ -198,6 +204,28 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
             await ApplyAsync(target, card, cardCatalog.GetCardBCards(cardId), caster);
         }
+    }
+
+    private async Task ApplyTimeoutBuffAsync(IAliveEntity target, BuffInstance expired)
+    {
+        if (expired.FromSkill)
+        {
+            return;
+        }
+
+        var card = cardCatalog.GetCard(expired.CardId);
+        if (card == null || card.TimeoutBuff == 0 || !Rolls(card.TimeoutBuffChance))
+        {
+            return;
+        }
+
+        var followUp = cardCatalog.GetCard(card.TimeoutBuff);
+        if (followUp == null)
+        {
+            return;
+        }
+
+        await ApplyAsync(target, followUp, cardCatalog.GetCardBCards(followUp.CardId), expired.Caster);
     }
 
     private bool Rolls(int percent) => percent > 0 && randomProvider.Next(0, 100) < percent;

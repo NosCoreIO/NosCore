@@ -20,4 +20,5 @@ public sealed record BuffInstance(
     IAliveEntity? Caster,
     Instant StartedAt,
     Instant ExpiresAt,
-    IReadOnlyList<BCardDto> BCards);
+    IReadOnlyList<BCardDto> BCards,
+    bool FromSkill = false);
