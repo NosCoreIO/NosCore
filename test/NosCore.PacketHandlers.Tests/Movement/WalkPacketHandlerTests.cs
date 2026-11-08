@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
@@ -227,6 +228,35 @@ namespace NosCore.PacketHandlers.Tests.Movement
             var tp = Session.LastPackets.OfType<TpPacket>().LastOrDefault();
             Assert.IsNotNull(tp);
             Assert.AreEqual((x, y), (tp.X, tp.Y));
+        }
+
+        [TestMethod]
+        public async Task WalkingInterruptsABarInProgress()
+        {
+            await new Spec("A step taken during a delay bar cancels it")
+                .Given(CharacterIsOnMap)
+                .AndAsync(ADelayBarIsRunning)
+                .WhenAsync(WalkingToValidPosition)
+                .Then(TheBarShouldNotCompleteAfterFiveSeconds)
+                .ExecuteAsync();
+        }
+
+        private static readonly System.Guid BarTarget = System.Guid.NewGuid();
+
+        private Task ADelayBarIsRunning()
+        {
+            return Session.Character.StartDelayAsync(new NosCore.Packets.ServerPackets.UI.DelayPacket
+            {
+                Delay = 5000,
+                Type = NosCore.Packets.Enumerations.DelayPacketType.ItemInUse,
+            }, BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant());
+        }
+
+        private void TheBarShouldNotCompleteAfterFiveSeconds()
+        {
+            TestHelpers.Instance.Clock.AdvanceSeconds(5);
+            Assert.IsFalse(Session.Character.TryCompleteDelay(NosCore.Packets.Enumerations.DelayPacketType.ItemInUse,
+                BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant()));
         }
 
         private short InitialX;

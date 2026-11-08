@@ -76,11 +76,11 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                         Argument = Travel,
                         VisualId = friendId
                     }
-                }, clock.GetCurrentInstant());
+                }, friendId, clock.GetCurrentInstant());
                 return;
             }
 
-            if (!character.TryCompleteDelay(DelayPacketType.InUse, clock.GetCurrentInstant()))
+            if (!character.TryCompleteDelay(DelayPacketType.InUse, friendId, clock.GetCurrentInstant()))
             {
                 return;
             }

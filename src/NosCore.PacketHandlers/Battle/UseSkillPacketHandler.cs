@@ -63,6 +63,8 @@ namespace NosCore.PacketHandlers.Battle
                 return;
             }
 
+            clientSession.Character.CancelDelay();
+
             var target = ResolveTarget(packet, clientSession);
             if (target == null)
             {

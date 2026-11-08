@@ -416,7 +416,7 @@ public class MapWorld : IDisposable
             new TimingComponent(now, Instant.MinValue, Instant.MinValue),
             new SpeedComponent(speed),
             new DigestionComponent(new DigestionState()),
-            new PendingDelayComponent(null, Instant.MinValue),
+            new PendingDelayComponent(null, Instant.MinValue, null),
             new WalkAllowanceComponent(0)
         );
         return entity;
@@ -456,7 +456,7 @@ public class MapWorld : IDisposable
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
             context, inventory, social, requests, mates);
         _world.Add(entity, digestion);
-        _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue));
+        _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue, null));
         _world.Add(entity, new WalkAllowanceComponent(0));
         return entity;
     }

@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NodaTime;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
@@ -24,7 +25,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     // The Wing of Return asks whether to save where it was used, then sends the character to its place
     // of revival either way; the Amulet of Return marks the saved point and brings it back there.
     [UsedImplicitly]
-    public sealed class ReturnItemHandler(IRespawnService respawnService, IMapChangeService mapChangeService)
+    public sealed class ReturnItemHandler(IRespawnService respawnService, IMapChangeService mapChangeService, IClock clock)
     {
         private const byte SaveAnswered = 1;
         private const byte DontSaveAnswered = 2;
@@ -46,7 +47,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-
             if (character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
                 await SayAsync(session, Game18NConstString.CanNotBeUsedHere);
@@ -92,6 +92,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     return;
                 case SaveAndLeave:
                 case LeaveWithoutSaving:
+                    if (!CompleteDelay(evt))
+                    {
+                        return;
+                    }
+
                     await ConsumeAsync(evt);
                     if (evt.Packet.Mode == SaveAndLeave)
                     {
@@ -131,21 +136,33 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     await SendDelayAsync(evt, AmuletLeave);
                     return;
                 case AmuletLeave:
+                    if (!CompleteDelay(evt))
+                    {
+                        return;
+                    }
+
                     await ConsumeAsync(evt);
                     await mapChangeService.ChangeMapAsync(session, mapId, x, y);
                     return;
             }
         }
 
-        private static Task SendDelayAsync(ItemUsedEvent evt, byte nextMode)
+        private Task SendDelayAsync(ItemUsedEvent evt, byte nextMode)
         {
             var itemInstance = evt.InventoryItem;
-            return evt.ClientSession.SendPacketAsync(new DelayPacket
+            var character = evt.ClientSession.Character;
+            return character.StartDelayAsync(new DelayPacket
             {
                 Delay = 5000,
                 Type = DelayPacketType.ItemInUse,
-                Packet = evt.ClientSession.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, nextMode, 0)
-            });
+                Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, nextMode, 0)
+            }, (itemInstance.ItemInstanceId, nextMode), clock.GetCurrentInstant());
+        }
+
+        private bool CompleteDelay(ItemUsedEvent evt)
+        {
+            return evt.ClientSession.Character.TryCompleteDelay(DelayPacketType.ItemInUse,
+                (evt.InventoryItem.ItemInstanceId, (byte)evt.Packet.Mode), clock.GetCurrentInstant());
         }
 
         private static Task ConsumeAsync(ItemUsedEvent evt)

@@ -184,6 +184,9 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Mount a vehicle: a three-second bar runs, then the sprite changes **and** you move faster
 - [ ] Dismount: the speed returns to the class value
 - [ ] Speed survives a map change while mounted
+- [ ] Walk, cast a skill, or take a hit during the mounting bar: you don't mount
+- [ ] Start the mounting bar and transform into your specialist straight after: the specialist
+      bar doesn't finish off the mount, and the other way round
 
 ### Class change
 
@@ -361,6 +364,7 @@ Needs two characters who are friends, both online on the same channel.
 - [ ] With the friend logged out: the friend-offline message appears and the wings stay
 - [ ] With either of you inside an instance (miniland, raid, time-space): the client's "cannot be
       used here" message appears and the wings stay
+- [ ] Walk, or cast a skill, during the bar: the bar stops, you stay, and the wings stay
 
 ### NPC teleporters
 
@@ -589,6 +593,10 @@ Have a pet and a partner out, and a second client on the same map watching.
       gone, but the amulet brings you back to the old point
 - [ ] Inside a time-space or raid, either item says it cannot be used here
 - [ ] Relog after using a wing: the amulet still knows the point of return
+- [ ] Use a wing, then walk during the bar: the bar stops and you stay where you are, with the
+      wing still in the inventory
+- [ ] Use a wing while a monster is hitting you: the client drops the bar on the hit, sends no
+      follow-up, and you stay with the wing
 
 ### Parcels and private shops
 

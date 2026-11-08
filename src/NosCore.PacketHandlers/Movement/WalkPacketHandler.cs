@@ -101,6 +101,8 @@ namespace NosCore.PacketHandlers.Movement
                 session.Character.PositionX, session.Character.PositionY,
                 session.Character.MapX, session.Character.MapY);
 
+            session.Character.CancelDelay();
+
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateMove(),
                 new EveryoneBut(session.Channel!.Id));
 

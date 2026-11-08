@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _respawnService.Setup(x => x.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns(0);
             _respawnService.Setup(x => x.GetRespawnLocation(It.IsAny<ICharacterEntity>(), It.IsAny<long?>()))
                 .Returns(((short)1, (short)80, (short)116));
-            _handler = new ReturnItemHandler(_respawnService.Object, _mapChangeService.Object);
+            _handler = new ReturnItemHandler(_respawnService.Object, _mapChangeService.Object, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -116,7 +116,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             await new Spec("After a confirmed save the wing is consumed, saves the spot and warps to the place of revival")
                 .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
-                .WhenAsync(UsingItemWithMode_, (byte)3)
+                .WhenAsync(UsingItemWithMode_, (byte)1)
+                .And(TheBarRuns_Milliseconds, 5000)
+                .AndAsync(UsingItemWithMode_, (byte)3)
                 .Then(ItemShouldBeConsumed)
                 .And(ReturnPointShouldBeSavedAtCurrentPosition)
                 .And(MapChangeShouldBeTo_, (short)1, (short)80, (short)116)
@@ -129,7 +131,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await new Spec("After a cancelled save the wing is still consumed and warps to the place of revival, keeping the old point")
                 .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
                 .And(AReturnPointIsSaved)
-                .WhenAsync(UsingItemWithMode_, (byte)4)
+                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .And(TheBarRuns_Milliseconds, 5000)
+                .AndAsync(UsingItemWithMode_, (byte)4)
                 .Then(ItemShouldBeConsumed)
                 .And(ReturnPointShouldNotBeSaved)
                 .And(MapChangeShouldBeTo_, (short)1, (short)80, (short)116)
@@ -177,11 +181,70 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await new Spec("After the delay the Amulet of Return is consumed and warps to the saved point")
                 .Given(ItemInInventory_, TeleportEffectValue.AmuletOfReturn)
                 .And(AReturnPointIsSaved)
-                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .WhenAsync(UsingItemWithMode_, (byte)1)
+                .And(TheBarRuns_Milliseconds, 5000)
+                .AndAsync(UsingItemWithMode_, (byte)2)
                 .Then(ItemShouldBeConsumed)
                 .And(MapChangeShouldBeTo_, (short)2550, (short)20, (short)33)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task WingWithoutTheBarDoesNothing()
+        {
+            await new Spec("The wing's final step without the bar having been started keeps the wing and the character")
+                .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
+                .WhenAsync(UsingItemWithMode_, (byte)3)
+                .Then(ItemShouldBeKept)
+                .And(NoMapChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WingBeforeTheBarEndsDoesNothing()
+        {
+            await new Spec("The wing's final step sent before the five-second bar has run keeps the wing")
+                .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
+                .WhenAsync(UsingItemWithMode_, (byte)1)
+                .And(TheBarRuns_Milliseconds, 2000)
+                .AndAsync(UsingItemWithMode_, (byte)3)
+                .Then(ItemShouldBeKept)
+                .And(NoMapChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WingBarForLeavingDoesNotSave()
+        {
+            await new Spec("A bar started without saving cannot be completed as the saving step")
+                .Given(ItemInInventory_, TeleportEffectValue.WingOfReturn)
+                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .And(TheBarRuns_Milliseconds, 5000)
+                .AndAsync(UsingItemWithMode_, (byte)3)
+                .Then(ReturnPointShouldNotBeSaved)
+                .And(NoMapChange)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AmuletWithoutTheBarDoesNothing()
+        {
+            await new Spec("The amulet's final step without the bar having been started keeps the amulet")
+                .Given(ItemInInventory_, TeleportEffectValue.AmuletOfReturn)
+                .And(AReturnPointIsSaved)
+                .WhenAsync(UsingItemWithMode_, (byte)2)
+                .Then(ItemShouldBeKept)
+                .And(NoMapChange)
+                .ExecuteAsync();
+        }
+
+        private void TheBarRuns_Milliseconds(int milliseconds)
+        {
+            TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
+        }
+
+        private void ItemShouldBeKept() =>
+            Assert.AreEqual(1, _session.Character.InventoryService.CountItem(ItemVNum));
 
         private void ItemInInventory_(TeleportEffectValue value)
         {

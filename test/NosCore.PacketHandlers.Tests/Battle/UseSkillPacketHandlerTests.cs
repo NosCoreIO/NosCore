@@ -17,6 +17,7 @@ using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.GameObject.Services.MovementService;
+using NosCore.GameObject.Ecs.Extensions;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
@@ -327,6 +328,36 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
             return UsingSkillOnExistingPlayerReportingCell_(x);
+        }
+
+        [TestMethod]
+        public async Task CastingInterruptsABarInProgress()
+        {
+            await new Spec("A skill cast during a delay bar cancels it")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnSameMap)
+                .AndAsync(ADelayBarIsRunning)
+                .WhenAsync(UsingSkillOnExistingPlayer)
+                .Then(TheBarShouldNotCompleteAfterFiveSeconds)
+                .ExecuteAsync();
+        }
+
+        private static readonly System.Guid BarTarget = System.Guid.NewGuid();
+
+        private Task ADelayBarIsRunning()
+        {
+            return Session.Character.StartDelayAsync(new NosCore.Packets.ServerPackets.UI.DelayPacket
+            {
+                Delay = 5000,
+                Type = NosCore.Packets.Enumerations.DelayPacketType.Locomotion,
+            }, BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant());
+        }
+
+        private void TheBarShouldNotCompleteAfterFiveSeconds()
+        {
+            TestHelpers.Instance.Clock.AdvanceSeconds(5);
+            Assert.IsFalse(Session.Character.TryCompleteDelay(NosCore.Packets.Enumerations.DelayPacketType.Locomotion,
+                BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant()));
         }
 
         private void SkillHasRange_(byte range)

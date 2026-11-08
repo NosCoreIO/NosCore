@@ -70,12 +70,12 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     Delay = 5000,
                     Type = DelayPacketType.ItemInUse,
                     Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
-                }, clock.GetCurrentInstant());
+                }, itemInstance.ItemInstanceId, clock.GetCurrentInstant());
                 return;
             }
 
             character = session.Character;
-            if (!character.TryCompleteDelay(DelayPacketType.ItemInUse, clock.GetCurrentInstant()))
+            if (!character.TryCompleteDelay(DelayPacketType.ItemInUse, itemInstance.ItemInstanceId, clock.GetCurrentInstant()))
             {
                 return;
             }
