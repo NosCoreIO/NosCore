@@ -19,5 +19,8 @@ namespace NosCore.Data.Enumerations
         Wear = 8,
         Mount = 9,
         Raid = 10,
+        FirstPartnerInventory = 13,
+        SecondPartnerInventory = 14,
+        ThirdPartnerInventory = 15,
     }
 }

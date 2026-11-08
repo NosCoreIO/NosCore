@@ -11,6 +11,7 @@ using Moq;
 using NosCore.Algorithm.MateExperienceService;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
@@ -132,7 +133,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             }, Creature(ChickenVNum, "Chicken", 157, 10), Creature(PartnerVNum, "Bob", 870, 200));
 
             var packets = MateServiceImpl
-                .GenerateScPackets(await service.LoadAsync(CharacterId), RegionType.EN).ToList();
+                .GenerateScPackets(await service.LoadAsync(CharacterId), RegionType.EN, new Mock<IInventoryService>().Object).ToList();
 
             Assert.AreEqual(1, packets.OfType<ScpPacket>().Count());
             Assert.AreEqual(1, packets.OfType<ScnPacket>().Count());
@@ -344,7 +345,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 .ToList());
 
             foreach (var packet in new IPacket[]
-                { mate.GenerateIn(RegionType.EN), mate.GenerateScp(RegionType.EN), mate.GenerateScn(RegionType.EN) })
+                { mate.GenerateIn(RegionType.EN), mate.GenerateScp(RegionType.EN), mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object) })
             {
                 var line = serializer.Serialize(new[] { packet }).TrimEnd();
                 StringAssert.Contains(line, "Joyeux^Mouton",

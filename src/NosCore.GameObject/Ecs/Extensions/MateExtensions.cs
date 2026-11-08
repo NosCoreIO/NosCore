@@ -4,7 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.Enumerations;
@@ -63,7 +66,12 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static ScnPacket GenerateScn(this Mate mate, RegionType language)
+        public static NoscorePocketType? EquipmentPocket(this Mate mate) =>
+            mate.MateType == MateType.Partner && mate.PetSlot < 3
+                ? (NoscorePocketType)((byte)NoscorePocketType.FirstPartnerInventory + mate.PetSlot)
+                : null;
+
+        public static ScnPacket GenerateScn(this Mate mate, RegionType language, IInventoryService inventory)
         {
             return new ScnPacket
             {
@@ -73,10 +81,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Level = mate.Level,
                 Loyalty = mate.Loyalty,
                 Experience = mate.Experience,
-                WeaponInstanceDetails = EmptySlot,
-                ArmorInstanceDetails = EmptySlot,
-                GauntletInstanceDetails = EmptySlot,
-                BootsInstanceDetails = EmptySlot,
+                WeaponInstanceDetails = mate.Gear(inventory, EquipmentType.MainWeapon),
+                ArmorInstanceDetails = mate.Gear(inventory, EquipmentType.Armor),
+                GauntletInstanceDetails = mate.Gear(inventory, EquipmentType.Gloves),
+                BootsInstanceDetails = mate.Gear(inventory, EquipmentType.Boots),
                 AttackUpgrade = mate.NpcMonster.AttackUpgrade,
                 MinimumAttack = mate.NpcMonster.DamageMinimum,
                 MaximumAttack = mate.NpcMonster.DamageMaximum,
@@ -233,11 +241,18 @@ namespace NosCore.GameObject.Ecs.Extensions
         private static int Percent(int current, int maximum, int whenUnknown) =>
             maximum > 0 ? (int)(current / (float)maximum * 100) : whenUnknown;
 
-        private static ScnPacket.ScEquipmentDetails EmptySlot => new()
+        private static ScnPacket.ScEquipmentDetails Gear(this Mate mate, IInventoryService inventory, EquipmentType slot)
         {
-            ItemId = -1,
-            ItemRare = 0,
-            ItemUpgrade = 0
-        };
+            var pocket = mate.EquipmentPocket();
+            var worn = pocket == null ? null : inventory.LoadBySlotAndType((short)slot, pocket.Value)?.ItemInstance;
+            return worn is WearableInstance wearable
+                ? new ScnPacket.ScEquipmentDetails
+                {
+                    ItemId = wearable.ItemVNum,
+                    ItemRare = wearable.Rare,
+                    ItemUpgrade = wearable.Upgrade
+                }
+                : new ScnPacket.ScEquipmentDetails { ItemId = -1 };
+        }
     }
 }
