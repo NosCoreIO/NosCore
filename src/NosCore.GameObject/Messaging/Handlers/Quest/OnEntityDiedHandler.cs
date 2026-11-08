@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             if (victim.MapInstance is not null)
             {
                 var world = victim.MapInstance.EcsWorld;
-                if (world.World.IsAlive(handle))
+                if (world.IsAlive(handle))
                 {
                     var identity = world.TryGetComponent<EntityIdentityComponent>(handle);
                     if (identity is { VisualType: VisualType.Player })

@@ -32,38 +32,36 @@ public class VisibilitySystem
     public IEnumerable<Entity> GetMonsterEntities(MapWorld world)
     {
         var monsters = new List<Entity>();
-        world.World.Query(in _npcDataQuery, (Entity entity) =>
+        world.Exclusive(w => w.Query(in _npcDataQuery, (Entity entity, ref EntityIdentityComponent identity) =>
         {
-            var identity = world.World.Get<EntityIdentityComponent>(entity);
             if (identity.VisualType == VisualType.Monster)
             {
                 monsters.Add(entity);
             }
-        });
+        }));
         return monsters;
     }
 
     public IEnumerable<Entity> GetNpcEntities(MapWorld world)
     {
         var npcs = new List<Entity>();
-        world.World.Query(in _npcDataQuery, (Entity entity) =>
+        world.Exclusive(w => w.Query(in _npcDataQuery, (Entity entity, ref EntityIdentityComponent identity) =>
         {
-            var identity = world.World.Get<EntityIdentityComponent>(entity);
             if (identity.VisualType == VisualType.Npc)
             {
                 npcs.Add(entity);
             }
-        });
+        }));
         return npcs;
     }
 
     public IEnumerable<Entity> GetMapItemEntities(MapWorld world)
     {
         var items = new List<Entity>();
-        world.World.Query(in _itemsQuery, (Entity entity) =>
+        world.Exclusive(w => w.Query(in _itemsQuery, (Entity entity) =>
         {
             items.Add(entity);
-        });
+        }));
         return items;
     }
 
@@ -71,7 +69,7 @@ public class VisibilitySystem
     {
         var entities = new List<Entity>();
 
-        world.World.Query(in _positionQuery, (Entity entity, ref PositionComponent position) =>
+        world.Exclusive(w => w.Query(in _positionQuery, (Entity entity, ref PositionComponent position) =>
         {
             var dx = Math.Abs(position.PositionX - centerX);
             var dy = Math.Abs(position.PositionY - centerY);
@@ -79,7 +77,7 @@ public class VisibilitySystem
             {
                 entities.Add(entity);
             }
-        });
+        }));
 
         return entities;
     }

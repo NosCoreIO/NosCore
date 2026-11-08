@@ -9,6 +9,7 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Npcs;
@@ -26,7 +27,6 @@ using NosCore.Shared.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 
 
@@ -143,17 +143,35 @@ namespace NosCore.GameObject.Ecs.Extensions
 
             var distance = (int)distanceCalculator.GetDistance((nonPlayableEntity.PositionX, nonPlayableEntity.PositionY), (mapX, mapY));
             var value = 1000d * distance / (2 * nonPlayableEntity.Speed);
-            Observable.Timer(TimeSpan.FromMilliseconds(value))
-                .Subscribe(
-                    _ =>
-                    {
-                        nonPlayableEntity.PositionX = mapX;
-                        nonPlayableEntity.PositionY = mapY;
-                    });
+            _ = ArriveAsync(nonPlayableEntity, nonPlayableEntity.MapInstance, mapX, mapY, TimeSpan.FromMilliseconds(value));
 
             nonPlayableEntity.LastMove = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(value));
             return nonPlayableEntity.MapInstance.SendPacketAsync(
                 nonPlayableEntity.GenerateMove(mapX, mapY));
+        }
+
+        // The walk is announced at once and the position follows when it would have been
+        // reached. The write goes through the map's executor, and a map torn down or an entity
+        // gone in between simply ends the walk.
+        private static async Task ArriveAsync(INonPlayableEntity entity, MapInstance mapInstance, short x, short y,
+            TimeSpan delay)
+        {
+            try
+            {
+                await Task.Delay(delay);
+                await mapInstance.Executor.RunAsync(() =>
+                {
+                    entity.PositionX = x;
+                    entity.PositionY = y;
+                    return Task.CompletedTask;
+                });
+            }
+            catch (ObjectDisposedException)
+            {
+            }
+            catch (InvalidOperationException)
+            {
+            }
         }
 
         public static Task RestAsync(this IAliveEntity aliveEntity)

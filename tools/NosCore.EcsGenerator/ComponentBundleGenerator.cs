@@ -251,7 +251,7 @@ public class ComponentBundleGenerator : IIncrementalGenerator
                     sb.AppendLine($"    public {prop.Type} {memberName}");
                     sb.AppendLine("    {");
                     sb.AppendLine($"        get => (({component.Name})this).{prop.Name};");
-                    sb.AppendLine($"        set => World.SetComponent(Entity, (({component.Name})this) with {{ {prop.Name} = value }});");
+                    sb.AppendLine($"        set => World.Update<{component.Name}, {prop.Type}>(Entity, value, static (component, value) => component with {{ {prop.Name} = value }});");
                     sb.AppendLine("    }");
                 }
                 else

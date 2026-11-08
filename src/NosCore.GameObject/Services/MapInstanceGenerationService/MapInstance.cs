@@ -42,7 +42,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
-    public class MapInstance : IBroadcastable, IDisposable
+    public class MapInstance : IBroadcastable, IDisposable, IAsyncDisposable
     {
         public short MaxPacketsBuffer { get; } = 250;
         private readonly ILogger<MapInstance> _logger;
@@ -71,6 +71,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
 
         public MapWorld EcsWorld { get; }
+
+        public MapExecutor Executor { get; } = new();
 
         public MapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType type,
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
@@ -130,6 +132,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return null;
         }
 
+        // Only one of several callers racing for the same item gets true.
         public bool TryRemoveMapItem(long visualId)
         {
             foreach (var entity in _visibilitySystem.GetMapItemEntities(EcsWorld))
@@ -137,8 +140,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 var identity = EcsWorld.TryGetComponent<EntityIdentityComponent>(entity);
                 if (identity?.VisualId == visualId)
                 {
-                    EcsWorld.DestroyEntity(entity);
-                    return true;
+                    return EcsWorld.DestroyEntity(entity);
                 }
             }
             return false;
@@ -434,11 +436,15 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 {
                     try
                     {
-                        await TickLifeAsync();
+                        await Executor.RunAsync(TickLifeAsync);
+                    }
+                    catch (ObjectDisposedException) when (Executor.IsClosed)
+                    {
+                        return;
                     }
                     catch (Exception e)
                     {
-                        _logger.LogError(e.Message, e);
+                        _logger.LogError(e, "Life tick failed for map {MapId}", Map.MapId);
                     }
                 }
             }
@@ -447,65 +453,113 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
         }
 
+        // Every step of the tick is guarded on its own, so one faulty entity or service does
+        // not cost the rest of the map its buffs, regeneration or respawns for that tick.
         private async Task TickLifeAsync()
         {
-                    if (IsSleeping)
-                    {
-                        return;
-                    }
+            if (IsSleeping)
+            {
+                return;
+            }
 
-                    foreach (var (_, monster) in _monsters)
-                    {
-                        await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
-                    }
-                    foreach (var (_, npc) in _npcs)
-                    {
-                        await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
-                    }
+            foreach (var (_, monster) in _monsters)
+            {
+                try
+                {
+                    await monster.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                }
+                catch (Exception e)
+                {
+                    LogTickFailure(e, "monster", monster.VisualId);
+                }
+            }
 
-                    // Buff expiration: drop any buff whose ExpiresAt is past. Done
-                    // per-map so the tick rate matches the life loop (400ms) which is
-                    // fine for buffs since their Duration is measured in deciseconds.
-                    if (_buffService != null)
+            foreach (var (_, npc) in _npcs)
+            {
+                try
+                {
+                    await npc.TickLifeAsync(_monsterAi, _distanceCalculator, _clock, _logger);
+                }
+                catch (Exception e)
+                {
+                    LogTickFailure(e, "npc", npc.VisualId);
+                }
+            }
+
+            if (_buffService != null)
+            {
+                foreach (var (_, monster) in _monsters)
+                {
+                    try
                     {
-                        foreach (var (_, monster) in _monsters) await _buffService.TickAsync(monster).ConfigureAwait(false);
-                        foreach (var (_, npc) in _npcs) await _buffService.TickAsync(npc).ConfigureAwait(false);
-                        foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
+                        await _buffService.TickAsync(monster);
+                    }
+                    catch (Exception e)
+                    {
+                        LogTickFailure(e, "monster buffs", monster.VisualId);
+                    }
+                }
+
+                foreach (var (_, npc) in _npcs)
+                {
+                    try
+                    {
+                        await _buffService.TickAsync(npc);
+                    }
+                    catch (Exception e)
+                    {
+                        LogTickFailure(e, "npc buffs", npc.VisualId);
+                    }
+                }
+
+                foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
+                {
+                    try
+                    {
+                        if (!session.HasPlayerEntity)
                         {
-                            if (!session.HasPlayerEntity)
-                            {
-                                continue;
-                            }
+                            continue;
+                        }
 
-                            var expired = await _buffService.TickAsync(session.Character).ConfigureAwait(false);
-
-                            if (expired.Count > 0 && _vitalityService != null)
-                            {
-                                await _vitalityService.RefreshAndNotifyAsync(session.Character)
-                                    .ConfigureAwait(false);
-                            }
+                        var expired = await _buffService.TickAsync(session.Character);
+                        if (expired.Count > 0 && _vitalityService != null)
+                        {
+                            await _vitalityService.RefreshAndNotifyAsync(session.Character);
                         }
                     }
-
-                    // HP/MP regen for connected players on this map — matches OpenNos
-                    // Character regen block (sitting 1.5s cadence, standing 2s). The
-                    // service throttles internally so calling each 400ms tick is safe.
-                    if (_regenerationService != null)
+                    catch (Exception e)
                     {
-                        await _regenerationService.TickAsync(this).ConfigureAwait(false);
+                        LogTickFailure(e, "player buffs", session.SessionId);
                     }
+                }
+            }
 
-                    if (_digestionService != null)
-                    {
-                        await _digestionService.TickAsync(this);
-                    }
+            await GuardAsync(_regenerationService == null ? null : () => _regenerationService.TickAsync(this), "regeneration");
+            await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
+            await GuardAsync(_battleService == null ? null : () => _battleService.TickCooldownResetsAsync(this), "cooldown resets");
+            await GuardAsync(SweepPendingRespawnsAsync, "respawns");
+        }
 
-                    if (_battleService != null)
-                    {
-                        await _battleService.TickCooldownResetsAsync(this).ConfigureAwait(false);
-                    }
+        private async Task GuardAsync(Func<Task>? step, string what)
+        {
+            if (step == null)
+            {
+                return;
+            }
 
-                    await SweepPendingRespawnsAsync().ConfigureAwait(false);
+            try
+            {
+                await step();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Life tick step {Step} failed for map {MapId}", what, Map.MapId);
+            }
+        }
+
+        private void LogTickFailure(Exception e, string what, long id)
+        {
+            _logger.LogError(e, "Life tick failed for {What} {Id} on map {MapId}", what, id, Map.MapId);
         }
 
         // Registered by MonsterRespawnHandler when a monster dies. The map-level life
@@ -525,17 +579,30 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 if (entry.RespawnAt > now) continue;
                 if (!_pendingRespawns.TryRemove(visualId, out _)) continue;
                 var monster = entry.Monster;
-                if (monster.MapInstance == null) continue;
+                try
+                {
+                    if (monster.MapInstance == null) continue;
 
-                monster.Hp = monster.MaxHp;
-                monster.Mp = monster.MaxMp;
-                monster.IsAlive = true;
-                monster.PositionX = monster.FirstX;
-                monster.PositionY = monster.FirstY;
-                monster.HitList.Clear();
+                    monster.Hp = monster.MaxHp;
+                    monster.Mp = monster.MaxMp;
+                    monster.IsAlive = true;
+                    monster.PositionX = monster.FirstX;
+                    monster.PositionY = monster.FirstY;
+                    monster.HitList.Clear();
 
-                await this.SendPacketAsync(monster.GenerateIn()).ConfigureAwait(false);
+                    await this.SendPacketAsync(monster.GenerateIn());
+                }
+                catch (Exception e)
+                {
+                    LogTickFailure(e, "respawn", visualId);
+                }
             }
+        }
+
+        public async ValueTask DisposeAsync()
+        {
+            await DisposeCoreAsync();
+            GC.SuppressFinalize(this);
         }
 
         protected virtual void Dispose(bool disposing)
@@ -545,15 +612,34 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return;
             }
 
-            _lifeCts?.Cancel();
+            DisposeCoreAsync().GetAwaiter().GetResult();
+        }
 
-            // The token only ends the wait between ticks. A tick already inside TickLifeAsync
-            // walks the entities of the world below, so it has to finish before the world goes.
-            _lifeLoop?.GetAwaiter().GetResult();
+        private async Task DisposeCoreAsync()
+        {
+            Task? lifeLoop;
+            lock (_lifeLock)
+            {
+                _lifeCts?.Cancel();
+                lifeLoop = _lifeLoop;
+            }
 
-            _lifeCts?.Dispose();
-            _lifeCts = null;
-            _lifeLoop = null;
+            // A tick already running walks the entities of the world below, so it has to
+            // finish before the world goes - unless the tick is what is disposing the map.
+            if (!Executor.IsCurrent && lifeLoop != null)
+            {
+                await lifeLoop;
+            }
+
+            await Executor.CloseAsync();
+
+            lock (_lifeLock)
+            {
+                _lifeCts?.Dispose();
+                _lifeCts = null;
+                _lifeLoop = null;
+            }
+
             EcsWorld.Dispose();
         }
     }

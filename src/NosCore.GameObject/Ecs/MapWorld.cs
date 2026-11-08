@@ -26,44 +26,119 @@ namespace NosCore.GameObject.Ecs;
 
 public class MapWorld : IDisposable
 {
-    public World World { get; }
+    // Arch registers every world in a static table, so worlds must not be created or
+    // disposed concurrently.
+    private static readonly Lock WorldTableLock = new();
+
+    // Arch does not tolerate a structural change overlapping any other access, and a
+    // component is rewritten whole on every property set. Every access to the world goes
+    // through this lock; it is re-entrant and is never held across an await.
+    private readonly Lock _sync = new();
+    private readonly World _world;
+    private bool _disposed;
 
     public MapWorld()
     {
-        World = World.Create();
+        lock (WorldTableLock)
+        {
+            _world = World.Create();
+        }
+    }
+
+    // Runs one synchronous block against the raw world while nothing else touches it. For
+    // queries and for keeping several reads and writes consistent with each other.
+    public void Exclusive(Action<World> action)
+    {
+        lock (_sync)
+        {
+            ThrowIfDisposed();
+            action(_world);
+        }
+    }
+
+    public TResult Exclusive<TResult>(Func<World, TResult> func)
+    {
+        lock (_sync)
+        {
+            ThrowIfDisposed();
+            return func(_world);
+        }
+    }
+
+    public bool IsAlive(Entity entity)
+    {
+        lock (_sync)
+        {
+            return !_disposed && _world.IsAlive(entity);
+        }
     }
 
     public T? TryGetComponent<T>(Entity entity) where T : struct
     {
-        if (!World.IsAlive(entity))
+        lock (_sync)
         {
-            return null;
+            if (_disposed || !_world.IsAlive(entity) || !_world.Has<T>(entity))
+            {
+                return null;
+            }
+
+            return _world.Get<T>(entity);
         }
-        if (World.Has<T>(entity))
-        {
-            return World.Get<T>(entity);
-        }
-        return null;
     }
 
     public void SetComponent<T>(Entity entity, T component) where T : struct
     {
-        World.Set(entity, component);
+        lock (_sync)
+        {
+            if (!_disposed && _world.IsAlive(entity))
+            {
+                _world.Set(entity, component);
+            }
+        }
+    }
+
+    // Read-modify-write of one component as a single step, so two writers of different
+    // fields of the same component do not undo each other. Returns false, writing nothing,
+    // when the entity is gone or lacks the component.
+    public bool Update<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
+    {
+        lock (_sync)
+        {
+            if (_disposed || !_world.IsAlive(entity) || !_world.Has<T>(entity))
+            {
+                return false;
+            }
+
+            ref var component = ref _world.Get<T>(entity);
+            component = update(component, state);
+            return true;
+        }
     }
 
     public bool HasComponent<T>(Entity entity) where T : struct
     {
-        return World.IsAlive(entity) && World.Has<T>(entity);
+        lock (_sync)
+        {
+            return !_disposed && _world.IsAlive(entity) && _world.Has<T>(entity);
+        }
     }
 
     public void AddComponent<T>(Entity entity, T component) where T : struct
     {
-        World.Add(entity, component);
+        lock (_sync)
+        {
+            ThrowIfDisposed();
+            _world.Add(entity, component);
+        }
     }
 
     public void RemoveComponent<T>(Entity entity) where T : struct
     {
-        World.Remove<T>(entity);
+        lock (_sync)
+        {
+            ThrowIfDisposed();
+            _world.Remove<T>(entity);
+        }
     }
 
     public Entity CreateMonster(
@@ -80,7 +155,9 @@ public class MapWorld : IDisposable
         bool isDisabled)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
-        var entity = World.Create(
+        using var scope = _sync.EnterScope();
+        ThrowIfDisposed();
+        var entity = _world.Create(
             new EntityIdentityComponent(monsterId, VisualType.Monster, 0),
             new HealthComponent(npcMonster.MaxHp, npcMonster.MaxHp, true),
             new ManaComponent(npcMonster.MaxMp, npcMonster.MaxMp),
@@ -115,7 +192,9 @@ public class MapWorld : IDisposable
         Shop? shop)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
-        var entity = World.Create(
+        using var scope = _sync.EnterScope();
+        ThrowIfDisposed();
+        var entity = _world.Create(
             new EntityIdentityComponent(npcId, VisualType.Npc, 0),
             new HealthComponent(npcMonster.MaxHp, npcMonster.MaxHp, true),
             new ManaComponent(npcMonster.MaxMp, npcMonster.MaxMp),
@@ -146,7 +225,9 @@ public class MapWorld : IDisposable
         byte direction)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
-        return World.Create(
+        using var scope = _sync.EnterScope();
+        ThrowIfDisposed();
+        return _world.Create(
             new EntityIdentityComponent(visualId, VisualType.Npc, mate.CharacterId),
             new HealthComponent(mate.Hp, mate.MaxHp, true),
             new ManaComponent(mate.Mp, mate.MaxMp),
@@ -178,7 +259,9 @@ public class MapWorld : IDisposable
         Guid itemInstanceId,
         IItemInstance? itemInstance)
     {
-        var entity = World.Create(
+        using var scope = _sync.EnterScope();
+        ThrowIfDisposed();
+        var entity = _world.Create(
             new EntityIdentityComponent(visualId, VisualType.Object, 0),
             new PositionComponent(positionX, positionY, 0, mapInstanceId),
             new MapItemDataComponent(vNum, amount, ownerId, droppedAt, itemInstanceId, itemInstance)
@@ -222,7 +305,9 @@ public class MapWorld : IDisposable
         int serverId)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
-        var entity = World.Create(
+        using var scope = _sync.EnterScope();
+        ThrowIfDisposed();
+        var entity = _world.Create(
             new EntityIdentityComponent(visaulId, VisualType.Player, characterId),
             new HealthComponent(hp, maxHp, true),
             new ManaComponent(mp, maxMp),
@@ -274,22 +359,50 @@ public class MapWorld : IDisposable
         DigestionComponent digestion)
     {
         // World.Create stops short of 25 generic components, so the last ones are added afterwards.
-        var entity = World.Create(identity, health, mana, position, visual, appearance, experience, gold,
+        using var scope = _sync.EnterScope();
+        ThrowIfDisposed();
+        var entity = _world.Create(identity, health, mana, position, visual, appearance, experience, gold,
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
             context, inventory, social, requests, mates);
-        World.Add(entity, digestion);
-        World.Add(entity, new PendingDelayComponent(null, Instant.MinValue));
+        _world.Add(entity, digestion);
+        _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue));
         return entity;
     }
 
-    public void DestroyEntity(Entity entity)
+    // Returns false when the entity was already gone, so callers racing to remove the same
+    // entity can tell which of them did it.
+    public bool DestroyEntity(Entity entity)
     {
-        World.Destroy(entity);
+        lock (_sync)
+        {
+            if (_disposed || !_world.IsAlive(entity))
+            {
+                return false;
+            }
+
+            _world.Destroy(entity);
+            return true;
+        }
     }
 
     public void Dispose()
     {
-        World.Dispose();
+        lock (WorldTableLock)
+        {
+            lock (_sync)
+            {
+                if (_disposed)
+                {
+                    return;
+                }
+
+                _disposed = true;
+                _world.Dispose();
+            }
+        }
+
         GC.SuppressFinalize(this);
     }
+
+    private void ThrowIfDisposed() => ObjectDisposedException.ThrowIf(_disposed, this);
 }

@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         public bool HasPlayerEntity =>
             _characterBundle.Entity != default
             && _characterBundle.World != null
-            && _characterBundle.World.World.IsAlive(_characterBundle.Entity);
+            && _characterBundle.World.IsAlive(_characterBundle.Entity);
 
         public ref PlayerComponentBundle Character
         {
@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     throw new InvalidOperationException("Character entity not initialized");
                 }
-                if (_characterBundle.World == null || !_characterBundle.World.World.IsAlive(_characterBundle.Entity))
+                if (_characterBundle.World == null || !_characterBundle.World.IsAlive(_characterBundle.Entity))
                 {
                     // Entity handle still looks valid but the underlying chunk is gone —
                     // happens if the map world was disposed, or the entity was destroyed

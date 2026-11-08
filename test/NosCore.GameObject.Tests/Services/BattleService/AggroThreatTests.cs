@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _aggro = new AggroService(_clock);
             var world = new MapWorld();
             _monster = new MonsterComponentBundle(
-                world.World.Create(new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue)), world);
+                world.Exclusive(w => w.Create(new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue))), world);
         }
 
         private static IAliveEntity Attacker(long visualId)

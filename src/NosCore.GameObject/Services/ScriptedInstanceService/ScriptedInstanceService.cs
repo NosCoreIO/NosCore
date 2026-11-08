@@ -166,6 +166,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
             }
 
+            // Removing a room sends anyone who walked in since the count above back out, so
+            // the count may be stale; what must not happen is two callers tearing down one run.
+            if (!run.TryClose())
+            {
+                return false;
+            }
+
             await RemoveRoomsAsync(run.Rooms.Values);
             return true;
         }

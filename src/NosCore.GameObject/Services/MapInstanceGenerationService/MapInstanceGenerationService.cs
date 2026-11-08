@@ -60,6 +60,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             if (mapInstanceRegistry.Unregister(mapInstanceId, out var mapInstance) && mapInstance != null)
             {
                 await mapInstance.KickAsync();
+                await mapInstance.DisposeAsync();
             }
         }
 
