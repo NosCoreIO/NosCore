@@ -488,13 +488,18 @@ Have a pet and a partner out, and a second client on the same map watching.
       and you still do
 - [ ] Send the pet back to the Miniland, then try to order it from the party panel: nothing
       happens
-- [ ] Make the pet talk: a speech bubble with your sentence shows over the pet on both screens,
-      and the sentence is not cut at its first space
-- [ ] Select a monster next to the pet and use one of the pet's own skills on it: the pet plays
-      the skill, the damage number shows on both screens and the monster's bar drops
+- [ ] Become visible again and take the pet back out with you, then make it talk: a speech
+      bubble with your sentence shows over the pet on both screens, and the sentence is not cut
+      at its first space
+- [ ] With a pet that has skills of its own (a pet without any only sends a move order when a
+      monster is clicked), select a monster next to the pet and use one of the pet's skills on
+      it: the pet plays the skill, the damage number shows on both screens and the monster's bar
+      drops
 - [ ] Use the same pet skill again at once: nothing happens until its cooldown is over
-- [ ] Kill a monster with a pet skill: it collapses as it does from your own hits and drops its
-      gold and items; the pet's share of the damage gives no experience yet, to you or the pet
+- [ ] Kill a monster with a pet skill: it collapses as it does from your own hits, and what falls
+      is what an ordinary kill of the same monster on the same map drops (drops are rolled, so
+      compare a few kills); the pet's share of the damage gives no experience yet, to you or the
+      pet
 - [ ] Use a pet skill on a monster across the map: the pet does not hit it
 - [ ] Use a pet skill on another player or on an NPC: nothing happens
 
