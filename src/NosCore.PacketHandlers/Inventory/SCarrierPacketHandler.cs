@@ -4,11 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SpecialistHolderService;
 using NosCore.Packets.ClientPackets.Specialists;
 using NosCore.Packets.Enumerations;
@@ -23,52 +21,38 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override async Task ExecuteAsync(SCarrierPacket packet, ClientSession clientSession)
         {
-            var character = clientSession.Character;
-            if (character.InExchangeOrShop)
+            var result = specialistHolderService.StoreFromEquipment(clientSession.Character, packet.Slot, packet.HolderSlot);
+            switch (result.Outcome)
             {
-                return;
-            }
+                case SpecialistStoreOutcome.Transformed:
+                    await clientSession.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.CantPutSpecialistInHolderWhileTransformed
+                    });
+                    return;
 
-            var cardItem = character.InventoryService.LoadBySlotAndType(packet.Slot, NoscorePocketType.Equipment);
-            var holderItem = character.InventoryService.LoadBySlotAndType(packet.HolderSlot, NoscorePocketType.Equipment);
-            if (cardItem?.ItemInstance is not SpecialistInstance card
-                || holderItem == null
-                || !specialistHolderService.IsSpecialistHolder(holderItem.ItemInstance)
-                || holderItem.ItemInstance is not BoxInstance { HoldingVNum: null or 0 } holder)
-            {
-                return;
-            }
+                case SpecialistStoreOutcome.CannotStore:
+                    await clientSession.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.NotBeAbleToPutTheSelectedSpecialistCardIntoCardHolder
+                    });
+                    return;
 
-            if (character.UseSp)
-            {
-                await clientSession.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.CantPutSpecialistInHolderWhileTransformed
-                });
-                return;
+                case SpecialistStoreOutcome.Stored:
+                    var card = result.Card!;
+                    var holder = result.Holder!;
+                    await clientSession.SendPacketAsync(result.Remaining.GeneratePocketChange((PocketType)card.Type, card.Slot));
+                    await clientSession.SendPacketAsync(holder.GeneratePocketChange((PocketType)holder.Type, holder.Slot));
+                    await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
+                    await clientSession.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.SpecialistInTheHolder
+                    });
+                    return;
             }
-
-            if (!specialistHolderService.CanStore(card))
-            {
-                await clientSession.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.NotBeAbleToPutTheSelectedSpecialistCardIntoCardHolder
-                });
-                return;
-            }
-
-            specialistHolderService.Store(card, holder);
-            var remaining = character.InventoryService.RemoveItemAmountFromInventory(1, cardItem.ItemInstanceId);
-            await clientSession.SendPacketAsync(remaining.GeneratePocketChange((PocketType)cardItem.Type, cardItem.Slot));
-            await clientSession.SendPacketAsync(holderItem.GeneratePocketChange((PocketType)holderItem.Type, holderItem.Slot));
-            await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
-            await clientSession.SendPacketAsync(new MsgiPacket
-            {
-                Type = MessageType.Default,
-                Message = Game18NConstString.SpecialistInTheHolder
-            });
         }
     }
 }

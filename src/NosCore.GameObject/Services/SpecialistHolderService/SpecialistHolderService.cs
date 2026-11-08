@@ -4,7 +4,10 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.UpgradeService;
@@ -40,6 +43,38 @@ public sealed class SpecialistHolderService(IItemGenerationService itemProvider)
         holder.SlDefence = card.SlDefence;
         holder.SlElement = card.SlElement;
         holder.SlHp = card.SlHp;
+    }
+
+    public SpecialistStoreResult StoreFromEquipment(PlayerComponentBundle character, short cardSlot, short holderSlot)
+    {
+        if (character.InExchangeOrShop)
+        {
+            return new SpecialistStoreResult(SpecialistStoreOutcome.Ignored);
+        }
+
+        var cardItem = character.InventoryService.LoadBySlotAndType(cardSlot, NoscorePocketType.Equipment);
+        var holderItem = character.InventoryService.LoadBySlotAndType(holderSlot, NoscorePocketType.Equipment);
+        if (cardItem?.ItemInstance is not SpecialistInstance card
+            || holderItem == null
+            || !IsSpecialistHolder(holderItem.ItemInstance)
+            || holderItem.ItemInstance is not BoxInstance { HoldingVNum: null or 0 } holder)
+        {
+            return new SpecialistStoreResult(SpecialistStoreOutcome.Ignored);
+        }
+
+        if (character.UseSp)
+        {
+            return new SpecialistStoreResult(SpecialistStoreOutcome.Transformed);
+        }
+
+        if (!CanStore(card))
+        {
+            return new SpecialistStoreResult(SpecialistStoreOutcome.CannotStore);
+        }
+
+        Store(card, holder);
+        var remaining = character.InventoryService.RemoveItemAmountFromInventory(1, cardItem.ItemInstanceId);
+        return new SpecialistStoreResult(SpecialistStoreOutcome.Stored, cardItem, remaining, holderItem);
     }
 
     public SpecialistInstance TakeOut(BoxInstance holder)
