@@ -18,6 +18,15 @@ using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Shop;
+using Moq;
+using NosCore.Algorithm.ShellService;
+using NosCore.Dao;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Items;
+using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.GameObject.Services.UpgradeService;
+using EquipmentOption = NosCore.Database.Entities.EquipmentOption;
 using NosCore.Tests.Shared;
 using SpecLight;
 using System;
@@ -33,6 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     {
         private const short ItemVNum = 1;
         private const long UnitPrice = 100;
+        private const short WeaponVNum = 2;
 
         private ClientSession _owner = null!;
         private ClientSession _buyer = null!;
@@ -42,6 +52,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private MShopPacketHandler _mShop = null!;
         private readonly Dictionary<short, Guid> _ownerInstances = new();
         private Exception? _buyFailure;
+        private IDao<EquipmentOptionDto, Guid> _optionDao = null!;
+        private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
+        private ShellOptionService _options = null!;
+        private Guid _weaponId;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,7 +66,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _secondBuyer = await TestHelpers.Instance.GenerateSessionAsync();
             _items = new ItemGenerationService(new List<ItemDto>
             {
-                new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true }
+                new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true },
+                new Item { Type = NoscorePocketType.Equipment, VNum = WeaponVNum, ItemType = ItemType.Weapon, IsTradable = true }
             }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             _mShop = new MShopPacketHandler(TestHelpers.Instance.DistanceCalculator);
 
@@ -67,6 +82,13 @@ namespace NosCore.PacketHandlers.Tests.Shops
                     InventoryItemInstance.Create(item, _owner.Character.CharacterId), NoscorePocketType.Etc, slot);
                 _ownerInstances[slot] = item.Id;
             }
+
+            _optionDao = new Dao<EquipmentOption, EquipmentOptionDto, Guid>(
+                NullLogger<Dao<EquipmentOption, EquipmentOptionDto, Guid>>.Instance, TestHelpers.Instance.DbContextBuilder);
+            _itemInstanceDao = new Dao<NosCore.Database.Entities.ItemInstance, IItemInstanceDto?, Guid>(
+                NullLogger<Dao<NosCore.Database.Entities.ItemInstance, IItemInstanceDto?, Guid>>.Instance,
+                TestHelpers.Instance.DbContextBuilder);
+            _options = new ShellOptionService(new ShellService(), new Mock<IRandomNumberSource>().Object, _optionDao);
 
             _buyer.Character.Gold = 10_000;
             _secondBuyer.Character.Gold = 10_000;
@@ -92,6 +114,16 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .And(TheBuyerShouldHave_Gold, 9_700L)
                 .And(TheOwnerShouldHave_Gold, 300L)
                 .And(NoInstanceShouldBeSharedBetweenOwnerAndBuyer)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingEquipmentKeepsItsOptions()
+        {
+            await new Spec("Buying equipment keeps its options")
+                .GivenAsync(TheOwnerOpensAShopWithAWeaponWithAnOptionOfValue_, 7)
+                .WhenAsync(TheBuyerBuysTheWeapon)
+                .Then(TheBuyersWeaponShouldHaveAnOptionOfValue_, 7)
                 .ExecuteAsync();
         }
 
@@ -191,6 +223,39 @@ namespace NosCore.PacketHandlers.Tests.Shops
             }).ToList(),
             Name = "shop"
         };
+
+        private async Task TheOwnerOpensAShopWithAWeaponWithAnOptionOfValue_(int value)
+        {
+            var weapon = _items.Create(WeaponVNum, 1);
+            weapon.Id = Guid.NewGuid();
+            _weaponId = weapon.Id;
+            _owner.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(weapon, _owner.Character.CharacterId), NoscorePocketType.Equipment, 0);
+            await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
+            {
+                Id = Guid.NewGuid(), WearableInstanceId = weapon.Id, Level = 1, Type = 1, Value = value
+            });
+            await _mShop.ExecuteAsync(new MShopPacket
+            {
+                Type = CreateShopPacketType.Open,
+                ItemList = new List<MShopItemSubPacket?>
+                {
+                    new() { Type = PocketType.Equipment, Slot = 0, Amount = 1, Price = UnitPrice }
+                },
+                Name = "shop"
+            }, _owner);
+        }
+
+        private Task TheBuyerBuysTheWeapon() =>
+            _buyer.Character.BuyAsync(_owner.Character.Shop!, 0, 1, TestHelpers.Instance.WorldConfiguration, _items,
+                _options, _itemInstanceDao);
+
+        private void TheBuyersWeaponShouldHaveAnOptionOfValue_(int value)
+        {
+            var weapon = _buyer.Character.InventoryService.Values.Single(i => i.ItemInstance.ItemVNum == WeaponVNum);
+            Assert.AreNotEqual(_weaponId, weapon.ItemInstanceId);
+            Assert.AreEqual(value, _options.Load(weapon.ItemInstanceId).Single().Value);
+        }
 
         private Task TheOwnerOpensTheShop() =>
             _mShop.ExecuteAsync(ShopPacket((0, 1), (1, 3)), _owner);

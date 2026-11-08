@@ -24,6 +24,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ShopService;
+using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.Data.Dto;
+using NosCore.Dao.Interfaces;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.Player;
@@ -525,7 +528,8 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
             Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider)
+            IItemGenerationService itemProvider, IShellOptionService? shellOptionService = null,
+            IDao<IItemInstanceDto?, Guid>? itemInstanceDao = null)
         {
             if (amount <= 0)
             {
@@ -588,7 +592,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             if (shop.OwnerCharacter != null)
             {
                 await BuyFromPlayerShopAsync(characterEntity, shop, slot, amount, (long)(price * percent), price,
-                    worldConfiguration);
+                    worldConfiguration, shellOptionService, itemInstanceDao);
                 return;
             }
 
@@ -636,7 +640,8 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         private static async Task BuyFromPlayerShopAsync(ICharacterEntity buyer, Shop shop, short slot, short amount,
-            long cost, long sellAmount, Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration)
+            long cost, long sellAmount, Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
+            IShellOptionService? shellOptionService, IDao<IItemInstanceDto?, Guid>? itemInstanceDao)
         {
             var owner = shop.OwnerCharacter!;
             if (owner.CharacterId == buyer.CharacterId)
@@ -651,6 +656,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             NoscorePocketType sellerType = default;
             short sellerSlotIndex = 0;
             List<InventoryItemInstance>? delivered = null;
+            IItemInstance? handedOver = null;
+            var sourceId = Guid.Empty;
             using (await shop.Lock.AcquireAsync())
             {
                 var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
@@ -679,6 +686,14 @@ namespace NosCore.GameObject.Ecs.Extensions
                     var copy = (IItemInstance)live.ItemInstance.Clone();
                     copy.Id = Guid.NewGuid();
                     copy.Amount = amount;
+                    if (copy is WearableInstance wearable)
+                    {
+                        // Options are stored per instance id and reloaded for the copy once copied below.
+                        wearable.EquipmentOptions = null;
+                    }
+
+                    handedOver = copy;
+                    sourceId = live.ItemInstance.Id;
 
                     buyer.Gold -= cost;
                     var wholeStack = live.ItemInstance.Amount == amount;
@@ -739,6 +754,12 @@ namespace NosCore.GameObject.Ecs.Extensions
             if (!sold)
             {
                 return;
+            }
+
+            if ((handedOver is WearableInstance) && (shellOptionService != null) && (itemInstanceDao != null))
+            {
+                await itemInstanceDao.TryInsertOrUpdateAsync(handedOver);
+                await shellOptionService.SaveAsync(handedOver.Id, shellOptionService.Load(sourceId));
             }
 
             await owner.SendPacketAsync(sellerSlot.GeneratePocketChange((PocketType)sellerType, sellerSlotIndex));

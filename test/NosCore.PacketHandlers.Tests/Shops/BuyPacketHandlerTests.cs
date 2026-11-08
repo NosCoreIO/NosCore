@@ -42,7 +42,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.WorldConfiguration,
-                TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.NpcDialogService);
+                TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.NpcDialogService,
+                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
+                new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object);
         }
 
         [TestMethod]
