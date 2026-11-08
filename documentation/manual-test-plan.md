@@ -779,6 +779,30 @@ and 5 Apples.
 - [ ] Press Produce and confirm: after the bar, "[Attack Potion] has been produced." pops up,
       the potion appears, the materials are gone and one scroll is used up
 
+### Group loot
+
+Two characters, A and B, in a party with A as the master, on the same map and channel; a third
+character, C, outside the party. Kill monsters on a normal map so they drop items and gold. The
+looting mode is the master's "party sharing" line of the options window.
+
+- [ ] Before inviting anyone, A toggles the party sharing line: A sees "Party looting: Share as
+      group" or "Party looting: Loot in turn", and the checkbox reads the same mode as the
+      message. If the checkbox and the message disagree, the option's on/off meaning is inverted
+- [ ] A sets "Share as group": A and B both see "Party item looting has been changed to 'Share
+      as group'."; B toggles the same line: B sees "You cannot change party mode because you are
+      not the party master." and the mode does not change
+- [ ] Share as group: A deals most of the damage to a monster. B picks up its item and its gold
+      straight away; B receives them, B's gold counter rises by the whole stack and A's gold does
+      not move
+- [ ] Share as group: C presses pick-up on the same kind of drop straight away: "You don't have
+      permission to pick that up." and the item stays. After 30 seconds C can take it
+- [ ] A sets "Loot in turn" (both see "Party item looting has been changed to 'Loot in turn'.").
+      Kill several monsters with both standing near: their drops alternate between A and B, and
+      each drop refuses the other member for 30 seconds
+- [ ] Loot in turn: B walks far from the fight (over 50 cells) or onto another map; drops from A's
+      kills all go to A until B comes back
+- [ ] A leaves the party: drops from A's kills belong to A alone again
+
 ### Character options
 
 Two characters, A and B, on the same map and channel. Open the options window on A

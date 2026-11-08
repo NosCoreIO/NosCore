@@ -33,6 +33,8 @@ namespace NosCore.GameObject.Services.GroupService
         // Held while a group is formed or grown, which reads one group and writes another.
         public static AsyncLock MembershipLock { get; } = new();
 
+        private int _lootTurn;
+
         public ConcurrentQueue<IPacket> LastPackets { get; } = new();
 
         public long GroupId { get; set; } = -1;
@@ -78,11 +80,15 @@ namespace NosCore.GameObject.Services.GroupService
             }).ToList();
         }
 
-        public bool IsGroupLeader(long visualId)
-        {
-            var leader = Values.OrderBy(s => s.Item1).FirstOrDefault(s => s.Item2.VisualType == VisualType.Player);
-            return (Count > 1) && (leader?.Item2.VisualId == visualId);
-        }
+        public INamedEntity? Leader => Values.OrderBy(s => s.Item1)
+            .Select(s => s.Item2)
+            .FirstOrDefault(s => s.VisualType == VisualType.Player);
+
+        public bool IsGroupLeader(long visualId) => (Count > 1) && (Leader?.VisualId == visualId);
+
+        public bool IsMember(long characterId) => ContainsKey(new Tuple<VisualType, long>(VisualType.Player, characterId));
+
+        public int NextLootTurn() => (Interlocked.Increment(ref _lootTurn) - 1) & int.MaxValue;
 
         public void JoinGroup(INamedEntity namedEntity)
         {

@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.ExperienceService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -32,11 +33,9 @@ using NosCore.Algorithm.LowLevelBoostService;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Reward distribution runs after a kill, exactly once. Monster XP is split among
-// character attackers proportional to damage dealt — the "helper gets share" rule in the
-// original game. Gold and drops are rolled once per kill and either awarded to the top
-// damage dealer or spawned as map items everyone can pick up (we go with map items here,
-// which matches the baseline behaviour and lets the MapItemPickedUpEvent system handle
-// UI + grace periods).
+// character attackers proportional to damage dealt. Gold and drops are rolled once per kill
+// and spawned as map items owned by the top damage dealer, or by whoever the group's looting
+// mode hands them to.
 public sealed class RewardService(
     IItemGenerationService itemGenerationService,
     IMapItemGenerationService mapItemGenerationService,
@@ -45,6 +44,7 @@ public sealed class RewardService(
     IExperienceShareService experienceShareService,
     ILevelPenaltyService levelPenaltyService,
     ILowLevelBoostService lowLevelBoostService,
+    IGroupLootService groupLootService,
     ILogger<RewardService> logger) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
@@ -84,8 +84,9 @@ public sealed class RewardService(
             // Kills are rewarded in parallel; each one's experience goes in on the map, so two
             // kills credited to one player at once neither lose experience nor level up twice.
             await mapInstance.Executor.RunAsync(() => AwardExperienceAsync(victim, mob, totalDamage, hitSnapshot));
-            await SpawnDropsAsync(victim, mob, mapInstance);
-            await SpawnGoldAsync(victim, mob, mapInstance);
+            var topDamageDealer = FindTopDamageDealer(victim, hitSnapshot);
+            await SpawnDropsAsync(victim, mob, mapInstance, topDamageDealer);
+            await SpawnGoldAsync(victim, mob, mapInstance, topDamageDealer);
             _ = killer;
         }
         finally
@@ -207,7 +208,26 @@ public sealed class RewardService(
         await player.SendPacketAsync(player.GenerateFd()).ConfigureAwait(false);
     }
 
-    private async Task SpawnDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance)
+    private static PlayerComponentBundle? FindTopDamageDealer(IAliveEntity victim, IReadOnlyDictionary<Entity, int> hitSnapshot)
+    {
+        PlayerComponentBundle? topDamageDealer = null;
+        var topDamage = 0;
+        foreach (var (handle, damage) in hitSnapshot)
+        {
+            if (damage > topDamage && TryFindPlayer(victim, handle, out var player))
+            {
+                topDamage = damage;
+                topDamageDealer = player;
+            }
+        }
+
+        return topDamageDealer;
+    }
+
+    private long? NextOwner(IAliveEntity victim, PlayerComponentBundle? topDamageDealer) =>
+        topDamageDealer is { } dealer ? groupLootService.AssignOwner(dealer, victim) : null;
+
+    private async Task SpawnDropsAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, PlayerComponentBundle? topDamageDealer)
     {
         foreach (var drop in catalog.GetDrops(mob.NpcMonsterVNum))
         {
@@ -220,7 +240,8 @@ public sealed class RewardService(
             try
             {
                 var item = itemGenerationService.Create(drop.VNum, (short)drop.Amount);
-                var dropped = mapItemGenerationService.Create(mapInstance, item, victim.PositionX, victim.PositionY);
+                var dropped = mapItemGenerationService.Create(mapInstance, item, victim.PositionX, victim.PositionY,
+                    NextOwner(victim, topDamageDealer));
                 await mapInstance.SendPacketAsync(dropped.GenerateDrop());
             }
             catch (System.Exception ex)
@@ -230,7 +251,7 @@ public sealed class RewardService(
         }
     }
 
-    private async Task SpawnGoldAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance)
+    private async Task SpawnGoldAsync(IAliveEntity victim, NpcMonsterDto mob, Services.MapInstanceGenerationService.MapInstance mapInstance, PlayerComponentBundle? topDamageDealer)
     {
         if (mapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
             && mapInstance.MapInstanceType != MapInstanceType.TimeSpaceInstance)
@@ -244,7 +265,8 @@ public sealed class RewardService(
         try
         {
             var goldItem = itemGenerationService.Create(GoldVNum, (short)System.Math.Min(goldAmount, short.MaxValue));
-            var dropped = mapItemGenerationService.Create(mapInstance, goldItem, victim.PositionX, victim.PositionY);
+            var dropped = mapItemGenerationService.Create(mapInstance, goldItem, victim.PositionX, victim.PositionY,
+                NextOwner(victim, topDamageDealer));
             await mapInstance.SendPacketAsync(dropped.GenerateDrop());
         }
         catch (System.Exception ex)

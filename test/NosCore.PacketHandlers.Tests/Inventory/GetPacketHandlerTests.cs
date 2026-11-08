@@ -10,6 +10,10 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Group;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Networking.ClientSession;
@@ -17,6 +21,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.PacketHandlers.Inventory;
 using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Data.Dto;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -33,6 +40,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private InlineOrDeferredMessageBus<MapItemPickedUpEvent> Bus = null!;
         private long MapItemVisualId;
         private Guid DroppedInstanceId;
+        private ClientSession Owner = null!;
+        private const short GoldVNum = 1046;
+        private const short GoldAmount = 500;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -50,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 await spChargerHandler.Handle(evt);
             });
             Handler = new GetPacketHandler(NullLogger<GetPacketHandler>.Instance, TestHelpers.Instance.DistanceCalculator,
-                TestHelpers.Instance.Clock, TestHelpers.Instance.LogLanguageLocalizer, Bus.Object);
+                TestHelpers.Instance.GroupLootService, TestHelpers.Instance.LogLanguageLocalizer, Bus.Object);
         }
 
         [TestMethod]
@@ -73,6 +83,128 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .Then(TheHeldItemHasANewInstanceId)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task AGroupMemberPicksUpTheOwnersDropWhenTheGroupSharesLoot()
+        {
+            await new Spec("A group member picks up another member's drop during the owner window when the party shares loot")
+                .GivenAsync(TheCharacterIsInAPartyWithTheOwner)
+                .And(TheMasterSharesLootAsAGroup)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 1)
+                .And(TheItemIsNoLongerOnTheMap)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AGroupMemberCannotTakeAnotherMembersTurn()
+        {
+            await new Spec("A group member cannot take a drop handed to another member when the party loots in turn")
+                .GivenAsync(TheCharacterIsInAPartyWithTheOwner)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 0)
+                .And(TheCharacterIsToldItCannotPickThatUp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACharacterOutsideTheGroupCannotTakeItsDrop()
+        {
+            await new Spec("A character outside the party cannot take its drop during the owner window")
+                .GivenAsync(TheOwnerIsInAPartyThatSharesLootWithoutTheCharacter)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 0)
+                .And(TheCharacterIsToldItCannotPickThatUp)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnyoneTakesADropOnceTheOwnerWindowHasPassed()
+        {
+            await new Spec("Anyone may take a drop once its owner window has passed")
+                .GivenAsync(AnotherCharacterOwnsTheDrop)
+                .And(AnItemOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .And(_SecondsPass, 30)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHolds_Items, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SharedGoldIsNotSplit()
+        {
+            await new Spec("Gold a group member picks up is not split with the party")
+                .GivenAsync(TheCharacterIsInAPartyWithTheOwner)
+                .And(TheMasterSharesLootAsAGroup)
+                .And(GoldOwnedByTheOtherMemberLiesNextToTheCharacter)
+                .WhenAsync(TheCharacterPicksItUp)
+                .Then(TheCharacterHas_Gold, (long)GoldAmount)
+                .And(TheOwnerHas_Gold, 0L)
+                .ExecuteAsync();
+        }
+
+        private async Task AnotherCharacterOwnsTheDrop() => Owner = await TestHelpers.Instance.GenerateSessionAsync();
+
+        private async Task TheCharacterIsInAPartyWithTheOwner()
+        {
+            await AnotherCharacterOwnsTheDrop();
+            var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            Owner.Character.JoinGroup(group);
+            Session.Character.JoinGroup(group);
+        }
+
+        private async Task TheOwnerIsInAPartyThatSharesLootWithoutTheCharacter()
+        {
+            await AnotherCharacterOwnsTheDrop();
+            var third = await TestHelpers.Instance.GenerateSessionAsync();
+            var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            Owner.Character.JoinGroup(group);
+            third.Character.JoinGroup(group);
+            TheMasterSharesLootAsAGroup();
+        }
+
+        private void TheMasterSharesLootAsAGroup() => Owner.Character.GroupSharing = true;
+
+        private void AnItemOwnedByTheOtherMemberLiesNextToTheCharacter() =>
+            MapItemVisualId = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance,
+                ItemProvider.Create(ItemVNum, 1), Session.Character.PositionX, Session.Character.PositionY,
+                Owner.Character.CharacterId).VisualId;
+
+        private void GoldOwnedByTheOtherMemberLiesNextToTheCharacter()
+        {
+            TestHelpers.Instance.ItemList.Add(new ItemDto
+            {
+                VNum = GoldVNum, Type = NoscorePocketType.Main, Name = new I18NString { [RegionType.EN] = "Gold" }
+            });
+            Session.Character.Gold = 0;
+            Owner.Character.Gold = 0;
+            MapItemVisualId = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance,
+                ItemProvider.Create(GoldVNum, GoldAmount), Session.Character.PositionX, Session.Character.PositionY,
+                Owner.Character.CharacterId).VisualId;
+        }
+
+        private void _SecondsPass(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+
+        private async Task TheCharacterPicksItUp()
+        {
+            await Handler.ExecuteAsync(new GetPacket { PickerType = VisualType.Player, VisualId = MapItemVisualId }, Session);
+            await Bus.DeliverPublishedAsync();
+        }
+
+        private void TheCharacterIsToldItCannotPickThatUp()
+        {
+            var packet = Session.LastPackets.OfType<SayiPacket>().LastOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(Game18NConstString.UnableToPickUp, packet.Message);
+            Assert.IsNotNull(Session.Character.MapInstance.TryGetMapItem(MapItemVisualId));
+        }
+
+        private void TheCharacterHas_Gold(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
+
+        private void TheOwnerHas_Gold(long gold) => Assert.AreEqual(gold, Owner.Character.Gold);
 
         private void AnItemLiesNextToTheCharacter()
         {

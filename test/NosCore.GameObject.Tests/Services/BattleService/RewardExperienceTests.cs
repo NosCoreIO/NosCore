@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _service = new RewardService(new Mock<IItemGenerationService>().Object,
                 new Mock<IMapItemGenerationService>().Object, catalog.Object,
                 progression.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), NullLogger<RewardService>.Instance);
+                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, NullLogger<RewardService>.Instance);
         }
 
         [TestMethod]

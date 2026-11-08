@@ -54,6 +54,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.GameObject.Services.TransformationService;
@@ -195,6 +196,7 @@ namespace NosCore.Tests.Shared
         public MapInstanceAccessorService MapInstanceAccessorService { get; set; } = null!;
         public MapChangeService MapChangeService { get; set; } = null!;
         public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
+        public GroupLootService GroupLootService => new(Clock, DistanceCalculator);
 
         public NosCore.GameObject.Services.NpcDialogService.NpcDialogService NpcDialogService =>
             new(DistanceCalculator, Clock, SessionRegistry);
@@ -202,7 +204,7 @@ namespace NosCore.Tests.Shared
 
         private async Task GenerateMapInstanceProviderAsync()
         {
-            MapItemProvider = new MapItemGenerationService(new IdService<GameObject.Ecs.MapItemComponentBundle>(1));
+            MapItemProvider = new MapItemGenerationService(new IdService<GameObject.Ecs.MapItemComponentBundle>(1), Clock);
             var map = new Map
             {
                 MapId = 0,

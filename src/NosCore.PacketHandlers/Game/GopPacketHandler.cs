@@ -10,6 +10,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -19,7 +20,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class GopPacketHandler(IPubSubHub pubSubHub, ILogger<GopPacketHandler> logger)
+    public class GopPacketHandler(IPubSubHub pubSubHub, IGroupLootService groupLootService, ILogger<GopPacketHandler> logger)
         : PacketHandler<GopPacket>, IWorldPacketHandler
     {
         // The client ticks these to accept, so they are stored inverted as "blocked".
@@ -57,6 +58,13 @@ namespace NosCore.PacketHandlers.Game
             }
 
             var character = session.Character;
+            if (packet.Option == GopPacketType.GroupSharing)
+            {
+                await groupLootService.ChangeSharingAsync(character, packet.IsActive);
+                await session.SendPacketAsync(character.GenerateStat());
+                return;
+            }
+
             var value = TickedToAccept.Contains(packet.Option) ? !packet.IsActive : packet.IsActive;
             character.SetOption(packet.Option, value);
 

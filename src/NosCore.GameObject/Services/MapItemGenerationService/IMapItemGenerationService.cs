@@ -12,6 +12,7 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
 {
     public interface IMapItemGenerationService
     {
-        MapItemComponentBundle Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY);
+        MapItemComponentBundle Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY,
+            long? ownerId = null);
     }
 }
