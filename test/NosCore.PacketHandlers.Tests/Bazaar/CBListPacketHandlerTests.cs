@@ -167,7 +167,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             Assert.IsNotNull(Search);
             Assert.AreEqual(1, Search.Index);
-            Assert.AreEqual(50, Search.PageSize);
+            Assert.AreEqual(30, Search.PageSize);
             Assert.AreEqual(BazaarListType.Weapon, Search.TypeFilter);
             Assert.AreEqual(2, Search.SubTypeFilter);
             Assert.AreEqual(3, Search.LevelFilter);

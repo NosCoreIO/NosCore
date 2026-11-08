@@ -23,7 +23,8 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CBListPacketHandler(IBazaarHub bazaarHttpClient, IClock clock, INpcDialogService npcDialogService)
         : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
-        private const int PageSize = 50;
+        // The client shows three pages of ten rows per request and drops anything past that.
+        private const int PageSize = 30;
 
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
