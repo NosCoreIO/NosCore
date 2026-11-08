@@ -4,156 +4,57 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Microsoft.Extensions.Options;
-using NosCore.Core.Configuration;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ItemGrantService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class CreateItemPackettHandler(ILogger<CreateItemPackettHandler> logger, List<ItemDto> items,
-            IOptions<WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class CreateItemPackettHandler(IItemGrantService itemGrantService)
         : PacketHandler<CreateItemPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
         {
-            var vnum = createItemPacket.VNum;
-            sbyte rare = 0;
-            byte upgrade = 0;
-            byte design = 0;
-            short amount = 1;
-            if (vnum == 1046)
+            var result = itemGrantService.Grant(session.Character, createItemPacket.VNum,
+                createItemPacket.DesignOrAmount, createItemPacket.Upgrade);
+            switch (result.Outcome)
             {
-                return; // cannot Create gold as item, use $Gold instead
-            }
-
-            var iteminfo = items.Find(item => item.VNum == vnum);
-            if (iteminfo == null)
-            {
-                await session.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.ItemDoesNotExist
-                });
-                return;
-            }
-
-            if (iteminfo.IsColored || (iteminfo.Effect == ItemEffectType.BoxEffect))
-            {
-                if (createItemPacket.DesignOrAmount.HasValue)
-                {
-                    design = (byte)createItemPacket.DesignOrAmount.Value;
-                }
-
-                rare = createItemPacket.Upgrade.HasValue && (iteminfo.Effect == ItemEffectType.BoxEffect)
-                    ? (sbyte)createItemPacket.Upgrade.Value : rare;
-            }
-            else if (iteminfo.Type == NoscorePocketType.Equipment)
-            {
-                if (createItemPacket.Upgrade.HasValue)
-                {
-                    if (iteminfo.EquipmentSlot != EquipmentType.Sp)
+                case ItemGrantOutcome.UnknownItem:
+                    await session.SendPacketAsync(new MsgiPacket
                     {
-                        upgrade = createItemPacket.Upgrade.Value;
-                    }
-                    else
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.ItemDoesNotExist
+                    });
+                    return;
+
+                case ItemGrantOutcome.NotEnoughSpace:
+                    await session.SendPacketAsync(new MsgiPacket
                     {
-                        design = createItemPacket.Upgrade.Value;
-                    }
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.NotEnoughSpace
+                    });
+                    return;
 
-                    if ((iteminfo.EquipmentSlot != EquipmentType.Sp) && (upgrade == 0)
-                        && (iteminfo.BasicUpgrade != 0))
+                case ItemGrantOutcome.Granted:
+                    await session.SendPacketAsync(result.Items!.GeneratePocketChange());
+                    await session.SendPacketAsync(new SayiPacket
                     {
-                        upgrade = iteminfo.BasicUpgrade;
-                    }
-                }
-
-                if (createItemPacket.DesignOrAmount.HasValue)
-                {
-                    if (iteminfo.EquipmentSlot == EquipmentType.Sp)
-                    {
-                        upgrade = (byte)createItemPacket.DesignOrAmount.Value;
-                    }
-                    else if (iteminfo.EquipmentSlot == EquipmentType.Armor || iteminfo.EquipmentSlot == EquipmentType.MainWeapon || iteminfo.EquipmentSlot == EquipmentType.SecondaryWeapon)
-                    {
-                        rare = (sbyte)createItemPacket.DesignOrAmount.Value;
-                    }
-                }
+                        VisualType = VisualType.Player,
+                        VisualId = session.Character.CharacterId,
+                        Type = SayColorType.Green,
+                        Message = Game18NConstString.ReceivedThisItem,
+                        ArgumentType = 2,
+                        Game18NArguments = { createItemPacket.VNum.ToString(), result.Amount }
+                    });
+                    return;
             }
-            else if (createItemPacket.DesignOrAmount.HasValue && !createItemPacket.Upgrade.HasValue)
-            {
-                amount = createItemPacket.DesignOrAmount.Value > worldConfiguration.Value.MaxItemAmount
-                    ? worldConfiguration.Value.MaxItemAmount : createItemPacket.DesignOrAmount.Value;
-            }
-
-            var inv = session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemProvider.Create(
-                vnum,
-                amount, rare, upgrade, design), session.Character.CharacterId));
-
-            if (inv == null || inv.Count <= 0)
-            {
-                await session.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
-                return;
-            }
-
-            await session.SendPacketAsync(inv.GeneratePocketChange());
-            var firstItem = inv[0];
-
-            if (session.Character.InventoryService.LoadBySlotAndType(firstItem.Slot,
-                    firstItem.Type)!.ItemInstance is WearableInstance wearable)
-            {
-                switch (wearable.Item.EquipmentSlot)
-                {
-                    case EquipmentType.Armor:
-                    case EquipmentType.MainWeapon:
-                    case EquipmentType.SecondaryWeapon:
-                        wearable.SetRarityPoint();
-                        break;
-                    case EquipmentType.Boots:
-                    case EquipmentType.Gloves:
-                        wearable.FireResistance = (short)(wearable.Item.FireResistance * upgrade);
-                        wearable.DarkResistance = (short)(wearable.Item.DarkResistance * upgrade);
-                        wearable.LightResistance = (short)(wearable.Item.LightResistance * upgrade);
-                        wearable.WaterResistance = (short)(wearable.Item.WaterResistance * upgrade);
-                        break;
-                    default:
-                        logger.LogDebug(
-                            logLanguage[LogLanguageKey.NO_SPECIAL_PROPERTIES_WEARABLE]);
-                        break;
-                }
-            }
-
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Green,
-                Message = Game18NConstString.ReceivedThisItem,
-                ArgumentType = 2,
-                Game18NArguments = { iteminfo.VNum.ToString(), amount }
-            });
         }
     }
 }

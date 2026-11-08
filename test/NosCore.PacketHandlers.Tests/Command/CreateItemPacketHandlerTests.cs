@@ -7,19 +7,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.Items;
-using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Networking;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.ItemGrantService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
-using Microsoft.Extensions.Logging;
 using SpecLight;
 using System.Collections.Generic;
 using System.Linq;
@@ -32,113 +30,98 @@ namespace NosCore.PacketHandlers.Tests.Command
     {
         private CreateItemPackettHandler Handler = null!;
         private ClientSession Session = null!;
-        private List<ItemDto> Items = null!;
-        private Mock<IItemGenerationService> ItemProvider = null!;
-        private readonly ILogger<CreateItemPackettHandler> Logger = new Mock<ILogger<CreateItemPackettHandler>>().Object;
+        private Mock<IItemGrantService> ItemGrantService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ItemProvider = new Mock<IItemGenerationService>();
-            Items = new List<ItemDto>
-            {
-                new Item { VNum = 1012, Type = NoscorePocketType.Main },
-                new Item { VNum = 1, Type = NoscorePocketType.Equipment, EquipmentSlot = EquipmentType.MainWeapon, ItemType = ItemType.Weapon },
-                new Item { VNum = 912, Type = NoscorePocketType.Equipment, EquipmentSlot = EquipmentType.Sp, ItemType = ItemType.Specialist }
-            };
-
-            ItemProvider.Setup(x => x.Create(It.IsAny<short>(), It.IsAny<short>(), It.IsAny<sbyte>(), It.IsAny<byte>(), It.IsAny<byte>()))
-                .Returns((short vnum, short amount, sbyte rare, byte upgrade, byte design) =>
-                    new ItemInstance(new Item { VNum = vnum, Type = NoscorePocketType.Main }) { Amount = amount, Rare = rare, Upgrade = upgrade });
-
-            Handler = new CreateItemPackettHandler(
-                Logger,
-                Items,
-                TestHelpers.Instance.WorldConfiguration,
-                ItemProvider.Object,
-                TestHelpers.Instance.LogLanguageLocalizer);
+            ItemGrantService = new Mock<IItemGrantService>();
+            Handler = new CreateItemPackettHandler(ItemGrantService.Object);
         }
 
         [TestMethod]
-        public async Task CreatingNonExistentItemShouldShowError()
+        public async Task ThePacketValuesAreForwarded()
         {
-            await new Spec("Creating non-existent item should show error")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(CreatingNonExistentItem)
-                .Then(ShouldReceiveItemDoesNotExistMessage)
+            await new Spec("The item and both optional values are forwarded to the grant")
+                .Given(TheGrantReturns_, new ItemGrantResult(ItemGrantOutcome.Refused))
+                .WhenAsync(CreatingItem)
+                .Then(TheGrantShouldReceiveThePacketValues)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task CreatingGoldItemShouldBeIgnored()
+        public async Task ARefusedItemSendsNothing()
         {
-            await new Spec("Creating gold item (VNum 1046) should be ignored")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(CreatingGoldItem)
+            await new Spec("A refused item sends nothing")
+                .Given(TheGrantReturns_, new ItemGrantResult(ItemGrantOutcome.Refused))
+                .WhenAsync(CreatingItem)
                 .Then(NoPacketShouldBeSent)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task CreatingValidItemShouldAddToInventory()
+        public async Task AnUnknownItemShowsAnError()
         {
-            await new Spec("Creating valid item should add to inventory")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(CreatingValidItem)
-                .Then(ShouldReceiveItemReceivedMessage)
+            await new Spec("An unknown item shows the item does not exist")
+                .Given(TheGrantReturns_, new ItemGrantResult(ItemGrantOutcome.UnknownItem))
+                .WhenAsync(CreatingItem)
+                .Then(ShouldReceive_, Game18NConstString.ItemDoesNotExist)
                 .ExecuteAsync();
         }
 
-        private void CharacterIsOnMap()
+        [TestMethod]
+        public async Task AFullBagShowsNotEnoughSpace()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            await new Spec("A full bag shows not enough space")
+                .Given(TheGrantReturns_, new ItemGrantResult(ItemGrantOutcome.NotEnoughSpace))
+                .WhenAsync(CreatingItem)
+                .Then(ShouldReceive_, Game18NConstString.NotEnoughSpace)
+                .ExecuteAsync();
         }
 
-        private async Task CreatingNonExistentItem()
+        [TestMethod]
+        public async Task AGrantedItemRedrawsTheBagAndConfirms()
         {
-            await Handler.ExecuteAsync(new CreateItemPacket
-            {
-                VNum = 9999
-            }, Session);
+            await new Spec("A granted item redraws its slot and confirms it with the amount")
+                .Given(TheItemIsGranted)
+                .WhenAsync(CreatingItem)
+                .Then(TheSlotShouldBeRedrawn)
+                .And(ShouldReceiveItemReceivedMessageWithAmount_, (short)5)
+                .ExecuteAsync();
         }
 
-        private async Task CreatingGoldItem()
+        private void TheGrantReturns_(ItemGrantResult result) =>
+            ItemGrantService.Setup(x => x.Grant(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>(), It.IsAny<short?>(),
+                It.IsAny<byte?>())).Returns(result);
+
+        private void TheItemIsGranted()
         {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new CreateItemPacket
-            {
-                VNum = 1046
-            }, Session);
+            var item = InventoryItemInstance.Create(
+                new ItemInstance(new Item { VNum = 1012, Type = NosCore.Data.Enumerations.NoscorePocketType.Main }) { Amount = 5 },
+                Session.Character.CharacterId);
+            TheGrantReturns_(new ItemGrantResult(ItemGrantOutcome.Granted, new List<InventoryItemInstance> { item }, 5));
         }
 
-        private async Task CreatingValidItem()
-        {
-            await Handler.ExecuteAsync(new CreateItemPacket
-            {
-                VNum = 1012,
-                DesignOrAmount = 5
-            }, Session);
-        }
+        private Task CreatingItem() =>
+            Handler.ExecuteAsync(new CreateItemPacket { VNum = 1012, DesignOrAmount = 5, Upgrade = 3 }, Session);
 
-        private void ShouldReceiveItemDoesNotExistMessage()
-        {
-            var packet = Session.LastPackets.OfType<MsgiPacket>().FirstOrDefault();
-            Assert.IsNotNull(packet);
-            Assert.AreEqual(Game18NConstString.ItemDoesNotExist, packet.Message);
-        }
+        private void TheGrantShouldReceiveThePacketValues() =>
+            ItemGrantService.Verify(x => x.Grant(It.IsAny<PlayerComponentBundle>(), 1012, (short?)5, (byte?)3), Times.Once);
 
-        private void NoPacketShouldBeSent()
-        {
-            Assert.AreEqual(0, Session.LastPackets.Count);
-        }
+        private void NoPacketShouldBeSent() => Assert.AreEqual(0, Session.LastPackets.Count);
 
-        private void ShouldReceiveItemReceivedMessage()
+        private void ShouldReceive_(Game18NConstString message) =>
+            Assert.AreEqual(message, Session.LastPackets.OfType<MsgiPacket>().Single().Message);
+
+        private void TheSlotShouldBeRedrawn() => Assert.AreEqual(1, Session.LastPackets.OfType<IvnPacket>().Count());
+
+        private void ShouldReceiveItemReceivedMessageWithAmount_(short amount)
         {
-            var packet = Session.LastPackets.OfType<SayiPacket>().FirstOrDefault();
-            Assert.IsNotNull(packet);
+            var packet = Session.LastPackets.OfType<SayiPacket>().Single();
             Assert.AreEqual(Game18NConstString.ReceivedThisItem, packet.Message);
+            Assert.AreEqual(amount, packet.Game18NArguments[1]);
         }
     }
 }

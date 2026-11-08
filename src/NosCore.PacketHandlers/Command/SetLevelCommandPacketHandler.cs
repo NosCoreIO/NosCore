@@ -12,20 +12,16 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
-using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetLevelCommandPacketHandler(IPubSubHub pubSubHub, IChannelHub channelHub,
+    public class SetLevelCommandPacketHandler(IRemoteCharacterService remoteCharacterService,
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
         IHeroExperienceService heroExperienceService, ISessionRegistry sessionRegistry,
         IGameLanguageLocalizer gameLanguageLocalizer)
@@ -39,27 +35,13 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateLevel,
-                Character = new Character { Name = levelPacket.Name },
-                Data = levelPacket.Level
-            };
-
-            var channels = await channelHub.GetCommunicationChannels();
-            var subscribers = await pubSubHub.GetSubscribersAsync();
-            var receiver = subscribers.FirstOrDefault(s => s.ConnectedCharacter?.Name == levelPacket.Name);
-
-            if (receiver == null)
+            if (!await remoteCharacterService.UpdateStatAsync(levelPacket.Name, UpdateStatActionType.UpdateLevel, levelPacket.Level))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
                 });
-                return;
             }
-
-            await pubSubHub.SendMessageAsync(data);
         }
     }
 }

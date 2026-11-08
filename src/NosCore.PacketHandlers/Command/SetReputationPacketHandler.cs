@@ -8,18 +8,15 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
-using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetReputationPacketHandler(IPubSubHub pubSubHub)
+    public class SetReputationPacketHandler(IRemoteCharacterService remoteCharacterService)
         : PacketHandler<SetReputationPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SetReputationPacket setReputationPacket, ClientSession session)
@@ -30,25 +27,13 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateReputation,
-                Character = new Character { Name = setReputationPacket.Name },
-                Data = setReputationPacket.Reputation
-            };
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == setReputationPacket.Name);
-
-            if (receiver == null)
+            if (!await remoteCharacterService.UpdateStatAsync(setReputationPacket.Name, UpdateStatActionType.UpdateReputation, setReputationPacket.Reputation))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
                 });
-                return;
             }
-
-            await pubSubHub.SendMessageAsync(data);
         }
     }
 }

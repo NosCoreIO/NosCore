@@ -7,18 +7,15 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.Networking;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,139 +26,53 @@ namespace NosCore.PacketHandlers.Tests.Command
     {
         private GiftPacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IMailHub> MailHub = null!;
+        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            MailHub = new Mock<IMailHub>();
-
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>()));
-
-            Handler = new GiftPacketHandler(
-                PubSubHub.Object,
-                MailHub.Object,
-                TestHelpers.Instance.Clock);
+            RemoteCharacters = new Mock<IRemoteCharacterService>();
+            Handler = new GiftPacketHandler(RemoteCharacters.Object);
         }
 
         [TestMethod]
         public async Task SendingGiftToUnknownPlayerShouldShowError()
         {
             await new Spec("Sending gift to unknown player should show error")
-                .Given(CharacterIsOnMap)
-                .WhenAsync(SendingGiftToUnknownPlayer)
+                .WhenAsync(SendingGiftTo_, "UnknownPlayer123")
                 .Then(ShouldReceiveUnknownCharacterMessage)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task SendingGiftToOnlinePlayerShouldSendMail()
+        public async Task SendingGiftToOnlinePlayerShouldSendIt()
         {
-            await new Spec("Sending gift to online player should send mail")
-                .Given(CharacterIsOnMap)
-                .And(TargetPlayerIsOnline)
-                .WhenAsync(SendingGiftToTargetPlayer)
-                .Then(MailShouldBeSent)
+            await new Spec("Sending gift to online player forwards the item and confirms delivery")
+                .Given(TargetPlayerIsOnline)
+                .WhenAsync(SendingGiftTo_, "TargetPlayer")
+                .Then(TheGiftShouldBeForwarded)
                 .And(ShouldReceiveGiftDeliveredMessage)
                 .ExecuteAsync();
         }
 
-        private void CharacterIsOnMap()
-        {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-        }
+        private void TargetPlayerIsOnline() =>
+            RemoteCharacters.Setup(x => x.SendGiftAsync(It.IsAny<ICharacterEntity>(), "TargetPlayer", It.IsAny<short>(),
+                It.IsAny<short>(), It.IsAny<sbyte>(), It.IsAny<byte>())).ReturnsAsync(true);
 
-        private void TargetPlayerIsOnline()
-        {
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>
-                {
-                    new Subscriber
-                    {
-                        ConnectedCharacter = new Character
-                        {
-                            Id = 12345,
-                            Name = "TargetPlayer"
-                        }
-                    }
-                }));
-        }
+        private Task SendingGiftTo_(string name) =>
+            Handler.ExecuteAsync(new GiftPacket { CharacterName = name, VNum = 1012, Amount = 10, Rare = 5, Upgrade = 7 },
+                Session);
 
-        private async Task SendingGiftToUnknownPlayer()
-        {
-            await Handler.ExecuteAsync(new GiftPacket
-            {
-                CharacterName = "UnknownPlayer123",
-                VNum = 1012,
-                Amount = 1,
-                Rare = 0,
-                Upgrade = 0
-            }, Session);
-        }
+        private void TheGiftShouldBeForwarded() =>
+            RemoteCharacters.Verify(x => x.SendGiftAsync(It.IsAny<ICharacterEntity>(), "TargetPlayer", 1012, 10, 5, 7),
+                Times.Once);
 
-        private async Task SendingGiftToTargetPlayer()
-        {
-            await Handler.ExecuteAsync(new GiftPacket
-            {
-                CharacterName = "TargetPlayer",
-                VNum = 1012,
-                Amount = 10,
-                Rare = 0,
-                Upgrade = 0
-            }, Session);
-        }
+        private void ShouldReceiveUnknownCharacterMessage() =>
+            Assert.AreEqual(Game18NConstString.UnknownCharacter, Session.LastPackets.OfType<InfoiPacket>().Single().Message);
 
-        private void ShouldReceiveUnknownCharacterMessage()
-        {
-            var packet = Session.LastPackets.OfType<InfoiPacket>().FirstOrDefault();
-            Assert.IsNotNull(packet);
-            Assert.AreEqual(Game18NConstString.UnknownCharacter, packet.Message);
-        }
-
-        [TestMethod]
-        public async Task TheGiftMailCarriesTheItemAndTheSender()
-        {
-            CharacterIsOnMap();
-            TargetPlayerIsOnline();
-            MailRequest? sent = null;
-            MailHub.Setup(x => x.SendMailAsync(It.IsAny<MailRequest>()))
-                .Callback<MailRequest>(request => sent = request)
-                .ReturnsAsync(true);
-
-            await Handler.ExecuteAsync(new GiftPacket
-            {
-                CharacterName = "TargetPlayer",
-                VNum = 1,
-                Amount = 1,
-                Rare = 5,
-                Upgrade = 7
-            }, Session);
-
-            Assert.AreEqual((short?)1, sent!.VNum);
-            Assert.AreEqual((short?)1, sent.Amount);
-            Assert.AreEqual((sbyte?)5, sent.Rare);
-            Assert.AreEqual((byte?)7, sent.Upgrade);
-            Assert.AreEqual(12345, sent.Mail!.ReceiverId);
-            Assert.AreEqual(Session.Character.VisualId, sent.Mail.SenderId);
-            Assert.AreEqual(Session.Character.Name, sent.Mail.Title);
-            Assert.IsNull(sent.Mail.ItemInstanceId);
-        }
-
-        private void MailShouldBeSent()
-        {
-            MailHub.Verify(x => x.SendMailAsync(It.IsAny<MailRequest>()), Times.Once);
-        }
-
-        private void ShouldReceiveGiftDeliveredMessage()
-        {
-            var packet = Session.LastPackets.OfType<SayiPacket>().FirstOrDefault();
-            Assert.IsNotNull(packet);
-            Assert.AreEqual(Game18NConstString.GiftDelivered, packet.Message);
-        }
+        private void ShouldReceiveGiftDeliveredMessage() =>
+            Assert.AreEqual(Game18NConstString.GiftDelivered, Session.LastPackets.OfType<SayiPacket>().Single().Message);
     }
 }

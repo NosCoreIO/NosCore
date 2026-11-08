@@ -6,12 +6,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -29,19 +28,16 @@ namespace NosCore.PacketHandlers.Tests.Command
     {
         private SetReputationPacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
+        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
+            RemoteCharacters = new Mock<IRemoteCharacterService>();
 
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>()));
-
-            Handler = new SetReputationPacketHandler(PubSubHub.Object);
+            Handler = new SetReputationPacketHandler(RemoteCharacters.Object);
         }
 
         [TestMethod]
@@ -119,18 +115,8 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void TargetPlayerIsOnline()
         {
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>
-                {
-                    new Subscriber
-                    {
-                        ConnectedCharacter = new Character
-                        {
-                            Id = 12345,
-                            Name = "TargetPlayer"
-                        }
-                    }
-                }));
+            RemoteCharacters.Setup(x => x.UpdateStatAsync("TargetPlayer", UpdateStatActionType.UpdateReputation, It.IsAny<long>()))
+                .ReturnsAsync(true);
         }
 
         private async Task SettingOwnReputation()
@@ -171,7 +157,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void ReputationShouldBeChanged()
         {
-            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<StatData>()), Times.Never);
+            RemoteCharacters.Verify(x => x.UpdateStatAsync(It.IsAny<string>(), It.IsAny<UpdateStatActionType>(), It.IsAny<long>()), Times.Never);
         }
 
         private void ShouldReceiveUnknownCharacterMessage()
@@ -190,7 +176,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void StatDataShouldBeSent()
         {
-            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<StatData>()), Times.Once);
+            RemoteCharacters.Verify(x => x.UpdateStatAsync("TargetPlayer", UpdateStatActionType.UpdateReputation, It.IsAny<long>()), Times.Once);
         }
     }
 }
