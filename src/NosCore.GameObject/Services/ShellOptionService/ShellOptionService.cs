@@ -76,13 +76,17 @@ public sealed class ShellOptionService(
         }).ToList());
     }
 
-    public async Task CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId)
+    public async Task<bool> CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId)
     {
         var options = Load(fromWearableInstanceId);
-        if (options.Count > 0)
+        return options.Count == 0 || await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => new EquipmentOptionDto
         {
-            await SaveAsync(toWearableInstanceId, options);
-        }
+            Id = Guid.NewGuid(),
+            WearableInstanceId = toWearableInstanceId,
+            Level = o.Level,
+            Type = o.Type,
+            Value = o.Value,
+        }).ToList());
     }
 
     public async Task ClearAsync(Guid wearableInstanceId)

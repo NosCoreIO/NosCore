@@ -140,14 +140,17 @@ namespace NosCore.PacketHandlers.Bazaar
             var listed = (IItemInstance)bazar.ItemInstance.Clone();
             listed.Id = Guid.NewGuid();
             listed.Amount = cRegPacket.Amount;
-            if (await itemInstanceDao.TryInsertOrUpdateAsync(listed) == null)
-            {
-                return;
-            }
-
             if (listed is WearableInstance)
             {
-                await shellOptionService.CopyAsync(bazar.ItemInstance.Id, listed.Id);
+                if (!await BazaarHubOperations.CarryOptionsAsync(shellOptionService, itemInstanceDao, listed,
+                        bazar.ItemInstance.Id))
+                {
+                    return;
+                }
+            }
+            else if (await itemInstanceDao.TryInsertOrUpdateAsync(listed) == null)
+            {
+                return;
             }
 
             var operationId = Guid.NewGuid();

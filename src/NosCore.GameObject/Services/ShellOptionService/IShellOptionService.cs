@@ -24,5 +24,6 @@ public interface IShellOptionService
     Task ClearAsync(Guid wearableInstanceId);
 
     // Options belong to one instance id: an item handed over under a new id needs its own copy.
-    Task CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId);
+    // False when the copy could not be written.
+    Task<bool> CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId);
 }

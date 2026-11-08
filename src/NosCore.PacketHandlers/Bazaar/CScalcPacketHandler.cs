@@ -106,7 +106,6 @@ namespace NosCore.PacketHandlers.Bazaar
             }
 
             List<InventoryItemInstance>? newInv = null;
-            IItemInstance? returned = null;
             var applicable = BazaarHubOperations.CanApply(clientSession)
                 && (clientSession.Character.Gold + claim.Gold <= worldConfiguration.Value.MaxGoldAmount);
             if (applicable && (claim.Item != null))
@@ -115,12 +114,19 @@ namespace NosCore.PacketHandlers.Bazaar
                 var listedId = claim.Item.Id;
                 var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == listedId);
                 var item = itemProvider.Convert(listed ?? claim.Item);
-                returned = item;
                 item.Id = Guid.NewGuid();
                 item.Amount = claim.ReturnedAmount;
-                newInv = clientSession.Character.InventoryService.AddItemToPocket(
-                    InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                applicable = newInv is { Count: > 0 };
+                applicable = await BazaarHubOperations.CarryOptionsAsync(shellOptionService, itemInstanceDao, item, listedId);
+                if (applicable)
+                {
+                    newInv = clientSession.Character.InventoryService.AddItemToPocket(
+                        InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                    applicable = newInv is { Count: > 0 };
+                    if (!applicable)
+                    {
+                        await BazaarHubOperations.DropAsync(itemInstanceDao, item);
+                    }
+                }
             }
 
             if (!applicable)
@@ -135,11 +141,6 @@ namespace NosCore.PacketHandlers.Bazaar
             }
 
             clientSession.Character.Gold += claim.Gold;
-            if (returned is WearableInstance && (claim.Item != null))
-            {
-                await itemInstanceDao.TryInsertOrUpdateAsync(returned);
-                await shellOptionService.CopyAsync(claim.Item.Id, returned.Id);
-            }
 
             await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
 

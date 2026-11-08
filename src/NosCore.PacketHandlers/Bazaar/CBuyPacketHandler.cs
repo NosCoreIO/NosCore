@@ -16,7 +16,6 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.SaveService;
 using NosCore.GameObject.Services.ShellOptionService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -106,10 +105,15 @@ namespace NosCore.PacketHandlers.Bazaar
                         if (claimed)
                         {
                             List<InventoryItemInstance>? newInv = null;
-                            if (BazaarHubOperations.CanApply(clientSession) && (clientSession.Character.Gold >= price))
+                            if (BazaarHubOperations.CanApply(clientSession) && (clientSession.Character.Gold >= price)
+                                && await BazaarHubOperations.CarryOptionsAsync(shellOptionService, itemInstanceDao, item, listedId))
                             {
                                 newInv = clientSession.Character.InventoryService.AddItemToPocket(
                                     InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                                if (newInv is not { Count: > 0 })
+                                {
+                                    await BazaarHubOperations.DropAsync(itemInstanceDao, item);
+                                }
                             }
 
                             if (newInv is not { Count: > 0 })
@@ -127,11 +131,6 @@ namespace NosCore.PacketHandlers.Bazaar
                             }
 
                             clientSession.Character.Gold -= price;
-                            if (item is WearableInstance)
-                            {
-                                await itemInstanceDao.TryInsertOrUpdateAsync(item);
-                                await shellOptionService.CopyAsync(listedId, item.Id);
-                            }
 
                             await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
                             await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());

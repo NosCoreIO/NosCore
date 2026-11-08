@@ -111,6 +111,20 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         }
 
         [TestMethod]
+        public async Task ABuyWhoseOptionsCannotBeCopiedIsCompensated()
+        {
+            await new Spec("A buy whose options cannot be copied is compensated")
+                .GivenAsync(AWeaponListingWithMaximumDamage_, (short)123)
+                .And(TheBuyerHas_Gold, 1000L)
+                .And(OptionsCannotBeCopied)
+                .WhenAsync(TheBuyerBuys_, (short)1)
+                .Then(TheBuyerShouldHave_Gold, 1000L)
+                .And(TheBuyerShouldHoldNoWeapon)
+                .And(TheListingShouldHold_, (short)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ListingEquipmentKeepsItsOptions()
         {
             await new Spec("Listing equipment keeps its options")
@@ -294,10 +308,22 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .ExecuteAsync();
         }
 
+        private IShellOptionService? _failingOptions;
+
+        private void OptionsCannotBeCopied()
+        {
+            var failing = new Mock<IShellOptionService>();
+            failing.Setup(s => s.CopyAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            _failingOptions = failing.Object;
+        }
+
+        private void TheBuyerShouldHoldNoWeapon() =>
+            Assert.IsFalse(_buyer.Character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == 1));
+
         private CBuyPacketHandler NewCBuy() =>
             new(_hub, TestHelpers.Instance.GenerateItemProvider(), NullLogger<CBuyPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer, _saveService.Object, _master.ItemInstanceDao,
-                TestHelpers.Instance.NpcDialogService, _options);
+                TestHelpers.Instance.NpcDialogService, _failingOptions ?? _options);
 
         private CScalcPacketHandler NewCScalc() =>
             new(TestHelpers.Instance.WorldConfiguration, _hub, TestHelpers.Instance.GenerateItemProvider(),

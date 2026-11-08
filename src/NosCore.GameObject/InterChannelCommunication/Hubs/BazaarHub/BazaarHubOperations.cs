@@ -5,9 +5,13 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.ShellOptionService;
 using NosCore.Shared.I18N;
 using System;
 using System.Threading.Tasks;
@@ -33,6 +37,41 @@ public static class BazaarHubOperations
             catch (Exception) when (attempt < Attempts)
             {
             }
+        }
+    }
+
+    // Equipment options are stored per instance id, so a wearable handed over under a new id is
+    // saved and given a copy of its options before anything else changes. On failure nothing is
+    // left behind: deleting the instance removes any option already copied.
+    public static async Task<bool> CarryOptionsAsync(IShellOptionService shellOptionService,
+        IDao<IItemInstanceDto?, Guid> itemInstanceDao, IItemInstanceDto item, Guid fromInstanceId)
+    {
+        if (item is not WearableInstance)
+        {
+            return true;
+        }
+
+        try
+        {
+            if ((await itemInstanceDao.TryInsertOrUpdateAsync(item) != null)
+                && await shellOptionService.CopyAsync(fromInstanceId, item.Id))
+            {
+                return true;
+            }
+        }
+        catch (Exception)
+        {
+        }
+
+        await DropAsync(itemInstanceDao, item);
+        return false;
+    }
+
+    public static async Task DropAsync(IDao<IItemInstanceDto?, Guid> itemInstanceDao, IItemInstanceDto item)
+    {
+        if (item is WearableInstance)
+        {
+            await itemInstanceDao.TryDeleteAsync(item.Id);
         }
     }
 
