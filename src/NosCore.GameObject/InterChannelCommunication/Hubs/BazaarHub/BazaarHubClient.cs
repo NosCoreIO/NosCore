@@ -33,6 +33,9 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
         public Task<bool> CompensateBazaarAsync(Guid operationId) =>
             bus.RequestAsync<bool>(new CompensateBazaarRequest(operationId));
 
+        public Task<List<BazaarLink>> SearchBazaarAsync(BazaarSearch search) =>
+            bus.RequestAsync<List<BazaarLink>>(new SearchBazaarRequest(search));
+
         public Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest) =>
             bus.RequestAsync<LanguageKey>(new AddBazaarRequest(bazaarRequest));
 

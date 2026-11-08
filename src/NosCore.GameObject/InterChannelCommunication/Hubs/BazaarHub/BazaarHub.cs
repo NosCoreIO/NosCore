@@ -24,6 +24,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
         public Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId) =>
             bazaarService.BuyBazaarAsync(operationId, id, count, price, buyerId);
 
+        public Task<List<BazaarLink>> SearchBazaarAsync(BazaarSearch search) => Task.FromResult(bazaarService.SearchBazaar(search));
+
         public Task<BazaarClaim?> ClaimBazaarAsync(Guid operationId, long id, long sellerId) =>
             bazaarService.ClaimBazaarAsync(operationId, id, sellerId);
 
@@ -51,6 +53,9 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
 
         public static async Task<Reply<bool>> Handle(CompensateBazaarRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<BazaarHub>().CompensateBazaarAsync(r.OperationId));
+
+        public static async Task<Reply<List<BazaarLink>>> Handle(SearchBazaarRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<BazaarHub>().SearchBazaarAsync(r.Search));
 
         public static async Task<Reply<LanguageKey>> Handle(AddBazaarRequest r, IServiceProvider services) => new(await services.GetRequiredService<BazaarHub>().AddBazaarAsync(r.BazaarRequest));
 

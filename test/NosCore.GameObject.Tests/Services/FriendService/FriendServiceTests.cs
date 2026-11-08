@@ -162,7 +162,58 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task FriendListAsksTheHubsOnceWhateverItsLength()
+        {
+            await new Spec("Friend list asks the hubs once whatever its length")
+                .GivenAsync(ThreeFriendsOfWhichOneIsOnline)
+                .WhenAsync(GettingFriendsList)
+                .Then(HubsShouldBeAskedOnce)
+                .And(EveryFriendShouldBeListedWithItsNameAndStatus)
+                .ExecuteAsync();
+        }
+
         private LanguageKey? AddFriendResult;
+        private readonly Dictionary<long, (string Name, bool Online)> ExpectedFriends = new();
+
+        private async Task ThreeFriendsOfWhichOneIsOnline()
+        {
+            CharacterId = (await TestHelpers.Instance.GenerateSessionAsync()).Character.CharacterId;
+            for (var i = 0; i < 3; i++)
+            {
+                var friend = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
+                ExpectedFriends[friend.CharacterId] = (friend.Name, i == 0);
+                await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
+                {
+                    CharacterId = CharacterId,
+                    RelatedCharacterId = friend.CharacterId,
+                    RelationType = CharacterRelationType.Friend
+                });
+            }
+
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(ExpectedFriends.Where(f => f.Value.Online)
+                    .Select(f => new Subscriber { ChannelId = 1, ConnectedCharacter = new Character { Id = f.Key } })
+                    .ToList());
+        }
+
+        private void HubsShouldBeAskedOnce()
+        {
+            PubSubHub.Verify(s => s.GetSubscribersAsync(), Times.Once);
+            ChannelHub.Verify(s => s.GetCommunicationChannels(), Times.Once);
+        }
+
+        private void EveryFriendShouldBeListedWithItsNameAndStatus()
+        {
+            Assert.AreEqual(ExpectedFriends.Count, FriendsList!.Count);
+            foreach (var friend in FriendsList)
+            {
+                Assert.AreEqual(ExpectedFriends[friend.CharacterId].Name, friend.CharacterName);
+                Assert.AreEqual(ExpectedFriends[friend.CharacterId].Online, friend.IsConnected);
+            }
+        }
+
+
         private List<CharacterRelationStatus>? FriendsList;
         private bool DeleteResult;
         private Guid? FriendRelationId;

@@ -45,7 +45,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                       Id = 1
                     }
                 });
-            BlInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+            BlacklistCache = new Mock<IBlacklistCacheService>();
+            BlInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, BlacklistCache.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
             TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -71,10 +72,18 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .GivenAsync(TargetIsOnline)
                 .WhenAsync(BlacklistingTargetCharacter)
                 .ThenAsync(BlockedRelationShouldExist)
+                .And(TheCachedBlacklistShouldBeDropped)
                 .ExecuteAsync();
         }
 
         private ClientSession? TargetSession;
+        private Mock<IBlacklistCacheService> BlacklistCache = null!;
+
+        private void TheCachedBlacklistShouldBeDropped()
+        {
+            var visualId = Session.Character.VisualId;
+            BlacklistCache.Verify(s => s.Invalidate(visualId), Times.Once);
+        }
 
         private async Task TargetIsOnline()
         {

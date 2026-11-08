@@ -12,6 +12,8 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BlackListService;
+using NosCore.GameObject.Services.SubscriberCacheService;
 using NosCore.PacketHandlers.Chat;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
@@ -61,7 +63,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
             Handler = new WhisperPacketHandler(
                 Logger,
                 Serializer.Object,
-                BlacklistHub.Object,
+                new BlacklistCacheService(BlacklistHub.Object, TestHelpers.Instance.Clock),
+                new SubscriberCacheService(PubSubHub.Object, TestHelpers.Instance.Clock),
                 PubSubHub.Object,
                 channel,
                 TestHelpers.Instance.GameLanguageLocalizer,
@@ -122,6 +125,50 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .WhenAsync(WhisperingLongMessageToTarget)
                 .Then(MessageShouldBeSentViaPubSub)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RepeatedWhispersWithinTheCacheWindowAskTheHubsOnce()
+        {
+            await new Spec("Repeated whispers within the cache window ask the hubs once")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnline)
+                .WhenAsync(WhisperingToTarget)
+                .AndAsync(WhisperingToTarget)
+                .Then(HubsShouldBeAskedOnce)
+                .And(BothMessagesShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANewBlacklistEntryAppliesOnceTheCacheWindowHasPassed()
+        {
+            await new Spec("A new blacklist entry applies once the cache window has passed")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnline)
+                .AndAsync(WhisperingToTarget)
+                .And(TargetIsBlacklisted)
+                .And(TheCacheWindowPasses)
+                .WhenAsync(WhisperingToTarget)
+                .Then(ShouldReceiveBlacklistMessage)
+                .And(MessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        private void TheCacheWindowPasses()
+        {
+            TestHelpers.Instance.Clock.Advance(BlacklistCacheService.CacheDuration);
+        }
+
+        private void HubsShouldBeAskedOnce()
+        {
+            PubSubHub.Verify(x => x.GetSubscribersAsync(), Times.Once);
+            BlacklistHub.Verify(x => x.GetBlacklistedAsync(It.IsAny<long>()), Times.Once);
+        }
+
+        private void BothMessagesShouldBeSentViaPubSub()
+        {
+            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<NosCore.GameObject.InterChannelCommunication.Messages.PostedPacket>()), Times.Exactly(2));
         }
 
         private void CharacterIsOnMap()

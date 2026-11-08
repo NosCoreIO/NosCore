@@ -710,6 +710,9 @@ IconVNum = slot puts an inventory slot on it.
       upgrade each narrow the list; Equipment and Jewellery: the slot drop-down picks the slot
 - [ ] Searching an item by name shows only that item; searching with no name never empties the window
 - [ ] With more than 50 listings, page 2 continues the price order of page 1 instead of repeating it
+- [ ] Listings come in item-name order (in the client's language), then by the chosen price or
+      amount order; an expired or sold-out listing does not show; the last page holds only the
+      remainder
 
 ### NosBazaar buying and collecting
 
@@ -921,6 +924,22 @@ reputation, so have each player relog after a `$SetReputation` on them.
       it." appears in red, in the client's language, and nothing reaches A
 - [ ] Give C, D and E more reputation than A and have them relog: A is now refused with the
       same message
+- [ ] The ranking is re-read every 30 seconds: a change of saved reputation can take that long
+      to decide who may use the hero chat, but A's own live reputation counts at once
+
+### Whispers and friend messages
+
+Two characters, A and B, on the same channel, then on different channels.
+
+- [ ] A whispers B several times in a row: every whisper arrives, in order
+- [ ] A blacklists B, then whispers B straight away: A is refused with the blacklist message and B
+      receives nothing. A removes B from the blacklist and whispers again: it arrives
+- [ ] B logs in and A whispers B within a few seconds: if A is told B is not playing, a whisper
+      a few seconds later arrives (the online list is re-read every 3 seconds)
+- [ ] A has several friends, some online, some not: the friend list shows each with its name
+      and the right online state; a friend message to an online friend arrives, to an offline
+      friend shows "friend offline"
+- [ ] The blacklist window lists every blocked character by name
 
 ---
 

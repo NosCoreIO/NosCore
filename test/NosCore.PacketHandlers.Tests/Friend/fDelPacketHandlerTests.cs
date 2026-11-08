@@ -7,6 +7,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
+using NosCore.Core;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -54,6 +56,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;
             ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
             ChannelHub = new Mock<IChannelHub>();
+            ChannelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer, Id = 1 } });
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber

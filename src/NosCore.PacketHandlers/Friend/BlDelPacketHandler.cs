@@ -10,6 +10,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BlackListService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using System.Linq;
@@ -17,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlDelPacketHandler(IBlacklistHub blacklistHttpClient,
+    public class BlDelPacketHandler(IBlacklistHub blacklistHttpClient, IBlacklistCacheService blacklistCache,
             IGameLanguageLocalizer gameLanguageLocalizer)
         : PacketHandler<BlDelPacket>, IWorldPacketHandler
     {
@@ -28,6 +29,7 @@ namespace NosCore.PacketHandlers.Friend
             if (idtorem != null)
             {
                 await blacklistHttpClient.DeleteAsync(idtorem.CharacterRelationId);
+                blacklistCache.Invalidate(session.Character.VisualId);
                 await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient));
             }
             else

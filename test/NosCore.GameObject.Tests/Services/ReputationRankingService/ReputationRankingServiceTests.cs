@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
             await TestHelpers.ResetAsync();
             Service = new GameObject.Services.ReputationRankingService.ReputationRankingService(
                 TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
-                TestHelpers.Instance.WorldConfiguration);
+                TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock);
         }
 
         [TestMethod]
@@ -84,6 +84,37 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
                 .Then(SenderShouldNotBeTopThree)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task RepeatedChecksReuseTheRanking()
+        {
+            await new Spec("Repeated checks reuse the ranking")
+                .GivenAsync(TwoPlayersHaveMoreReputation)
+                .And(CheckingTheSender)
+                .AndAsync(AThirdPlayerOvertakesTheSender)
+                .When(CheckingTheSender)
+                .Then(SenderShouldBeTopThree)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheRankingIsRefreshedOnceItsIntervalHasPassed()
+        {
+            await new Spec("The ranking is refreshed once its interval has passed")
+                .GivenAsync(TwoPlayersHaveMoreReputation)
+                .And(CheckingTheSender)
+                .AndAsync(AThirdPlayerOvertakesTheSender)
+                .And(TheRefreshIntervalPasses)
+                .When(CheckingTheSender)
+                .Then(SenderShouldNotBeTopThree)
+                .ExecuteAsync();
+        }
+
+        private Task AThirdPlayerOvertakesTheSender() =>
+            AddCharacterAsync(AuthorityType.User, SenderReputation + 3, CharacterState.Active);
+
+        private void TheRefreshIntervalPasses() =>
+            TestHelpers.Instance.Clock.Advance(GameObject.Services.ReputationRankingService.ReputationRankingService.RefreshInterval);
 
         private async Task TwoPlayersHaveMoreReputation()
         {

@@ -115,30 +115,31 @@ namespace NosCore.GameObject.Services.FriendService
 
         public async Task<List<CharacterRelationStatus>> GetFriendsAsync(long id)
         {
-            var charList = new List<CharacterRelationStatus>();
             var list = characterRelationDao
-                .Where(s => (s.CharacterId == id) && (s.RelationType != CharacterRelationType.Blocked));
-            if (list == null)
+                .Where(s => (s.CharacterId == id) && (s.RelationType != CharacterRelationType.Blocked))?.ToList();
+            if (list == null || list.Count == 0)
             {
-                return charList;
-            }
-            foreach (var rel in list)
-            {
-                var servers = await channelHub.GetCommunicationChannels();
-                var accounts = await pubSubHub.GetSubscribersAsync();
-                var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == rel.RelatedCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
-
-                charList.Add(new CharacterRelationStatus
-                {
-                    CharacterName = (await characterDao.FirstOrDefaultAsync(s => s.CharacterId == rel.RelatedCharacterId))?.Name,
-                    CharacterId = rel.RelatedCharacterId,
-                    IsConnected = character != null,
-                    RelationType = rel.RelationType,
-                    CharacterRelationId = rel.CharacterRelationId
-                });
+                return new List<CharacterRelationStatus>();
             }
 
-            return charList;
+            var servers = await channelHub.GetCommunicationChannels();
+            var worldServerIds = servers.Where(c => c.Type == ServerType.WorldServer).Select(c => c.Id).ToHashSet();
+            var online = (await pubSubHub.GetSubscribersAsync())
+                .Where(s => s.ConnectedCharacter != null && worldServerIds.Contains(s.ChannelId))
+                .Select(s => s.ConnectedCharacter!.Id)
+                .ToHashSet();
+            var relatedIds = list.Select(s => s.RelatedCharacterId).Distinct().ToList();
+            var names = characterDao.Where(s => relatedIds.Contains(s.CharacterId))?
+                .ToDictionary(s => s.CharacterId, s => (string?)s.Name) ?? new Dictionary<long, string?>();
+
+            return list.Select(rel => new CharacterRelationStatus
+            {
+                CharacterName = names.GetValueOrDefault(rel.RelatedCharacterId),
+                CharacterId = rel.RelatedCharacterId,
+                IsConnected = online.Contains(rel.RelatedCharacterId),
+                RelationType = rel.RelationType,
+                CharacterRelationId = rel.CharacterRelationId
+            }).ToList();
         }
 
         public async Task<bool> DeleteAsync(Guid id)
