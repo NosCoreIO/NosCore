@@ -20,8 +20,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return player;
             }
 
-            var session = player.World.ForwardedTo(player.Entity);
-            return session is { HasPlayerEntity: true } ? session.Character : player;
+            return player.World.ForwardedTo(player.Entity) is { } session && session.TryGetCharacter(out var live)
+                ? live
+                : player;
         }
 
         public static IAliveEntity Live(this IAliveEntity entity) =>

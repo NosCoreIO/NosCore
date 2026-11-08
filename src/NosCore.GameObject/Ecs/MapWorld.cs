@@ -202,8 +202,7 @@ public class MapWorld : IDisposable
 
     private PlayerComponentBundle? MovedTo(Entity entity)
     {
-        var session = ForwardedTo(entity);
-        return session is { HasPlayerEntity: true } ? session.Character : null;
+        return ForwardedTo(entity) is { } session && session.TryGetCharacter(out var character) ? character : null;
     }
 
     public bool HasComponent<T>(Entity entity) where T : struct

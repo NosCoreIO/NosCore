@@ -66,6 +66,14 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
         }
 
+        // Resolves the player once, so a disconnect between a check and a read cannot throw.
+        public bool TryGetCharacter(out PlayerComponentBundle character)
+        {
+            var slot = LivePlayer();
+            character = slot?.Bundle ?? default;
+            return slot != null;
+        }
+
         // A map change puts the new entity in place before it destroys the old one, both under
         // the worlds' locks. A dead entity in the slot just read therefore means either that the
         // slot has moved on, and is read again, or that the character really is gone.
