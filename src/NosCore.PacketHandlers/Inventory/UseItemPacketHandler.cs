@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return Task.CompletedTask;
             }
 
-            return messageBus.PublishAsync(new ItemUsedEvent(clientSession, inv, useItemPacket)).AsTask();
+            return messageBus.InvokeAsync(new ItemUsedEvent(clientSession, inv, useItemPacket));
         }
     }
 }

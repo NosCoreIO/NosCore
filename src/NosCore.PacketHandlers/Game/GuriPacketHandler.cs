@@ -17,7 +17,7 @@ namespace NosCore.PacketHandlers.Game
     {
         public override Task ExecuteAsync(GuriPacket guriPacket, ClientSession session)
         {
-            return messageBus.PublishAsync(new GuriPacketReceivedEvent(session, guriPacket)).AsTask();
+            return messageBus.InvokeAsync(new GuriPacketReceivedEvent(session, guriPacket));
         }
     }
 }

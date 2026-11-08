@@ -83,6 +83,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheSameHolderHandledTwiceGivesOneCard()
+        {
+            await new Spec("The same holder handled twice gives back one card")
+                .Given(AHolderKeeping_, CardVNum)
+                .WhenAsync(TheHolderIsUsedTwice)
+                .Then(ExactlyOneCardIsInTheBag)
+                .And(TheHolderIsGone)
+                .ExecuteAsync();
+        }
+
         private void AHolderKeeping_(short vnum)
         {
             var holder = (BoxInstance)ItemProvider.Create(HolderVNum, 1);
@@ -124,6 +135,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 Type = PocketType.Equipment,
                 Slot = HolderSlot,
             }));
+
+        private async Task TheHolderIsUsedTwice()
+        {
+            await TheHolderIsUsed();
+            await TheHolderIsUsed();
+        }
+
+        private void ExactlyOneCardIsInTheBag() =>
+            Assert.AreEqual(1, Session.Character.InventoryService.Values.Select(i => i.ItemInstance)
+                .OfType<SpecialistInstance>().Count(i => i.ItemVNum == CardVNum));
 
         private SpecialistInstance? Card() =>
             Session.Character.InventoryService.Values.Select(i => i.ItemInstance).OfType<SpecialistInstance>()

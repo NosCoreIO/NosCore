@@ -485,6 +485,53 @@ namespace NosCore.GameObject.Services.InventoryService
             return null;
         }
 
+        public bool HasRoomFor(IItemInstance itemInstance)
+        {
+            var type = (NoscorePocketType)itemInstance.Item.Type;
+            if (type != NoscorePocketType.Etc && type != NoscorePocketType.Main)
+            {
+                return HasFreeSlot(type);
+            }
+
+            var maxAmount = configuration.Value.MaxItemAmount;
+            var freeSlots = GetMaxSlots(type) - CountItemInAnPocket(type);
+            var stackRoom = this.Select(s => s.Value)
+                .Where(i => i.ItemInstance?.ItemVNum == itemInstance.ItemVNum && i.ItemInstance.Amount < maxAmount)
+                .Sum(i => maxAmount - i.ItemInstance.Amount);
+            return itemInstance.Amount <= freeSlots * maxAmount + stackRoom;
+        }
+
+        public bool TryConsume(InventoryItemInstance source, short amount)
+        {
+            if (amount <= 0
+                || !TryGetValue(source.ItemInstanceId, out var inv)
+                || inv.ItemInstance == null
+                || inv.ItemInstance.Amount < amount)
+            {
+                return false;
+            }
+
+            inv.ItemInstance.Amount -= amount;
+            if (inv.ItemInstance.Amount == 0)
+            {
+                TryRemove(inv.ItemInstanceId, out _);
+            }
+
+            return true;
+        }
+
+        public void RestoreConsumed(InventoryItemInstance source, short amount)
+        {
+            if (TryGetValue(source.ItemInstanceId, out var inv))
+            {
+                inv.ItemInstance.Amount += amount;
+                return;
+            }
+
+            source.ItemInstance.Amount = amount;
+            AddItemToPocket(source, source.Type, source.Slot);
+        }
+
         public short? GetFreeSlot(NoscorePocketType type)
         {
             var maxSlots = GetMaxSlots(type);

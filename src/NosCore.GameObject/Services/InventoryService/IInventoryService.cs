@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Enumerations;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.ItemStorage;
 using NosCore.Shared.Enumerations;
 using System;
@@ -24,6 +25,7 @@ namespace NosCore.GameObject.Services.InventoryService
             AddItemToPocket(InventoryItemInstance newItem, NoscorePocketType? type, short? slot);
 
         bool CanAddItem(short itemVnum);
+        bool HasRoomFor(IItemInstance itemInstance);
         int CountItemInAnPocket(NoscorePocketType inv);
         InventoryItemInstance? DeleteById(Guid id);
         InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot);
@@ -37,6 +39,8 @@ namespace NosCore.GameObject.Services.InventoryService
             short? targetSlot, bool swap);
 
         InventoryItemInstance? RemoveItemAmountFromInventory(short amount, Guid id);
+        bool TryConsume(InventoryItemInstance source, short amount);
+        void RestoreConsumed(InventoryItemInstance source, short amount);
 
         IReadOnlyList<short> SortPocket(NoscorePocketType pocket, RegionType language);
     }

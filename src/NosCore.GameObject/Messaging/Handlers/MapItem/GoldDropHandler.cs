@@ -40,6 +40,11 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             var visualId = evt.VisualId;
             var amount = evt.Amount;
             var vnum = evt.VNum;
+            var mapInstance = character.MapInstance;
+            if (!mapInstance.TryRemoveMapItem(visualId))
+            {
+                return;
+            }
 
             if (character.Gold + amount <= maxGold)
             {
@@ -77,9 +82,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             }
 
             character = session.Character;
-            var mapInstance = character.MapInstance;
             await session.SendPacketAsync(character.GenerateGold());
-            mapInstance.TryRemoveMapItem(visualId);
             await mapInstance.SendPacketAsync(character.GenerateGet(visualId));
             await session.SendPacketAsync(new CancelPacket
             {
