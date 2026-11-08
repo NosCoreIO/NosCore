@@ -413,6 +413,10 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] A Large Recovery Potion (`$CreateItem 1010`) refills both bars, never past their maximum
 - [ ] At full HP a health potion stays in the inventory, even with MP missing
 - [ ] Potions dragged to the quick bar work the same way as from the inventory
+- [ ] Use potions from the quick bar as fast as the client lets you: each one heals and is used
+      up, none is lost
+- [ ] In Act 4, use a potion and another one straight after: the second stays in the inventory
+      and heals nothing; five seconds later it works
 
 ### Resting in combat
 

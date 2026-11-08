@@ -5,16 +5,21 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NodaTime;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.PotionService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Player;
@@ -31,6 +36,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private ClientSession _session = null!;
         private PotionHandler _handler = null!;
         private InventoryItemInstance _potion = null!;
+        private readonly List<MapTypeMapDto> _mapTypeMaps = new();
+        private readonly List<MapTypeDto> _mapTypes = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -39,7 +46,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.MaxHp = 1000;
             _session.Character.MaxMp = 800;
-            _handler = new PotionHandler();
+            _handler = new PotionHandler(new PotionCooldownService(_mapTypeMaps, _mapTypes, TestHelpers.Instance.Clock));
         }
 
         [TestMethod]
@@ -127,6 +134,66 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .Then(HpShouldBe_, 100)
                 .And(PotionCountShouldBe_, 1)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASecondPotionWithinTheDelayIsKept()
+        {
+            await new Spec("A potion drunk before the map's potion delay is over heals nothing and is kept")
+                .Given(_PotionsRestoring_Hp, 2, 100)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .WhenAsync(DrinkingThePotion)
+                .AndAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 200)
+                .And(PotionCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PotionsDrunkAtTheAllowedRateAllWork()
+        {
+            await new Spec("Potions drunk once the map's potion delay is over each heal")
+                .Given(_PotionsRestoring_Hp, 3, 100)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .WhenAsync(DrinkingThePotion)
+                .And(_MillisecondsPass, 300)
+                .AndAsync(DrinkingThePotion)
+                .And(_MillisecondsPass, 300)
+                .AndAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 400)
+                .And(PotionCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMapTypeWithALongerDelayHoldsTheNextPotionBack()
+        {
+            await new Spec("On a map whose type sets a 5 s potion delay, a potion one second later is kept and one after the delay heals")
+                .Given(TheCharactersMapHasAPotionDelayOf_Ms, (short)5000)
+                .And(_PotionsRestoring_Hp, 3, 100)
+                .And(CharacterHas_Hp_Mp, 100, 100)
+                .WhenAsync(DrinkingThePotion)
+                .And(_MillisecondsPass, 1000)
+                .AndAsync(DrinkingThePotion)
+                .And(_MillisecondsPass, 4000)
+                .AndAsync(DrinkingThePotion)
+                .Then(HpShouldBe_, 300)
+                .And(PotionCountShouldBe_, 1)
+                .ExecuteAsync();
+        }
+
+        private void TheCharactersMapHasAPotionDelayOf_Ms(short delay)
+        {
+            _mapTypes.Add(new MapTypeDto { MapTypeId = 5, PotionDelay = delay });
+            _mapTypeMaps.Add(new MapTypeMapDto { MapId = _session.Character.MapInstance.Map.MapId, MapTypeId = 5 });
+        }
+
+        private void _MillisecondsPass(int ms) => TestHelpers.Instance.Clock.Advance(Duration.FromMilliseconds(ms));
+
+        private void _PotionsRestoring_Hp(int amount, int hp)
+        {
+            A_Restoring_Hp_Mp(ItemType.Potion, hp, 0);
+            _potion.ItemInstance.Amount = (short)amount;
         }
 
         private void APotionRestoring_Hp_Mp(int hp, int mp) => A_Restoring_Hp_Mp(ItemType.Potion, hp, mp);
