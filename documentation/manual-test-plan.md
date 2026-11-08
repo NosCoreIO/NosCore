@@ -251,6 +251,29 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Drop the stone on a card whose soul is intact, or on any other item: nothing happens and
       the stone stays
 
+### Specialist card holder
+
+The holders are the box items with effect 69 and effect value 1 or 2, such as 287; the others:
+`SELECT "VNum" FROM "Item" WHERE "ItemType" = 5 AND "Effect" = 69 AND "EffectValue" IN (1, 2);`
+
+- [ ] `$CreateItem 287` and a specialist card, raise the card (`$CreateItem <card> 1 7`,
+      spend some points, perfect it once). Double-click the holder: the card holder window opens
+- [ ] Drop the card on the window: the window closes, "You have placed the Specialist Card in
+      the Card Holder." appears, the card's slot empties and the holder stays in its slot
+- [ ] Log out and back in: the filled holder is still in the bag
+- [ ] Double-click the filled holder: "The Specialist Card has been removed from the Card
+      Holder." appears, the holder's slot empties and the card is back. Its window shows the same
+      level, upgrade, perfection and spent points as before
+- [ ] Trade the filled holder to a second character, who takes the card out: the card arrives
+      with its progress intact
+- [ ] Transform, then drop another card on an empty holder's window: "You cannot put
+      Specialist Cards in the Card Holder while the transformation is in progress." appears
+      and both items stay as they were
+- [ ] Drop a card whose soul was destroyed: "You cannot put this Specialist Card in a Card
+      Holder." appears and nothing moves
+- [ ] With every other bag slot full, double-click a filled holder: the not-enough-space
+      message appears and the card stays inside
+
 ### Specialist wings
 
 - [ ] Without transforming, use Angel Wings (`$CreateItem 1685`): "You must first transform
@@ -805,3 +828,5 @@ Recorded so nobody spends time hunting for them:
 - **What shell options do** — the options are rolled, shown and kept on the equipment, but no
   combat, experience or gold formula reads them yet, so there is nothing to observe beyond the
   item window.
+- **What a filled card holder contains** — the item window has no description of a holder yet,
+  so its card is only visible once taken out.

@@ -41,7 +41,8 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item {Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon},
                 new Item {Type = NoscorePocketType.Equipment, VNum = 2, ItemType = ItemType.Weapon},
                 new Item {Type = NoscorePocketType.Equipment, VNum = 912, ItemType = ItemType.Specialist},
-                new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion}
+                new Item {Type = NoscorePocketType.Equipment, VNum = 924, ItemType = ItemType.Fashion},
+                new Item {Type = NoscorePocketType.Equipment, VNum = 4500, ItemType = ItemType.Box, ItemSubType = 2}
             };
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             Inventory = new GameObject.Services.InventoryService.InventoryService(items, Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 }),
@@ -54,6 +55,15 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             new Spec("Creating item should add to inventory")
                 .When(AddingItemToPocket)
                 .Then(ItemShouldBeInInventory)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void ABoxGoesIntoTheEquipmentPocket()
+        {
+            new Spec("A box such as a card holder goes into the equipment pocket")
+                .When(AddingABox)
+                .Then(TheBoxShouldBeInTheEquipmentPocket)
                 .Execute();
         }
 
@@ -334,6 +344,16 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         }
 
         private IList<InventoryItemInstance>? AddedItems;
+
+        private void AddingABox() =>
+            AddedItems = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(4500), 0));
+
+        private void TheBoxShouldBeInTheEquipmentPocket()
+        {
+            Assert.AreEqual(1, AddedItems!.Count);
+            Assert.AreEqual(NoscorePocketType.Equipment, AddedItems[0].Type);
+            Assert.IsInstanceOfType<BoxInstance>(AddedItems[0].ItemInstance);
+        }
 
         private void AddingItemsThatOverflow()
         {

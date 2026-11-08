@@ -105,6 +105,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                                         : wearableInstance.Upgrade
                                 });
                             }
+                            else if (inv.ItemInstance is BoxInstance box)
+                            {
+                                inv0.IvnSubPackets.Add(box.GenerateIvnSubPacket(PocketType.Equipment, inv.Slot));
+                            }
                         }
 
                         break;
