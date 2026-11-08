@@ -220,18 +220,18 @@ namespace NosCore.PacketHandlers.Exchange
                         }
 
                         var getSessionData = exchangeService.GetData(clientSession.Character.CharacterId);
-                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
-                        clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
-
-                        await exchangeTarget.AddGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
-                        exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
-
                         var getTargetData = exchangeService.GetData(exchangeTarget.VisualId);
-                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
-                        exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
 
-                        await clientSession.Character.AddGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
+                        // The gold packets below carry the bank balance too, so it moves first.
+                        clientSession.Character.RemoveBankGold(getSessionData.BankGold * 1000);
+                        exchangeTarget.AddBankGold(getSessionData.BankGold * 1000);
+                        exchangeTarget.RemoveBankGold(getTargetData.BankGold * 1000);
                         clientSession.Character.AddBankGold(getTargetData.BankGold * 1000);
+
+                        await clientSession.Character.RemoveGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
+                        await exchangeTarget.AddGoldAsync(getSessionData.Gold, gameLanguageLocalizer);
+                        await exchangeTarget.RemoveGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
+                        await clientSession.Character.AddGoldAsync(getTargetData.Gold, gameLanguageLocalizer);
                     }
 
                     closeExchange = exchangeService.CloseExchange(clientSession.Character.VisualId, success.Item1)!;

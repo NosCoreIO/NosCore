@@ -16,6 +16,7 @@ using NosCore.PacketHandlers.Bank;
 using NosCore.Packets.ClientPackets.Bank;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bank;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
@@ -63,6 +64,7 @@ namespace NosCore.PacketHandlers.Tests.Bank
                 .Then(GoldShouldBe, 3_500_000L)
                 .And(BankGoldShouldBe_, 1_500_000L)
                 .And(BankWindowShouldShow_, BankActionType.DepositGold, 1_500L)
+                .And(GoldPacketShouldCarryBankBalance_, 15_000)
                 .And(BankMessageShouldBe_, Game18NConstString.DepositBank)
                 .ExecuteAsync();
         }
@@ -225,6 +227,13 @@ namespace NosCore.PacketHandlers.Tests.Bank
             Assert.AreEqual(type, gb.Type);
             Assert.AreEqual(goldBank, gb.GoldBank);
             Assert.AreEqual(Session.Character.Gold, gb.Gold);
+        }
+
+        private void GoldPacketShouldCarryBankBalance_(int hundreds)
+        {
+            var gold = Session.LastPackets.OfType<GoldPacket>().Single();
+            Assert.AreEqual(Session.Character.Gold, gold.Gold);
+            Assert.AreEqual(hundreds, gold.Unknown);
         }
 
         private void BankMessageShouldBe_(Game18NConstString expected) =>

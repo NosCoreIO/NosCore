@@ -323,7 +323,11 @@ namespace NosCore.GameObject.Ecs.Extensions
                 ?.ItemInstance?.ItemVNum
         };
 
-        private static GoldPacket GenerateGoldPacket(ICharacterEntity characterEntity) => new() { Gold = characterEntity.Gold };
+        private static GoldPacket GenerateGoldPacket(ICharacterEntity characterEntity) => new()
+        {
+            Gold = characterEntity.Gold,
+            Unknown = (int)(characterEntity.BankGold / 100)
+        };
 
         private static LevPacket GenerateLevPacket(ICharacterEntity characterEntity, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
             => new()

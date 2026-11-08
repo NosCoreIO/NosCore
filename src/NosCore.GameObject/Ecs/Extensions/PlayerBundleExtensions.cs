@@ -369,7 +369,11 @@ public static class PlayerBundleExtensions
 
     public static GoldPacket GenerateGold(this PlayerComponentBundle player)
     {
-        return new GoldPacket { Gold = player.Gold };
+        return new GoldPacket
+        {
+            Gold = player.Gold,
+            Unknown = (int)(player.BankGold / 100)
+        };
     }
 
     public static GbPacket GenerateGb(this PlayerComponentBundle player, BankActionType type, IBankService bankService)
