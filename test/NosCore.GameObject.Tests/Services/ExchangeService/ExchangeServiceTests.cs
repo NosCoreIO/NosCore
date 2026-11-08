@@ -136,16 +136,43 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
 
         [TestMethod]
-        public async Task ValidateExchangeFailsWhenTargetsGoldWouldExceedCap()
+        public async Task ValidateExchangeFailsWhenSessionsGoldWouldExceedCap()
         {
-            await new Spec("Validate returns Failure + MaxGoldReached when target's gold + session's gold exceed MaxGoldAmount")
+            await new Spec("Validate returns Failure + MaxGoldReached to the session when the target's gold would push it past MaxGoldAmount")
                 .GivenAsync(SessionAndTargetAreSetUp)
                 .And(SessionCharacterGoldIs_, 900_000_000L)
                 .And(TargetCharacterGoldIs_, 500_000_000L)
                 .And(ExchangeOfferTargetsGoldIs_, 500_000_000L)
                 .WhenAsync(ValidatingExchange)
                 .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
+                .And(DictionaryShouldContainPacketFor_WithMessage_, false, Game18NConstString.MaxGoldReached)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenTargetsGoldWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure + MaxGoldReached to the target when the session's gold would push it past MaxGoldAmount")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionCharacterGoldIs_, 900_000_000L)
+                .And(TargetCharacterGoldIs_, 500_000_000L)
+                .And(ExchangeOfferSessionsGoldIs_, 600_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
                 .And(DictionaryShouldContainPacketFor_WithMessage_, true, Game18NConstString.MaxGoldReached)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenBothGoldWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure when both sides' gold would pass MaxGoldAmount")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionCharacterGoldIs_, 900_000_000L)
+                .And(TargetCharacterGoldIs_, 500_000_000L)
+                .And(BothOfferGold_, 600_000_000L, 500_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
                 .ExecuteAsync();
         }
 
@@ -222,6 +249,15 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private void ExchangeOfferTargetsGoldIs_(long gold) =>
             _realExchange!.SetOffer(_sessionB!.Character.VisualId, gold, 0, NoItems);
+
+        private void ExchangeOfferSessionsGoldIs_(long gold) =>
+            _realExchange!.SetOffer(_sessionA!.Character.CharacterId, gold, 0, NoItems);
+
+        private void BothOfferGold_(long sessionGold, long targetGold)
+        {
+            ExchangeOfferSessionsGoldIs_(sessionGold);
+            ExchangeOfferTargetsGoldIs_(targetGold);
+        }
 
         private void SessionBankGoldIs_(long bankGold) => _sessionA!.Character.BankGold = bankGold;
 

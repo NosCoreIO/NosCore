@@ -128,13 +128,15 @@ namespace NosCore.GameObject.Services.ExchangeService
             {
                 dictionary.Add(targetSession.VisualId, new InfoiPacket
                 {
-                    Message = Game18NConstString.FullInventory
+                    Message = Game18NConstString.MaxGoldReached
                 });
+                return new Tuple<ExchangeResultType, Dictionary<long, IPacket>?>(ExchangeResultType.Failure,
+                    dictionary);
             }
 
             if (targetInfo.Gold + session.Character.Gold > worldConfiguration.Value.MaxGoldAmount)
             {
-                dictionary.Add(targetSession.VisualId, new InfoiPacket
+                dictionary.Add(session.Character.CharacterId, new InfoiPacket
                 {
                     Message = Game18NConstString.MaxGoldReached
                 });
