@@ -15,6 +15,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
+using Wolverine;
 
 namespace NosCore.PacketHandlers.Shops
 {

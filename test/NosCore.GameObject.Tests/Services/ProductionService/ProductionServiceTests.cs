@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
@@ -38,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private IItemGenerationService _itemProvider = null!;
         private GameObject.Services.ProductionService.ProductionService _service = null!;
         private InventoryItemInstance _materialStack = null!;
+        private Mock<Wolverine.IMessageBus> _messageBus = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -56,7 +58,8 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
                 {
                     new() { RecipeId = 1, ItemVNum = Material, Amount = 3 },
                     new() { RecipeId = 3, ItemVNum = Material, Amount = 5 }
-                });
+                },
+                (_messageBus = new Mock<Wolverine.IMessageBus>()).Object);
         }
 
         [TestMethod]
@@ -101,6 +104,38 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
                 .And(TheCharacterShouldHave_ScrollProducts, 0)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ProducingAnnouncesWhatWasMade()
+        {
+            await new Spec("A finished production publishes the item and the amount made")
+                .Given(AnNpcAt_CellsMakes_From_Materials, 0, (short)5)
+                .And(TheCharacterHas_Materials, (short)5)
+                .WhenAsync(TheItemIsProduced)
+                .Then(TheProductionShouldBePublishedWith_Items, (short)2)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFailedProductionAnnouncesNothing()
+        {
+            await new Spec("A production missing materials publishes nothing")
+                .Given(AnNpcAt_CellsMakes_From_Materials, 0, (short)5)
+                .And(TheCharacterHas_Materials, (short)4)
+                .WhenAsync(TheItemIsProduced)
+                .Then(NoProductionShouldBePublished)
+                .ExecuteAsync();
+        }
+
+        private void TheProductionShouldBePublishedWith_Items(short amount) =>
+            _messageBus.Verify(b => b.PublishAsync(
+                It.Is<GameObject.Messaging.Events.ItemProducedEvent>(e => e.VNum == Product && e.Amount == amount),
+                It.IsAny<Wolverine.DeliveryOptions?>()), Times.Once);
+
+        private void NoProductionShouldBePublished() =>
+            _messageBus.Verify(b => b.PublishAsync(
+                It.IsAny<GameObject.Messaging.Events.ItemProducedEvent>(),
+                It.IsAny<Wolverine.DeliveryOptions?>()), Times.Never);
 
         [TestMethod]
         public async Task OpeningListsTheRecipesThenOpensTheWindow()
