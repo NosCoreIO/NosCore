@@ -23,4 +23,7 @@ public interface IQuestTypeHandler
     Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
 
     Task<bool> OnQuestDialogAnsweredAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
+
+    // Returns true once every objective of the quest is met.
+    Task<bool> OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) => Task.FromResult(false);
 }

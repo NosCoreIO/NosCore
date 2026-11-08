@@ -403,13 +403,16 @@ namespace NosCore.GameObject.Services.QuestService
             }
         }
 
-        // Plumbing for capture-specific quest objectives. No capture QuestType handlers
-        // exist yet (NosCore has no CAPTURE_AND_KEEP / CAPTURE_WITHOUT_KEEPING equivalent
-        // in QuestType); when they land, they'll implement a matching handler method
-        // and this loop will route captures to them exactly like the kill loop above.
-        public Task OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob)
+        public async Task OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob)
         {
-            return Task.CompletedTask;
+            foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())
+            {
+                var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
+                if (handler != null && await handler.OnMonsterCapturedAsync(character, mob, quest))
+                {
+                    await CompleteQuestAsync(character, quest);
+                }
+            }
         }
 
         public async Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest)

@@ -14,9 +14,6 @@ using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.Quest
 {
-    // Capture counterpart to OnEntityDiedHandler: forwards the captor's capture
-    // to the quest layer so capture-specific quest objectives (CAPTURE_AND_KEEP /
-    // CAPTURE_WITHOUT_KEEPING equivalents) can be progressed.
     [UsedImplicitly]
     public sealed class OnEntityCapturedHandler(IQuestService questService, ILogger<OnEntityCapturedHandler> logger)
     {
@@ -28,7 +25,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
 
             try
             {
-                await questService.OnMonsterCapturedAsync(character, npc.NpcMonster).ConfigureAwait(false);
+                await questService.OnMonsterCapturedAsync(character, npc.NpcMonster);
             }
             catch (Exception ex)
             {
