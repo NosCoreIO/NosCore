@@ -70,7 +70,33 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             sword.DamageMaximum = 45;
             sword.HitRate = 41;
 
-            Assert.AreEqual("e_info 0 21 3 5 0 29 123 149 136 6 0 0 0 12180 -1 0 0 0 0", Info(sword));
+            Assert.AreEqual("e_info 0 21 3 5 0 29 123 149 136 6 0 0 0 12180 -1 0 0 0 0 0", Info(sword));
+        }
+
+        [TestMethod]
+        public void AWeaponShowsItsPityGaugeLast()
+        {
+            var sword = Wearable(new Item
+            {
+                VNum = 21, ItemType = ItemType.Weapon, EquipmentSlot = EquipmentType.MainWeapon, Class = 2
+            });
+            sword.Upgrade = 10;
+            sword.PityGauge = 35;
+
+            StringAssert.EndsWith(Info(sword), " 35");
+        }
+
+        [TestMethod]
+        public void AnArmourShowsItsPityGaugeLast()
+        {
+            var armour = Wearable(new Item
+            {
+                VNum = 97, ItemType = ItemType.Armor, EquipmentSlot = EquipmentType.Armor
+            });
+            armour.Upgrade = 11;
+            armour.PityGauge = 420;
+
+            StringAssert.EndsWith(Info(armour), " 420");
         }
 
         [TestMethod]
@@ -99,7 +125,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             armour.MagicDefence = 16;
             armour.BoundCharacterId = 7;
 
-            Assert.AreEqual("e_info 2 97 3 5 0 27 83 76 52 118 11340 -1 0 7 0 0", Info(armour));
+            Assert.AreEqual("e_info 2 97 3 5 0 27 83 76 52 118 11340 -1 0 7 0 0 0", Info(armour));
         }
 
         [TestMethod]
@@ -184,7 +210,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             var info = Info(card);
 
             StringAssert.StartsWith(info,
-                $"slinfo 0 902 3 40 35 7 0 0 0 0 0 0 0 3 3 11 8 0 1234 554000 823.824.825.826.827.828.829.830.831.832 {card.TransportId} 19 45 0 0 0 3 0 0 0 ");
+                $"slinfo 0 902 3 40 35 7 0 0 0 0 0 0 0 3 3 11 8 0 1234 554000 823.824.825.826.827.828.829.830.831.832 {card.TransportId} 45 19 0 0 0 3 0 0 0 ");
         }
 
         [TestMethod]
@@ -210,7 +236,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             _options.Add(new EquipmentOptionDto { WearableInstanceId = sword.Id, Level = 2, Type = 15, Value = 12 });
             _options.Add(new EquipmentOptionDto { WearableInstanceId = sword.Id, Level = 1, Type = 1, Value = 50 });
 
-            Assert.AreEqual("e_info 0 299 0 0 0 70 0 0 0 0 0 0 0 100 -1 5 1 2 1.1.50 2.15.12 0", Info(sword));
+            Assert.AreEqual("e_info 0 299 0 0 0 70 0 0 0 0 0 0 0 100 -1 5 1 2 1.1.50 2.15.12 0 0", Info(sword));
         }
 
         [TestMethod]

@@ -11,6 +11,9 @@ using Arch.Core;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.ExperienceShareService;
+using NosCore.Algorithm.LevelPenaltyService;
+using NosCore.Algorithm.LowLevelBoostService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -54,6 +57,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 TestHelpers.Instance.MapItemProvider!,
                 _catalog.Object,
                 _experience.Object,
+                new ExperienceShareService(),
+                new LevelPenaltyService(),
+                new LowLevelBoostService(),
                 NullLogger<RewardService>.Instance);
 
             var template = new NpcMonsterDto
@@ -83,13 +89,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             var firstId = _first.Character.VisualId;
             var secondId = _second.Character.VisualId;
+            foreach (var character in new[] { _first.Character, _second.Character })
+            {
+                character.Level = 10;
+                character.JobLevel = 25;
+            }
 
+            // Level 10 still earns the low-level boost of twice the experience.
             await _service.DistributeAsync(_monster, _first.Character, Damage(30, 70));
 
             _experience.Verify(e => e.AddExperienceAsync(
-                It.Is<PlayerComponentBundle>(p => p.VisualId == firstId), 300, 30, 0, 0, It.IsAny<int>()), Times.Once);
+                It.Is<PlayerComponentBundle>(p => p.VisualId == firstId), 600, 30, 0, 0, It.IsAny<int>()), Times.Once);
             _experience.Verify(e => e.AddExperienceAsync(
-                It.Is<PlayerComponentBundle>(p => p.VisualId == secondId), 700, 70, 0, 0, It.IsAny<int>()), Times.Once);
+                It.Is<PlayerComponentBundle>(p => p.VisualId == secondId), 1400, 70, 0, 0, It.IsAny<int>()), Times.Once);
         }
 
         [TestMethod]

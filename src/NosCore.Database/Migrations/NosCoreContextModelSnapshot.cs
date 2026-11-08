@@ -3121,6 +3121,9 @@ namespace NosCore.Database.Migrations
                     b.Property<short?>("Mp")
                         .HasColumnType("smallint");
 
+                    b.Property<short>("PityGauge")
+                        .HasColumnType("smallint");
+
                     b.Property<byte?>("ShellRarity")
                         .HasColumnType("smallint");
 

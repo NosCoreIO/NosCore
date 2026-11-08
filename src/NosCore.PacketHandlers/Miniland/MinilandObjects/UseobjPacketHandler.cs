@@ -102,9 +102,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 {
                     WarehouseSize =
                         (byte)minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
-                    IvnSubPackets = warehouseItems.Select(invItem =>
-                        invItem.ItemInstance.GenerateIvnSubPacket((PocketType)invItem.ItemInstance!.Item.Type,
-                            invItem.Slot)).ToList()
+                    Items = warehouseItems.Select(invItem => invItem.ItemInstance.GenerateWarehouseSubPacket(invItem.Slot)).ToList()
                 });
             }
         }

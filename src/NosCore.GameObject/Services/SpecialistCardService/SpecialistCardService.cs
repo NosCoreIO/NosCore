@@ -25,6 +25,15 @@ public sealed class SpecialistCardService(ISpecialistPointService specialistPoin
             return false;
         }
 
+        var maximumLevel = specialistPointService.GetMaximumStatLevel(specialist.Upgrade);
+        if (specialistPointService.GetAttackLevel((short)(specialist.SlDamage + attack)) > maximumLevel
+            || specialistPointService.GetDefenceLevel((short)(specialist.SlDefence + defence)) > maximumLevel
+            || specialistPointService.GetElementLevel((short)(specialist.SlElement + element)) > maximumLevel
+            || specialistPointService.GetHpMpLevel((short)(specialist.SlHp + hpMp)) > maximumLevel)
+        {
+            return false;
+        }
+
         specialist.SlDamage += attack;
         specialist.SlDefence += defence;
         specialist.SlElement += element;
