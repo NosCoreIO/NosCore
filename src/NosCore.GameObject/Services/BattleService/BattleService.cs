@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Services.BattleService
         {
             var mapInstance = origin.MapInstance;
             var skill = CanCast(origin) && mapInstance != null ? skillResolver.Resolve(origin, arguments.SkillId) : null;
-            if (skill == null || captureService.IsCaptureSkill(skill))
+            if (skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill))
             {
                 await CancelAsync(origin, null);
                 return false;
@@ -117,7 +117,7 @@ namespace NosCore.GameObject.Services.BattleService
         public async Task<bool> HitTargets(IAliveEntity origin, IReadOnlyList<IAliveEntity> targets, HitArguments arguments)
         {
             var skill = CanCast(origin) ? skillResolver.Resolve(origin, arguments.SkillId) : null;
-            var valid = skill == null || captureService.IsCaptureSkill(skill)
+            var valid = skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill)
                 ? new List<IAliveEntity>()
                 : targets.Where(t => CanAttack(origin, t) && ReferenceEquals(t.MapInstance, origin.MapInstance))
                     .DistinctBy(t => (t.VisualType, t.VisualId))

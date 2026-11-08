@@ -65,6 +65,17 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
+        public async Task ACellOneBeyondTheSkillsRangeIsStillInReach()
+        {
+            await new Spec("A cell at exactly the skill's range plus one cell is still accepted")
+                .Given(TheCharacterKnowsAGroundSkillOfRange_MpCost_Cooldown_, (byte)5, (short)20, (short)50)
+                .And(TheCharacterHas_Mp, 50)
+                .WhenAsync(CastingAt_, (short)6)
+                .Then(TheAreaShouldBeHitAt_, (short)6)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ACellBeyondTheSkillsRangeIsRefused()
         {
             await new Spec("A cell further than the skill's range plus one cell is cancelled and costs nothing")

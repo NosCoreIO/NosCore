@@ -150,6 +150,29 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task ASingleTargetSkillCannotBeCastAtACell()
+        {
+            await new Spec("A skill with neither an area hit type nor a target range is refused as a ground cast")
+                .Given(TheSkillResolvesAsSingleTarget)
+                .And(TheAreaHolds_Targets, 3)
+                .WhenAsync(CastingAtACell)
+                .Then(TheCastShouldBeAccepted_, false)
+                .And(_HitsShouldBeSent, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASingleTargetSkillCannotBeCastOnAList()
+        {
+            await new Spec("A skill with neither an area hit type nor a target range is refused on a target list")
+                .Given(TheSkillResolvesAsSingleTarget)
+                .WhenAsync(CastingOn_, new[] { Monster(1), Monster(2) })
+                .Then(TheCastShouldBeAccepted_, false)
+                .And(_HitsShouldBeSent, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ATargetListHitsEachValidTargetOnce()
         {
             await new Spec("Each listed target is hit once, even when the client lists it twice")
@@ -232,6 +255,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _origin.MapInstance = _map;
             _skillResolver.Setup(r => r.Resolve(_origin, 1L)).Returns(GroundSkill(2));
+        }
+
+        private void TheSkillResolvesAsSingleTarget()
+        {
+            _origin.MapInstance = _map;
+            _skillResolver.Setup(r => r.Resolve(_origin, 1L))
+                .Returns(GroundSkill(0) with { HitType = TargetHitType.SingleTargetHit });
         }
 
         private void TheAreaHolds_Targets(int count)
