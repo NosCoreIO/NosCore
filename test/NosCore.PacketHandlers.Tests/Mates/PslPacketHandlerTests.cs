@@ -258,13 +258,13 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
         private void AFiveSecondBarEndingInPsl1ShouldStart()
         {
-            var delay = _session.LastPackets.OfType<DelayPacket>().Single();
+            var delay = _session.LastPackets.OfType<PdelayPacket>().Single();
             Assert.AreEqual(5000, delay.Delay);
             Assert.AreEqual(DelayPacketType.Locomotion, delay.Type);
             Assert.AreEqual(PslPacketType.Wear, ((PslPacket)delay.Packet!).Type);
         }
 
-        private void NoBarShouldStart() => Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+        private void NoBarShouldStart() => Assert.IsFalse(_session.LastPackets.OfType<PdelayPacket>().Any());
 
         private void ThePartnerShouldDance() =>
             Assert.IsTrue(Broadcast().OfType<GuriPacket>()

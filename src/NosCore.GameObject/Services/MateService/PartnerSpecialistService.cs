@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Services.MateService
                 return;
             }
 
-            await owner.StartDelayAsync(new DelayPacket
+            await owner.StartDelayAsync(new PdelayPacket
             {
                 Type = DelayPacketType.Locomotion,
                 Delay = TransformDelayMilliseconds,
