@@ -23,6 +23,7 @@ using NosCore.PacketHandlers.Battle;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Networking.SessionGroup;
@@ -41,6 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private ClientSession _session = null!;
         private Mock<IMapChangeService> _mapChangeService = null!;
         private Mock<IRespawnService> _respawnService = null!;
+        private BuffService _buffs = null!;
         private readonly List<IPacket> _broadcast = new();
 
         [TestInitialize]
@@ -55,11 +57,17 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<ICharacterEntity>(), It.IsAny<long?>()))
                 .Returns(((short)1, (short)50, (short)60));
 
+            var catalog = new Mock<ICardCatalog>();
+            catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
+            catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
+            _buffs = new BuffService(TestHelpers.Instance.Clock, catalog.Object, new Mock<IRandomProvider>().Object);
+
             _handler = new RevivalPacketHandler(
                 new Mock<ILogger<RevivalPacketHandler>>().Object,
                 _mapChangeService.Object,
                 _respawnService.Object,
-                TestHelpers.Instance.Clock);
+                _buffs,
+                catalog.Object);
         }
 
         [TestMethod]
@@ -134,7 +142,51 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Then(GoldShouldBe_, 4900L)
                 .And(HpShouldBeFullyRestored)
                 .And(MapChangeShouldNotBeCalled)
-                .And(CharacterShouldBeProtectedFromNow)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ArenaReviveGrantsTheRevivalProtection()
+        {
+            await new Spec("Arena revive puts card 169 on the fighter and shows its icon to the map")
+                .Given(CharacterIsDeadAtLevel_, (byte)30)
+                .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
+                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .Then(CharacterShouldHoldTheRevivalProtection)
+                .And(TheMapShouldSeeTheRevivalProtectionFor_Deciseconds, 50)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReviveInPlaceGrantsNoProtection()
+        {
+            await new Spec("Reviving in place outside an arena gives no protection card")
+                .Given(CharacterIsDeadAtLevel_, (byte)20)
+                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .Then(CharacterShouldNotHoldTheRevivalProtection)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReviveAtSavePointGrantsNoProtection()
+        {
+            await new Spec("Reviving at the save point gives no protection card")
+                .Given(CharacterIsDeadAtLevel_, (byte)30)
+                .WhenAsync(SendingRevivalOfType_, (byte)1)
+                .Then(CharacterShouldNotHoldTheRevivalProtection)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LeavingAnArenaForTheSavePointGrantsNoProtection()
+        {
+            await new Spec("Declining the arena revive sends the fighter to the save point without protection")
+                .Given(CharacterIsDeadAtLevel_, (byte)30)
+                .And(CharacterHasGold_, 5000L)
+                .And(CharacterIsInAnArena)
+                .WhenAsync(SendingRevivalOfType_, (byte)1)
+                .Then(CharacterShouldNotHoldTheRevivalProtection)
                 .ExecuteAsync();
         }
 
@@ -229,8 +281,19 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _session.Character.MapInstance.Sessions = mapSessions.Object;
         }
 
-        private void CharacterShouldBeProtectedFromNow() =>
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _session.Character.LastPvpRevive);
+        private void CharacterShouldHoldTheRevivalProtection() =>
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, RevivalProtectionCard.CardId));
+
+        private void CharacterShouldNotHoldTheRevivalProtection() =>
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, RevivalProtectionCard.CardId));
+
+        private void TheMapShouldSeeTheRevivalProtectionFor_Deciseconds(int deciseconds)
+        {
+            var bf = _broadcast.OfType<BfPacket>().Single();
+            Assert.AreEqual(_session.Character.VisualId, bf.VisualId);
+            Assert.AreEqual(RevivalProtectionCard.CardId, bf.Buff!.BuffId);
+            Assert.AreEqual(deciseconds, bf.Buff.Duration);
+        }
 
         private void CharacterIsAlive()
         {

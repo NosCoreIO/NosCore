@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -33,6 +34,10 @@ public interface IBuffService
     IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target);
 
     bool HasBuff(IAliveEntity target, short cardId);
+
+    // Whether a buff that has not yet run out carries the effect, even if the life tick has
+    // not swept the expired ones away yet.
+    bool HasEffect(IAliveEntity target, BCardEffect effect);
 
     // Drops buffs whose ExpiresAt is past `now`. Called from a timer; returning the list
     // lets handlers react (e.g. send BfePacket) without re-querying.
