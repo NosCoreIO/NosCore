@@ -711,6 +711,27 @@ IconVNum = slot puts an inventory slot on it.
 - [ ] Searching an item by name shows only that item; searching with no name never empties the window
 - [ ] With more than 50 listings, page 2 continues the price order of page 1 instead of repeating it
 
+### NosBazaar buying and collecting
+
+- [ ] List 50 of a 99 stack: the listing shows 50 and the seller keeps 49 in the same slot
+- [ ] Buy 3 of a 10 listing from another character: the buyer gets exactly 3, pays 3 x the price,
+      and the seller's "My listings" shows 3 sold
+- [ ] Buy the whole remaining listing: the buyer gets the item and is charged once; the seller's
+      listing turns to sold out instead of disappearing
+- [ ] The seller collects a partly sold listing: the gold for the sold part minus 10 % (none with a
+      medal) is added and the unsold rest comes back to the inventory; collecting again shows nothing
+- [ ] The seller collects a sold-out listing priced above 330 000: the gold received is the price
+      minus 10 %
+- [ ] Change the price of a listing, then buy it from a window opened before the change: the buyer
+      sees "The offer has been updated" and nothing is charged
+- [ ] Log out and back in on both characters: the bought item, the returned rest and the gold are kept
+- [ ] Buy from the NosBazaar, then stop the world server without logging out: after a restart the
+      buyer has the item and was charged, and the seller can collect the sale
+- [ ] List an item, then stop the world server right away: after a restart the item is either listed
+      and gone from the inventory, or still in the inventory and not listed, never both
+- [ ] Two characters on different channels buy from the same listing while the seller collects it:
+      the seller is paid once for every item a buyer received, and the rest comes back
+
 ### Production
 
 Recipes come from the parser, so re-run it on an existing database first. Malcolm Mix, the

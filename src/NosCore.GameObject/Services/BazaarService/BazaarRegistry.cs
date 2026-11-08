@@ -6,6 +6,7 @@
 
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.WebApi;
 using System;
 using System.Collections.Concurrent;
@@ -18,9 +19,20 @@ namespace NosCore.GameObject.Services.BazaarService
     {
         private readonly ConcurrentDictionary<long, BazaarLink> _bazaarItems;
 
+        // Listings a pending registration or collection keeps away from buyers.
+        private readonly ConcurrentDictionary<long, byte> _hidden = new();
+
         public BazaarRegistry(IDao<BazaarItemDto, long> bazaarItemDao,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<CharacterDto, long> characterDao)
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, IDao<CharacterDto, long> characterDao,
+            IDao<BazaarOperationDto, Guid> bazaarOperationDao)
         {
+            foreach (var operation in bazaarOperationDao.Where(s => s.State == BazaarOperationState.Pending
+                         && (s.Type == BazaarOperationType.Register || s.Type == BazaarOperationType.Claim))
+                     ?? Enumerable.Empty<BazaarOperationDto>())
+            {
+                _hidden.TryAdd(operation.BazaarItemId, 0);
+            }
+
             var billist = bazaarItemDao.LoadAll().ToList();
             var bzItemInstanceIds = billist.Select(o => o.ItemInstanceId).ToList();
             var bzCharacterIds = billist.Select(o => o.SellerId).ToList();
@@ -52,6 +64,12 @@ namespace NosCore.GameObject.Services.BazaarService
 
         public void Update(long bazaarItemId, BazaarLink bazaarLink) =>
             _bazaarItems[bazaarItemId] = bazaarLink;
+
+        public void Hide(long bazaarItemId) => _hidden.TryAdd(bazaarItemId, 0);
+
+        public void Show(long bazaarItemId) => _hidden.TryRemove(bazaarItemId, out _);
+
+        public bool IsHidden(long bazaarItemId) => _hidden.ContainsKey(bazaarItemId);
 
         public int CountBySellerId(long sellerId) =>
             _bazaarItems.Values.Count(o => o.BazaarItem?.SellerId == sellerId);

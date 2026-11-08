@@ -4,26 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using AutoFixture;
-using NodaTime;
-using Json.More;
-using Json.Patch;
-using Json.Pointer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Moq;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Bazaar;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
-using NosCore.GameObject.Services.BazaarService;
-using NosCore.Tests.Shared.AutoFixture;
+using NosCore.Tests.Shared;
 using SpecLight;
 using System;
-using NosCore.Data.StaticEntities;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
-using System.Linq.Expressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests
@@ -31,286 +22,443 @@ namespace NosCore.GameObject.Tests
     [TestClass]
     public class BazaarTests
     {
-        private BazaarHub BazaarController = null!;
-        private BazaarRegistry BazaarItemsHolder = null!;
-        private Guid Guid;
-        private Mock<IDao<BazaarItemDto, long>> MockBzDao = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> MockItemDao = null!;
-        private NosCoreFixture Fixture = null!;
+        private const long Seller = 1;
+        private const long Buyer = 2;
+
+        private BazaarTestMaster Master = null!;
+        private long ListingId;
+        private Guid InstanceId;
+        private Guid OperationId;
         private LanguageKey? LastResult;
+        private bool LastBuy;
+        private BazaarClaim? LastClaim;
+        private readonly ConcurrentBag<BazaarClaim> Claims = new();
+        private int SettledBuys;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
-            Guid = Guid.NewGuid();
-            Fixture = new NosCoreFixture();
-            MockBzDao = new Mock<IDao<BazaarItemDto, long>>();
-            MockItemDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-
-            var mockCharacterDao = new Mock<IDao<CharacterDto, long>>();
-            BazaarItemsHolder = new BazaarRegistry(MockBzDao.Object, MockItemDao.Object, mockCharacterDao.Object);
-            BazaarController = new BazaarHub(new BazaarService(BazaarItemsHolder, MockBzDao.Object, MockItemDao.Object, Fixture.Create<IClock>(), new List<ItemDto>()));
-            MockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
-                .Returns<IItemInstanceDto?>(Task.FromResult);
-            MockBzDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
-                .Returns<BazaarItemDto>(Task.FromResult);
+            await TestHelpers.ResetAsync();
+            Master = new BazaarTestMaster();
         }
 
         [TestMethod]
-        public async Task AddingFullStackToBazaarShouldSucceed()
+        public async Task ARegisteredListingStaysHiddenUntilSettled()
         {
-            await new Spec("Adding full stack to bazaar should succeed")
-                .Given(AnItemExistsWithQuantity_, 99)
-                .WhenAsync(RegisteringItems_, 99)
-                .Then(TheItemShouldBeInBazaar)
-                .And(TheBazaarAmountShouldBe_, 99)
-                .And(TheResultShouldBeSuccess)
+            await new Spec("A registered listing stays hidden until settled")
+                .GivenAsync(AnInstanceOf_Exists, (short)10)
+                .WhenAsync(RegisteringIt_, (short)10)
+                .Then(TheResultShouldBe_, LanguageKey.OBJECT_IN_BAZAAR)
+                .And(BuyersShouldSee_Listings, 0)
+                .AndAsync(SettlingTheOperation)
+                .And(BuyersShouldSee_Listings, 1)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddingPartialStackShouldCreateNewItemInstance()
+        public async Task ARetriedRegistrationListsOnce()
         {
-            await new Spec("Adding partial stack creates new item instance")
-                .Given(AnItemExistsWithQuantity_, 99)
-                .WhenAsync(RegisteringItems_, 50)
-                .Then(ANewItemInstanceShouldBeCreated)
-                .And(TheBazaarAmountShouldBe_, 50)
-                .And(TheResultShouldBeSuccess)
+            await new Spec("A retried registration lists once")
+                .GivenAsync(AnInstanceOf_Exists, (short)10)
+                .AndAsync(RegisteringIt_, (short)10)
+                .WhenAsync(RetryingTheRegistration)
+                .Then(TheResultShouldBe_, LanguageKey.OBJECT_IN_BAZAAR)
+                .And(TheSellerShouldHave_Listings, 1)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddingNegativeAmountShouldThrow()
+        public async Task ACompensatedRegistrationRemovesTheListing()
         {
-            await new Spec("Adding negative amount should throw")
-                .Given(AnItemExistsWithQuantity_, 99)
-                .When(AttemptingToRegisterNegativeAmountThrows)
+            await new Spec("A compensated registration removes the listing")
+                .GivenAsync(AnInstanceOf_Exists, (short)10)
+                .AndAsync(RegisteringIt_, (short)10)
+                .WhenAsync(CompensatingTheOperation)
+                .Then(TheSellerShouldHave_Listings, 0)
+                .AndAsync(TheListedInstanceShouldBeGone)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddingNegativePriceShouldThrow()
+        public async Task RegisteringAnAmountTheInstanceDoesNotHoldThrows()
         {
-            await new Spec("Adding negative price should throw")
-                .Given(AnItemExistsWithQuantity_, 99)
-                .When(AttemptingToRegisterNegativePriceThrows)
+            await new Spec("Registering an amount the instance does not hold throws")
+                .GivenAsync(AnInstanceOf_Exists, (short)10)
+                .Then(RegisteringIt_Throws, (short)5)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddingMoreThanAvailableShouldThrow()
+        public async Task ExceedingTheListingLimitIsRefused()
         {
-            await new Spec("Adding more than available should throw")
-                .Given(AnItemExistsWithQuantity_, 99)
-                .When(AttemptingToRegisterMoreThanAvailableThrows)
+            await new Spec("Exceeding the listing limit is refused")
+                .GivenAsync(TheSellerHas_Listings, 10)
+                .AndAsync(AnInstanceOf_Exists, (short)10)
+                .WhenAsync(RegisteringIt_, (short)10)
+                .Then(TheResultShouldBe_, LanguageKey.LIMIT_EXCEEDED)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task AddingNullItemShouldThrow()
+        public async Task ARetriedBuyAppliesOnce()
         {
-            await new Spec("Adding null item should throw")
-                .When(AttemptingToRegisterNonExistentItemThrows)
+            await new Spec("A retried buy applies once")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheBuyerBuys_, (short)3)
+                .WhenAsync(RetryingTheBuy_, (short)3)
+                .Then(TheBuyShouldBeAccepted)
+                .And(TheListingShouldHold_, (short)7)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ExceedingBazaarLimitShouldFail()
+        public async Task ABuyArrivingAfterItsCompensationIsRefused()
         {
-            var rand = new Random();
-            MockBzDao.Setup(m => m.TryInsertOrUpdateAsync(It.IsAny<BazaarItemDto>()))
-                .Returns((BazaarItemDto y) =>
-                {
-                    y.BazaarItemId = rand.Next(0, 9999999);
-                    return Task.FromResult(y);
-                });
-
-            await new Spec("Exceeding bazaar limit should fail")
-                .GivenAsync(APlayerAttemptsToListManyItems)
-                .Then(Only_ItemsShouldBeListed, 10)
-                .And(TheResultShouldBeLimitExceeded)
+            await new Spec("A buy arriving after its compensation is refused")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheBuyIsCompensatedBeforeItArrives)
+                .WhenAsync(RetryingTheBuy_, (short)3)
+                .Then(TheBuyShouldBeRefused)
+                .And(TheListingShouldHold_, (short)10)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task DeletingNonExistentListingShouldThrow()
+        public async Task ABuyRacingItsCompensationNeverKeepsTheUnits()
         {
-            await new Spec("Deleting non-existent listing should throw")
-                .When(AttemptingToDeleteNonExistentListingThrows)
+            await new Spec("A buy racing its compensation never keeps the units")
+                .GivenAsync(AListingOf_, (short)20)
+                .WhenAsync(TwentyBuysRaceTheirOwnCompensation)
+                .ThenAsync(EveryUnitShouldBeBackOnTheListing)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task OwnerCanRemoveFromBazaar()
+        public async Task ACompensatedBuyRestoresTheListing()
         {
-            await new Spec("Owner can remove from bazaar")
-                .GivenAsync(AnItemIsListedByOwner)
-                .WhenAsync(OwnerRemovesAllItems)
-                .Then(ListingShouldBeRemoved)
+            await new Spec("A compensated buy restores the listing")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheBuyerBuys_, (short)3)
+                .WhenAsync(CompensatingTheOperation)
+                .Then(TheListingShouldHold_, (short)10)
+                .AndAsync(CompensatingTheOperation)
+                .And(TheListingShouldHold_, (short)10)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ModifyingPriceShouldSucceed()
+        public async Task CollectingPaysOnlySettledSales()
         {
-            await new Spec("Modifying price should succeed")
-                .GivenAsync(AnItemIsListedAtPrice_, 80L)
-                .WhenAsync(ChangingPriceTo_, 50L)
-                .Then(PriceShouldBe_, 50L)
+            await new Spec("Collecting pays only settled sales")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheBuyerBuysAndSettles_, (short)2)
+                .AndAsync(TheBuyerBuys_, (short)3)
+                .WhenAsync(TheSellerCollects)
+                .Then(TheClaimShouldPayFor_AndReturn_, (short)2, (short)5)
+                .AndAsync(SettlingTheOperation)
+                .And(TheListingShouldStillHoldThePending_, (short)3)
                 .ExecuteAsync();
         }
 
-        private void AnItemExistsWithQuantity_(int amount)
+        [TestMethod]
+        public async Task ABuyCompensatedAfterACollectionComesBackToTheSeller()
         {
-            MockItemDao
-                .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto { Id = Guid, Amount = (short)amount });
+            await new Spec("A buy compensated after a collection comes back to the seller")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheBuyerBuys_, (short)3)
+                .AndAsync(TheSellerCollectsAndSettles)
+                .WhenAsync(CompensatingTheFirstBuy)
+                .AndAsync(TheSellerCollects)
+                .Then(TheClaimShouldPayFor_AndReturn_, (short)0, (short)3)
+                .ExecuteAsync();
         }
 
-        private async Task RegisteringItems_(int amount)
+        [TestMethod]
+        public async Task ACompensatedCollectionLeavesTheListingForSale()
         {
-            LastResult = await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                .With(r => r.Amount, amount)
-                .With(r => r.ItemInstanceId, Guid)
-                .Create());
+            await new Spec("A compensated collection leaves the listing for sale")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheSellerCollects)
+                .WhenAsync(CompensatingTheOperation)
+                .Then(BuyersShouldSee_Listings, 1)
+                .And(TheListingShouldHold_, (short)10)
+                .ExecuteAsync();
         }
 
-        private void TheItemShouldBeInBazaar()
+        [TestMethod]
+        public async Task OnlyTheSellerCanCollect()
         {
-            Assert.AreEqual(Guid, BazaarItemsHolder.GetById(0)?.BazaarItem?.ItemInstanceId);
+            await new Spec("Only the seller can collect")
+                .GivenAsync(AListingOf_, (short)10)
+                .WhenAsync(TheBuyerTriesToCollect)
+                .Then(TheClaimShouldBeRefused)
+                .And(BuyersShouldSee_Listings, 1)
+                .ExecuteAsync();
         }
 
-        private void TheBazaarAmountShouldBe_(int expected)
+        [TestMethod]
+        public async Task ChangingThePriceWithAPendingBuyIsRefused()
         {
-            Assert.AreEqual(expected, BazaarItemsHolder.GetById(0)?.BazaarItem?.Amount ?? 0);
+            await new Spec("Changing the price with a pending buy is refused")
+                .GivenAsync(AListingOf_, (short)10)
+                .AndAsync(TheBuyerBuys_, (short)1)
+                .WhenAsync(TheSellerChangesThePriceTo_, 80L)
+                .Then(ThePriceShouldBe_, 50L)
+                .AndAsync(CompensatingTheOperation)
+                .AndAsync(TheSellerChangesThePriceTo_, 80L)
+                .And(ThePriceShouldBe_, 80L)
+                .ExecuteAsync();
         }
 
-        private void TheResultShouldBeSuccess()
+        [TestMethod]
+        public async Task ConcurrentBuysAndCollectionsPayEachSaleOnce()
         {
-            Assert.AreEqual(LanguageKey.OBJECT_IN_BAZAAR, LastResult);
+            await new Spec("Concurrent buys and collections pay each sale once")
+                .GivenAsync(AListingOf_, (short)20)
+                .WhenAsync(TenBuyersAndTheSellerRunAtOnce)
+                .AndAsync(TheSellerCollectsWhatIsLeft)
+                .Then(EverySettledSaleShouldBePaidOnceAndEveryUnitAccountedFor)
+                .ExecuteAsync();
         }
 
-        private void ANewItemInstanceShouldBeCreated()
+        private async Task AnInstanceOf_Exists(short amount)
         {
-            Assert.AreNotEqual(Guid, BazaarItemsHolder.GetById(0)?.BazaarItem?.ItemInstanceId);
-        }
-
-        private void AttemptingToRegisterNegativeAmountThrows()
-        {
-            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
-                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                    .With(r => r.Amount, -50)
-                    .With(r => r.ItemInstanceId, Guid)
-                    .Create()));
-        }
-
-        private void AttemptingToRegisterNegativePriceThrows()
-        {
-            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
-                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                    .With(r => r.Amount, 50)
-                    .With(r => r.Price, -50)
-                    .With(r => r.ItemInstanceId, Guid)
-                    .Create()));
-        }
-
-        private void AttemptingToRegisterMoreThanAvailableThrows()
-        {
-            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
-                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                    .With(r => r.Amount, 100)
-                    .With(r => r.ItemInstanceId, Guid)
-                    .Create()));
-        }
-
-        private void AttemptingToRegisterNonExistentItemThrows()
-        {
-            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
-                await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                    .With(r => r.ItemInstanceId, Guid)
-                    .Create()));
-        }
-
-        private async Task APlayerAttemptsToListManyItems()
-        {
-            for (var i = 0; i < 12; i++)
+            InstanceId = Guid.NewGuid();
+            await Master.ItemInstanceDao.TryInsertOrUpdateAsync(new ItemInstanceDto
             {
-                var guid = Guid.NewGuid();
-                MockItemDao.Reset();
-                MockItemDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
-                    .Returns<IItemInstanceDto?>(Task.FromResult);
-                MockItemDao
-                    .Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                    .ReturnsAsync(new ItemInstanceDto { Id = guid, Amount = 99 });
-                LastResult = await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                    .With(r => r.Amount, 99)
-                    .With(r => r.ItemInstanceId, guid)
-                    .With(r => r.CharacterId, 1L)
-                    .With(r => r.CharacterName, "test")
-                    .With(r => r.HasMedal, false)
-                    .Create());
+                Id = InstanceId, ItemVNum = 1012, Amount = amount
+            });
+        }
+
+        private async Task RegisteringIt_(short amount)
+        {
+            OperationId = Guid.NewGuid();
+            LastResult = await Master.Hub.AddBazaarAsync(Request(amount));
+        }
+
+        private BazaarRequest Request(short amount) => new()
+        {
+            OperationId = OperationId,
+            ItemInstanceId = InstanceId,
+            CharacterId = Seller,
+            CharacterName = "seller",
+            Price = 50,
+            Duration = 24,
+            Amount = amount
+        };
+
+        private async Task RetryingTheRegistration() => LastResult = await Master.Hub.AddBazaarAsync(Request(10));
+
+        private void RegisteringIt_Throws(short amount) =>
+            Assert.ThrowsExactly<ArgumentException>(() =>
+                Master.Hub.AddBazaarAsync(Request(amount)).GetAwaiter().GetResult());
+
+        private async Task TheSellerHas_Listings(int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                await Master.ListAsync(Seller, "seller", 1012, 1, 50);
             }
         }
 
-        private void Only_ItemsShouldBeListed(int value)
+        private async Task AListingOf_(short amount) =>
+            ListingId = await Master.ListAsync(Seller, "seller", 1012, amount, 50);
+
+        private Guid FirstBuy;
+
+        private async Task TheBuyerBuys_(short amount)
         {
-            Assert.AreEqual(10, BazaarItemsHolder.GetAll().Count());
+            OperationId = Guid.NewGuid();
+            if (FirstBuy == Guid.Empty)
+            {
+                FirstBuy = OperationId;
+            }
+
+            LastBuy = await Master.Hub.BuyBazaarAsync(OperationId, ListingId, amount, 50, Buyer);
         }
 
-        private void TheResultShouldBeLimitExceeded()
+        private async Task TheBuyerBuysAndSettles_(short amount)
         {
-            Assert.AreEqual(LanguageKey.LIMIT_EXCEEDED, LastResult);
+            await TheBuyerBuys_(amount);
+            await Master.Hub.SettleBazaarAsync(OperationId);
+            FirstBuy = Guid.Empty;
         }
 
-        private void AttemptingToDeleteNonExistentListingThrows()
+        private async Task RetryingTheBuy_(short amount) =>
+            LastBuy = await Master.Hub.BuyBazaarAsync(OperationId, ListingId, amount, 50, Buyer);
+
+        private async Task TheSellerCollects()
         {
-            Assert.ThrowsExactlyAsync<ArgumentException>(async () =>
-                await BazaarController.DeleteBazaarAsync(0, 99, "test"));
+            OperationId = Guid.NewGuid();
+            LastClaim = await Master.Hub.ClaimBazaarAsync(OperationId, ListingId, Seller);
         }
 
-        private async Task AnItemIsListedByOwner()
+        private async Task TheSellerCollectsAndSettles()
         {
-            AnItemExistsWithQuantity_(99);
-            await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                .With(r => r.Amount, 99)
-                .With(r => r.ItemInstanceId, Guid)
-                .With(r => r.CharacterName, "test")
-                .Create());
+            await TheSellerCollects();
+            await Master.Hub.SettleBazaarAsync(OperationId);
         }
 
-        private async Task OwnerRemovesAllItems()
+        private async Task TheBuyerTriesToCollect() =>
+            LastClaim = await Master.Hub.ClaimBazaarAsync(Guid.NewGuid(), ListingId, Buyer);
+
+        private async Task TheSellerChangesThePriceTo_(long price) =>
+            await Master.Hub.ModifyBazaarAsync(Guid.NewGuid(), ListingId, Seller, price);
+
+        private Task SettlingTheOperation() => Master.Hub.SettleBazaarAsync(OperationId);
+
+        private Task CompensatingTheOperation() => Master.Hub.CompensateBazaarAsync(OperationId);
+
+        private Task CompensatingTheFirstBuy() => Master.Hub.CompensateBazaarAsync(FirstBuy);
+
+        private readonly ConcurrentBag<Guid> RacedOperations = new();
+
+        private async Task TwentyBuysRaceTheirOwnCompensation()
         {
-            var result = await BazaarController.DeleteBazaarAsync(0, 99, "test");
-            Assert.IsTrue(result);
+            for (var i = 0; i < 20; i++)
+            {
+                var operation = Guid.NewGuid();
+                RacedOperations.Add(operation);
+                using var barrier = new Barrier(2);
+                var buy = Task.Run(async () =>
+                {
+                    barrier.SignalAndWait();
+                    await Master.Hub.BuyBazaarAsync(operation, ListingId, 1, 50, Buyer);
+                });
+                var compensate = Task.Run(async () =>
+                {
+                    barrier.SignalAndWait();
+                    // A compensation that loses the race on the record retries, as the channel does.
+                    for (var attempt = 0; attempt < 5; attempt++)
+                    {
+                        try
+                        {
+                            await Master.Hub.CompensateBazaarAsync(operation);
+                            return;
+                        }
+                        catch (InvalidOperationException)
+                        {
+                        }
+                    }
+                });
+                await Task.WhenAll(buy, compensate);
+            }
         }
 
-        private void ListingShouldBeRemoved()
+        private async Task EveryUnitShouldBeBackOnTheListing()
         {
-            Assert.AreEqual(0, BazaarItemsHolder.GetAll().Count());
+            Assert.AreEqual((short)20, Master.Registry.GetById(ListingId)?.ItemInstance?.Amount);
+            foreach (var id in RacedOperations)
+            {
+                var operation = await Master.OperationDao.FirstOrDefaultAsync(s => s.BazaarOperationId == id);
+                Assert.AreEqual(BazaarOperationState.Compensated, operation?.State);
+            }
         }
 
-        private async Task AnItemIsListedAtPrice_(long price)
+        private async Task TenBuyersAndTheSellerRunAtOnce()
         {
-            AnItemExistsWithQuantity_(99);
-            await BazaarController.AddBazaarAsync(Fixture.Build<BazaarRequest>()
-                .With(r => r.Amount, 99)
-                .With(r => r.ItemInstanceId, Guid)
-                .With(r => r.Price, price)
-                .Create());
+            using var barrier = new Barrier(11);
+            var buyers = Enumerable.Range(0, 10).Select(i => Task.Run(async () =>
+            {
+                barrier.SignalAndWait();
+                var operation = Guid.NewGuid();
+                if (await Master.Hub.BuyBazaarAsync(operation, ListingId, 2, 50, 100 + i))
+                {
+                    // Every third buyer cannot apply its side and gives the units back.
+                    if (i % 3 == 0)
+                    {
+                        await Master.Hub.CompensateBazaarAsync(operation);
+                    }
+                    else
+                    {
+                        await Master.Hub.SettleBazaarAsync(operation);
+                        Interlocked.Add(ref SettledBuys, 2);
+                    }
+                }
+            }));
+            var seller = Task.Run(async () =>
+            {
+                barrier.SignalAndWait();
+                for (var i = 0; i < 5; i++)
+                {
+                    var operation = Guid.NewGuid();
+                    var claim = await Master.Hub.ClaimBazaarAsync(operation, ListingId, Seller);
+                    if (claim != null)
+                    {
+                        Claims.Add(claim);
+                        await Master.Hub.SettleBazaarAsync(operation);
+                    }
+
+                    await Task.Yield();
+                }
+            });
+            await Task.WhenAll(buyers.Append(seller));
         }
 
-        private async Task ChangingPriceTo_(long newPrice)
+        private async Task TheSellerCollectsWhatIsLeft()
         {
-            var patch = new JsonPatch(PatchOperation.Replace(
-                JsonPointer.Parse("/BazaarItem/Price"), newPrice.AsJsonElement().AsNode()));
-            var result = await BazaarController.ModifyBazaarAsync(0, patch);
-            Assert.IsNotNull(result);
+            while (Master.Registry.GetById(ListingId) != null)
+            {
+                var operation = Guid.NewGuid();
+                var claim = await Master.Hub.ClaimBazaarAsync(operation, ListingId, Seller);
+                Assert.IsNotNull(claim);
+                Claims.Add(claim);
+                await Master.Hub.SettleBazaarAsync(operation);
+            }
         }
 
-        private void PriceShouldBe_(long expected)
+        private void EverySettledSaleShouldBePaidOnceAndEveryUnitAccountedFor()
         {
-            Assert.AreEqual(expected, BazaarItemsHolder.GetById(0)?.BazaarItem?.Price);
+            Assert.AreEqual(SettledBuys, Claims.Sum(c => c.SoldAmount));
+            Assert.AreEqual(SettledBuys * 50L, Claims.Sum(c => c.Gold + c.Taxes));
+            Assert.AreEqual(20, Claims.Sum(c => c.SoldAmount + c.ReturnedAmount));
         }
+
+        private void TheResultShouldBe_(LanguageKey key) => Assert.AreEqual(key, LastResult);
+
+        private void BuyersShouldSee_Listings(int count) =>
+            Assert.AreEqual(count, Master.Service.GetBazaar(-1, null, null, null, null, null, null, null, null).Count);
+
+        private void TheSellerShouldHave_Listings(int count) =>
+            Assert.AreEqual(count, Master.Registry.CountBySellerId(Seller));
+
+        private async Task TheListedInstanceShouldBeGone()
+        {
+            var id = InstanceId;
+            Assert.IsNull(await Master.ItemInstanceDao.FirstOrDefaultAsync(s => s!.Id == id));
+        }
+
+        private void TheBuyShouldBeAccepted() => Assert.IsTrue(LastBuy);
+
+        private void TheBuyShouldBeRefused() => Assert.IsFalse(LastBuy);
+
+        private async Task TheBuyIsCompensatedBeforeItArrives()
+        {
+            OperationId = Guid.NewGuid();
+            Assert.IsTrue(await Master.Hub.CompensateBazaarAsync(OperationId));
+        }
+
+        private void TheListingShouldHold_(short amount) =>
+            Assert.AreEqual(amount, Master.Registry.GetById(ListingId)?.ItemInstance?.Amount);
+
+        private void TheClaimShouldPayFor_AndReturn_(short sold, short returned)
+        {
+            Assert.IsNotNull(LastClaim);
+            Assert.AreEqual(sold, LastClaim.SoldAmount);
+            Assert.AreEqual(returned, LastClaim.ReturnedAmount);
+            Assert.AreEqual(sold * 50 - (long)(sold * 50 * 0.10), LastClaim.Gold);
+        }
+
+        private void TheListingShouldStillHoldThePending_(short pending)
+        {
+            var link = Master.Registry.GetById(ListingId);
+            Assert.AreEqual(pending, link?.BazaarItem?.Amount);
+            Assert.AreEqual((short)0, link?.ItemInstance?.Amount);
+        }
+
+        private void TheClaimShouldBeRefused() => Assert.IsNull(LastClaim);
+
+        private void ThePriceShouldBe_(long price) =>
+            Assert.AreEqual(price, Master.Registry.GetById(ListingId)?.BazaarItem?.Price);
     }
 }

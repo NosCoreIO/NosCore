@@ -18,12 +18,16 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.SaveService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Shared.I18N;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -31,8 +35,8 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CRegPacketHandler(IOptions<WorldConfiguration> configuration, IBazaarHub bazaarHttpClient,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao,
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ISaveService saveService, ILogger<CRegPacketHandler> logger,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             INpcDialogService npcDialogService)
         : PacketHandler<CRegPacket>, IWorldPacketHandler
     {
@@ -125,28 +129,50 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bazar = clientSession.Character.InventoryService.LoadBySlotAndType(cRegPacket.Slot,
                 cRegPacket.Inventory == 4 ? NoscorePocketType.Equipment : (NoscorePocketType)cRegPacket.Inventory);
-            if (bazar?.ItemInstance == null)
+            if ((bazar?.ItemInstance == null) || (cRegPacket.Amount > bazar.ItemInstance.Amount))
             {
                 return;
             }
-            IItemInstanceDto bazaaritem = bazar.ItemInstance;
-            bazaaritem = (await itemInstanceDao.TryInsertOrUpdateAsync(bazaaritem))!;
 
-            var result = await bazaarHttpClient.AddBazaarAsync(new BazaarRequest
+            // The listing gets its own instance holding the listed amount; the stack in the
+            // inventory is only reduced once the master accepted the listing.
+            var listed = (IItemInstance)bazar.ItemInstance.Clone();
+            listed.Id = Guid.NewGuid();
+            listed.Amount = cRegPacket.Amount;
+            if (await itemInstanceDao.TryInsertOrUpdateAsync(listed) == null)
             {
-                ItemInstanceId = bazaaritem.Id,
-                CharacterId = clientSession.Character.CharacterId,
-                CharacterName = clientSession.Character.Name,
-                HasMedal = medal != null,
-                Price = cRegPacket.Price,
-                IsPackage = cRegPacket.IsPackage,
-                Duration = duration,
-                Amount = cRegPacket.Amount
-            });
+                return;
+            }
+
+            var operationId = Guid.NewGuid();
+            LanguageKey result;
+            try
+            {
+                result = await BazaarHubOperations.RequestAsync(() => bazaarHttpClient.AddBazaarAsync(new BazaarRequest
+                {
+                    OperationId = operationId,
+                    ItemInstanceId = listed.Id,
+                    CharacterId = clientSession.Character.CharacterId,
+                    CharacterName = clientSession.Character.Name,
+                    HasMedal = medal != null,
+                    Price = cRegPacket.Price,
+                    IsPackage = cRegPacket.IsPackage,
+                    Duration = duration,
+                    Amount = cRegPacket.Amount
+                }));
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_ADD_ERROR]);
+                await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);
+                await itemInstanceDao.TryDeleteAsync(listed.Id);
+                return;
+            }
 
             switch (result)
             {
                 case LanguageKey.LIMIT_EXCEEDED:
+                    await itemInstanceDao.TryDeleteAsync(listed.Id);
                     await clientSession.SendPacketAsync(new ModaliPacket
                     {
                         Type = 1,
@@ -155,21 +181,29 @@ namespace NosCore.PacketHandlers.Bazaar
                     break;
 
                 case LanguageKey.OBJECT_IN_BAZAAR:
-                    if (bazar.ItemInstance.Amount == cRegPacket.Amount)
+                    if (!BazaarHubOperations.CanApply(clientSession)
+                        || !clientSession.Character.InventoryService.TryGetValue(bazar.ItemInstanceId, out var stack)
+                        || (stack.ItemInstance.Amount < cRegPacket.Amount) || (clientSession.Character.Gold < tax))
                     {
-                        await inventoryItemInstanceDao.TryDeleteAsync(bazar.Id);
-                        clientSession.Character.InventoryService.DeleteById(bazar.ItemInstanceId);
+                        await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);
+                        return;
+                    }
+
+                    if (stack.ItemInstance.Amount == cRegPacket.Amount)
+                    {
+                        clientSession.Character.InventoryService.Remove(stack.ItemInstanceId);
                     }
                     else
                     {
-                        clientSession.Character.InventoryService.RemoveItemAmountFromInventory(cRegPacket.Amount,
-                            bazar.ItemInstanceId);
+                        stack.ItemInstance.Amount -= cRegPacket.Amount;
                     }
+
+                    clientSession.Character.Gold -= tax;
+                    await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
 
                     await clientSession.SendPacketAsync(((InventoryItemInstance?)null).GeneratePocketChange(
                         cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory,
                         cRegPacket.Slot));
-                    clientSession.Character.Gold -= tax;
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
                     await clientSession.SendPacketAsync(new SayiPacket
                     {

@@ -18,10 +18,17 @@ namespace NosCore.GameObject.Services.BazaarService
         List<BazaarLink> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter);
 
-        Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null);
+        Task<LanguageKey> AddBazaarAsync(Guid operationId, Guid itemInstanceId, long characterId, string? characterName,
+            bool hasMedal, long price, bool isPackage, short duration, short amount);
 
-        Task<LanguageKey> AddBazaarAsync(Guid itemInstanceId, long characterId, string? characterName, bool hasMedal, long price, bool isPackage, short duration, short amount);
+        Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId);
 
-        Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod);
+        Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price);
+
+        Task<BazaarClaim?> ClaimBazaarAsync(Guid operationId, long id, long sellerId);
+
+        Task<bool> SettleBazaarAsync(Guid operationId);
+
+        Task<bool> CompensateBazaarAsync(Guid operationId);
     }
 }

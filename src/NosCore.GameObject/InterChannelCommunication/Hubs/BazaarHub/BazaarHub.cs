@@ -21,21 +21,39 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
             byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter) => Task.FromResult(bazaarService.GetBazaar(id, index, pageSize, typeFilter,
             subTypeFilter, levelFilter, rareFilter, upgradeFilter, sellerFilter));
 
-        public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null) => bazaarService.DeleteBazaarAsync(id, count, requestCharacterName, requestCharacterId);
+        public Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId) =>
+            bazaarService.BuyBazaarAsync(operationId, id, count, price, buyerId);
 
-        public Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest) => bazaarService.AddBazaarAsync(bazaarRequest.ItemInstanceId,
+        public Task<BazaarClaim?> ClaimBazaarAsync(Guid operationId, long id, long sellerId) =>
+            bazaarService.ClaimBazaarAsync(operationId, id, sellerId);
+
+        public Task<bool> SettleBazaarAsync(Guid operationId) => bazaarService.SettleBazaarAsync(operationId);
+
+        public Task<bool> CompensateBazaarAsync(Guid operationId) => bazaarService.CompensateBazaarAsync(operationId);
+
+        public Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest) => bazaarService.AddBazaarAsync(bazaarRequest.OperationId, bazaarRequest.ItemInstanceId,
             bazaarRequest.CharacterId, bazaarRequest.CharacterName, bazaarRequest.HasMedal, bazaarRequest.Price, bazaarRequest.IsPackage, bazaarRequest.Duration, bazaarRequest.Amount);
 
-        public Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod) => bazaarService.ModifyBazaarAsync(id, bzMod);
+        public Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price) =>
+            bazaarService.ModifyBazaarAsync(operationId, id, sellerId, price);
 
         public static async Task<Reply<List<BazaarLink>>> Handle(GetBazaarRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<BazaarHub>().GetBazaar(r.Id, r.Index, r.PageSize, r.TypeFilter, r.SubTypeFilter, r.LevelFilter, r.RareFilter, r.UpgradeFilter, r.SellerFilter));
 
-        public static async Task<Reply<bool>> Handle(DeleteBazaarRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<BazaarHub>().DeleteBazaarAsync(r.Id, r.Count, r.RequestCharacterName, r.RequestCharacterId));
+        public static async Task<Reply<bool>> Handle(BuyBazaarRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<BazaarHub>().BuyBazaarAsync(r.OperationId, r.Id, r.Count, r.Price, r.BuyerId));
+
+        public static async Task<Reply<BazaarClaim?>> Handle(ClaimBazaarRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<BazaarHub>().ClaimBazaarAsync(r.OperationId, r.Id, r.SellerId));
+
+        public static async Task<Reply<bool>> Handle(SettleBazaarRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<BazaarHub>().SettleBazaarAsync(r.OperationId));
+
+        public static async Task<Reply<bool>> Handle(CompensateBazaarRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<BazaarHub>().CompensateBazaarAsync(r.OperationId));
 
         public static async Task<Reply<LanguageKey>> Handle(AddBazaarRequest r, IServiceProvider services) => new(await services.GetRequiredService<BazaarHub>().AddBazaarAsync(r.BazaarRequest));
 
-        public static async Task<Reply<BazaarLink?>> Handle(ModifyBazaarRequest r, IServiceProvider services) => new(await services.GetRequiredService<BazaarHub>().ModifyBazaarAsync(r.Id, r.BzMod));
+        public static async Task<Reply<BazaarLink?>> Handle(ModifyBazaarRequest r, IServiceProvider services) => new(await services.GetRequiredService<BazaarHub>().ModifyBazaarAsync(r.OperationId, r.Id, r.SellerId, r.Price));
     }
 }

@@ -18,5 +18,8 @@ namespace NosCore.GameObject.Services.BazaarService
         bool Unregister(long bazaarItemId);
         void Update(long bazaarItemId, BazaarLink bazaarLink);
         int CountBySellerId(long sellerId);
+        void Hide(long bazaarItemId);
+        void Show(long bazaarItemId);
+        bool IsHidden(long bazaarItemId);
     }
 }

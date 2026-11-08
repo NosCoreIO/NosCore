@@ -4,10 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Json.More;
-using Json.Patch;
-using Json.Pointer;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -19,6 +17,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -38,7 +37,7 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
-            if ((bz != null) && (bz.SellerName == clientSession.Character.Name) &&
+            if ((bz != null) && (bz.BazaarItem?.SellerId == clientSession.Character.CharacterId) &&
                 (bz.BazaarItem?.Price != packet.NewPrice))
             {
                 if (bz.BazaarItem?.Amount != bz.ItemInstance?.Amount)
@@ -53,10 +52,20 @@ namespace NosCore.PacketHandlers.Bazaar
 
                 if (bz.BazaarItem?.Amount == packet.Amount)
                 {
-                    var patch = new JsonPatch(PatchOperation.Replace(JsonPointer.Parse("/BazaarItem/Price"), packet.NewPrice.AsJsonElement().AsNode()));
-                    var bzMod = await bazaarHttpClient.ModifyBazaarAsync(packet.BazaarId, patch);
+                    BazaarLink? bzMod;
+                    try
+                    {
+                        var operationId = Guid.NewGuid();
+                        bzMod = await BazaarHubOperations.RequestAsync(() => bazaarHttpClient.ModifyBazaarAsync(
+                            operationId, packet.BazaarId, clientSession.Character.CharacterId, packet.NewPrice));
+                    }
+                    catch (Exception e)
+                    {
+                        logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_MOD_ERROR]);
+                        bzMod = null;
+                    }
 
-                    if ((bzMod != null) && (bzMod.BazaarItem?.Price != bz.BazaarItem.Price))
+                    if ((bzMod != null) && (bzMod.BazaarItem?.Price == packet.NewPrice))
                     {
                         await clientSession.HandlePacketsAsync(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
                         await clientSession.SendPacketAsync(new SayiPacket

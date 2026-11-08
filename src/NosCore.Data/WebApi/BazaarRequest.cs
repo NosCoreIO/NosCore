@@ -10,6 +10,7 @@ namespace NosCore.Data.WebApi
 {
     public class BazaarRequest
     {
+        public Guid OperationId { get; set; }
         public Guid ItemInstanceId { get; set; }
         public long CharacterId { get; set; }
         public string? CharacterName { get; set; }

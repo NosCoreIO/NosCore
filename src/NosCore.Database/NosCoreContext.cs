@@ -40,6 +40,8 @@ namespace NosCore.Database
 
         public virtual DbSet<BazaarItem>? BazaarItem { get; set; }
 
+        public virtual DbSet<BazaarOperation>? BazaarOperation { get; set; }
+
         public virtual DbSet<Card>? Card { get; set; }
 
         public virtual DbSet<Miniland>? Miniland { get; set; }
@@ -393,6 +395,9 @@ namespace NosCore.Database
                 .WithMany(e => e.FamilyCharacter)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<BazaarOperation>()
+                .HasIndex(e => new { e.BazaarItemId, e.State });
 
             modelBuilder.Entity<BazaarItem>()
                 .HasOne(e => e.Seller)

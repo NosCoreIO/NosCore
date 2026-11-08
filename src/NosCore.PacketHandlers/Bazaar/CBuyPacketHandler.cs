@@ -14,6 +14,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.SaveService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -30,8 +31,8 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Bazaar
 {
     public class CBuyPacketHandler(IBazaarHub bazaarHttpClient, IItemGenerationService itemProvider,
-            ILogger<CBuyPacketHandler> logger,
-            IDao<IItemInstanceDto?, Guid> itemInstanceDao, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ILogger<CBuyPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISaveService saveService,
+            IDao<IItemInstanceDto?, Guid> itemInstanceDao,
             INpcDialogService npcDialogService)
         : PacketHandler<CBuyPacket>, IWorldPacketHandler
     {
@@ -49,10 +50,15 @@ namespace NosCore.PacketHandlers.Bazaar
 
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
-            if ((bz != null) && (bz.SellerName != clientSession.Character.Name) &&
+            if ((bz != null) && (bz.BazaarItem?.SellerId != clientSession.Character.CharacterId) &&
                 (packet.Price == bz.BazaarItem?.Price) && (bz.ItemInstance?.Amount >= packet.Amount))
             {
                 if (bz.BazaarItem.IsPackage && (bz.BazaarItem.Amount != packet.Amount))
+                {
+                    return;
+                }
+
+                if (packet.Price > long.MaxValue / packet.Amount)
                 {
                     return;
                 }
@@ -62,24 +68,66 @@ namespace NosCore.PacketHandlers.Bazaar
                 {
                     if (clientSession.Character.Gold >= price)
                     {
-                        // Claim the listing before anything is paid for or created. The listing
-                        // is shared across channels, so two buyers can both pass the checks
-                        // above; only one can win this call, and the loser must leave with
-                        // neither the gold gone nor an item made.
-                        var remove = await bazaarHttpClient.DeleteBazaarAsync(packet.BazaarId, packet.Amount,
-                            clientSession.Character.Name);
-                        if (remove)
+                        // The bought amount is delivered from a copy taken now: once claimed, the
+                        // listing only holds what is left, or nothing at all. The copy is read from the
+                        // database because the listing crossed the bus as the base item type.
+                        var listedId = bz.ItemInstance.Id;
+                        var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == listedId);
+                        if (listed == null)
                         {
-                            clientSession.Character.Gold -= price;
-                            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
+                            await clientSession.SendPacketAsync(new ModaliPacket
+                            {
+                                Type = 1,
+                                Message = Game18NConstString.OfferUpdated
+                            });
+                            return;
+                        }
 
-                            var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == bz.ItemInstance.Id);
-                            var item = itemProvider.Convert(itemInstance!);
-                            item.Id = Guid.NewGuid();
-                            var newInv =
-                                clientSession.Character.InventoryService.AddItemToPocket(
+                        var item = itemProvider.Convert(listed);
+                        item.Id = Guid.NewGuid();
+                        item.Amount = packet.Amount;
+
+                        var operationId = Guid.NewGuid();
+                        bool claimed;
+                        try
+                        {
+                            claimed = await BazaarHubOperations.RequestAsync(() => bazaarHttpClient.BuyBazaarAsync(
+                                operationId, packet.BazaarId, packet.Amount, packet.Price, clientSession.Character.CharacterId));
+                        }
+                        catch (Exception e)
+                        {
+                            logger.LogError(e, logLanguage[LogLanguageKey.BAZAAR_BUY_ERROR]);
+                            await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);
+                            claimed = false;
+                        }
+
+                        if (claimed)
+                        {
+                            List<InventoryItemInstance>? newInv = null;
+                            if (BazaarHubOperations.CanApply(clientSession) && (clientSession.Character.Gold >= price))
+                            {
+                                newInv = clientSession.Character.InventoryService.AddItemToPocket(
                                     InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
-                            await clientSession.SendPacketAsync(newInv!.GeneratePocketChange());
+                            }
+
+                            if (newInv is not { Count: > 0 })
+                            {
+                                await bazaarHttpClient.CompensateAsync(operationId, logger, logLanguage);
+                                if (BazaarHubOperations.CanApply(clientSession))
+                                {
+                                    await clientSession.SendPacketAsync(new InfoiPacket
+                                    {
+                                        Message = Game18NConstString.NotEnoughSpace
+                                    });
+                                }
+
+                                return;
+                            }
+
+                            clientSession.Character.Gold -= price;
+                            await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
+                            await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
+                            await clientSession.SendPacketAsync(newInv.GeneratePocketChange());
 
                             await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } });
                             await clientSession.SendPacketAsync(new RCBuyPacket(bz.SellerName!)
