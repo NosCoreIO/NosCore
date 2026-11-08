@@ -5,17 +5,16 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NodaTime;
-using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
+using Moq;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ComplimentService;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Tests.Shared;
 using SpecLight;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -27,8 +26,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private ComplPacketHandler Handler = null!;
         private ClientSession Session = null!;
         private ClientSession Target = null!;
-        private short InitialCompliment;
-        private readonly List<MapTypeMapDto> MapTypeMaps = new();
+        private Mock<IComplimentService> ComplimentService = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -36,114 +34,71 @@ namespace NosCore.PacketHandlers.Tests.Game
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Target = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.Level = 31;
-            InitialCompliment = Target.Character.Compliment;
-            Handler = new ComplPacketHandler(TestHelpers.Instance.Clock, TestHelpers.Instance.SessionRegistry, MapTypeMaps);
+            ComplimentService = new Mock<IComplimentService>();
+            Handler = new ComplPacketHandler(ComplimentService.Object);
         }
 
         [TestMethod]
-        public async Task ComplimentShouldIncreaseTargetCompliment()
+        public async Task ASuccessfulComplimentTellsBothPlayers()
         {
-            await new Spec("Compliment should increase target compliment")
-                .Given(OneHourHasPassedSinceConnection)
+            await new Spec("A successful compliment tells the sender and the target")
+                .Given(TheComplimentSucceeds)
                 .WhenAsync(ComplimentingTargetAsync)
-                .Then(TargetComplimentShouldBeIncreasedBy_, 1)
-                .And(SenderShouldReceive_, Game18NConstString.HaveCommendedPercentZero)
+                .Then(TheServiceShouldBeAskedToComplimentTheTarget)
+                .And(SenderShouldReceiveHaveCommended)
                 .And(TargetShouldReceiveCommendedMessage)
-                .And(LastComplimentShouldBeRecorded)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ComplimentAtLevelThirtyShouldBeRefused()
+        public async Task RefusalsAreShownToTheSender()
         {
-            await new Spec("Compliment at level thirty should be refused")
-                .Given(SenderIsLevel_, (byte)30)
-                .And(OneHourHasPassedSinceConnection)
+            await new Spec("Each refusal shows its own message to the sender")
+                .WhenAsync(Refusal_ShouldShow_, ComplimentOutcome.InGlacernon, Game18NConstString.CannotLeadInGlacernon)
+                .AndAsync(Refusal_ShouldShow_, ComplimentOutcome.LevelTooLow, Game18NConstString.OnlyPlayersAboveLevelThirtyLead)
+                .AndAsync(Refusal_ShouldShow_, ComplimentOutcome.AlreadyComplimentedToday, Game18NConstString.CanOnlyLeadOncePerDayAndAccount)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ComplimentingTooSoonShowsTheMinutesLeft()
+        {
+            await new Spec("Complimenting too soon after connecting shows the minutes left")
+                .Given(TheComplimentIsRefusedWith_, new ComplimentResult(ComplimentOutcome.TooSoonAfterConnection, MinutesToWait: 40))
                 .WhenAsync(ComplimentingTargetAsync)
-                .Then(TargetComplimentShouldBeIncreasedBy_, 0)
-                .And(SenderShouldReceiveRefusal_, Game18NConstString.OnlyPlayersAboveLevelThirtyLead)
+                .Then(SenderShouldBeToldToWait_Minutes, 40L)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ComplimentWithinAnHourOfConnectionShouldBeRefused()
+        public async Task NoTargetSendsNothing()
         {
-            await new Spec("Compliment within an hour of connection should be refused")
-                .Given(_MinutesHavePassedSinceConnection, 20)
+            await new Spec("A compliment without a target sends nothing")
+                .Given(TheComplimentIsRefusedWith_, new ComplimentResult(ComplimentOutcome.NoTarget))
                 .WhenAsync(ComplimentingTargetAsync)
-                .Then(TargetComplimentShouldBeIncreasedBy_, 0)
-                .And(SenderShouldBeToldToWait_Minutes, 40L)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task SecondComplimentOnSameDayShouldBeRefused()
-        {
-            await new Spec("Second compliment on same day should be refused")
-                .Given(OneHourHasPassedSinceConnection)
-                .AndAsync(ComplimentingTargetAsync)
-                .WhenAsync(ComplimentingTargetAsync)
-                .Then(TargetComplimentShouldBeIncreasedBy_, 1)
-                .And(SenderShouldReceiveRefusal_, Game18NConstString.CanOnlyLeadOncePerDayAndAccount)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ComplimentOnNextDayShouldSucceed()
-        {
-            await new Spec("Compliment on next day should succeed")
-                .Given(OneHourHasPassedSinceConnection)
-                .AndAsync(ComplimentingTargetAsync)
-                .And(ADayHasPassed)
-                .WhenAsync(ComplimentingTargetAsync)
-                .Then(TargetComplimentShouldBeIncreasedBy_, 2)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ComplimentingSelfShouldDoNothing()
-        {
-            await new Spec("Complimenting self should do nothing")
-                .Given(OneHourHasPassedSinceConnection)
-                .WhenAsync(ComplimentingSelfAsync)
-                .Then(SenderComplimentShouldBeUnchanged)
-                .And(LastComplimentShouldNotBeRecorded)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ComplimentInGlacernonShouldBeRefused()
-        {
-            await new Spec("Compliment in Glacernon should be refused")
-                .Given(SenderIsOnAMapOfType_, MapTypeType.Act4)
-                .And(OneHourHasPassedSinceConnection)
-                .WhenAsync(ComplimentingTargetAsync)
-                .Then(TargetComplimentShouldBeIncreasedBy_, 0)
-                .And(SenderShouldReceiveRefusal_, Game18NConstString.CannotLeadInGlacernon)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ComplimentingAbsentCharacterShouldSendNothing()
-        {
-            await new Spec("Complimenting absent character should send nothing")
-                .Given(SenderIsLevel_, (byte)29)
-                .WhenAsync(ComplimentingAbsentCharacterAsync)
                 .Then(SenderShouldReceiveNothing)
                 .ExecuteAsync();
         }
 
-        private void SenderIsOnAMapOfType_(MapTypeType type) =>
-            MapTypeMaps.Add(new MapTypeMapDto { MapId = Session.Character.MapInstance.Map.MapId, MapTypeId = (short)type });
+        private void TheComplimentSucceeds()
+        {
+            PlayerComponentBundle target = Target.Character;
+            ComplimentService.Setup(x => x.Compliment(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>()))
+                .Returns(new ComplimentResult(ComplimentOutcome.Complimented, target));
+        }
 
-        private void SenderIsLevel_(byte level) => Session.Character.Level = level;
+        private void TheComplimentIsRefusedWith_(ComplimentResult result)
+        {
+            ComplimentService.Setup(x => x.Compliment(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>()))
+                .Returns(result);
+        }
 
-        private void OneHourHasPassedSinceConnection() => TestHelpers.Instance.Clock.AdvanceMinutes(60);
-
-        private void _MinutesHavePassedSinceConnection(int minutes) => TestHelpers.Instance.Clock.AdvanceMinutes(minutes);
-
-        private void ADayHasPassed() => TestHelpers.Instance.Clock.AdvanceHours(24);
+        private async Task Refusal_ShouldShow_(ComplimentOutcome outcome, Game18NConstString message)
+        {
+            TheComplimentIsRefusedWith_(new ComplimentResult(outcome));
+            await ComplimentingTargetAsync();
+            Assert.AreEqual(message, Session.LastPackets.OfType<SayiPacket>().Single().Message);
+        }
 
         private async Task ComplimentingTargetAsync()
         {
@@ -152,30 +107,16 @@ namespace NosCore.PacketHandlers.Tests.Game
             await Handler.ExecuteAsync(new ComplPacket { CharacterId = Target.Character.CharacterId }, Session);
         }
 
-        private async Task ComplimentingSelfAsync()
+        private void TheServiceShouldBeAskedToComplimentTheTarget()
         {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ComplPacket { CharacterId = Session.Character.CharacterId }, Session);
+            var targetId = Target.Character.CharacterId;
+            ComplimentService.Verify(x => x.Compliment(It.IsAny<PlayerComponentBundle>(), targetId), Times.Once);
         }
 
-        private async Task ComplimentingAbsentCharacterAsync()
-        {
-            Session.LastPackets.Clear();
-            await Handler.ExecuteAsync(new ComplPacket { CharacterId = long.MaxValue }, Session);
-        }
-
-        private void SenderShouldReceiveNothing() => Assert.AreEqual(0, Session.LastPackets.Count);
-
-        private void TargetComplimentShouldBeIncreasedBy_(int amount) =>
-            Assert.AreEqual(InitialCompliment + amount, Target.Character.Compliment);
-
-        private void SenderComplimentShouldBeUnchanged() =>
-            Assert.AreEqual(InitialCompliment, Session.Character.Compliment);
-
-        private void SenderShouldReceive_(Game18NConstString message)
+        private void SenderShouldReceiveHaveCommended()
         {
             var packet = Session.LastPackets.OfType<Sayi2Packet>().Single();
-            Assert.AreEqual(message, packet.Message);
+            Assert.AreEqual(Game18NConstString.HaveCommendedPercentZero, packet.Message);
             Assert.AreEqual(Target.Character.Name, packet.Game18NArguments[0]);
         }
 
@@ -186,9 +127,6 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.AreEqual(Session.Character.Name, packet.Game18NArguments[0]);
         }
 
-        private void SenderShouldReceiveRefusal_(Game18NConstString message) =>
-            Assert.AreEqual(message, Session.LastPackets.OfType<SayiPacket>().Single().Message);
-
         private void SenderShouldBeToldToWait_Minutes(long minutes)
         {
             var packet = Session.LastPackets.OfType<SayiPacket>().Single();
@@ -196,10 +134,6 @@ namespace NosCore.PacketHandlers.Tests.Game
             Assert.AreEqual(minutes, packet.Game18NArguments[0]);
         }
 
-        private void LastComplimentShouldBeRecorded() =>
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), Session.Character.Account.LastCompliment);
-
-        private void LastComplimentShouldNotBeRecorded() =>
-            Assert.IsNull(Session.Character.Account.LastCompliment);
+        private void SenderShouldReceiveNothing() => Assert.AreEqual(0, Session.LastPackets.Count);
     }
 }
