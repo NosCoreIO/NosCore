@@ -113,12 +113,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var whole = amount == stored.Item.Amount;
-            if (whole && !await warehouseHub.DeleteWarehouseItemAsync(stored.LinkId))
+            if (!await warehouseHub.TakeWarehouseItemAsync(stored.LinkId, amount))
             {
                 return;
             }
 
+            var whole = amount == stored.Item.Amount;
             var taken = (IItemInstance)stored.Item.Clone();
             taken.Id = Guid.NewGuid();
             taken.Amount = amount;
@@ -126,11 +126,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 InventoryItemInstance.Create(taken, session.Character.CharacterId));
             if (added == null || added.Count == 0)
             {
-                if (whole)
-                {
-                    await RestoreAsync(family.FamilyId, stored.Item, warehouseSlot);
-                }
-
+                await ReturnAsync(family.FamilyId, whole ? stored.Item : taken, warehouseSlot);
                 await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
                 return;
             }
@@ -139,7 +135,6 @@ namespace NosCore.GameObject.Services.FamilyService
             if (!whole)
             {
                 stored.Item.Amount -= amount;
-                await itemInstanceDao.TryInsertOrUpdateAsync(stored.Item);
                 left = stored.Item;
             }
 
@@ -171,20 +166,14 @@ namespace NosCore.GameObject.Services.FamilyService
                 split.Id = Guid.NewGuid();
                 split.Amount = amount;
                 await itemInstanceDao.TryInsertOrUpdateAsync(split);
-                if (!await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
-                {
-                    OwnerId = family.FamilyId,
-                    WarehouseType = WarehouseType.FamilyWareHouse,
-                    ItemInstance = split.Adapt<ItemInstanceDto>(),
-                    Slot = destinationSlot
-                }))
+                if (!await warehouseHub.SplitWarehouseItemAsync(family.FamilyId, WarehouseType.FamilyWareHouse,
+                        sourceSlot, destinationSlot, split.Adapt<ItemInstanceDto>()))
                 {
                     await itemInstanceDao.TryDeleteAsync(split.Id);
                     return;
                 }
 
                 source.Item.Amount -= amount;
-                await itemInstanceDao.TryInsertOrUpdateAsync(source.Item);
                 await SendSlotAsync(session, split, destinationSlot);
                 await SendSlotAsync(session, source.Item, sourceSlot);
                 return;
@@ -207,16 +196,10 @@ namespace NosCore.GameObject.Services.FamilyService
             }
         }
 
-        private async Task RestoreAsync(long familyId, IItemInstance item, short slot)
+        private async Task ReturnAsync(long familyId, IItemInstance item, short slot)
         {
             await itemInstanceDao.TryInsertOrUpdateAsync(item);
-            await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
-            {
-                OwnerId = familyId,
-                WarehouseType = WarehouseType.FamilyWareHouse,
-                ItemInstance = item.Adapt<ItemInstanceDto>(),
-                Slot = slot
-            });
+            await warehouseHub.ReturnWarehouseItemAsync(familyId, WarehouseType.FamilyWareHouse, slot, item.Adapt<ItemInstanceDto>());
         }
 
         private static bool CanPut(ClientSession session, Family family) => family.AuthorityOf(session.Character.CharacterId) switch

@@ -107,6 +107,58 @@ namespace NosCore.PacketHandlers.Tests.Family
                     return true;
                 });
 
+            hub.Setup(s => s.TakeWarehouseItemAsync(It.IsAny<Guid>(), It.IsAny<short>()))
+                .ReturnsAsync((Guid id, short amount) =>
+                {
+                    var index = _stored.FindIndex(s => s.Id == id);
+                    if (_takenElsewhere || index < 0 || amount <= 0)
+                    {
+                        return false;
+                    }
+
+                    var instance = _instances[_stored[index].ItemInstanceId]!;
+                    if (amount > instance.Amount)
+                    {
+                        return false;
+                    }
+
+                    if (amount == instance.Amount)
+                    {
+                        _stored.RemoveAt(index);
+                    }
+                    else
+                    {
+                        instance.Amount -= amount;
+                    }
+
+                    return true;
+                });
+            hub.Setup(s => s.ReturnWarehouseItemAsync(FamilyId, WarehouseType.FamilyWareHouse, It.IsAny<short>(), It.IsAny<ItemInstanceDto>()))
+                .ReturnsAsync((long _, WarehouseType _, short slot, ItemInstanceDto item) =>
+                {
+                    var existing = _stored.FindIndex(s => s.Slot == slot);
+                    if (existing >= 0 && _instances[_stored[existing].ItemInstanceId]!.ItemVNum == item.ItemVNum)
+                    {
+                        _instances[_stored[existing].ItemInstanceId]!.Amount += item.Amount;
+                        return true;
+                    }
+
+                    _stored.Add((Guid.NewGuid(), slot, item.Id));
+                    return true;
+                });
+            hub.Setup(s => s.SplitWarehouseItemAsync(FamilyId, WarehouseType.FamilyWareHouse, It.IsAny<short>(), It.IsAny<short>(), It.IsAny<ItemInstanceDto>()))
+                .ReturnsAsync((long _, WarehouseType _, short from, short to, ItemInstanceDto split) =>
+                {
+                    if (_stored.Any(s => s.Slot == to))
+                    {
+                        return false;
+                    }
+
+                    _instances[_stored.Single(s => s.Slot == from).ItemInstanceId]!.Amount -= split.Amount;
+                    _stored.Add((Guid.NewGuid(), to, split.Id));
+                    return true;
+                });
+
             var instances = new Mock<IDao<IItemInstanceDto?, Guid>>();
             instances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .ReturnsAsync((IItemInstanceDto? i) => _instances[i!.Id] = i);

@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.DependencyInjection;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Services.WarehouseService;
@@ -25,6 +26,14 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
         public Task<bool> MoveWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot) =>
             warehouseService.MoveItemAsync(ownerId, warehouseType, sourceSlot, destinationSlot);
 
+        public Task<bool> TakeWarehouseItemAsync(Guid id, short amount) => warehouseService.TakeItemAsync(id, amount);
+
+        public Task<bool> ReturnWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short slot, ItemInstanceDto itemInstance) =>
+            warehouseService.ReturnItemAsync(ownerId, warehouseType, slot, itemInstance);
+
+        public Task<bool> SplitWarehouseItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot, ItemInstanceDto split) =>
+            warehouseService.SplitItemAsync(ownerId, warehouseType, sourceSlot, destinationSlot, split);
+
         public static async Task<Reply<List<WarehouseLink>>> Handle(GetWarehouseItemsRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<WarehouseHub>().GetWarehouseItems(r.Id, r.OwnerId, r.WarehouseType, r.Slot));
 
@@ -34,5 +43,14 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub
             new(await services.GetRequiredService<WarehouseHub>().MoveWarehouseItemAsync(r.OwnerId, r.WarehouseType, r.SourceSlot, r.DestinationSlot));
 
         public static async Task<Reply<bool>> Handle(AddWarehouseItemRequest r, IServiceProvider services) => new(await services.GetRequiredService<WarehouseHub>().AddWarehouseItemAsync(r.DepositRequest));
+
+        public static async Task<Reply<bool>> Handle(TakeWarehouseItemRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<WarehouseHub>().TakeWarehouseItemAsync(r.Id, r.Amount));
+
+        public static async Task<Reply<bool>> Handle(ReturnWarehouseItemRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<WarehouseHub>().ReturnWarehouseItemAsync(r.OwnerId, r.WarehouseType, r.Slot, r.ItemInstance));
+
+        public static async Task<Reply<bool>> Handle(SplitWarehouseItemRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<WarehouseHub>().SplitWarehouseItemAsync(r.OwnerId, r.WarehouseType, r.SourceSlot, r.DestinationSlot, r.Split));
     }
 }

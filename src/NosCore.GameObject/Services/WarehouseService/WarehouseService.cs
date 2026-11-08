@@ -5,6 +5,7 @@
 //
 
 using Mapster;
+using NosCore.Core.Concurrency;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
@@ -24,6 +25,10 @@ namespace NosCore.GameObject.Services.WarehouseService
         IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         : IWarehouseService
     {
+        // Channels reach these through WarehouseHub, whose handlers run concurrently, and a family
+        // warehouse is shared by members on any channel, so every change runs under one lock.
+        private static readonly AsyncLock Mutations = new();
+
         private const int DefaultWarehouseSize = 68;
         private const int DefaultFamilyWarehouseSize = 49;
 
@@ -160,6 +165,12 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> WithdrawItemAsync(Guid id)
         {
+            using var _ = await Mutations.AcquireAsync();
+            return await WithdrawUnlockedAsync(id);
+        }
+
+        private async Task<bool> WithdrawUnlockedAsync(Guid id)
+        {
             var item = await warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id);
             if (item == null)
             {
@@ -180,17 +191,24 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<WarehouseItem?> WithdrawItemFromSlotAsync(long ownerId, WarehouseType warehouseType, short slot)
         {
+            using var _ = await Mutations.AcquireAsync();
             var item = await GetItemBySlotAsync(ownerId, warehouseType, slot);
             if (item == null)
             {
                 return null;
             }
 
-            var success = await WithdrawItemAsync(item.Id);
+            var success = await WithdrawUnlockedAsync(item.Id);
             return success ? item : null;
         }
 
         public async Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, ItemInstanceDto? itemInstance, short slot)
+        {
+            using var _ = await Mutations.AcquireAsync();
+            return await DepositUnlockedAsync(ownerId, warehouseType, itemInstance, slot);
+        }
+
+        private async Task<bool> DepositUnlockedAsync(long ownerId, WarehouseType warehouseType, ItemInstanceDto? itemInstance, short slot)
         {
             if (itemInstance == null)
             {
@@ -247,6 +265,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<bool> DepositItemAsync(long ownerId, WarehouseType warehouseType, IItemInstance itemInstance)
         {
+            using var _ = await Mutations.AcquireAsync();
             var freeSlot = await GetFreeSlotAsync(ownerId, warehouseType);
             if (!freeSlot.HasValue)
             {
@@ -254,11 +273,12 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
 
             var dto = itemInstance.Adapt<ItemInstanceDto>();
-            return await DepositItemAsync(ownerId, warehouseType, dto, freeSlot.Value);
+            return await DepositUnlockedAsync(ownerId, warehouseType, dto, freeSlot.Value);
         }
 
         public async Task<bool> MoveItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot)
         {
+            using var _ = await Mutations.AcquireAsync();
             if (sourceSlot == destinationSlot)
             {
                 return false;
@@ -297,6 +317,80 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
 
             return true;
+        }
+            public async Task<bool> TakeItemAsync(Guid id, short amount)
+        {
+            using var _ = await Mutations.AcquireAsync();
+            var warehouseItem = await warehouseItemDao.FirstOrDefaultAsync(s => s.Id == id);
+            if (warehouseItem == null || amount <= 0)
+            {
+                return false;
+            }
+
+            var instance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
+            if (instance == null || amount > instance.Amount)
+            {
+                return false;
+            }
+
+            if (amount == instance.Amount)
+            {
+                return await WithdrawUnlockedAsync(id);
+            }
+
+            instance.Amount -= amount;
+            await itemInstanceDao.TryInsertOrUpdateAsync(instance);
+            return true;
+        }
+
+        public async Task<bool> ReturnItemAsync(long ownerId, WarehouseType warehouseType, short slot, ItemInstanceDto itemInstance)
+        {
+            using var _ = await Mutations.AcquireAsync();
+            var existing = await GetItemBySlotAsync(ownerId, warehouseType, slot);
+            if (existing?.ItemInstance != null && existing.ItemInstance.ItemVNum == itemInstance.ItemVNum)
+            {
+                var stored = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == existing.ItemInstanceId);
+                if (stored != null)
+                {
+                    stored.Amount += itemInstance.Amount;
+                    await itemInstanceDao.TryInsertOrUpdateAsync(stored);
+                    if (stored.Id != itemInstance.Id)
+                    {
+                        await itemInstanceDao.TryDeleteAsync(itemInstance.Id);
+                    }
+
+                    return true;
+                }
+            }
+
+            if (existing == null)
+            {
+                return await DepositUnlockedAsync(ownerId, warehouseType, itemInstance, slot);
+            }
+
+            var freeSlot = await GetFreeSlotAsync(ownerId, warehouseType);
+            return freeSlot.HasValue && await DepositUnlockedAsync(ownerId, warehouseType, itemInstance, freeSlot.Value);
+        }
+
+        public async Task<bool> SplitItemAsync(long ownerId, WarehouseType warehouseType, short sourceSlot, short destinationSlot,
+            ItemInstanceDto split)
+        {
+            using var _ = await Mutations.AcquireAsync();
+            if (sourceSlot == destinationSlot || await GetItemBySlotAsync(ownerId, warehouseType, destinationSlot) != null)
+            {
+                return false;
+            }
+
+            var source = await GetItemBySlotAsync(ownerId, warehouseType, sourceSlot);
+            var instance = source == null ? null : await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == source.ItemInstanceId);
+            if (instance == null || split.Amount <= 0 || split.Amount >= instance.Amount || split.ItemVNum != instance.ItemVNum)
+            {
+                return false;
+            }
+
+            instance.Amount -= split.Amount;
+            await itemInstanceDao.TryInsertOrUpdateAsync(instance);
+            return await DepositUnlockedAsync(ownerId, warehouseType, split, destinationSlot);
         }
     }
 }
