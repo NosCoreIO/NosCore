@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -27,7 +28,6 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -41,9 +41,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
         : PacketHandler<CharNewPacket>, IWorldPacketHandler
     {
         private readonly WorldConfiguration _worldConfiguration = worldConfiguration.Value;
-
-        public const string Nameregex =
-            @"^[\u0021-\u007E\u00A1-\u00AC\u00AE-\u00FF\u4E00-\u9FA5\u0E01-\u0E3A\u0E3F-\u0E5B\u002E]*$";
 
         private static byte ResolveCreationLevel(CharacterClassType @class, bool allClassAvailable)
         {
@@ -96,8 +93,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var rg = new Regex(Nameregex);
-            if (rg.Matches(characterName!).Count == 1)
+            if (NameRules.HasOnlyAllowedCharacters(characterName!))
             {
                 var character = await
                     characterDao.FirstOrDefaultAsync(s =>

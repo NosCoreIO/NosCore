@@ -21,6 +21,7 @@ using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
@@ -152,6 +153,12 @@ namespace NosCore.GameObject.Services.FamilyService
             if (name.Length is < NameMinLength or > NameMaxLength)
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyNameTooShortOrTooLong });
+                return;
+            }
+
+            if (!NameRules.HasOnlyAllowedCharacters(name))
+            {
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.InvalidCharacterInName });
                 return;
             }
 

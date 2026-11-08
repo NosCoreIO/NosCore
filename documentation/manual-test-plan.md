@@ -1037,6 +1037,9 @@ Recorded so nobody spends time hunting for them:
   using a given subtype is wired to behaviour.
 - **The `st` percentage guard** — guards a zero maximum, which is not a state the game
   reaches. It cannot be triggered from the client by design.
+- **A family name with a space** — the client's name prompt refuses a space itself ("Can not use
+  Space in name") and sends nothing, so the server's refusal ("Contains an invalid character.
+  Choose another name.") cannot be produced from an unmodified client; the unit tests cover it.
 - **Family experience** — nothing grants it yet, so the level bar only ever shows the
   seeded value.
 - **Inside a time-space** — the entrance works, but rooms, objectives, lives and rewards

@@ -185,6 +185,21 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.AreEqual(200000, _head.Character.Gold);
         }
 
+        [DataTestMethod]
+        [DataRow("Two Words")]
+        [DataRow("Tab\tName")]
+        public async Task ANameWithACharacterRefusedForCharacterNamesIsRefused(string name)
+        {
+            FormGroup(_head, _second, _third);
+
+            await CreateAsync(name);
+
+            Assert.AreEqual(Game18NConstString.InvalidCharacterInName, LastInfo(_head));
+            Assert.AreEqual(200000, _head.Character.Gold);
+            _familyService.Verify(s => s.CreateAsync(It.IsAny<string>(), It.IsAny<byte>(), It.IsAny<long>(),
+                It.IsAny<IEnumerable<long>>()), Times.Never);
+        }
+
         private void JoinFamily(FamilyAuthority authority)
         {
             _head.Character.Family = new GameObject.Services.FamilyService.Family
