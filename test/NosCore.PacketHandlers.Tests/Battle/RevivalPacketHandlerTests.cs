@@ -152,7 +152,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 5000L)
                 .And(CharacterIsInAnArena)
-                .WhenAsync(SendingRevivalOfType_, (byte)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InArena)
                 .Then(CharacterShouldHoldTheRevivalProtection)
                 .And(TheMapShouldSeeTheRevivalProtectionFor_Deciseconds, 50)
                 .ExecuteAsync();
@@ -163,7 +163,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await new Spec("Reviving in place outside an arena gives no protection card")
                 .Given(CharacterIsDeadAtLevel_, (byte)20)
-                .WhenAsync(SendingRevivalOfType_, (byte)0)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(CharacterShouldNotHoldTheRevivalProtection)
                 .ExecuteAsync();
         }
@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await new Spec("Reviving at the save point gives no protection card")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
-                .WhenAsync(SendingRevivalOfType_, (byte)1)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.AtSavePoint)
                 .Then(CharacterShouldNotHoldTheRevivalProtection)
                 .ExecuteAsync();
         }
@@ -185,7 +185,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
                 .And(CharacterHasGold_, 5000L)
                 .And(CharacterIsInAnArena)
-                .WhenAsync(SendingRevivalOfType_, (byte)1)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.AtSavePoint)
                 .Then(CharacterShouldNotHoldTheRevivalProtection)
                 .ExecuteAsync();
         }
