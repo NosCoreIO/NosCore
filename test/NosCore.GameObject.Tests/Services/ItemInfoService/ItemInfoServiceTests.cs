@@ -210,7 +210,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             var info = Info(card);
 
             StringAssert.StartsWith(info,
-                $"slinfo 0 902 3 40 35 7 0 0 0 0 0 0 0 3 3 11 8 0 1234 554000 823.824.825.826.827.828.829.830.831.832 {card.TransportId} 19 45 0 0 0 3 0 0 0 ");
+                $"slinfo 0 902 3 40 35 7 0 0 0 0 0 0 0 3 3 11 8 0 1234 554000 823.824.825.826.827.828.829.830.831.832 {card.TransportId} 45 19 0 0 0 3 0 0 0 ");
         }
 
         [TestMethod]
