@@ -19,6 +19,7 @@ namespace NosCore.Data.Enumerations.Items
         OpenProduction = 100,
         Undefined = 69,
         MedalOfHonour = 69,
+        Holder = 69,
         SpCharger = 71,
         DroppedSpRecharger = 150,
         PremiumSpRecharger = 151,
