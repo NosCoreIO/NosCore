@@ -8,6 +8,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.TransferService;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
@@ -32,5 +33,8 @@ namespace NosCore.GameObject.Services.ExchangeService
     public sealed class ExchangeSettlement
     {
         public bool IsClaimed { get; set; }
+
+        // Completes when the trade is closed, however it ends.
+        public TaskCompletionSource Closed { get; } = new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 }

@@ -24,6 +24,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
@@ -35,6 +36,12 @@ namespace NosCore.GameObject.Services.ExchangeService
         public static readonly Duration RequestLifetime = Duration.FromSeconds(30);
 
         public static readonly Duration RequestCooldown = Duration.FromSeconds(5);
+
+        // How long a leaving player waits for a trade that is already settling. Longer than the
+        // settling side waits for the partner's packet lock, so that side gives up first.
+        public static readonly TimeSpan SettlementWait = TimeSpan.FromSeconds(10);
+
+        public static readonly TimeSpan PartnerLockWait = TimeSpan.FromSeconds(5);
 
         private readonly object _openLock = new();
 
@@ -249,6 +256,36 @@ namespace NosCore.GameObject.Services.ExchangeService
             return CloseExchange(visualId, ExchangeResultType.Failure);
         }
 
+        public async Task<ExcClosePacket?> LeaveExchangeAsync(long visualId)
+        {
+            var settlement = exchangeRegistry.GetExchangeData(visualId)?.Settlement;
+            if (settlement == null)
+            {
+                return null;
+            }
+
+            bool settling;
+            lock (settlement)
+            {
+                settling = settlement.IsClaimed;
+                settlement.IsClaimed = true;
+            }
+
+            if (settling)
+            {
+                try
+                {
+                    await settlement.Closed.Task.WaitAsync(SettlementWait);
+                }
+                catch (TimeoutException)
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                }
+            }
+
+            return GetTargetId(visualId).HasValue ? CloseExchange(visualId, ExchangeResultType.Failure) : null;
+        }
+
         public bool IsExchangeConfirmed(long visualId)
         {
             return exchangeRegistry.GetExchangeData(visualId)?.ExchangeConfirmed ?? false;
@@ -286,6 +323,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         public ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType)
         {
             KeyValuePair<long, long> data;
+            ExchangeSettlement? settlement;
             lock (_openLock)
             {
                 var pair = exchangeRegistry.GetExchangeRequestPair(visualId);
@@ -296,7 +334,7 @@ namespace NosCore.GameObject.Services.ExchangeService
                 }
 
                 data = pair.Value;
-                var settlement = exchangeRegistry.GetExchangeData(data.Key)?.Settlement;
+                settlement = exchangeRegistry.GetExchangeData(data.Key)?.Settlement;
                 if (settlement != null)
                 {
                     lock (settlement)
@@ -318,6 +356,7 @@ namespace NosCore.GameObject.Services.ExchangeService
 
             SetInExchange(data.Key, false);
             SetInExchange(data.Value, false);
+            settlement?.Closed.TrySetResult();
 
             return new ExcClosePacket
             {

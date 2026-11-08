@@ -19,6 +19,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.ServerPackets.Exchanges;
+using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
 using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -288,6 +290,32 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         }
 
         [TestMethod]
+        public async Task LeavingDuringASettlementWaitsForIt()
+        {
+            await new Spec("A player leaving while their trade settles waits for it and is not told it failed")
+                .GivenAsync(ExchangeIsOpened)
+                .And(BothConfirmationsClaimTheTrade)
+                .When(TargetDisconnects)
+                .Then(TheDisconnectIsStillWaiting)
+                .And(ExchangeIsOpen)
+                .AndAsync(TheSettlementClosesTheTrade)
+                .And(RequesterReceivedNoFailure)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LeavingAnOpenTradeClosesIt()
+        {
+            await new Spec("A player leaving a trade nobody is settling closes it as failed")
+                .GivenAsync(ExchangeIsOpened)
+                .When(TargetDisconnects)
+                .ThenAsync(TheDisconnectCompletes)
+                .And(NoExchangeIsOpen)
+                .And(RequesterWasToldTheTradeFailed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConcurrentConfirmationsSettleTheTradeOnce()
         {
             await new Spec("Both sides confirming at the same moment settle the trade once")
@@ -371,6 +399,31 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Assert.IsNull(Exchange.ConfirmExchange(Target.Character.VisualId));
             Assert.IsNotNull(Exchange.ConfirmExchange(Requester.Character.VisualId));
         }
+
+        private Task? _disconnect;
+
+        private void TargetDisconnects() =>
+            _disconnect = new ExchangeDisconnectHandler(Exchange, TestHelpers.Instance.SessionRegistry).HandleDisconnectAsync(Target);
+
+        private void TheDisconnectIsStillWaiting()
+        {
+            Thread.Sleep(200);
+            Assert.IsFalse(_disconnect!.IsCompleted);
+        }
+
+        private async Task TheSettlementClosesTheTrade()
+        {
+            Exchange.CloseExchange(Requester.Character.VisualId, ExchangeResultType.Success);
+            await _disconnect!.WaitAsync(TimeSpan.FromSeconds(5));
+        }
+
+        private Task TheDisconnectCompletes() => _disconnect!.WaitAsync(TimeSpan.FromSeconds(5));
+
+        private void RequesterReceivedNoFailure() =>
+            Assert.IsFalse(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Failure));
+
+        private void RequesterWasToldTheTradeFailed() =>
+            Assert.IsTrue(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Failure));
 
         private Task TargetCancels() =>
             RequestHandler.ExecuteAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Cancelled }, Target);

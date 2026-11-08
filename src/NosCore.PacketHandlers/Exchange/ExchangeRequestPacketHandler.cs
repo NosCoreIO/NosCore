@@ -23,6 +23,7 @@ using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Exchange
@@ -221,15 +222,27 @@ namespace NosCore.PacketHandlers.Exchange
                     // time, so taking the partner's lock as well cannot wait in a cycle.
                     var partnerSession = sessionRegistry.GetSessionByCharacterId(exchangeTarget.VisualId);
                     var result = ExchangeResultType.Failure;
-                    if (partnerSession != null)
+                    ExcClosePacket? settled;
+                    try
                     {
-                        using (await partnerSession.AcquirePacketLockAsync())
+                        if (partnerSession != null)
                         {
-                            result = await SettleAsync(clientSession, exchangeTarget, claim);
+                            using var timeout = new CancellationTokenSource(ExchangeService.PartnerLockWait);
+                            using (await partnerSession.AcquirePacketLockAsync(timeout.Token))
+                            {
+                                result = await SettleAsync(clientSession, exchangeTarget, claim);
+                            }
                         }
                     }
+                    catch (OperationCanceledException)
+                    {
+                        logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
+                    }
+                    finally
+                    {
+                        settled = exchangeService.CloseExchange(clientSession.Character.VisualId, result);
+                    }
 
-                    var settled = exchangeService.CloseExchange(clientSession.Character.VisualId, result);
                     await exchangeTarget.SendPacketAsync(settled);
                     await clientSession.SendPacketAsync(settled);
                     return;

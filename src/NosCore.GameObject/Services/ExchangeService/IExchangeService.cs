@@ -14,6 +14,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Exchanges;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.ExchangeService
 {
@@ -36,6 +37,11 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         // Closes the exchange as failed unless it has already been claimed for settlement.
         ExcClosePacket? CancelExchange(long visualId);
+
+        // Closes the exchange of a player who is leaving. A trade already settling is waited for,
+        // so the leaving player's save and cleanup only run once it has ended; returns null when
+        // the settlement closed it.
+        Task<ExcClosePacket?> LeaveExchangeAsync(long visualId);
         bool IsExchangeConfirmed(long visualId);
         ExchangeData GetData(long visualId);
         bool CheckExchange(long visualId);
