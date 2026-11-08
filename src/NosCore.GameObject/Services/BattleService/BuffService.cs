@@ -115,6 +115,30 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         return Task.CompletedTask;
     }
 
+    public async Task ClearAsync(IAliveEntity target)
+    {
+        var buffs = ResolveState(target);
+        if (buffs == null || buffs.IsEmpty)
+        {
+            return;
+        }
+
+        foreach (var cardId in buffs.Keys)
+        {
+            if (!buffs.TryRemove(cardId, out _) || target.MapInstance == null)
+            {
+                continue;
+            }
+
+            await target.MapInstance.SendPacketAsync(new BfePacket
+            {
+                VisualType = target.VisualType,
+                VisualId = target.VisualId,
+                CardId = cardId,
+            });
+        }
+    }
+
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
     {
         var buffs = ResolveState(target);

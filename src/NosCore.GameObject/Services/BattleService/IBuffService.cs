@@ -33,6 +33,8 @@ public interface IBuffService
 
     IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target);
 
+    Task ClearAsync(IAliveEntity target);
+
     bool HasBuff(IAliveEntity target, short cardId);
 
     // Whether a buff that has not yet run out carries the effect, even if the life tick has
