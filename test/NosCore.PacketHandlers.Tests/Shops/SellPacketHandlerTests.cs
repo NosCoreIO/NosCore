@@ -19,6 +19,7 @@ using NosCore.PacketHandlers.Shops;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -80,6 +81,27 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .WhenAsync(SellingItem)
                 .Then(GoldShouldIncrease)
                 .And(ItemShouldBeRemoved)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SellingLastEquipmentClearsItsSlot()
+        {
+            await new Spec("Selling the last equipment clears its inventory slot")
+                .Given(CharacterHasSoldableEquipment)
+                .WhenAsync(SellingEquipment)
+                .Then(EquipmentShouldBeRemoved)
+                .And(EquipmentSlotShouldBeCleared)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SellingPartOfAStackKeepsTheRest()
+        {
+            await new Spec("Selling part of a stack updates the remaining amount")
+                .Given(CharacterHasAStackOfThree)
+                .WhenAsync(SellingItem)
+                .Then(SlotZeroShouldShowTwoLeft)
                 .ExecuteAsync();
         }
 
@@ -158,6 +180,59 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 5), 0),
                 NoscorePocketType.Etc, 0);
+        }
+
+        private void CharacterHasSoldableEquipment()
+        {
+            var items = new List<ItemDto>
+            {
+                new Item { Type = NoscorePocketType.Equipment, VNum = 1, IsSoldable = true, Price = 500 }
+            };
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
+                NoscorePocketType.Equipment, 0);
+        }
+
+        private async Task SellingEquipment()
+        {
+            await SellPacketHandler.ExecuteAsync(
+                new SellPacket { Slot = 0, Amount = 1, Data = (short)NoscorePocketType.Equipment },
+                Session);
+        }
+
+        private void EquipmentShouldBeRemoved()
+        {
+            Assert.IsNull(Session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));
+        }
+
+        private void EquipmentSlotShouldBeCleared()
+        {
+            var ivn = Session.LastPackets.OfType<IvnPacket>().Last();
+            var sub = ivn.IvnSubPackets!.Single();
+            Assert.AreEqual(PocketType.Equipment, ivn.Type);
+            Assert.AreEqual(0, sub!.Slot);
+            Assert.AreEqual(0, sub.VNum);
+        }
+
+        private void CharacterHasAStackOfThree()
+        {
+            var items = new List<ItemDto>
+            {
+                new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500 }
+            };
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
+                NoscorePocketType.Etc, 0);
+        }
+
+        private void SlotZeroShouldShowTwoLeft()
+        {
+            var sub = Session.LastPackets.OfType<IvnPacket>().Last().IvnSubPackets!.Single();
+            Assert.AreEqual(0, sub!.Slot);
+            Assert.AreEqual(1, sub.VNum);
+            Assert.AreEqual(2, sub.RareAmount);
         }
 
         private async Task SellingTwoOfSlotZero()
