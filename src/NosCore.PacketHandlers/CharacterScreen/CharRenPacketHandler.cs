@@ -12,11 +12,11 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.CharacterScreen
@@ -42,8 +42,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            var rg = new Regex(CharNewPacketHandler.Nameregex);
-            if (rg.Matches(characterName!).Count == 1)
+            if (NameRules.HasOnlyAllowedCharacters(characterName!))
             {
                 var character = await
                     characterDao.FirstOrDefaultAsync(s =>

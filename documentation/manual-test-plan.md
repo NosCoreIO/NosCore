@@ -880,6 +880,8 @@ family NPC (Mimi Mentor in NosVille, dialog 3). The asker carries 200 000 gold.
 - [ ] A party member already in a family, an Adventurer in the party, less than 200 000
       gold, a taken name, or a name of 2 or 15+ characters each get their own message and
       found nothing
+- [ ] A name with a space in it reads "Contains an invalid character. Choose another name.",
+      keeps the 200 000 gold and founds nothing
 
 ### Disbanding a family
 
