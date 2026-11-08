@@ -29,6 +29,8 @@ using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using Microsoft.Extensions.Logging;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -40,7 +42,7 @@ namespace NosCore.PacketHandlers.Game
             IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService, ISkillService skillService,
-            IFamilyExperienceService familyExperienceService)
+            IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
@@ -80,7 +82,15 @@ namespace NosCore.PacketHandlers.Game
 
             if (session.Character.CurrentScriptId == null)
             {
-                _ = questProvider.RunScriptAsync(session.Character);
+                try
+                {
+                    await questProvider.RunScriptAsync(session.Character);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Starting the first quest script failed for character {CharacterId}",
+                        session.Character.CharacterId);
+                }
             }
             else if (session.Character.Script is { } currentStep)
             {
