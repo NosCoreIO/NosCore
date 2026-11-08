@@ -676,6 +676,8 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
 - [ ] Open a private shop with a stack of 3 and a single item; from another character, buy 2 of the
       stack: the buyer gets 2, the owner keeps 1 in the same slot and receives the gold
 - [ ] Buy the last item of the shop: the shop closes on the owner's side and for everyone around
+- [ ] Sell a weapon with shell options from a private shop: after buying, the buyer's weapon shows the
+      same options, and still does after both characters log out and back in
 - [ ] Log out and back in on both characters after a sale: the bought item, the rest of the stack and
       the gold are kept, and neither character loses an item or reports a save error in the server log
 - [ ] Two buyers press buy on the same stack at once: one gets it, the other's shop window updates
