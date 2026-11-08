@@ -84,7 +84,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             new FamilyInvitePacketHandler(_sessionRegistry.Object, _blacklistHub.Object)
                 .ExecuteAsync(new FamilyInvitePacket { CharacterName = name }, inviter);
 
-        private Task AnswerAsync(byte type) =>
+        private Task AnswerAsync(FamilyInviteAnswerType type) =>
             new JoinFamilyPacketHandler(_sessionRegistry.Object, _familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
                 .ExecuteAsync(new JoinFamilyPacket { Type = type, CharacterId = _head.Character.CharacterId }, _other);
 
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var question = _other.LastPackets.OfType<Dlgi2Packet>().Single();
             Assert.AreEqual(Game18NConstString.AskMemberFamily, question.Question);
-            Assert.AreEqual(1, ((JoinFamilyPacket)question.YesPacket!).Type);
+            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket!).Type);
             Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket!).CharacterId);
             Assert.IsTrue(_head.Character.FamilyRequestCharacterIds.ContainsKey(_other.Character.CharacterId));
         }
@@ -180,7 +180,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await InviteAsync(_head, _other.Character.Name);
 
-            await AnswerAsync(1);
+            await AnswerAsync(FamilyInviteAnswerType.Accept);
 
             _familyService.Verify(s => s.AddMemberAsync(FamilyId, _otherId), Times.Once);
             var changed = (FamilyChangedData)_published.Single();
@@ -196,7 +196,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             otherFamily.FamilyId = FamilyId + 1;
             _head.Character.Family = otherFamily;
 
-            await AnswerAsync(1);
+            await AnswerAsync(FamilyInviteAnswerType.Accept);
 
             _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
@@ -207,7 +207,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await InviteAsync(_head, _other.Character.Name);
             _head.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Member));
 
-            await AnswerAsync(1);
+            await AnswerAsync(FamilyInviteAnswerType.Accept);
 
             _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
@@ -215,7 +215,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task AnsweringWithoutAnInvitationDoesNothing()
         {
-            await AnswerAsync(1);
+            await AnswerAsync(FamilyInviteAnswerType.Accept);
 
             _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
@@ -226,7 +226,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await InviteAsync(_head, _other.Character.Name);
             _head.LastPackets.Clear();
 
-            await AnswerAsync(2);
+            await AnswerAsync(FamilyInviteAnswerType.Decline);
 
             Assert.AreEqual(Game18NConstString.PlayerRefusedFamilyInvite, LastInfo(_head));
             _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);

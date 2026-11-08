@@ -81,8 +81,8 @@ namespace NosCore.PacketHandlers.Family
             });
             await target.SendPacketAsync(new Dlgi2Packet
             {
-                YesPacket = new JoinFamilyPacket { Type = 1, CharacterId = session.Character.CharacterId },
-                NoPacket = new JoinFamilyPacket { Type = 2, CharacterId = session.Character.CharacterId },
+                YesPacket = new JoinFamilyPacket { Type = FamilyInviteAnswerType.Accept, CharacterId = session.Character.CharacterId },
+                NoPacket = new JoinFamilyPacket { Type = FamilyInviteAnswerType.Decline, CharacterId = session.Character.CharacterId },
                 Question = Game18NConstString.AskMemberFamily,
                 ArgumentType = 1,
                 Game18NArguments = { family.Name }

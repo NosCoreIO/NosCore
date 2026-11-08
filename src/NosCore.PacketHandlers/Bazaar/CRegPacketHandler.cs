@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            if ((medal == null) && (cRegPacket.Durability > 1))
+            if ((medal == null) && (cRegPacket.Durability > BazaarListingDuration.OneDay))
             {
                 return;
             }
@@ -103,19 +103,19 @@ namespace NosCore.PacketHandlers.Bazaar
             short duration;
             switch (cRegPacket.Durability)
             {
-                case 1:
+                case BazaarListingDuration.OneDay:
                     duration = 24;
                     break;
 
-                case 2:
+                case BazaarListingDuration.SevenDays:
                     duration = 168;
                     break;
 
-                case 3:
+                case BazaarListingDuration.FifteenDays:
                     duration = 360;
                     break;
 
-                case 4:
+                case BazaarListingDuration.ThirtyDays:
                     duration = 720;
                     break;
 

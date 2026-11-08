@@ -150,7 +150,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var mleditPacket = new MLEditPacket()
             {
                 MinilandInfo = "test",
-                Type = 1
+                Type = MinilandEditType.Intro
             };
             await MlEditPacketHandler.ExecuteAsync(mleditPacket, Session);
         }
@@ -160,7 +160,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var mleditPacket = new MLEditPacket()
             {
                 MinilandInfo = "Test Test",
-                Type = 1
+                Type = MinilandEditType.Intro
             };
             await MlEditPacketHandler.ExecuteAsync(mleditPacket, Session);
         }
@@ -170,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var mleditPacket = new MLEditPacket()
             {
                 Parameter = MinilandState.Lock,
-                Type = 2
+                Type = MinilandEditType.State
             };
             await MlEditPacketHandler.ExecuteAsync(mleditPacket, Session);
         }
@@ -180,7 +180,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var mleditPacket = new MLEditPacket()
             {
                 Parameter = MinilandState.Open,
-                Type = 2
+                Type = MinilandEditType.State
             };
             await MlEditPacketHandler.ExecuteAsync(mleditPacket, Session);
         }
@@ -190,7 +190,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             var mleditPacket = new MLEditPacket()
             {
                 Parameter = MinilandState.Private,
-                Type = 2
+                Type = MinilandEditType.State
             };
             await MlEditPacketHandler.ExecuteAsync(mleditPacket, Session);
         }

@@ -58,11 +58,11 @@ namespace NosCore.PacketHandlers.Battle
             {
                 switch (packet.Type)
                 {
-                    case 0 when character.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance:
+                    case RevivalType.InPlace when character.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance:
                         await ReviveInPlaceAsync(session).ConfigureAwait(false);
                         break;
-                    case 1: await ReviveAtSavePointAsync(session).ConfigureAwait(false); break;
-                    case 2 when character.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance:
+                    case RevivalType.AtSavePoint: await ReviveAtSavePointAsync(session).ConfigureAwait(false); break;
+                    case RevivalType.InArena when character.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance:
                         await ReviveInArenaAsync(session);
                         break;
                     default:

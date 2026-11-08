@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new Mock<IDao<QuicklistEntryDto, Guid>>().Object, itemInstances.Object, slots.Object, new HpService(), new MpService(),
                 _configuration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, TestHelpers.Instance.ItemList, NullLoggerFactory.Instance);
             _session.ClearPlayerEntity();
-            await handler.ExecuteAsync(new CharNewPacket { Name = "Starter", Slot = 2, TargetClass = (byte)@class }, _session);
+            await handler.ExecuteAsync(new CharNewPacket { Name = "Starter", Slot = 2, TargetClass = @class }, _session);
         }
 
         [TestMethod]

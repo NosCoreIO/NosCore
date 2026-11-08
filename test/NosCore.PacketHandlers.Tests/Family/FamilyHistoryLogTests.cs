@@ -103,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await new Spec("Accepting an invite logs the newcomer and who invited them")
                 .Given(TheHeadInvitedTheOtherPlayer)
-                .WhenAsync(TheOtherPlayerAnswers_, (byte)1)
+                .WhenAsync(TheOtherPlayerAnswers_, FamilyInviteAnswerType.Accept)
                 .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, new[] { "{other}", "{head}" })
                 .ExecuteAsync();
         }
@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await new Spec("Refusing an invite leaves the history alone")
                 .Given(TheHeadInvitedTheOtherPlayer)
-                .WhenAsync(TheOtherPlayerAnswers_, (byte)0)
+                .WhenAsync(TheOtherPlayerAnswers_, (FamilyInviteAnswerType)0)
                 .Then(TheHistoryShouldBeEmpty)
                 .ExecuteAsync();
         }
@@ -252,7 +252,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private void _HoursPass(int hours) => TestHelpers.Instance.Clock.AdvanceHours(hours);
 
-        private Task TheOtherPlayerAnswers_(byte type) =>
+        private Task TheOtherPlayerAnswers_(FamilyInviteAnswerType type) =>
             new JoinFamilyPacketHandler(_sessionRegistry.Object, _familyService.Object, _pubSubHub.Object, _familyLogService)
                 .ExecuteAsync(new JoinFamilyPacket { Type = type, CharacterId = _head.Character.CharacterId }, _other);
 

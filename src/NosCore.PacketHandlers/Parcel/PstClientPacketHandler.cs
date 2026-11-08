@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Parcel
                     .FirstOrDefault(s => s.MailId == pstClientPacket.Id);
             switch (pstClientPacket.ActionType)
             {
-                case 3:
+                case PostActionType.Read:
                     if (mail == null)
                     {
                         return;
@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Parcel
                     await mailHttpClient.ViewMailAsync(mail.MailDto.MailId, patch);
                     await clientSession.SendPacketAsync(mail.GeneratePostMessage(pstClientPacket.Type));
                     break;
-                case 2:
+                case PostActionType.Delete:
                     if (mail == null
                         || !await mailHttpClient.DeleteMailAsync(pstClientPacket.Id, clientSession.Character.VisualId, isCopy))
                     {
@@ -59,7 +59,7 @@ namespace NosCore.PacketHandlers.Parcel
                         Message = Game18NConstString.NoteDeleted
                     });
                     break;
-                case 1:
+                case PostActionType.Send:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
                     {
                         return;
