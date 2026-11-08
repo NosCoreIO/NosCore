@@ -475,6 +475,20 @@ Lose some HP first, otherwise there is nothing to watch.
 - [ ] Food and a snack eaten together both heal
 - [ ] At full HP, food and snacks are still used up
 
+### Ordering NosMates
+
+Have a pet and a partner out, and a second client on the same map watching.
+
+- [ ] Order the pet to a free cell a few steps away: it walks there on your screen and on the
+      second client's, and stays there until you walk
+- [ ] Order the pet and the partner together: both walk, each to its own cell
+- [ ] Walk after ordering: both NosMates come back to your side
+- [ ] Order the pet onto a wall or into water: it does not move on the second client's screen
+- [ ] Become invisible (`$Invisible`) and order the pet: the second client does not see it move,
+      and you still do
+- [ ] Send the pet back to the Miniland, then try to order it from the party panel: nothing
+      happens
+
 ### Wing and Amulet of Return
 
 - [ ] Away from the village, use a Wing of Return (`$CreateItem 2070`): it asks "Do you want to
