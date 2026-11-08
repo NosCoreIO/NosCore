@@ -46,16 +46,24 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
+            var inventory = character.InventoryService;
             var card = specialistHolderService.TakeOut(holder);
-            var added = character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(card, character.CharacterId));
+            if (!inventory.HasRoomFor(card))
+            {
+                await SendNotEnoughSpaceAsync(evt);
+                return;
+            }
+
+            if (!inventory.TryConsume(source, 1))
+            {
+                return;
+            }
+
+            var added = inventory.AddItemToPocket(InventoryItemInstance.Create(card, character.CharacterId));
             if (added == null || added.Count == 0)
             {
-                await session.SendPacketAsync(new MsgiPacket
-                {
-                    Type = MessageType.Default,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
+                inventory.RestoreConsumed(source, 1);
+                await SendNotEnoughSpaceAsync(evt);
                 return;
             }
 
@@ -64,13 +72,20 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await session.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
             }
 
-            var remaining = character.InventoryService.RemoveItemAmountFromInventory(1, source.ItemInstanceId);
-            await session.SendPacketAsync(remaining.GeneratePocketChange((PocketType)source.Type, source.Slot));
+            await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
+                .GeneratePocketChange((PocketType)source.Type, source.Slot));
             await session.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.SpecialistOutOfHolder
             });
         }
+
+        private static Task SendNotEnoughSpaceAsync(ItemUsedEvent evt) =>
+            evt.ClientSession.SendPacketAsync(new MsgiPacket
+            {
+                Type = MessageType.Default,
+                Message = Game18NConstString.NotEnoughSpace
+            });
     }
 }

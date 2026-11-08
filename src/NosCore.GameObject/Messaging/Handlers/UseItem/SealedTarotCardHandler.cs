@@ -36,17 +36,24 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var gift = itemProvider.Create((short)item.EffectValue, 1);
             if (gift == null) return;
 
-            var added = character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(gift, character.CharacterId))?.FirstOrDefault();
+            var inventory = character.InventoryService;
+            var source = evt.InventoryItem;
+            if (!inventory.HasRoomFor(gift))
+            {
+                await SendNotEnoughSpaceAsync(evt);
+                return;
+            }
+
+            if (!inventory.TryConsume(source, 1))
+            {
+                return;
+            }
+
+            var added = inventory.AddItemToPocket(InventoryItemInstance.Create(gift, character.CharacterId))?.FirstOrDefault();
             if (added == null)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
+                inventory.RestoreConsumed(source, 1);
+                await SendNotEnoughSpaceAsync(evt);
                 return;
             }
 
@@ -61,8 +68,17 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 Game18NArguments = { gift.ItemVNum.ToString(), 1 }
             });
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, evt.InventoryItem.ItemInstanceId);
-            await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
+            await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
+                .GeneratePocketChange((PocketType)source.Type, source.Slot));
         }
+
+        private static Task SendNotEnoughSpaceAsync(ItemUsedEvent evt) =>
+            evt.ClientSession.SendPacketAsync(new SayiPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = evt.ClientSession.Character.CharacterId,
+                Type = SayColorType.Yellow,
+                Message = Game18NConstString.NotEnoughSpace
+            });
     }
 }

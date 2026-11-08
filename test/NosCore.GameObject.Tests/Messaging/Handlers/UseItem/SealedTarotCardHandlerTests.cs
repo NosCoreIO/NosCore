@@ -79,6 +79,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheSameCardHandledTwiceGrantsOneReward()
+        {
+            await new Spec("The same card handled twice grants one reward")
+                .Given(TarotInInventoryWithEffectAndValue_, ItemEffectType.SealedTarotCard, RewardVNum)
+                .WhenAsync(UsingTheItemTwice)
+                .Then(InventoryShouldContainExactly__, RewardVNum, 1)
+                .And(TarotStackShouldStillBe_, (short)0)
+                .ExecuteAsync();
+        }
+
         private void TarotInInventoryWithEffectAndValue_(ItemEffectType effect, short value)
         {
             var item = new Item
@@ -108,6 +119,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             };
             await _handler.Handle(new ItemUsedEvent(_session, _item, packet));
         }
+
+        private async Task UsingTheItemTwice()
+        {
+            await UsingTheItem();
+            await UsingTheItem();
+        }
+
+        private void InventoryShouldContainExactly__(short vnum, int amount) =>
+            Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(vnum));
 
         private void TarotStackShouldStillBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(TarotVNum));

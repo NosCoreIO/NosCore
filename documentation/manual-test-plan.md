@@ -431,6 +431,21 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Keep the sender online for another hour after the relog, then commend again: the
       once-per-day line still appears, so the limit survived the relog
 
+### Picking up and using items
+
+- [ ] Drop an item and pick it up again: it lands in the bag, the ground item disappears for
+      everyone on the map, and the "received" message names it once
+- [ ] Two characters standing on the same dropped item press pick-up at the same moment: only
+      one of them receives it; the other sees it disappear
+- [ ] Spam the pick-up key on a stack of gold: the gold counter rises by that stack only once
+- [ ] With the bag full, try to pick up an item: the not-enough-space message appears and the
+      item stays on the ground for anyone to pick up
+- [ ] Spam double-click on a single box or sealed tarot card: one reward arrives and the box or
+      card is gone; with a stack of two, two rapid double-clicks give two rewards and empty the stack
+- [ ] With the bag full, double-click a box: the not-enough-space message appears and the box
+      stays in its slot
+- [ ] Use a title item and a speaker: both still work as before
+
 ### Inventory sort
 
 - [ ] Scatter a few different items over the MAIN tab with gaps between them, press the sort

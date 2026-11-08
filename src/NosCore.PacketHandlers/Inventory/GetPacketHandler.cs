@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            await messageBus.PublishAsync(new MapItemPickedUpEvent(
+            await messageBus.InvokeAsync(new MapItemPickedUpEvent(
                 clientSession,
                 mapItem.VisualId,
                 mapItem.VNum,

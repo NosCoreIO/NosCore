@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -12,6 +13,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -35,7 +37,25 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             var session = evt.ClientSession;
             var visualId = evt.VisualId;
             var amount = evt.Amount;
-            var itemInstance = InventoryItemInstance.Create(item, session.Character.CharacterId);
+            var mapInstance = session.Character.MapInstance;
+            if (!session.Character.InventoryService.HasRoomFor(item))
+            {
+                await session.SendPacketAsync(new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.NotEnoughSpace
+                });
+                return;
+            }
+
+            if (!mapInstance.TryRemoveMapItem(visualId))
+            {
+                return;
+            }
+
+            var pickedUp = (IItemInstance)item.Clone();
+            pickedUp.Id = Guid.NewGuid();
+            var itemInstance = InventoryItemInstance.Create(pickedUp, session.Character.CharacterId);
             var inv = session.Character.InventoryService.AddItemToPocket(itemInstance)?.FirstOrDefault();
 
             if (inv != null)
@@ -51,12 +71,11 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                     Game18NArguments = { inv.ItemInstance.ItemVNum.ToString(), amount }
                 });
                 await session.SendPacketAsync(session.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
-                session.Character.MapInstance.TryRemoveMapItem(visualId);
-                await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateGet(visualId));
+                await mapInstance.SendPacketAsync(session.Character.GenerateGet(visualId));
 
-                if (session.Character.MapInstance.MapInstanceType == MapInstanceType.LodInstance)
+                if (mapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
-                    await session.Character.MapInstance.SendPacketAsync(new Sayi2Packet
+                    await mapInstance.SendPacketAsync(new Sayi2Packet
                     {
                         VisualType = VisualType.Player,
                         VisualId = session.Character.CharacterId,

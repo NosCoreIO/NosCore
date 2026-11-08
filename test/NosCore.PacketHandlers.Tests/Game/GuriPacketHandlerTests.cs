@@ -14,6 +14,8 @@ using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Wolverine;
 
@@ -45,9 +47,9 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task GuriPacketShouldPublishEvent()
+        public async Task GuriPacketShouldBeHandledInline()
         {
-            await new Spec("Guri packet should publish GuriPacketReceivedEvent")
+            await new Spec("Guri packet should be handled inline as GuriPacketReceivedEvent")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(ExecutingGuriPacket)
                 .Then(MessageBusShouldBeCalled)
@@ -57,7 +59,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task GuriPacketWithTypeShouldPassCorrectData()
         {
-            await new Spec("Guri packet with type should publish event carrying that type")
+            await new Spec("Guri packet with type should be handled as an event carrying that type")
                 .Given(CharacterIsOnMap)
                 .WhenAsync(ExecutingGuriPacketWithType)
                 .Then(MessageBusShouldBeCalledWithCorrectType)
@@ -86,16 +88,16 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void MessageBusShouldBeCalled()
         {
-            MessageBus.Verify(x => x.PublishAsync(
+            MessageBus.Verify(x => x.InvokeAsync(
                 It.IsAny<GuriPacketReceivedEvent>(),
-                It.IsAny<DeliveryOptions?>()), Times.Once);
+                It.IsAny<CancellationToken>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
 
         private void MessageBusShouldBeCalledWithCorrectType()
         {
-            MessageBus.Verify(x => x.PublishAsync(
+            MessageBus.Verify(x => x.InvokeAsync(
                 It.Is<GuriPacketReceivedEvent>(e => e.Packet.Type == GuriPacketType.Title),
-                It.IsAny<DeliveryOptions?>()), Times.Once);
+                It.IsAny<CancellationToken>(), It.IsAny<TimeSpan?>()), Times.Once);
         }
     }
 }
