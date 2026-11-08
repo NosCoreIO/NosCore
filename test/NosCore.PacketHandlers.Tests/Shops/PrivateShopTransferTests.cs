@@ -128,6 +128,19 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         [TestMethod]
+        public async Task BuyingEquipmentWhoseOptionsCannotBeCopiedIsRefused()
+        {
+            await new Spec("Buying equipment whose options cannot be copied is refused")
+                .GivenAsync(TheOwnerOpensAShopWithAWeaponWithAnOptionOfValue_, 7)
+                .WhenAsync(TheBuyerBuysTheWeaponButItsOptionsCannotBeCopied)
+                .Then(TheBuyerShouldHave_Gold, 10_000L)
+                .And(TheOwnerShouldHave_Gold, 0L)
+                .And(TheOwnerShouldStillHoldTheWeapon)
+                .And(TheBuyerShouldHoldNoWeapon)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task BuyingPartOfAStackLeavesTheRestWithTheOwner()
         {
             await new Spec("Buying part of a stack leaves the rest with the owner")
@@ -249,6 +262,20 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private Task TheBuyerBuysTheWeapon() =>
             _buyer.Character.BuyAsync(_owner.Character.Shop!, 0, 1, TestHelpers.Instance.WorldConfiguration, _items,
                 _options, _itemInstanceDao);
+
+        private Task TheBuyerBuysTheWeaponButItsOptionsCannotBeCopied()
+        {
+            var options = new Mock<IShellOptionService>();
+            options.Setup(o => o.CopyAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(false);
+            return _buyer.Character.BuyAsync(_owner.Character.Shop!, 0, 1, TestHelpers.Instance.WorldConfiguration,
+                _items, options.Object, _itemInstanceDao);
+        }
+
+        private void TheOwnerShouldStillHoldTheWeapon() =>
+            Assert.IsTrue(_owner.Character.InventoryService.ContainsKey(_weaponId));
+
+        private void TheBuyerShouldHoldNoWeapon() =>
+            Assert.IsFalse(_buyer.Character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == WeaponVNum));
 
         private void TheBuyersWeaponShouldHaveAnOptionOfValue_(int value)
         {

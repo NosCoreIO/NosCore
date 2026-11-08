@@ -656,8 +656,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             NoscorePocketType sellerType = default;
             short sellerSlotIndex = 0;
             List<InventoryItemInstance>? delivered = null;
-            IItemInstance? handedOver = null;
-            var sourceId = Guid.Empty;
+            IItemInstance? persisted = null;
             using (await shop.Lock.AcquireAsync())
             {
                 var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
@@ -688,12 +687,30 @@ namespace NosCore.GameObject.Ecs.Extensions
                     copy.Amount = amount;
                     if (copy is WearableInstance wearable)
                     {
-                        // Options are stored per instance id and reloaded for the copy once copied below.
+                        // Options are stored per instance id; the copy gets its own rows below.
                         wearable.EquipmentOptions = null;
-                    }
+                        if ((shellOptionService != null) && (itemInstanceDao != null))
+                        {
+                            var carried = false;
+                            try
+                            {
+                                carried = (await itemInstanceDao.TryInsertOrUpdateAsync(copy) != null)
+                                    && await shellOptionService.CopyAsync(live.ItemInstance.Id, copy.Id);
+                            }
+                            catch (Exception)
+                            {
+                                carried = false;
+                            }
 
-                    handedOver = copy;
-                    sourceId = live.ItemInstance.Id;
+                            if (!carried)
+                            {
+                                await itemInstanceDao.TryDeleteAsync(copy.Id);
+                                return;
+                            }
+
+                            persisted = copy;
+                        }
+                    }
 
                     buyer.Gold -= cost;
                     var wholeStack = live.ItemInstance.Amount == amount;
@@ -720,6 +737,11 @@ namespace NosCore.GameObject.Ecs.Extensions
                         }
 
                         buyer.Gold += cost;
+                        if (persisted != null)
+                        {
+                            await itemInstanceDao!.TryDeleteAsync(persisted.Id);
+                        }
+
                         failure = new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace };
                     }
                     else
@@ -754,12 +776,6 @@ namespace NosCore.GameObject.Ecs.Extensions
             if (!sold)
             {
                 return;
-            }
-
-            if ((handedOver is WearableInstance) && (shellOptionService != null) && (itemInstanceDao != null))
-            {
-                await itemInstanceDao.TryInsertOrUpdateAsync(handedOver);
-                await shellOptionService.SaveAsync(handedOver.Id, shellOptionService.Load(sourceId));
             }
 
             await owner.SendPacketAsync(sellerSlot.GeneratePocketChange((PocketType)sellerType, sellerSlotIndex));
