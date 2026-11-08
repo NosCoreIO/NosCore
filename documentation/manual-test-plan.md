@@ -604,9 +604,9 @@ NPC menus, shops, the bank, the NosBazaar and the upgrade windows only answer wh
 stands within 5 cells of the NPC whose dialog was opened, on the same map. Windows opened by an item
 (savings book, NosBazaar medal) work anywhere on the map they were opened on.
 
-- [ ] Click a shop NPC, buy an item and sell one back: both go through
-- [ ] Open a shop NPC, walk more than 5 cells away without closing the window and buy: nothing is
-      bought and no gold moves; selling from the same window does nothing either
+- [ ] Click a shop-only NPC (no dialog), buy an item and sell one back: both go through
+- [ ] Click a shop NPC whose dialog offers the shop, pick the shop and buy, then sell the item back:
+      both go through
 - [ ] Click a teleporter NPC from right next to it and pick a destination: the teleport and the fare
       behave as under "NPC teleporters"
 - [ ] Open the Cuarry Bank window at the Representative, walk away and deposit: no gold moves; open it
@@ -615,8 +615,7 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
       the NosBazaar skill opens a working NosBazaar away from any NPC
 - [ ] Open an upgrade window (equipment upgrade, specialist upgrade, cellon) at its NPC and upgrade:
       it works; walk away first: nothing is consumed
-- [ ] Open a private shop on one character, stand next to it with another and buy: it works; walk
-      more than 5 cells away and buy again: nothing is bought
+- [ ] Open a private shop on one character, stand next to it with another and buy: it works
 - [ ] Respawn point: the NPC's question still appears and confirming saves the point (see
       "Respawn point")
 - [ ] Change map with a shop or bank window still open and use it: nothing happens until an NPC is
@@ -1030,7 +1029,8 @@ Recorded so nobody spends time hunting for them:
 - **NPC services sent without the NPC** — an unmodified client only sends a dialog choice, a
   purchase or a bank, NosBazaar or upgrade request from a window it was shown, so the refusals for a
   dialog that was never opened, a player named as the NPC or a request from another map cannot be
-  produced from the client; walking away with the window open is the observable case above.
+  produced from the client. The client also keeps the character still while a shop window is open,
+  so buying or selling from a shop left behind cannot be produced either; the unit tests cover it.
 - **BCard subtype names and additions** — data-only. Observable only once a skill or card
   using a given subtype is wired to behaviour.
 - **The `st` percentage guard** — guards a zero maximum, which is not a state the game
