@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Interfaces;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MateService
@@ -14,5 +15,7 @@ namespace NosCore.GameObject.Services.MateService
         Task<bool> MoveAsync(PlayerComponentBundle owner, long mateTransportId, short x, short y);
 
         Task<bool> TalkAsync(PlayerComponentBundle owner, long mateTransportId, string? message);
+
+        Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, long castId, IAliveEntity target);
     }
 }

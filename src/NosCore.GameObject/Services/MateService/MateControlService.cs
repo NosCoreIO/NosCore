@@ -4,20 +4,30 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public class MateControlService(IHeuristic distanceCalculator) : IMateControlService
+    public class MateControlService(IHeuristic distanceCalculator, IBattleService battleService,
+            INpcCombatCatalog catalog, List<SkillDto> skills, IClock clock) : IMateControlService
     {
+        private readonly Dictionary<short, SkillDto> _skillsByVnum = skills.ToDictionary(s => s.SkillVNum);
+
         public async Task<bool> MoveAsync(PlayerComponentBundle owner, long mateTransportId, short x, short y)
         {
             if (!TryGetOutMate(owner, mateTransportId, out var mate, out var entity)
@@ -29,8 +39,8 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             // The same one-step allowance a player's own walk gets, so a client cannot teleport its mate.
-            var distance = (int)distanceCalculator.GetDistance((entity.PositionX, entity.PositionY), (x, y)) - 1;
-            if (distance > mate.NpcMonster.Speed / 2)
+            var distance = (int)distanceCalculator.GetDistance((entity.PositionX, entity.PositionY), (x, y));
+            if (!SkillReach.IsWithinOneStep(distance, mate.NpcMonster.Speed))
             {
                 return false;
             }
@@ -59,6 +69,47 @@ namespace NosCore.GameObject.Services.MateService
             }
 
             await SendAsync(owner, entity.GenerateSay(message, SayColorType.Default));
+            return true;
+        }
+
+        public async Task<bool> AttackAsync(PlayerComponentBundle owner, long mateTransportId, long castId,
+            IAliveEntity target)
+        {
+            if (!TryGetOutMate(owner, mateTransportId, out var mate, out var entity)
+                || target.MapInstance != owner.MapInstance)
+            {
+                return false;
+            }
+
+            // Only a skill in the creature's own roster: the resolver would otherwise fall back to its basic attack.
+            var skill = catalog.GetSkills(mate.VNum)
+                .Select(s => _skillsByVnum.GetValueOrDefault(s.SkillVNum))
+                .FirstOrDefault(s => s != null && s.CastId == castId);
+            if (skill == null)
+            {
+                return false;
+            }
+
+            var now = clock.GetCurrentInstant();
+            if (entity.NextUsableAt.TryGetValue(skill.SkillVNum, out var readyAt) && readyAt > now)
+            {
+                return false;
+            }
+
+            var distance = (int)distanceCalculator.GetDistance((entity.PositionX, entity.PositionY),
+                (target.PositionX, target.PositionY));
+            var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
+            if (!SkillReach.IsInReach(skill.TargetType, skill.Range, distance, targetArea))
+            {
+                return false;
+            }
+
+            if (!await battleService.Hit(entity, target, new HitArguments { SkillId = castId }))
+            {
+                return false;
+            }
+
+            entity.NextUsableAt[skill.SkillVNum] = now.Plus(Duration.FromMilliseconds(Math.Max(200, skill.Cooldown * 100)));
             return true;
         }
 

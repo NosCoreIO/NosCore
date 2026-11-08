@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
             _session.Character.MapInstance = _map;
             _otherSession.Character.MapInstance = _map;
-            _handler = new SayPPacketHandler(new MateControlService(TestHelpers.Instance.DistanceCalculator));
+            _handler = new SayPPacketHandler(MateControl.Service());
         }
 
         [TestMethod]

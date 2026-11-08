@@ -490,6 +490,13 @@ Have a pet and a partner out, and a second client on the same map watching.
       happens
 - [ ] Make the pet talk: a speech bubble with your sentence shows over the pet on both screens,
       and the sentence is not cut at its first space
+- [ ] Select a monster next to the pet and use one of the pet's own skills on it: the pet plays
+      the skill, the damage number shows on both screens and the monster's bar drops
+- [ ] Use the same pet skill again at once: nothing happens until its cooldown is over
+- [ ] Kill a monster with a pet skill: it collapses as it does from your own hits and drops its
+      gold and items; the pet's share of the damage gives no experience yet, to you or the pet
+- [ ] Use a pet skill on a monster across the map: the pet does not hit it
+- [ ] Use a pet skill on another player or on an NPC: nothing happens
 
 ### Wing and Amulet of Return
 
