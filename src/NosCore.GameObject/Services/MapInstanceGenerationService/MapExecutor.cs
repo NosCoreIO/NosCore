@@ -44,6 +44,23 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             }
         }
 
+        // Whether the current flow is running work on any map's executor.
+        public static bool IsInsideAny
+        {
+            get
+            {
+                for (var scope = Current.Value; scope != null; scope = scope.Parent)
+                {
+                    if (!scope.Ended)
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
         public async Task RunAsync(Func<Task> work)
         {
             await RunAsync(async () =>

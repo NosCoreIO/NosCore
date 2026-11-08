@@ -29,12 +29,16 @@ public class MapWorld : IDisposable
     // Arch registers every world in a static table, so worlds must not be created or
     // disposed concurrently.
     private static readonly Lock WorldTableLock = new();
+    private static long _lastOrder;
+    private static readonly long ForwardRetention = (long)TimeSpan.FromMinutes(5).TotalMilliseconds;
 
     // Arch does not tolerate a structural change overlapping any other access, and a
     // component is rewritten whole on every property set. Every access to the world goes
     // through this lock; it is re-entrant and is never held across an await.
     private readonly Lock _sync = new();
     private readonly World _world;
+    private readonly long _order = Interlocked.Increment(ref _lastOrder);
+    private readonly ConcurrentDictionary<Entity, (ClientSession Session, long At)> _forwards = new();
     private bool _disposed;
 
     public MapWorld()
@@ -65,6 +69,38 @@ public class MapWorld : IDisposable
         }
     }
 
+    // Holds two worlds at once, always in the same order, for a step that has to see both
+    // consistent - a player leaving one for the other.
+    public static void Exclusive(MapWorld first, MapWorld second, Action action)
+    {
+        var (outer, inner) = first._order <= second._order ? (first, second) : (second, first);
+        lock (outer._sync)
+        {
+            lock (inner._sync)
+            {
+                action();
+            }
+        }
+    }
+
+    // A player's entity is replaced when they change map, but events and handlers may still
+    // hold the old handle. The world it left remembers whose it was for a while.
+    public void Forward(Entity from, ClientSession to)
+    {
+        var now = Environment.TickCount64;
+        _forwards[from] = (to, now);
+        foreach (var (entity, forward) in _forwards)
+        {
+            if (now - forward.At > ForwardRetention)
+            {
+                _forwards.TryRemove(entity, out _);
+            }
+        }
+    }
+
+    public ClientSession? ForwardedTo(Entity from) =>
+        _forwards.TryGetValue(from, out var forward) ? forward.Session : null;
+
     public bool IsAlive(Entity entity)
     {
         lock (_sync)
@@ -73,28 +109,54 @@ public class MapWorld : IDisposable
         }
     }
 
+    // Reads and writes through the handle of a player who has since changed map reach the
+    // entity they have now - again if they moved once more in between. The lookup happens
+    // outside this world's lock, so two worlds are never locked here in an order the map
+    // change could contradict.
     public T? TryGetComponent<T>(Entity entity) where T : struct
-    {
-        lock (_sync)
-        {
-            if (_disposed || !_world.IsAlive(entity) || !_world.Has<T>(entity))
-            {
-                return null;
-            }
-
-            return _world.Get<T>(entity);
-        }
-    }
-
-    public void SetComponent<T>(Entity entity, T component) where T : struct
     {
         lock (_sync)
         {
             if (!_disposed && _world.IsAlive(entity))
             {
-                _world.Set(entity, component);
+                return _world.Has<T>(entity) ? _world.Get<T>(entity) : null;
             }
         }
+
+        while (MovedTo(entity) is { } moved)
+        {
+            if (moved.World.TryGetComponentHere<T>(moved.Entity, out var component))
+            {
+                return component;
+            }
+        }
+
+        return null;
+    }
+
+    // False only when the entity is gone; a missing component reads as null.
+    private bool TryGetComponentHere<T>(Entity entity, out T? component) where T : struct
+    {
+        lock (_sync)
+        {
+            component = null;
+            if (_disposed || !_world.IsAlive(entity))
+            {
+                return false;
+            }
+
+            if (_world.Has<T>(entity))
+            {
+                component = _world.Get<T>(entity);
+            }
+
+            return true;
+        }
+    }
+
+    public void SetComponent<T>(Entity entity, T component) where T : struct
+    {
+        Update<T, T>(entity, component, static (_, value) => value);
     }
 
     // Read-modify-write of one component as a single step, so two writers of different
@@ -102,17 +164,45 @@ public class MapWorld : IDisposable
     // when the entity is gone or lacks the component.
     public bool Update<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
     {
+        var outcome = UpdateHere(entity, state, update);
+        while (outcome == UpdateOutcome.Gone && MovedTo(entity) is { } moved)
+        {
+            outcome = moved.World.UpdateHere(moved.Entity, state, update);
+        }
+
+        return outcome == UpdateOutcome.Done;
+    }
+
+    private UpdateOutcome UpdateHere<T, TState>(Entity entity, TState state, Func<T, TState, T> update) where T : struct
+    {
         lock (_sync)
         {
-            if (_disposed || !_world.IsAlive(entity) || !_world.Has<T>(entity))
+            if (_disposed || !_world.IsAlive(entity))
             {
-                return false;
+                return UpdateOutcome.Gone;
+            }
+
+            if (!_world.Has<T>(entity))
+            {
+                return UpdateOutcome.Missing;
             }
 
             ref var component = ref _world.Get<T>(entity);
             component = update(component, state);
-            return true;
+            return UpdateOutcome.Done;
         }
+    }
+
+    private enum UpdateOutcome
+    {
+        Done,
+        Missing,
+        Gone,
+    }
+
+    private PlayerComponentBundle? MovedTo(Entity entity)
+    {
+        return ForwardedTo(entity) is { } session && session.TryGetCharacter(out var character) ? character : null;
     }
 
     public bool HasComponent<T>(Entity entity) where T : struct

@@ -48,6 +48,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly ILogger<MapInstance> _logger;
 
         private readonly IMapItemGenerationService _mapItemGenerationService;
+        private readonly Lock _sleepLock = new();
         private bool _isSleeping;
         private bool _isSleepingRequest;
         private ConcurrentDictionary<int, MonsterComponentBundle> _monsters;
@@ -146,29 +147,44 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             return false;
         }
 
+        // A map with somebody on it is never asleep, whatever order a leaver's request to sleep
+        // and an arrival's wake-up came in.
         public bool IsSleeping
         {
             get
             {
-                if (!_isSleepingRequest || _isSleeping || (LastUnregister.Plus(Duration.FromSeconds(30)) >= _clock.GetCurrentInstant()))
+                lock (_sleepLock)
                 {
-                    return _isSleeping;
-                }
+                    if (Sessions.Count > 0)
+                    {
+                        _isSleeping = false;
+                        _isSleepingRequest = false;
+                        return false;
+                    }
 
-                _isSleeping = true;
-                _isSleepingRequest = false;
-                return true;
+                    if (!_isSleepingRequest || _isSleeping || (LastUnregister.Plus(Duration.FromSeconds(30)) >= _clock.GetCurrentInstant()))
+                    {
+                        return _isSleeping;
+                    }
+
+                    _isSleeping = true;
+                    _isSleepingRequest = false;
+                    return true;
+                }
             }
             set
             {
-                if (value)
+                lock (_sleepLock)
                 {
-                    _isSleepingRequest = true;
-                }
-                else
-                {
-                    _isSleeping = false;
-                    _isSleepingRequest = false;
+                    if (value)
+                    {
+                        _isSleepingRequest = true;
+                    }
+                    else
+                    {
+                        _isSleeping = false;
+                        _isSleepingRequest = false;
+                    }
                 }
             }
         }

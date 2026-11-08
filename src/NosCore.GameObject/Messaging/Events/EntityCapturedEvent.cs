@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
@@ -13,5 +14,11 @@ namespace NosCore.GameObject.Messaging.Events
     // side effects (xp/gold rewards, death bcards, kill-count quest credit).
     // Capture-specific quest objectives and any other capture-only reactions
     // subscribe to this instead.
-    public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor);
+    public sealed record EntityCapturedEvent(IAliveEntity Victim, IAliveEntity Captor)
+    {
+        // Read when handled, possibly after a map change replaced a player's entity.
+        public IAliveEntity Victim { get => field.Live(); init; } = Victim;
+
+        public IAliveEntity Captor { get => field.Live(); init; } = Captor;
+    }
 }

@@ -41,36 +41,61 @@ namespace NosCore.GameObject.Networking.ClientSession
         IAuthHub authHub)
         : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
+        private static readonly AsyncLocal<PacketLockHold?> HeldPacketLocks = new();
+
         private readonly AsyncLock _handlingPacketLock = new();
         private readonly ILogger<ClientSession> _logger = logger;
-        private PlayerComponentBundle _characterBundle;
+        private PlayerSlot? _player;
+        private int _changingMap;
 
-        public bool HasPlayerEntity =>
-            _characterBundle.Entity != default
-            && _characterBundle.World != null
-            && _characterBundle.World.IsAlive(_characterBundle.Entity);
+        public bool HasPlayerEntity => LivePlayer() != null;
 
         public ref PlayerComponentBundle Character
         {
             get
             {
-                if (_characterBundle.Entity == default)
+                var slot = LivePlayer();
+                if (slot == null)
                 {
-                    throw new InvalidOperationException("Character entity not initialized");
+                    throw Volatile.Read(ref _player) == null
+                        ? new InvalidOperationException("Character entity not initialized")
+                        : new InvalidOperationException("Character entity handle is stale (destroyed or in a disposed world)");
                 }
-                if (_characterBundle.World == null || !_characterBundle.World.IsAlive(_characterBundle.Entity))
+
+                return ref slot.Bundle;
+            }
+        }
+
+        // Resolves the player once, so a disconnect between a check and a read cannot throw.
+        public bool TryGetCharacter(out PlayerComponentBundle character)
+        {
+            var slot = LivePlayer();
+            character = slot?.Bundle ?? default;
+            return slot != null;
+        }
+
+        // A map change puts the new entity in place before it destroys the old one, both under
+        // the worlds' locks. A dead entity in the slot just read therefore means either that the
+        // slot has moved on, and is read again, or that the character really is gone.
+        private PlayerSlot? LivePlayer()
+        {
+            while (true)
+            {
+                var slot = Volatile.Read(ref _player);
+                if (slot == null)
                 {
-                    // Entity handle still looks valid but the underlying chunk is gone —
-                    // happens if the map world was disposed, or the entity was destroyed
-                    // without ClearPlayerEntity running. Reading components would silently
-                    // return default structs with null reference fields (see the
-                    // PlayerComponentBundle -> PlayerStateComponent implicit cast that
-                    // swallows a null TryGetComponent with `?? default`), so NREs fire
-                    // downstream instead of here. Fail fast so the caller can disconnect
-                    // or rehydrate the session.
-                    throw new InvalidOperationException("Character entity handle is stale (destroyed or in a disposed world)");
+                    return null;
                 }
-                return ref _characterBundle;
+
+                if (slot.Bundle.World != null && slot.Bundle.World.IsAlive(slot.Bundle.Entity))
+                {
+                    return slot;
+                }
+
+                if (ReferenceEquals(Volatile.Read(ref _player), slot))
+                {
+                    return null;
+                }
             }
         }
 
@@ -98,8 +123,59 @@ namespace NosCore.GameObject.Networking.ClientSession
             return packetHandlerRegistry.GetPacketAttribute(packetType);
         }
 
-        public ValueTask<AsyncLock.Releaser> AcquirePacketLockAsync(CancellationToken ct = default)
-            => _handlingPacketLock.AcquireAsync(ct);
+        // Not async on purpose: the hold has to be recorded in the caller's flow, which an
+        // async method's own changes to an AsyncLocal never reach.
+        public ValueTask<PacketLockScope> AcquirePacketLockAsync(CancellationToken ct = default)
+        {
+            var parent = HeldPacketLocks.Value;
+            while (parent is { Released: true })
+            {
+                parent = parent.Parent;
+            }
+
+            var hold = new PacketLockHold(this, parent);
+            HeldPacketLocks.Value = hold;
+            return WaitForPacketLockAsync(hold, ct);
+        }
+
+        private async ValueTask<PacketLockScope> WaitForPacketLockAsync(PacketLockHold hold, CancellationToken ct)
+        {
+            try
+            {
+                return new PacketLockScope(await _handlingPacketLock.AcquireAsync(ct), hold);
+            }
+            catch
+            {
+                hold.Released = true;
+                throw;
+            }
+        }
+
+        // Whether the current flow is the one handling this session's packets.
+        public bool HoldsPacketLock
+        {
+            get
+            {
+                for (var hold = HeldPacketLocks.Value; hold != null; hold = hold.Parent)
+                {
+                    if (!hold.Released && ReferenceEquals(hold.Session, this))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+        }
+
+        // For work that runs both from this session's packet handlers and from elsewhere.
+        public ValueTask<PacketLockScope> AcquirePacketLockUnlessHeldAsync() =>
+            HoldsPacketLock ? ValueTask.FromResult(default(PacketLockScope)) : AcquirePacketLockAsync();
+
+        // Only one map change at a time per session; the loser of a race simply does nothing.
+        public bool TryBeginMapChange() => Interlocked.CompareExchange(ref _changingMap, 1, 0) == 0;
+
+        public void EndMapChange() => Volatile.Write(ref _changingMap, 0);
 
         public void InitializeAccount(AccountDto accountDto)
         {
@@ -126,23 +202,48 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public void SetPlayerEntity(Entity entity, MapWorld world)
         {
-            _characterBundle = new PlayerComponentBundle(entity, world);
+            var slot = new PlayerSlot(new PlayerComponentBundle(entity, world));
+            Volatile.Write(ref _player, slot);
             HasSelectedCharacter = true;
 
             if (Channel != null)
             {
-                sessionRegistry.UpdateCharacter(Channel.Id, _characterBundle.CharacterId, _characterBundle.MapInstance?.MapInstanceId ?? Guid.Empty);
+                sessionRegistry.UpdateCharacter(Channel.Id, slot.Bundle.CharacterId, slot.Bundle.MapInstance?.MapInstanceId ?? Guid.Empty);
             }
         }
 
         public void ClearPlayerEntity()
         {
-            if (_characterBundle.Entity != default && _characterBundle.World != null)
+            var slot = Interlocked.Exchange(ref _player, null);
+            if (slot != null && slot.Bundle.Entity != default && slot.Bundle.World != null)
             {
-                _characterBundle.World.DestroyEntity(_characterBundle.Entity);
+                slot.Bundle.World.DestroyEntity(slot.Bundle.Entity);
             }
-            _characterBundle = default;
             HasSelectedCharacter = false;
+        }
+
+        // Leaves the map through its executor, so the map's own work never sees the entity
+        // half gone.
+        private async Task ClearPlayerEntityAsync()
+        {
+            var map = HasPlayerEntity ? Character.MapInstance : null;
+            if (map != null)
+            {
+                try
+                {
+                    await map.Executor.RunAsync(() =>
+                    {
+                        ClearPlayerEntity();
+                        return Task.CompletedTask;
+                    });
+                    return;
+                }
+                catch (ObjectDisposedException)
+                {
+                }
+            }
+
+            ClearPlayerEntity();
         }
 
         public async Task HandlePacketAsync(NosPackageInfo package)
@@ -194,7 +295,7 @@ namespace NosCore.GameObject.Networking.ClientSession
                 // live in memory — any later lookup produces a bundle whose
                 // PlayerStateComponent resolves to default (CharacterDto = null) and
                 // NREs on the first property read.
-                ClearPlayerEntity();
+                await ClearPlayerEntityAsync();
                 if (Channel != null)
                 {
                     sessionRegistry.Unregister(Channel.Id);
@@ -213,6 +314,36 @@ namespace NosCore.GameObject.Networking.ClientSession
         {
             return Task.WhenAll(packetConcatenated.Select(packet =>
                 packetHandlingStrategy.HandlePacketAsync(packet, this, isFromNetwork)));
+        }
+
+        private sealed class PlayerSlot(PlayerComponentBundle bundle)
+        {
+            public PlayerComponentBundle Bundle = bundle;
+        }
+
+        public sealed class PacketLockHold(ClientSession session, PacketLockHold? parent)
+        {
+            public ClientSession Session { get; } = session;
+
+            public PacketLockHold? Parent { get; } = parent;
+
+            // Work started inside the handling inherits the hold; once the handling is over,
+            // such work has to take the lock like anyone else.
+            public volatile bool Released;
+        }
+
+        public readonly struct PacketLockScope(AsyncLock.Releaser releaser, PacketLockHold? hold) : IDisposable
+        {
+            public void Dispose()
+            {
+                if (hold == null)
+                {
+                    return;
+                }
+
+                hold.Released = true;
+                releaser.Dispose();
+            }
         }
     }
 }

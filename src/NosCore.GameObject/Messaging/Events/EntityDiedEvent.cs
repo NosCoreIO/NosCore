@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Arch.Core;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
@@ -19,6 +20,11 @@ namespace NosCore.GameObject.Messaging.Events
     {
         public EntityDiedEvent(IAliveEntity victim, IAliveEntity? killer, RevivalMode revivalMode = RevivalMode.Normal)
             : this(victim, killer, SnapshotHits(victim), revivalMode) { }
+
+        // Read when handled, possibly after a map change replaced a player's entity.
+        public IAliveEntity Victim { get => field.Live(); init; } = Victim;
+
+        public IAliveEntity? Killer { get => field?.Live(); init; } = Killer;
 
         private static IReadOnlyDictionary<Entity, int> SnapshotHits(IAliveEntity victim)
             => victim.HitList is { } list

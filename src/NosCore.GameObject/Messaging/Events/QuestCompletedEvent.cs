@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.QuestService;
 
@@ -14,5 +15,9 @@ namespace NosCore.GameObject.Messaging.Events
     // handler walks NextQuestId and grants the follow-up quest. Anything else that
     // cares about a quest finishing (rewards, achievements, cutscenes) should also
     // subscribe here so the kill / move / item / dialog paths never need to know.
-    public sealed record QuestCompletedEvent(ICharacterEntity Character, CharacterQuest Quest);
+    public sealed record QuestCompletedEvent(ICharacterEntity Character, CharacterQuest Quest)
+    {
+        // Read when handled, possibly after a map change replaced a player's entity.
+        public ICharacterEntity Character { get => field.Live(); init; } = Character;
+    }
 }
