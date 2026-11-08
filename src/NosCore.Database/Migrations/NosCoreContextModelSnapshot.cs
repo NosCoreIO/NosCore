@@ -855,6 +855,22 @@ namespace NosCore.Database.Migrations
                     b.Property<byte>("FamilyLogType")
                         .HasColumnType("smallint");
 
+                    b.Property<string>("FirstArgument")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("FourthArgument")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("SecondArgument")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("ThirdArgument")
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<Instant>("Timestamp")
                         .HasColumnType("timestamp with time zone");
 

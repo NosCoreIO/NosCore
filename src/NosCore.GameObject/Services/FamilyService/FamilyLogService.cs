@@ -8,6 +8,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using System;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,17 +16,24 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyLogService(IDao<FamilyLogDto, long> familyLogDao, IClock clock) : IFamilyLogService
     {
-        public const char ArgumentSeparator = '|';
-        private const int DataMaxLength = 255;
+        private const int MaxArguments = 4;
+        private const int ArgumentMaxLength = 255;
 
         public async Task AddAsync(long familyId, FamilyLogType type, params object[] arguments)
         {
-            var data = string.Join(ArgumentSeparator, arguments);
+            if (arguments.Length > MaxArguments)
+            {
+                throw new ArgumentOutOfRangeException(nameof(arguments), arguments.Length, null);
+            }
+
             await familyLogDao.TryInsertOrUpdateAsync(new FamilyLogDto
             {
                 FamilyId = familyId,
                 FamilyLogType = type,
-                FamilyLogData = data.Length > DataMaxLength ? data[..DataMaxLength] : data,
+                FirstArgument = ArgumentAt(arguments, 0),
+                SecondArgument = ArgumentAt(arguments, 1),
+                ThirdArgument = ArgumentAt(arguments, 2),
+                FourthArgument = ArgumentAt(arguments, 3),
                 Timestamp = clock.GetCurrentInstant()
             });
         }
@@ -46,11 +54,23 @@ namespace NosCore.GameObject.Services.FamilyService
         public Task<bool> HasWrittenDailyMessageTodayAsync(long familyId, string characterName)
         {
             var since = clock.GetCurrentInstant() - Duration.FromDays(1);
-            var prefix = characterName + ArgumentSeparator;
             var written = familyLogDao.Where(s => s.FamilyId == familyId
-                    && s.FamilyLogType == FamilyLogType.DailyMessage && s.Timestamp > since)?
-                .Any(s => s.FamilyLogData != null && s.FamilyLogData.StartsWith(prefix, StringComparison.Ordinal)) ?? false;
+                    && s.FamilyLogType == FamilyLogType.DailyMessage
+                    && s.FirstArgument == characterName
+                    && s.Timestamp > since)?
+                .Any() ?? false;
             return Task.FromResult(written);
+        }
+
+        private static string? ArgumentAt(object[] arguments, int index)
+        {
+            if (index >= arguments.Length)
+            {
+                return null;
+            }
+
+            var value = Convert.ToString(arguments[index], CultureInfo.InvariantCulture) ?? string.Empty;
+            return value.Length > ArgumentMaxLength ? value[..ArgumentMaxLength] : value;
         }
     }
 }

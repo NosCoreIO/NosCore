@@ -104,7 +104,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await new Spec("Accepting an invite logs the newcomer and who invited them")
                 .Given(TheHeadInvitedTheOtherPlayer)
                 .WhenAsync(TheOtherPlayerAnswers_, (byte)1)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, "{other}|{head}")
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, new[] { "{other}", "{head}" })
                 .ExecuteAsync();
         }
 
@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await new Spec("A member leaving logs their name")
                 .Given(TheOtherPlayerIsA_, FamilyAuthority.Member)
                 .WhenAsync(TheOtherPlayerLeaves)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.FamilyManaged, "{other}")
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.FamilyManaged, new[] { "{other}" })
                 .ExecuteAsync();
         }
 
@@ -143,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await new Spec("Dismissing a member logs the dismissed member's name")
                 .Given(TheOtherPlayerIsA_, FamilyAuthority.Member)
                 .WhenAsync(TheHeadDismissesTheOtherPlayer)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.FamilyManaged, "{other}")
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.FamilyManaged, new[] { "{other}" })
                 .ExecuteAsync();
         }
 
@@ -162,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await new Spec("The head letting keepers read the history logs who, which rank, which right and its value")
                 .WhenAsync(TheHeadLetsKeepersReadTheHistory)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.RightChanged, "{head}|2|4|1")
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.RightChanged, new[] { "{head}", "2", "4", "1" })
                 .ExecuteAsync();
         }
 
@@ -183,7 +183,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .Given(TheOtherPlayerIsA_, FamilyAuthority.Member)
                 .And(TheFamilyServiceAccepts_, FamilyAuthorityChange.Changed)
                 .WhenAsync(TheHeadAppointsTheOtherPlayerKeeper)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.AuthorityChanged, "{head}|2|{other}")
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.AuthorityChanged, new[] { "{head}", "2", "{other}" })
                 .ExecuteAsync();
         }
 
@@ -203,7 +203,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await new Spec("Writing today's message stores it and logs it")
                 .WhenAsync(TheHeadWritesTheDailyMessage_, "good morning")
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.DailyMessage, "{head}|good morning")
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.DailyMessage, new[] { "{head}", "good morning" })
                 .And(TheHeadsDailyMessageShouldBe_, "good morning")
                 .ExecuteAsync();
         }
@@ -216,7 +216,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .WhenAsync(TheHeadWritesTheDailyMessage_, "good evening")
                 .Then(TheHeadShouldBeTold_, Game18NConstString.OnlyOncePerDay)
                 .And(TheHeadsDailyMessageShouldBe_, "good morning")
-                .And(TheHistoryShouldHoldOnly_With_, FamilyLogType.DailyMessage, "{head}|good morning")
+                .And(TheHistoryShouldHoldOnly_With_, FamilyLogType.DailyMessage, new[] { "{head}", "good morning" })
                 .ExecuteAsync();
         }
 
@@ -295,12 +295,14 @@ namespace NosCore.PacketHandlers.Tests.Family
             .Replace("{head}", _head.Character.Name)
             .Replace("{other}", _other.Character.Name);
 
-        private void TheHistoryShouldHoldOnly_With_(FamilyLogType type, string data)
+        private void TheHistoryShouldHoldOnly_With_(FamilyLogType type, string[] arguments)
         {
             var log = _logs.Single();
             Assert.AreEqual(FamilyId, log.FamilyId);
             Assert.AreEqual(type, log.FamilyLogType);
-            Assert.AreEqual(Expand(data), log.FamilyLogData);
+            var expected = arguments.Select(Expand).Cast<string?>()
+                .Concat(Enumerable.Repeat<string?>(null, 4 - arguments.Length)).ToList();
+            CollectionAssert.AreEqual(expected, new[] { log.FirstArgument, log.SecondArgument, log.ThirdArgument, log.FourthArgument });
         }
 
         private void TheHistoryShouldBeEmpty() => Assert.IsEmpty(_logs);

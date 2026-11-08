@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private FakeClock _clock = null!;
         private FamilyLogService _service = null!;
         private bool _hasWritten;
+        private bool _threw;
 
         [TestInitialize]
         public void Setup()
@@ -49,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             await new Spec("An entry keeps its type, its arguments in order and the time it was written")
                 .WhenAsync(LoggingThatNewbieJoinedOnHeadsInvite)
-                .Then(TheOnlyEntryShouldBe_, FamilyLogType.UserManaged, "Newbie|Head")
+                .Then(TheOnlyEntryShouldBe_, FamilyLogType.UserManaged, new[] { "Newbie", "Head", null, null })
                 .And(ItShouldBeStampedNow)
                 .ExecuteAsync();
         }
@@ -57,9 +58,19 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AnOverlongEntryIsCutToTheColumn()
         {
-            await new Spec("A daily message too long for the log column is cut instead of failing the write")
+            await new Spec("A daily message too long for its column is cut instead of failing the write")
                 .WhenAsync(LoggingADailyMessageOf_Characters, 300)
-                .Then(TheOnlyEntryShouldBe_CharactersLong, 255)
+                .Then(TheMessageArgumentShouldBe_CharactersLong, 255)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task MoreThanFourArgumentsAreRefused()
+        {
+            await new Spec("An entry has four argument columns, so a fifth argument is a programming error")
+                .WhenAsync(LoggingFiveArguments)
+                .Then(ItShouldHaveThrown)
+                .And(TheHistoryShouldBeEmpty)
                 .ExecuteAsync();
         }
 
@@ -133,29 +144,48 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             FamilyId = FamilyId,
             FamilyLogType = FamilyLogType.DailyMessage,
-            FamilyLogData = $"{name}|hello",
+            FirstArgument = name,
+            SecondArgument = "hello",
             Timestamp = _clock.GetCurrentInstant() - Duration.FromHours(hours)
         });
 
         private async Task CheckingWhether_WroteToday(string name) =>
             _hasWritten = await _service.HasWrittenDailyMessageTodayAsync(FamilyId, name);
 
-        private void TheOnlyEntryShouldBe_(FamilyLogType type, string data)
+        private async Task LoggingFiveArguments()
+        {
+            try
+            {
+                await _service.AddAsync(FamilyId, FamilyLogType.RightChanged, "a", "b", "c", "d", "e");
+            }
+            catch (ArgumentOutOfRangeException)
+            {
+                _threw = true;
+            }
+        }
+
+        private void TheOnlyEntryShouldBe_(FamilyLogType type, string?[] arguments)
         {
             var log = _logs.Single();
             Assert.AreEqual(FamilyId, log.FamilyId);
             Assert.AreEqual(type, log.FamilyLogType);
-            Assert.AreEqual(data, log.FamilyLogData);
+            CollectionAssert.AreEqual(arguments, new[] { log.FirstArgument, log.SecondArgument, log.ThirdArgument, log.FourthArgument });
+            Assert.IsNull(log.FamilyLogData);
         }
+
+        private void ItShouldHaveThrown() => Assert.IsTrue(_threw);
+
+        private void TheHistoryShouldBeEmpty() => Assert.IsEmpty(_logs);
 
         private void ItShouldBeStampedNow() => Assert.AreEqual(_clock.GetCurrentInstant(), _logs.Single().Timestamp);
 
-        private void TheOnlyEntryShouldBe_CharactersLong(int length) => Assert.AreEqual(length, _logs.Single().FamilyLogData!.Length);
+        private void TheMessageArgumentShouldBe_CharactersLong(int length) => Assert.AreEqual(length, _logs.Single().SecondArgument!.Length);
 
         private void TheAnnouncedLevelsShouldBe_(string[] levels)
         {
             Assert.IsTrue(_logs.All(s => s.FamilyLogType == FamilyLogType.LevelUp));
-            CollectionAssert.AreEqual(levels.Select(l => $"Head|{l}").ToList(), _logs.Select(s => s.FamilyLogData).ToList());
+            Assert.IsTrue(_logs.All(s => s.FirstArgument == "Head"));
+            CollectionAssert.AreEqual(levels, _logs.Select(s => s.SecondArgument).ToList());
         }
 
         private void ItShouldBe_(bool expected) => Assert.AreEqual(expected, _hasWritten);

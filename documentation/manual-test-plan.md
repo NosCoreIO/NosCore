@@ -994,20 +994,20 @@ Same seeded family, with a plain member on the same map as the head.
 
 Same seeded family, with a plain member on the same map as the head. The history window
 cannot show these rows yet (see "Not verifiable yet"), so read them from the `FamilyLog`
-table: `select "FamilyLogType", "FamilyLogData", "Timestamp" from "FamilyLog" order by "Timestamp";`
+table: `select "FamilyLogType", "FirstArgument", "SecondArgument", "ThirdArgument", "FourthArgument", "Timestamp" from "FamilyLog" order by "Timestamp";`
 
-- [ ] `%Today <text>` from a member writes a row of type 1 with `<name>|<text>`; a second
+- [ ] `%Today <text>` from a member writes a row of type 1 with arguments `<name>`, `<text>`; a second
       `%Today` from the same member within a day says `Only possible once per day` and
       leaves both the member list line and the table unchanged
-- [ ] Accepting a `%Familyinvite` writes type 11 with `<newcomer>|<inviter>`; cancelling
+- [ ] Accepting a `%Familyinvite` writes type 11 with `<newcomer>`, `<inviter>`; cancelling
       writes nothing
 - [ ] `%Familyleave` from the member and `%Familydismiss <name>` from the head each write
       type 10 with the name of whoever left; the head's refused leave writes nothing
-- [ ] `%Familykeeper <name>` from the head writes type 9 with `<head>|2|<name>`; a refused
+- [ ] `%Familykeeper <name>` from the head writes type 9 with `<head>`, `2`, `<name>`; a refused
       appointment (a third deputy) writes nothing
 - [ ] Ticking "keepers can read the history" in the family window as the head writes
-      type 8 with `<head>|2|4|1`
-- [ ] Levelling a family member from 29 to 30 writes type 6 with `<name>|30`; 30 to 31
+      type 8 with `<head>`, `2`, `4`, `1`
+- [ ] Levelling a family member from 29 to 30 writes type 6 with `<name>`, `30`; 30 to 31
       writes nothing, and every level past 80 writes one row
 
 ---

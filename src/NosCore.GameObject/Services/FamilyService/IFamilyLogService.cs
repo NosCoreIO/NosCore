@@ -10,6 +10,7 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public interface IFamilyLogService
     {
+        /// <summary>Each argument fills the next of the entry's four argument columns, in order.</summary>
         Task AddAsync(long familyId, FamilyLogType type, params object[] arguments);
 
         Task AddLevelUpsAsync(long familyId, string characterName, byte previousLevel, byte level);
