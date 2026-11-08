@@ -5,7 +5,9 @@
 //
 
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Networking;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.PathFinder.Interfaces;
@@ -46,6 +48,17 @@ namespace NosCore.GameObject.Services.MateService
                 MapY = y,
                 Speed = mate.NpcMonster.Speed
             });
+            return true;
+        }
+
+        public async Task<bool> TalkAsync(PlayerComponentBundle owner, long mateTransportId, string? message)
+        {
+            if (string.IsNullOrWhiteSpace(message) || !TryGetOutMate(owner, mateTransportId, out _, out var entity))
+            {
+                return false;
+            }
+
+            await SendAsync(owner, entity.GenerateSay(message, SayColorType.Default));
             return true;
         }
 

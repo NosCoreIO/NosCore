@@ -12,5 +12,7 @@ namespace NosCore.GameObject.Services.MateService
     public interface IMateControlService
     {
         Task<bool> MoveAsync(PlayerComponentBundle owner, long mateTransportId, short x, short y);
+
+        Task<bool> TalkAsync(PlayerComponentBundle owner, long mateTransportId, string? message);
     }
 }

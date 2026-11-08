@@ -488,6 +488,8 @@ Have a pet and a partner out, and a second client on the same map watching.
       and you still do
 - [ ] Send the pet back to the Miniland, then try to order it from the party panel: nothing
       happens
+- [ ] Make the pet talk: a speech bubble with your sentence shows over the pet on both screens,
+      and the sentence is not cut at its first space
 
 ### Wing and Amulet of Return
 
