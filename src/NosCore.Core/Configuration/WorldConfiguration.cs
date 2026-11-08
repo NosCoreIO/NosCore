@@ -34,6 +34,8 @@ namespace NosCore.Core.Configuration
 
         public bool StartInMaintenance { get; set; }
 
+        public PacketRateLimitConfiguration PacketRateLimit { get; set; } = new();
+
         [Required]
         public string? ServerName { get; set; }
 

@@ -163,6 +163,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Poškozený KeepAlive vna klientovi {0}</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Klient {0} odpojen kvůli příliš rychlému odesílání paketů</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Paket s hlavičkou {0} je poškozen nebo definice paketu je neplatná. Obsah: {1}</value>
   </data>

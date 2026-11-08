@@ -348,7 +348,8 @@ namespace NosCore.Tests.Shared
                 Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.PubSubHub.Object,
                 new Mock<IEncoder>().Object,
-                new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance, Instance.LogLanguageLocalizer, sessionRefHolder),
+                new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance, Instance.LogLanguageLocalizer, sessionRefHolder,
+                    new PacketRateLimitService(WorldConfiguration, Instance.Clock)),
                 new List<ISessionDisconnectHandler>(),
                 Instance.SessionRegistry,
                 new Mock<NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub.IAuthHub>().Object)

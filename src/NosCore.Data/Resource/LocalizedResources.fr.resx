@@ -258,6 +258,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Keepalive corrompu.</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Client {0} déconnecté pour envoi de paquets trop rapide</value>
+  </data>
   <data name="INVALID_PASSWORD" xml:space="preserve">
     <value>Mot de passe invalide.</value>
   </data>

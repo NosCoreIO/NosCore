@@ -10,6 +10,11 @@ DisplayPort: 1337
 ConnectedAccountLimit: 100
 SceneOnCreate: false
 StartInMaintenance: false
+PacketRateLimit:
+  PacketsPerSecond: 30
+  Burst: 60
+  DisconnectAfterDroppedPackets: 200
+  DropWindowSeconds: 10
 #0-3 English / International
 #4-7 German
 #8-11 French

@@ -165,6 +165,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Uszkodzone Keepalive na kliencie: {0}</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Klient {0} rozłączony za zbyt szybkie wysyłanie pakietów</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Pakiet z Header {0} jest uszkodzony lub PacketDefinition jest nieprawidłowy. Zawartość: {1}</value>
   </data>

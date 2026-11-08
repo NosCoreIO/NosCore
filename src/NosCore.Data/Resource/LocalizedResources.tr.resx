@@ -165,6 +165,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>{0} Id'li İstemci hatalı şekilde devam ediyor.</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>İstemci {0} çok hızlı paket gönderdiği için bağlantısı kesildi</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value> {0} Bu paket hatalı veya paketin konumu geçersiz. İçerik: {1}</value>
   </data>

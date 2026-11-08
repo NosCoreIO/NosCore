@@ -192,6 +192,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Keepalive corrotto nel client {0}</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Client {0} disconnesso per invio di pacchetti troppo veloce</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Il pacchetto con l'intestazione {0} è danneggiato o PacketDefinition non è valido. Contenuto: {1}</value>
   </data>

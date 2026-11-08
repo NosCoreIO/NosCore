@@ -129,6 +129,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 var mates = oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default;
                 var digestion = oldWorld.TryGetComponent<DigestionComponent>(oldEntity)
                     ?? new DigestionComponent(new DigestionState());
+                var throttle = oldWorld.TryGetComponent<PacketThrottleComponent>(oldEntity);
 
                 if (session.Channel?.Id != null)
                 {
@@ -174,7 +175,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                     social,
                     requests,
                     mates,
-                    digestion);
+                    digestion,
+                    throttle);
 
                 session.SetPlayerEntity(playerEntity, newMapInstance.EcsWorld);
                 character = session.Character;

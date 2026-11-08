@@ -165,6 +165,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>"KeepAlive" corrupto en el cliente: {0}</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Cliente {0} desconectado por enviar paquetes demasiado rápido</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Paquete con "cabezera" (Handler) {0} es corrupto o "la definiciÃ³n del paquete" (PaketDefinition) es invalida. Contenido: {1}</value>
   </data>

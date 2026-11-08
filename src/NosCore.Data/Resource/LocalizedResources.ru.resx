@@ -196,6 +196,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Поврежденный пакет Keepalive на клиенте {0}</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Клиент {0} отключён за слишком частую отправку пакетов</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Пакет с заголовком {0} поврежден либо PacketDefinition неверен. Контент: {1}</value>
   </data>

@@ -710,6 +710,17 @@ Two characters with at least 1 000 gold each, in different groups, next to the a
 
 ## Chat
 
+### Sending limits
+
+- [ ] Chat normally in general, whisper, group and family chat: every line arrives
+- [ ] Press enter on the same line as fast as possible: lines closer than half a second
+      apart are not shown to others, and nothing else happens
+- [ ] Spam an emoticon: no more than two a second show on a second client
+- [ ] Shout twice within three seconds: only the first goes out
+- [ ] Fight a monster with a full skill rotation and auto-attack: every cast lands as before
+- [ ] Walk long distances with the mouse and the keyboard: no rubber-banding
+- [ ] Log in, change map and open the inventory, shop and bazaar: nothing is missing
+
 ### Hero chat
 
 Run two world servers (two channels). You need a GM account to set reputation, and five
@@ -866,6 +877,8 @@ Quick pass after any combat or stat change:
 
 Recorded so nobody spends time hunting for them:
 
+- **The packet rate limit and the disconnect for sustained flooding** — an unmodified client
+  never sends 30 packets a second for long, so only the unit tests reach it.
 - **Bank gold in a trade** — the trade window's bank field accepts no input, so the client never
   offers bank gold and the bank-cap check of a trade ("You cannot deposit any more.") cannot be
   reached. Once the field opens, offer bank gold that would push the other player's custody past

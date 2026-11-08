@@ -54,6 +54,7 @@ namespace NosCore.Data.Enumerations.I18N
         AUTH_INCORRECT,
         CLIENT_ARRIVED,
         CORRUPTED_KEEPALIVE,
+        PACKET_RATE_EXCEEDED,
         INVALID_PASSWORD,
         INVALID_ACCOUNT,
         ACCOUNT_ARRIVED,

@@ -193,6 +193,9 @@
   <data name="CORRUPTED_KEEPALIVE" xml:space="preserve">
     <value>Beschädigtes Keepalive auf dem Client {0}</value>
   </data>
+  <data name="PACKET_RATE_EXCEEDED" xml:space="preserve">
+    <value>Client {0} wegen zu schnell gesendeter Pakete getrennt</value>
+  </data>
   <data name="CORRUPT_PACKET" xml:space="preserve">
     <value>Paket mit Header {0} ist beschädigt oder besitzt eine ungültige PaketDefinition. Content: {1}</value>
     <comment>Packet with Header {0} is corrupt or PacketDefinition is invalid. Content: {1}</comment>

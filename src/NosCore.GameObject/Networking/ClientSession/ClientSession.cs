@@ -80,6 +80,8 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public int LastKeepAliveIdentity { get; set; }
 
+        public PacketRateState PacketRate { get; } = new();
+
         public IList<IPacket> WaitForPacketList { get; } = new List<IPacket>();
 
         public int LastPulse { get; set; }

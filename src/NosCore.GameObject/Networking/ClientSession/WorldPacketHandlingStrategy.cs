@@ -9,17 +9,20 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
+using NosCore.Packets.ClientPackets.Battle;
 using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Networking.ClientSession;
 
-public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRefHolder sessionRefHolder)
+public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRefHolder sessionRefHolder,
+    IPacketRateLimitService packetRateLimit)
     : IPacketHandlingStrategy
 {
     public async Task HandlePacketAsync(IPacket packet, ClientSession session, bool isFromNetwork)
@@ -32,6 +35,11 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             }
 
             if (!await ValidateKeepAliveAsync(packet, session))
+            {
+                return;
+            }
+
+            if (!await ValidateRateAsync(packet, session))
             {
                 return;
             }
@@ -95,6 +103,27 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         }
 
         return true;
+    }
+
+    // Checked after the keep-alive so a dropped packet does not break the keep-alive sequence.
+    private async Task<bool> ValidateRateAsync(IPacket packet, ClientSession session)
+    {
+        switch (packetRateLimit.Check(session, packet))
+        {
+            case PacketRateDecision.Allow:
+                return true;
+            case PacketRateDecision.Disconnect:
+                logger.LogWarning(logLanguage[LogLanguageKey.PACKET_RATE_EXCEEDED], session.SessionId);
+                await session.DisconnectAsync();
+                return false;
+            default:
+                // The client holds a cast until it hears back.
+                if (packet is UseSkillPacket)
+                {
+                    await session.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack });
+                }
+                return false;
+        }
     }
 
     private Task<bool> HandleInitialConnectionAsync(IPacket packet, ClientSession session)
