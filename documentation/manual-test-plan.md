@@ -58,6 +58,17 @@ Useful commands: `$CreateItem <vnum> [amount] [upgrade]`, `$SetLevel`, `$SetJobL
 Avoid `$Speed` while testing movement — it overrides the value the mount and buff paths
 compute and will mask a regression.
 
+### Connections
+
+- [ ] Log in, pick a character and play for a few minutes: nothing disconnects
+- [ ] Leave the client on the character list for ten minutes, then pick a character: the
+      session is still open
+- [ ] Stand still in the world for six minutes: the keep-alive holds the session open
+- [ ] Open a busy map (many monsters and players) right after login: everything appears
+      and the session stays up
+- [ ] Close the client while in the world, log back in at once: the character is not
+      reported as already connected and loads normally
+
 ---
 
 ## Movement

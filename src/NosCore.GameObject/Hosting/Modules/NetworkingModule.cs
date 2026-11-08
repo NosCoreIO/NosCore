@@ -47,7 +47,7 @@ public sealed class NetworkingModule : Module
                 c.Resolve<IEnumerable<IRequestFilter>>(),
                 c.Resolve<IPipelineConfiguration>(),
                 () => lifetimeScope.Resolve<ClientSession>(),
-                (package, client) => _ = DispatchPacketAsync((ClientSession)client, package, logger, logLanguage),
+                (package, client) => DispatchPacketAsync((ClientSession)client, package, logger, logLanguage),
                 client => _ = DispatchDisconnectAsync((ClientSession)client, logger, logLanguage),
                 logger,
                 c.Resolve<ILogLanguageLocalizer<LogLanguageKey>>()
