@@ -93,11 +93,11 @@ namespace NosCore.PacketHandlers.Tests.Login
         }
 
         [TestMethod]
-        public async Task LoginWithWrongCapsShouldFail()
+        public async Task LoginWithWrongCapsGetsTheSameAnswerAsAnUnknownAccount()
         {
-            await new Spec("Login with wrong caps should fail")
+            await new Spec("Login with wrong caps gets the same answer as an unknown account")
                 .WhenAsync(LoggingInWithUppercaseNameAsync)
-                .Then(ShouldReceiveWrongCapsError)
+                .Then(ShouldReceiveAccountWrongError)
                 .ExecuteAsync();
         }
 
@@ -258,12 +258,6 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
                 LoginFailType.AccountOrPasswordWrong);
-        }
-
-        private void ShouldReceiveWrongCapsError()
-        {
-            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
-                LoginFailType.WrongCaps);
         }
 
         private void ShouldReceiveNsTestPacket()

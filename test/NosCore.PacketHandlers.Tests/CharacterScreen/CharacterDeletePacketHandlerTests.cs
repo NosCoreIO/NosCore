@@ -47,6 +47,26 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task DeletingCharacterWithTheAccountNameShouldSucceed()
+        {
+            await new Spec("Deleting character with the account name should succeed")
+                .GivenAsync(CharacterIsNotInGame)
+                .WhenAsync(DeletingCharacterWithTheAccountName)
+                .ThenAsync(CharacterShouldBeDeleted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DeletingCharacterWithoutAPasswordShouldFail()
+        {
+            await new Spec("Deleting character without a password should fail")
+                .GivenAsync(CharacterIsNotInGame)
+                .WhenAsync(DeletingCharacterWithoutAPassword)
+                .ThenAsync(CharacterShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task DeletingCharacterWhenInGameShouldFail()
         {
             await new Spec("Deleting character when in game should fail")
@@ -77,6 +97,24 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             {
                 Slot = 1,
                 Password = "testpassword"
+            }, Session);
+        }
+
+        private async Task DeletingCharacterWithTheAccountName()
+        {
+            await CharacterDeletePacketHandler.ExecuteAsync(new CharacterDeletePacket
+            {
+                Slot = 1,
+                Password = Session.Account.Name
+            }, Session);
+        }
+
+        private async Task DeletingCharacterWithoutAPassword()
+        {
+            await CharacterDeletePacketHandler.ExecuteAsync(new CharacterDeletePacket
+            {
+                Slot = 1,
+                Password = null
             }, Session);
         }
 

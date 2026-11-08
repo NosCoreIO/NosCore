@@ -17,7 +17,7 @@ namespace NosCore.Core.Encryption
         public string Hash(string password, string? salt)
         {
             using var hash = SHA512.Create();
-            return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes(salt ?? "" + password))
+            return string.Concat(hash.ComputeHash(Encoding.Default.GetBytes((salt ?? "") + password))
                 .Select(item => item.ToString("x2", CultureInfo.CurrentCulture)));
         }
 

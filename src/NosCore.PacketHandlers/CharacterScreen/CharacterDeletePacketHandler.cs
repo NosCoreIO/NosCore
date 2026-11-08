@@ -38,7 +38,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if ((account.Password!.ToLower() == hasher.Hash(packet.Password!)) || (account.Name == packet.Password))
+            if (packet.Password != null
+                && (account.Password?.ToLower() == hasher.Hash(packet.Password) || account.Name == packet.Password))
             {
                 var character = await characterDao.FirstOrDefaultAsync(s =>
                     (s.AccountId == account.AccountId) && (s.Slot == packet.Slot) && (s.ServerId == configuration.Value.ServerId)
