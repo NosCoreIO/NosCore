@@ -162,6 +162,16 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
+        public async Task TheRankingNamesTheTabItWasAskedFor()
+        {
+            await new Spec("The ranking reply names the tab it fills, so the client puts the first family in it")
+                .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
+                .WhenAsync(AskingForTheRanking_, FamilyRankingType.Reputation)
+                .Then(TheRankingTabShouldBe_, FamilyRankingType.Reputation)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task AMonthlyTabIsEmpty()
         {
             await new Spec("Nothing records monthly experience, so that tab comes back empty rather than wrong")
@@ -248,6 +258,9 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private void NoHistoryShouldBeSent() => Assert.IsFalse(_session.LastPackets.OfType<GhisPacket>().Any());
+
+        private void TheRankingTabShouldBe_(FamilyRankingType type) =>
+            Assert.AreEqual(type, _session.LastPackets.OfType<FrankStcPacket>().Single().Type);
 
         private void TheRankingShouldBe_(string[] rows) => CollectionAssert.AreEqual(rows,
             _session.LastPackets.OfType<FrankStcPacket>().Single().Entries!

@@ -16,6 +16,6 @@ namespace NosCore.PacketHandlers.Family
         : PacketHandler<FrankCtsPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(FrankCtsPacket packet, ClientSession session) =>
-            session.SendPacketAsync(familyRankingService.GetRanking(packet.Type).GenerateFrank());
+            session.SendPacketAsync(familyRankingService.GetRanking(packet.Type).GenerateFrank(packet.Type));
     }
 }
