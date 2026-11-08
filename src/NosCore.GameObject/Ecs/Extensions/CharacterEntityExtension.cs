@@ -491,8 +491,30 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static async Task CloseShopAsync(this ICharacterEntity characterEntity)
         {
-            characterEntity.Shop = null;
+            if (characterEntity.Shop is { } shop)
+            {
+                using (await shop.Lock.AcquireAsync())
+                {
+                    CloseShop(characterEntity, shop);
+                }
+            }
 
+            await SendShopClosedAsync(characterEntity);
+        }
+
+        private static void CloseShop(ICharacterEntity characterEntity, Shop shop)
+        {
+            shop.IsClosed = true;
+            shop.DialogSubscription?.Dispose();
+            shop.DialogSubscription = null;
+            if (ReferenceEquals(characterEntity.Shop, shop))
+            {
+                characterEntity.Shop = null;
+            }
+        }
+
+        private static async Task SendShopClosedAsync(ICharacterEntity characterEntity)
+        {
             await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateShop(characterEntity.AccountLanguage));
             await characterEntity.MapInstance.SendPacketAsync(characterEntity.GeneratePFlag());
 
@@ -563,46 +585,19 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            short slotChar = item.Slot;
-            List<InventoryItemInstance>? inv;
-            if (shop.OwnerCharacter == null)
+            if (shop.OwnerCharacter != null)
             {
-                inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                    itemProvider.Create(item.ItemInstance!.ItemVNum, amount), characterEntity.CharacterId));
+                await BuyFromPlayerShopAsync(characterEntity, shop, slot, amount, (long)(price * percent), price,
+                    worldConfiguration);
+                return;
             }
-            else
-            {
-                if (price + shop.OwnerCharacter.Gold > worldConfiguration.Value.MaxGoldAmount)
-                {
-                    await characterEntity.SendPacketAsync(new SMemoiPacket
-                    {
-                        Type = SMemoType.FailPlayer,
-                        Message = Game18NConstString.TradeFailedMaxMoney
-                    });
-                    return;
-                }
 
-                if (amount == item.ItemInstance?.Amount)
-                {
-                    inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item.ItemInstance,
-                        characterEntity.CharacterId));
-                }
-                else
-                {
-                    inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                        itemProvider.Create(item.ItemInstance?.ItemVNum ?? 0, amount), characterEntity.CharacterId));
-                }
-            }
+            var inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                itemProvider.Create(item.ItemInstance!.ItemVNum, amount), characterEntity.CharacterId));
 
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = characterEntity.CharacterId);
-                var packet = await (shop.OwnerCharacter == null ? Task.FromResult((NInvPacket?)null) : BuyFromOwnerAsync(shop.OwnerCharacter, item, amount, slotChar));
-                if (packet != null)
-                {
-                    await characterEntity.SendPacketAsync(packet);
-                }
-
                 await characterEntity.SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
                 await characterEntity.SendPacketAsync(new SMemoiPacket
                 {
@@ -640,32 +635,130 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
         }
 
-        private static async Task<NInvPacket?> BuyFromOwnerAsync(ICharacterEntity characterEntity, ShopItem item, short amount, short slotChar)
+        private static async Task BuyFromPlayerShopAsync(ICharacterEntity buyer, Shop shop, short slot, short amount,
+            long cost, long sellAmount, Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration)
         {
-            var type = item.Type;
-            var itemInstance = amount == item.ItemInstance?.Amount
-                ? characterEntity.InventoryService.DeleteById(item.ItemInstance.Id)
-                : characterEntity.InventoryService.RemoveItemAmountFromInventory(amount, item.ItemInstance!.Id);
-            var slot = item.Slot;
-            item.Amount = (short)((item.Amount ?? 0) - amount);
-            if ((item?.Amount ?? 0) == 0)
+            var owner = shop.OwnerCharacter!;
+            if (owner.CharacterId == buyer.CharacterId)
             {
-                characterEntity.Shop!.ShopItems.TryRemove(slot, out _);
+                return;
             }
 
-            await characterEntity.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)type, slotChar));
-            var sellAmount = (item?.Price ?? 0) * amount;
-            characterEntity.Gold += sellAmount;
-            await characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
-            characterEntity.Shop!.Sell += sellAmount;
-
-            if (!characterEntity.Shop.ShopItems.IsEmpty)
+            IPacket? failure = null;
+            var sold = false;
+            var closed = false;
+            InventoryItemInstance? sellerSlot = null;
+            NoscorePocketType sellerType = default;
+            short sellerSlotIndex = 0;
+            List<InventoryItemInstance>? delivered = null;
+            using (await shop.Lock.AcquireAsync())
             {
-                return characterEntity.GenerateNInv(1, 0);
+                var item = shop.ShopItems.Values.FirstOrDefault(it => it.Slot == slot);
+                if (shop.IsClosed || item?.ItemInstance == null || amount > item.Amount)
+                {
+                    return;
+                }
+
+                if (cost > buyer.Gold)
+                {
+                    failure = new SMemoiPacket { Type = SMemoType.FailNpc, Message = Game18NConstString.NotEnoughGold5 };
+                }
+                else if (sellAmount + owner.Gold > worldConfiguration.Value.MaxGoldAmount)
+                {
+                    failure = new SMemoiPacket { Type = SMemoType.FailPlayer, Message = Game18NConstString.TradeFailedMaxMoney };
+                }
+                else if (!owner.InventoryService.TryGetValue(item.ItemInstance.Id, out var live)
+                    || live.ItemInstance == null || live.ItemInstance.ItemVNum != item.ItemInstance.ItemVNum
+                    || live.ItemInstance.Amount < amount)
+                {
+                    return;
+                }
+                else
+                {
+                    // The buyer gets a copy under a new id: an instance id belongs to exactly one inventory.
+                    var copy = (IItemInstance)live.ItemInstance.Clone();
+                    copy.Id = Guid.NewGuid();
+                    copy.Amount = amount;
+
+                    buyer.Gold -= cost;
+                    var wholeStack = live.ItemInstance.Amount == amount;
+                    if (wholeStack)
+                    {
+                        owner.InventoryService.Remove(live.ItemInstanceId);
+                    }
+                    else
+                    {
+                        live.ItemInstance.Amount -= amount;
+                    }
+
+                    delivered = buyer.InventoryService.AddItemToPocket(
+                        InventoryItemInstance.Create(copy, buyer.CharacterId));
+                    if (delivered is not { Count: > 0 })
+                    {
+                        if (wholeStack)
+                        {
+                            owner.InventoryService[live.ItemInstanceId] = live;
+                        }
+                        else
+                        {
+                            live.ItemInstance.Amount += amount;
+                        }
+
+                        buyer.Gold += cost;
+                        failure = new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace };
+                    }
+                    else
+                    {
+                        owner.Gold += sellAmount;
+                        shop.Sell += sellAmount;
+                        item.Amount = (short)((item.Amount ?? 0) - amount);
+                        if (item.Amount <= 0)
+                        {
+                            shop.ShopItems.TryRemove(item.Slot, out _);
+                        }
+
+                        sellerSlot = wholeStack ? null : live;
+                        sellerType = live.Type;
+                        sellerSlotIndex = live.Slot;
+                        sold = true;
+                        if (shop.ShopItems.IsEmpty)
+                        {
+                            CloseShop(owner, shop);
+                            closed = true;
+                        }
+                    }
+                }
             }
 
-            await characterEntity.CloseShopAsync();
-            return null;
+            if (failure != null)
+            {
+                await buyer.SendPacketAsync(failure);
+                return;
+            }
+
+            if (!sold)
+            {
+                return;
+            }
+
+            await owner.SendPacketAsync(sellerSlot.GeneratePocketChange((PocketType)sellerType, sellerSlotIndex));
+            await owner.SendPacketAsync(GenerateGoldPacket(owner));
+            if (closed)
+            {
+                await SendShopClosedAsync(owner);
+            }
+            else
+            {
+                await buyer.SendPacketAsync(owner.GenerateNInv(1, 0));
+            }
+
+            await buyer.SendPacketsAsync(delivered!.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
+            await buyer.SendPacketAsync(new SMemoiPacket
+            {
+                Type = SMemoType.SuccessNpc,
+                Message = Game18NConstString.TradeSuccessfull
+            });
+            await buyer.SendPacketAsync(GenerateGoldPacket(buyer));
         }
     }
 }

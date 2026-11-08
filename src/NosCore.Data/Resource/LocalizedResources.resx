@@ -502,6 +502,9 @@
   <data name="SAVE_CHARACTER_FAILED" xml:space="preserve">
     <value>Save Character failed. SessionId: {SessionId}</value>
   </data>
+  <data name="ITEM_INSTANCE_STILL_HELD" xml:space="preserve">
+    <value>Item instance {ItemInstanceId} is still held by another inventory row; it was kept while saving character {CharacterId}.</value>
+  </data>
   <data name="UNKNOWN" xml:space="preserve">
     <value>Unknown</value>
   </data>

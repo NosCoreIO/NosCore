@@ -160,6 +160,7 @@ namespace NosCore.Data.Enumerations.I18N
         MFA_INCORRECT,
         DATABASE_ERROR,
         SAVE_CHARACTER_FAILED,
+        ITEM_INSTANCE_STILL_HELD,
         UNBOUND_ITEM_DETECTED,
         MAP_DONT_EXIST,
         CANT_CHANGE_SAME_CLASS,

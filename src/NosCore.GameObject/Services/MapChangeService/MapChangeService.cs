@@ -132,6 +132,11 @@ namespace NosCore.GameObject.Services.MapChangeService
             character.IsChangingMapInstance = true;
             try
             {
+                if (character.Shop != null)
+                {
+                    await character.CloseShopAsync();
+                }
+
                 var currentMapInstance = character.MapInstance;
                 var newMapInstance = mapInstanceAccessorService.GetMapInstance(mapInstanceId);
                 if (newMapInstance == null || newMapInstance.Executor.IsClosed)

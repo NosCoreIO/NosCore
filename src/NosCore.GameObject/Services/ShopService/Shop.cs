@@ -6,7 +6,9 @@
 
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.Core.Concurrency;
 using NosCore.GameObject.Ecs.Interfaces;
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 
@@ -20,6 +22,14 @@ namespace NosCore.GameObject.Services.ShopService
 
         public ICharacterEntity? OwnerCharacter { get; set; }
         public long Sell { get; internal set; }
+
+        // Buyers and the owner closing the shop serialise on this, so a sale is checked and
+        // transferred as one step.
+        public AsyncLock Lock { get; } = new();
+
+        public bool IsClosed { get; internal set; }
+
+        public IDisposable? DialogSubscription { get; set; }
 
         public int Size
         {
