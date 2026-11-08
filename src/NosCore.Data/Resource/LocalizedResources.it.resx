@@ -592,4 +592,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Chiamata di famiglia&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>{0} FamilyUpgrades analizzati!</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>{0} FamilyUpgrades caricati!</value>
+  </data>
 </root>

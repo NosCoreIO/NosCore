@@ -1087,8 +1087,8 @@ The head of a family next to the family NPC.
 
 ### Family warehouse
 
-A family with a warehouse: set `Family.WarehouseSize` to 21 (or 49) until the family shop
-sells it. Members stand next to Salim (vnum 1431, dialog 462).
+A family with a warehouse: buy one as in "Family extensions", or set `Family.WarehouseSize`
+to 21 (or 49). Members stand next to Salim (vnum 1431, dialog 462).
 
 - [ ] With `WarehouseSize` 0, "Open Family Warehouse" shows "You are not qualified to use the
       warehouse."
@@ -1105,6 +1105,31 @@ sells it. Members stand next to Salim (vnum 1431, dialog 462).
 - [ ] With a full bag, dragging a stack out leaves it in the warehouse
 - [ ] Two members dragging the same stack out at once: only one of them receives it
 - [ ] Disbanding the family empties its warehouse
+
+### Family extensions
+
+The parser fills `FamilyUpgrade` only when `packet.txt` holds the family manager's list, e.g.
+`n_inv 2 2089 0 9679|2|0 ... 9697|2|18`. Seed a family as in "Family membership" with
+`FamilyLevel` set per check, and stand next to Salim (vnum 1431, dialog 462) as its head.
+
+- [ ] "Purchase Family Extensions" opens the family manager's window with four rows:
+      Family Warehouse (Level 1/2) and Increase Max. Family Members (Level 1/2)
+- [ ] At family level 1 every row sits under "Cannot be purchased"; at level 2 the
+      warehouse moves to "Can be purchased"
+- [ ] Hovering a row shows its family level and cost: 2 / 500 000, 7 / 2 000 000,
+      5 / 5 000 000, 9 / 10 000 000
+- [ ] At level 2, clicking the warehouse takes 500 000 gold, shows "Purchased: Family
+      Warehouse (Level 1)", and the row moves to "Already purchased"; "Open Family
+      Warehouse" then opens at `0/21`
+- [ ] At level 7 with that warehouse, the second warehouse row expands it to `0/49`
+- [ ] At level 5, the first member row raises the family window's member count to `/70`;
+      at level 9 the second raises it to `/100`
+- [ ] With less gold than the price: "Insufficient Gold available.", gold unchanged
+- [ ] As a deputy: "Only the family head can purchase it.", gold unchanged
+- [ ] Clicking a row already bought: "This has already been purchased."
+- [ ] A member logged in on another channel sees the new member limit in their family
+      window without relogging
+- [ ] Double-clicking a row quickly takes the gold once and buys it once
 
 ### Family membership
 

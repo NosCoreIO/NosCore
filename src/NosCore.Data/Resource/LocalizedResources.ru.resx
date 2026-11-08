@@ -571,4 +571,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Объявление семьи&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>Импортировано {0} улучшений семьи!</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>Загружено {0} улучшений семьи!</value>
+  </data>
 </root>

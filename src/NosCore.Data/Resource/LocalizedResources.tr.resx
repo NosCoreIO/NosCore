@@ -564,4 +564,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Aile çağrısı&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>{0} aile geliştirmesi işlendi!</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>{0} aile geliştirmesi yüklendi!</value>
+  </data>
 </root>

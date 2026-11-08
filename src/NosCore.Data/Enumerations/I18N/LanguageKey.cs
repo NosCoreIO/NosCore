@@ -116,6 +116,8 @@ namespace NosCore.Data.Enumerations.I18N
         RECIPES_LOADED,
         RECIPEITEMS_LOADED,
         SHOPITEMS_LOADED,
+        FAMILY_UPGRADES_PARSED,
+        FAMILY_UPGRADES_LOADED,
         SHOPS_LOADED,
         CONNECTION_LOST,
         CANT_MOVE_ITEM_IN_SHOP,

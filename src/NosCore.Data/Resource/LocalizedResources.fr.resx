@@ -546,4 +546,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Cri de famille&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>{0} FamilyUpgrades parsés.</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>{0} FamilyUpgrades chargés.</value>
+  </data>
 </root>
