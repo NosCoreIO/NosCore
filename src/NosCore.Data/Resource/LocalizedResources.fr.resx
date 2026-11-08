@@ -450,9 +450,6 @@
   <data name="VISUALENTITY_DOES_NOT_EXIST" xml:space="preserve">
     <value>la visualentity n'existe pas.</value>
   </data>
-  <data name="BANK_FULL" xml:space="preserve">
-    <value>Ton compte en banque est déjà remplit.</value>
-  </data>
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Vous ne pouvez pas échanger des objets liés a votre compte.</value>
   </data>

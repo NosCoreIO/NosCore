@@ -6,7 +6,6 @@
 
 using Arch.Core;
 using NosCore.Core.Concurrency;
-using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs;
@@ -39,8 +38,7 @@ namespace NosCore.GameObject.Networking.ClientSession
         IPacketHandlingStrategy packetHandlingStrategy,
         IEnumerable<ISessionDisconnectHandler> disconnectHandlers,
         ISessionRegistry sessionRegistry,
-        IAuthHub authHub,
-        IGameLanguageLocalizer? gameLanguageLocalizer = null)
+        IAuthHub authHub)
         : NetworkClient(logger, networkingLogLanguage, encoder), IPacketSender
     {
         private readonly AsyncLock _handlingPacketLock = new();
@@ -209,16 +207,6 @@ namespace NosCore.GameObject.Networking.ClientSession
                 await pubSubHub.UnsubscribeAsync(SessionId);
                 _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED]);
             }
-        }
-
-        public string GetMessageFromKey(LanguageKey languageKey)
-        {
-            if (gameLanguageLocalizer == null)
-            {
-                throw new InvalidOperationException("GameLanguageLocalizer not available in this session type");
-            }
-
-            return gameLanguageLocalizer[languageKey, Account.Language];
         }
 
         public Task HandlePacketsAsync(IEnumerable<IPacket> packetConcatenated, bool isFromNetwork = false)

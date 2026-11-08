@@ -462,9 +462,6 @@
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>{0} Paketi karakter olmadan kullanılmaya çalışılıyor!</value>
   </data>
-  <data name="BANK_FULL" xml:space="preserve">
-    <value>Banka hesabın dolu!</value>
-  </data>
   <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
     <value>Marketteki eşyaları hareket ettiremezsin.</value>
   </data>

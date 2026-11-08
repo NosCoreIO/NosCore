@@ -846,6 +846,11 @@ Quick pass after any combat or stat change:
 
 Recorded so nobody spends time hunting for them:
 
+- **Bank gold in a trade** — the trade window's bank field accepts no input, so the client never
+  offers bank gold and the bank-cap check of a trade ("You cannot deposit any more.") cannot be
+  reached. Once the field opens, offer bank gold that would push the other player's custody past
+  the cap, from both sides of the trade: that player sees the message in their own language and no
+  gold moves.
 - **Casting range of skills with a range of 0** — the skill data does not say how far they
   reach, so they are not gated and there is nothing to observe.
 - **BCard subtype names and additions** — data-only. Observable only once a skill or card

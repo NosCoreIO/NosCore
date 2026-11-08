@@ -186,7 +186,6 @@ namespace NosCore.Data.Enumerations.I18N
         USER_NOT_CONNECTED,
         ALREADY_BLACKLISTED,
         USER_IS_NOT_A_FRIEND,
-        BANK_FULL,
         UPDATE_GOLD,
         LIMIT_EXCEEDED,
         OBJECT_IN_BAZAAR,

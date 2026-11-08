@@ -351,8 +351,7 @@ namespace NosCore.Tests.Shared
                 new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance, Instance.LogLanguageLocalizer, sessionRefHolder),
                 new List<ISessionDisconnectHandler>(),
                 Instance.SessionRegistry,
-                new Mock<NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub.IAuthHub>().Object,
-                Instance.GameLanguageLocalizer)
+                new Mock<NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub.IAuthHub>().Object)
             {
                 SessionId = LastId
             };

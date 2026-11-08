@@ -147,9 +147,6 @@
   <data name="BAD_DROP_AMOUNT" xml:space="preserve">
     <value>Quantità di drop errata.</value>
   </data>
-  <data name="BANK_FULL" xml:space="preserve">
-    <value>Il tuo conto corrente è pieno.</value>
-  </data>
   <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
     <value>Errore durante l'acquisto nel NosBazaar.</value>
   </data>

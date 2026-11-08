@@ -150,10 +150,6 @@
     <value>Неверное количество дропа.</value>
     <comment>Перефразировать обязательно</comment>
   </data>
-  <data name="BANK_FULL" xml:space="preserve">
-    <value>Ваш банковский счет переполнен</value>
-    <comment>Не заполнен, а ...</comment>
-  </data>
   <data name="BAZAAR_BUY_ERROR" xml:space="preserve">
     <value>Ошибка покупки в НосБазаре.</value>
   </data>

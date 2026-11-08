@@ -133,15 +133,6 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Your bank account is full..
-        /// </summary>
-        public static string BANK_FULL {
-            get {
-                return ResourceManager.GetString("BANK_FULL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to You can not trade not tradable items!.
         /// </summary>
         public static string CANNOT_TRADE_NOT_TRADABLE_ITEM {
