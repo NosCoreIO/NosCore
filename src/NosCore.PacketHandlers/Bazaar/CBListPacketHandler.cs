@@ -9,6 +9,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.ServerPackets.Auction;
 using NosCore.Packets.ServerPackets.Inventory;
@@ -19,13 +20,19 @@ using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CBListPacketHandler(IBazaarHub bazaarHttpClient, List<ItemDto> items, IClock clock)
+    public class CBListPacketHandler(IBazaarHub bazaarHttpClient, List<ItemDto> items, IClock clock,
+            INpcDialogService npcDialogService)
         : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
         private const int PageSize = 50;
 
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bazaar))
+            {
+                return;
+            }
+
             var vnumFilter = packet.ItemVNumFilter?.Where(s => s != 0).ToHashSet() ?? new HashSet<short>();
 
             var bzlist = await bazaarHttpClient.GetBazaar(-1, null, null, packet.TypeFilter, packet.SubTypeFilter,

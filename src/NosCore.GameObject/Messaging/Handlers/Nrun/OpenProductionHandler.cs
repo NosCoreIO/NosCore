@@ -20,6 +20,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.OpenProduction;
 
+        public bool RequiresNpc => true;
+
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             if (target is not NpcComponentBundle npc)

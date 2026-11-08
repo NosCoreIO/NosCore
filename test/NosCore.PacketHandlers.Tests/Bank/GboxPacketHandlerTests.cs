@@ -19,8 +19,11 @@ using NosCore.Packets.ServerPackets.Bank;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.BDD;
 using SpecLight;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Bank
 {
@@ -34,13 +37,61 @@ namespace NosCore.PacketHandlers.Tests.Bank
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
+            Session.WithNpcAt(100, 1, 1);
+            Session.WithWindowOpenedAt(100, NpcDialogWindow.Bank);
             Session.Character.Reputation = 0;
             _handler = new GboxPacketHandler(new BankService(), Options.Create(new WorldConfiguration
             {
                 MaxGoldAmount = 1_000_000_000,
                 MaxBankGoldAmount = 100_000_000_000
-            }));
+            }), TestHelpers.Instance.NpcDialogService);
         }
+
+        [TestMethod]
+        public async Task DepositWithoutTheBankOpenIsIgnored()
+        {
+            await new Spec("A deposit with no bank window open moves no gold")
+                .Given(CharacterHasGold, 5_000_000L)
+                .And(NoBankWindowIsOpen)
+                .WhenAsync(GboxIsSent_, BankActionType.DepositGold, 1_500L, true)
+                .Then(GoldShouldBe, 5_000_000L)
+                .And(BankGoldShouldBe_, 0L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WithdrawAfterWalkingAwayFromTheBankerIsIgnored()
+        {
+            await new Spec("A withdrawal after walking away from the banker moves no gold")
+                .Given(CharacterHasGold, 1_000_000L)
+                .And(BankHolds_, 2_000_000L)
+                .And(CharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(GboxIsSent_, BankActionType.WithdrawGold, 1_000L, true)
+                .Then(GoldShouldBe, 1_000_000L)
+                .And(BankGoldShouldBe_, 2_000_000L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheSavingsBookBankWorksAwayFromTheBanker()
+        {
+            await new Spec("A bank opened with the savings book takes a deposit wherever the character stands")
+                .Given(CharacterHasGold, 5_000_000L)
+                .And(TheBankWasOpenedWithTheSavingsBook)
+                .And(CharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(GboxIsSent_, BankActionType.DepositGold, 1_500L, true)
+                .Then(GoldShouldBe, 3_500_000L)
+                .And(BankGoldShouldBe_, 1_500_000L)
+                .ExecuteAsync();
+        }
+
+        private void NoBankWindowIsOpen() => Session.Character.NpcDialog = null;
+
+        private void BankHolds_(long gold) => Session.Character.BankGold = gold;
+
+        private void CharacterWalksTo_(short x, short y) => Session.WalkTo(x, y);
+
+        private void TheBankWasOpenedWithTheSavingsBook() => Session.WithWindowOpenedRemotely(NpcDialogWindow.Bank);
 
         [TestMethod]
         public async Task DepositAsksForConfirmationFirst()

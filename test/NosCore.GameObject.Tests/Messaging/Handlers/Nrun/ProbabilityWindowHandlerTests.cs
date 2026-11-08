@@ -16,6 +16,7 @@ using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 {
@@ -32,7 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             var spUpgrade = new Mock<IUpgradeOperation>();
             spUpgrade.SetupGet(o => o.Kind).Returns(UpgradePacketType.UpgradeSpNoProtection);
-            _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object });
+            _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object }, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -59,7 +60,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());
         }
 
-        private Task RunAsync(short type) => _handler.HandleAsync(_session, new Mock<IAliveEntity>().Object,
+        [TestMethod]
+        public async Task APlayerTakenForTheNpcOpensNothing()
+        {
+            await _handler.HandleAsync(_session, _session.Character,
+                new NrunPacket { Runner = NrunRunnerType.ProbabilityUIs, Type = 9 });
+
+            Assert.IsFalse(_session.LastPackets.OfType<WopenPacket>().Any());
+        }
+
+        private Task RunAsync(short type) => _handler.HandleAsync(_session, _session.WithNpcAt(1, 1, 1),
             new NrunPacket { Runner = NrunRunnerType.ProbabilityUIs, Type = type });
     }
 }

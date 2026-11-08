@@ -22,6 +22,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 {
@@ -68,6 +69,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
+        public async Task APlayerTakenForTheBankerGivesNothing()
+        {
+            await new Spec("A player given as the banker hands out no savings book")
+                .WhenAsync(NrunIsHandledWithAPlayerAsTheNpc)
+                .Then(SavingsBookCountShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task NullTargetIsIgnored()
         {
             await new Spec("A null target gives nothing")
@@ -86,7 +96,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         };
 
         private Task NrunIsHandledWithAnNpc() =>
-            _handler.HandleAsync(_session, new Mock<IAliveEntity>().Object, Packet);
+            _handler.HandleAsync(_session, _session.WithNpcAt(1, 1, 1), Packet);
+
+        private Task NrunIsHandledWithAPlayerAsTheNpc() => _handler.HandleAsync(_session, _session.Character, Packet);
 
         private Task NrunIsHandledWithoutTarget() => _handler.HandleAsync(_session, null, Packet);
 

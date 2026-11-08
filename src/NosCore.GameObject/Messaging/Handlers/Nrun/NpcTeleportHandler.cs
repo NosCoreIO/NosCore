@@ -26,6 +26,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public abstract NrunRunnerType Runner { get; }
 
+        public bool RequiresNpc => true;
+
         protected abstract long Cost(short index);
 
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)

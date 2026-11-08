@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -19,16 +20,20 @@ using NosCore.Packets.ServerPackets.UI;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class BazaarHandler(IClock clock) : INrunEventHandler
+    public sealed class BazaarHandler(IClock clock, INpcDialogService npcDialogService) : INrunEventHandler
     {
         public NrunRunnerType Runner => NrunRunnerType.OpenNosBazaar;
 
+        public bool RequiresNpc => true;
+
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
-            if (target is not NpcComponentBundle)
+            if (target is not NpcComponentBundle npc)
             {
                 return Task.CompletedTask;
             }
+
+            npcDialogService.Open(session.Character, npc, NpcDialogWindow.Bazaar);
 
             var medalBonus = session.Character.StaticBonusList.FirstOrDefault(s =>
                 s.StaticBonusType == StaticBonusType.BazaarMedalGold ||

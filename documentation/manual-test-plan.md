@@ -598,6 +598,30 @@ Have a pet and a partner out, and a second client on the same map watching.
 - [ ] Use a wing while a monster is hitting you: the client drops the bar on the hit, sends no
       follow-up, and you stay with the wing
 
+### NPC services need the NPC
+
+NPC menus, shops, the bank, the NosBazaar and the upgrade windows only answer while the character
+stands within 5 cells of the NPC whose dialog was opened, on the same map. Windows opened by an item
+(savings book, NosBazaar medal) work anywhere on the map they were opened on.
+
+- [ ] Click a shop NPC, buy an item and sell one back: both go through
+- [ ] Open a shop NPC, walk more than 5 cells away without closing the window and buy: nothing is
+      bought and no gold moves; selling from the same window does nothing either
+- [ ] Click a teleporter NPC from right next to it and pick a destination: the teleport and the fare
+      behave as under "NPC teleporters"
+- [ ] Open the Cuarry Bank window at the Representative, walk away and deposit: no gold moves; open it
+      with the savings book anywhere and deposit: the deposit goes through
+- [ ] Open the NosBazaar at its NPC, walk away and search, list or buy: nothing happens; with a medal,
+      the NosBazaar skill opens a working NosBazaar away from any NPC
+- [ ] Open an upgrade window (equipment upgrade, specialist upgrade, cellon) at its NPC and upgrade:
+      it works; walk away first: nothing is consumed
+- [ ] Open a private shop on one character, stand next to it with another and buy: it works; walk
+      more than 5 cells away and buy again: nothing is bought
+- [ ] Respawn point: the NPC's question still appears and confirming saves the point (see
+      "Respawn point")
+- [ ] Change map with a shop or bank window still open and use it: nothing happens until an NPC is
+      clicked again
+
 ### Parcels and private shops
 
 - [ ] `$Gift 1012 5 0 0 <your name>`: chat shows "Gift has been delivered." and, once,
@@ -1003,6 +1027,10 @@ Recorded so nobody spends time hunting for them:
   gold moves.
 - **Casting range of skills with a range of 0** — the skill data does not say how far they
   reach, so they are not gated and there is nothing to observe.
+- **NPC services sent without the NPC** — an unmodified client only sends a dialog choice, a
+  purchase or a bank, NosBazaar or upgrade request from a window it was shown, so the refusals for a
+  dialog that was never opened, a player named as the NPC or a request from another map cannot be
+  produced from the client; walking away with the window open is the observable case above.
 - **BCard subtype names and additions** — data-only. Observable only once a skill or card
   using a given subtype is wired to behaviour.
 - **The `st` percentage guard** — guards a zero maximum, which is not a state the game

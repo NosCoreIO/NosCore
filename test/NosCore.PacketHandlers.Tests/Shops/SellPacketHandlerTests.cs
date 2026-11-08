@@ -27,13 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
     [TestClass]
     public class SellPacketHandlerTests
     {
-        private MapInstanceAccessorService InstanceProvider = null!;
         private SellPacketHandler SellPacketHandler = null!;
         private ClientSession Session = null!;
 
@@ -41,9 +42,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            InstanceProvider = TestHelpers.Instance.MapInstanceAccessorService;
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            SellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration);
+            Session.WithNpcAt(100, 1, 1);
+            Session.WithWindowOpenedAt(100, NpcDialogWindow.Shop);
+            SellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -104,6 +106,48 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SellingWithoutAnOpenNpcShopIsIgnored()
+        {
+            await new Spec("Selling without an NPC shop window open does nothing")
+                .Given(CharacterHasSoldableItems)
+                .And(NoShopWindowIsOpen)
+                .WhenAsync(SellingItem)
+                .Then(GoldShouldNotIncrease)
+                .And(ItemShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SellingAfterWalkingAwayFromTheShopIsIgnored()
+        {
+            await new Spec("Selling after walking away from the NPC whose shop is open does nothing")
+                .Given(CharacterHasSoldableItems)
+                .And(CharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(SellingItem)
+                .Then(GoldShouldNotIncrease)
+                .And(ItemShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SellingWhileTalkingToANonShopWindowIsIgnored()
+        {
+            await new Spec("Selling while the NPC's dialog, not its shop, is open does nothing")
+                .Given(CharacterHasSoldableItems)
+                .And(OnlyTheNpcsDialogIsOpen)
+                .WhenAsync(SellingItem)
+                .Then(GoldShouldNotIncrease)
+                .And(ItemShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        private void NoShopWindowIsOpen() => Session.Character.NpcDialog = null;
+
+        private void OnlyTheNpcsDialogIsOpen() => Session.WithWindowOpenedAt(100, NpcDialogWindow.Conversation);
+
+        private void CharacterWalksTo_(short x, short y) => Session.WalkTo(x, y);
+
         private void CharacterHasExtremePricedItem()
         {
             var items = new List<ItemDto>
@@ -114,7 +158,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 5), 0),
                 NoscorePocketType.Etc, 0);
-            Session.Character.MapInstance = InstanceProvider.GetBaseMapById(1)!;
         }
 
         private async Task SellingTwoOfSlotZero()
@@ -156,7 +199,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = InstanceProvider.GetBaseMapById(1)!;
         }
 
         private void CharacterHasNonSoldableItems()
@@ -174,7 +216,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = InstanceProvider.GetBaseMapById(1)!;
         }
 
         private void CharacterHasSoldableItems()
@@ -192,7 +233,6 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = InstanceProvider.GetBaseMapById(1)!;
         }
 
         private async Task SellingItem()

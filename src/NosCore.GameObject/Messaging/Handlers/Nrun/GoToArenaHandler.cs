@@ -29,6 +29,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.GoToArena;
 
+        public bool RequiresNpc => true;
+
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             if (target is not NpcComponentBundle

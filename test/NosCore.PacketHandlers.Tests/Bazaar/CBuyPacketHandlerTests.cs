@@ -29,6 +29,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Bazaar
 {
@@ -47,11 +49,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session.WithNpcAt(100, 1, 1);
+            Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             ItemProvider = new Mock<IItemGenerationService>();
             CbuyPacketHandler = new CBuyPacketHandler(BazaarHttpClient.Object, ItemProvider.Object, Logger,
-                ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
 
             BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink> { new BazaarLink
@@ -175,6 +179,41 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .Then(ShouldReceiveBoughtItemMessage)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task BuyingWithoutTheBazaarOpenIsIgnored()
+        {
+            await new Spec("Buying a listing without the bazaar window open does nothing")
+                .Given(CharacterHasGold_, 5000L)
+                .And(ItemProviderIsConfigured)
+                .And(NoBazaarWindowIsOpen)
+                .WhenAsync(BuyingItemFromBazaar)
+                .Then(GoldShouldStayAt_, 5000L)
+                .And(NoListingShouldBeClaimed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingAfterWalkingAwayFromTheBazaarNpcIsIgnored()
+        {
+            await new Spec("Buying a listing after walking away from the bazaar NPC does nothing")
+                .Given(CharacterHasGold_, 5000L)
+                .And(ItemProviderIsConfigured)
+                .And(CharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(BuyingItemFromBazaar)
+                .Then(GoldShouldStayAt_, 5000L)
+                .And(NoListingShouldBeClaimed)
+                .ExecuteAsync();
+        }
+
+        private void NoBazaarWindowIsOpen() => Session.Character.NpcDialog = null;
+
+        private void CharacterWalksTo_(short x, short y) => Session.WalkTo(x, y);
+
+        private void GoldShouldStayAt_(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
+
+        private void NoListingShouldBeClaimed() =>
+            BazaarHttpClient.Verify(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>()), Times.Never);
 
         private void CharacterIsInShop()
         {

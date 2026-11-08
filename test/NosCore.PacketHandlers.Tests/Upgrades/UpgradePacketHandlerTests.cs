@@ -18,6 +18,8 @@ using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Upgrades
 {
@@ -35,6 +37,8 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _session.WithNpcAt(100, 1, 1);
+            _session.WithWindowOpenedAt(100, NpcDialogWindow.Upgrade);
             _matchingOperation = new Mock<IUpgradeOperation>();
             _matchingOperation.Setup(o => o.Kind).Returns(UpgradePacketType.SumResistance);
             _matchingOperation.Setup(o => o.ExecuteAsync(It.IsAny<ClientSession>(), It.IsAny<UpgradePacket>()))
@@ -45,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
             _handler = new UpgradePacketHandler(
                 new[] { _otherOperation.Object, _matchingOperation.Object },
                 _logger.Object,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -67,6 +71,44 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                 .And(WarningShouldHaveBeenLogged)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task UpgradeWithoutAnUpgradeWindowIsIgnored()
+        {
+            await new Spec("An upgrade with no upgrade window opened at an NPC runs nothing")
+                .Given(NoWindowIsOpen)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UpgradeAfterWalkingAwayFromTheNpcIsIgnored()
+        {
+            await new Spec("An upgrade after walking away from the NPC that opened the window runs nothing")
+                .Given(CharacterWalksTo_, (short)30, (short)30)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UpgradeFromAnotherNpcWindowIsIgnored()
+        {
+            await new Spec("An upgrade while another kind of NPC window is open runs nothing")
+                .Given(TheBankIsOpenAtTheNpcInstead)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
+        // --- Givens ---
+
+        private void NoWindowIsOpen() => _session.Character.NpcDialog = null;
+
+        private void CharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
+
+        private void TheBankIsOpenAtTheNpcInstead() => _session.WithWindowOpenedAt(100, NpcDialogWindow.Bank);
 
         // --- Whens ---
 

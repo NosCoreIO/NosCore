@@ -15,6 +15,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Bazaar;
@@ -32,11 +33,17 @@ namespace NosCore.PacketHandlers.Bazaar
     public class CScalcPacketHandler(IOptions<WorldConfiguration> worldConfiguration,
             IBazaarHub bazaarHttpClient,
             IItemGenerationService itemProvider, ILogger<CScalcPacketHandler> logger, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            INpcDialogService npcDialogService)
         : PacketHandler<CScalcPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(CScalcPacket packet, ClientSession clientSession)
         {
+            if (!npcDialogService.IsOpen(clientSession.Character, NpcDialogWindow.Bazaar))
+            {
+                return;
+            }
+
             var bzs = await bazaarHttpClient.GetBazaar(packet.BazaarId, null, null, null, null, null, null, null, null);
             var bz = bzs.FirstOrDefault();
             if ((bz != null) && (bz.SellerName == clientSession.Character.Name))

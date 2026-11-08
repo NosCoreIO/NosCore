@@ -26,6 +26,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.PacketHandlers.Tests.Shops
 {
@@ -46,13 +47,13 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NullLogger<ShoppingPacketHandler>.Instance,
                 new Mock<IDignityService>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 NullLogger<RequestNpcPacketHandler>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
-                MessageBus.Object);
+                MessageBus.Object, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -115,6 +116,40 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Single();
             Assert.AreEqual(_session.Character.VisualId, published.Character.VisualId);
             Assert.AreEqual(1, published.Npc.NpcMonster.NpcMonsterVNum);
+        }
+
+        [TestMethod]
+        public async Task RequestNpcFromTooFarIsIgnored()
+        {
+            await new Spec("req_npc on a shop NPC the character is not standing next to opens nothing")
+                .Given(ShopOnlyNpcExistsOnMap)
+                .And(CharacterWalksTo_, (short)20, (short)20)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(NoNInvPacketShouldBeSent)
+                .And(NoDialogShouldBeRecorded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RequestNpcNearbyRecordsTheDialog()
+        {
+            await new Spec("req_npc on an NPC next to the character records the dialog with it")
+                .Given(NpcWithDialogExistsOnMap)
+                .WhenAsync(ExecutingRequestNpcPacketWithNpcType)
+                .Then(TheDialogWithNpc_ShouldBeRecorded, 100L)
+                .ExecuteAsync();
+        }
+
+        private void CharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
+
+        private void NoNInvPacketShouldBeSent() => Assert.IsFalse(_session.LastPackets.Any(p => p is NInvPacket));
+
+        private void NoDialogShouldBeRecorded() => Assert.IsNull(_session.Character.NpcDialog);
+
+        private void TheDialogWithNpc_ShouldBeRecorded(long npcId)
+        {
+            Assert.AreEqual(VisualType.Npc, _session.Character.NpcDialog?.OwnerType);
+            Assert.AreEqual(npcId, _session.Character.NpcDialog?.OwnerId);
         }
 
         private void NpcWithDialogExistsOnMap()

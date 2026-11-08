@@ -195,6 +195,9 @@ namespace NosCore.Tests.Shared
         public MapInstanceAccessorService MapInstanceAccessorService { get; set; } = null!;
         public MapChangeService MapChangeService { get; set; } = null!;
         public IHeuristic DistanceCalculator { get; set; } = new OctileDistanceHeuristic();
+
+        public NosCore.GameObject.Services.NpcDialogService.NpcDialogService NpcDialogService =>
+            new(DistanceCalculator, Clock, SessionRegistry);
         public Mock<IChannelHub> ChannelHub = new Mock<IChannelHub>();
 
         private async Task GenerateMapInstanceProviderAsync()
@@ -341,10 +344,10 @@ namespace NosCore.Tests.Shared
                         new Mock<IDao<FamilyCharacterDto, long>>().Object,
                         new Mock<IDao<FamilyLogDto, long>>().Object,
                         CharacterDao)),
-                new CSkillPacketHandler(Instance.Clock),
-                new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer),
-                new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao),
-                new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CScalcPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer)
+                new CSkillPacketHandler(Instance.Clock, Instance.NpcDialogService),
+                new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer, Instance.NpcDialogService),
+                new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao, Instance.NpcDialogService),
+                new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CScalcPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer, Instance.NpcDialogService)
             };
             var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(handlers);
             var session = new ClientSession(

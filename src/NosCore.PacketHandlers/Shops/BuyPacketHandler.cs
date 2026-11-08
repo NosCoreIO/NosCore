@@ -14,6 +14,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Core.I18N;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -24,7 +25,7 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class BuyPacketHandler(ILogger<BuyPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider)
+            IItemGenerationService itemProvider, INpcDialogService npcDialogService)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -47,6 +48,11 @@ namespace NosCore.PacketHandlers.Shops
 
             if (aliveEntity != null)
             {
+                if (!npcDialogService.IsOpenWith(clientSession.Character, aliveEntity, NpcDialogWindow.Shop))
+                {
+                    return Task.CompletedTask;
+                }
+
                 return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration, itemProvider);
             }
 

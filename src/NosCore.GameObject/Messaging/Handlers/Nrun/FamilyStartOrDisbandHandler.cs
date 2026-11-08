@@ -19,6 +19,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
     {
         public NrunRunnerType Runner => NrunRunnerType.FamilyStartOrDisband;
 
+        public bool RequiresNpc => false;
+
         public Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet) =>
             packet.Type == 0
                 ? familyManagementService.OfferCreationAsync(session)

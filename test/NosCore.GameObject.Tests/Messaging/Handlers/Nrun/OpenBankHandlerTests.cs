@@ -19,6 +19,8 @@ using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared.BDD.Steps;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 {
@@ -34,7 +36,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.Reputation = 0;
-            _handler = new OpenBankHandler(new BankService());
+            _handler = new OpenBankHandler(new BankService(), TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
@@ -52,6 +54,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .Given(CharacterHasGold_AndBankGold_, 5_000_000L, 1_500_000L)
                 .WhenAsync(NrunIsHandledWithAnNpc)
                 .Then(BankWindowShouldOpenWith_Units_Rank_AndFee, 1_500L, BankRankType.Bronze3, 528_000)
+                .And(TheBankWindowShouldBeRecorded)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task APlayerTakenForTheBankerOpensNothing()
+        {
+            await new Spec("A player given as the banker opens no bank window")
+                .WhenAsync(NrunIsHandledWithAPlayerAsTheNpc)
+                .Then(NoBankWindowShouldOpen)
                 .ExecuteAsync();
         }
 
@@ -93,7 +105,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         };
 
         private Task NrunIsHandledWithAnNpc() =>
-            _handler.HandleAsync(_session, new Mock<IAliveEntity>().Object, Packet);
+            _handler.HandleAsync(_session, _session.WithNpcAt(1, 1, 1), Packet);
+
+        private Task NrunIsHandledWithAPlayerAsTheNpc() => _handler.HandleAsync(_session, _session.Character, Packet);
+
+        private void TheBankWindowShouldBeRecorded() =>
+            Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(_session.Character, NpcDialogWindow.Bank));
 
         private Task NrunIsHandledWithoutTarget() => _handler.HandleAsync(_session, null, Packet);
 
