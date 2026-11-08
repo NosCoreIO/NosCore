@@ -27,6 +27,7 @@ using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Shared.Enumerations;
 using System.Linq;
 using SpecLight;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -41,6 +42,10 @@ namespace NosCore.PacketHandlers.Tests.Game
         private ClientSession Session = null!;
         private Mock<IMapChangeService> MapChangeService = null!;
         private Mock<ISkillService> SkillService = null!;
+        private Mock<IQuestService> QuestService = null!;
+        private readonly Mock<ILogger<GameStartPacketHandler>> Logger = new();
+        private TaskCompletionSource ScriptRun = null!;
+        private Task GameStart = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -53,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             var pubSubHub = new Mock<IPubSubHub>();
             var blacklistHub = new Mock<IBlacklistHub>();
             var mailHub = new Mock<IMailHub>();
-            var questService = new Mock<IQuestService>();
+            QuestService = new Mock<IQuestService>();
             MapChangeService = new Mock<IMapChangeService>();
             SkillService = new Mock<ISkillService>();
             var serializer = new Mock<ISerializer>();
@@ -73,10 +78,38 @@ namespace NosCore.PacketHandlers.Tests.Game
                 blacklistHub.Object,
                 serializer.Object,
                 mailHub.Object,
-                questService.Object,
+                QuestService.Object,
                 MapChangeService.Object,
                 SkillService.Object,
-                new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService());
+                new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService(),
+                Logger.Object);
+        }
+
+        [TestMethod]
+        public async Task GameStartShouldWaitForTheFirstQuestScript()
+        {
+            await new Spec("Game start should wait for the first quest script")
+                .Given(CharacterIsReadyToStart)
+                .And(CharacterHasNoScriptYet)
+                .And(TheQuestScriptIsStillRunning)
+                .When(StartingTheGame)
+                .Then(GameStartShouldNotHaveFinished)
+                .AndAsync(TheQuestScriptFinishesAsync)
+                .AndAsync(GameStartShouldFinishAsync)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GameStartShouldLogAFailedQuestScriptAndCarryOn()
+        {
+            await new Spec("Game start should log a failed quest script and carry on")
+                .Given(CharacterIsReadyToStart)
+                .And(CharacterHasNoScriptYet)
+                .And(TheQuestScriptFails)
+                .WhenAsync(ExecutingGameStart)
+                .Then(GameStartedShouldBeTrue)
+                .And(AnErrorShouldBeLogged)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -140,6 +173,43 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .Then(MapChangeShouldNotBeCalled)
                 .ExecuteAsync();
         }
+
+        private void CharacterHasNoScriptYet() => Session.Character.Script = null;
+
+        private void TheQuestScriptIsStillRunning()
+        {
+            ScriptRun = new TaskCompletionSource();
+            QuestService.Setup(s => s.RunScriptAsync(It.IsAny<ICharacterEntity>())).Returns(ScriptRun.Task);
+        }
+
+        private void TheQuestScriptFails() =>
+            QuestService.Setup(s => s.RunScriptAsync(It.IsAny<ICharacterEntity>()))
+                .ThrowsAsync(new InvalidOperationException("script data missing"));
+
+        private void StartingTheGame() => GameStart = Handler.ExecuteAsync(new GameStartPacket(), Session);
+
+        private void GameStartShouldNotHaveFinished() => Assert.IsFalse(GameStart.IsCompleted);
+
+        private Task TheQuestScriptFinishesAsync()
+        {
+            ScriptRun.SetResult();
+            return Task.CompletedTask;
+        }
+
+        private async Task GameStartShouldFinishAsync()
+        {
+            await GameStart.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.IsTrue(Session.GameStarted);
+        }
+
+        private void AnErrorShouldBeLogged() =>
+            Logger.Verify(o => o.Log(
+                    LogLevel.Error,
+                    It.IsAny<EventId>(),
+                    It.IsAny<It.IsAnyType>(),
+                    It.IsAny<InvalidOperationException>(),
+                    It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
+                Times.Once);
 
         private void GameAlreadyStarted()
         {
