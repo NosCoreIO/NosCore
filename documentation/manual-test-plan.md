@@ -153,6 +153,38 @@ distance the walk check uses.
       monster takes damage, the bystander takes none
 - [ ] A monster's area skill still hits every character standing in it
 
+### Ground-targeted skills
+
+A skill cast at a cell (`u_as`) hits every monster within its target range of that cell.
+The cell must be within the skill's range plus one cell of the caster.
+
+- [ ] Gather three monsters, two near each other and one a few cells away. Cast a ground
+      skill on the pair: both take damage, their numbers are drawn as area hits, and the
+      third monster is untouched
+- [ ] Stand a second character inside the area: it takes no damage, and neither does the
+      caster when standing in its own area
+- [ ] A monster killed by the area dies, gives its experience and drops loot like a single
+      kill
+- [ ] Cast on empty ground: mana is spent and the skill goes on cooldown
+- [ ] Recast before the cooldown resets: the cast is cancelled and nothing is hit
+- [ ] Drop below the skill's mana cost and cast: "You don't have enough MP to cast the
+      spell." appears in the client's language and nothing is spent
+- [ ] Click a cell well beyond the skill's range: the cast is cancelled and nothing is spent
+- [ ] The skill icon comes back when the cooldown ends
+
+### Skills on a list of targets
+
+A skill that hits the monsters the client picked (`mtlist`). Each listed monster must be
+within the skill's range plus one cell of the caster; the cast costs mana and cooldown once.
+
+- [ ] Use such a skill with several monsters around: every listed monster takes damage, and
+      mana drops by one cast's cost
+- [ ] With one listed monster out of range, the others are still hit and that one is not
+- [ ] Recast before the cooldown resets: nothing is hit
+- [ ] Check the cast id in the logged `mtlist` against the skill's cast id: the handler reads
+      the first value of each pair as the cast id; if it is the cast id plus one, or a visual
+      type, the cast never resolves and the skill does nothing
+
 ---
 
 ### Experience from kills
@@ -1574,6 +1606,9 @@ Recorded so nobody spends time hunting for them:
   collection flow (`guri 400`) that is not wired yet.
 - **Reputation target quests** (TargetReput) — no quest in the current client data uses this
   type, so there is nothing to implement or to check.
+- **The ground effect of an area skill on other screens** — the cell animation needs the `bs`
+  packet, which the packet library does not ship yet; until it does, only the per-monster
+  hits are drawn.
 
 ## Mount activation
 

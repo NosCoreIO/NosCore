@@ -24,7 +24,6 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.PathFinder.Interfaces;
 using Microsoft.Extensions.Logging;
-using NodaTime;
 
 namespace NosCore.PacketHandlers.Battle
 {
@@ -37,8 +36,7 @@ namespace NosCore.PacketHandlers.Battle
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IBattleService battleService,
         ISessionRegistry sessionRegistry,
-        IClock clock,
-        NosCore.GameObject.Services.EquipmentService.IEquipmentStatsService equipmentStatsService,
+        ISkillCastService skillCastService,
         IHeuristic distanceCalculator,
         IWalkService walkService)
         : PacketHandler<UseSkillPacket>, IWorldPacketHandler
@@ -126,17 +124,10 @@ namespace NosCore.PacketHandlers.Battle
         {
             commit = null;
             var character = session.Character;
-            var skill = SkillResolver.FindLearned(character, castId);
+            var skill = skillCastService.FindLearned(character, castId);
             if (skill?.Skill == null)
             {
-                // Skill not in the learned dict — let BattleService decide. Matches the
-                // pre-enforcement behaviour and keeps tests that don't populate Skills
-                // passing without needing an explicit skill setup step.
                 return true;
-            }
-            if (!skill.CanBeUsed(clock.GetCurrentInstant()))
-            {
-                return false;
             }
             var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (target.PositionX, target.PositionY));
             var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
@@ -144,21 +135,12 @@ namespace NosCore.PacketHandlers.Battle
             {
                 return false;
             }
-            var decrease = Math.Clamp(equipmentStatsService.Resolve(character).MpConsumptionDecrease, 0, 100);
-            var mpCost = skill.Skill.MpCost * (100 - decrease) / 100;
-            if (character.Mp < mpCost)
+            if (skillCastService.Check(character, skill, out var mpCost) != SkillCastRefusal.None)
             {
                 return false;
             }
 
-            // Deferred commit: hold the now-resolved CharacterSkill + mpCost in the closure
-            // so the packet handler can fire them only if BattleService.Hit didn't bail.
-            var trackedSkill = skill;
-            commit = () =>
-            {
-                trackedSkill.LastUse = clock.GetCurrentInstant();
-                character.Mp = System.Math.Max(0, character.Mp - mpCost);
-            };
+            commit = () => skillCastService.Spend(character, skill, mpCost);
             return true;
         }
 

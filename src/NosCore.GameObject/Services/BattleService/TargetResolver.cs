@@ -10,6 +10,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -41,14 +42,26 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
             : SkillCells.Resolve(pattern, attacker.PositionX, attacker.PositionY,
                 primaryTarget.PositionX, primaryTarget.PositionY);
 
-        var range = skill.TargetRange;
         var centre = skill.TargetType == SkillReach.TargetedSkill ? primaryTarget : attacker;
-        var cx = centre.PositionX;
-        var cy = centre.PositionY;
+        CollectInArea(attacker, mapInstance, cells, centre.PositionX, centre.PositionY, skill.TargetRange,
+            primaryTarget, results);
+        return results;
+    }
 
+    public IReadOnlyList<IAliveEntity> ResolveArea(IAliveEntity attacker, MapInstance mapInstance, short x, short y,
+        SkillInfo skill)
+    {
+        var results = new List<IAliveEntity>(capacity: 8);
+        CollectInArea(attacker, mapInstance, null, x, y, skill.TargetRange, null, results);
+        return results;
+    }
+
+    private void CollectInArea(IAliveEntity attacker, MapInstance mapInstance, HashSet<(short X, short Y)>? cells,
+        short cx, short cy, int range, IAliveEntity? primaryTarget, List<IAliveEntity> results)
+    {
         foreach (var monster in mapInstance.EnumerateMonsters())
         {
-            if (monster.VisualId == primaryTarget.VisualId && monster.VisualType == primaryTarget.VisualType) continue;
+            if (primaryTarget != null && monster.VisualId == primaryTarget.VisualId && monster.VisualType == primaryTarget.VisualType) continue;
             if (!BattleService.CanAttack(attacker, monster)) continue;
             if (IsHit(cells, cx, cy, monster.PositionX, monster.PositionY, range))
             {
@@ -60,7 +73,7 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
         {
             if (!session.HasPlayerEntity) continue;
             var player = session.Character;
-            if (player.VisualId == primaryTarget.VisualId && primaryTarget.VisualType == VisualType.Player) continue;
+            if (primaryTarget != null && player.VisualId == primaryTarget.VisualId && primaryTarget.VisualType == VisualType.Player) continue;
             if (player.VisualId == attacker.VisualId && attacker.VisualType == VisualType.Player) continue;
             if (!BattleService.CanAttack(attacker, player)) continue;
             if (IsHit(cells, cx, cy, player.PositionX, player.PositionY, range))
@@ -68,8 +81,6 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
                 results.Add(player);
             }
         }
-
-        return results;
     }
 
     private static bool IsHit(HashSet<(short X, short Y)>? cells, short cx, short cy, short x,

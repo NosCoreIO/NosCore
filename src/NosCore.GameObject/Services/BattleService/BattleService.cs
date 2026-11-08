@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
@@ -82,25 +83,76 @@ namespace NosCore.GameObject.Services.BattleService
 
             // Primary target is always first; we pass IsPrimaryTarget so the queue /
             // packet layer can treat the main hit specially (big animation, SkillEffect).
+            var presentation = new HitPresentation(origin.PositionX, origin.PositionY, false);
             for (var i = 0; i < targets.Count; i++)
             {
-                var currentTarget = targets[i];
-                var isPrimary = i == 0;
-                try
-                {
-                    await ProcessHitAsync(origin, currentTarget, skill, isPrimary).ConfigureAwait(false);
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, "Hit processing failed: {Attacker} -> {Target}", origin.VisualId, currentTarget.VisualId);
-                }
+                await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
             }
 
             ScheduleCooldownReset(origin, skill);
             return true;
         }
 
-        private async Task ProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary)
+        public async Task<bool> HitArea(IAliveEntity origin, short mapX, short mapY, HitArguments arguments)
+        {
+            var mapInstance = origin.MapInstance;
+            var skill = CanCast(origin) && mapInstance != null ? skillResolver.Resolve(origin, arguments.SkillId) : null;
+            if (skill == null || captureService.IsCaptureSkill(skill))
+            {
+                await CancelAsync(origin, null);
+                return false;
+            }
+
+            var presentation = new HitPresentation(mapX, mapY, true);
+            var targets = targetResolver.ResolveArea(origin, mapInstance!, mapX, mapY, skill);
+            for (var i = 0; i < targets.Count; i++)
+            {
+                await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);
+            }
+
+            ScheduleCooldownReset(origin, skill);
+            return true;
+        }
+
+        public async Task<bool> HitTargets(IAliveEntity origin, IReadOnlyList<IAliveEntity> targets, HitArguments arguments)
+        {
+            var skill = CanCast(origin) ? skillResolver.Resolve(origin, arguments.SkillId) : null;
+            var valid = skill == null || captureService.IsCaptureSkill(skill)
+                ? new List<IAliveEntity>()
+                : targets.Where(t => CanAttack(origin, t) && ReferenceEquals(t.MapInstance, origin.MapInstance))
+                    .DistinctBy(t => (t.VisualType, t.VisualId))
+                    .ToList();
+            if (valid.Count == 0)
+            {
+                await CancelAsync(origin, null);
+                return false;
+            }
+
+            var presentation = new HitPresentation(origin.PositionX, origin.PositionY, false);
+            for (var i = 0; i < valid.Count; i++)
+            {
+                await TryProcessHitAsync(origin, valid[i], skill!, i == 0, presentation);
+            }
+
+            ScheduleCooldownReset(origin, skill!);
+            return true;
+        }
+
+        private async Task TryProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary,
+            HitPresentation presentation)
+        {
+            try
+            {
+                await ProcessHitAsync(origin, target, skill, isPrimary, presentation);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Hit processing failed: {Attacker} -> {Target}", origin.VisualId, target.VisualId);
+            }
+        }
+
+        private async Task ProcessHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, bool isPrimary,
+            HitPresentation presentation)
         {
             var request = new HitRequest(
                 Origin: origin,
@@ -119,7 +171,7 @@ namespace NosCore.GameObject.Services.BattleService
             // stat goes to the target before su: the client paints the damage number first and
             // re-reads its cached HP for the bar, so a stat arriving later leaves the bar frozen.
             await SendTargetStatAsync(target).ConfigureAwait(false);
-            await BroadcastHitAsync(origin, target, skill, outcome).ConfigureAwait(false);
+            await BroadcastHitAsync(origin, target, skill, outcome, presentation);
             await BroadcastTargetInfoAsync(target).ConfigureAwait(false);
             await messageBus.PublishAsync(new EntityDamagedEvent(origin, target, outcome.Damage, outcome.Killed)).ConfigureAwait(false);
 
@@ -174,7 +226,8 @@ namespace NosCore.GameObject.Services.BattleService
             return target.MapInstance.SendPacketAsync(target.GenerateStatInfo());
         }
 
-        private static Task BroadcastHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, HitOutcome outcome)
+        private static Task BroadcastHitAsync(IAliveEntity origin, IAliveEntity target, SkillInfo skill, HitOutcome outcome,
+            HitPresentation presentation)
         {
             if (target.MapInstance == null)
             {
@@ -191,18 +244,31 @@ namespace NosCore.GameObject.Services.BattleService
                 SkillCooldown = skill.Cooldown,
                 AttackAnimation = skill.AttackAnimation,
                 SkillEffect = skill.CastEffect,
-                PositionX = origin.PositionX,
-                PositionY = origin.PositionY,
+                PositionX = presentation.X,
+                PositionY = presentation.Y,
                 TargetIsAlive = target.IsAlive,
                 HpPercentage = target.MaxHp > 0 ? (byte)(target.Hp * 100 / target.MaxHp) : (byte)0,
                 Damage = (uint)outcome.Damage,
-                HitMode = outcome.HitMode,
+                HitMode = presentation.InArea ? InArea(outcome.HitMode) : outcome.HitMode,
                 SkillTypeMinusOne = (int)skill.Type - 1,
                 TargetCurrentHp = target.Hp,
                 TargetMaxHp = target.MaxHp,
             };
             return target.MapInstance.SendPacketAsync(packet);
         }
+
+        // A blow from a ground skill is drawn as caught in the area, so the client plays it at the
+        // cast cell rather than as a strike from the caster.
+        private static SuPacketHitMode InArea(SuPacketHitMode hitMode) => hitMode switch
+        {
+            SuPacketHitMode.SuccessAttack => SuPacketHitMode.AttackedInAoe,
+            SuPacketHitMode.CriticalAttack => SuPacketHitMode.AttackedInAoeCrit,
+            SuPacketHitMode.Miss => SuPacketHitMode.MissAoe,
+            _ => hitMode,
+        };
+
+        // Where su draws the blow from and whether it is drawn as caught in an area.
+        private readonly record struct HitPresentation(short X, short Y, bool InArea);
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)
         {
@@ -247,8 +313,7 @@ namespace NosCore.GameObject.Services.BattleService
         // targets go through this too, so PvP only needs deciding here.
         internal static bool CanAttack(IAliveEntity origin, IAliveEntity target)
         {
-            if (!origin.IsAlive || !target.IsAlive) return false;
-            if (origin.NoAttack) return false;
+            if (!CanCast(origin) || !target.IsAlive) return false;
             if (target.NoAttack) return false;
             if (origin is ICharacterEntity attacker && target is ICharacterEntity defender)
             {
@@ -258,6 +323,8 @@ namespace NosCore.GameObject.Services.BattleService
             return true;
         }
 
+        private static bool CanCast(IAliveEntity origin) => origin.IsAlive && !origin.NoAttack;
+
         private static bool AreAllies(IAliveEntity a, IAliveEntity b)
         {
             var aAlly = a.VisualType == VisualType.Player || a.VisualType == VisualType.Npc;
@@ -265,14 +332,14 @@ namespace NosCore.GameObject.Services.BattleService
             return aAlly && bAlly;
         }
 
-        private static async Task CancelAsync(IAliveEntity origin, IAliveEntity target)
+        private static async Task CancelAsync(IAliveEntity origin, IAliveEntity? target)
         {
             if (origin is ICharacterEntity character)
             {
                 await character.SendPacketAsync(new CancelPacket
                 {
                     Type = CancelPacketType.CancelAutoAttack,
-                    TargetId = target.VisualId,
+                    TargetId = target?.VisualId ?? 0,
                 }).ConfigureAwait(false);
             }
         }
