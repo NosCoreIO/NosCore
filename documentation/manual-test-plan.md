@@ -1263,10 +1263,10 @@ Capture is skill 209; weaken the monster to under half health and stay at or abo
       in the pet window
 - [ ] **Capture without getting the monster** — Suspicious Guard quest 1608, "Capture the
       animals Teodor Topp requires!", needs two each of Angry Hamster, Angry Wooly and Fox
-      (the Fox is level 15, the other two level 21 and 22). Capture a Fox: "Capture
-      successful! (Quest)" shows, the monster disappears, no pet is added and the quest
-      window reads 1/2 on that line
-- [ ] Capture a third Fox once that line reads 2/2: this one becomes a pet
+      (the Angry Hamster is level 15, the Angry Wooly 21 and the Fox 22). Capture an Angry
+      Hamster: "Capture successful! (Quest)" shows, the monster disappears, no pet is added
+      and the quest window reads 1/2 on that line
+- [ ] Capture a third Angry Hamster once that line reads 2/2: this one becomes a pet
 - [ ] Capturing the last animal the quest needs completes it
 
 ### Collectable map objects
