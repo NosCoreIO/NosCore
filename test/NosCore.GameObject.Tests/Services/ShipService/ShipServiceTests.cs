@@ -171,6 +171,26 @@ public class ShipServiceTests
             });
     private async Task BoardingShouldThrowAsync() => await Assert.ThrowsExactlyAsync<InvalidOperationException>(BoardAsync);
 
+    [TestMethod]
+    public async Task RealMapTransfersPreserveTheTicketUntilArrival() =>
+        await new Spec("Boarding migrates the ECS entity while preserving the saved port; arrival clears the migrated ticket")
+            .Given(UseRealMapTransfers).WhenAsync(BoardAsync).Then(PassengerShouldBeAboard)
+            .And(SavedMapShouldBe_, (short)0).When(AdvanceToDeparture).WhenAsync(DepartAsync)
+            .Then(TicketShouldBeCleared).And(SavedMapShouldBe_, (short)1).ExecuteAsync();
+
+    private void UseRealMapTransfers()
+    {
+        _session.Character.MapId = _source.Map.MapId;
+        var helpers = TestHelpers.Instance;
+        var sessions = new Mock<ISessionRegistry>();
+        sessions.Setup(s => s.GetSessions(null)).Returns([_session]);
+        _ships = new ShipTravelService(_routes, [new NpcMonsterDto { NpcMonsterVNum = 1 }],
+            helpers.MapInstanceAccessorService, helpers.MapInstanceRegistry, helpers.MapInstanceGeneratorService,
+            helpers.MapChangeService, new Mock<IItemGenerationService>().Object, sessions.Object,
+            helpers.Clock, NullLogger<ShipTravelService>.Instance);
+    }
+    private void SavedMapShouldBe_(short id) => Assert.AreEqual(id, _session.Character.MapId);
+
     private Task DepartAsync() => _ships.DepartAsync();
     private Task CancelAsync() => _ships.CancelAsync(_session, _session.Character.MapInstance.Npcs.Single(), NrunRunnerType.CancelShipTravelMortazDesert, 0);
     private Task SendAnotherCancellationAsync() => _ships.CancelAsync(_session, _session.Character.MapInstance.Npcs.Single(), NrunRunnerType.CancelShipTravelGlacernon, 0);
