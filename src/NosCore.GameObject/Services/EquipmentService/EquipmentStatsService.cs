@@ -103,6 +103,7 @@ public sealed class EquipmentStatsService(
             {
                 ElementRate = stats.ElementRate + Sum(fairy.ElementRate, fairy.Item?.ElementRate),
                 Element = fairy.Item?.Element ?? ElementType.Neutral,
+                FairyWorn = true,
             };
         }
 

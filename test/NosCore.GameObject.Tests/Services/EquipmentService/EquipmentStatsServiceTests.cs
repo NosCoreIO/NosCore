@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using Moq;
+using NodaTime;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Shared.Enumerations;
@@ -255,6 +256,32 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Wear(EquipmentType.Fairy, FairyVnum);
 
             Assert.AreEqual((byte)ElementType.Fire, provider.GetStats(_session.Character).Element);
+        }
+
+        [TestMethod]
+        public void AnEffectOnTheFairysElementWaitsForAFairy()
+        {
+            var buffs = new Mock<IBuffService>();
+            buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>
+            {
+                new(CardId: 4408, BuffType: BuffType.Good, Caster: null,
+                    StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue,
+                    BCards: new[]
+                    {
+                        new BCardDto
+                        {
+                            Type = BCardEffect.Type96IncreaseFairyElement.Type(),
+                            SubType = BCardEffect.Type96IncreaseFairyElement.SubType(),
+                            FirstData = 5,
+                        },
+                    }),
+            });
+            var provider = new BattleStatsProvider(buffs.Object, _service);
+
+            Assert.AreEqual(0, provider.GetStats(_session.Character).ElementRate);
+            Wear(EquipmentType.Fairy, FairyVnum);
+
+            Assert.AreEqual(35, provider.GetStats(_session.Character).ElementRate);
         }
 
         [TestMethod]

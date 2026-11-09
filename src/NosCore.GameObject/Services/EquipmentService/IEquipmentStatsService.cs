@@ -49,6 +49,8 @@ public readonly record struct EquipmentStats(
     int SpecialistElementRate = 0,
     // The worn fairy's element is the one a character attacks with.
     ElementType Element = ElementType.Neutral,
+    // Effects on "the equipped fairy's element" have nothing to act on without one.
+    bool FairyWorn = false,
     // Percentage taken off every skill's MP cost.
     int MpConsumptionDecrease = 0,
     // Applied to the whole maximum, gear included, rather than added to it.
