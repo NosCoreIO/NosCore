@@ -183,19 +183,51 @@ namespace NosCore.PacketHandlers.Group
 
                     break;
                 case GroupRequestType.Accepted:
-                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    var groupWasFull = false;
+                    var formedGroup = false;
+                    // Accepts are taken one at a time across the server: the checks below read two
+                    // groups and the joins write them, so two accepts at once could both take the
+                    // last place, or both pull the same leader into a group of their own.
+                    using (await GameObject.Services.GroupService.Group.MembershipLock.AcquireAsync())
                     {
-                        return;
+                        if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                        {
+                            return;
+                        }
+
+                        targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
+
+                        if ((clientSession.Character.Group.Count > 1) && (targetSession.Group.Count > 1))
+                        {
+                            return;
+                        }
+
+                        if (clientSession.Character.Group.IsGroupFull || targetSession.Group.IsGroupFull)
+                        {
+                            groupWasFull = true;
+                        }
+                        else if (clientSession.Character.Group.Count > 1)
+                        {
+                            targetSession.JoinGroup(clientSession.Character.Group);
+                        }
+                        else if (targetSession.Group.Count > 1)
+                        {
+                            if (targetSession.Group.Type == GroupType.Group)
+                            {
+                                clientSession.Character.JoinGroup(targetSession.Group);
+                            }
+                        }
+                        else
+                        {
+                            clientSession.Character.Group.GroupId = groupIdService.GetNextId();
+                            targetSession.JoinGroup(clientSession.Character.Group);
+                            targetSession.Group = clientSession.Character.Group;
+                            clientSession.Character.GroupRequestCharacterIds.Clear();
+                            formedGroup = true;
+                        }
                     }
 
-                    targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-
-                    if ((clientSession.Character.Group.Count > 1) && (targetSession.Group.Count > 1))
-                    {
-                        return;
-                    }
-
-                    if (clientSession.Character.Group.IsGroupFull || targetSession.Group.IsGroupFull)
+                    if (groupWasFull)
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
                         {
@@ -209,29 +241,12 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    if (clientSession.Character.Group.Count > 1)
+                    if (formedGroup)
                     {
-                        targetSession.JoinGroup(clientSession.Character.Group);
-                    }
-                    else if (targetSession.Group.Count > 1)
-                    {
-                        if (targetSession.Group.Type == GroupType.Group)
-                        {
-                            clientSession.Character.JoinGroup(targetSession.Group);
-                        }
-                    }
-                    else
-                    {
-                        clientSession.Character.Group.GroupId = groupIdService.GetNextId();
-                        targetSession.JoinGroup(clientSession.Character.Group);
-
                         await targetSession.SendPacketAsync(new InfoiPacket
                         {
                             Message = Game18NConstString.YouAreNowGroupLeader
                         });
-
-                        targetSession.Group = clientSession.Character.Group;
-                        clientSession.Character.GroupRequestCharacterIds.Clear();
                     }
 
                     if (clientSession.Character.Group.Type != GroupType.Group)

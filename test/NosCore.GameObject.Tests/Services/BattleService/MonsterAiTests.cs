@@ -211,6 +211,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterWithNoWayToItsTargetPausesBeforeSearchingAgain()
+        {
+            var searches = 0;
+            var pathfinder = new Mock<IPathfinder>();
+            pathfinder.Setup(p => p.FindPath(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
+                .Returns(() =>
+                {
+                    searches++;
+                    return new List<(short, short)>();
+                });
+            var pathfinding = new Mock<IPathfindingService>();
+            pathfinding.Setup(p => p.ForMap(It.IsAny<GameObject.Map.Map>())).Returns(pathfinder.Object);
+            var ai = new MonsterAi(_battle.Object, _aggro, pathfinding.Object, TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.DistanceCalculator, new Mock<INpcCombatCatalog>().Object,
+                new Mock<IRandomProvider>().Object, TestHelpers.Instance.Clock, new Dictionary<short, SkillDto>(),
+                NullLogger<MonsterAi>.Instance);
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 5);
+
+            for (var tick = 0; tick < 5; tick++)
+            {
+                await ai.TickAsync(monster);
+            }
+
+            Assert.AreEqual(1, searches);
+
+            TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(3));
+            await ai.TickAsync(monster);
+
+            Assert.AreEqual(2, searches);
+        }
+
+        [TestMethod]
         public async Task AMonsterAwayFromHomeWalksBackAtItsChaseSpeed()
         {
             var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
