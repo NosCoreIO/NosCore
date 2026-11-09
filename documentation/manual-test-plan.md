@@ -1183,6 +1183,24 @@ Krem. Stand next to one before each check.
 
 ---
 
+## Login and sessions
+
+Run the WebApi, the master, the login server and two world servers (two channels).
+
+### Launcher login and channel change
+
+- [ ] Log in through the launcher, pick channel 1 from the list: the character list loads
+- [ ] Wait more than a minute on the channel list before picking a channel: the world
+      server disconnects the client instead of showing the character list
+- [ ] Log out to the login screen and log in again through the launcher: it works, with a
+      fresh code from the launcher
+- [ ] In game, `$ChangeChannel` to channel 2: the character arrives on channel 2 without
+      a second login prompt
+- [ ] On an account with MFA set, log in through the launcher: the launcher asks for the
+      code, the game does not ask again, and changing channel does not ask either
+
+---
+
 ## Regression sweep
 
 Quick pass after any combat or stat change:

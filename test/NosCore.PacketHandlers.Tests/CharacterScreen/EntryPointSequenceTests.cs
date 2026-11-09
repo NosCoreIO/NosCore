@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.InterChannelCommunication;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.AuthService;
@@ -20,6 +21,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -39,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
-            AuthHub = new AuthHub(new AuthCodeService());
+            AuthHub = new AuthHub(new AuthCodeService(TestHelpers.Instance.Clock), new MasterClientList());
             var sessionRefHolder = new SessionRefHolder();
             var pubSubHub = TestHelpers.Instance.PubSubHub;
             pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
@@ -86,7 +88,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .ExecuteAsync();
         }
 
-        private Task LoginServerAnnouncedTheSessionAsync() => AuthHub.SetAwaitingConnectionAsync(SessionId, AccountName);
+        private async Task LoginServerAnnouncedTheSessionAsync()
+        {
+            var authCode = Guid.NewGuid().ToString();
+            await AuthHub.StoreAuthCodeAsync(authCode, AccountName);
+            await AuthHub.GetAwaitingConnectionAsync(AccountName, authCode, SessionId);
+        }
 
         private Task ClientSendsItsPasswordAsync() => EnteringTheWorldAsync("test");
 

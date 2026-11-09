@@ -5,6 +5,8 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NodaTime;
+using NodaTime.Testing;
 using NosCore.GameObject.Services.AuthService;
 using SpecLight;
 using System.Threading.Tasks;
@@ -14,176 +16,215 @@ namespace NosCore.GameObject.Tests.Services.AuthService
     [TestClass]
     public class AuthCodeServiceTests
     {
+        private const string TestAuthCode = "test-auth-code";
+        private const string TestAccountName = "TestAccount";
+        private const long TestSessionId = 12345;
+        private const long TestChannelId = 2;
+
+        private FakeClock Clock = null!;
         private IAuthCodeService Service = null!;
+        private string? ConsumedAccountName;
+        private WorldEntryGrant? Grant;
 
         [TestInitialize]
         public void Setup()
         {
-            Service = new AuthCodeService();
+            Clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
+            Service = new AuthCodeService(Clock);
+            ConsumedAccountName = null;
+            Grant = null;
         }
 
         [TestMethod]
-        public async Task StoreAuthCodeShouldAllowRetrieval()
+        public async Task StoredAuthCodeCanBeConsumed()
         {
-            await new Spec("Store auth code should allow retrieval")
-                .When(StoringAuthCode)
-                .Then(AuthCodeShouldBeRetrievable)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task GetAccountByAuthCodeShouldReturnNullForUnknownCode()
-        {
-            await new Spec("Get account by auth code should return null for unknown code")
-                .When(GettingUnknownAuthCode)
-                .Then(ResultShouldBeNull)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task TryRemoveAuthCodeShouldRemoveCode()
-        {
-            await new Spec("Try remove auth code should remove code")
+            await new Spec("Stored auth code can be consumed")
                 .Given(AuthCodeIsStored)
-                .When(RemovingAuthCode)
-                .Then(RemoveShouldSucceed)
-                .And(AuthCodeShouldNoLongerExist)
+                .When(ConsumingAuthCode)
+                .Then(ConsumedAccountShouldBeTheStoredOne)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task TryRemoveAuthCodeShouldFailForUnknownCode()
+        public async Task AuthCodeCanOnlyBeConsumedOnce()
         {
-            await new Spec("Try remove auth code should fail for unknown code")
-                .When(RemovingUnknownAuthCode)
-                .Then(RemoveShouldFail)
+            await new Spec("Auth code can only be consumed once")
+                .Given(AuthCodeIsStored)
+                .And(AuthCodeWasConsumed)
+                .When(ConsumingAuthCode)
+                .Then(NoAccountShouldBeReturned)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task MarkReadyForAuthShouldAllowVerification()
+        public async Task ExpiredAuthCodeIsRefused()
         {
-            await new Spec("Mark ready for auth should allow verification")
-                .When(MarkingReadyForAuth)
-                .Then(IsReadyForAuthShouldReturnTrue)
+            await new Spec("Expired auth code is refused")
+                .Given(AuthCodeIsStored)
+                .And(AuthCodeLifetimeElapses)
+                .When(ConsumingAuthCode)
+                .Then(NoAccountShouldBeReturned)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task IsReadyForAuthShouldReturnFalseForWrongSession()
+        public async Task UnknownAuthCodeIsRefused()
         {
-            await new Spec("Is ready for auth should return false for wrong session")
+            await new Spec("Unknown auth code is refused")
+                .When(ConsumingAuthCode)
+                .Then(NoAccountShouldBeReturned)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReadyForAuthGrantsEntryWithMfaValidated()
+        {
+            await new Spec("Ready for auth grants entry with MFA validated")
                 .Given(AccountIsMarkedReady)
-                .When(CheckingReadyWithWrongSession)
-                .Then(WrongSessionCheckShouldReturnFalse)
+                .When(ConsumingReadyForAuth)
+                .Then(EntryShouldBeGrantedWithMfa)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ClearReadyForAuthShouldRemoveReadyState()
+        public async Task ReadyForAuthIsRefusedForAnotherSession()
         {
-            await new Spec("Clear ready for auth should remove ready state")
+            await new Spec("Ready for auth is refused for another session")
                 .Given(AccountIsMarkedReady)
-                .When(ClearingReadyForAuth)
-                .Then(IsReadyShouldReturnFalse)
+                .When(ConsumingReadyForAuthWithAnotherSession)
+                .Then(EntryShouldBeRefused)
                 .ExecuteAsync();
         }
 
-        private const string TestAuthCode = "test-auth-code";
-        private const string TestAccountName = "TestAccount";
-        private const long TestSessionId = 12345;
-        private string? RetrievedAccountName;
-        private bool RemoveResult;
-        private bool IsReadyResult;
-
-        private void StoringAuthCode()
+        [TestMethod]
+        public async Task ReadyForAuthCanOnlyBeConsumedOnce()
         {
-            Service.StoreAuthCode(TestAuthCode, TestAccountName);
+            await new Spec("Ready for auth can only be consumed once")
+                .Given(AccountIsMarkedReady)
+                .And(ReadyForAuthWasConsumed)
+                .When(ConsumingReadyForAuth)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
         }
 
-        private void AuthCodeIsStored()
+        [TestMethod]
+        public async Task ReadyForAuthStaysAvailableAfterAWrongSession()
         {
-            Service.StoreAuthCode(TestAuthCode, TestAccountName);
+            await new Spec("Ready for auth stays available after a wrong session")
+                .Given(AccountIsMarkedReady)
+                .And(ReadyForAuthWasTriedWithAnotherSession)
+                .When(ConsumingReadyForAuth)
+                .Then(EntryShouldBeGrantedWithMfa)
+                .ExecuteAsync();
         }
 
-        private void AccountIsMarkedReady()
+        [TestMethod]
+        public async Task ExpiredReadyForAuthIsRefused()
         {
-            Service.MarkReadyForAuth(TestAccountName, TestSessionId);
+            await new Spec("Expired ready for auth is refused")
+                .Given(AccountIsMarkedReady)
+                .And(ReadyForAuthLifetimeElapses)
+                .When(ConsumingReadyForAuth)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
         }
 
-        private void GettingUnknownAuthCode()
+        [TestMethod]
+        public async Task ChannelChangeGrantsEntryOnTheTargetChannel()
         {
-            RetrievedAccountName = Service.GetAccountByAuthCode("unknown-code");
+            await new Spec("Channel change grants entry on the target channel")
+                .Given(AccountIsChangingChannelWithoutMfa)
+                .When(ConsumingChannelChangeOnTarget)
+                .Then(EntryShouldBeGrantedWithoutMfa)
+                .ExecuteAsync();
         }
 
-        private void RemovingAuthCode()
+        [TestMethod]
+        public async Task ChannelChangeIsRefusedOnAnotherChannel()
         {
-            RemoveResult = Service.TryRemoveAuthCode(TestAuthCode, out RetrievedAccountName);
+            await new Spec("Channel change is refused on another channel")
+                .Given(AccountIsChangingChannelWithoutMfa)
+                .When(ConsumingChannelChangeOnAnotherChannel)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
         }
 
-        private void RemovingUnknownAuthCode()
+        [TestMethod]
+        public async Task ChannelChangeCanOnlyBeConsumedOnce()
         {
-            RemoveResult = Service.TryRemoveAuthCode("unknown-code", out RetrievedAccountName);
+            await new Spec("Channel change can only be consumed once")
+                .Given(AccountIsChangingChannelWithoutMfa)
+                .And(ChannelChangeWasConsumed)
+                .When(ConsumingChannelChangeOnTarget)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
         }
 
-        private void MarkingReadyForAuth()
+        [TestMethod]
+        public async Task ExpiredChannelChangeIsRefused()
         {
-            Service.MarkReadyForAuth(TestAccountName, TestSessionId);
+            await new Spec("Expired channel change is refused")
+                .Given(AccountIsChangingChannelWithoutMfa)
+                .And(ChannelChangeLifetimeElapses)
+                .When(ConsumingChannelChangeOnTarget)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
         }
 
-        private void CheckingReadyWithWrongSession()
+        [TestMethod]
+        public async Task ChannelChangeDoesNotGrantALoginEntry()
         {
-            IsReadyResult = Service.IsReadyForAuth(TestAccountName, 99999);
+            await new Spec("Channel change does not grant a login entry")
+                .Given(AccountIsChangingChannelWithoutMfa)
+                .When(ConsumingReadyForAuthWithChannelIdAsSession)
+                .Then(EntryShouldBeRefused)
+                .ExecuteAsync();
         }
 
-        private void ClearingReadyForAuth()
-        {
-            Service.ClearReadyForAuth(TestAccountName);
-        }
+        private void AuthCodeIsStored() => Service.StoreAuthCode(TestAuthCode, TestAccountName);
 
-        private void AuthCodeShouldBeRetrievable()
-        {
-            var result = Service.GetAccountByAuthCode(TestAuthCode);
-            Assert.AreEqual(TestAccountName, result);
-        }
+        private void AuthCodeWasConsumed() => Service.ConsumeAuthCode(TestAuthCode);
 
-        private void ResultShouldBeNull()
-        {
-            Assert.IsNull(RetrievedAccountName);
-        }
+        private void AuthCodeLifetimeElapses() => Clock.Advance(AuthCodeService.AuthCodeLifetime);
 
-        private void RemoveShouldSucceed()
-        {
-            Assert.IsTrue(RemoveResult);
-            Assert.AreEqual(TestAccountName, RetrievedAccountName);
-        }
+        private void ConsumingAuthCode() => ConsumedAccountName = Service.ConsumeAuthCode(TestAuthCode);
 
-        private void RemoveShouldFail()
-        {
-            Assert.IsFalse(RemoveResult);
-        }
+        private void AccountIsMarkedReady() => Service.MarkReadyForAuth(TestAccountName, TestSessionId);
 
-        private void AuthCodeShouldNoLongerExist()
-        {
-            var result = Service.GetAccountByAuthCode(TestAuthCode);
-            Assert.IsNull(result);
-        }
+        private void ReadyForAuthWasConsumed() => Service.ConsumeReadyForAuth(TestAccountName, TestSessionId);
 
-        private void IsReadyForAuthShouldReturnTrue()
-        {
-            var result = Service.IsReadyForAuth(TestAccountName, TestSessionId);
-            Assert.IsTrue(result);
-        }
+        private void ReadyForAuthWasTriedWithAnotherSession() => Service.ConsumeReadyForAuth(TestAccountName, TestSessionId + 2);
 
-        private void WrongSessionCheckShouldReturnFalse()
-        {
-            Assert.IsFalse(IsReadyResult);
-        }
+        private void ReadyForAuthLifetimeElapses() => Clock.Advance(AuthCodeService.ReadyForAuthLifetime);
 
-        private void IsReadyShouldReturnFalse()
-        {
-            var result = Service.IsReadyForAuth(TestAccountName, TestSessionId);
-            Assert.IsFalse(result);
-        }
+        private void ConsumingReadyForAuth() => Grant = Service.ConsumeReadyForAuth(TestAccountName, TestSessionId);
+
+        private void ConsumingReadyForAuthWithAnotherSession() =>
+            Grant = Service.ConsumeReadyForAuth(TestAccountName, TestSessionId + 2);
+
+        private void ConsumingReadyForAuthWithChannelIdAsSession() =>
+            Grant = Service.ConsumeReadyForAuth(TestAccountName, TestChannelId);
+
+        private void AccountIsChangingChannelWithoutMfa() =>
+            Service.MarkReadyForChannelChange(TestAccountName, TestChannelId, false);
+
+        private void ChannelChangeWasConsumed() => Service.ConsumeChannelChange(TestAccountName, TestChannelId);
+
+        private void ChannelChangeLifetimeElapses() => Clock.Advance(AuthCodeService.ChannelChangeLifetime);
+
+        private void ConsumingChannelChangeOnTarget() => Grant = Service.ConsumeChannelChange(TestAccountName, TestChannelId);
+
+        private void ConsumingChannelChangeOnAnotherChannel() =>
+            Grant = Service.ConsumeChannelChange(TestAccountName, TestChannelId + 1);
+
+        private void ConsumedAccountShouldBeTheStoredOne() => Assert.AreEqual(TestAccountName, ConsumedAccountName);
+
+        private void NoAccountShouldBeReturned() => Assert.IsNull(ConsumedAccountName);
+
+        private void EntryShouldBeGrantedWithMfa() => Assert.AreEqual(new WorldEntryGrant(true), Grant);
+
+        private void EntryShouldBeGrantedWithoutMfa() => Assert.AreEqual(new WorldEntryGrant(false), Grant);
+
+        private void EntryShouldBeRefused() => Assert.IsNull(Grant);
     }
 }

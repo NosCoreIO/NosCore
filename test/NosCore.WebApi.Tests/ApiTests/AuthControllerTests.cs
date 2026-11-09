@@ -41,7 +41,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         [TestInitialize]
         public async Task Setup()
         {
-            AuthCodeService = new AuthCodeService();
+            AuthCodeService = new AuthCodeService(NodaTime.SystemClock.Instance);
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             Logger = new Mock<ILogger<AuthController>>();
@@ -49,7 +49,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Password = "123"
             }), TestHelpers.Instance.AccountDao, Logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
-               new AuthHub(AuthCodeService));
+               new AuthHub(AuthCodeService, new NosCore.GameObject.InterChannelCommunication.MasterClientList()));
         }
 
         [TestMethod]

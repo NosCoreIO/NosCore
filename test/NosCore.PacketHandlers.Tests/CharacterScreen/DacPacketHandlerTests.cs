@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.AuthService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.Infrastructure;
@@ -103,6 +104,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .Given(AccountIsInWaitingState)
                 .WhenAsync(ConnectingWithAccount)
                 .Then(AccountShouldBeSet)
+                .And(MfaShouldBeValidated)
                 .ExecuteAsync();
         }
 
@@ -129,15 +131,15 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private void AccountIsNotInWaitingState()
         {
             AuthHttpClient.Setup(authHttpClient => authHttpClient
-                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("false");
+                    .RedeemChannelChangeAsync(It.IsAny<string>()))
+                .ReturnsAsync((WorldEntryGrant?)null);
         }
 
         private void AccountIsInWaitingState()
         {
             AuthHttpClient.Setup(authHttpClient => authHttpClient
-                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("true");
+                    .RedeemChannelChangeAsync(AccountName))
+                .ReturnsAsync(new WorldEntryGrant(true));
         }
 
         private async Task ConnectingWithAccount()
@@ -197,6 +199,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private void AccountShouldBeNull()
         {
             Assert.IsNull(Session.Account);
+        }
+
+        private void MfaShouldBeValidated()
+        {
+            Assert.IsTrue(Session.MfaValidated);
         }
 
         private void AccountShouldBeSet()

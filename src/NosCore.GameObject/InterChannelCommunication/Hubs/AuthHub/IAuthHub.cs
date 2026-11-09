@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.AuthService;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
@@ -12,7 +13,11 @@ public interface IAuthHub
 {
     Task<string?> GetAwaitingConnectionAsync(string? name, string? packetPassword, int clientSessionSessionId);
 
-    Task SetAwaitingConnectionAsync(long sessionId, string accountName);
+    Task<WorldEntryGrant?> RedeemWorldEntryAsync(string accountName, int sessionId);
+
+    Task SetAwaitingChannelChangeAsync(string accountName, long channelId, bool mfaValidated);
+
+    Task<WorldEntryGrant?> RedeemChannelChangeAsync(string accountName);
 
     /// <summary>
     /// Push an auth code issued by the WebApi into the shared auth-code

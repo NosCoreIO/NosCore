@@ -12,6 +12,7 @@ using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.AuthService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Tests.Shared;
@@ -121,6 +122,18 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task ConnectionWithGfModeKeepsMfaPendingWhenTheGrantDidNotValidateIt()
+        {
+            await new Spec("Connection with gf mode keeps MFA pending when the grant did not validate it")
+                .GivenAsync(AccountHasMfaEnabled)
+                .And(AccountIsInWaitingStateWithoutMfa)
+                .WhenAsync(ConnectingWithGfMode)
+                .ThenAsync(GuriPacketShouldBeSent)
+                .And(MfaShouldNotBeValidated)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConnectionWithMfaEnabledShouldRequireValidation()
         {
             await new Spec("Connection with MFA enabled should require validation")
@@ -161,15 +174,22 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private void AccountIsNotInWaitingState()
         {
             AuthHttpClient.Setup(authHttpClient => authHttpClient
-                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("false");
+                    .RedeemWorldEntryAsync(It.IsAny<string>(), It.IsAny<int>()))
+                .ReturnsAsync((WorldEntryGrant?)null);
         }
 
         private void AccountIsInWaitingState()
         {
             AuthHttpClient.Setup(authHttpClient => authHttpClient
-                    .GetAwaitingConnectionAsync(It.IsAny<string?>(), It.IsAny<string>(), It.IsAny<int>()))
-                .ReturnsAsync("true");
+                    .RedeemWorldEntryAsync(AccountName, Session.SessionId))
+                .ReturnsAsync(new WorldEntryGrant(true));
+        }
+
+        private void AccountIsInWaitingStateWithoutMfa()
+        {
+            AuthHttpClient.Setup(authHttpClient => authHttpClient
+                    .RedeemWorldEntryAsync(AccountName, Session.SessionId))
+                .ReturnsAsync(new WorldEntryGrant(false));
         }
 
         private async Task AccountHasMfaEnabled()
@@ -269,6 +289,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private void AccountShouldBeSet()
         {
             Assert.IsNotNull(Session.Account);
+        }
+
+        private void MfaShouldNotBeValidated()
+        {
+            Assert.IsFalse(Session.MfaValidated);
         }
 
         private void MfaShouldBeValidated()
