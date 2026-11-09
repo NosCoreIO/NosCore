@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             stats.Setup(s => s.GetStats(It.IsAny<IAliveEntity>())).Returns(new CombatStats());
             return new HitQueue(calculator.Object, stats.Object, new Mock<IBuffService>().Object,
                 new Mock<IRegenerationService>().Object, new Mock<IVitalityService>().Object,
-                TestHelpers.Instance.Clock, new Mock<ILogger<HitQueue>>().Object);
+                new Mock<ILogger<HitQueue>>().Object);
         }
 
         private Task<HitOutcome> HitAsync(HitQueue queue) =>

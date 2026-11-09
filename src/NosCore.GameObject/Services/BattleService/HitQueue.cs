@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arch.Core;
-using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -34,12 +33,8 @@ public sealed class HitQueue(
     IBuffService buffService,
     IRegenerationService regenerationService,
     IVitalityService vitalityService,
-    IClock clock,
     ILogger<HitQueue> logger) : IHitQueue, ISingletonService
 {
-    // A fighter revived in an arena cannot hit or be hit for this long.
-    private static readonly Duration PvpRevivalProtection = Duration.FromSeconds(5);
-
     // For entities that are on no map at all.
     private readonly AsyncLock _offMap = new();
 
@@ -101,10 +96,6 @@ public sealed class HitQueue(
         }
     }
 
-    private bool IsRevivalProtected(IAliveEntity entity) =>
-        entity is PlayerComponentBundle player
-        && clock.GetCurrentInstant() - player.LastPvpRevive < PvpRevivalProtection;
-
     // async because the effects a blow carries are awaited below: they have to follow the
     // blow, not race it.
     private async Task TryApplyHit(HitRequest request)
@@ -125,7 +116,8 @@ public sealed class HitQueue(
             }
 
             var isPvp = request.Origin is ICharacterEntity && target is ICharacterEntity;
-            if (isPvp && (IsRevivalProtected(request.Origin) || IsRevivalProtected(target)))
+            if (buffService.HasEffect(request.Origin, BCardEffect.NoDefeatAndNoDamageNeverCauseDamage)
+                || buffService.HasEffect(target, BCardEffect.NoDefeatAndNoDamageNeverReceiveDamage))
             {
                 request.Completion.TrySetResult(new HitOutcome(HitStatus.Missed, 0, SuPacketHitMode.Miss, false));
                 return;

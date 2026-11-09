@@ -127,6 +127,34 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         return buffs != null && buffs.ContainsKey(cardId);
     }
 
+    public bool HasEffect(IAliveEntity target, BCardEffect effect)
+    {
+        var buffs = ResolveState(target);
+        if (buffs == null)
+        {
+            return false;
+        }
+
+        var now = clock.GetCurrentInstant();
+        foreach (var buff in buffs.Values)
+        {
+            if (buff.ExpiresAt <= now)
+            {
+                continue;
+            }
+
+            foreach (var bCard in buff.BCards)
+            {
+                if (bCard.Effect() == effect)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
     public async Task<IReadOnlyList<BuffInstance>> TickAsync(IAliveEntity target)
     {
         var buffs = ResolveState(target);

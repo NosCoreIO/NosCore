@@ -31,9 +31,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // Dialog text id depends on level:
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
     //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power (item 1012).
-    //
-    // TODO: post-revive protection (card 684, ~30s invuln) isn't granted — the
-    // buff/card application layer isn't wired up yet. See death.txt line 6352.
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger)
     {

@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NodaTime;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -31,8 +30,8 @@ namespace NosCore.PacketHandlers.Battle
     //            fall through to the save-point branch with an info message.
     //   Type 1 — "save point": warp to the respawn stored by IRespawnService,
     //            full HP/MP restore.
-    //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map, and a few
-    //            seconds out of reach of other fighters. Only offered inside an arena.
+    //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map, and card 169
+    //            ("Invincible in PvP"). Only offered inside an arena.
     //
     // Every branch ends with `tp` (position) + `revive` + refreshed `stat`, mirroring
     // the death.txt trace at lines 6338–6344.
@@ -40,12 +39,14 @@ namespace NosCore.PacketHandlers.Battle
         ILogger<RevivalPacketHandler> logger,
         IMapChangeService mapChangeService,
         IRespawnService respawnService,
-        IClock clock)
+        IBuffService buffService,
+        ICardCatalog cardCatalog)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedOfPowerVNum = 1012;
         private const short SeedsRequired = 5;
         private const long ArenaReviveCost = 100;
+        private const short ArenaRevivalProtectionCardId = 169;
 
         public override async Task ExecuteAsync(RevivalPacket packet, ClientSession session)
         {
@@ -127,10 +128,27 @@ namespace NosCore.PacketHandlers.Battle
             if (character.Gold < ArenaReviveCost) { await ReviveAtSavePointAsync(session).ConfigureAwait(false); return; }
 
             character.Gold -= ArenaReviveCost;
-            character.LastPvpRevive = clock.GetCurrentInstant();
             RestoreLife(session, 100);
             await session.SendPacketAsync(character.GenerateGold()).ConfigureAwait(false);
             await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
+
+            var protection = cardCatalog.GetCard(ArenaRevivalProtectionCardId);
+            if (protection == null)
+            {
+                logger.LogWarning("Arena revival protection card {CardId} is missing", ArenaRevivalProtectionCardId);
+                return;
+            }
+
+            // The client has already been told the fighter is back; losing the protection must not undo that.
+            try
+            {
+                await buffService.ApplyAsync(character, protection,
+                    cardCatalog.GetCardBCards(ArenaRevivalProtectionCardId), character);
+            }
+            catch (Exception ex)
+            {
+                logger.LogWarning(ex, "Arena revival protection failed for character {CharacterId}", character.CharacterId);
+            }
         }
 
         private static void RestoreLife(ClientSession session, int percent)

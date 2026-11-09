@@ -902,6 +902,21 @@ Two characters with at least 1 000 gold each, in different groups, next to the a
 - [ ] Cancel instead: the player is sent to their respawn point and the arena keeps no gold
 - [ ] Walk onto the arena's exit portal: the player is back on the map and cell they entered from
 
+### Revival protection
+
+Same setup as above, with both players inside the arena.
+
+- [ ] Confirm the arena revive: every player on the map sees the "Invincible in PvP" buff icon on
+      the revived player, and its timer starts at five seconds
+- [ ] While the icon is up, the other player's skills and basic attacks show "MISS" and the HP bar
+      does not move
+- [ ] While the icon is up, the revived player's own attacks show "MISS" too, and attacking does
+      not remove the icon
+- [ ] Walk around while the icon is up: it stays
+- [ ] After five seconds the icon disappears for everyone, and hits in both directions land again
+- [ ] Outside an arena, revive in place and at the respawn point: no buff icon appears, and a
+      monster's hit lands straight away
+
 ---
 
 ## Chat
