@@ -341,7 +341,8 @@ namespace NosCore.GameObject.Networking.ClientSession
                 if (_subscribedSessionId is { } subscribedSessionId)
                 {
                     _subscribedSessionId = null;
-                    await pubSubHub.UnsubscribeAsync(subscribedSessionId);
+                    try { await pubSubHub.UnsubscribeAsync(subscribedSessionId); }
+                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to release the account claim of session {SessionId}", subscribedSessionId); }
                 }
 
                 packetLock?.Dispose();

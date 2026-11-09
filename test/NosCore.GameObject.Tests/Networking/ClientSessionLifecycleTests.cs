@@ -17,6 +17,7 @@ using NosCore.Tests.Shared;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Networking
@@ -155,6 +156,27 @@ namespace NosCore.GameObject.Tests.Networking
         private async Task TheSessionClaimedItsAccount()
         {
             Assert.IsTrue(await Session.ClaimAccountAsync(Session.Account));
+        }
+
+        [TestMethod]
+        public async Task FailedUnsubscribeStillReleasesThePacketLock()
+        {
+            await new Spec("Failed unsubscribe still releases the packet lock")
+                .GivenAsync(TheSessionClaimedItsAccount)
+                .And(TheMasterFailsToUnsubscribe)
+                .WhenAsync(TheSessionDisconnects)
+                .ThenAsync(ThePacketLockShouldBeFree)
+                .ExecuteAsync();
+        }
+
+        private void TheMasterFailsToUnsubscribe() =>
+            TestHelpers.Instance.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
+                .ThrowsAsync(new TimeoutException());
+
+        private async Task ThePacketLockShouldBeFree()
+        {
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            using var packetLock = await Session.AcquirePacketLockAsync(timeout.Token);
         }
 
         private void TheDisconnectSaveTakesThePacketLockUnlessHeld() =>
