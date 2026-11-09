@@ -18,6 +18,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MateService;
+using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
@@ -93,6 +94,14 @@ namespace NosCore.GameObject.Services.BattleService
             monster.MapInstance.ScheduleRespawn(monster,
                 clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
 
+            if (owner.CapturedMonsterGoesToQuest(monster.NpcMonster.NpcMonsterVNum))
+            {
+                await owner.SendPacketAsync(Message(Game18NConstString.CaptureSuccessfulQuest));
+                await ShowCaughtAsync(owner, monster, caughtAt);
+                await messageBus.PublishAsync(new EntityCapturedEvent(monster, owner));
+                return;
+            }
+
             var row = await mateDao.TryInsertOrUpdateAsync(new MateDto
             {
                 CharacterId = owner.CharacterId,
@@ -122,13 +131,7 @@ namespace NosCore.GameObject.Services.BattleService
                 await owner.SendPacketsAsync(owner.GenerateMateRoster());
             }
 
-            await monster.MapInstance.SendPacketAsync(caughtAt);
-            await monster.MapInstance.SendPacketAsync(owner.GenerateEff(CaughtEffect));
-            await monster.MapInstance.SendPacketAsync(new OutPacket
-            {
-                VisualType = VisualType.Monster,
-                VisualId = monster.VisualId
-            });
+            await ShowCaughtAsync(owner, monster, caughtAt);
             if (mate.IsTeamMember)
             {
                 await owner.SendPacketAsync(mate.GenerateCond());
@@ -136,6 +139,17 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await messageBus.PublishAsync(new EntityCapturedEvent(monster, owner));
+        }
+
+        private static async Task ShowCaughtAsync(PlayerComponentBundle owner, MonsterComponentBundle monster, SuPacket caughtAt)
+        {
+            await monster.MapInstance!.SendPacketAsync(caughtAt);
+            await monster.MapInstance.SendPacketAsync(owner.GenerateEff(CaughtEffect));
+            await monster.MapInstance.SendPacketAsync(new OutPacket
+            {
+                VisualType = VisualType.Monster,
+                VisualId = monster.VisualId
+            });
         }
 
         private static SuPacket Animation(PlayerComponentBundle owner, MonsterComponentBundle monster, int hpPercent,
