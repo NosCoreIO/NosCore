@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 
 namespace NosCore.GameObject.Services.SpecialistHolderService;
@@ -17,6 +18,9 @@ public interface ISpecialistHolderService
 
     // Moves the card's progress into the empty holder; the caller removes the card itself.
     void Store(SpecialistInstance card, BoxInstance holder);
+
+    // Moves a card from the equipment pocket into an empty holder there and removes the card.
+    SpecialistStoreResult StoreFromEquipment(PlayerComponentBundle character, short cardSlot, short holderSlot);
 
     // A new card carrying the progress the holder kept; the holder is left unchanged.
     SpecialistInstance TakeOut(BoxInstance holder);
