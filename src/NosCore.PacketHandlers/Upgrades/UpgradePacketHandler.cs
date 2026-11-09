@@ -30,15 +30,15 @@ namespace NosCore.PacketHandlers.Upgrades
     {
         public override async Task ExecuteAsync(UpgradePacket packet, ClientSession session)
         {
-            if (!npcDialogService.IsOpen(session.Character, NpcDialogWindow.Upgrade))
-            {
-                return;
-            }
-
             var operation = operations.FirstOrDefault(o => o.Kind == packet.UpgradeType);
             if (operation == null)
             {
                 logger.LogWarning(logLanguage[LogLanguageKey.UNHANDLED_UPGRADE_TYPE], packet.UpgradeType);
+                return;
+            }
+
+            if (!npcDialogService.IsOpen(session.Character, operation.Window))
+            {
                 return;
             }
 

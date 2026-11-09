@@ -13,6 +13,7 @@ namespace NosCore.GameObject.Services.NpcDialogService
         Bank,
         Bazaar,
         Upgrade,
-        RevivalQuestion
+        RevivalQuestion,
+        UpgradeScroll
     }
 }

@@ -262,6 +262,28 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       rolls the attempt instead of saying the maximum was reached
 - [ ] A +20 card cannot be upgraded further
 
+### Event specialist card upgrade
+
+The odds are those of a plain card upgrade; no source says whether an event card's own
+window uses other ones, so the percentages the window shows are the check.
+
+- [ ] `$CreateItem 900` (Pyjama card) and `$CreateItem 5207` (Pyjama Upgrade Scroll), then
+      double-click the scroll away from any NPC: the card upgrade window opens and the scroll
+      stays in the bag
+- [ ] Drag the card in: note the success, soul destroyed and failure percentages the window
+      shows, and that it asks for no gold and no other material. Compare them with the plain
+      upgrade window's for the same level above; a difference means the event odds are wrong
+- [ ] Press Upgrade: on success "Upgrade to next level successful." appears, the card turns +1,
+      one scroll is gone and the gold has not moved
+- [ ] On a failure the card keeps its level and the scroll is still spent
+- [ ] Do the same with the Chicken card (907) and its scroll (5107), and the Pirate card
+      (4099, and the event copy 4100) with its scroll (5519)
+- [ ] Drag the Chicken card into the Pyjama window: "This card cannot be upgraded." appears and
+      nothing is spent
+- [ ] With the window open but no scroll left, press Upgrade: "Not enough ingredients" appears
+- [ ] With the scroll's window open, an NPC upgrade sent by a modified client does nothing (not
+      verifiable from a stock client)
+
 ### Equipment upgrade
 
 - [ ] Put a +2 weapon of rarity 8 in the bag with Cella Powder (1014) and Soul Gems (1015),
