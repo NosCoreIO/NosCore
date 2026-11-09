@@ -30,6 +30,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using SpecLight;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
 
@@ -62,13 +63,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _monster = new MonsterComponentBundle(
                 map.EcsWorld.CreateMonster(9001, creature, map, 12, 14, 2, 12, 14, false, true, false), map.EcsWorld);
             _monster.Hp = 40;
+            _session.Character.PositionX = 12;
+            _session.Character.PositionY = 13;
 
             _random = new Mock<IRandomProvider>();
             _random.Setup(r => r.Next(0, 100)).Returns(0);
             _mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, new List<NpcMonsterDto> { creature },
                 new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
             _service = new CaptureService(TestHelpers.Instance.MateDao, _mateService,
-                new Mock<Wolverine.IMessageBus>().Object, TestHelpers.Instance.Clock, _random.Object);
+                new Mock<Wolverine.IMessageBus>().Object, TestHelpers.Instance.Clock, _random.Object,
+                TestHelpers.Instance.DistanceCalculator);
 
             map.LastPackets.Clear();
             _session.LastPackets.Clear();
@@ -163,12 +167,46 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     return await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(row);
                 });
             service = new CaptureService(dao.Object, _mateService, new Mock<Wolverine.IMessageBus>().Object,
-                TestHelpers.Instance.Clock, _random.Object);
+                TestHelpers.Instance.Clock, _random.Object, TestHelpers.Instance.DistanceCalculator);
 
             await service.TryCaptureAsync(_session.Character, _monster, Capture);
 
             Assert.AreEqual(1, _session.Character.Mates.Count);
         }
+
+        [TestMethod]
+        public async Task AMonsterOutOfTheSkillsReachIsNotCaught()
+        {
+            await new Spec("A capture cast at a monster beyond the skill's range releases the client and catches nothing")
+                .Given(TheCharacterStands_CellsAway, (short)6)
+                .WhenAsync(Catching)
+                .Then(NothingIsCaught)
+                .And(TheCastIsCancelled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AMonsterWithinTheSkillsReachIsCaught()
+        {
+            await new Spec("A capture cast at a monster within the skill's range goes through")
+                .Given(TheCharacterStands_CellsAway, (short)2)
+                .WhenAsync(Catching)
+                .Then(ThePetIsCaught)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterStands_CellsAway(short cells)
+        {
+            _session.Character.PositionX = _monster.PositionX;
+            _session.Character.PositionY = (short)(_monster.PositionY - cells);
+        }
+
+        private void NothingIsCaught() => Assert.IsNull(Caught);
+
+        private void ThePetIsCaught() => Assert.IsNotNull(Caught);
+
+        private void TheCastIsCancelled() =>
+            Assert.AreEqual(CancelPacketType.CancelCast, _session.LastPackets.OfType<CancelPacket>().Single().Type);
 
         [TestMethod]
         public async Task ARefusedCaptureReleasesTheClient()
@@ -222,7 +260,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await Catching();
             var map = _session.Character.MapInstance;
             var second = new MonsterComponentBundle(
-                map.EcsWorld.CreateMonster(9002, _monster.NpcMonster!, map, 3, 3, 2, 3, 3, false, true, false), map.EcsWorld);
+                map.EcsWorld.CreateMonster(9002, _monster.NpcMonster!, map, 13, 14, 2, 13, 14, false, true, false), map.EcsWorld);
             second.Hp = 40;
 
             await _service.TryCaptureAsync(_session.Character, second, Capture);
@@ -249,7 +287,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var map = _session.Character.MapInstance;
             var strong = new NpcMonsterDto { NpcMonsterVNum = 334, Level = 5, MaxHp = 100, Name = _monster.NpcMonster!.Name };
             var monster = new MonsterComponentBundle(
-                map.EcsWorld.CreateMonster(9003, strong, map, 3, 3, 2, 3, 3, false, true, false), map.EcsWorld);
+                map.EcsWorld.CreateMonster(9003, strong, map, 13, 14, 2, 13, 14, false, true, false), map.EcsWorld);
             monster.Hp = 10;
 
             await _service.TryCaptureAsync(_session.Character, monster, Capture);

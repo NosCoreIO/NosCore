@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Services.MateService
             var distance = (int)distanceCalculator.GetDistance((entity.PositionX, entity.PositionY),
                 (target.PositionX, target.PositionY));
             var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
-            if (!SkillReach.IsInReach(skill.TargetType, skill.Range, distance, targetArea))
+            if (!SkillReach.IsInReach(skill.TargetType, skill.Range, skill.TargetRange, distance, targetArea))
             {
                 return false;
             }

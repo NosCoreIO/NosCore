@@ -25,13 +25,14 @@ using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
 using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Wolverine;
 
 namespace NosCore.GameObject.Services.BattleService
 {
     public sealed class CaptureService(IDao<MateDto, long> mateDao, IMateService mateService,
-        IMessageBus messageBus, IClock clock, IRandomProvider random) : ICaptureService
+        IMessageBus messageBus, IClock clock, IRandomProvider random, IHeuristic distanceCalculator) : ICaptureService
     {
         private const int CaptureHpThresholdPercent = 50;
         private const int LowLevelCaptureRate = 90;
@@ -57,6 +58,15 @@ namespace NosCore.GameObject.Services.BattleService
             // leaves the character unable to act.
             if (target is not MonsterComponentBundle monster
                 || monster.NpcMonster == null || !monster.IsAlive || monster.MapInstance == null)
+            {
+                await owner.SendPacketAsync(Cancel(skill));
+                return;
+            }
+
+            var distance = (int)distanceCalculator.GetDistance((owner.PositionX, owner.PositionY),
+                (monster.PositionX, monster.PositionY));
+            if (monster.MapInstance != owner.MapInstance
+                || !SkillReach.IsInReach(skill.TargetType, skill.Range, skill.TargetRange, distance, monster.NpcMonster.BasicArea))
             {
                 await owner.SendPacketAsync(Cancel(skill));
                 return;

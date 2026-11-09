@@ -9,8 +9,8 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.Packets.ClientPackets.Mates;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -19,7 +19,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Mates
 {
     public class UpetPacketHandler(
-        IBattleService battleService,
+        IMateAttackService mateAttackService,
         ISessionRegistry sessionRegistry,
         ILogger<UpetPacketHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
@@ -43,9 +43,7 @@ namespace NosCore.PacketHandlers.Mates
                 return;
             }
 
-            // Cast id zero is the creature's own basic attack, read off the NpcMonster.
-            await battleService.Hit(attacker, target, new HitArguments { SkillId = 0 })
-                .ConfigureAwait(false);
+            await mateAttackService.BasicAttackAsync(attacker, target);
         }
 
         private IAliveEntity? ResolveTarget(UpetPacket packet, ClientSession session)

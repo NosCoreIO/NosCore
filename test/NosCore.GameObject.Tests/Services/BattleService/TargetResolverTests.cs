@@ -95,6 +95,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void ACasterCentredAreaSkillHitsAroundTheCasterNotTheTarget()
+        {
+            var monsters = SpawnMonsters((2, 2), (2, 1), (5, 5), (5, 4));
+            var aroundCaster = AreaSkill() with { TargetType = 1 };
+
+            var targets = _resolver.Resolve(_caster.Character, monsters[0], aroundCaster);
+
+            CollectionAssert.AreEquivalent(
+                new[] { monsters[0].VisualId, monsters[1].VisualId },
+                targets.Where(t => t.VisualType == VisualType.Monster).Select(t => t.VisualId).ToArray());
+        }
+
+        [TestMethod]
         public void ASingleTargetSkillOnlyHitsItsTarget()
         {
             var monsters = SpawnMonsters((5, 5), (5, 4));

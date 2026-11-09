@@ -42,8 +42,9 @@ public sealed class TargetResolver(ISessionRegistry sessionRegistry) : ITargetRe
                 primaryTarget.PositionX, primaryTarget.PositionY);
 
         var range = skill.TargetRange;
-        var cx = primaryTarget.PositionX;
-        var cy = primaryTarget.PositionY;
+        var centre = skill.TargetType == SkillReach.TargetedSkill ? primaryTarget : attacker;
+        var cx = centre.PositionX;
+        var cy = centre.PositionY;
 
         foreach (var monster in mapInstance.EnumerateMonsters())
         {

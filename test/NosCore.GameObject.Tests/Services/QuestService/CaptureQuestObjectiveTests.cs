@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             var mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, Creatures.Values.ToList(),
                 new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
             Captures = new CaptureService(TestHelpers.Instance.MateDao, mateService, Bus.Object,
-                TestHelpers.Instance.Clock, random.Object);
+                TestHelpers.Instance.Clock, random.Object, TestHelpers.Instance.DistanceCalculator);
         }
 
         [TestMethod]
@@ -222,6 +222,8 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             var monster = new MonsterComponentBundle(
                 map.EcsWorld.CreateMonster(_nextMonsterId++, Creatures[monsterVNum], map, 12, 14, 2, 12, 14, false, true, false),
                 map.EcsWorld) { Hp = 40 };
+            Session.Character.PositionX = 12;
+            Session.Character.PositionY = 13;
             Session.LastPackets.Clear();
 
             await Captures.TryCaptureAsync(Session.Character, monster, CaptureSkill);

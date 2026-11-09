@@ -5,7 +5,6 @@
 //
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
@@ -133,8 +132,7 @@ namespace NosCore.PacketHandlers.Battle
         {
             commit = null;
             var character = session.Character;
-            var skill = character.Skills?.Values.FirstOrDefault(s =>
-                s.Skill != null && s.Skill.CastId == castId && s.Skill.UpgradeSkill == 0);
+            var skill = SkillResolver.FindLearned(character, castId);
             if (skill?.Skill == null)
             {
                 // Skill not in the learned dict — let BattleService decide. Matches the
@@ -148,7 +146,7 @@ namespace NosCore.PacketHandlers.Battle
             }
             var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (target.PositionX, target.PositionY));
             var targetArea = target is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0;
-            if (!SkillReach.IsInReach(skill.Skill.TargetType, skill.Skill.Range, distance, targetArea))
+            if (!SkillReach.IsInReach(skill.Skill.TargetType, skill.Skill.Range, skill.Skill.TargetRange, distance, targetArea))
             {
                 return false;
             }
