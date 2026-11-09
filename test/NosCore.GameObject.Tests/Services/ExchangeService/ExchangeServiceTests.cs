@@ -6,6 +6,8 @@
 
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Dto;
+using NosCore.Dao.Interfaces;
 using Moq;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
@@ -57,9 +59,15 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             };
 
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
-            ExchangeProvider = new GameObject.Services.ExchangeService.ExchangeService(ItemProvider, WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+            ExchangeProvider = CreateExchangeService();
         }
+
+        private GameObject.Services.ExchangeService.ExchangeService CreateExchangeService() =>
+            new(WorldConfiguration!, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance,
+                new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry,
+                TestHelpers.Instance.Clock);
+
+        private static Dictionary<InventoryItemInstance, short> NoItems => new();
 
         [TestMethod]
         public void SettingGoldShouldUpdateExchangeData()
@@ -126,25 +134,45 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
                 .Execute();
         }
 
-        [TestMethod]
-        public void ProcessingExchangeShouldSwapItems()
-        {
-            new Spec("Processing exchange should swap items")
-                .Then(ProcessExchangeShouldReturnItemsForBoth)
-                .Execute();
-        }
 
         [TestMethod]
-        public async Task ValidateExchangeFailsWhenTargetsGoldWouldExceedCap()
+        public async Task ValidateExchangeFailsWhenSessionsGoldWouldExceedCap()
         {
-            await new Spec("Validate returns Failure + MaxGoldReached when target's gold + session's gold exceed MaxGoldAmount")
+            await new Spec("Validate returns Failure + MaxGoldReached to the session when the target's gold would push it past MaxGoldAmount")
                 .GivenAsync(SessionAndTargetAreSetUp)
                 .And(SessionCharacterGoldIs_, 900_000_000L)
                 .And(TargetCharacterGoldIs_, 500_000_000L)
                 .And(ExchangeOfferTargetsGoldIs_, 500_000_000L)
                 .WhenAsync(ValidatingExchange)
                 .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
+                .And(DictionaryShouldContainPacketFor_WithMessage_, false, Game18NConstString.MaxGoldReached)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenTargetsGoldWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure + MaxGoldReached to the target when the session's gold would push it past MaxGoldAmount")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionCharacterGoldIs_, 900_000_000L)
+                .And(TargetCharacterGoldIs_, 500_000_000L)
+                .And(ExchangeOfferSessionsGoldIs_, 600_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
                 .And(DictionaryShouldContainPacketFor_WithMessage_, true, Game18NConstString.MaxGoldReached)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidateExchangeFailsWhenBothGoldWouldExceedCap()
+        {
+            await new Spec("Validate returns Failure when both sides' gold would pass MaxGoldAmount")
+                .GivenAsync(SessionAndTargetAreSetUp)
+                .And(SessionCharacterGoldIs_, 900_000_000L)
+                .And(TargetCharacterGoldIs_, 500_000_000L)
+                .And(BothOfferGold_, 600_000_000L, 500_000_000L)
+                .WhenAsync(ValidatingExchange)
+                .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
                 .ExecuteAsync();
         }
 
@@ -154,6 +182,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             await new Spec("Validate returns Failure + CanNotDepositAnymore to the target when the offered bank gold would overflow the target's bank")
                 .GivenAsync(SessionAndTargetAreSetUp)
                 .And(TargetBankGoldIs_, 99_000_000_000L)
+                .And(SessionBankGoldIs_, 2_000_000_000L)
                 .And(ExchangeOfferSessionsBankGoldIs_, 2_000_000_000L)
                 .WhenAsync(ValidatingExchange)
                 .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
@@ -167,6 +196,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             await new Spec("Validate returns Failure + CanNotDepositAnymore to the session when the target's bank gold would overflow the session's bank")
                 .GivenAsync(SessionAndTargetAreSetUp)
                 .And(SessionBankGoldIs_, 99_000_000_000L)
+                .And(TargetBankGoldIs_, 2_000_000_000L)
                 .And(ExchangeOfferTargetsBankGoldIs_, 2_000_000_000L)
                 .WhenAsync(ValidatingExchange)
                 .Then(ResultTypeShouldBe_, ExchangeResultType.Failure)
@@ -209,10 +239,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             await TestHelpers.ResetAsync();
             _sessionA = await TestHelpers.Instance.GenerateSessionAsync();
             _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
-            _realExchange = new GameObject.Services.ExchangeService.ExchangeService(
-                ItemProvider!, WorldConfiguration!, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance, new ExchangeRequestRegistry(),
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+            _realExchange = CreateExchangeService();
             _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
         }
 
@@ -221,17 +248,26 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         private void TargetCharacterGoldIs_(long gold) => _sessionB!.Character.Gold = gold;
 
         private void ExchangeOfferTargetsGoldIs_(long gold) =>
-            _realExchange!.SetGold(_sessionB!.Character.VisualId, gold, 0);
+            _realExchange!.SetOffer(_sessionB!.Character.VisualId, gold, 0, NoItems);
+
+        private void ExchangeOfferSessionsGoldIs_(long gold) =>
+            _realExchange!.SetOffer(_sessionA!.Character.CharacterId, gold, 0, NoItems);
+
+        private void BothOfferGold_(long sessionGold, long targetGold)
+        {
+            ExchangeOfferSessionsGoldIs_(sessionGold);
+            ExchangeOfferTargetsGoldIs_(targetGold);
+        }
 
         private void SessionBankGoldIs_(long bankGold) => _sessionA!.Character.BankGold = bankGold;
 
         private void TargetBankGoldIs_(long bankGold) => _sessionB!.Character.BankGold = bankGold;
 
         private void ExchangeOfferSessionsBankGoldIs_(long bankGold) =>
-            _realExchange!.SetGold(_sessionA!.Character.CharacterId, 0, bankGold);
+            _realExchange!.SetOffer(_sessionA!.Character.CharacterId, 0, bankGold, NoItems);
 
         private void ExchangeOfferTargetsBankGoldIs_(long bankGold) =>
-            _realExchange!.SetGold(_sessionB!.Character.VisualId, 0, bankGold);
+            _realExchange!.SetOffer(_sessionB!.Character.VisualId, 0, bankGold, NoItems);
 
         private void SessionOffersANonTradableItem()
         {
@@ -240,12 +276,13 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             var item = new InventoryItemInstance(new GameObject.Services.ItemGenerationService.Item.ItemInstance(
                 new Item { VNum = 999, Type = NoscorePocketType.Main, IsTradable = false })
             { Amount = 1 });
-            _realExchange!.AddItems(_sessionA.Character.CharacterId, item, 1);
+            _realExchange!.SetOffer(_sessionA.Character.CharacterId, 0, 0, new Dictionary<InventoryItemInstance, short> { [item] = 1 });
         }
 
         private Task ValidatingExchange()
         {
-            _validationResult = _realExchange!.ValidateExchange(_sessionA!, _sessionB!.Character);
+            _validationResult = _realExchange!.ValidateExchange(_sessionA!, _sessionB!.Character,
+                _realExchange.GetData(_sessionA!.Character.CharacterId), _realExchange.GetData(_sessionB.Character.VisualId));
             return Task.CompletedTask;
         }
 
@@ -273,8 +310,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private void SettingGoldForBothParties()
         {
-            ExchangeProvider!.SetGold(1, 1000, 1000);
-            ExchangeProvider.SetGold(2, 2000, 2000);
+            ExchangeProvider!.SetOffer(1, 1000, 1000, NoItems);
+            ExchangeProvider.SetOffer(2, 2000, 2000, NoItems);
         }
 
         private void BothPartiesShouldHaveCorrectGold()
@@ -304,7 +341,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             {
                 Amount = 1
             });
-            ExchangeProvider!.AddItems(1, item, item.ItemInstance.Amount);
+            ExchangeProvider!.SetOffer(1, 0, 0, new Dictionary<InventoryItemInstance, short> { [item] = item.ItemInstance.Amount });
         }
 
         private void ExchangeShouldContainItem()
@@ -352,75 +389,5 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             Assert.IsFalse(wrongExchange);
         }
 
-        private void ProcessExchangeShouldReturnItemsForBoth()
-        {
-            IInventoryService inventory1 =
-                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
-            IInventoryService inventory2 =
-                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1013, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
-            var item1 = inventory1.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 1), 0))!
-                .First();
-            var item2 = inventory2.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 1), 0))!
-                .First();
-
-            ExchangeProvider!.OpenExchange(1, 2);
-            ExchangeProvider.AddItems(1, item1, 1);
-            ExchangeProvider.AddItems(2, item2, 1);
-            var itemList = ExchangeProvider.ProcessExchange(1, 2, inventory1, inventory2);
-            Assert.IsTrue((itemList.Count(s => s.Key == 1) == 2) && (itemList.Count(s => s.Key == 2) == 2));
-        }
-
-        [TestMethod]
-        public void AnOfferedItemThatLeftTheInventoryDoesNotReachTheOtherSide()
-        {
-            IInventoryService giver =
-                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
-            IInventoryService receiver =
-                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
-
-            var offered = giver.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 1), 0))!.First();
-
-            ExchangeProvider!.OpenExchange(1, 2);
-            ExchangeProvider.AddItems(1, offered, 1);
-
-            // The destination item is built fresh rather than moved, so dropping the offered
-            // item after putting it in the window used to hand over a second copy of it.
-            giver.Remove(offered.ItemInstanceId);
-
-            var itemList = ExchangeProvider.ProcessExchange(1, 2, giver, receiver);
-
-            Assert.AreEqual(0, itemList.Count, "a vanished offer must not transfer");
-            Assert.AreEqual(0, receiver.Count, "the receiver must not gain a duplicate");
-        }
-
-        [TestMethod]
-        public void ProcessExchangeNotifiesReceiverWithTheirActualMergedAmount()
-        {
-            IInventoryService giver =
-                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
-            IInventoryService receiver =
-                new GameObject.Services.InventoryService.InventoryService(new List<ItemDto> { new Item { VNum = 1012, Type = NoscorePocketType.Main } },
-                    WorldConfiguration!, NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
-
-            var offered = giver.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 5), 0))!.First();
-            receiver.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 4), 0));
-
-            ExchangeProvider!.OpenExchange(1, 2);
-            // Offering less than the full stack (2 of 5) forces the partial-transfer branch,
-            // which mutates the giver's own item object in place - this used to leak into the
-            // receiver's notification packet.
-            ExchangeProvider.AddItems(1, offered, 2);
-
-            var itemList = ExchangeProvider.ProcessExchange(1, 2, giver, receiver);
-
-            var receiverPacket = itemList.First(s => s.Key == 2).Value;
-            var receiverAmount = receiverPacket.IvnSubPackets!.First()!.RareAmount;
-            Assert.AreEqual((short)6, receiverAmount, "the receiver must be notified of their true merged total (4 + 2), not the giver's remaining balance");
-        }
     }
 }

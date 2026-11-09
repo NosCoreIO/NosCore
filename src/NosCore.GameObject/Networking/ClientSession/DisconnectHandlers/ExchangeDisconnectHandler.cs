@@ -26,9 +26,9 @@ public class ExchangeDisconnectHandler(IExchangeService exchangeService, ISessio
             return;
         }
 
-        var closeExchange = exchangeService.CloseExchange(session.Character.VisualId, ExchangeResultType.Failure);
+        var closeExchange = await exchangeService.LeaveExchangeAsync(session.Character.VisualId);
         var targetSender = sessionRegistry.GetSenderByCharacterId(targetId.Value);
-        if (targetSender != null)
+        if (closeExchange != null && targetSender != null)
         {
             await targetSender.SendPacketAsync(closeExchange);
         }

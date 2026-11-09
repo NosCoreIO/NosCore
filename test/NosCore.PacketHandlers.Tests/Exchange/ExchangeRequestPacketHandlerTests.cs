@@ -11,6 +11,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ExchangeService;
+using NosCore.GameObject.Services.TransferService;
 using NosCore.PacketHandlers.Exchange;
 using NosCore.Packets.ClientPackets.Exchanges;
 using NosCore.Packets.Enumerations;
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 BlacklistHub.Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.GameLanguageLocalizer);
+                new Mock<ITransferService>().Object);
         }
 
         [TestMethod]
@@ -192,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.GetTargetId(It.IsAny<long>()))
                 .Returns((long?)TargetSession.Character.CharacterId);
-            ExchangeService.Setup(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()))
+            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<long>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
 
@@ -258,7 +259,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeShouldBeClosed()
         {
-            ExchangeService.Verify(x => x.CloseExchange(It.IsAny<long>(), ExchangeResultType.Failure), Times.Once);
+            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<long>()), Times.Once);
         }
     }
 }

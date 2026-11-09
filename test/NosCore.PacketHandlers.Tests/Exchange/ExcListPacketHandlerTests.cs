@@ -25,6 +25,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Exchange
@@ -161,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             var targetVisualId = TargetSession.Character.VisualId;
             ExchangeService.Setup(x => x.GetTargetId(visualId))
                 .Returns(targetVisualId);
-            ExchangeService.Setup(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()))
+            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<long>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
 
@@ -213,30 +214,33 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeGoldShouldNotBeSet()
         {
-            ExchangeService.Verify(x => x.SetGold(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            ExchangeService.Verify(x => x.SetOffer(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(),
+                It.IsAny<IReadOnlyDictionary<InventoryItemInstance, short>>()), Times.Never);
         }
 
         private void ExchangeShouldNotBeClosed()
         {
-            ExchangeService.Verify(x => x.CloseExchange(It.IsAny<long>(), It.IsAny<ExchangeResultType>()), Times.Never);
+            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<long>()), Times.Never);
         }
 
         private void ExchangeGoldShouldBeSet()
         {
             var characterId = Session.Character.CharacterId;
-            ExchangeService.Verify(x => x.SetGold(characterId, 5000, 0), Times.Once);
+            ExchangeService.Verify(x => x.SetOffer(characterId, 5000, 0,
+                It.IsAny<IReadOnlyDictionary<InventoryItemInstance, short>>()), Times.Once);
         }
 
         private void ExchangeShouldBeClosed()
         {
             var visualId = Session.Character.VisualId;
-            ExchangeService.Verify(x => x.CloseExchange(visualId, ExchangeResultType.Failure), Times.Once);
+            ExchangeService.Verify(x => x.CancelExchange(visualId), Times.Once);
         }
 
         private void ItemShouldBeAddedToExchange()
         {
             var characterId = Session.Character.CharacterId;
-            ExchangeService.Verify(x => x.AddItems(characterId, It.IsAny<InventoryItemInstance>(), 5), Times.Once);
+            ExchangeService.Verify(x => x.SetOffer(characterId, 0, 0,
+                It.Is<IReadOnlyDictionary<InventoryItemInstance, short>>(d => d.Count == 1 && d.Values.Single() == 5)), Times.Once);
         }
     }
 }
