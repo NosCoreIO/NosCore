@@ -832,6 +832,10 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] Cancel leaves them where they are, and a later Confirm on a stale dialog does nothing
 - [ ] With the miniland locked, without a seed, to someone offline, or to someone blocking
       Miniland invites in their options: each gives its own message and no seed is used
+- [ ] From the friend list, visit a friend's open miniland from the open world and from your
+      own miniland: both work
+- [ ] Try the same from inside a time-space or an arena: the client's "cannot be used here"
+      line appears and you stay where you are
 
 ### Invite cooldown and blacklist
 
