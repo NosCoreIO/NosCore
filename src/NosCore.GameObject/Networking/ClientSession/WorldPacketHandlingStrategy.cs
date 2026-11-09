@@ -161,6 +161,12 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         }
 
         var isMfa = packet is GuriPacket guri && guri.Type == GuriPacketType.TextInput && guri.Argument == 3 && guri.VisualId == 0;
+        if (session.IsAuthenticated && !session.MfaValidated && session.Account?.MfaSecret != null && !isMfa)
+        {
+            logger.LogWarning("Packet {Header} refused until MFA is validated", packet.Header);
+            return false;
+        }
+
         if (!session.HasSelectedCharacter && (attr.Scopes & Scope.OnCharacterScreen) == 0 && !isMfa)
         {
             logger.LogWarning(logLanguage[LogLanguageKey.PACKET_USED_WITHOUT_CHARACTER], packet.Header);
@@ -179,7 +185,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
     private bool ValidateAuthority(ClientSession session, PacketHeaderAttribute? attr)
     {
         if (session.IsAuthenticated && attr is CommandPacketHeaderAttribute commandHeader &&
-            (byte)commandHeader.Authority > (byte)session.Account.Authority)
+            commandHeader.Authority > session.Account.Authority)
         {
             return false;
         }

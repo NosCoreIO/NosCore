@@ -43,6 +43,9 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub
         public async Task<bool> Ping() =>
             (await bus.InvokeMasterAsync<PingChannelReply>(new PingChannelRequest(node.QueueName))).IsRegistered;
 
+        public Task<bool> IsInMaintenanceAsync() =>
+            bus.RequestAsync<bool>(new IsInMaintenanceRequest(node.QueueName));
+
         public Task SetMaintenance(bool isGlobal, bool value) =>
             bus.SendToMasterAsync(new SetMaintenanceRequest(node.QueueName, isGlobal, value));
 

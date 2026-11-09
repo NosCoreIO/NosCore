@@ -18,4 +18,6 @@ public interface IChannelHub
     Task SetMaintenance(bool isGlobal, bool value);
 
     Task<bool> Ping();
+
+    Task<bool> IsInMaintenanceAsync();
 }

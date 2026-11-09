@@ -15,6 +15,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.AuthService;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.CharacterScreen;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
@@ -53,6 +54,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 TestHelpers.Instance.MateDao,
                 Logger.Object,
                 AuthHttpClient.Object,
+                TestHelpers.Instance.ChannelHub.Object,
                 TestHelpers.Instance.WorldConfiguration,
                 new SessionRefHolder(),
                 TestHelpers.Instance.LogLanguageLocalizer);
@@ -134,6 +136,47 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         [TestMethod]
+        public async Task ConnectionWithABannedAccountShouldFail()
+        {
+            await new Spec("Connection with a banned account should fail")
+                .GivenAsync(AccountAuthorityIs_, AuthorityType.Banned)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConnectionWithAnUnconfirmedAccountShouldFail()
+        {
+            await new Spec("Connection with an unconfirmed account should fail")
+                .GivenAsync(AccountAuthorityIs_, AuthorityType.Unconfirmed)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ConnectionToAChannelInMaintenanceShouldFail()
+        {
+            await new Spec("Connection to a channel in maintenance should fail")
+                .Given(TheChannelIsInMaintenance)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(AccountShouldBeNull)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GameMasterCanConnectToAChannelInMaintenance()
+        {
+            await new Spec("Game master can connect to a channel in maintenance")
+                .Given(TheChannelIsInMaintenance)
+                .AndAsync(AccountAuthorityIs_, AuthorityType.GameMaster)
+                .WhenAsync(ConnectingWithValidPassword)
+                .Then(AccountShouldBeSet)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ConnectionWithMfaEnabledShouldRequireValidation()
         {
             await new Spec("Connection with MFA enabled should require validation")
@@ -182,6 +225,18 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             AuthHttpClient.Setup(authHttpClient => authHttpClient
                     .RedeemWorldEntryAsync(AccountName, Session.SessionId))
                 .ReturnsAsync(new WorldEntryGrant(false));
+        }
+
+        private async Task AccountAuthorityIs_(AuthorityType authority)
+        {
+            var account = await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName);
+            account!.Authority = authority;
+            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(account);
+        }
+
+        private void TheChannelIsInMaintenance()
+        {
+            TestHelpers.Instance.ChannelHub.Setup(h => h.IsInMaintenanceAsync()).ReturnsAsync(true);
         }
 
         private async Task AccountHasMfaEnabled()

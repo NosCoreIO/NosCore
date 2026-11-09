@@ -16,6 +16,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
+using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -23,6 +24,7 @@ using NosCore.Networking.SessionRef;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
@@ -35,12 +37,12 @@ namespace NosCore.PacketHandlers.CharacterScreen
     public class EntryPointPacketHandler(IDao<CharacterDto, long> characterDao,
             IDao<AccountDto, long> accountDao,
             IDao<MateDto, long> mateDao, ILogger<EntryPointPacketHandler> logger, IAuthHub authHttpClient,
-            IOptions<WorldConfiguration> configuration,
+            IChannelHub channelHub, IOptions<WorldConfiguration> configuration,
             ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<EntryPointPacket>, IWorldPacketHandler
     {
         public static async Task VerifyConnectionAsync(ClientSession clientSession, ILogger _logger, IAuthHub authHttpClient,
-            IDao<AccountDto, long> accountDao, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<AccountDto, long> accountDao, IChannelHub channelHub, string accountName, Func<AccountDto, Task<bool>> authorize, ISessionRefHolder sessionRefHolder, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
             var account = await accountDao.FirstOrDefaultAsync(s => s.Name == accountName);
 
@@ -60,6 +62,20 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 {
                     accountName
                 });
+                await clientSession.DisconnectAsync();
+                return;
+            }
+
+            if (account.Authority < AuthorityType.User)
+            {
+                _logger.LogWarning("World entry refused for {AccountName}: authority {Authority}", accountName, account.Authority);
+                await clientSession.DisconnectAsync();
+                return;
+            }
+
+            if (account.Authority < AuthorityType.GameMaster && await channelHub.IsInMaintenanceAsync())
+            {
+                _logger.LogWarning("World entry refused for {AccountName}: the channel is in maintenance", accountName);
                 await clientSession.DisconnectAsync();
                 return;
             }
@@ -89,7 +105,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             {
                 var password = packet.Password ?? throw new InvalidOperationException();
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                    accountDao, packet.Name, password == "thisisgfmode"
+                    accountDao, channelHub, packet.Name, password == "thisisgfmode"
                         ? async _ =>
                         {
                             var grant = await authHttpClient.RedeemWorldEntryAsync(packet.Name, clientSession.SessionId);

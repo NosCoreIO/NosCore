@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             PubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             DacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, AuthHttpClient.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, AuthHttpClient.Object, ChannelHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
