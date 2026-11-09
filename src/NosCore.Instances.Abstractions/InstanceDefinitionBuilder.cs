@@ -22,6 +22,8 @@ namespace NosCore.Instances.Abstractions
         private byte _levelMinimum;
         private byte _levelMaximum;
         private byte _lives;
+        private byte _teamSizeMinimum;
+        private byte _teamSizeMaximum;
         private short _startX;
         private short _startY;
         private long _gold;
@@ -43,6 +45,13 @@ namespace NosCore.Instances.Abstractions
         public InstanceDefinitionBuilder WithLives(byte lives)
         {
             _lives = lives;
+            return this;
+        }
+
+        public InstanceDefinitionBuilder ForTeams(byte minimum, byte maximum)
+        {
+            _teamSizeMinimum = minimum;
+            _teamSizeMaximum = maximum;
             return this;
         }
 
@@ -102,6 +111,8 @@ namespace NosCore.Instances.Abstractions
                 LevelMinimum = _levelMinimum,
                 LevelMaximum = _levelMaximum,
                 Lives = _lives,
+                TeamSizeMinimum = _teamSizeMinimum,
+                TeamSizeMaximum = _teamSizeMaximum,
                 StartX = _startX,
                 StartY = _startY,
                 Gold = _gold,

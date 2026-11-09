@@ -27,6 +27,10 @@ namespace NosCore.Instances.Abstractions
 
         public byte Lives { get; init; }
 
+        public byte TeamSizeMinimum { get; init; }
+
+        public byte TeamSizeMaximum { get; init; }
+
         public short StartX { get; init; }
 
         public short StartY { get; init; }
