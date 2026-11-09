@@ -8,8 +8,10 @@ using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
+using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Shared.Enumerations;
+using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Generic;
@@ -138,5 +140,30 @@ public static class FamilyExtensions
         Entries = family.Members
             .Select(s => (GexpSubPacket?)new GexpSubPacket { CharacterId = s.CharacterId, Experience = s.Experience })
             .ToList()
+    };
+
+    public static GhisPacket GenerateGhis(this IEnumerable<FamilyLogDto> history, Instant now) => new()
+    {
+        Entries = history.Select(s => (GhisSubPacket?)new GhisSubPacket
+        {
+            Type = (Packets.Enumerations.FamilyLogType)s.FamilyLogType,
+            FirstArgument = s.FirstArgument,
+            SecondArgument = s.SecondArgument,
+            ThirdArgument = s.ThirdArgument,
+            FourthArgument = s.FourthArgument,
+            HoursAgo = (int)(now - s.Timestamp).TotalHours
+        }).ToList()
+    };
+
+    public static FrankStcPacket GenerateFrank(this IEnumerable<FamilyRankingEntry> ranking, FamilyRankingType type) => new()
+    {
+        Type = type,
+        Entries = ranking.Select(s => (FrankStcSubPacket?)new FrankStcSubPacket
+        {
+            Rank = s.Rank,
+            FamilyName = s.FamilyName,
+            FamilyLevel = s.FamilyLevel,
+            Value = s.Value
+        }).ToList()
     };
 }

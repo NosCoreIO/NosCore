@@ -11,6 +11,8 @@ using NodaTime.Testing;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
+using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.FamilyService;
 using SpecLight;
 using System;
@@ -30,11 +32,14 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private FamilyLogService _service = null!;
         private bool _hasWritten;
         private bool _threw;
+        private readonly List<IMessage> _published = new();
+        private IReadOnlyList<FamilyLogDto> _history = null!;
 
         [TestInitialize]
         public void Setup()
         {
             _logs.Clear();
+            _published.Clear();
             _clock = new FakeClock(Instant.FromUtc(2026, 11, 8, 12, 0));
             var dao = new Mock<IDao<FamilyLogDto, long>>();
             dao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyLogDto>()))
@@ -42,7 +47,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .ReturnsAsync((FamilyLogDto log) => log);
             dao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyLogDto, bool>>>()))
                 .Returns((Expression<Func<FamilyLogDto, bool>> p) => _logs.Where(p.Compile()));
-            _service = new FamilyLogService(dao.Object, _clock);
+            var pubSubHub = new Mock<IPubSubHub>();
+            pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
+            _service = new FamilyLogService(dao.Object, _clock, pubSubHub.Object);
         }
 
         [TestMethod]
@@ -52,6 +59,38 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .WhenAsync(LoggingThatNewbieJoinedOnHeadsInvite)
                 .Then(TheOnlyEntryShouldBe_, FamilyLogType.UserManaged, new[] { "Newbie", "Head", null, null })
                 .And(ItShouldBeStampedNow)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnEntryTellsTheFamilyItsHistoryChanged()
+        {
+            await new Spec("Writing an entry tells every channel that this family's history changed")
+                .WhenAsync(LoggingThatNewbieJoinedOnHeadsInvite)
+                .Then(AHistoryChangeShouldBePublishedForTheFamily)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheHistoryIsNewestFirstWithoutWarehouseEntries()
+        {
+            await new Spec("The history lists the family's own entries newest first and leaves out warehouse entries")
+                .Given(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.FamilyManaged, FamilyId, 5)
+                .And(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.WareHouseAdded, FamilyId, 1)
+                .And(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.UserManaged, FamilyId, 2)
+                .And(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.UserManaged, FamilyId + 1, 0)
+                .When(ReadingTheHistory)
+                .Then(TheHistoryTypesShouldBe_, new[] { FamilyLogType.UserManaged, FamilyLogType.FamilyManaged })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheHistoryKeepsTheNewestFifty()
+        {
+            await new Spec("Only the 50 newest entries are listed")
+                .Given(_EntriesWrittenAnHourApart, 60)
+                .When(ReadingTheHistory)
+                .Then(TheHistoryShouldHold_EntriesNewestFirst, 50)
                 .ExecuteAsync();
         }
 
@@ -171,6 +210,36 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.AreEqual(type, log.FamilyLogType);
             CollectionAssert.AreEqual(arguments, new[] { log.FirstArgument, log.SecondArgument, log.ThirdArgument, log.FourthArgument });
             Assert.IsNull(log.FamilyLogData);
+        }
+
+        private void AHistoryChangeShouldBePublishedForTheFamily() =>
+            Assert.AreEqual(FamilyId, _published.OfType<FamilyHistoryChangedData>().Single().FamilyId);
+
+        private void AnEntryOfType_For_Written_HoursAgo(FamilyLogType type, long familyId, int hours) => _logs.Add(new FamilyLogDto
+        {
+            FamilyId = familyId,
+            FamilyLogType = type,
+            Timestamp = _clock.GetCurrentInstant() - Duration.FromHours(hours)
+        });
+
+        private void _EntriesWrittenAnHourApart(int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                AnEntryOfType_For_Written_HoursAgo(FamilyLogType.LevelUp, FamilyId, i);
+            }
+        }
+
+        private void ReadingTheHistory() => _history = _service.GetHistory(FamilyId);
+
+        private void TheHistoryTypesShouldBe_(FamilyLogType[] types) =>
+            CollectionAssert.AreEqual(types, _history.Select(s => s.FamilyLogType).ToList());
+
+        private void TheHistoryShouldHold_EntriesNewestFirst(int count)
+        {
+            Assert.AreEqual(count, _history.Count);
+            Assert.AreEqual(_clock.GetCurrentInstant(), _history[0].Timestamp);
+            CollectionAssert.AreEqual(_history.OrderByDescending(s => s.Timestamp).ToList(), _history.ToList());
         }
 
         private void ItShouldHaveThrown() => Assert.IsTrue(_threw);

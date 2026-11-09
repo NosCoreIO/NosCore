@@ -61,7 +61,6 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync((FamilyLogDto log) => log);
             logDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyLogDto, bool>>>()))
                 .Returns((Expression<Func<FamilyLogDto, bool>> p) => _logs.Where(p.Compile()));
-            _familyLogService = new FamilyLogService(logDao.Object, TestHelpers.Instance.Clock);
 
             _familyService = new Mock<IFamilyService>();
             _familyService.Setup(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(true);
@@ -73,6 +72,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync(new List<CharacterDto> { new() { CharacterId = _other.Character.CharacterId, Name = _other.Character.Name } });
             _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).ReturnsAsync(true);
+            _familyLogService = new FamilyLogService(logDao.Object, TestHelpers.Instance.Clock, _pubSubHub.Object);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             _sessionRegistry = new Mock<ISessionRegistry>();
             var head = _head.Character;
@@ -101,10 +101,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task JoiningAFamilyIsLogged()
         {
-            await new Spec("Accepting an invite logs the newcomer and who invited them")
+            await new Spec("Accepting an invite logs who invited the newcomer, then the newcomer")
                 .Given(TheHeadInvitedTheOtherPlayer)
                 .WhenAsync(TheOtherPlayerAnswers_, FamilyInviteAnswerType.Accept)
-                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, new[] { "{other}", "{head}" })
+                .Then(TheHistoryShouldHoldOnly_With_, FamilyLogType.UserManaged, new[] { "{head}", "{other}" })
                 .ExecuteAsync();
         }
 

@@ -990,16 +990,37 @@ Same seeded family, with a plain member on the same map as the head.
 - [ ] `%Gender <0|1>` from the head switches the family's titles to the matching set and
       clears every member's title
 
+### Family history, ranking and daily message windows
+
+Same seeded family, with a plain member on the same map as the head, and at least two other
+families in the database with different levels.
+
+- [ ] Opening the history tab of the family window as the head lists the family's events
+      newest first (joins, leaves, appointments, permission changes, daily messages, member
+      level milestones), each with how many hours ago it happened
+- [ ] With the history window open, `%Familyinvite` a new member and accept: the history
+      refreshes on its own and the join is at the top, also on the other member's open window
+- [ ] As a plain member, the history tab shows nothing while "members can read the history"
+      is unticked, and the entries once the head ticks it; a keeper follows the keeper box
+- [ ] The family ranking's experience tab lists families by level, then experience, with
+      rank, name, level and experience; families with the same level and experience share a
+      rank
+- [ ] The reputation tab lists families by the summed reputation of their members
+- [ ] Both monthly tabs are empty
+- [ ] The daily message button in the family window opens the input box for a member; a
+      character without a family gets nothing
+
 ### Family history log
 
-Same seeded family, with a plain member on the same map as the head. The history window
-cannot show these rows yet (see "Not verifiable yet"), so read them from the `FamilyLog`
-table: `select "FamilyLogType", "FirstArgument", "SecondArgument", "ThirdArgument", "FourthArgument", "Timestamp" from "FamilyLog" order by "Timestamp";`
+Same seeded family, with a plain member on the same map as the head. Each row also appears
+in the family window's history tab (see "Family history, ranking and daily message
+windows"); the table shows the stored arguments:
+`select "FamilyLogType", "FirstArgument", "SecondArgument", "ThirdArgument", "FourthArgument", "Timestamp" from "FamilyLog" order by "Timestamp";`
 
 - [ ] `%Today <text>` from a member writes a row of type 1 with arguments `<name>`, `<text>`; a second
       `%Today` from the same member within a day says `Only possible once per day` and
       leaves both the member list line and the table unchanged
-- [ ] Accepting a `%Familyinvite` writes type 11 with `<newcomer>`, `<inviter>`; cancelling
+- [ ] Accepting a `%Familyinvite` writes type 11 with `<inviter>`, `<newcomer>`; cancelling
       writes nothing
 - [ ] `%Familyleave` from the member and `%Familydismiss <name>` from the head each write
       type 10 with the name of whoever left; the head's refused leave writes nothing
@@ -1151,9 +1172,10 @@ Recorded so nobody spends time hunting for them:
 - **A family name with a space** — the client's name prompt refuses a space itself ("Can not use
   Space in name") and sends nothing, so the server's refusal ("Contains an invalid character.
   Choose another name.") cannot be produced from an unmodified client; the unit tests cover it.
-- **Family history, ranking and daily message windows** — the client asks for them
-  (`fhis_cts`, `frank_cts`, `today_cts`), but the answers are not in the packet library
-  NosCore uses yet, so the windows stay empty; only the `FamilyLog` rows can be checked.
+- **Monthly family rankings** — nothing records experience or reputation per month, so the
+  two monthly tabs of the family ranking stay empty on purpose.
+- **Reading the family history without permission** — the server sends nothing, but an
+  unmodified client may grey the tab out first, in which case the refusal cannot be reached.
 - **Family experience** — nothing grants it yet, so the level bar only ever shows the
   seeded value.
 - **Inside a time-space** — the entrance works, but rooms, objectives, lives and rewards

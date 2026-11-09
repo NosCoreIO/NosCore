@@ -25,6 +25,7 @@ using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Chats;
+using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.Quest;
 using NosCore.Packets.ServerPackets.Specialists;
 using NosCore.Packets.ServerPackets.UI;
@@ -171,6 +172,7 @@ namespace NosCore.PacketHandlers.Game
             if (familyInfo != null)
             {
                 await session.SendPacketAsync(familyInfo);
+                await session.SendPacketAsync(new FhisStcPacket());
             }
 
             await session.SendPacketAsync(session.Character.GenerateGold());
