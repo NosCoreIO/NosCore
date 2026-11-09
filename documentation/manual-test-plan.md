@@ -1507,3 +1507,20 @@ Recorded so nobody spends time hunting for them:
 
 Early or missing delay completion is covered by automated tests; a stock client
 waits for its bar before sending the completion.
+
+## Individual faction eggs
+
+- [ ] Outside a family, use Angel's Egg (Individual), item 1624: a confirmation asks
+      about changing protection and resetting points. Cancel: faction, points and egg stay.
+- [ ] Confirm: protection changes to Angel and exactly one egg disappears. The faction
+      display updates; another character on the map sees the new faction.
+- [ ] Use another Angel egg: the already-Angel message appears and the egg stays.
+- [ ] Repeat with Demon's Egg (Individual), item 1625, from neutral and Angel protection;
+      also switch from Demon to Angel. Contribution points reset only on a successful change.
+- [ ] Relog after each successful change: the faction and remaining egg count persist.
+- [ ] Join a family and try either individual egg: the client explains that the family egg
+      is required, with no consumption or faction change.
+- [ ] With the matching protection, try the faction ship's Corona crossing; the faction
+      requirement accepts the character. Check the opposite faction's route remains refused.
+
+Family eggs (1626/1627) are not implemented by this feature.

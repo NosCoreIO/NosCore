@@ -28,6 +28,7 @@ namespace NosCore.Data.Enumerations.Items
         FriendshipWings = 199,
         ApplySkinPartner = 305,
         ChangeSpecialistWings = 650,
+        ChangeFaction = 570,
         ChangeGender = 651,
         PointInitialisation = 652,
         SealedTarotCard = 789,
