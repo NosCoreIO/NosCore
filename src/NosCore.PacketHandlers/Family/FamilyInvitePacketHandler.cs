@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
@@ -13,12 +14,11 @@ using NosCore.Packets.ClientPackets.Commands;
 using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Family
 {
-    public class FamilyInvitePacketHandler(ISessionRegistry sessionRegistry, IBlacklistHub blacklistHub)
+    public class FamilyInvitePacketHandler(ISessionRegistry sessionRegistry, IBlacklistHub blacklistHub, IClock clock)
         : PacketHandler<FamilyInvitePacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FamilyInvitePacket packet, ClientSession session)
@@ -47,8 +47,7 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            var blacklisted = await blacklistHub.GetBlacklistedAsync(session.Character.VisualId);
-            if (blacklisted != null && blacklisted.Any(s => s.CharacterId == target.CharacterId))
+            if (await blacklistHub.IsBlacklistedEitherWayAsync(session.Character.VisualId, target.CharacterId))
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.AlreadyBlacklisted });
                 return;
@@ -69,6 +68,11 @@ namespace NosCore.PacketHandlers.Family
             if (target.Family != null)
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.PlayerAlreadyInAnotherFamily });
+                return;
+            }
+
+            if (!await session.Character.TryStartInviteAsync(InviteType.Family, target.CharacterId, clock))
+            {
                 return;
             }
 

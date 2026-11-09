@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -19,6 +20,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using SpecLight;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -60,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 TestHelpers.Instance.GenerateItemProvider().Create(SeedOfPower, amount), _owner.Character.CharacterId));
 
         private Task InviteAsync(string name) =>
-            new MinilandInvitePacketHandler(TestHelpers.Instance.SessionRegistry, _minilandService.Object)
+            new MinilandInvitePacketHandler(TestHelpers.Instance.SessionRegistry, _minilandService.Object, TestHelpers.Instance.Clock)
                 .ExecuteAsync(new MinilandInvitePacket { CharacterName = name }, _owner);
 
         private Task AnswerAsync(VisualType type) =>
@@ -163,16 +165,42 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         }
 
         [TestMethod]
-        public async Task InvitingAgainWhileAnInvitationIsPendingCostsNoSeed()
+        public async Task InvitingAgainAfterTheCooldownWhileAnInvitationIsPendingCostsNoSeed()
         {
-            GiveSeeds(1);
-            await InviteAsync(_guest.Character.Name);
-
-            await InviteAsync(_guest.Character.Name);
-
-            Assert.AreEqual(1, _owner.Character.InventoryService.CountItem(SeedOfPower));
-            Assert.AreEqual(2, _guest.LastPackets.OfType<Dlgi2Packet>().Count());
+            await new Spec("Inviting again after the cooldown while an invitation is pending costs no seed")
+                .Given(TheOwnerHas_ExtraSeeds, (short)1)
+                .WhenAsync(TheOwnerInvitesTheGuestAsync)
+                .And(TheCooldownPasses)
+                .AndAsync(TheOwnerInvitesTheGuestAsync)
+                .Then(TheGuestIsAsked_Times, 2)
+                .And(TheOwnerHas_SeedsLeft, 1)
+                .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task InvitingAgainWithinTheCooldownDoesNotAskAgain()
+        {
+            await new Spec("Inviting again within the cooldown does not ask again")
+                .WhenAsync(TheOwnerInvitesTheGuestAsync)
+                .AndAsync(TheOwnerInvitesTheGuestAsync)
+                .Then(TheGuestIsAsked_Times, 1)
+                .And(TheOwnerIsToldToWait)
+                .ExecuteAsync();
+        }
+
+        private void TheOwnerHas_ExtraSeeds(short amount) => GiveSeeds(amount);
+
+        private Task TheOwnerInvitesTheGuestAsync() => InviteAsync(_guest.Character.Name);
+
+        private static void TheCooldownPasses() => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(6));
+
+        private void TheGuestIsAsked_Times(int times) =>
+            Assert.AreEqual(times, _guest.LastPackets.OfType<Dlgi2Packet>().Count());
+
+        private void TheOwnerHas_SeedsLeft(int amount) =>
+            Assert.AreEqual(amount, _owner.Character.InventoryService.CountItem(SeedOfPower));
+
+        private void TheOwnerIsToldToWait() => Assert.AreEqual(Game18NConstString.CannotSendInvite, LastInfo(_owner));
 
         [TestMethod]
         public async Task ALockedMinilandKeepsTheInvitationForLater()

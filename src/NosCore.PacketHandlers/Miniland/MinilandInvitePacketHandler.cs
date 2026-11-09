@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -20,7 +21,7 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Miniland
 {
-    public class MinilandInvitePacketHandler(ISessionRegistry sessionRegistry, IMinilandService minilandService)
+    public class MinilandInvitePacketHandler(ISessionRegistry sessionRegistry, IMinilandService minilandService, IClock clock)
         : PacketHandler<MinilandInvitePacket>, IWorldPacketHandler
     {
         private const short SeedOfPowerVNum = 1012;
@@ -55,6 +56,11 @@ namespace NosCore.PacketHandlers.Miniland
             if (target.CharacterId == character.CharacterId || target.MinilandInviteBlocked)
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.PlayerCanNotBeInvited });
+                return;
+            }
+
+            if (!await character.TryStartInviteAsync(InviteType.Miniland, target.CharacterId, clock))
+            {
                 return;
             }
 

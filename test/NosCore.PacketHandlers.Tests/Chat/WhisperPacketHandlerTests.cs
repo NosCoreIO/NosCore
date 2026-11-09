@@ -94,6 +94,31 @@ namespace NosCore.PacketHandlers.Tests.Chat
         }
 
         [TestMethod]
+        public async Task WhisperingToPlayerWhoBlacklistedTheSenderShouldBeRefused()
+        {
+            await new Spec("Whispering to a player who blacklisted the sender should be refused")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnline)
+                .And(TargetBlacklistedTheSender)
+                .WhenAsync(WhisperingToTarget)
+                .Then(ShouldReceiveBlacklistMessage)
+                .And(NoMessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WhisperingToPlayerWhoBlacklistedSomeoneElseShouldSendMessage()
+        {
+            await new Spec("Whispering to a player who blacklisted someone else should send the message")
+                .Given(CharacterIsOnMap)
+                .And(TargetIsOnline)
+                .And(TargetBlacklistedSomeoneElse)
+                .WhenAsync(WhisperingToTarget)
+                .Then(MessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task WhisperingToOnlinePlayerShouldSendMessage()
         {
             await new Spec("Whispering to online player should send message")
@@ -163,7 +188,10 @@ namespace NosCore.PacketHandlers.Tests.Chat
         private void HubsShouldBeAskedOnce()
         {
             PubSubHub.Verify(x => x.GetSubscribersAsync(), Times.Once);
-            BlacklistHub.Verify(x => x.GetBlacklistedAsync(It.IsAny<long>()), Times.Once);
+            var senderId = Session.Character.VisualId;
+            var targetId = TargetSession.Character.CharacterId;
+            BlacklistHub.Verify(x => x.GetBlacklistedAsync(senderId), Times.Once);
+            BlacklistHub.Verify(x => x.GetBlacklistedAsync(targetId), Times.Once);
         }
 
         private void BothMessagesShouldBeSentViaPubSub()
@@ -218,6 +246,26 @@ namespace NosCore.PacketHandlers.Tests.Chat
                     {
                         CharacterId = TargetSession.Character.CharacterId
                     }
+                }));
+        }
+
+        private void TargetBlacklistedTheSender()
+        {
+            var targetId = TargetSession.Character.CharacterId;
+            BlacklistHub.Setup(x => x.GetBlacklistedAsync(targetId))
+                .Returns(Task.FromResult(new List<CharacterRelationStatus>
+                {
+                    new CharacterRelationStatus { CharacterId = Session.Character.CharacterId }
+                }));
+        }
+
+        private void TargetBlacklistedSomeoneElse()
+        {
+            var targetId = TargetSession.Character.CharacterId;
+            BlacklistHub.Setup(x => x.GetBlacklistedAsync(targetId))
+                .Returns(Task.FromResult(new List<CharacterRelationStatus>
+                {
+                    new CharacterRelationStatus { CharacterId = Session.Character.CharacterId + 1000 }
                 }));
         }
 

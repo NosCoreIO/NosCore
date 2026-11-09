@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Extensions;
@@ -22,7 +23,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Friend
 {
     public class FinsPacketHandler(IFriendHub friendHttpClient, IChannelHub channelHttpClient,
-            IPubSubHub pubSubHub, ISessionRegistry sessionRegistry)
+            IPubSubHub pubSubHub, ISessionRegistry sessionRegistry, IClock clock)
         : PacketHandler<FinsPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(FinsPacket finsPacket, ClientSession session)
@@ -68,6 +69,11 @@ namespace NosCore.PacketHandlers.Friend
                     break;
 
                 case LanguageKey.FRIEND_REQUEST_SENT:
+                    if (!await session.Character.TryStartInviteAsync(InviteType.Friend, targetCharacter.VisualId, clock))
+                    {
+                        break;
+                    }
+
                     await targetCharacter.SendPacketAsync(new Dlgi2Packet
                     {
                         Question = Game18NConstString.AskBecomeFriend,

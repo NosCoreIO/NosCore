@@ -833,6 +833,28 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] With the miniland locked, without a seed, to someone offline, or to someone blocking
       Miniland invites in their options: each gives its own message and no seed is used
 
+### Invite cooldown and blacklist
+
+Three characters, A, B and C, on the same map and channel. A is a family head (for the
+family invite) and the miniland owner (for the miniland invite, with two Seeds of Power).
+
+- [ ] A sends B a friend request twice within five seconds: B gets one dialog, and A sees
+      "You cannot send the invitation. Please try again in N seconds." with N no higher
+      than 5. After five seconds a new request opens the dialog on B again
+- [ ] Same with `%Familyinvite` and `$Invite` from the miniland: the second within five
+      seconds is refused with the same message and B gets no second dialog; after five
+      seconds the dialog comes back. A second miniland invite while the
+      first is still unanswered uses no second seed
+- [ ] Right after inviting B, A invites C to the same thing: C's dialog arrives at once
+- [ ] A party invite twice within five seconds still gives the same countdown message
+- [ ] B blacklists A. A whispers B, invites B to a party, adds B as a friend and invites
+      B to the family: each shows "You have already been blacklisted."
+      on A and nothing reaches B. Repeat the whisper with A on another channel
+- [ ] A blacklists B and does the same towards B: still refused, as before
+- [ ] B removes A from the blacklist: the whisper arrives and every invite opens its dialog
+      again
+- [ ] A and C, with no blacklist between them, whisper each other: the message arrives
+
 ### Item detail window
 
 Open the inventory and right-click a piece of equipment.

@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -33,6 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Group
         private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> Sessions = new();
         private PjoinPacketHandler PJoinPacketHandler = null!;
+        private Mock<IBlacklistHub> BlacklistHub = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,8 +54,8 @@ namespace NosCore.PacketHandlers.Tests.Group
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            var mock = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            BlacklistHub = new Mock<IBlacklistHub>();
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
         }
 
         [TestMethod]
@@ -141,6 +143,27 @@ namespace NosCore.PacketHandlers.Tests.Group
                 .Then(Session1ShouldBeInvited)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task InvitingPlayerWhoBlacklistedTheInviterShouldBeRefused()
+        {
+            await new Spec("Inviting a player who blacklisted the inviter should be refused")
+                .Given(Session1BlacklistedSession0)
+                .WhenAsync(Session0InvitesSession1Async)
+                .Then(Session0ShouldBeToldOfTheBlacklist)
+                .And(Session1ShouldNotBeInvited)
+                .ExecuteAsync();
+        }
+
+        private void Session1BlacklistedSession0()
+        {
+            var targetId = Sessions[1].Character.VisualId;
+            BlacklistHub.Setup(s => s.GetBlacklistedAsync(targetId))
+                .ReturnsAsync(new List<CharacterRelationStatus> { new() { CharacterId = Sessions[0].Character.CharacterId } });
+        }
+
+        private void Session0ShouldBeToldOfTheBlacklist() =>
+            Assert.AreEqual(Game18NConstString.AlreadyBlacklisted, Sessions[0].LastPackets.OfType<InfoiPacket>().Last().Message);
 
         private void Session1BlocksGroupRequests() => Sessions[1].Character.GroupRequestBlocked = true;
 

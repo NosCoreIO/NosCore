@@ -57,6 +57,13 @@ namespace NosCore.GameObject.Services.FriendService
                     return LanguageKey.BLACKLIST_BLOCKED;
                 }
 
+                if (characterRelationDao.Where(s => (s.CharacterId == secondCharacterId) &&
+                        (s.RelatedCharacterId == characterId) &&
+                        (s.RelationType == CharacterRelationType.Blocked))?.Any() == true)
+                {
+                    return LanguageKey.BLACKLIST_BLOCKED;
+                }
+
                 if (relations.Any(s =>
                     (s.RelationType == CharacterRelationType.Friend) &&
                     (s.RelatedCharacterId == secondCharacterId)))
@@ -72,9 +79,15 @@ namespace NosCore.GameObject.Services.FriendService
 
                 if (!friendRequest.Any())
                 {
-                    friendRequestRegistry.RegisterRequest(Guid.NewGuid(),
-                        character.ConnectedCharacter.Id,
-                        targetCharacter.ConnectedCharacter.Id);
+                    var alreadyRequested = friendRequestRegistry.GetRequestsForCharacter(characterId)
+                        .Any(s => s.Value.SenderId == characterId && s.Value.ReceiverId == secondCharacterId);
+                    if (!alreadyRequested)
+                    {
+                        friendRequestRegistry.RegisterRequest(Guid.NewGuid(),
+                            character.ConnectedCharacter.Id,
+                            targetCharacter.ConnectedCharacter.Id);
+                    }
+
                     return LanguageKey.FRIEND_REQUEST_SENT;
                 }
 

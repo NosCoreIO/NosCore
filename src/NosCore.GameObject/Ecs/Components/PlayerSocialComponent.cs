@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Concurrent;
 
@@ -17,4 +18,5 @@ public record struct PlayerSocialComponent(
     ConcurrentDictionary<long, long> FamilyRequestCharacterIds,
     ConcurrentDictionary<long, long> MinilandInviteCharacterIds,
     ConcurrentDictionary<long, Instant> ExchangeRequestCharacterIds,
-    Instant? LastExchangeRequest);
+    Instant? LastExchangeRequest,
+    ConcurrentDictionary<(InviteType Type, long TargetId), Instant> LastInvites);
