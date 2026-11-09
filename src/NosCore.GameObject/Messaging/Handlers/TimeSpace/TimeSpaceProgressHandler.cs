@@ -18,6 +18,13 @@ namespace NosCore.GameObject.Messaging.Handlers.TimeSpace
         [UsedImplicitly]
         public Task Handle(EntityDiedEvent evt)
         {
+            if (evt.Victim is PlayerComponentBundle { MapInstance: { } playerMap } player)
+            {
+                return scriptedInstanceService.GetRun(playerMap.MapInstanceId) is { } playerRun
+                    ? playerRun.MemberDiedAsync(player.CharacterId)
+                    : Task.CompletedTask;
+            }
+
             if (evt.Victim is not MonsterComponentBundle { MapInstance: { } mapInstance } monster)
             {
                 return Task.CompletedTask;

@@ -29,7 +29,8 @@ namespace NosCore.PacketHandlers.Group
         {
             var group = clientSession.Character.Group;
 
-            if (group!.Count == 1)
+            // A raid team is left through rd, which keeps the raid's own rules.
+            if (group!.Count == 1 || group.Raid != null)
             {
                 return;
             }

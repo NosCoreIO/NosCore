@@ -11,6 +11,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Instances.Abstractions;
@@ -51,6 +52,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Instant? _clockEndsAt;
         private Duration _clockLimit;
         private Instant? _returnAt;
+        private Func<ScriptedInstanceRun, EndStateType, Task>? _ended;
 
         public ScriptedInstanceRun(ScriptedInstance entrance, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
@@ -89,6 +91,63 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public short ReturnY => Entrance.PositionY;
 
         public EndStateType? EndState { get; private set; }
+
+        // The team a raid run was started for; a time-space run has none.
+        public Group? Team { get; private set; }
+
+        public void AttachTeam(Group team, Func<ScriptedInstanceRun, EndStateType, Task> ended)
+        {
+            Team = team;
+            _ended = ended;
+        }
+
+        public IEnumerable<ClientSession> Members() =>
+            Team == null ? Players() : Players().Where(s => Team.IsMember(s.Character.CharacterId));
+
+        public Task MemberDiedAsync(long characterId)
+        {
+            return RunAsync(() =>
+            {
+                if (Team == null || EndState != null || !Team.IsMember(characterId))
+                {
+                    return;
+                }
+
+                _pending.Add(() => FailIfWipedAsync(characterId));
+            });
+        }
+
+        // A member who left may have been the last one standing.
+        public Task MemberLeftAsync()
+        {
+            return RunAsync(() =>
+            {
+                if (Team != null && EndState == null)
+                {
+                    _pending.Add(() => FailIfWipedAsync(null));
+                }
+            });
+        }
+
+        private async Task FailIfWipedAsync(long? fallen)
+        {
+            var standing = false;
+            foreach (var room in _rooms.Values)
+            {
+                await room.Executor.RunAsync(() =>
+                {
+                    standing |= _sessionRegistry.GetClientSessionsByMapInstance(room.MapInstanceId)
+                        .Any(s => s.HasPlayerEntity && s.Character.CharacterId != fallen
+                            && Team!.IsMember(s.Character.CharacterId) && s.Character.IsAlive);
+                    return Task.CompletedTask;
+                });
+            }
+
+            if (!standing)
+            {
+                await RunAsync(() => End(EndStateType.Fail));
+            }
+        }
 
         public TimeSpan Elapsed => (_clock.GetCurrentInstant() - StartedAt).ToTimeSpan();
 
@@ -273,6 +332,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 IsNoNpcDead = true
             };
             _pending.Add(() => BroadcastAsync(score));
+            if (_ended != null)
+            {
+                _pending.Add(() => _ended(this, state));
+            }
         }
 
         private EventPacket GenerateClock(Instant endsAt)

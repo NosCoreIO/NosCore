@@ -119,6 +119,26 @@ namespace NosCore.PacketHandlers.Tests.Group
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task PleaveDoesNotTakeAMemberOutOfARaidTeam()
+        {
+            await new Spec("A raid team is only left through the raid window")
+                .GivenAsync(TwoSessionsAreGroupedAsync)
+                .And(TheGroupIsARaidTeam)
+                .WhenAsync(Session_LeavesGroupAsync, 1)
+                .Then(Session_IsStillInTheRaidTeam, 1)
+                .ExecuteAsync();
+        }
+
+        private void TheGroupIsARaidTeam() =>
+            Sessions[0].Character.Group.Raid = new NosCore.GameObject.Services.ScriptedInstanceService.ScriptedInstance();
+
+        private void Session_IsStillInTheRaidTeam(int value)
+        {
+            Assert.IsNotNull(Sessions[value].Character.Group.Raid);
+            Assert.AreEqual(2, Sessions[value].Character.Group.Count);
+        }
+
         private async Task SessionsAreInFullGroupAsync()
         {
             for (var i = 1; i < 3; i++)
