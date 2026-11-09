@@ -110,6 +110,22 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task KickingWithoutANameIgnoresSubscribersWithoutACharacter()
+        {
+            await new Spec("Kicking with no name does not match a subscriber that has no character")
+                .Given(ASubscriberWithoutACharacterIsConnected)
+                .WhenAsync(KickingNobodyByName)
+                .Then(TheCharacterShouldBeFound_, false)
+                .And(TheTargetShouldBeUnsubscribed_, 0)
+                .ExecuteAsync();
+        }
+
+        private void ASubscriberWithoutACharacterIsConnected() =>
+            PubSubHub.Setup(x => x.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber> { new() });
+
+        private async Task KickingNobodyByName() => Found = await Service.KickAsync(null);
+
         private void TheTargetIsConnected() =>
             PubSubHub.Setup(x => x.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>
             {

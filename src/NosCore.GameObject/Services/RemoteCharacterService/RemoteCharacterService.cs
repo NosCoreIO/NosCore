@@ -76,7 +76,12 @@ public sealed class RemoteCharacterService(IPubSubHub pubSubHub, IMailHub mailHu
 
     private async Task<Subscriber?> FindAsync(string? characterName)
     {
+        if (characterName == null)
+        {
+            return null;
+        }
+
         var subscribers = await pubSubHub.GetSubscribersAsync();
-        return subscribers.FirstOrDefault(x => x.ConnectedCharacter?.Name == characterName);
+        return subscribers.FirstOrDefault(x => x.ConnectedCharacter != null && x.ConnectedCharacter.Name == characterName);
     }
 }
