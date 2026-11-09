@@ -1255,10 +1255,10 @@ opening scene follows the main story script, which hands most of them out.
 Capture is skill 209; weaken the monster to under half health and stay at or above its level.
 
 - [ ] **Capture** — Rookie Training quest 1501, "Capture a Chicken using your skill!", comes
-      right after hunting Baby Danders. Capture a Chicken: "capture successful" shows, the
-      Chicken becomes a pet as usual, "Quest complete" shows and the quest window marks it done
-- [ ] Before capturing the Chicken, capture some other monster: it becomes a pet and the quest
-      window still reads 0/1
+      right after hunting Baby Danders. Before touching a Chicken, capture some other monster:
+      it becomes a pet and the quest window still reads 0/1
+- [ ] Capture a Chicken: "capture successful" shows, the Chicken becomes a pet as usual,
+      "Quest complete" shows and the quest window marks it done
 - [ ] The next quest, 1502, asks you to hunt with your NosMate, so the Chicken must still be
       in the pet window
 - [ ] **Capture without getting the monster** — Suspicious Guard quest 1608, "Capture the
