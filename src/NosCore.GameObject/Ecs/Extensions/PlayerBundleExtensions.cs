@@ -149,19 +149,20 @@ public static class PlayerBundleExtensions
     {
         var friends = await friendHub.GetFriendsAsync(player.CharacterId);
         var friendSubPackets = new List<FinitSubPacket?>();
-
-        foreach (var relation in friends)
+        if (friends.Count > 0)
         {
-            var isOnline = (await pubSubHub.GetSubscribersAsync())
-                .Any(s => s.ConnectedCharacter?.Id == relation.CharacterId);
+            var online = (await pubSubHub.GetSubscribersAsync())
+                .Where(s => s.ConnectedCharacter != null)
+                .Select(s => s.ConnectedCharacter!.Id)
+                .ToHashSet();
 
-            friendSubPackets.Add(new FinitSubPacket
+            friendSubPackets.AddRange(friends.Select(relation => new FinitSubPacket
             {
                 CharacterId = relation.CharacterId,
                 RelationType = relation.RelationType,
-                IsOnline = isOnline,
+                IsOnline = online.Contains(relation.CharacterId),
                 CharacterName = relation.CharacterName
-            });
+            }));
         }
 
         return new FinitPacket

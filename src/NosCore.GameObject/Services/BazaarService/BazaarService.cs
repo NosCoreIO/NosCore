@@ -82,6 +82,33 @@ namespace NosCore.GameObject.Services.BazaarService
             return bzlinks.ToList();
         }
 
+        public List<BazaarLink> SearchBazaar(BazaarSearch search)
+        {
+            var vnumFilter = search.ItemVNumFilter.Where(s => s != 0).ToHashSet();
+            var now = clock.GetCurrentInstant();
+            var searched = GetBazaar(-1, null, null, search.TypeFilter, search.SubTypeFilter, search.LevelFilter,
+                    search.RareFilter, search.UpgradeFilter, null)
+                .Where(s => (vnumFilter.Count == 0 || vnumFilter.Contains(s.ItemInstance!.ItemVNum))
+                    && s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration)) > now
+                    && s.ItemInstance!.Amount > 0)
+                .ToList();
+
+            var vnums = searched.Select(s => s.ItemInstance!.ItemVNum).ToHashSet();
+            var names = items.Where(s => vnums.Contains(s.VNum))
+                .ToDictionary(s => s.VNum, s => s.Name[search.Language]);
+            var byName = searched.OrderBy(s => names.GetValueOrDefault(s.ItemInstance!.ItemVNum) ?? "");
+            var ordered = search.OrderFilter switch
+            {
+                0 => byName.ThenBy(s => s.BazaarItem!.Price),
+                1 => byName.ThenByDescending(s => s.BazaarItem!.Price),
+                2 => byName.ThenBy(s => s.BazaarItem!.Amount),
+                3 => byName.ThenByDescending(s => s.BazaarItem!.Amount),
+                _ => byName
+            };
+
+            return ordered.Skip(search.Index * search.PageSize).Take(search.PageSize).ToList();
+        }
+
         public async Task<LanguageKey> AddBazaarAsync(Guid operationId, Guid itemInstanceId, long characterId,
             string? characterName, bool hasMedal, long price, bool isPackage, short duration, short amount)
         {

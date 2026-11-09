@@ -10,6 +10,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BlackListService;
 using NosCore.Packets.ClientPackets.Relations;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -19,7 +20,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Friend
 {
-    public class BlInsPackettHandler(IBlacklistHub blacklistHttpClient, ILogger<BlInsPackettHandler> logger,
+    public class BlInsPackettHandler(IBlacklistHub blacklistHttpClient, IBlacklistCacheService blacklistCache,
+            ILogger<BlInsPackettHandler> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<BlInsPacket>, IWorldPacketHandler
     {
@@ -42,6 +44,7 @@ namespace NosCore.PacketHandlers.Friend
                     });
                     break;
                 case LanguageKey.BLACKLIST_ADDED:
+                    blacklistCache.Invalidate(session.Character.VisualId);
                     await session.SendPacketAsync(new InfoiPacket
                     {
                         Message = Game18NConstString.CharacterBlacklisted

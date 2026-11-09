@@ -10,11 +10,12 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BlackListService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.SubscriberCacheService;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -31,8 +32,8 @@ using Character = NosCore.Data.WebApi.Character;
 namespace NosCore.PacketHandlers.Chat
 {
     public class WhisperPacketHandler(ILogger<WhisperPacketHandler> logger, ISerializer packetSerializer,
-            IBlacklistHub blacklistHttpClient,
-             IPubSubHub pubSubHub, Channel channel,
+            IBlacklistCacheService blacklistCache, ISubscriberCacheService subscriberCache,
+            IPubSubHub pubSubHub, Channel channel,
             IGameLanguageLocalizer gameLanguageLocalizer,
             ISessionRegistry sessionRegistry)
         : PacketHandler<WhisperPacket>, IWorldPacketHandler
@@ -68,7 +69,7 @@ namespace NosCore.PacketHandlers.Chat
                     Message = message.ToString()
                 });
 
-                var accounts = await pubSubHub.GetSubscribersAsync();
+                var accounts = await subscriberCache.GetSubscribersAsync();
                 var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == receiverName);
 
                 if (receiver == null)
@@ -82,7 +83,7 @@ namespace NosCore.PacketHandlers.Chat
                     return;
                 }
 
-                var blacklisteds = await blacklistHttpClient.GetBlacklistedAsync(session.Character.VisualId);
+                var blacklisteds = await blacklistCache.GetBlacklistedAsync(session.Character.VisualId);
                 if (blacklisteds.Any(s => s.CharacterId == receiver.ConnectedCharacter?.Id))
                 {
                     await session.SendPacketAsync(new InfoiPacket

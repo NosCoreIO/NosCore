@@ -328,7 +328,7 @@ namespace NosCore.Tests.Shared
             {
                 new CharNewPacketHandler(CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                         new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, ItemList, NullLoggerFactory.Instance),
-                new BlInsPackettHandler(BlacklistHttpClient.Object, NullLogger<BlInsPackettHandler>.Instance, Instance.LogLanguageLocalizer),
+                new BlInsPackettHandler(BlacklistHttpClient.Object, new Mock<NosCore.GameObject.Services.BlackListService.IBlacklistCacheService>().Object, NullLogger<BlInsPackettHandler>.Instance, Instance.LogLanguageLocalizer),
                 new UseItemPacketHandler(new Mock<Wolverine.IMessageBus>().Object),
                 new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, Instance.SessionRegistry),
                 new SelectPacketHandler(CharacterDao, NullLogger<SelectPacketHandler>.Instance, NullLoggerFactory.Instance, new Mock<IItemGenerationService>().Object, MapInstanceAccessorService,

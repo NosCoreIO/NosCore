@@ -5,7 +5,7 @@
 //
 
 using NodaTime;
-using NosCore.Data.StaticEntities;
+using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -20,11 +20,11 @@ using static NosCore.Packets.ServerPackets.Auction.RcbListPacket;
 
 namespace NosCore.PacketHandlers.Bazaar
 {
-    public class CBListPacketHandler(IBazaarHub bazaarHttpClient, List<ItemDto> items, IClock clock,
-            INpcDialogService npcDialogService)
+    public class CBListPacketHandler(IBazaarHub bazaarHttpClient, IClock clock, INpcDialogService npcDialogService)
         : PacketHandler<CBListPacket>, IWorldPacketHandler
     {
-        private const int PageSize = 50;
+        // The client shows three pages of ten rows per request and drops anything past that.
+        private const int PageSize = 30;
 
         public override async Task ExecuteAsync(CBListPacket packet, ClientSession clientSession)
         {
@@ -33,27 +33,20 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var vnumFilter = packet.ItemVNumFilter?.Where(s => s != 0).ToHashSet() ?? new HashSet<short>();
-
-            var bzlist = await bazaarHttpClient.GetBazaar(-1, null, null, packet.TypeFilter, packet.SubTypeFilter,
-                packet.LevelFilter, packet.RareFilter, packet.UpgradeFilter, null);
+            var definitivelist = await bazaarHttpClient.SearchBazaarAsync(new BazaarSearch
+            {
+                TypeFilter = packet.TypeFilter,
+                SubTypeFilter = packet.SubTypeFilter,
+                LevelFilter = packet.LevelFilter,
+                RareFilter = packet.RareFilter,
+                UpgradeFilter = packet.UpgradeFilter,
+                OrderFilter = packet.OrderFilter,
+                ItemVNumFilter = packet.ItemVNumFilter?.ToList() ?? new List<short>(),
+                Language = clientSession.Account.Language,
+                Index = packet.Index,
+                PageSize = PageSize
+            });
             var now = clock.GetCurrentInstant();
-            var searched = bzlist.Where(s => (vnumFilter.Count == 0 || vnumFilter.Contains(s.ItemInstance!.ItemVNum))
-                && s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration)) > now
-                && s.ItemInstance!.Amount > 0);
-
-            var byName = searched.OrderBy(s => items.First(o => o.VNum == s.ItemInstance!.ItemVNum).Name[clientSession.Account.Language]);
-            var definitivelist = (packet.OrderFilter switch
-                {
-                    0 => byName.ThenBy(s => s.BazaarItem!.Price),
-                    1 => byName.ThenByDescending(s => s.BazaarItem!.Price),
-                    2 => byName.ThenBy(s => s.BazaarItem!.Amount),
-                    3 => byName.ThenByDescending(s => s.BazaarItem!.Amount),
-                    _ => byName
-                })
-                .Skip(packet.Index * PageSize)
-                .Take(PageSize)
-                .ToList();
 
             await clientSession.SendPacketAsync(new RcbListPacket
             {

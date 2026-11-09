@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.SubscriberCacheService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.PacketHandlers.Chat;
 using NosCore.Packets.ClientPackets.Chat;
@@ -69,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 Serializer.Object,
                 FriendHub.Object,
                 PubSubHub.Object,
-                PubSubHub.Object,
+                new SubscriberCacheService(PubSubHub.Object, TestHelpers.Instance.Clock),
                 channel,
                 TestHelpers.Instance.GameLanguageLocalizer,
                 SessionRegistry.Object);

@@ -7,6 +7,8 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
+using NosCore.Core;
+using NosCore.Shared.Enumerations;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
@@ -43,6 +45,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private Mock<IPubSubHub> ConnectedAccountHttpClient = null!;
         private Mock<IChannelHub> ChannelHub = null!;
         private ClientSession Session = null!;
+        private Mock<IBlacklistCacheService> BlacklistCache = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,6 +55,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
             ChannelHub = new Mock<IChannelHub>();
+            ChannelHub.Setup(s => s.GetCommunicationChannels())
+                .ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer, Id = 1 } });
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -60,7 +65,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
                 });
             BlackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
-            BlDelPacketHandler = new BlDelPacketHandler(BlackListHttpClient.Object, TestHelpers.Instance.GameLanguageLocalizer);
+            BlacklistCache = new Mock<IBlacklistCacheService>();
+            BlDelPacketHandler = new BlDelPacketHandler(BlackListHttpClient.Object, BlacklistCache.Object, TestHelpers.Instance.GameLanguageLocalizer);
             CharacterDao = new Mock<IDao<CharacterDto, long>>();
             BlackListController = new BlacklistService(ConnectedAccountHttpClient.Object, ChannelHub.Object, CharacterRelationDao,
                 CharacterDao.Object);
@@ -89,7 +95,14 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .AndAsync(CharacterHasBlockedTarget)
                 .WhenAsync(DeletingTargetFromBlacklist)
                 .Then(BlacklistShouldBeEmpty)
+                .And(TheCachedBlacklistShouldBeDropped)
                 .ExecuteAsync();
+        }
+
+        private void TheCachedBlacklistShouldBeDropped()
+        {
+            var visualId = Session.Character.VisualId;
+            BlacklistCache.Verify(s => s.Invalidate(visualId), Times.Once);
         }
 
         [TestMethod]

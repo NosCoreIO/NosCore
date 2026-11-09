@@ -17,6 +17,7 @@ public interface IBazaarHub
 {
     Task<List<BazaarLink>> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
         byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter);
+    Task<List<BazaarLink>> SearchBazaarAsync(BazaarSearch search);
     Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest);
     Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId);
     Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price);

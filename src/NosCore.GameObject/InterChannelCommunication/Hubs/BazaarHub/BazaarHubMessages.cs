@@ -21,6 +21,8 @@ public record SettleBazaarRequest(Guid OperationId) : IMasterRequest;
 
 public record CompensateBazaarRequest(Guid OperationId) : IMasterRequest;
 
+public record SearchBazaarRequest(BazaarSearch Search) : IMasterRequest;
+
 public record AddBazaarRequest(BazaarRequest BazaarRequest) : IMasterRequest;
 
 public record ModifyBazaarRequest(Guid OperationId, long Id, long SellerId, long Price) : IMasterRequest;

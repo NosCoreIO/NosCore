@@ -129,7 +129,58 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task BlacklistAsksTheHubsOnceWhateverItsLength()
+        {
+            await new Spec("Blacklist asks the hubs once whatever its length")
+                .GivenAsync(ThreeBlockedCharactersOfWhichOneIsOnline)
+                .WhenAsync(GettingBlacklistedList)
+                .Then(HubsShouldBeAskedOnce)
+                .And(EveryBlockedCharacterShouldBeListedWithItsNameAndStatus)
+                .ExecuteAsync();
+        }
+
         private LanguageKey? BlacklistResult;
+        private readonly Dictionary<long, (string Name, bool Online)> ExpectedBlocked = new();
+
+        private async Task ThreeBlockedCharactersOfWhichOneIsOnline()
+        {
+            CharacterId = (await TestHelpers.Instance.GenerateSessionAsync()).Character.CharacterId;
+            for (var i = 0; i < 3; i++)
+            {
+                var blocked = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
+                ExpectedBlocked[blocked.CharacterId] = (blocked.Name, i == 0);
+                await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
+                {
+                    CharacterId = CharacterId,
+                    RelatedCharacterId = blocked.CharacterId,
+                    RelationType = CharacterRelationType.Blocked
+                });
+            }
+
+            PubSubHub.Setup(s => s.GetSubscribersAsync())
+                .ReturnsAsync(ExpectedBlocked.Where(f => f.Value.Online)
+                    .Select(f => new Subscriber { ChannelId = 1, ConnectedCharacter = new Character { Id = f.Key } })
+                    .ToList());
+        }
+
+        private void HubsShouldBeAskedOnce()
+        {
+            PubSubHub.Verify(s => s.GetSubscribersAsync(), Times.Once);
+            ChannelHub.Verify(s => s.GetCommunicationChannels(), Times.Once);
+        }
+
+        private void EveryBlockedCharacterShouldBeListedWithItsNameAndStatus()
+        {
+            Assert.AreEqual(ExpectedBlocked.Count, BlacklistedList!.Count);
+            foreach (var blocked in BlacklistedList)
+            {
+                Assert.AreEqual(ExpectedBlocked[blocked.CharacterId].Name, blocked.CharacterName);
+                Assert.AreEqual(ExpectedBlocked[blocked.CharacterId].Online, blocked.IsConnected);
+            }
+        }
+
+
         private List<CharacterRelationStatus>? BlacklistedList;
         private bool UnblacklistResult;
         private Guid? BlockRelationId;

@@ -21,6 +21,8 @@ namespace NosCore.GameObject.Services.BazaarService
         Task<LanguageKey> AddBazaarAsync(Guid operationId, Guid itemInstanceId, long characterId, string? characterName,
             bool hasMedal, long price, bool isPackage, short duration, short amount);
 
+        List<BazaarLink> SearchBazaar(BazaarSearch search);
+
         Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId);
 
         Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price);

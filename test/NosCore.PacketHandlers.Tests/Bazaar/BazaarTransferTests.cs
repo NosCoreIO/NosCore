@@ -625,6 +625,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     : inner.GetBazaar(id, index, pageSize, typeFilter, subTypeFilter, levelFilter, rareFilter,
                         upgradeFilter, sellerFilter);
 
+            public Task<List<BazaarLink>> SearchBazaarAsync(BazaarSearch search) => inner.SearchBazaarAsync(search);
+
             public Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest) =>
                 Add?.Invoke(bazaarRequest) ?? inner.AddBazaarAsync(bazaarRequest);
 

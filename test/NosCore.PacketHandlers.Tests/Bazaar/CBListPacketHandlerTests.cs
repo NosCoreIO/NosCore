@@ -6,14 +6,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
-using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
-using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Bazaar;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
@@ -34,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private Mock<IBazaarHub> BazaarHttpClient = null!;
         private CBListPacketHandler CblistPacketHandler = null!;
         private ClientSession Session = null!;
+        private BazaarSearch? Search;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -43,84 +41,56 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
-            var items = new List<ItemDto>
-            {
-                new Item {Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true}
-            };
-            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, items, TestHelpers.Instance.Clock, TestHelpers.Instance.NpcDialogService);
+            BazaarHttpClient.Setup(b => b.SearchBazaarAsync(It.IsAny<BazaarSearch>()))
+                .Callback((BazaarSearch search) => Search = search)
+                .ReturnsAsync(new List<BazaarLink>());
+            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, TestHelpers.Instance.Clock, TestHelpers.Instance.NpcDialogService);
         }
 
         [TestMethod]
         public async Task ListingShouldReturnEmptyWhenNoItems()
         {
             await new Spec("Listing should return empty when no items")
-                .Given(BazaarHasNoItems)
                 .WhenAsync(ListingBazaarItems)
                 .Then(ShouldReceiveEmptyList)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ListingShouldReturnValidItems()
+        public async Task ListingShouldSendTheReturnedPage()
         {
-            await new Spec("Listing should return valid items")
-                .Given(BazaarHasValidItems)
+            await new Spec("Listing should send the returned page")
+                .Given(TheMasterReturnsOneListing)
                 .WhenAsync(ListingBazaarItems)
-                .Then(ShouldReceiveOneItem)
+                .Then(ShouldReceiveTheListing)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ListingShouldFilterInvalidItems()
+        public async Task ListingShouldAskTheMasterForOnlyTheRequestedPage()
         {
-            await new Spec("Listing should filter invalid items")
-                .Given(BazaarHasInvalidItems)
-                .WhenAsync(ListingBazaarItems)
-                .Then(ShouldReceiveEmptyList)
+            await new Spec("Listing should ask the master for only the requested page")
+                .WhenAsync(ListingTheSecondPageWithFilters)
+                .Then(TheSearchShouldCarryThePageAndFilters)
+                .And(TheWholeBazaarShouldNotBeFetched)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ListingWithoutAnItemFilterShouldNotThrow()
+        public async Task ListingWithoutAnItemFilterShouldSearchEveryItem()
         {
-            BazaarHasValidItems();
-            await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = null }, Session);
-            ShouldReceiveOneItem();
-        }
-
-        [TestMethod]
-        public async Task ItemFilterShouldKeepOnlyTheListedVNums()
-        {
-            BazaarHasValidItems();
-            await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short> { 1013 } }, Session);
-            ShouldReceiveEmptyList();
-        }
-
-        [TestMethod]
-        public async Task ListingShouldReturnTheRequestedPage()
-        {
-            var start = TestHelpers.Instance.Clock.GetCurrentInstant();
-            BazaarHttpClient.Setup(b => b.GetBazaar(-1, null, null, It.IsAny<BazaarListType?>(), It.IsAny<byte?>(),
-                    It.IsAny<byte?>(), It.IsAny<byte?>(), It.IsAny<byte?>(), null))
-                .ReturnsAsync(Enumerable.Range(1, 60).Select(i => new BazaarLink
-                {
-                    SellerName = "test",
-                    BazaarItem = new BazaarItemDto { BazaarItemId = i, Price = i, Amount = 1, DateStart = start, Duration = 200 },
-                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
-                }).ToList());
-
-            await CblistPacketHandler.ExecuteAsync(new CBListPacket { Index = 1, ItemVNumFilter = new List<short>() }, Session);
-
-            var packet = (RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
-            CollectionAssert.AreEqual(Enumerable.Range(51, 10).Select(i => (long)i).ToList(),
-                packet!.Items!.Select(s => s!.AuctionId).ToList());
+            await new Spec("Listing without an item filter should search every item")
+                .WhenAsync(ListingWithoutAnItemFilter)
+                .Then(TheSearchShouldHaveNoItemFilter)
+                .And(ShouldReceiveEmptyList)
+                .ExecuteAsync();
         }
 
         [TestMethod]
         public async Task ListingWithoutTheBazaarOpenSendsNothing()
         {
             await new Spec("Listing the bazaar without its window open sends no list")
-                .Given(BazaarHasValidItems)
+                .Given(TheMasterReturnsOneListing)
                 .And(NoBazaarWindowIsOpen)
                 .WhenAsync(ListingBazaarItems)
                 .Then(NoListShouldBeSent)
@@ -131,25 +101,47 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void NoListShouldBeSent() => Assert.IsFalse(Session.LastPackets.Any(s => s is RcbListPacket));
 
-        private void BazaarHasNoItems()
-        {
-            BazaarHttpClient.Setup(b =>
-                b.GetBazaar(
-                    It.IsAny<long>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<BazaarListType?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<long?>())
-            ).ReturnsAsync(new List<BazaarLink>());
-        }
-
         private async Task ListingBazaarItems()
         {
             await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = new List<short>() }, Session);
+        }
+
+        private async Task ListingTheSecondPageWithFilters()
+        {
+            await CblistPacketHandler.ExecuteAsync(new CBListPacket
+            {
+                Index = 1,
+                TypeFilter = BazaarListType.Weapon,
+                SubTypeFilter = 2,
+                LevelFilter = 3,
+                RareFilter = 4,
+                UpgradeFilter = 5,
+                OrderFilter = 1,
+                ItemVNumFilter = new List<short> { 1012 }
+            }, Session);
+        }
+
+        private async Task ListingWithoutAnItemFilter()
+        {
+            await CblistPacketHandler.ExecuteAsync(new CBListPacket { ItemVNumFilter = null }, Session);
+        }
+
+        private void TheMasterReturnsOneListing()
+        {
+            BazaarHttpClient.Setup(b => b.SearchBazaarAsync(It.IsAny<BazaarSearch>()))
+                .ReturnsAsync(new List<BazaarLink>
+                {
+                    new()
+                    {
+                        SellerName = "test",
+                        BazaarItem = new BazaarItemDto
+                        {
+                            BazaarItemId = 7, SellerId = 3, Price = 50, Amount = 1,
+                            DateStart = TestHelpers.Instance.Clock.GetCurrentInstant(), Duration = 2
+                        },
+                        ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 4 }
+                    }
+                });
         }
 
         private void ShouldReceiveEmptyList()
@@ -158,59 +150,44 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Assert.IsTrue(packet?.Items?.Count == 0);
         }
 
-        private void BazaarHasValidItems()
-        {
-            BazaarHttpClient.Setup(b =>
-                b.GetBazaar(
-                    It.IsAny<long>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<BazaarListType?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<long?>())
-            ).ReturnsAsync(new List<BazaarLink>
-            {
-                new()
-                {
-                    SellerName = "test",
-                    BazaarItem = new BazaarItemDto
-                        {Price = 50, Amount = 1, DateStart = TestHelpers.Instance.Clock.GetCurrentInstant(), Duration = 200},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
-                }
-            });
-        }
-
-        private void ShouldReceiveOneItem()
+        private void ShouldReceiveTheListing()
         {
             var packet = (RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
-            Assert.IsTrue(packet?.Items?.Count == 1);
+            var listing = packet!.Items!.Single()!;
+            Assert.AreEqual(7, listing.AuctionId);
+            Assert.AreEqual(3, listing.OwnerId);
+            Assert.AreEqual("test", listing.OwnerName);
+            Assert.AreEqual(1012, listing.ItemId);
+            Assert.AreEqual(4, listing.Amount);
+            Assert.AreEqual(50, listing.Price);
+            Assert.AreEqual((long)Duration.FromHours(2).TotalMinutes, listing.MinutesLeft);
         }
 
-        private void BazaarHasInvalidItems()
+        private void TheSearchShouldCarryThePageAndFilters()
         {
-            BazaarHttpClient.Setup(b =>
-                b.GetBazaar(
-                    It.IsAny<long>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<BazaarListType?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<byte?>(),
-                    It.IsAny<long?>())
-            ).ReturnsAsync(new List<BazaarLink>
-            {
-                new()
-                {
-                    SellerName = "test",
-                    BazaarItem = new BazaarItemDto {Price = 50, Amount = 1},
-                    ItemInstance = new ItemInstanceDto {ItemVNum = 1012, Amount = 1}
-                }
-            });
+            Assert.IsNotNull(Search);
+            Assert.AreEqual(1, Search.Index);
+            Assert.AreEqual(30, Search.PageSize);
+            Assert.AreEqual(BazaarListType.Weapon, Search.TypeFilter);
+            Assert.AreEqual(2, Search.SubTypeFilter);
+            Assert.AreEqual(3, Search.LevelFilter);
+            Assert.AreEqual(4, Search.RareFilter);
+            Assert.AreEqual(5, Search.UpgradeFilter);
+            Assert.AreEqual(1, Search.OrderFilter);
+            CollectionAssert.AreEqual(new List<short> { 1012 }, Search.ItemVNumFilter);
+            Assert.AreEqual(Session.Account.Language, Search.Language);
+        }
+
+        private void TheWholeBazaarShouldNotBeFetched()
+        {
+            BazaarHttpClient.Verify(b => b.GetBazaar(It.IsAny<long>(), It.IsAny<byte?>(), It.IsAny<byte?>(),
+                It.IsAny<BazaarListType?>(), It.IsAny<byte?>(), It.IsAny<byte?>(), It.IsAny<byte?>(),
+                It.IsAny<byte?>(), It.IsAny<long?>()), Times.Never);
+        }
+
+        private void TheSearchShouldHaveNoItemFilter()
+        {
+            Assert.AreEqual(0, Search!.ItemVNumFilter.Count);
         }
     }
 }
