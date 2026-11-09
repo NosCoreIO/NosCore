@@ -133,7 +133,8 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
                 Header = "EntryPoint",
                 KeepAliveId = packet.KeepAliveId,
                 Name = session.WaitForPacketList[0].Header!,
-                Password = "thisisgfmode",
+                // A launcher client sends thisisgfmode in place of the password.
+                Password = session.WaitForPacketList[1].Header!,
             };
 
             session.WaitForPacketsAmount = null;

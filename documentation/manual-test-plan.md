@@ -10,6 +10,8 @@ Work through the sections that touch what you changed. Tick as you go.
 
 - [ ] LoginServer, MasterServer and WorldServer all start and stay up
 - [ ] The banner prints and the character list loads
+- [ ] Log in with the account password from a client not started by the launcher: the
+      character list loads
 - [ ] Log in on a GM account (`$Help` lists the commands; if it does nothing, the account
       is not GM and none of the rest will work)
 
