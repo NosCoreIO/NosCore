@@ -154,6 +154,7 @@ public sealed class HitQueue(
                 // setters only sync what's assigned), so we flip it explicitly here to keep
                 // IAliveEntity.IsAlive honest for subsequent attackers and packet fields.
                 FlipIsAlive(target, false);
+                await buffService.ClearAsync(target);
             }
 
             // A push, a pull or a charge, if the skill declares one. Before the hit list

@@ -115,6 +115,37 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         return Task.CompletedTask;
     }
 
+    public async Task ClearAsync(IAliveEntity target)
+    {
+        var buffs = ResolveState(target);
+        if (buffs == null || buffs.IsEmpty)
+        {
+            return;
+        }
+
+        foreach (var cardId in buffs.Keys)
+        {
+            if (!buffs.TryRemove(cardId, out var removed) || target.MapInstance == null)
+            {
+                continue;
+            }
+
+            // The client keeps an icon on bfe; a bf with no duration left is what takes it down.
+            await target.MapInstance.SendPacketAsync(new BfPacket
+            {
+                VisualType = target.VisualType,
+                VisualId = target.VisualId,
+                Buff = new BfPacket.BuffElementSubPacket
+                {
+                    ChargeValue = 0,
+                    BuffId = cardId,
+                    Duration = 0,
+                },
+                BuffLevel = removed.Caster?.Level ?? 0,
+            });
+        }
+    }
+
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
     {
         var buffs = ResolveState(target);
