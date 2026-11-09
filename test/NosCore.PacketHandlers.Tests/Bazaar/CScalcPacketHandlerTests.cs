@@ -40,7 +40,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private static readonly ILogger<CScalcPacketHandler> Logger = new Mock<ILogger<CScalcPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient = null!;
         private CScalcPacketHandler CScalcPacketHandler = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
         private Mock<IItemGenerationService> ItemProvider = null!;
         private ClientSession Session = null!;
 
@@ -53,26 +52,36 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             ItemProvider = new Mock<IItemGenerationService>();
-            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             CScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                BazaarHttpClient.Object, ItemProvider.Object, Logger, ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
+                BazaarHttpClient.Object, ItemProvider.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer,
+                new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
+                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, TestHelpers.Instance.NpcDialogService,
+                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
 
+            var ownListing = new BazaarLink
+            {
+                SellerName = Session.Character.Name,
+                BazaarItem = new BazaarItemDto { Price = 50, Amount = 1, SellerId = Session.Character.CharacterId },
+                ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
+            };
             BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
-                new List<BazaarLink>() {new BazaarLink
-                {
-                    SellerName = Session.Character.Name,
-                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
-                    ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
-                }});
+                new List<BazaarLink>() { ownListing });
+            var sellerId = Session.Character.CharacterId;
+            BazaarHttpClient.Setup(b => b.ClaimBazaarAsync(It.IsAny<Guid>(), 0, sellerId)).ReturnsAsync(new BazaarClaim
+            {
+                Listing = ownListing.BazaarItem,
+                SoldAmount = 1,
+                Gold = 45,
+                Taxes = 5
+            });
             BazaarHttpClient.Setup(b => b.GetBazaar(2, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new BazaarLink
                 {
                     SellerName = "test",
-                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
+                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1, SellerId = Session.Character.CharacterId + 1 },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
                 }});
             BazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
-            BazaarHttpClient.Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>())).ReturnsAsync(true);
             ItemProvider.Setup(s => s.Convert(It.IsAny<IItemInstanceDto>())).Returns(new ItemInstance(new Item() { VNum = 1012 })
             {
                 Amount = 0, Item = new Item()
@@ -131,7 +140,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task RetrievingSoldItemShouldSucceed()
         {
             await new Spec("Retrieving sold item should succeed")
-                .Given(ItemInstanceDaoIsConfigured)
                 .WhenAsync(RetrievingOwnItem)
                 .Then(ShouldReceiveTotalOf_, 50)
                 .ExecuteAsync();
@@ -216,12 +224,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         {
             var packet = (MsgiPacket?)Session.LastPackets.FirstOrDefault(s => s is MsgiPacket);
             Assert.AreEqual(Game18NConstString.MaxGoldReached, packet?.Message);
-        }
-
-        private void ItemInstanceDaoIsConfigured()
-        {
-            ItemInstanceDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
-                .ReturnsAsync(new ItemInstanceDto { ItemVNum = 1012, Amount = 0 });
         }
 
         private void ShouldReceiveTotalOf_(int value)

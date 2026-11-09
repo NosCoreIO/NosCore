@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Wolverine;
@@ -20,13 +21,22 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub
             bus.RequestAsync<List<BazaarLink>>(new GetBazaarRequest(id, index, pageSize, typeFilter,
                 subTypeFilter, levelFilter, rareFilter, upgradeFilter, sellerFilter));
 
-        public Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null) =>
-            bus.RequestAsync<bool>(new DeleteBazaarRequest(id, count, requestCharacterName, requestCharacterId));
+        public Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId) =>
+            bus.RequestAsync<bool>(new BuyBazaarRequest(operationId, id, count, price, buyerId));
+
+        public Task<BazaarClaim?> ClaimBazaarAsync(Guid operationId, long id, long sellerId) =>
+            bus.RequestAsync<BazaarClaim?>(new ClaimBazaarRequest(operationId, id, sellerId));
+
+        public Task<bool> SettleBazaarAsync(Guid operationId) =>
+            bus.RequestAsync<bool>(new SettleBazaarRequest(operationId));
+
+        public Task<bool> CompensateBazaarAsync(Guid operationId) =>
+            bus.RequestAsync<bool>(new CompensateBazaarRequest(operationId));
 
         public Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest) =>
             bus.RequestAsync<LanguageKey>(new AddBazaarRequest(bazaarRequest));
 
-        public Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod) =>
-            bus.RequestAsync<BazaarLink?>(new ModifyBazaarRequest(id, bzMod));
+        public Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price) =>
+            bus.RequestAsync<BazaarLink?>(new ModifyBazaarRequest(operationId, id, sellerId, price));
     }
 }

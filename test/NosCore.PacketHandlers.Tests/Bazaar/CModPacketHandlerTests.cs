@@ -21,6 +21,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -59,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 new List<BazaarLink>() {new()
                 {
                     SellerName = Session.Character.Name,
-                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1 },
+                    BazaarItem = new BazaarItemDto { Price = 50, Amount = 1, SellerId = Session.Character.CharacterId },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 0 }
                 }});
 
@@ -67,14 +68,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 new List<BazaarLink>() {new()
                 {
                     SellerName = Session.Character.Name,
-                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
+                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1, SellerId = Session.Character.CharacterId },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
                 }});
             BazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
-            BazaarHttpClient.Setup(b => b.ModifyBazaarAsync(It.IsAny<long>(), It.IsAny<JsonPatch?>()!)).ReturnsAsync(new BazaarLink
+            BazaarHttpClient.Setup(b => b.ModifyBazaarAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(new BazaarLink
             {
                 SellerName = Session.Character.Name,
-                BazaarItem = new BazaarItemDto { Price = 70, Amount = 1 },
+                BazaarItem = new BazaarItemDto { Price = 70, Amount = 1, SellerId = Session.Character.CharacterId },
                 ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 1 }
             });
         }

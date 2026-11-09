@@ -345,9 +345,9 @@ namespace NosCore.Tests.Shared
                         new Mock<IDao<FamilyLogDto, long>>().Object,
                         CharacterDao)),
                 new CSkillPacketHandler(Instance.Clock, Instance.NpcDialogService),
-                new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer, Instance.NpcDialogService),
-                new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, InventoryItemInstanceDao, Instance.NpcDialogService),
-                new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CScalcPacketHandler>.Instance, ItemInstanceDao, Instance.LogLanguageLocalizer, Instance.NpcDialogService)
+                new CBuyPacketHandler(new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CBuyPacketHandler>.Instance, Instance.LogLanguageLocalizer, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object, ItemInstanceDao, Instance.NpcDialogService, new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object),
+                new CRegPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, ItemInstanceDao, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object, NullLogger<CRegPacketHandler>.Instance, Instance.LogLanguageLocalizer, Instance.NpcDialogService, new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object),
+                new CScalcPacketHandler(WorldConfiguration, new Mock<IBazaarHub>().Object, new Mock<IItemGenerationService>().Object, NullLogger<CScalcPacketHandler>.Instance, Instance.LogLanguageLocalizer, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object, ItemInstanceDao, Instance.NpcDialogService, new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object)
             };
             var packetHandlerRegistry = new NosCore.GameObject.Services.PacketHandlerService.PacketHandlerRegistry(handlers);
             var session = new ClientSession(

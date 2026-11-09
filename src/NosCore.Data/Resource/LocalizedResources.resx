@@ -514,6 +514,15 @@
   <data name="AUTH_API_SUCCESS" xml:space="preserve">
     <value>Authentication API succeeded.</value>
   </data>
+  <data name="BAZAAR_ADD_ERROR" xml:space="preserve">
+    <value>Failed to add bazaar item.</value>
+  </data>
+  <data name="BAZAAR_SETTLE_FAILED" xml:space="preserve">
+    <value>Bazaar operation {OperationId} could not be settled.</value>
+  </data>
+  <data name="BAZAAR_COMPENSATE_FAILED" xml:space="preserve">
+    <value>Bazaar operation {OperationId} could not be compensated.</value>
+  </data>
   <data name="BAZAAR_DELETE_ERROR" xml:space="preserve">
     <value>Failed to delete bazaar item.</value>
   </data>

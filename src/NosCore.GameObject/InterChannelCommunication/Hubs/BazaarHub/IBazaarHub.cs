@@ -7,6 +7,7 @@
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
 using NosCore.Packets.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -16,7 +17,10 @@ public interface IBazaarHub
 {
     Task<List<BazaarLink>> GetBazaar(long id, byte? index, byte? pageSize, BazaarListType? typeFilter,
         byte? subTypeFilter, byte? levelFilter, byte? rareFilter, byte? upgradeFilter, long? sellerFilter);
-    Task<bool> DeleteBazaarAsync(long id, short count, string requestCharacterName, long? requestCharacterId = null);
     Task<LanguageKey> AddBazaarAsync(BazaarRequest bazaarRequest);
-    Task<BazaarLink?> ModifyBazaarAsync(long id, Json.Patch.JsonPatch bzMod);
+    Task<bool> BuyBazaarAsync(Guid operationId, long id, short count, long price, long buyerId);
+    Task<BazaarLink?> ModifyBazaarAsync(Guid operationId, long id, long sellerId, long price);
+    Task<BazaarClaim?> ClaimBazaarAsync(Guid operationId, long id, long sellerId);
+    Task<bool> SettleBazaarAsync(Guid operationId);
+    Task<bool> CompensateBazaarAsync(Guid operationId);
 }

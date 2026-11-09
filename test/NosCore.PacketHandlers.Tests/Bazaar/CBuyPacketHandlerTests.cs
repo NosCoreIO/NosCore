@@ -40,9 +40,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private static readonly ILogger<CBuyPacketHandler> Logger = new Mock<ILogger<CBuyPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient = null!;
         private CBuyPacketHandler CbuyPacketHandler = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
         private Mock<IItemGenerationService> ItemProvider = null!;
         private ClientSession Session = null!;
+        private readonly Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,10 +52,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
-            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             ItemProvider = new Mock<IItemGenerationService>();
             CbuyPacketHandler = new CBuyPacketHandler(BazaarHttpClient.Object, ItemProvider.Object, Logger,
-                ItemInstanceDao.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
+                TestHelpers.Instance.LogLanguageLocalizer, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
+                ItemInstanceDao.Object, TestHelpers.Instance.NpcDialogService,
+                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
+            ItemInstanceDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<Func<IItemInstanceDto?, bool>>>()))
+                .ReturnsAsync(new ItemInstanceDto { ItemVNum = 1012, Amount = 99 });
 
             BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink> { new BazaarLink
@@ -68,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 new List<BazaarLink> { new BazaarLink
                 {
                     SellerName = Session.Character.Name,
-                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1 },
+                    BazaarItem = new BazaarItemDto { Price = 60, Amount = 1, SellerId = Session.Character.CharacterId },
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012 }
                 }});
             BazaarHttpClient.Setup(b => b.GetBazaar(3, null, null, null, null, null, null, null, null)).ReturnsAsync(
@@ -79,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                     ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 99 }
                 }});
             BazaarHttpClient.Setup(b => b.GetBazaar(1, null, null, null, null, null, null, null, null)).ReturnsAsync(new List<BazaarLink>());
-            BazaarHttpClient.Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>())).ReturnsAsync(true);
+            BazaarHttpClient.Setup(b => b.BuyBazaarAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<short>(), It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
         }
 
         [TestMethod]
@@ -213,7 +216,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private void GoldShouldStayAt_(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
 
         private void NoListingShouldBeClaimed() =>
-            BazaarHttpClient.Verify(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>()), Times.Never);
+            BazaarHttpClient.Verify(b => b.BuyBazaarAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<short>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
 
         private void CharacterIsInShop()
         {
@@ -348,8 +351,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             // The listing lives on the master server and every channel reads it, so two buyers
             // can both pass the price and amount checks. Only one wins the claim.
             Session.Character.Gold = 500;
+            ItemProviderIsConfigured();
             BazaarHttpClient!
-                .Setup(b => b.DeleteBazaarAsync(It.IsAny<long>(), It.IsAny<short>(), It.IsAny<string>(), It.IsAny<long?>()))
+                .Setup(b => b.BuyBazaarAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<short>(), It.IsAny<long>(), It.IsAny<long>()))
                 .ReturnsAsync(false);
 
             await CbuyPacketHandler!.ExecuteAsync(new CBuyPacket { BazaarId = 0, Amount = 1, Price = 50 }, Session);

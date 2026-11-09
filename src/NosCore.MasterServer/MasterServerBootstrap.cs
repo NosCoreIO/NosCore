@@ -165,6 +165,8 @@ namespace NosCore.MasterServer
                 };
             });
             containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
+            containerBuilder.Register(c => new DaoTransactionScope(c.Resolve<Func<DbContext>>()))
+                .As<IDaoTransactionScope>().SingleInstance();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
             containerBuilder.Register(_ => SystemClock.Instance).As<IClock>().SingleInstance();
 

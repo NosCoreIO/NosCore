@@ -23,6 +23,8 @@ namespace NosCore.Database.Migrations
 
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_log_type", new[] { "account_creation", "character_creation", "email_update" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "authority_type", new[] { "user", "moderator", "game_master", "administrator", "root", "closed", "banned", "unconfirmed" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_state", new[] { "pending", "settled", "compensated" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_type", new[] { "register", "buy", "modify", "claim" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_class_type", new[] { "adventurer", "swordsman", "archer", "mage", "martial_artist" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_relation_type", new[] { "friend", "hidden_spouse", "spouse", "blocked" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_state", new[] { "active", "inactive" });
@@ -286,6 +288,49 @@ namespace NosCore.Database.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("BazaarItem");
+                });
+
+            modelBuilder.Entity("NosCore.Database.Entities.BazaarOperation", b =>
+                {
+                    b.Property<Guid>("BazaarOperationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<short>("Amount")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("BazaarItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Instant>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<long>("Gold")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("Price")
+                        .HasColumnType("bigint");
+
+                    b.Property<short>("SoldAmount")
+                        .HasColumnType("smallint");
+
+                    b.Property<byte>("State")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("Taxes")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte>("Type")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("BazaarOperationId");
+
+                    b.HasIndex("BazaarItemId", "State");
+
+                    b.ToTable("BazaarOperation");
                 });
 
             modelBuilder.Entity("NosCore.Database.Entities.Card", b =>

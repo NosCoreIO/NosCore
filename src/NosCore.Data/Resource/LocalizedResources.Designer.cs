@@ -133,6 +133,33 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Failed to add bazaar item..
+        /// </summary>
+        public static string BAZAAR_ADD_ERROR {
+            get {
+                return ResourceManager.GetString("BAZAAR_ADD_ERROR", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bazaar operation {OperationId} could not be compensated..
+        /// </summary>
+        public static string BAZAAR_COMPENSATE_FAILED {
+            get {
+                return ResourceManager.GetString("BAZAAR_COMPENSATE_FAILED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Bazaar operation {OperationId} could not be settled..
+        /// </summary>
+        public static string BAZAAR_SETTLE_FAILED {
+            get {
+                return ResourceManager.GetString("BAZAAR_SETTLE_FAILED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to You can not trade not tradable items!.
         /// </summary>
         public static string CANNOT_TRADE_NOT_TRADABLE_ITEM {

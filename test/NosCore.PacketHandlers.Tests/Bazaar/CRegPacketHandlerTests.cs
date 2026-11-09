@@ -48,7 +48,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 TestHelpers.Instance.WorldConfiguration,
                 BazaarHttpClient.Object,
                 ItemInstanceDao.Object,
-                InventoryItemInstanceDao.Object, TestHelpers.Instance.NpcDialogService);
+                new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<CRegPacketHandler>.Instance,
+                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService,
+                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
             ItemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
         }

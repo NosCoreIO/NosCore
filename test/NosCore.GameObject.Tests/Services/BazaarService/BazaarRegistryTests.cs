@@ -51,7 +51,8 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             MockCharacterDao.Setup(d => d.Where(It.IsAny<System.Linq.Expressions.Expression<Func<CharacterDto, bool>>>()))
                 .Returns(new List<CharacterDto>());
 
-            Registry = new BazaarRegistry(MockBazaarItemDao.Object, MockItemInstanceDao.Object, MockCharacterDao.Object);
+            Registry = new BazaarRegistry(MockBazaarItemDao.Object, MockItemInstanceDao.Object, MockCharacterDao.Object,
+                new Mock<IDao<BazaarOperationDto, Guid>>().Object);
         }
 
         [TestMethod]

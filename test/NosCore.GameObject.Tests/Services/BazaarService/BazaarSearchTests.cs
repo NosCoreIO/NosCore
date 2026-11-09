@@ -69,7 +69,8 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
             var registry = new Mock<GameObject.Services.BazaarService.IBazaarRegistry>();
             registry.Setup(s => s.GetAll()).Returns(_links);
             _service = new GameObject.Services.BazaarService.BazaarService(registry.Object, new Mock<IDao<BazaarItemDto, long>>().Object,
-                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IClock>().Object, _items);
+                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<BazaarOperationDto, Guid>>().Object,
+                new Mock<IDaoTransactionScope>().Object, new Mock<IClock>().Object, _items);
         }
 
         private void List(short vnum, ItemInstanceDto? instance = null, sbyte rare = 0, byte upgrade = 0)
