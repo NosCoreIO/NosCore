@@ -125,16 +125,23 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         foreach (var cardId in buffs.Keys)
         {
-            if (!buffs.TryRemove(cardId, out _) || target.MapInstance == null)
+            if (!buffs.TryRemove(cardId, out var removed) || target.MapInstance == null)
             {
                 continue;
             }
 
-            await target.MapInstance.SendPacketAsync(new BfePacket
+            // The client keeps an icon on bfe; a bf with no duration left is what takes it down.
+            await target.MapInstance.SendPacketAsync(new BfPacket
             {
                 VisualType = target.VisualType,
                 VisualId = target.VisualId,
-                CardId = cardId,
+                Buff = new BfPacket.BuffElementSubPacket
+                {
+                    ChargeValue = 0,
+                    BuffId = cardId,
+                    Duration = 0,
+                },
+                BuffLevel = removed.Caster?.Level ?? 0,
             });
         }
     }
