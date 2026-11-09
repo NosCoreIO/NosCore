@@ -20,7 +20,7 @@ public class SaveDisconnectHandler(ISaveService saveService) : ISessionDisconnec
             return;
         }
 
-        using (await session.AcquirePacketLockAsync())
+        using (await session.AcquirePacketLockUnlessHeldAsync())
         {
             await saveService.SaveAsync(session);
         }

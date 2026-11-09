@@ -51,15 +51,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             ChannelHub = TestHelpers.Instance.ChannelHub;
             ChannelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
+            PubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             DacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, AuthHttpClient.Object, TestHelpers.Instance.PubSubHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
+                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, AuthHttpClient.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
         }
 
         [TestMethod]
         public async Task ConnectionWithAlreadyConnectedAccountShouldFail()
         {
             await new Spec("Connection with already connected account should fail")
-                .Given(AccountIsAlreadyConnected)
+                .Given(AccountIsInWaitingState)
+                .And(AccountIsAlreadyConnected)
                 .WhenAsync(ConnectingWithAccount)
                 .Then(AlreadyConnectedErrorShouldBeLogged)
                 .And(AccountShouldBeNull)
@@ -110,22 +112,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AccountIsAlreadyConnected()
         {
-            ChannelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>()
-            {
-                new()
-                {
-                    Id = 1,
-                }
-            });
-            PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(
-                new List<Subscriber>
-                {
-                    new()
-                    {
-                        ChannelId = 1,
-                        Name = AccountName
-                    }
-                });
+            PubSubHub.Setup(o => o.SubscribeAsync(It.Is<Subscriber>(x => x.Name == AccountName))).ReturnsAsync(false);
         }
 
         private void AccountIsNotInWaitingState()

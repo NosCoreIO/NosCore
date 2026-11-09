@@ -36,20 +36,52 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.PubSub
 
         public bool Subscribe(string channelKey, Subscriber subscriber)
         {
-            if (!masterClientList.ConnectedAccounts.TryGetValue(channelKey, out var accounts)
+            if (subscriber.Name == null
+                || !masterClientList.ConnectedAccounts.TryGetValue(channelKey, out var accounts)
                 || !masterClientList.Channels.TryGetValue(channelKey, out var channel))
             {
                 return false;
             }
 
+            var claim = new AccountClaim(channelKey, subscriber.Id);
+            var claimed = masterClientList.AccountClaims.GetOrAdd(subscriber.Name, claim);
+            if (claimed != claim)
+            {
+                return false;
+            }
+
             subscriber.ChannelId = channel.Id;
-            accounts.AddOrUpdate(subscriber.Id, subscriber, (_, _) => subscriber);
+            var current = accounts.GetOrAdd(subscriber.Id, subscriber);
+            if (current != subscriber)
+            {
+                if (current.Name != subscriber.Name)
+                {
+                    masterClientList.AccountClaims.TryRemove(new KeyValuePair<string, AccountClaim>(subscriber.Name, claim));
+                    return false;
+                }
+
+                accounts[subscriber.Id] = subscriber;
+            }
+
             return true;
         }
 
-        public bool Unsubscribe(string channelKey, long id) =>
-            masterClientList.ConnectedAccounts.TryGetValue(channelKey, out var accounts)
-            && accounts.TryRemove(id, out _);
+        public bool Unsubscribe(string channelKey, long id)
+        {
+            if (!masterClientList.ConnectedAccounts.TryGetValue(channelKey, out var accounts)
+                || !accounts.TryRemove(id, out var subscriber))
+            {
+                return false;
+            }
+
+            if (subscriber.Name != null)
+            {
+                masterClientList.AccountClaims.TryRemove(
+                    new KeyValuePair<string, AccountClaim>(subscriber.Name, new AccountClaim(channelKey, id)));
+            }
+
+            return true;
+        }
 
         public static async Task<Reply<bool>> Handle(PublishMessagesRequest request, IServiceProvider services) =>
             new(await services.GetRequiredService<PubSubHub>().BroadcastAsync(request.Messages));

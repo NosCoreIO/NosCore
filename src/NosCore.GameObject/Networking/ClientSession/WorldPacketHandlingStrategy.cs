@@ -191,9 +191,14 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
     {
         if (isFromNetwork)
         {
-            using (await session.AcquirePacketLockAsync().ConfigureAwait(false))
+            using (await session.AcquirePacketLockAsync())
             {
-                await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
+                if (session.IsClosing)
+                {
+                    return;
+                }
+
+                await handler.ExecuteAsync(packet, session);
             }
         }
         else

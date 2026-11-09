@@ -9,7 +9,6 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
@@ -22,14 +21,14 @@ namespace NosCore.PacketHandlers.CharacterScreen
 {
     public class DacPacketHandler(IDao<AccountDto, long> accountDao,
             ILogger<DacPacketHandler> logger, IAuthHub authHttpClient,
-            IPubSubHub pubSubHub, ISessionRefHolder sessionRefHolder,
+            ISessionRefHolder sessionRefHolder,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         : PacketHandler<DacPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(DacPacket packet, ClientSession clientSession)
         {
             await EntryPointPacketHandler.VerifyConnectionAsync(clientSession, logger, authHttpClient,
-                accountDao, pubSubHub, packet.AccountName, async _ =>
+                accountDao, packet.AccountName, async _ =>
                 {
                     var grant = await authHttpClient.RedeemChannelChangeAsync(packet.AccountName);
                     clientSession.MfaValidated = grant?.MfaValidated ?? false;

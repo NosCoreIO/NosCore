@@ -14,6 +14,7 @@ using NosCore.GameObject.Services.AuthService;
 using SpecLight;
 using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.InterChannelCommunication
@@ -111,6 +112,37 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         }
 
         [TestMethod]
+        public async Task AuthCodeIsAcceptedOnceAmongConcurrentRequests()
+        {
+            await new Spec("Auth code is accepted once among concurrent requests")
+                .Given(AuthCodeIsStored)
+                .WhenAsync(SixteenRequestsRedeemTheAuthCodeAtOnce)
+                .Then(ExactlyOneRequestShouldSucceed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task WorldEntryIsGrantedOnceAmongConcurrentRequests()
+        {
+            await new Spec("World entry is granted once among concurrent requests")
+                .Given(AuthCodeIsStored)
+                .AndAsync(AuthCodeWasRedeemed)
+                .WhenAsync(SixteenRequestsRedeemTheWorldEntryAtOnce)
+                .Then(ExactlyOneRequestShouldSucceed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ChannelChangeIsGrantedOnceAmongConcurrentRequests()
+        {
+            await new Spec("Channel change is granted once among concurrent requests")
+                .GivenAsync(AccountIsMovingToChannel2)
+                .WhenAsync(SixteenRequestsRedeemTheChannelChangeAtOnce)
+                .Then(ExactlyOneRequestShouldSucceed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task WorldEntryIsGrantedOnlyOnce()
         {
             await new Spec("World entry is granted only once")
@@ -166,6 +198,34 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         {
             AuthCodeService.StoreAuthCode(TokenGuid, AccountName);
         }
+
+        private int Successes;
+
+        private async Task<int> CountSuccessesAsync(Func<Task<bool>> redeem)
+        {
+            using var start = new ManualResetEventSlim(false);
+            var requests = Enumerable.Range(0, 16)
+                .Select(_ => Task.Run(() =>
+                {
+                    start.Wait();
+                    return redeem();
+                }))
+                .ToArray();
+            start.Set();
+            return (await Task.WhenAll(requests)).Count(success => success);
+        }
+
+        private async Task SixteenRequestsRedeemTheAuthCodeAtOnce() =>
+            Successes = await CountSuccessesAsync(async () =>
+                await Hub.GetAwaitingConnectionAsync(AccountName, TokenGuid, 1) != null);
+
+        private async Task SixteenRequestsRedeemTheWorldEntryAtOnce() =>
+            Successes = await CountSuccessesAsync(async () => await Hub.RedeemWorldEntryAsync(AccountName, 1) != null);
+
+        private async Task SixteenRequestsRedeemTheChannelChangeAtOnce() =>
+            Successes = await CountSuccessesAsync(() => Task.FromResult(Hub.RedeemChannelChange(ChannelKey, AccountName) != null));
+
+        private void ExactlyOneRequestShouldSucceed() => Assert.AreEqual(1, Successes);
 
         private async Task AuthCodeWasRedeemed()
         {
