@@ -4,114 +4,78 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NodaTime;
-using NosCore.Data.Enumerations.Map;
-using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.ComplimentService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Game
 {
-    public class ComplPacketHandler(IClock clock, ISessionRegistry sessionRegistry, List<MapTypeMapDto> mapTypeMaps)
+    public class ComplPacketHandler(IComplimentService complimentService)
         : PacketHandler<ComplPacket>, IWorldPacketHandler
     {
-        private const byte MinimumLevel = 31;
-        private static readonly Duration DelayAfterConnection = Duration.FromMinutes(60);
-
         public override async Task ExecuteAsync(ComplPacket packet, ClientSession session)
         {
             var character = session.Character;
-            if (packet.CharacterId == character.CharacterId
-                || !sessionRegistry.TryGetCharacter(s => s.CharacterId == packet.CharacterId, out var target))
+            var result = complimentService.Compliment(character, packet.CharacterId);
+            switch (result.Outcome)
             {
-                return;
+                case ComplimentOutcome.NoTarget:
+                    return;
+
+                case ComplimentOutcome.Complimented:
+                    var target = result.Target!.Value;
+                    await session.SendPacketAsync(new Sayi2Packet
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = character.CharacterId,
+                        Type = SayColorType.Green,
+                        Message = Game18NConstString.HaveCommendedPercentZero,
+                        ArgumentType = 1,
+                        Game18NArguments = { target.Name }
+                    });
+                    await target.SendPacketAsync(new Sayi2Packet
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = target.CharacterId,
+                        Type = SayColorType.Green,
+                        Message = Game18NConstString.HaveBeenCommendedByPercentZero,
+                        ArgumentType = 1,
+                        Game18NArguments = { character.Name }
+                    });
+                    return;
+
+                case ComplimentOutcome.TooSoonAfterConnection:
+                    await session.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = character.CharacterId,
+                        Type = SayColorType.Red,
+                        Message = Game18NConstString.CantCommendNow,
+                        ArgumentType = 4,
+                        Game18NArguments = { result.MinutesToWait }
+                    });
+                    return;
+
+                default:
+                    await session.SendPacketAsync(new SayiPacket
+                    {
+                        VisualType = VisualType.Player,
+                        VisualId = character.CharacterId,
+                        Type = SayColorType.Red,
+                        Message = result.Outcome switch
+                        {
+                            ComplimentOutcome.InGlacernon => Game18NConstString.CannotLeadInGlacernon,
+                            ComplimentOutcome.LevelTooLow => Game18NConstString.OnlyPlayersAboveLevelThirtyLead,
+                            _ => Game18NConstString.CanOnlyLeadOncePerDayAndAccount,
+                        }
+                    });
+                    return;
             }
-
-            var mapId = character.MapInstance.Map.MapId;
-            if (mapTypeMaps.Any(m => m.MapId == mapId
-                    && m.MapTypeId is (short)MapTypeType.Act4 or (short)MapTypeType.Act42))
-            {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.CannotLeadInGlacernon
-                });
-                return;
-            }
-
-            if (character.Level < MinimumLevel)
-            {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.OnlyPlayersAboveLevelThirtyLead
-                });
-                return;
-            }
-
-            var now = clock.GetCurrentInstant();
-            var availableAt = character.ConnectedAt + DelayAfterConnection;
-            if (now < availableAt)
-            {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.CantCommendNow,
-                    ArgumentType = 4,
-                    Game18NArguments = { (long)Math.Ceiling((availableAt - now).TotalMinutes) }
-                });
-                return;
-            }
-
-            var account = character.Account;
-            if (account.LastCompliment is { } last && last.InUtc().Date == now.InUtc().Date)
-            {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.CanOnlyLeadOncePerDayAndAccount
-                });
-                return;
-            }
-
-            target.Compliment = (short)(target.Compliment + 1);
-            account.LastCompliment = now;
-
-            await session.SendPacketAsync(new Sayi2Packet
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.CharacterId,
-                Type = SayColorType.Green,
-                Message = Game18NConstString.HaveCommendedPercentZero,
-                ArgumentType = 1,
-                Game18NArguments = { target.Name }
-            });
-            await target.SendPacketAsync(new Sayi2Packet
-            {
-                VisualType = VisualType.Player,
-                VisualId = target.CharacterId,
-                Type = SayColorType.Green,
-                Message = Game18NConstString.HaveBeenCommendedByPercentZero,
-                ArgumentType = 1,
-                Game18NArguments = { character.Name }
-            });
         }
     }
 }

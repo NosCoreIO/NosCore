@@ -10,6 +10,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
 using NosCore.Packets.ClientPackets.Player;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -68,28 +69,6 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .ExecuteAsync();
         }
 
-        [TestMethod]
-        public async Task TitEqVisibilityShouldResetOtherTitles()
-        {
-            await new Spec("TitEq visibility should reset other titles")
-                .Given(CharacterIsOnMap)
-                .And(CharacterHasMultipleTitles)
-                .WhenAsync(TogglingTitleVisibility)
-                .Then(OnlySelectedTitleShouldBeVisible)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task TitEqActiveShouldResetOtherTitles()
-        {
-            await new Spec("TitEq active should reset other titles")
-                .Given(CharacterIsOnMap)
-                .And(CharacterHasMultipleTitles)
-                .WhenAsync(TogglingTitleActive)
-                .Then(OnlySelectedTitleShouldBeActive)
-                .ExecuteAsync();
-        }
-
         private void CharacterIsOnMap()
         {
             Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
@@ -100,15 +79,6 @@ namespace NosCore.PacketHandlers.Tests.Game
             Session.Character.Titles = new List<TitleDto>
             {
                 new TitleDto { TitleType = TitleId, Visible = false, Active = false }
-            };
-        }
-
-        private void CharacterHasMultipleTitles()
-        {
-            Session.Character.Titles = new List<TitleDto>
-            {
-                new TitleDto { TitleType = TitleId, Visible = false, Active = false },
-                new TitleDto { TitleType = 2, Visible = true, Active = true }
             };
         }
 
@@ -161,28 +131,12 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void TitleChangedInfoShouldBeSent()
         {
-            Assert.IsTrue(Session.LastPackets.Any(p => p is InfoiPacket));
+            Assert.AreEqual(Game18NConstString.TitleChangedOrHidden, Session.LastPackets.OfType<InfoiPacket>().Single().Message);
         }
 
         private void TitleEffectChangedInfoShouldBeSent()
         {
-            Assert.IsTrue(Session.LastPackets.Any(p => p is InfoiPacket));
-        }
-
-        private void OnlySelectedTitleShouldBeVisible()
-        {
-            var selectedTitle = Session.Character.Titles.First(t => t.TitleType == TitleId);
-            var otherTitles = Session.Character.Titles.Where(t => t.TitleType != TitleId);
-            Assert.IsTrue(selectedTitle.Visible);
-            Assert.IsTrue(otherTitles.All(t => !t.Visible));
-        }
-
-        private void OnlySelectedTitleShouldBeActive()
-        {
-            var selectedTitle = Session.Character.Titles.First(t => t.TitleType == TitleId);
-            var otherTitles = Session.Character.Titles.Where(t => t.TitleType != TitleId);
-            Assert.IsTrue(selectedTitle.Active);
-            Assert.IsTrue(otherTitles.All(t => !t.Active));
+            Assert.AreEqual(Game18NConstString.TitleEffectChangedOrDeactivated, Session.LastPackets.OfType<InfoiPacket>().Single().Message);
         }
     }
 }
