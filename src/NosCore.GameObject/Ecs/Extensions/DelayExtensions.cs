@@ -15,10 +15,22 @@ public static class DelayExtensions
 {
     public static Task StartDelayAsync(this PlayerComponentBundle player, DelayPacket delay, object target, Instant now)
     {
-        player.PendingDelayType = delay.Type;
-        player.PendingDelayReadyAt = now + Duration.FromMilliseconds(delay.Delay);
-        player.PendingDelayTarget = target;
+        player.TrackDelay(delay.Type, delay.Delay, target, now);
         return player.SendPacketAsync(delay);
+    }
+
+    // A partner's bar is drawn over the partner's portrait, from its own packet.
+    public static Task StartDelayAsync(this PlayerComponentBundle player, PdelayPacket delay, object target, Instant now)
+    {
+        player.TrackDelay(delay.Type, delay.Delay, target, now);
+        return player.SendPacketAsync(delay);
+    }
+
+    private static void TrackDelay(this PlayerComponentBundle player, DelayPacketType type, int delay, object target, Instant now)
+    {
+        player.PendingDelayType = type;
+        player.PendingDelayReadyAt = now + Duration.FromMilliseconds(delay);
+        player.PendingDelayTarget = target;
     }
 
     // The client sends the bar's follow-up packet itself, so it is only honoured once the bar this

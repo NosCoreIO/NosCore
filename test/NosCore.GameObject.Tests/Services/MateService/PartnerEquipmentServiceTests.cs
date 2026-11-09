@@ -38,13 +38,14 @@ namespace NosCore.GameObject.Tests.Services.MateService
         private ClientSession _session = null!;
         private ItemGenerationService _items = null!;
         private GameObject.Services.MateService.Mate _partner = null!;
-        private readonly PartnerEquipmentService _service = new();
+        private PartnerEquipmentService _service = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _service = new PartnerEquipmentService(new PartnerSpecialistService(TestHelpers.Instance.Clock));
             _items = new ItemGenerationService(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Equipment, VNum = PlayerWeapon, ItemType = ItemType.Weapon },
