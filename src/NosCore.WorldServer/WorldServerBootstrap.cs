@@ -270,6 +270,10 @@ namespace NosCore.WorldServer
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(60));
                     services.AddHostedService<WorldServer>();
+                    services.AddHostedService(sp => new RecurringMessagePublisher<ShipDepartureMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<ShipDepartureMessage>>>(),
+                        TimeSpan.FromSeconds(1)));
                     services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),

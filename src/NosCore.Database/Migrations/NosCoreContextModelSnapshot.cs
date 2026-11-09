@@ -2748,6 +2748,79 @@ namespace NosCore.Database.Migrations
                     b.ToTable("ScriptedInstance");
                 });
 
+            modelBuilder.Entity("NosCore.Database.Entities.ShipRoute", b =>
+                {
+                    b.Property<short>("ShipRouteId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("ShipRouteId"));
+
+                    b.Property<short>("BoardingDialog")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("BoardingNpcVNum")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CancelRunner")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CaptainDialog")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CaptainVNum")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CaptainX")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("CaptainY")
+                        .HasColumnType("smallint");
+
+                    b.Property<int>("DepartureIntervalSeconds")
+                        .HasColumnType("integer");
+
+                    b.Property<short>("DestinationMapId")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("DestinationX")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("DestinationY")
+                        .HasColumnType("smallint");
+
+                    b.Property<long>("Fare")
+                        .HasColumnType("bigint");
+
+                    b.Property<byte?>("RequiredFaction")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ReturnX")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ReturnY")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("Runner")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ShipMapId")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ShipX")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("ShipY")
+                        .HasColumnType("smallint");
+
+                    b.Property<short>("SourceMapId")
+                        .HasColumnType("smallint");
+
+                    b.HasKey("ShipRouteId");
+
+                    b.ToTable("ShipRoute");
+                });
+
             modelBuilder.Entity("NosCore.Database.Entities.Shop", b =>
                 {
                     b.Property<int>("ShopId")

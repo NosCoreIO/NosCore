@@ -219,6 +219,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public List<Portal> Portals { get; set; }
 
+        public ShipRouteDto? ShipRoute { get; set; }
+
         public bool ShopAllowed { get; }
 
         public int XpRate { get; set; }

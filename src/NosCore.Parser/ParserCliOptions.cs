@@ -8,15 +8,31 @@ namespace NosCore.Parser;
 
 public sealed record ParserCliOptions(string? Folder)
 {
+    public string? ShipRoutes { get; init; }
+    public bool HasShipRoutes => !string.IsNullOrWhiteSpace(ShipRoutes);
+
     public bool HasFolder => !string.IsNullOrWhiteSpace(Folder);
 
     public static ParserCliOptions Parse(string[] args)
     {
         string? folder = null;
+        string? shipRoutes = null;
         for (var i = 0; i < args.Length; i++)
         {
             var arg = args[i];
-            if ((arg == "--folder" || arg == "-f") && i + 1 < args.Length)
+            if (arg == "--ship-routes")
+            {
+                if (i + 1 >= args.Length || args[i + 1].StartsWith("-", System.StringComparison.Ordinal))
+                {
+                    throw new System.ArgumentException("--ship-routes requires a file path.");
+                }
+                shipRoutes = args[++i];
+            }
+            else if (arg.StartsWith("--ship-routes=", System.StringComparison.Ordinal))
+            {
+                shipRoutes = arg["--ship-routes=".Length..];
+            }
+            else if ((arg == "--folder" || arg == "-f") && i + 1 < args.Length)
             {
                 folder = args[++i];
             }
@@ -25,6 +41,10 @@ public sealed record ParserCliOptions(string? Folder)
                 folder = arg["--folder=".Length..];
             }
         }
-        return new ParserCliOptions(folder);
+        if (folder != null && shipRoutes != null)
+        {
+            throw new System.ArgumentException("Use either --folder or --ship-routes.");
+        }
+        return new ParserCliOptions(folder) { ShipRoutes = shipRoutes };
     }
 }

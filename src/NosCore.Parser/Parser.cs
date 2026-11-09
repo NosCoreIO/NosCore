@@ -17,6 +17,7 @@ namespace NosCore.Parser
 {
     public class Parser(
         ImportFactory factory,
+        Parsers.ShipRouteParser shipRouteParser,
         ILogger<Parser> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         ParserCliOptions cli,
@@ -27,7 +28,11 @@ namespace NosCore.Parser
         {
             try
             {
-                if (cli.HasFolder)
+                if (cli.HasShipRoutes)
+                {
+                    await shipRouteParser.ImportAsync(cli.ShipRoutes!);
+                }
+                else if (cli.HasFolder)
                 {
                     await RunNonInteractiveAsync(cli.Folder!, stoppingToken).ConfigureAwait(false);
                 }
@@ -45,7 +50,7 @@ namespace NosCore.Parser
             }
             finally
             {
-                if (cli.HasFolder)
+                if (cli.HasFolder || cli.HasShipRoutes)
                 {
                     lifetime.StopApplication();
                 }

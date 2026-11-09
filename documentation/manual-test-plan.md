@@ -404,6 +404,29 @@ menu needs the import run again: until then those destinations take nobody anywh
       nobody moves
 - [ ] After re-running the import on an existing database, every teleporter above still works
 
+### Ship boarding
+
+Import reviewed ship routes with the parser's `--ship-routes <file>` command and restart
+world. See `documentation/ship-routes.md`. Use the departure interval and fare recorded
+in those routes; do not change character progress to meet an entry requirement.
+
+- [ ] At Port Alveus, open the Mortaz transport NPC's menu and board: arrive aboard the
+      ship, with its captain visible, rather than directly in Mortaz
+- [ ] Open the captain's dialog and choose "Leave Ship": return to Port Alveus; waiting
+      past the next departure must not move the character again
+- [ ] Board again and wait for departure: reach Mortaz Desert Port once, at the recorded
+      destination, with the correct fare deducted once
+- [ ] With Angel and Demon characters, board through the Glacernon kiosk: the factions
+      use separate ships and arrive at their respective citadels
+- [ ] With a neutral character, the Glacernon boarding menu reports that a faction is
+      required and leaves the character in port
+- [ ] Board shortly before a scheduled departure and shortly after it: the latter waits
+      for the next departure, rather than leaving with the previous sailing
+- [ ] Disconnect aboard ship and log in manually: return to the saved port position;
+      there must be no delayed teleport from the abandoned ship
+- [ ] With a route that charges a fare, try boarding below that fare: receive the
+      not-enough-gold message, retain the gold and remain in port
+
 ### Changing map
 
 Two clients, A and B.

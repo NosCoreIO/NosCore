@@ -94,7 +94,11 @@ namespace NosCore.Parser
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
-                if (!cli.HasFolder)
+                if (cli.HasShipRoutes)
+                {
+                    Environment.ExitCode = 1;
+                }
+                if (!cli.HasFolder && !cli.HasShipRoutes)
                 {
                     Console.ReadLine();
                 }

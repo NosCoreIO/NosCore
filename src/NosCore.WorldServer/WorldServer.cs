@@ -15,6 +15,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.SaveService;
+using NosCore.GameObject.Services.ShipService;
 using NosCore.Networking;
 using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
@@ -30,12 +31,13 @@ namespace NosCore.WorldServer
             ILogger<WorldServer> logger, IMapInstanceGeneratorService mapInstanceGeneratorService,
             ISaveService saveService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, Channel channel, IChannelHub channelHubClient,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, IShipService ships)
         : BackgroundService
     {
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await mapInstanceGeneratorService.InitializeAsync();
+            await ships.InitializeAsync();
             logger.LogInformation(logLanguage[LogLanguageKey.SUCCESSFULLY_LOADED]);
 
             ConsoleHelper.AppendTitle($@" - Port : {worldConfiguration.Value.Port}");

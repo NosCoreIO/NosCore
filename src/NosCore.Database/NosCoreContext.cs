@@ -10,6 +10,8 @@ using NosCore.Database.Entities;
 using Npgsql;
 using System;
 using System.Linq;
+using System.Reflection;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NosCore.Database
 {
@@ -140,6 +142,8 @@ namespace NosCore.Database
 
         public virtual DbSet<Teleporter>? Teleporter { get; set; }
 
+        public virtual DbSet<ShipRoute>? ShipRoute { get; set; }
+
         public virtual DbSet<StaticBuff>? StaticBuff { get; set; }
 
         public virtual DbSet<I18NActDesc>? I18NActDesc { get; set; }
@@ -178,7 +182,8 @@ namespace NosCore.Database
             typeof(NosCoreContext).Assembly
                 .GetTypes()
                 .SelectMany(t => t.GetProperties())
-                .Where(t => t.PropertyType.IsEnum && t.PropertyType.IsPublic)
+                .Where(t => t.PropertyType.IsEnum && t.PropertyType.IsPublic
+                    && t.GetCustomAttribute<ColumnAttribute>()?.TypeName == null)
                 .Select(t => t.PropertyType)
                 .Distinct()
                 .ToList().ForEach(t => HasPostgresEnum(modelBuilder, t));

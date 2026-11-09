@@ -420,6 +420,7 @@ public class MapWorld : IDisposable
             new WalkAllowanceComponent(0),
             new NpcDialogComponent(null)
         );
+        _world.Add(entity, new ShipTravelComponent(null, Instant.MinValue));
         return entity;
     }
 
@@ -460,6 +461,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue, null));
         _world.Add(entity, new WalkAllowanceComponent(0));
         _world.Add(entity, new NpcDialogComponent(null));
+        _world.Add(entity, new ShipTravelComponent(null, Instant.MinValue));
         return entity;
     }
 
