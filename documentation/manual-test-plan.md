@@ -1112,6 +1112,24 @@ Capture is skill 209; weaken the monster to under half health and stay at or abo
 - [ ] Capture a third Fox once that line reads 2/2: this one becomes a pet
 - [ ] Capturing the last animal the quest needs completes it
 
+### Collectable map objects
+
+Objects flagged collectable in the NPC data (ETC bit 1), such as the Ice Flowers on Mount
+Krem. Stand next to one before each check.
+
+- [ ] Click the Ice Flower: a five second bar runs over the character
+- [ ] Let the bar finish: the flower's item lands in the inventory, "received" shows in chat
+      and the flower disappears for everyone on the map
+- [ ] Walk away or get hit during the bar: it stops and no item is given
+- [ ] Click where the flower stood before it is back: nothing happens
+- [ ] Wait out the respawn time from the NPC data: the flower reappears in the same spot and
+      can be collected again
+- [ ] Change map and come back while the flower is gone: it is still absent until it respawns
+- [ ] With a full main inventory, finish the bar: "not enough space" shows and the flower stays
+- [ ] **Collect a map object** (CollectMapEntity) — with a quest of that type open that names
+      the flower, each collect advances the quest window and the last one completes the quest;
+      opening the flower without finishing the bar does not count
+
 ---
 
 ## Regression sweep

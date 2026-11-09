@@ -41,6 +41,12 @@ namespace NosCore.PacketHandlers.Shops
                     var npc = character.MapInstance.FindNpc(s => s.VisualId == requestNpcPacket.TargetId);
                     if (npc is { } found && npcDialogService.IsWithinReach(character, found))
                     {
+                        if (found.NpcMonster is { CanCollect: true })
+                        {
+                            await messageBus.PublishAsync(new NpcTalkedEvent(character, found));
+                            return;
+                        }
+
                         npcDialogService.Open(character, found, NpcDialogWindow.Conversation);
                         found.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(clientSession));
                         await messageBus.PublishAsync(new NpcTalkedEvent(character, found));

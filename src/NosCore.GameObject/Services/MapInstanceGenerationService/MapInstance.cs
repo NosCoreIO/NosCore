@@ -70,6 +70,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IVitalityService? _vitalityService;
         private readonly IDigestionService? _digestionService;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
+        private readonly ConcurrentDictionary<long, (NpcComponentBundle Npc, Instant RespawnAt)> _pendingNpcRespawns = new();
 
         public MapWorld EcsWorld { get; }
 
@@ -395,6 +396,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
             Npcs.ForEach(s =>
             {
+                if (!s.IsAlive)
+                {
+                    return;
+                }
+
                 packets.Add(s.GenerateIn());
 
                 if (s.Shop != null)
@@ -586,8 +592,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _pendingRespawns[monster.VisualId] = (monster, respawnAt);
         }
 
+        public void ScheduleRespawn(NpcComponentBundle npc, Instant respawnAt)
+        {
+            _pendingNpcRespawns[npc.VisualId] = (npc, respawnAt);
+        }
+
         private async Task SweepPendingRespawnsAsync()
         {
+            await SweepPendingNpcRespawnsAsync();
             if (_pendingRespawns.IsEmpty) return;
             var now = _clock.GetCurrentInstant();
             foreach (var (visualId, entry) in _pendingRespawns)
@@ -607,6 +619,26 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     monster.HitList.Clear();
 
                     await this.SendPacketAsync(monster.GenerateIn());
+                }
+                catch (Exception e)
+                {
+                    LogTickFailure(e, "respawn", visualId);
+                }
+            }
+        }
+
+        private async Task SweepPendingNpcRespawnsAsync()
+        {
+            if (_pendingNpcRespawns.IsEmpty) return;
+            var now = _clock.GetCurrentInstant();
+            foreach (var (visualId, entry) in _pendingNpcRespawns)
+            {
+                if (entry.RespawnAt > now) continue;
+                if (!_pendingNpcRespawns.TryRemove(visualId, out _)) continue;
+                try
+                {
+                    entry.Npc.IsAlive = true;
+                    await this.SendPacketAsync(entry.Npc.GenerateIn());
                 }
                 catch (Exception e)
                 {

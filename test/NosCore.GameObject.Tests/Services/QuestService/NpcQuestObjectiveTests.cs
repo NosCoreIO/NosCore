@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private ClientSession Session = null!;
         private OnNpcTalkedHandler TalkedHandler = null!;
         private QuestDialogHandler DialogHandler = null!;
+        private OnMapEntityCollectedHandler CollectedHandler = null!;
         private CharacterQuest TrackedQuest = null!;
 
         [TestInitialize]
@@ -56,6 +57,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 new Dialog1QuestHandler(),
                 new Dialog2QuestHandler(),
                 new InspectQuestHandler(),
+                new CollectMapEntityQuestHandler(),
                 new TransmitGoldQuestHandler(TestHelpers.Instance.GameLanguageLocalizer),
             };
             var questService = new GameObject.Services.QuestService.QuestService(
@@ -74,6 +76,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 new Mock<GameObject.Services.ExperienceService.IExperienceProgressionService>().Object);
             TalkedHandler = new OnNpcTalkedHandler(questService, handlers);
             DialogHandler = new QuestDialogHandler(questService, handlers);
+            CollectedHandler = new OnMapEntityCollectedHandler(questService, handlers);
         }
 
         [TestMethod]
@@ -192,6 +195,48 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task CollectingTheNamedObjectCompletesACollectMapEntityQuest()
+        {
+            await new Spec("Collecting the named map object completes the CollectMapEntity quest")
+                .Given(CharacterHasQuest_With_, QuestType.CollectMapEntity, new[] { Objective(FirstCrateVNum, 1752, 1) })
+                .WhenAsync(Collecting_, FirstCrateVNum)
+                .Then(QuestShouldBeComplete)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OneCollectOfAnObjectToCollectTwiceKeepsTheQuestOpen()
+        {
+            await new Spec("One collect of a map object to collect twice keeps the CollectMapEntity quest open")
+                .Given(CharacterHasQuest_With_, QuestType.CollectMapEntity, new[] { Objective(FirstCrateVNum, 1752, 2) })
+                .WhenAsync(Collecting_, FirstCrateVNum)
+                .Then(QuestShouldBeOpen)
+                .And(ObjectiveForTarget_ShouldBeAt_, FirstCrateVNum, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task CollectingAnotherObjectIsIgnored()
+        {
+            await new Spec("Collecting a map object the CollectMapEntity quest does not name is ignored")
+                .Given(CharacterHasQuest_With_, QuestType.CollectMapEntity, new[] { Objective(FirstCrateVNum, 1752, 1) })
+                .WhenAsync(Collecting_, SecondCrateVNum)
+                .Then(QuestShouldBeOpen)
+                .And(ObjectiveForTarget_ShouldBeAt_, FirstCrateVNum, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TalkingToTheObjectDoesNotCountAsCollecting()
+        {
+            await new Spec("Opening the map object without finishing the collect leaves the CollectMapEntity quest open")
+                .Given(CharacterHasQuest_With_, QuestType.CollectMapEntity, new[] { Objective(FirstCrateVNum, 1752, 1) })
+                .WhenAsync(TalkingTo_, FirstCrateVNum)
+                .Then(QuestShouldBeOpen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task PayingTheNpcCompletesATransmitGoldQuest()
         {
             await new Spec("Talking to the NPC with enough gold pays it and completes the TransmitGold quest")
@@ -276,6 +321,9 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
         private Task TalkingTo_(short vnum) =>
             TalkedHandler.Handle(new NpcTalkedEvent(Session.Character, Npc(vnum)));
+
+        private Task Collecting_(short vnum) =>
+            CollectedHandler.Handle(new MapEntityCollectedEvent(Session.Character, Npc(vnum)));
 
         private Task PressingTheQuestButtonAt_For_(short vnum, short questId) =>
             DialogHandler.HandleAsync(Session, Npc(vnum), new NrunPacket
