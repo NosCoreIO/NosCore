@@ -33,11 +33,6 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            if (clientSession.Character.InExchangeOrShop)
-            {
-                return;
-            }
-
             var inventory =
                 clientSession.Character.InventoryService.LoadBySlotAndType((short)removePacket.InventorySlot,
                     NoscorePocketType.Wear);

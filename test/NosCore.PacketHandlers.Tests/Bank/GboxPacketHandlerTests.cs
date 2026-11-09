@@ -211,19 +211,6 @@ namespace NosCore.PacketHandlers.Tests.Bank
         }
 
         [TestMethod]
-        public async Task BankIsClosedWhileInShop()
-        {
-            await new Spec("The bank refuses any operation while the character has a private shop open")
-                .Given(CharacterHasGold, 5_000_000L)
-                .And(CharacterIsInShop)
-                .WhenAsync(GboxIsSent_, BankActionType.DepositGold, 1_000L, true)
-                .Then(GoldShouldBe, 5_000_000L)
-                .And(BankGoldShouldBe_, 0L)
-                .And(BankErrorShouldBe_, Game18NConstString.NoBankInShop)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task VipWithdrawsWithoutFee()
         {
             await new Spec("A Cuarry Bank VIP withdraws without paying any fee")

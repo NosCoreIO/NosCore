@@ -61,17 +61,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private readonly Mock<IEquipmentStatsService> Gear = new();
 
         [TestMethod]
-        public async Task UsingSkillWhenVehicledShouldSendCancelPacket()
-        {
-            await new Spec("Using skill when vehicled should send cancel packet")
-                .Given(CharacterIsOnMap)
-                .And(CharacterIsVehicled)
-                .WhenAsync(UsingSkill)
-                .Then(ShouldReceiveCancelPacket)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task UsingSkillOnUnknownVisualTypeShouldBeIgnored()
         {
             await new Spec("Using skill on unknown visual type should be ignored")
@@ -548,11 +537,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
             TargetSession.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
         }
 
-        private void CharacterIsVehicled()
-        {
-            Session.Character.IsVehicled = true;
-        }
-
         private void CharacterCannotFight()
         {
             Session.Character.CanFight = false;
@@ -597,16 +581,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void SkillWasUsedJustNow()
         {
             _learnedSkill.LastUse = TestHelpers.Instance.Clock.GetCurrentInstant();
-        }
-
-        private async Task UsingSkill()
-        {
-            await Handler.ExecuteAsync(new UseSkillPacket
-            {
-                CastId = 1,
-                TargetVisualType = VisualType.Player,
-                TargetId = Session.Character.VisualId
-            }, Session);
         }
 
         private async Task UsingSkillOnUnknownVisualType()

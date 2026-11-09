@@ -42,18 +42,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
-        [TestMethod]
-        public async Task OpeningWhileInAShopShouldDoNothing()
-        {
-            await new Spec("Opening while in a shop should do nothing")
-                .Given(SpecialistIsInSlot_, 3)
-                .And(CharacterIsInShop)
-                .WhenAsync(OpeningTheSortedPockets)
-                .Then(SpecialistShouldBeInSlot_, 3)
-                .And(NoPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
         private void SpecialistIsInSlot_(int slot)
         {
             Session.Character.InventoryService.AddItemToPocket(

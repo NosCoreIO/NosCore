@@ -26,7 +26,7 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override Task ExecuteAsync(ISortPacket packet, ClientSession clientSession)
         {
-            if (!SortablePockets.Contains(packet.PocketType) || clientSession.Character.InExchangeOrShop)
+            if (!SortablePockets.Contains(packet.PocketType))
             {
                 return Task.CompletedTask;
             }

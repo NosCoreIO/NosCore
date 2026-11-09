@@ -30,11 +30,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            if (character.InExchangeOrShop)
-            {
-                return;
-            }
-
             var holder = (BoxInstance)source.ItemInstance;
             if ((holder.HoldingVNum ?? 0) == 0)
             {

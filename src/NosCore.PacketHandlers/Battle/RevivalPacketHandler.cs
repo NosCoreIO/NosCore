@@ -52,7 +52,6 @@ namespace NosCore.PacketHandlers.Battle
         {
             if (!session.HasPlayerEntity) return;
             var character = session.Character;
-            if (character.IsAlive) return;
             character.IsAlive = true;
 
             try

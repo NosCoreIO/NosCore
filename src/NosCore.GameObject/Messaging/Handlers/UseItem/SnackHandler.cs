@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var session = evt.ClientSession;
             var character = session.Character;
             if (item.ItemType != ItemType.Snack || (item.Hp <= 0 && item.Mp <= 0)
-                || cardCatalog.GetItemBCards(item.VNum).Count > 0 || !character.IsAlive)
+                || cardCatalog.GetItemBCards(item.VNum).Count > 0)
             {
                 return;
             }

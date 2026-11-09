@@ -9,7 +9,6 @@ namespace NosCore.GameObject.Services.SpecialistHolderService;
 public enum SpecialistStoreOutcome
 {
     Ignored,
-    Transformed,
     CannotStore,
     Stored,
 }

@@ -57,18 +57,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [TestMethod]
-        public async Task SortingWhileInAShopShouldDoNothing()
-        {
-            await new Spec("Sorting while in a shop should do nothing")
-                .Given(MainPocketHasAnItemInItsLastSlot)
-                .And(CharacterIsInShop)
-                .WhenAsync(Sorting_, PocketType.Main)
-                .Then(ItemShouldBeInSlot_, 1)
-                .And(NoPacketShouldBeSent)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task SortingAnEmptyPocketShouldSendNothing()
         {
             await new Spec("Sorting an empty pocket should send nothing")

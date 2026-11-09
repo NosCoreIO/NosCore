@@ -186,23 +186,7 @@ namespace NosCore.Data.Resource {
             }
         }
         
-        /// <summary>
-        ///   Looks up a localized string similar to You can&apos;t move an item in the shop !.
-        /// </summary>
-        public static string CANT_MOVE_ITEM_IN_SHOP {
-            get {
-                return ResourceManager.GetString("CANT_MOVE_ITEM_IN_SHOP", resourceCulture);
-            }
-        }
         
-        /// <summary>
-        ///   Looks up a localized string similar to You can&apos;t use any items in the shop..
-        /// </summary>
-        public static string CANT_USE_ITEM_IN_SHOP {
-            get {
-                return ResourceManager.GetString("CANT_USE_ITEM_IN_SHOP", resourceCulture);
-            }
-        }
         
         /// <summary>
         ///   Looks up a localized string similar to {0} Cards Parsed!.

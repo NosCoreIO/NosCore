@@ -462,12 +462,6 @@
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>{0} Paketi karakter olmadan kullanılmaya çalışılıyor!</value>
   </data>
-  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Marketteki eşyaları hareket ettiremezsin.</value>
-  </data>
-  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Marketteki eşyaları kullanamazsın.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Arkadaşlık isteğin gönderilemedi. Kullanıcı çevrimdışı.</value>
   </data>

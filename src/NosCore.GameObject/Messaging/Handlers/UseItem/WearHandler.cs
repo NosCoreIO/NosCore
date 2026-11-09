@@ -11,7 +11,6 @@ using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -22,16 +21,12 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
-using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class WearHandler(
-        ILogger<WearHandler> logger,
         IClock clock,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IOptions<WorldConfiguration> worldConfiguration,
         Services.BattleService.IVitalityService vitalityService,
         Services.BattleService.IBattleStatsProvider battleStatsProvider,
@@ -55,12 +50,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var packet = evt.Packet;
 
             await session.SendPacketAsync(session.Character.GenerateEff(123));
-
-            if (session.Character.InExchangeOrShop)
-            {
-                logger.LogError(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
-                return;
-            }
 
             if (itemInstance.ItemInstance.BoundCharacterId == null && packet.Mode == 0 && itemInstance.ItemInstance.Item.RequireBinding)
             {

@@ -71,17 +71,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         [TestMethod]
-        public async Task RevivalWhileAliveIsIgnored()
-        {
-            await new Spec("Revival packet arriving when character is already alive is a no-op")
-                .Given(CharacterIsAlive)
-                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
-                .Then(HpShouldRemainAt_, 500)
-                .And(MapChangeShouldNotBeCalled)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task FreeReviveInPlaceAtLevelTwentyRestoresFullHp()
         {
             await new Spec("Level<=20 revive-in-place (Type 0) restores HP/MP to 100% without consuming seeds")
@@ -330,13 +319,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Assert.AreEqual(deciseconds, bf.Buff.Duration);
         }
 
-        private void CharacterIsAlive()
-        {
-            _session.Character.IsAlive = true;
-            _session.Character.Hp = 500;
-            _session.Character.Mp = 500;
-        }
-
         private void CharacterIsDeadAtLevel_(byte level)
         {
             _session.Character.Level = level;
@@ -369,9 +351,6 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await _handler.ExecuteAsync(new RevivalPacket { Type = type }, _session);
         }
-
-        private void HpShouldRemainAt_(int expected) =>
-            Assert.AreEqual(expected, _session.Character.Hp);
 
         private void HpShouldBeFullyRestored() =>
             Assert.AreEqual(_session.Character.MaxHp, _session.Character.Hp);

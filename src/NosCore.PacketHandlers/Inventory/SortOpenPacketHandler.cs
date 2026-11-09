@@ -24,11 +24,6 @@ namespace NosCore.PacketHandlers.Inventory
 
         public override async Task ExecuteAsync(SortOpenPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Character.InExchangeOrShop)
-            {
-                return;
-            }
-
             var inventory = clientSession.Character.InventoryService;
             foreach (var pocket in SortedPockets)
             {

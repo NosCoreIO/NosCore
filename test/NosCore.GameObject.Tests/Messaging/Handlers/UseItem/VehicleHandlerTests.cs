@@ -42,8 +42,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _transformationService = new Mock<ITransformationService>();
-            _handler = new VehicleHandler(NullLogger<VehicleHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                _transformationService.Object, TestHelpers.Instance.Clock);
+            _handler = new VehicleHandler(_transformationService.Object, TestHelpers.Instance.Clock);
 
             var item = new Item
             {

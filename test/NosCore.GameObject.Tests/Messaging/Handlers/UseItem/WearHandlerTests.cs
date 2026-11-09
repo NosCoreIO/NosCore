@@ -47,9 +47,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
             _handler = new WearHandler(
-                new Mock<ILogger<WearHandler>>().Object,
                 TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer,
                 TestHelpers.Instance.WorldConfiguration,
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,

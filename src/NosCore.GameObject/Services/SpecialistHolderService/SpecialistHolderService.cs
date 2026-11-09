@@ -62,11 +62,6 @@ public sealed class SpecialistHolderService(IItemGenerationService itemProvider)
             return new SpecialistStoreResult(SpecialistStoreOutcome.Ignored);
         }
 
-        if (character.UseSp)
-        {
-            return new SpecialistStoreResult(SpecialistStoreOutcome.Transformed);
-        }
-
         if (!CanStore(card))
         {
             return new SpecialistStoreResult(SpecialistStoreOutcome.CannotStore);

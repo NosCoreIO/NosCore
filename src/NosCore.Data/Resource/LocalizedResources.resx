@@ -472,12 +472,6 @@
   <data name="PACKET_USED_WITHOUT_CHARACTER" xml:space="preserve">
     <value>Packet received without character being set {0}</value>
   </data>
-  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>You can't move an item in the shop !</value>
-  </data>
-  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>You can't use any items in the shop.</value>
-  </data>
   <data name="FRIEND_REQUEST_DISCONNECTED" xml:space="preserve">
     <value>Your friend request could not be completed because the user is disconnected.</value>
   </data>
