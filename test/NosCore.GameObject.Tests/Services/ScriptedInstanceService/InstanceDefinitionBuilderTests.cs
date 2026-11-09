@@ -19,23 +19,16 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             var definition = InstanceDefinitionBuilder
                 .Named(id: 3, label: "Cuby", title: "Mother Cuby")
                 .ForLevels(20, 45)
-                .WithLives(3)
                 .StartingAt(12, 34)
-                .Rewarding(gold: 15000, reputation: 200)
                 .WithRoom(2004, out var entrance)
                 .WithRoom(2005, out var lair, indexX: 1)
                 .Requiring(1000, 2)
-                .Drawing(1012, 3, design: 7, randomRare: true)
-                .WithSpecialReward(2282, 1, heroic: true)
-                .WithReward(1030, 5)
                 .Build();
 
             Assert.AreEqual("Cuby", definition.Label);
             Assert.AreEqual(20, definition.LevelMinimum);
-            Assert.AreEqual(15000L, definition.Gold);
             Assert.AreEqual(2, definition.Rooms.Count);
             Assert.AreEqual(1000, definition.RequiredItems.Single().VNum);
-            Assert.IsTrue(definition.SpecialItems.Single().IsHeroic);
 
             // Keys are handed out, not written down: the compiler carries what the XML did not.
             Assert.AreNotEqual(entrance, lair);
@@ -50,8 +43,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .WithRoom(2004, out _)
                 .Build();
 
-            Assert.AreEqual(0, definition.DrawItems.Count);
-            Assert.AreEqual(0, definition.Gold);
+            Assert.AreEqual(0, definition.RequiredItems.Count);
             Assert.AreEqual(1, definition.Rooms.Count);
         }
 
@@ -74,17 +66,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var builder = InstanceDefinitionBuilder.Named(1, "First", "First")
                 .WithRoom(2004, out _)
-                .WithReward(1030, 5);
+                .Requiring(1030, 5);
 
             var first = builder.Build();
 
-            builder.WithRoom(2005, out _).WithReward(1031, 1);
+            builder.WithRoom(2005, out _).Requiring(1031, 1);
             var second = builder.Build();
 
             Assert.AreEqual(1, first.Rooms.Count);
-            Assert.AreEqual(1, first.GiftItems.Count);
+            Assert.AreEqual(1, first.RequiredItems.Count);
             Assert.AreEqual(2, second.Rooms.Count);
-            Assert.AreEqual(2, second.GiftItems.Count);
+            Assert.AreEqual(2, second.RequiredItems.Count);
         }
     }
 }

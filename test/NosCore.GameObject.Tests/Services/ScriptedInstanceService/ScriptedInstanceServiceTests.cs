@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             return new ServiceUnderTest(entrances.ToList(), [], [],
                 new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object),
                 new MapInstanceRegistry(), new Mock<IInstanceScriptLoader>().Object, TestHelpers.Instance.SessionRegistry,
-                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), TestHelpers.Instance.Clock,
+                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), TestHelpers.Instance.Clock, TestHelpers.Instance.WorldConfiguration,
                 NullLogger<ServiceUnderTest>.Instance);
         }
 
@@ -171,7 +171,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             loader.Setup(s => s.LoadAsync(Broken)).ThrowsAsync(new InvalidOperationException("did not compile"));
             return (new ServiceUnderTest([entrance], maps, [], new System.Lazy<IMapInstanceGeneratorService>(generator.Object),
                     TestHelpers.Instance.MapInstanceRegistry, loader.Object, TestHelpers.Instance.SessionRegistry,
-                    new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), TestHelpers.Instance.Clock,
+                    new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), TestHelpers.Instance.Clock, TestHelpers.Instance.WorldConfiguration,
                     NullLogger<ServiceUnderTest>.Instance),
                 generator, removed);
         }

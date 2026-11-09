@@ -5,6 +5,8 @@
 //
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
 using NosCore.Data.StaticEntities;
@@ -42,6 +44,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private readonly Dictionary<short, MapDto> _mapsByVNum;
         private readonly Dictionary<short, NpcMonsterDto> _npcMonsters;
         private readonly ILogger<ScriptedInstanceService> _logger;
+        private readonly TimeSpan _scriptTimeout;
 
         public ScriptedInstanceService(List<ScriptedInstanceDto> scriptedInstances,
             List<MapDto> maps,
@@ -52,8 +55,10 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             ISessionRegistry sessionRegistry,
             Lazy<IMapChangeService> mapChangeService,
             IClock clock,
+            IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger)
         {
+            _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _mapInstanceRegistry = mapInstanceRegistry;
             _scriptLoader = scriptLoader;
@@ -84,7 +89,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             try
             {
-                entrance.Logic = await _scriptLoader.LoadAsync(entrance.Script);
+                entrance.Logic = await _scriptLoader.LoadAsync(entrance.Script).WaitAsync(_scriptTimeout);
                 return true;
             }
             catch (Exception exception)
@@ -156,7 +161,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             var run = new ScriptedInstanceRun(entrance, entrance.Logic, built, _npcMonsters, _clock,
-                _sessionRegistry, _mapChangeService, _logger);
+                _sessionRegistry, _mapChangeService, _logger, _scriptTimeout);
             foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;

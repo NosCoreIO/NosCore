@@ -79,13 +79,13 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
                 }, Guid.NewGuid(), false, MapInstanceType.TimeSpaceInstance);
 
-        private ScriptedInstanceRun Run(Script script) =>
+        private ScriptedInstanceRun Run(Script script, TimeSpan? timeout = null) =>
             new(new ScriptedInstance { ScriptedInstanceId = 1, MapId = 1, PositionX = 5, PositionY = 6, Logic = script },
                 script,
                 new Dictionary<int, MapInstance> { [1] = _first, [2] = _second },
                 new Dictionary<short, NpcMonsterDto> { [Grunt] = new() { NpcMonsterVNum = Grunt, MaxHp = 10 } },
                 TestHelpers.Instance.Clock, TestHelpers.Instance.SessionRegistry,
-                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance);
+                new Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance, timeout ?? TimeSpan.FromSeconds(30));
 
         [TestMethod]
         public async Task TheFirstEntryRunsTheScriptOnlyOnceAsync()
@@ -239,6 +239,65 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             await run.TickAsync();
 
             Assert.AreEqual(EndStateType.Timeout, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AScriptThatNeverReturnsFailsTheRunAndIsShutOutAsync()
+        {
+            using var release = new System.Threading.ManualResetEventSlim();
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                    release.Wait();
+                    r.Summon(1, new MonsterSpawn(Grunt, new Spot(2, 1)));
+                    r.Succeed();
+                }
+            }, TimeSpan.FromMilliseconds(200));
+
+            await run.StartAsync();
+            release.Set();
+            await Task.Delay(100);
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+            Assert.AreEqual(0, _first.Monsters.Count);
+        }
+
+        [TestMethod]
+        public async Task AScriptThatThrowsFailsTheRunAsync()
+        {
+            var run = Run(new Script { Enter = _ => throw new InvalidOperationException() });
+
+            await run.StartAsync();
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AnEffectThatNeverFinishesFailsTheRunAsync()
+        {
+            var run = Run(new Script { Enter = r => r.Summon(2, new MonsterSpawn(Grunt, new Spot(1, 1))) },
+                TimeSpan.FromMilliseconds(200));
+            var release = new TaskCompletionSource();
+            var holder = _second.Executor.RunAsync(() => release.Task);
+
+            await run.StartAsync();
+            release.SetResult();
+            await holder;
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+        }
+
+        [TestMethod]
+        public async Task AnAbandonedRunShowsAFailedScoreAsync()
+        {
+            var run = Run(new Script { Enter = _ => throw new InvalidOperationException() });
+
+            await run.StartAsync();
+
+            Assert.IsTrue(_first.LastPackets.OfType<NosCore.Packets.ClientPackets.Instance.ScorePacket>()
+                .Any(s => s.EndState == EndStateType.Fail));
         }
 
         [TestMethod]

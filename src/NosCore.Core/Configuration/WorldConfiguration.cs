@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Shared.Configuration;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
@@ -54,6 +55,10 @@ namespace NosCore.Core.Configuration
         public int MaxAdditionalSpPoints { get; set; }
 
         public bool AllClassAvailableOnCreate { get; set; }
+
+        // How long one instance script trigger, or one of its effects, may take before the run is
+        // failed and its players sent back.
+        public TimeSpan InstanceScriptTimeout { get; set; } = TimeSpan.FromSeconds(30);
 
 #pragma warning disable CA2227 // Collection properties should be read only
         public Dictionary<string, Dictionary<StarterOrigin, List<BasicEquipment>>> BasicEquipments { get; set; } = new();

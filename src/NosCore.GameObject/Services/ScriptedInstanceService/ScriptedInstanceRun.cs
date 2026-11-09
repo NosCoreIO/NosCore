@@ -51,11 +51,15 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Instant? _clockEndsAt;
         private Duration _clockLimit;
         private Instant? _returnAt;
+        private readonly TimeSpan _stepTimeout;
+        private bool _abandoned;
 
         public ScriptedInstanceRun(ScriptedInstance entrance, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
-            IClock clock, ISessionRegistry sessionRegistry, Lazy<IMapChangeService> mapChangeService, ILogger logger)
+            IClock clock, ISessionRegistry sessionRegistry, Lazy<IMapChangeService> mapChangeService, ILogger logger,
+            TimeSpan stepTimeout)
         {
+            _stepTimeout = stepTimeout;
             Entrance = entrance;
             _script = script;
             _rooms = rooms;
@@ -66,7 +70,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             _logger = logger;
             Rooms = rooms.ToDictionary(s => s.Key, s => s.Value.MapInstanceId);
             StartedAt = clock.GetCurrentInstant();
-            LivesRemaining = script.Definition.Lives;
         }
 
         public ScriptedInstance Entrance { get; }
@@ -80,8 +83,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public Instant StartedAt { get; }
 
-        public byte LivesRemaining { get; set; }
-
         public short ReturnMapId => Entrance.MapId;
 
         public short ReturnX => Entrance.PositionX;
@@ -94,21 +95,21 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public Task StartAsync()
         {
-            return RunAsync(() =>
+            return RunAsync(async () =>
             {
-                if (_started)
+                if (_started || _abandoned)
                 {
                     return;
                 }
 
                 _started = true;
-                _script.OnFirstEnter(this);
+                await CallScriptAsync(run => _script.OnFirstEnter(run));
             });
         }
 
         public Task MonsterKilledAsync(Guid mapInstanceId, short vNum)
         {
-            return RunAsync(() =>
+            return RunAsync(async () =>
             {
                 var room = RoomOf(mapInstanceId);
                 if (room == null)
@@ -117,7 +118,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 }
 
                 _killed++;
-                _script.OnMonsterKilled(this, room.Value, vNum);
+                if (_abandoned)
+                {
+                    return;
+                }
+
+                await CallScriptAsync(run => _script.OnMonsterKilled(run, room.Value, vNum));
 
                 if (!_lockers.TryGetValue(room.Value, out var remaining) || remaining <= 0)
                 {
@@ -127,7 +133,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 _lockers[room.Value] = --remaining;
                 if (remaining == 0)
                 {
-                    _script.OnRoomCleared(this, room.Value);
+                    await CallScriptAsync(run => _script.OnRoomCleared(run, room.Value));
                 }
             });
         }
@@ -146,18 +152,20 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 {
                     _pending.Add(() => session.SendPacketAsync(GenerateClock(endsAt)));
                 }
+
+                return Task.CompletedTask;
             });
         }
 
         public Task TickAsync()
         {
-            return RunAsync(() =>
+            return RunAsync(async () =>
             {
                 var now = _clock.GetCurrentInstant();
                 if (EndState == null && _clockEndsAt is { } endsAt && now >= endsAt)
                 {
                     _clockEndsAt = null;
-                    _script.OnTimeout(this);
+                    await CallScriptAsync(run => _script.OnTimeout(run));
                     if (EndState == null)
                     {
                         End(EndStateType.Timeout);
@@ -266,7 +274,6 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var score = new ScorePacket
             {
                 EndState = state,
-                DrawItemsCount = (byte)_script.Definition.DrawItems.Count,
                 MonsterKilled = (short)_killed,
                 RoomsVisited = (short)_visited.Count,
                 IsAllMonstersKilled = _killed >= _summoned,
@@ -318,22 +325,63 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
         }
 
+        // A script that throws or never returns is abandoned: a stuck script cannot be stopped,
+        // so its verbs are shut off, the run fails, and everyone is sent back as after any
+        // other ending.
+        private void Abandon()
+        {
+            _abandoned = true;
+            End(EndStateType.Fail);
+        }
+
+        private async Task CallScriptAsync(Action<IInstanceRun> call)
+        {
+            var scope = new TriggerScope(this);
+            try
+            {
+                await Task.Run(() => call(scope)).WaitAsync(_stepTimeout);
+            }
+            catch (TimeoutException)
+            {
+                scope.Close();
+                _logger.LogError("The script of instance {ScriptedInstanceId} did not return within {Timeout}",
+                    Entrance.ScriptedInstanceId, _stepTimeout);
+                throw new ScriptAbandonedException();
+            }
+            catch (Exception exception)
+            {
+                scope.Close();
+                _logger.LogError(exception, "The script of instance {ScriptedInstanceId} failed",
+                    Entrance.ScriptedInstanceId);
+                throw new ScriptAbandonedException();
+            }
+        }
+
         // Triggers run one at a time, and what they ask for is carried out once the script
         // has returned, so a script never sees the run half-applied.
-        private async Task RunAsync(Action trigger)
+        private async Task RunAsync(Func<Task> trigger)
         {
             await _gate.WaitAsync();
             List<Func<Task>> work;
             try
             {
-                trigger();
+                try
+                {
+                    await trigger();
+                }
+                catch (ScriptAbandonedException)
+                {
+                    _pending.Clear();
+                    Abandon();
+                }
+
                 work = [.. _pending];
                 _pending.Clear();
             }
             catch (Exception exception)
             {
                 _pending.Clear();
-                _logger.LogError(exception, "The script of instance {ScriptedInstanceId} failed",
+                _logger.LogError(exception, "Instance {ScriptedInstanceId} failed",
                     Entrance.ScriptedInstanceId);
                 return;
             }
@@ -346,12 +394,71 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             {
                 try
                 {
-                    await step();
+                    await step().WaitAsync(_stepTimeout);
+                }
+                catch (TimeoutException)
+                {
+                    _logger.LogError("A step of instance {ScriptedInstanceId} did not finish within {Timeout}",
+                        Entrance.ScriptedInstanceId, _stepTimeout);
+                    await RunAsync(() =>
+                    {
+                        Abandon();
+                        return Task.CompletedTask;
+                    });
+                    return;
                 }
                 catch (Exception exception)
                 {
                     _logger.LogError(exception, "A step of instance {ScriptedInstanceId} failed",
                         Entrance.ScriptedInstanceId);
+                }
+            }
+        }
+
+        private sealed class ScriptAbandonedException : Exception;
+
+        // What a script sees during one trigger. Once that trigger is abandoned, a script still
+        // running in the background can no longer reach the run.
+        private sealed class TriggerScope(ScriptedInstanceRun run) : IInstanceRun
+        {
+            private readonly Lock _lock = new();
+            private bool _open = true;
+
+            public TimeSpan Elapsed => run.Elapsed;
+
+            public void Close()
+            {
+                lock (_lock)
+                {
+                    _open = false;
+                }
+            }
+
+            public void Summon(int room, params MonsterSpawn[] monsters) => Do(() => run.Summon(room, monsters));
+
+            public void SpawnPortal(int fromRoom, Spot at, int toRoom, Spot arrival, bool locked = true) =>
+                Do(() => run.SpawnPortal(fromRoom, at, toRoom, arrival, locked));
+
+            public void UnlockPortal(int fromRoom, int toRoom) => Do(() => run.UnlockPortal(fromRoom, toRoom));
+
+            public void SetMonsterLocker(int room, short count) => Do(() => run.SetMonsterLocker(room, count));
+
+            public void StartClock(TimeSpan limit) => Do(() => run.StartClock(limit));
+
+            public void Message(Game18NConstString message) => Do(() => run.Message(message));
+
+            public void Succeed() => Do(run.Succeed);
+
+            public void Fail() => Do(run.Fail);
+
+            private void Do(Action verb)
+            {
+                lock (_lock)
+                {
+                    if (_open)
+                    {
+                        verb();
+                    }
                 }
             }
         }

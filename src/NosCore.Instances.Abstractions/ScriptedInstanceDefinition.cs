@@ -8,8 +8,7 @@ using System.Collections.Generic;
 
 namespace NosCore.Instances.Abstractions
 {
-    public record InstanceGift(short VNum, short Amount, short Design = 0,
-        bool IsRandomRare = false, bool IsHeroic = false);
+    public record InstanceGift(short VNum, short Amount);
 
     public record InstanceRoom(int Key, short VNum, byte IndexX, byte IndexY);
 
@@ -25,25 +24,11 @@ namespace NosCore.Instances.Abstractions
 
         public byte LevelMaximum { get; init; }
 
-        public byte Lives { get; init; }
-
         public short StartX { get; init; }
 
         public short StartY { get; init; }
 
-        public long Gold { get; init; }
-
-        public int Reputation { get; init; }
-
-        public int FamilyExperience { get; init; }
-
         public IReadOnlyList<InstanceGift> RequiredItems { get; init; } = [];
-
-        public IReadOnlyList<InstanceGift> DrawItems { get; init; } = [];
-
-        public IReadOnlyList<InstanceGift> SpecialItems { get; init; } = [];
-
-        public IReadOnlyList<InstanceGift> GiftItems { get; init; } = [];
 
         public IReadOnlyList<InstanceRoom> Rooms { get; init; } = [];
     }

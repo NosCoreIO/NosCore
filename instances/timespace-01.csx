@@ -7,7 +7,6 @@ public class TimeSpace01 : InstanceScript
     {
         Definition = InstanceDefinitionBuilder.Named(1, "timespace-01", "timespace-01")
             .ForLevels(1, 99)
-            .WithLives(3)
             .StartingAt(20, 33)
             .WithRoom(2550, out _hall, 0, 0)
             .WithRoom(2550, out _lair, 1, 0)

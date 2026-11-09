@@ -1222,8 +1222,16 @@ No time-space ships in the seed data, so add one: a `ScriptedInstance` row with 
 The script holds the level range, required items, rooms and start coordinates. Stand on the
 stone.
 
-- [ ] Walking onto the stone opens the time-space panel with its name, level range and
-      rewards
+A script is C# compiled into the world server and runs with the server's full rights, the
+same trust as the server's own code, so only the operator should be able to write to
+`instances/`. Only files directly in that folder are loaded: a `Script` such as `../x` or
+`sub/x` is refused.
+
+- [ ] A `Script` of `../timespace-01` opens no panel, and the world log says it is not a
+      script name
+
+- [ ] Walking onto the stone opens the time-space panel with its name and level range, and
+      empty reward slots
 - [ ] A character outside the level range is refused with a message and stays put
 - [ ] A character without the required items is refused with a message and keeps what
       they had
@@ -1248,6 +1256,13 @@ dropping their `MaxHp` makes the run quick.
       is gone
 - [ ] Let the clock run out instead: the score shows a time-out and you are sent back the
       same way
+- [ ] Log out inside a room and log back in: you appear on the open-world map you entered
+      from, not in a room, and the world log shows the run's rooms being removed
+- [ ] Copy `timespace-01.csx` to a new script whose `OnFirstEnter` loops forever, and enter
+      it: about thirty seconds later (`InstanceScriptTimeout`) the score shows a failure, the
+      world log says the script did not return, and ten seconds after that you are sent back
+- [ ] Do the same with an `OnFirstEnter` that throws: the failure score comes at once and
+      the world log shows the exception
 - [ ] Monsters killed inside a run do not respawn
 
 ---
@@ -1441,8 +1456,6 @@ Recorded so nobody spends time hunting for them:
   unmodified client may grey the tab out first, in which case the refusal cannot be reached.
 - **Family experience** — nothing grants it yet, so the level bar only ever shows the
   seeded value.
-- **Time-space lives and rewards** — scripts declare lives and draw items, but nothing
-  takes a life on death or hands out the rewards yet.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Options with nothing behind them yet** — family invites, pet and partner auto-revive,
