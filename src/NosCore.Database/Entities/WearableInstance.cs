@@ -58,6 +58,9 @@ namespace NosCore.Database.Entities
 
         public short? MaxElementRate { get; set; }
 
+        // The costume whose look a fused costume wears.
+        public short? AppearanceVNum { get; set; }
+
         public short PityGauge { get; set; }
 
         public short? Mp { get; set; }
