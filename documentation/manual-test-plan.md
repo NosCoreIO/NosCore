@@ -1364,6 +1364,48 @@ dropping their `MaxHp` makes the run quick.
 - [ ] Let the clock run out instead: the score shows a time-out and you are sent back the
       same way
 - [ ] Monsters killed inside a run do not respawn
+- [ ] Inside a run, the client's exit button (`rxit`) sends you back beside the stone, and a
+      run you were alone in is gone (entering again starts a new one)
+- [ ] Disconnect inside a run you were alone in, then log back in: you are on the open world,
+      not in a room
+
+### Raids
+
+Set the `Script` column of a raid entrance row (a raid portal on the open world) to
+`raid-mother-cuby`, the raid shipped in `instances/`. It is opened by item 1127, for levels
+30 to 49 and teams of 5 to 15; the boss is 282 and its helpers 283, and dropping their `MaxHp`
+makes the run quick. The raid's map, start point and spawn spots are not taken from the client's
+map files, so check first that the room is walkable where the team lands. Use five characters at
+level 30 to 49, called A to E below, all on one map.
+
+- [ ] A uses the seal: "You are the raid leader" appears, the seal is gone from the inventory
+- [ ] A uses a second seal: "already in a raid" appears and the seal stays
+- [ ] B in a party with C uses a seal: "cannot create a raid while in a group" appears
+- [ ] A invites B (the client sends `rd 1 <B>`): B is asked to join A's team; accepting puts B in it and
+      A sees that B joined
+- [ ] B answers an invitation A never sent (e.g. from an old dialog): nothing happens
+- [ ] B leaves: B is told they are out and A sees that B left. A kicks C: C is told they were
+      kicked
+- [ ] A disbands the team before starting: every member is told the team was disbanded
+- [ ] A leaves while B and C stay: B becomes the leader and everyone is told
+- [ ] With only A and B, A starts: "too few raid members" appears and nobody moves
+- [ ] With D on another map, A starts: "all raid members should be on" appears
+- [ ] With E at level 20, A starts: "level does not match" appears
+- [ ] With A to E on A's map, A starts: all five land in the raid room, a 40-minute clock
+      appears, and the Cubys and Mother Cuby are there
+- [ ] Killing a Cuby does nothing; killing Mother Cuby ends the raid: every member still inside
+      gets one Raid Box of Mother Cuby (4684) and a "received" line, is told the team completed
+      the raid, and about ten seconds later is back beside the raid portal with no team
+- [ ] A member with a full inventory gets "Not enough space" instead of the box, and the others
+      still get theirs
+- [ ] Every member dies: the raid fails, nobody gets a box, and the team is sent out
+- [ ] One member dies while another stands: the raid goes on
+- [ ] Let the clock run out: the raid fails the same way
+- [ ] B presses the exit button inside the raid: B is back beside the raid portal and out of the
+      team, and the raid goes on for the others
+- [ ] C disconnects inside the raid: the others see that C left; when the last member
+      disconnects, logging back in finds no raid room left
+- [ ] D, not invited, cannot get into the team by any button while the raid runs
 
 ---
 
@@ -1561,6 +1603,10 @@ Recorded so nobody spends time hunting for them:
   seeded value.
 - **Time-space lives and rewards** — scripts declare lives and draw items, but nothing
   takes a life on death or hands out the rewards yet.
+- **The raid party window and the raid list board** — the server keeps the team, but the
+  window listing its members (`rdlst`) and the board (`rl`) need packets NosCore.Packets does
+  not have yet, so neither opens in the client. Joining and leaving can only be watched through
+  the messages above until they do.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without
   the bar. The client always waits for its own bar, so only a modified client could send one.
 - **Options with nothing behind them yet** — family invites, pet and partner auto-revive,
