@@ -13,19 +13,16 @@ using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
-using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class ChangeClassPacketHandler(IPubSubHub pubSubHub,
+    public class ChangeClassPacketHandler(IRemoteCharacterService remoteCharacterService,
         IOptions<WorldConfiguration> worldConfiguration, IExperienceService experienceService,
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
         IItemGenerationService itemProvider,
@@ -40,26 +37,13 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateClass,
-                Character = new Character { Name = changeClassPacket.Name },
-                Data = (byte)changeClassPacket.ClassType
-            };
-
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == changeClassPacket.Name);
-
-            if (receiver == null)
+            if (!await remoteCharacterService.UpdateStatAsync(changeClassPacket.Name, UpdateStatActionType.UpdateClass, (byte)changeClassPacket.ClassType))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
                 });
-                return;
             }
-
-            await pubSubHub.SendMessageAsync(data);
         }
     }
 }

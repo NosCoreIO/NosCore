@@ -9,9 +9,8 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.Networking;
 using NosCore.Packets;
 using NosCore.Packets.Enumerations;
@@ -21,11 +20,10 @@ using NosCore.Shared.Enumerations;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Character = NosCore.Data.WebApi.Character;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class SetGoldCommandPacketHandler(IPubSubHub pubSubHub, List<ItemDto> items)
+    public class SetGoldCommandPacketHandler(IRemoteCharacterService remoteCharacterService, List<ItemDto> items)
         : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
         private const short GoldVNum = 1046;
@@ -56,26 +54,13 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            var data = new StatData
-            {
-                ActionType = UpdateStatActionType.UpdateGold,
-                Character = new Character { Name = goldPacket.Name },
-                Data = goldPacket.Gold
-            };
-
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == goldPacket.Name);
-
-            if (receiver == null)
+            if (!await remoteCharacterService.UpdateStatAsync(goldPacket.Name, UpdateStatActionType.UpdateGold, goldPacket.Gold))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
                 });
-                return;
             }
-
-            await pubSubHub.SendMessageAsync(data);
         }
     }
 }

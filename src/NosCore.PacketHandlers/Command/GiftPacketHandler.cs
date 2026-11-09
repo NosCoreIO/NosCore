@@ -4,32 +4,25 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NodaTime;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.MailService;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class GiftPacketHandler(IPubSubHub pubSubHub,
-            IMailHub mailHttpClient, IClock clock)
+    public class GiftPacketHandler(IRemoteCharacterService remoteCharacterService)
         : PacketHandler<GiftPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(GiftPacket giftPacket, ClientSession session)
         {
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == giftPacket.CharacterName);
-
-            if (receiver == null)
+            if (!await remoteCharacterService.SendGiftAsync(session.Character, giftPacket.CharacterName, giftPacket.VNum,
+                    giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
@@ -38,8 +31,6 @@ namespace NosCore.PacketHandlers.Command
                 return;
             }
 
-            await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, session.Character, receiver.ConnectedCharacter!.Id, null, giftPacket.VNum,
-                giftPacket.Amount, giftPacket.Rare, giftPacket.Upgrade, false, null, null));
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
@@ -48,7 +39,5 @@ namespace NosCore.PacketHandlers.Command
                 Message = Game18NConstString.GiftDelivered
             });
         }
-
-
     }
 }

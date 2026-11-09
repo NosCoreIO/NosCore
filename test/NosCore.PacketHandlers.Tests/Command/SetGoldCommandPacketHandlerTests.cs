@@ -6,12 +6,11 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -28,19 +27,16 @@ namespace NosCore.PacketHandlers.Tests.Command
     {
         private SetGoldCommandPacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
+        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
+            RemoteCharacters = new Mock<IRemoteCharacterService>();
 
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>()));
-
-            Handler = new SetGoldCommandPacketHandler(PubSubHub.Object, TestHelpers.Instance.ItemList);
+            Handler = new SetGoldCommandPacketHandler(RemoteCharacters.Object, TestHelpers.Instance.ItemList);
         }
 
         [TestMethod]
@@ -71,18 +67,8 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void TargetPlayerIsOnline()
         {
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>
-                {
-                    new Subscriber
-                    {
-                        ConnectedCharacter = new Character
-                        {
-                            Id = 12345,
-                            Name = "TargetPlayer"
-                        }
-                    }
-                }));
+            RemoteCharacters.Setup(x => x.UpdateStatAsync("TargetPlayer", UpdateStatActionType.UpdateGold, It.IsAny<long>()))
+                .ReturnsAsync(true);
         }
 
         private async Task SettingGoldForUnknownPlayer()
@@ -112,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void StatDataShouldBeSent()
         {
-            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<StatData>()), Times.Once);
+            RemoteCharacters.Verify(x => x.UpdateStatAsync("TargetPlayer", UpdateStatActionType.UpdateGold, It.IsAny<long>()), Times.Once);
         }
     }
 }

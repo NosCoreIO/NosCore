@@ -6,33 +6,26 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Command
 {
-    public class KickPacketHandler(IPubSubHub pubSubHub) : PacketHandler<KickPacket>,
+    public class KickPacketHandler(IRemoteCharacterService remoteCharacterService) : PacketHandler<KickPacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(KickPacket kickPacket, ClientSession session)
         {
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == kickPacket.Name);
-
-            if (receiver == null)
+            if (!await remoteCharacterService.KickAsync(kickPacket.Name))
             {
                 await session.SendPacketAsync(new InfoiPacket
                 {
                     Message = Game18NConstString.UnknownCharacter
                 });
-                return;
             }
-
-            await pubSubHub.UnsubscribeAsync(receiver.ConnectedCharacter!.Id);
         }
     }
 }

@@ -6,17 +6,15 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core;
 using NosCore.Data.CommandPackets;
-using NosCore.Data.WebApi;
-using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
-using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
-using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.RemoteCharacterService;
 using NosCore.PacketHandlers.Command;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -33,8 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     {
         private SetHeroLevelCommandPacketHandler Handler = null!;
         private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
+        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
         private Mock<IExperienceService> ExperienceService = null!;
         private Mock<IJobExperienceService> JobExperienceService = null!;
         private Mock<IHeroExperienceService> HeroExperienceService = null!;
@@ -44,19 +41,12 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            ChannelHub = new Mock<IChannelHub>();
+            RemoteCharacters = new Mock<IRemoteCharacterService>();
             ExperienceService = new Mock<IExperienceService>();
             JobExperienceService = new Mock<IJobExperienceService>();
             HeroExperienceService = new Mock<IHeroExperienceService>();
 
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>()));
-
-            ChannelHub.Setup(x => x.GetCommunicationChannels())
-                .Returns(Task.FromResult(new List<ChannelInfo>()));
-
-            Handler = new SetHeroLevelCommandPacketHandler(PubSubHub.Object, ChannelHub.Object,
+            Handler = new SetHeroLevelCommandPacketHandler(RemoteCharacters.Object,
                 ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object);
         }
 
@@ -108,18 +98,8 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void TargetPlayerIsOnline()
         {
-            PubSubHub.Setup(x => x.GetSubscribersAsync())
-                .Returns(Task.FromResult(new List<Subscriber>
-                {
-                    new Subscriber
-                    {
-                        ConnectedCharacter = new Character
-                        {
-                            Id = 12345,
-                            Name = "TargetPlayer"
-                        }
-                    }
-                }));
+            RemoteCharacters.Setup(x => x.UpdateStatAsync("TargetPlayer", UpdateStatActionType.UpdateHeroLevel, It.IsAny<long>()))
+                .ReturnsAsync(true);
         }
 
         private async Task SettingOwnHeroLevel()
@@ -160,7 +140,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void HeroLevelShouldBeChanged()
         {
-            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<StatData>()), Times.Never);
+            RemoteCharacters.Verify(x => x.UpdateStatAsync(It.IsAny<string>(), It.IsAny<UpdateStatActionType>(), It.IsAny<long>()), Times.Never);
         }
 
         private void ShouldReceiveUnknownCharacterMessage()
@@ -172,7 +152,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void StatDataShouldBeSent()
         {
-            PubSubHub.Verify(x => x.SendMessageAsync(It.IsAny<StatData>()), Times.Once);
+            RemoteCharacters.Verify(x => x.UpdateStatAsync("TargetPlayer", UpdateStatActionType.UpdateHeroLevel, It.IsAny<long>()), Times.Once);
         }
     }
 }
