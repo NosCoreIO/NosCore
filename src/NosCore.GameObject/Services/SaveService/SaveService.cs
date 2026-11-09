@@ -120,7 +120,21 @@ namespace NosCore.GameObject.Services.SaveService
                     Fail("InventoryItemInstance delete");
                     return;
                 }
-                if (await itemInstanceDao.TryDeleteAsync(itemsToDelete.Select(s => s.ItemInstanceId).ToArray()) == null)
+                var instancesToDelete = itemsToDelete.Select(s => s.ItemInstanceId).ToHashSet();
+                var deletedRows = itemsToDelete.Select(s => s.Id).ToHashSet();
+                var stillHeld = (inventoryItemInstanceDao
+                        .Where(i => instancesToDelete.Contains(i.ItemInstanceId))?.ToList() ?? new List<InventoryItemInstanceDto>())
+                    .Where(i => !deletedRows.Contains(i.Id))
+                    .Select(i => i.ItemInstanceId)
+                    .Concat(inventoryService.Values.Select(i => i.ItemInstanceId))
+                    .Where(instancesToDelete.Contains)
+                    .ToHashSet();
+                foreach (var shared in stillHeld)
+                {
+                    logger.LogError(logLanguage[LogLanguageKey.ITEM_INSTANCE_STILL_HELD], shared, characterId);
+                }
+
+                if (await itemInstanceDao.TryDeleteAsync(instancesToDelete.Except(stillHeld).ToArray()) == null)
                 {
                     Fail("ItemInstance delete");
                     return;

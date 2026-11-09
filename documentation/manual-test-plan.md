@@ -671,6 +671,21 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
 - [ ] Give a player `$SetGold` up to the gold cap and have them open a private shop; buying from
       it shows the client's "Trade failed because shop owner has too much money." and no gold moves
 
+### Buying from a private shop
+
+- [ ] Open a private shop with a stack of 3 and a single item; from another character, buy 2 of the
+      stack: the buyer gets 2, the owner keeps 1 in the same slot and receives the gold
+- [ ] Buy the last item of the shop: the shop closes on the owner's side and for everyone around
+- [ ] Sell a weapon with shell options from a private shop: after buying, the buyer's weapon shows the
+      same options, and still does after both characters log out and back in
+- [ ] Log out and back in on both characters after a sale: the bought item, the rest of the stack and
+      the gold are kept, and neither character loses an item or reports a save error in the server log
+- [ ] Two buyers press buy on the same stack at once: one gets it, the other's shop window updates
+      and nothing is charged to them
+- [ ] Close the shop, open it again, then click the owner from another character: the item list
+      opens once
+- [ ] With a shop open, take a portal or log out: the shop disappears for everyone around
+
 ### Cuarry Bank
 
 The packet trace has no Cuarry Bank Representative on any map yet; for a test, add a `MapNpc` row with

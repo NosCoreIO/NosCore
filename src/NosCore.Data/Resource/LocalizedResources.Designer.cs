@@ -502,6 +502,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Item instance {ItemInstanceId} is still held by another inventory row; it was kept while saving character {CharacterId}..
+        /// </summary>
+        public static string ITEM_INSTANCE_STILL_HELD {
+            get {
+                return ResourceManager.GetString("ITEM_INSTANCE_STILL_HELD", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Missing language.
         /// </summary>
         public static string LANGUAGE_MISSING {

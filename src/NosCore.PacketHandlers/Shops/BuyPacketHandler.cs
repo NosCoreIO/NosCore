@@ -15,6 +15,10 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Core.I18N;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
+using System;
 using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
@@ -25,7 +29,8 @@ namespace NosCore.PacketHandlers.Shops
 {
     public class BuyPacketHandler(ILogger<BuyPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider, INpcDialogService npcDialogService)
+            IItemGenerationService itemProvider, INpcDialogService npcDialogService,
+            IShellOptionService shellOptionService, IDao<IItemInstanceDto?, Guid> itemInstanceDao)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -53,7 +58,8 @@ namespace NosCore.PacketHandlers.Shops
                     return Task.CompletedTask;
                 }
 
-                return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration, itemProvider);
+                return clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration, itemProvider,
+                    shellOptionService, itemInstanceDao);
             }
 
             logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);

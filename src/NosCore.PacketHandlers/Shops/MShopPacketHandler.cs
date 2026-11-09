@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -20,6 +20,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -66,7 +67,15 @@ namespace NosCore.PacketHandlers.Shops
             switch (mShopPacket.Type)
             {
                 case CreateShopPacketType.Open:
-                    clientSession.Character.Shop = new Shop();
+                    if (clientSession.Character.Shop != null)
+                    {
+                        return;
+                    }
+
+                    // Built aside and published only once complete, so a buyer never sees a
+                    // half-filled shop.
+                    var shop = new Shop();
+                    var usedSlots = new HashSet<(NoscorePocketType, short)>();
                     sbyte shopSlot = -1;
                     foreach (var item in mShopPacket.ItemList!)
                     {
@@ -95,6 +104,12 @@ namespace NosCore.PacketHandlers.Shops
                             return;
                         }
 
+                        if (!usedSlots.Add(((NoscorePocketType)item.Type, item.Slot)))
+                        {
+                            await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
+                            return;
+                        }
+
                         if (!inv.ItemInstance.Item.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
                             await clientSession.SendPacketAsync(new SayiPacket
@@ -105,11 +120,10 @@ namespace NosCore.PacketHandlers.Shops
                                 Message = Game18NConstString.SomeItemsCannotBeTraded
                             });
                             await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
-                            clientSession.Character.Shop = null;
                             return;
                         }
 
-                        clientSession.Character.Shop.ShopItems.TryAdd(shopSlot,
+                        shop.ShopItems.TryAdd(shopSlot,
                             new ShopItem
                             {
                                 Amount = item.Amount,
@@ -120,7 +134,7 @@ namespace NosCore.PacketHandlers.Shops
                             });
                     }
 
-                    if (clientSession.Character.Shop.ShopItems.IsEmpty)
+                    if (shop.ShopItems.IsEmpty)
                     {
                         await clientSession.SendPacketAsync(new SayiPacket
                         {
@@ -130,22 +144,26 @@ namespace NosCore.PacketHandlers.Shops
                             Message = Game18NConstString.NoItemToSell
                         });
                         await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
-                        clientSession.Character.Shop = null;
                         return;
                     }
 
-                    clientSession.Character.Shop.OwnerCharacter = clientSession.Character;
-                    clientSession.Character.Shop.MenuType = 3;
-                    clientSession.Character.Shop.ShopId = 501;
-                    clientSession.Character.Shop.Size = 60;
+                    shop.OwnerCharacter = clientSession.Character;
+                    shop.MenuType = 3;
+                    shop.ShopId = 501;
+                    shop.Size = 60;
 
-                    for (var i = 0; i < clientSession.Character.Shop.Name.Keys.Count; i++)
+                    for (var i = 0; i < shop.Name.Keys.Count; i++)
                     {
-                        var key = clientSession.Character.Shop.Name.Keys.ElementAt(i);
-                        clientSession.Character.Shop.Name[key] = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
+                        var key = shop.Name.Keys.ElementAt(i);
+                        shop.Name[key] = string.IsNullOrWhiteSpace(mShopPacket.Name) ?
                             ((byte)Game18NConstString.PrivateShop).ToString() :
                             mShopPacket.Name.Substring(0, Math.Min(mShopPacket.Name.Length, 20));
                     }
+
+                    var owner = clientSession.Character;
+                    shop.DialogSubscription = owner.Requests[typeof(NpcDialogRequestSubject)].Subscribe(data =>
+                        data.ClientSession.SendPacketAsync(owner.GenerateNInv(0, 0)));
+                    clientSession.Character.Shop = shop;
 
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop(clientSession.Character.AccountLanguage));
                     await clientSession.SendPacketAsync(new InfoiPacket
@@ -153,8 +171,6 @@ namespace NosCore.PacketHandlers.Shops
                         Message = Game18NConstString.ShopOpened
                     });
 
-                    clientSession.Character.Requests[typeof(NpcDialogRequestSubject)].Subscribe(data =>
-                        data.ClientSession.SendPacketAsync(clientSession.Character.GenerateNInv(0, 0)));
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
                         new EveryoneBut(clientSession.Channel!.Id));
                     clientSession.Character.IsSitting = true;

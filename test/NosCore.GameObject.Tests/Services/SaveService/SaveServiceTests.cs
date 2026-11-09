@@ -39,6 +39,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private ISaveService Service = null!;
         private IItemGenerationService ItemProvider = null!;
         private IDao<CharacterQuestObjectiveDto, Guid> CharacterQuestObjectiveDao = null!;
+        private IDao<IItemInstanceDto?, Guid> ItemInstanceDao = null!;
+        private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao = null!;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -59,6 +61,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             var characterQuestDao = new Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>(NullLogger<Dao<Database.Entities.CharacterQuest, CharacterQuestDto, Guid>>.Instance, contextBuilder);
             var characterQuestObjectiveDao = new Dao<Database.Entities.CharacterQuestObjective, CharacterQuestObjectiveDto, Guid>(NullLogger<Dao<Database.Entities.CharacterQuestObjective, CharacterQuestObjectiveDto, Guid>>.Instance, contextBuilder);
             CharacterQuestObjectiveDao = characterQuestObjectiveDao;
+            ItemInstanceDao = itemInstanceDao;
+            InventoryItemInstanceDao = inventoryItemInstanceDao;
             var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(NullLogger<Dao<Database.Entities.Respawn, RespawnDto, long>>.Instance, contextBuilder);
 
             var minilandService = new Mock<IMinilandService>();
@@ -215,6 +219,47 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .ToList();
             Assert.AreEqual(1, rows.Count);
             Assert.AreEqual(5, rows[0].Count);
+        }
+
+        [TestMethod]
+        public async Task SavingKeepsAnItemInstanceAnotherInventoryStillHolds()
+        {
+            await new Spec("Saving keeps an item instance another inventory still holds")
+                .GivenAsync(CharacterHasItemsInInventory)
+                .AndAsync(SavingCharacter)
+                .AndAsync(AnotherCharactersInventoryHoldsTheSameInstance)
+                .And(TheCharacterNoLongerHoldsTheItem)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(TheSharedInstanceShouldStillExist)
+                .ExecuteAsync();
+        }
+
+        private Guid _sharedInstanceId;
+
+        private async Task AnotherCharactersInventoryHoldsTheSameInstance()
+        {
+            var held = Session.Character.InventoryService.Values.Single();
+            _sharedInstanceId = held.ItemInstanceId;
+            var other = await TestHelpers.Instance.GenerateSessionAsync();
+            await InventoryItemInstanceDao.TryInsertOrUpdateAsync(new InventoryItemInstanceDto
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = other.Character.CharacterId,
+                ItemInstanceId = _sharedInstanceId,
+                Slot = 0,
+                Type = held.Type
+            });
+        }
+
+        private void TheCharacterNoLongerHoldsTheItem()
+        {
+            Session.Character.InventoryService.Remove(_sharedInstanceId);
+        }
+
+        private async Task TheSharedInstanceShouldStillExist()
+        {
+            var id = _sharedInstanceId;
+            Assert.IsNotNull(await ItemInstanceDao.FirstOrDefaultAsync(s => s!.Id == id));
         }
 
         [TestMethod]
