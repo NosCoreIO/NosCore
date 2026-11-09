@@ -13,5 +13,8 @@ namespace NosCore.GameObject.Services.InventoryService
     {
         public static NoscorePocketType ToNoscorePocketType(this PocketType type) =>
             type == PocketType.Wear ? NoscorePocketType.Wear : (NoscorePocketType)type;
+
+        public static PocketType ToPocketType(this NoscorePocketType type) =>
+            type == NoscorePocketType.Wear ? PocketType.Wear : (PocketType)type;
     }
 }

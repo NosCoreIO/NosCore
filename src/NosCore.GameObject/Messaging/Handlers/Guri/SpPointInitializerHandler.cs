@@ -7,6 +7,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -74,7 +75,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             }
 
             character.InventoryService.RemoveItemAmountFromInventory(1, potion.ItemInstanceId);
-            await session.SendPacketAsync(potion.GeneratePocketChange((PocketType)potion.Type, potion.Slot));
+            await session.SendPacketAsync(potion.GeneratePocketChange(potion.Type.ToPocketType(), potion.Slot));
             await vitalityService.RefreshAndNotifyAsync(character);
             await session.SendPacketAsync(itemInfoService.GenerateInfo(specialist)!);
             await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));

@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Miniland
             }
 
             var left = character.InventoryService.RemoveItemAmountFromInventory(1, seed.ItemInstanceId);
-            await session.SendPacketAsync(left.GeneratePocketChange((PocketType)seed.Type, seed.Slot));
+            await session.SendPacketAsync(left.GeneratePocketChange(seed.Type.ToPocketType(), seed.Slot));
             await target.SendPacketAsync(question);
         }
     }

@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await session.SendPacketAsync(new QnaiPacket
                 {
                     YesPacket = session.Character.GenerateUseItem(
-                        (PocketType)itemInstance.Type,
+                        itemInstance.Type.ToPocketType(),
                         itemInstance.Slot, 1, (byte)(packet.Parameter ?? 0)),
                     Question = Game18NConstString.CannotTradeAskWearing
                 });
@@ -163,10 +163,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            session.Character.InventoryService.MoveInPocket(packet.Slot, (NoscorePocketType)packet.Type,
+            session.Character.InventoryService.MoveInPocket(packet.Slot, packet.Type.ToNoscorePocketType(),
                 NoscorePocketType.Wear, (short)itemInstance.ItemInstance.Item.EquipmentSlot, true);
             var newItem = session.Character.InventoryService
-                .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.Type);
+                .LoadBySlotAndType(packet.Slot, packet.Type.ToNoscorePocketType());
 
             await session.SendPacketAsync(newItem.GeneratePocketChange(packet.Type, packet.Slot));
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEq());

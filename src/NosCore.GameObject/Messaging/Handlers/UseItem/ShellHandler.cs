@@ -83,7 +83,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var inventoryItem = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, inventoryItem.ItemInstanceId);
-            await session.SendPacketAsync((inventoryItem.ItemInstance.Amount > 0 ? inventoryItem : null).GeneratePocketChange((PocketType)inventoryItem.Type, inventoryItem.Slot));
+            await session.SendPacketAsync((inventoryItem.ItemInstance.Amount > 0 ? inventoryItem : null).GeneratePocketChange(inventoryItem.Type.ToPocketType(), inventoryItem.Slot));
             if (replacing && random.NextDouble() >= ReplaceChance)
             {
                 await shellOptionService.ClearAsync(shell.Id);

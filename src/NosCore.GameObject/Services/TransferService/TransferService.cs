@@ -112,7 +112,7 @@ namespace NosCore.GameObject.Services.TransferService
                     }
 
                     changes.Packets.Add(new KeyValuePair<long, IvnPacket>(side.Giver.VisualId,
-                        remaining.GeneratePocketChange((PocketType)item.Type, item.Slot)));
+                        remaining.GeneratePocketChange(item.Type.ToPocketType(), item.Slot)));
                 }
             }
 
@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Services.TransferService
 
                     changes.Upserted.AddRange(touched);
                     changes.Packets.AddRange(touched.Select(s => new KeyValuePair<long, IvnPacket>(side.Receiver.VisualId,
-                        s.GeneratePocketChange((PocketType)s.Type, s.Slot))));
+                        s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot))));
                 }
             }
 

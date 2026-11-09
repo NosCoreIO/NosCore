@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return new WarehouseSubPacket { Slot = slot };
             }
 
-            var type = itemInstance is SpecialistInstance ? PocketType.Specialist : (PocketType)itemInstance.Item.Type;
+            var type = itemInstance is SpecialistInstance ? PocketType.Specialist : itemInstance.Item.Type.ToPocketType();
             return type switch
             {
                 PocketType.Equipment => new WarehouseSubPacket
@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = type,
                 IvnSubPackets = new List<IvnSubPacket>
                 {
-                    itemInstance.ItemInstance.GenerateIvnSubPacket((PocketType)itemInstance.Type, slot)
+                    itemInstance.ItemInstance.GenerateIvnSubPacket(itemInstance.Type.ToPocketType(), slot)
                 }
             };
         }
@@ -97,7 +97,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return null;
             }
 
-            var type = (PocketType)itemInstance[0].Type;
+            var type = itemInstance[0].Type.ToPocketType();
             return new IvnPacket
             {
                 Type = type,

@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
@@ -73,7 +74,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var session = evt.ClientSession;
             var character = session.Character;
             var itemInstance = evt.InventoryItem;
-            var pocket = (PocketType)itemInstance.Type;
+            var pocket = itemInstance.Type.ToPocketType();
             var mapId = character.MapInstance.Map.MapId;
 
             switch (evt.Packet.Mode)
@@ -129,7 +130,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                         MapId = mapId,
                         X = x,
                         Y = y,
-                        Packet = session.Character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, AmuletConfirmed, 0),
+                        Packet = session.Character.GenerateUseItem(itemInstance.Type.ToPocketType(), itemInstance.Slot, AmuletConfirmed, 0),
                     });
                     return;
                 case AmuletConfirmed:
@@ -155,7 +156,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 Delay = 5000,
                 Type = DelayPacketType.ItemInUse,
-                Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, nextMode, 0)
+                Packet = character.GenerateUseItem(itemInstance.Type.ToPocketType(), itemInstance.Slot, nextMode, 0)
             }, (itemInstance.ItemInstanceId, nextMode), clock.GetCurrentInstant());
         }
 
@@ -169,7 +170,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         {
             var itemInstance = evt.InventoryItem;
             evt.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            return evt.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            return evt.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
         }
 
         private static Task SayAsync(ClientSession session, Game18NConstString message)

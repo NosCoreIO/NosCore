@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -66,7 +67,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            await clientSession.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
 
             await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateEq());
             await clientSession.SendPacketAsync(clientSession.Character.GenerateEquipment());

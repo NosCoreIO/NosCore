@@ -163,10 +163,10 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         if (outcome == UpgradeOutcome.Failure)
         {
             yield return ((InventoryItemInstance?)null).GeneratePocketChange(
-                (PocketType)ctx.Source.Type, ctx.Source.Slot);
+                ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
             yield break;
         }
-        yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
+        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
     }
 
     // OpenNos effect pattern:

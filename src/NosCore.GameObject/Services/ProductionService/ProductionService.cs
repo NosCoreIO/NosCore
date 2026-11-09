@@ -116,11 +116,11 @@ namespace NosCore.GameObject.Services.ProductionService
                     var taken = (short)Math.Min(remaining, stack.ItemInstance.Amount);
                     var left = character.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
                     remaining -= taken;
-                    packets.Add(left.GeneratePocketChange((PocketType)stack.Type, stack.Slot));
+                    packets.Add(left.GeneratePocketChange(stack.Type.ToPocketType(), stack.Slot));
                 }
             }
 
-            packets.AddRange(produced.Select(s => s.GeneratePocketChange((PocketType)s.Type, s.Slot)));
+            packets.AddRange(produced.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
             var item = produced[0].ItemInstance;
             packets.Add(new PdtiPacket
             {

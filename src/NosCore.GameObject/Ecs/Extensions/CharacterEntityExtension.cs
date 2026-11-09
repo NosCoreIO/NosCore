@@ -68,8 +68,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             var inv3 = new InvPacket { Type = PocketType.Miniland, IvnSubPackets = new List<IvnSubPacket>() };
             var inv6 = new InvPacket { Type = PocketType.Specialist, IvnSubPackets = new List<IvnSubPacket>() };
             var inv7 = new InvPacket { Type = PocketType.Costume, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv9 = new InvPacket { Type = (PocketType)NoscorePocketType.Mount, IvnSubPackets = new List<IvnSubPacket>() };
-            var inv10 = new InvPacket { Type = (PocketType)NoscorePocketType.Raid, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv9 = new InvPacket { Type = PocketType.Mount, IvnSubPackets = new List<IvnSubPacket>() };
+            var inv10 = new InvPacket { Type = PocketType.Raid, IvnSubPackets = new List<IvnSubPacket>() };
 
             if (characterEntity.InventoryService == null)
             {
@@ -603,7 +603,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             if (inv?.Count > 0)
             {
                 inv.ForEach(it => it.CharacterId = characterEntity.CharacterId);
-                await characterEntity.SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
+                await characterEntity.SendPacketsAsync(inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
                 await characterEntity.SendPacketAsync(new SMemoiPacket
                 {
                     Type = SMemoType.SuccessNpc,
@@ -779,7 +779,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            await owner.SendPacketAsync(sellerSlot.GeneratePocketChange((PocketType)sellerType, sellerSlotIndex));
+            await owner.SendPacketAsync(sellerSlot.GeneratePocketChange(sellerType.ToPocketType(), sellerSlotIndex));
             await owner.SendPacketAsync(GenerateGoldPacket(owner));
             if (closed)
             {
@@ -790,7 +790,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 await buyer.SendPacketAsync(owner.GenerateNInv(1, 0));
             }
 
-            await buyer.SendPacketsAsync(delivered!.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
+            await buyer.SendPacketsAsync(delivered!.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
             await buyer.SendPacketAsync(new SMemoiPacket
             {
                 Type = SMemoType.SuccessNpc,

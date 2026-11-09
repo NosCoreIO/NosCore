@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
@@ -110,7 +111,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             }
 
             character.InventoryService.RemoveItemAmountFromInventory(1, wings.ItemInstanceId);
-            await session.SendPacketAsync(wings.GeneratePocketChange((PocketType)wings.Type, wings.Slot));
+            await session.SendPacketAsync(wings.GeneratePocketChange(wings.Type.ToPocketType(), wings.Slot));
             await mapChangeService.ChangeMapAsync(session, friend.Value.MapId, friend.Value.PositionX, friend.Value.PositionY);
         }
     }

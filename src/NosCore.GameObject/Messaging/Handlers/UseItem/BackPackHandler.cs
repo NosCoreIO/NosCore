@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 ArgumentType = 2,
                 Game18NArguments = { itemInstance.ItemInstance.Item.VNum.ToString() }
             });
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
             session.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
 
             session.Character.LoadExpensions();

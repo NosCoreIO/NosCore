@@ -7,6 +7,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -58,7 +59,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(string.Empty));
 
             session.Character.InventoryService.RemoveItemAmountFromInventory(1, evt.InventoryItem.ItemInstanceId);
-            await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
+            await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange(evt.InventoryItem.Type.ToPocketType(), evt.InventoryItem.Slot));
         }
     }
 }

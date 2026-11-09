@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ScriptedInstanceService;
 using NosCore.Packets.Enumerations;
 using System;
@@ -41,7 +42,7 @@ public static class ScriptedInstanceEntryExtensions
                 var taken = (short)Math.Min(remaining, stack.ItemInstance.Amount);
                 player.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
                 remaining -= taken;
-                await player.SendPacketAsync(stack.GeneratePocketChange((PocketType)stack.Type, stack.Slot));
+                await player.SendPacketAsync(stack.GeneratePocketChange(stack.Type.ToPocketType(), stack.Slot));
             }
         }
     }

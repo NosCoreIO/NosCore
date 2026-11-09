@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            await session.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
+            await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,
@@ -69,7 +69,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             });
 
             await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
-                .GeneratePocketChange((PocketType)source.Type, source.Slot));
+                .GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
         }
 
         private static Task SendNotEnoughSpaceAsync(ItemUsedEvent evt) =>

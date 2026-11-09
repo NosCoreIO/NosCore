@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
@@ -19,7 +20,7 @@ namespace NosCore.PacketHandlers.Inventory
         public override Task ExecuteAsync(UseItemPacket useItemPacket, ClientSession clientSession)
         {
             var inv = clientSession.Character.InventoryService.LoadBySlotAndType(
-                useItemPacket.Slot, (NoscorePocketType)useItemPacket.Type);
+                useItemPacket.Slot, useItemPacket.Type.ToNoscorePocketType());
             if (inv?.ItemInstance?.Item == null)
             {
                 return Task.CompletedTask;

@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
 
             if (inv != null)
             {
-                await session.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+                await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
                 await session.SendPacketAsync(new SayiPacket
                 {
                     VisualType = VisualType.Player,

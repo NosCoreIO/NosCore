@@ -183,7 +183,7 @@ public sealed class SpPerfectionOperation(
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
-        yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
+        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
     }
 
     private static InventoryItemInstance? LoadCard(ClientSession session, UpgradePacket packet)
