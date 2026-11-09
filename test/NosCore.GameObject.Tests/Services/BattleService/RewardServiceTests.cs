@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _experience.Object,
                 new ExperienceShareService(),
                 new LevelPenaltyService(),
-                new LowLevelBoostService(),
+                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService,
                 NullLogger<RewardService>.Instance);
 
             var template = new NpcMonsterDto

@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
             var rewards = new RewardService(TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.MapItemProvider!,
                 catalog.Object, experience.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), NullLogger<RewardService>.Instance);
+                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, NullLogger<RewardService>.Instance);
 
             const int kills = 50;
             _map.LoadMonsters(

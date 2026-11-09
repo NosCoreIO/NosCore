@@ -12,10 +12,11 @@ using NosCore.GameObject.Services.MapInstanceGenerationService;
 
 namespace NosCore.GameObject.Services.MapItemGenerationService
 {
-    public class MapItemGenerationService(IIdService<MapItemComponentBundle> mapItemIdService)
+    public class MapItemGenerationService(IIdService<MapItemComponentBundle> mapItemIdService, IClock clock)
         : IMapItemGenerationService
     {
-        public MapItemComponentBundle Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY)
+        public MapItemComponentBundle Create(MapInstance mapInstance, IItemInstance itemInstance, short positionX, short positionY,
+            long? ownerId = null)
         {
             var visualId = mapItemIdService.GetNextId();
             var entity = mapInstance.EcsWorld.CreateMapItem(
@@ -25,8 +26,8 @@ namespace NosCore.GameObject.Services.MapItemGenerationService
                 mapInstance.MapInstanceId,
                 positionX,
                 positionY,
-                null,
-                Instant.MinValue,
+                ownerId,
+                clock.GetCurrentInstant(),
                 itemInstance.Id,
                 itemInstance);
             return new MapItemComponentBundle(entity, mapInstance.EcsWorld);

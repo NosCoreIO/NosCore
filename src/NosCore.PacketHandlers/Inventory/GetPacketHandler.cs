@@ -4,11 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NodaTime;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.ClientPackets.Drops;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -21,7 +21,7 @@ using Wolverine;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class GetPacketHandler(ILogger<GetPacketHandler> logger, IHeuristic distanceCalculator, IClock clock,
+    public class GetPacketHandler(ILogger<GetPacketHandler> logger, IHeuristic distanceCalculator, IGroupLootService groupLootService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus)
         : PacketHandler<GetPacket>, IWorldPacketHandler
     {
@@ -58,10 +58,7 @@ namespace NosCore.PacketHandlers.Inventory
                 return;
             }
 
-            //TODO add group drops
-            if (mapItem.OwnerId != null
-                && mapItem.DroppedAt.Plus(Duration.FromSeconds(30)) > clock.GetCurrentInstant()
-                && mapItem.OwnerId != clientSession.Character.CharacterId)
+            if (!groupLootService.CanPickUp(clientSession.Character, mapItem))
             {
                 await clientSession.SendPacketAsync(new SayiPacket
                 {

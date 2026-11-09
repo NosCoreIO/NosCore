@@ -7,7 +7,9 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
+using NosCore.Data.Enumerations.Group;
 using NosCore.Data.WebApi;
+using GroupService = NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.PacketHandlers.Game;
@@ -37,7 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
-            Handler = new GopPacketHandler(PubSubHub.Object, NullLogger<GopPacketHandler>.Instance);
+            Handler = new GopPacketHandler(PubSubHub.Object, TestHelpers.Instance.GroupLootService, NullLogger<GopPacketHandler>.Instance);
         }
 
         [TestMethod]
@@ -164,6 +166,70 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .WhenAsync(SettingOption_To_, (GopPacketType)99, true)
                 .Then(NothingShouldBeSent)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LootingModeOutsideAPartyIsStored()
+        {
+            await new Spec("Outside a party the looting option is stored and its mode shown")
+                .WhenAsync(SettingOption_To_, GopPacketType.GroupSharing, true)
+                .Then(LootIsSharedAsAGroup_, true)
+                .And(MessageShouldBe_, Game18NConstString.LootShareInGroup)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OnlyThePartyMasterChangesTheLootingMode()
+        {
+            await new Spec("A party member who is not the master cannot change the looting mode")
+                .GivenAsync(TheCharacterJoinsAnotherCharactersParty)
+                .WhenAsync(SettingOption_To_, GopPacketType.GroupSharing, true)
+                .Then(LootIsSharedAsAGroup_, false)
+                .And(InfoShouldBe_, Game18NConstString.CanNotChangeGroupMode)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheMastersLootingModeIsAnnouncedToTheParty()
+        {
+            await new Spec("The party master's looting mode change is announced to the party")
+                .GivenAsync(TheCharacterLeadsAParty)
+                .WhenAsync(SettingOption_To_, GopPacketType.GroupSharing, true)
+                .Then(LootIsSharedAsAGroup_, true)
+                .And(ThePartyIsTold_, Game18NConstString.ShareAsGroupChanged)
+                .ExecuteAsync();
+        }
+
+        private async Task TheCharacterJoinsAnotherCharactersParty()
+        {
+            var master = await TestHelpers.Instance.GenerateSessionAsync();
+            var group = new GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            master.Character.JoinGroup(group);
+            Session.Character.JoinGroup(group);
+        }
+
+        private async Task TheCharacterLeadsAParty()
+        {
+            var member = await TestHelpers.Instance.GenerateSessionAsync();
+            var group = new GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            Session.Character.JoinGroup(group);
+            member.Character.JoinGroup(group);
+        }
+
+        private void LootIsSharedAsAGroup_(bool shared) => Assert.AreEqual(shared, Session.Character.GroupSharing);
+
+        private void InfoShouldBe_(Game18NConstString message)
+        {
+            var packet = Session.LastPackets.OfType<InfoiPacket>().LastOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(message, packet.Message);
+        }
+
+        private void ThePartyIsTold_(Game18NConstString message)
+        {
+            var packet = Session.Character.Group.LastPackets.OfType<MsgiPacket>().LastOrDefault();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual(message, packet.Message);
         }
 
         private async Task TogglingEveryOption()
