@@ -184,7 +184,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private Task UsingTheScrollIn_(short slot)
         {
             var scroll = Session.Character.InventoryService.LoadBySlotAndType(slot, NoscorePocketType.Main)!;
-            return new EventSpUpgradeScrollHandler(_operations, TestHelpers.Instance.NpcDialogService)
+            return new UpgradeWindowItemHandler(_operations, TestHelpers.Instance.NpcDialogService)
                 .Handle(new ItemUsedEvent(Session, scroll, new UseItemPacket
                 {
                     VisualType = VisualType.Player,

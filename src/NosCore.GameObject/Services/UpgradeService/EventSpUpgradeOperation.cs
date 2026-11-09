@@ -22,9 +22,11 @@ public abstract class EventSpUpgradeOperationBase(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
     ISpUpgradeService spUpgradeService)
-    : SpUpgradeOperationBase(random, localizer, spUpgradeService)
+    : SpUpgradeOperationBase(random, localizer, spUpgradeService), IItemOpenedUpgradeOperation
 {
     public abstract short ScrollVNum { get; }
+
+    public IReadOnlyCollection<short> OpeningItemVNums => new[] { ScrollVNum };
 
     protected abstract IReadOnlyCollection<short> CardVNums { get; }
 

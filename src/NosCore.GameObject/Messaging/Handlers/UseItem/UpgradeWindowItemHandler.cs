@@ -17,16 +17,17 @@ using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
-    // The scroll is only spent by the upgrade the window sends back.
+    // The item is only spent by the upgrade the window sends back.
     [UsedImplicitly]
-    public sealed class EventSpUpgradeScrollHandler(IEnumerable<IUpgradeOperation> operations,
+    public sealed class UpgradeWindowItemHandler(IEnumerable<IUpgradeOperation> operations,
         INpcDialogService npcDialogService)
     {
         [UsedImplicitly]
         public Task Handle(ItemUsedEvent evt)
         {
             var vnum = evt.InventoryItem.ItemInstance.ItemVNum;
-            var operation = operations.OfType<EventSpUpgradeOperationBase>().FirstOrDefault(o => o.ScrollVNum == vnum);
+            var operation = operations.OfType<IItemOpenedUpgradeOperation>()
+                .FirstOrDefault(o => o.OpeningItemVNums.Contains(vnum));
             if (operation is null || evt.ClientSession.Character.InExchangeOrShop)
             {
                 return Task.CompletedTask;
