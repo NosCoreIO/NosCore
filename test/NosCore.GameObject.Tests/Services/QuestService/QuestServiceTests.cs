@@ -538,5 +538,93 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Assert.IsFalse(_trackedQuest.AreObjectivesComplete());
             Assert.IsNull(_trackedQuest.CompletedOn);
         }
+
+        [TestMethod]
+        public async Task GivingUpAQuestRemovesItAndClosesItsWindow()
+        {
+            await new Spec("Giving up a quest removes it and sends its closed qsti")
+                .Given(NonSecondaryQuestAlreadyActive)
+                .WhenAsync(GivingUpQuest_, 5)
+                .Then(CharacterShouldHaveNoQuest)
+                .And(AClosedQstiShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GivingUpAQuestTheCharacterDoesNotHaveDoesNothing()
+        {
+            await new Spec("Giving up a quest the character does not have changes nothing")
+                .Given(NonSecondaryQuestAlreadyActive)
+                .WhenAsync(GivingUpQuest_, 999)
+                .Then(QuestShouldStillBeOne)
+                .And(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ValidatingTheCurrentStepMovesToTheNextOne()
+        {
+            await new Spec("Validating the current script step moves the character to the next step")
+                .Given(CharacterIsOnTalkStepOneOfScript_, (byte)100)
+                .WhenAsync(RunningTheCurrentStepAs_, QuestActionType.Validate)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RunningTheCurrentStepWithoutAScriptDoesNothing()
+        {
+            await new Spec("Running the current step of a character with no script sends nothing")
+                .Given(CharacterHasNoScript)
+                .WhenAsync(RunningTheCurrentStepAs_, QuestActionType.Achieve)
+                .Then(NoPacketShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private Task GivingUpQuest_(int questId)
+        {
+            Session.LastPackets.Clear();
+            return Service.GiveUpQuestAsync(Session.Character, questId);
+        }
+
+        private void CharacterShouldHaveNoQuest()
+        {
+            Assert.AreEqual(0, Session.Character.Quests.Count);
+        }
+
+        private void AClosedQstiShouldBeSent()
+        {
+            Assert.AreEqual(1, Session.LastPackets.OfType<NosCore.Packets.ServerPackets.Quest.QstiPacket>().Count());
+        }
+
+        private void NoPacketShouldBeSent()
+        {
+            Assert.AreEqual(0, Session.LastPackets.Count);
+        }
+
+        private void CharacterIsOnTalkStepOneOfScript_(byte scriptId)
+        {
+            var current = new ScriptDto { Id = Guid.NewGuid(), ScriptId = scriptId, ScriptStepId = 1, StepType = "talk" };
+            Scripts.Add(current);
+            Scripts.Add(new ScriptDto { ScriptId = scriptId, ScriptStepId = 2, StepType = "talk" });
+            Session.Character.Script = current;
+        }
+
+        private void CharacterHasNoScript()
+        {
+            Session.Character.Script = null;
+            Session.LastPackets.Clear();
+        }
+
+        private Task RunningTheCurrentStepAs_(QuestActionType type)
+        {
+            return Service.RunCurrentScriptStepAsync(Session.Character, type);
+        }
+
+        private void CharacterShouldBeOnStep_OfScript_(short stepId, byte scriptId)
+        {
+            Assert.AreEqual<byte?>(scriptId, Session.Character.Script?.ScriptId);
+            Assert.AreEqual<short?>(stepId, Session.Character.Script?.ScriptStepId);
+        }
     }
 }

@@ -84,6 +84,34 @@ namespace NosCore.GameObject.Services.QuestService
             });
         }
 
+        public Task RunCurrentScriptStepAsync(ICharacterEntity character, QuestActionType type)
+        {
+            var script = character.Script;
+            if (script == null)
+            {
+                return Task.CompletedTask;
+            }
+
+            return RunScriptAsync(character, new ScriptClientPacket
+            {
+                Type = type,
+                FirstArgument = script.Argument1,
+                SecondArgument = script.ScriptId,
+                ThirdArgument = script.ScriptStepId,
+            });
+        }
+
+        public async Task GiveUpQuestAsync(ICharacterEntity character, int questId)
+        {
+            var entry = character.Quests.FirstOrDefault(q => q.Value.QuestId == questId);
+            if (entry.Value == null || !character.Quests.TryRemove(entry.Key, out var questToRemove))
+            {
+                return;
+            }
+
+            await character.SendPacketAsync(questToRemove.GenerateQstiPacket(false));
+        }
+
         private async Task<bool> CheckScriptStateAsync(ScriptClientPacket packet, ICharacterEntity character)
         {
             int? scriptId;
