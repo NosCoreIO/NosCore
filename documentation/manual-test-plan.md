@@ -1112,15 +1112,14 @@ The parser fills `FamilyUpgrade` only when `packet.txt` holds the family manager
 `n_inv 2 2089 0 9679|2|0 ... 9697|2|18`. Seed a family as in "Family membership" with
 `FamilyLevel` set per check, and stand next to Salim (vnum 1431, dialog 462) as its head.
 
-- [ ] "Purchase Family Extensions" opens the family manager's window with four rows:
-      Family Warehouse (Level 1/2) and Increase Max. Family Members (Level 1/2)
-- [ ] At family level 1 every row sits under "Cannot be purchased"; at level 2 the
-      warehouse moves to "Can be purchased"
-- [ ] Hovering a row shows its family level and cost: 2 / 500 000, 7 / 2 000 000,
-      5 / 5 000 000, 9 / 10 000 000
-- [ ] At level 2, clicking the warehouse takes 500 000 gold, shows "Purchased: Family
-      Warehouse (Level 1)", and the row moves to "Already purchased"; "Open Family
-      Warehouse" then opens at `0/21`
+- [ ] "Purchase Family Extensions" opens a shop window with four rows: Family Warehouse
+      (Level 1/2) and Increase Max. Family Members (Level 1/2), whatever the family level
+- [ ] Double-clicking a row asks for the amount with its price: 500 000, 2 000 000,
+      5 000 000, 10 000 000
+- [ ] At level 2, buying the warehouse takes 500 000 gold and shows "Purchased: Family
+      Warehouse (Level 1)"; "Open Family Warehouse" then opens at `0/21`
+- [ ] A row the family is below the level for: "Your family level is insufficient.", gold
+      unchanged
 - [ ] At level 7 with that warehouse, the second warehouse row expands it to `0/49`
 - [ ] At level 5, the first member row raises the family window's member count to `/70`;
       at level 9 the second raises it to `/100`
