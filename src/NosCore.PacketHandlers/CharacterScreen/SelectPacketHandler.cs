@@ -26,6 +26,7 @@ using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.ArenaService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.GroupService;
@@ -105,6 +106,13 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         WhisperBlocked = characterDto.WhisperBlocked
                     }
                 });
+
+                if (Arena.IsArena(characterDto.MapId))
+                {
+                    characterDto.MapId = Arena.ExitDestinationMapId;
+                    characterDto.MapX = Arena.ExitDestinationX;
+                    characterDto.MapY = Arena.ExitDestinationY;
+                }
 
                 var mapInstance = mapInstanceAccessorService.GetBaseMapById(characterDto.MapId)!;
                 var script = characterDto.CurrentScriptId != null

@@ -999,6 +999,8 @@ Two characters with at least 1 000 gold each, in different groups, next to the a
 - [ ] Hits in the first five seconds after the revive show "MISS"; after that they land again
 - [ ] Cancel instead: the player is sent to their respawn point and the arena keeps no gold
 - [ ] Walk onto the arena's exit portal: the player is back on the map and cell they entered from
+- [ ] A character whose saved map is an arena (an account saved there before the arena became an
+      instance) can be selected and logs in next to the arena NPC in NosVille
 
 ### Revival protection
 
