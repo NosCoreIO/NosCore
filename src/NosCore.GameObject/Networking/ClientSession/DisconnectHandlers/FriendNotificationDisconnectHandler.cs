@@ -38,7 +38,8 @@ public class FriendNotificationDisconnectHandler(IFriendHub friendHub, IPubSubHu
                     new()
                     {
                         CharacterId = characterId,
-                        IsConnected = false
+                        IsConnected = false,
+                        CharacterName = character.Name
                     }
                 }
             }

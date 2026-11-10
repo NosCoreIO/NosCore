@@ -288,7 +288,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                                new()
                                {
                                    CharacterId = visualEntity.VisualId,
-                                   IsConnected = isConnected
+                                   IsConnected = isConnected,
+                                   CharacterName = visualEntity.Name
                                }
                            }
                        }
