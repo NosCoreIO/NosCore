@@ -112,7 +112,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
             catch (Exception e)
             {
-                logger.LogError(e, "Life tick failed for {VisualType} {VisualId}", entity.VisualType, entity.VisualId);
+                logger.LogError(e, "Life tick failed");
             }
         }
 
