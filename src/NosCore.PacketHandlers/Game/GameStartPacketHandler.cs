@@ -159,10 +159,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket()));
             //            // sqst bf
             //            Session.SendPacket("act6");
-            await session.SendPacketAsync(new NosCore.Packets.ServerPackets.Player.FsPacket
-            {
-                Faction = session.Character.CharacterDto.Faction
-            });
+            await session.SendPacketAsync(session.Character.GenerateFaction());
             // p_clear wipes one panel holding both the party and the mate list, so both bursts
             // have to follow it rather than straddle it.
             await session.SendPacketsAsync(session.Character.GenerateMateRoster());

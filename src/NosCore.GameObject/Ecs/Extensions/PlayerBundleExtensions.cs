@@ -62,6 +62,9 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class PlayerBundleExtensions
 {
+    public static FsPacket GenerateFaction(this PlayerComponentBundle player) =>
+        new() { Faction = player.CharacterDto.Faction };
+
     public static Task SendPacketAsync(this PlayerComponentBundle player, IPacket? packet)
     {
         return player.Sender?.SendPacketAsync(packet) ?? Task.CompletedTask;

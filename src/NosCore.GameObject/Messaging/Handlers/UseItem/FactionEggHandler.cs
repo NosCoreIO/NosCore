@@ -6,7 +6,6 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.UI;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem;
@@ -85,7 +84,7 @@ public sealed class FactionEggHandler
         character.CharacterDto.Faction = faction;
         character.CharacterDto.Act4Points = 0;
         await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
-        await session.SendPacketAsync(new FsPacket { Faction = faction });
+        await session.SendPacketAsync(character.GenerateFaction());
         await character.MapInstance.SendPacketAsync(character.GenerateIn(string.Empty));
     }
 }
