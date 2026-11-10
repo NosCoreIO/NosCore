@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Services.SaveService
             IDaoTransactionScope daoTransactionScope)
         : ISaveService
     {
+        /// <summary>Persists character state atomically, including occupied inventory slot exchanges.</summary>
         public async Task SaveAsync(ClientSession session)
         {
             try
@@ -83,6 +84,47 @@ namespace NosCore.GameObject.Services.SaveService
                 }
 
                 await using var transaction = daoTransactionScope.Begin();
+
+                /// <summary>Frees changed slot assignments before writing final positions in this save transaction.</summary>
+                async Task<bool> TrySaveInventorySlotsAsync(IReadOnlyCollection<InventoryItemInstanceDto> desired)
+                {
+                    var existing = inventoryItemInstanceDao.Where(i => i.CharacterId == characterId)!.ToList();
+                    var desiredById = desired.ToDictionary(i => i.Id);
+                    var reserved = existing.Concat(desired).Select(i => (i.Type, i.Slot)).ToHashSet();
+                    var parked = new List<InventoryItemInstanceDto>();
+                    foreach (var row in existing)
+                    {
+                        if (!desiredById.TryGetValue(row.Id, out var target)
+                            || (row.Type == target.Type && row.Slot == target.Slot))
+                        {
+                            continue;
+                        }
+
+                        var slot = (int)short.MinValue;
+                        while (slot < 0 && !reserved.Add((row.Type, (short)slot)))
+                        {
+                            slot++;
+                        }
+                        if (slot >= 0)
+                        {
+                            return false;
+                        }
+                        parked.Add(new InventoryItemInstanceDto
+                        {
+                            Id = row.Id,
+                            CharacterId = row.CharacterId,
+                            ItemInstanceId = row.ItemInstanceId,
+                            Type = row.Type,
+                            Slot = (short)slot
+                        });
+                    }
+
+                    if (parked.Count > 0 && !await inventoryItemInstanceDao.TryInsertOrUpdateAsync(parked))
+                    {
+                        return false;
+                    }
+                    return await inventoryItemInstanceDao.TryInsertOrUpdateAsync(desired);
+                }
 
                 if (await accountDao.TryInsertOrUpdateAsync(account) == null)
                 {
@@ -147,7 +189,7 @@ namespace NosCore.GameObject.Services.SaveService
                     Fail("ItemInstance upsert");
                     return;
                 }
-                if (!await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventoryService.Values.ToArray()))
+                if (!await TrySaveInventorySlotsAsync(inventoryService.Values.ToArray()))
                 {
                     Fail("InventoryItemInstance upsert");
                     return;

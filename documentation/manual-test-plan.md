@@ -1507,3 +1507,19 @@ Recorded so nobody spends time hunting for them:
 
 Early or missing delay completion is covered by automated tests; a stock client
 waits for its bar before sending the completion.
+
+## Inventory persistence regression
+
+- [ ] Exchange two occupied slots, then log out and back in: both items retain their
+      final slots and identities. Repeat with a three-item rotation.
+- [ ] Earn XP or gold normally after rearranging items, then relog: progress persists.
+
+Automated PostgreSQL tests run in CI against its disposable service database.
+For a local run, set `NOSCORE_TEST_POSTGRES` to a disposable PostgreSQL connection
+string with schema creation permission, then run:
+
+```sh
+dotnet test test/NosCore.GameObject.Tests --filter FullyQualifiedName~InventoryPersistencePostgresTests
+```
+
+Each case creates and drops a unique schema; never point this at the game database.

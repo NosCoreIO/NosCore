@@ -157,6 +157,49 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .ExecuteAsync();
         }
 
+        /// <summary>Checks that rearranged inventory and earned progress persist together.</summary>
+        [TestMethod]
+        [DataRow(2)]
+        [DataRow(3)]
+        public async Task RearrangingInventorySlotsStillSavesCharacterProgress(int itemCount)
+        {
+            var character = Session.Character;
+            var inventory = character.InventoryService;
+            inventory.Expensions[NosCore.Data.Enumerations.NoscorePocketType.Main] = 1;
+            var items = Enumerable.Range(0, itemCount).Select(index =>
+            {
+                var item = GameObject.Services.InventoryService.InventoryItemInstance.Create(
+                    ItemProvider.Create((short)(1012 + index), 1), character.CharacterId);
+                var added = inventory.AddItemToPocket(item, NosCore.Data.Enumerations.NoscorePocketType.Main, (short)index);
+                Assert.IsNotNull(added);
+                Assert.AreEqual(1, added.Count);
+                return item;
+            }).ToArray();
+            await Service.SaveAsync(Session);
+
+            for (var index = 0; index < items.Length; index++)
+            {
+                items[index].Slot = (short)((index + 1) % items.Length);
+            }
+            character.Gold = 444;
+            character.LevelXp = 123;
+            await Service.SaveAsync(Session);
+
+            var characterId = character.CharacterId;
+            var rows = InventoryItemInstanceDao.Where(i => i.CharacterId == characterId)!.ToList();
+            Assert.AreEqual(itemCount, rows.Count);
+            foreach (var item in items)
+            {
+                var row = rows.Single(i => i.Id == item.Id);
+                Assert.AreEqual(item.Slot, row.Slot);
+                Assert.AreEqual(item.ItemInstanceId, row.ItemInstanceId);
+            }
+            Assert.IsFalse(rows.Any(i => i.Slot < 0));
+            var saved = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == characterId);
+            Assert.AreEqual(444, saved!.Gold);
+            Assert.AreEqual(123, saved.LevelXp);
+        }
+
         [TestMethod]
         public async Task SavingQuestObjectiveProgressShouldRoundTrip()
         {
