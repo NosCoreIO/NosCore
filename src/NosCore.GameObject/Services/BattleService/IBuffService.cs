@@ -41,7 +41,6 @@ public interface IBuffService
     // not swept the expired ones away yet.
     bool HasEffect(IAliveEntity target, BCardEffect effect);
 
-    // Drops buffs whose ExpiresAt is past `now`. Called from a timer; returning the list
-    // lets handlers react (e.g. send BfePacket) without re-querying.
+    // Drops buffs whose ExpiresAt is past `now` and takes their icons down itself.
     Task<IReadOnlyList<BuffInstance>> TickAsync(IAliveEntity target);
 }
