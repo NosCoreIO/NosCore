@@ -54,6 +54,19 @@ namespace NosCore.Parser.Tests
         private static string[] P(string line) => line.Split(' ');
 
         [TestMethod]
+        public async Task GlacernonReturnRecordsThePortDestination()
+        {
+            await _parser.InsertTeleportersAsync([
+                P("n_run 5002 0 2 1899"), P("at 1 145 51 41 2 0 0 1 -1")
+            ]);
+            var destination = _saved.Single(s => s.MapNpcId == 1899);
+            Assert.AreEqual(NrunRunnerType.ReturnFromGlacernon, destination.Runner);
+            Assert.AreEqual((short)145, destination.MapId);
+            Assert.AreEqual((short)51, destination.MapX);
+            Assert.AreEqual((short)41, destination.MapY);
+        }
+
+        [TestMethod]
         public async Task TheArrivalAfterATeleportIsTheDestination()
         {
             await _parser.InsertTeleportersAsync([

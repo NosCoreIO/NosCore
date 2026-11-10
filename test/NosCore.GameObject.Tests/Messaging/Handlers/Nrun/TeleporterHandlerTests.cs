@@ -66,6 +66,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .And(HandlerOf_ShouldAnswer_, typeof(WeddingGazeboTeleporterHandler), NrunRunnerType.GoToWeddingGazebo)
                 .And(HandlerOf_ShouldAnswer_, typeof(GlacerusCaveTeleporterHandler), NrunRunnerType.GoToGlacerusCave)
                 .And(HandlerOf_ShouldAnswer_, typeof(ForgottenArchipelagoTeleporterHandler), NrunRunnerType.GoToForgottenArchipelago)
+                .And(HandlerOf_ShouldAnswer_, typeof(GlacernonReturnHandler), NrunRunnerType.ReturnFromGlacernon)
                 .And(HandlerOf_ShouldAnswer_, typeof(MortazDesertReturnHandler), NrunRunnerType.ReturnFromMortazDesert)
                 .ExecuteAsync();
         }
@@ -195,6 +196,27 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 .Then(CharacterGoldShouldBe_, 10_000L)
                 .And(NoMapChangeShouldHaveBeenInvoked)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GlacernonReturnIsFreeAndUsesTheNpcDestination()
+        {
+            _handler = new GlacernonReturnHandler(_mapChangeService.Object, _teleporters);
+            TheDestinationsOfNpc_BelongTo_(TeleporterNpcId, _handler.Runner);
+            CharacterGoldIs_(0);
+            await Option_IsPickedAtNpc_(0, TeleporterNpcId);
+            CharacterGoldShouldBe_(0);
+            PlayerShouldBeSentTo_At_(1, 81, 114);
+        }
+
+        [TestMethod]
+        public async Task GlacernonReturnDoesNotUseAnotherNpcOrMenuDestination()
+        {
+            _handler = new GlacernonReturnHandler(_mapChangeService.Object, _teleporters);
+            TheDestinationsOfNpc_BelongTo_(OtherNpcId, _handler.Runner);
+            await Option_IsPickedAtNpc_(1, TeleporterNpcId);
+            await Option_IsPickedAtNpc_(0, TeleporterNpcId);
+            NoMapChangeShouldHaveBeenInvoked();
         }
 
         private void TheMenuSentIsTheGlacerusCaveGuide() =>

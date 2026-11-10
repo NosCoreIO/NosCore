@@ -1519,3 +1519,11 @@ Recorded so nobody spends time hunting for them:
   collection flow (`guri 400`) that is not wired yet.
 - **Reputation target quests** (TargetReput) — no quest in the current client data uses this
   type, so there is nothing to implement or to check.
+
+## Return from Glacernon
+
+- [ ] In each faction citadel, speak to Leika Passage and confirm Return to Port Alveus:
+      arrive at the configured port destination without paying gold.
+- [ ] Cancel the confirmation: remain in the citadel with gold unchanged.
+- [ ] After changing faction inside Corona, the return NPC still sends you to Port Alveus.
+- [ ] Travel back to Corona with the matching faction and repeat the return trip.
