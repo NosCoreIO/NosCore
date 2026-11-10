@@ -38,8 +38,13 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     public const short DimensionalForceVNum = 2774;
     public const short ShardVNum = 2748;
     public const short NormalScrollVNum = 1218;
+    public const short GoldScrollVNum = 5369;
 
     protected abstract bool IsProtected { get; }
+
+    protected virtual short ProtectionScrollVNum => NormalScrollVNum;
+
+    protected virtual int GoldAndCellaDivisor => 1;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.UpgradeSuccessful;
 
@@ -109,7 +114,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
         var materials = new List<MaterialCost>
         {
-            new(CellonVNum, equipmentUpgradeService.GetCellaCost(upgrade)),
+            new(CellonVNum, (short)(equipmentUpgradeService.GetCellaCost(upgrade) / GoldAndCellaDivisor)),
             new(gemVNum, equipmentUpgradeService.GetGemCost(upgrade)),
         };
         var shards = equipmentUpgradeService.GetShardCost(upgrade);
@@ -119,13 +124,13 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         }
         if (IsProtected)
         {
-            materials.Add(new MaterialCost(NormalScrollVNum, 1));
+            materials.Add(new MaterialCost(ProtectionScrollVNum, 1));
         }
 
         return new UpgradeContext(
             Source: source,
             Target: null,
-            GoldCost: equipmentUpgradeService.GetGoldCost(upgrade),
+            GoldCost: equipmentUpgradeService.GetGoldCost(upgrade) / GoldAndCellaDivisor,
             MaterialCosts: materials);
     }
 

@@ -30,3 +30,17 @@ public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IG
 
     protected override bool IsProtected => true;
 }
+
+[UsedImplicitly]
+public sealed class UpgradeItemGoldScrollOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IEquipmentUpgradeService equipmentUpgradeService)
+    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService)
+{
+    public override UpgradePacketType Kind => UpgradePacketType.UpgradeItemGoldScroll;
+
+    protected override bool IsProtected => true;
+
+    protected override short ProtectionScrollVNum => GoldScrollVNum;
+
+    protected override int GoldAndCellaDivisor => 2;
+}
