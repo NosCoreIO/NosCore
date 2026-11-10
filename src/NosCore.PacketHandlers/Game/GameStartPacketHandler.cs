@@ -46,6 +46,9 @@ namespace NosCore.PacketHandlers.Game
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
+        /// <summary>
+        /// Initializes world entry and sends the character's current state, including the persisted faction.
+        /// </summary>
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)

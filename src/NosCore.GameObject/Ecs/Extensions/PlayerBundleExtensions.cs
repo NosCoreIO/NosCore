@@ -265,6 +265,9 @@ public static class PlayerBundleExtensions
         });
     }
 
+    /// <summary>
+    /// Builds the player's map appearance packet, including faction and visible equipment.
+    /// </summary>
     public static InPacket GenerateIn(this PlayerComponentBundle player, string prefix)
     {
         var fairy = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;

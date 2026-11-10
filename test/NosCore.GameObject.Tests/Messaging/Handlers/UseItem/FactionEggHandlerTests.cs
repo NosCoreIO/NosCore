@@ -42,6 +42,9 @@ public class FactionEggHandlerTests
         _session.Character.InventoryService[_item.ItemInstanceId] = _item;
     }
 
+    /// <summary>
+    /// Verifies that each faction prompts for confirmation without consuming the egg or changing character state.
+    /// </summary>
     [TestMethod]
     [DataRow(1)]
     [DataRow(2)]
@@ -73,6 +76,9 @@ public class FactionEggHandlerTests
         Assert.AreEqual((FactionType)target, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.Faction);
     }
 
+    /// <summary>
+    /// Verifies that an egg matching the current faction preserves items and points and reports the matching refusal.
+    /// </summary>
     [TestMethod]
     [DataRow(1)]
     [DataRow(2)]

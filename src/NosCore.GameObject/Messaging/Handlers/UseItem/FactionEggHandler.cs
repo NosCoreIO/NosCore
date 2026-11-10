@@ -14,6 +14,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem;
 [UsedImplicitly]
 public sealed class FactionEggHandler
 {
+    /// <summary>
+    /// Confirms individual faction changes, rechecks eligibility, and consumes one egg while resetting contribution points.
+    /// </summary>
     [UsedImplicitly]
     public async Task Handle(ItemUsedEvent evt)
     {
