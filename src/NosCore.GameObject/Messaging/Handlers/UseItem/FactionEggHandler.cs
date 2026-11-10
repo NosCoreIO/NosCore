@@ -21,7 +21,7 @@ public sealed class FactionEggHandler
     public async Task Handle(ItemUsedEvent evt)
     {
         var item = evt.InventoryItem.ItemInstance.Item;
-        if (item.Effect != ItemEffectType.ChangeFaction || item.EffectValue is not (1 or 2))
+        if (item.Effect != ItemEffectType.ChangeFaction || item.EffectValue is not ((int)FactionType.Angel or (int)FactionType.Demon))
         {
             return;
         }
