@@ -1,7 +1,7 @@
 MasterCommunication:
   Password: ${MASTER_PASSWORD,NosCorePassword}
   Host: ${MASTER_HOST,http://localhost}
-  Port: 5000
+  Port: ${MASTER_PORT,5000}
 ServerName: S1-NosCore
 Host: ${HOST,127.0.0.1}
 Port: ${WORLD_PORT,1337}
