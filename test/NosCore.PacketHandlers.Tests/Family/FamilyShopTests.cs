@@ -13,6 +13,7 @@ using NosCore.Algorithm.FamilyUpgradeService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
@@ -65,10 +66,10 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private static readonly List<ItemDto> Items = new()
         {
-            new() { VNum = Warehouse, Price = 500000 },
-            new() { VNum = WarehouseExpansion, Price = 2000000 },
-            new() { VNum = Members, Price = 5000000 },
-            new() { VNum = MembersExpansion, Price = 10000000 },
+            new() { VNum = Warehouse, Type = NoscorePocketType.Main, Price = 500000 },
+            new() { VNum = WarehouseExpansion, Type = NoscorePocketType.Main, Price = 2000000 },
+            new() { VNum = Members, Type = NoscorePocketType.Main, Price = 5000000 },
+            new() { VNum = MembersExpansion, Type = NoscorePocketType.Main, Price = 10000000 },
         };
 
         private ClientSession _head = null!;
@@ -163,12 +164,12 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         [TestMethod]
-        public async Task TheManagerListsEachExtensionInTheTabItBelongsTo()
+        public async Task TheManagerListsEveryExtensionAsAShopRow()
         {
-            await new Spec("At family level 2 only the warehouse can be bought; the rest wait for a level or the line's first step")
+            await new Spec("The list shows all four extensions with their price, whatever the family level")
                 .GivenAsync(TheFamilyIsLevel_, (byte)2)
                 .WhenAsync(TheHeadOpensTheFamilyShop)
-                .Then(TheListShouldRead_, "n_inv 2 100 0 9694|0|0 9695|2|1 9696|2|2 9697|2|3")
+                .Then(TheListShouldRead_, "n_inv 2 100 0 100 1.0.9694.1.500000 1.1.9695.1.2000000 1.2.9696.1.5000000 1.3.9697.1.10000000")
                 .ExecuteAsync();
         }
 
@@ -182,7 +183,6 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ThenAsync(TheWarehouseShouldHave_, (byte)21)
                 .And(TheHeadShouldHaveGold_, 100000L)
                 .And(TheHeadShouldBeToldItWasPurchased)
-                .And(TheListShouldRead_, "n_inv 2 100 0 9694|1|0 9695|2|1 9696|2|2 9697|2|3")
                 .ExecuteAsync();
         }
 

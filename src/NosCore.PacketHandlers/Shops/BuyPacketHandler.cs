@@ -60,8 +60,7 @@ namespace NosCore.PacketHandlers.Shops
                     return Task.CompletedTask;
                 }
 
-                // The family manager sells no items, so a buy at an npc without them comes from its upgrade list.
-                return buyPacket.VisualType == VisualType.Npc && aliveEntity.Shop?.ShopItems.IsEmpty != false
+                return buyPacket.VisualType == VisualType.Npc && aliveEntity.Shop?.ShopType == FamilyShopService.ShopType
                     ? familyShopService.BuyAsync(clientSession, aliveEntity, buyPacket.Slot)
                     : clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration,
                         itemProvider, shellOptionService, itemInstanceDao);

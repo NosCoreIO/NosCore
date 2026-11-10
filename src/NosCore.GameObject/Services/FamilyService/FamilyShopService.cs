@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Services.FamilyService
         public Task OpenAsync(ClientSession session, IAliveEntity manager)
         {
             var family = session.Character.Family;
-            return family == null ? Task.CompletedTask : session.SendPacketAsync(GenerateList(family, manager));
+            return family == null ? Task.CompletedTask : session.SendPacketAsync(GenerateList(manager));
         }
 
         public async Task BuyAsync(ClientSession session, IAliveEntity manager, short slot)
@@ -104,24 +104,26 @@ namespace NosCore.GameObject.Services.FamilyService
             });
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
 
-            var refreshed = await familyService.GetFamilyAsync(session.Character.CharacterId);
-            session.Character.Family = refreshed;
-            if (refreshed != null)
-            {
-                await session.SendPacketAsync(GenerateList(refreshed, manager));
-            }
+            session.Character.Family = await familyService.GetFamilyAsync(session.Character.CharacterId);
         }
 
-        private NInvPacket GenerateList(FamilyDto family, IAliveEntity manager) => new()
+        private NInvPacket GenerateList(IAliveEntity manager) => new()
         {
             VisualType = manager.VisualType,
             VisualId = manager.VisualId,
+            ShopKind = 100,
             Unknown = 0,
-            FamilySkills = Offered.Select((upgrade, slot) => (NInvFamilySkillSubPacket?)new NInvFamilySkillSubPacket
+            Items = Offered.Select((upgrade, slot) =>
             {
-                SkillId = upgrade.ItemVNum,
-                Type = (byte)family.StateOf(upgrade, capacities),
-                Slot = (byte)slot
+                var item = items.First(s => s.VNum == upgrade.ItemVNum);
+                return (NInvItemSubPacket?)new NInvItemSubPacket
+                {
+                    Type = (PocketType)item.Type,
+                    Slot = (short)slot,
+                    Price = (int)item.Price,
+                    RareAmount = 1,
+                    VNum = item.VNum
+                };
             }).ToList()
         };
 
