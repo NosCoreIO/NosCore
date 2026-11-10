@@ -34,7 +34,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
             return session.SendPacketAsync(new WopenPacket
             {
-                Type = WindowType.UpgradeItem,
+                Type = (WindowType?)packet.Type switch
+                {
+                    WindowType.UpgradeItemProtected => WindowType.UpgradeItemProtected,
+                    WindowType.UpgradeItemGoldScroll => WindowType.UpgradeItemGoldScroll,
+                    _ => WindowType.UpgradeItem,
+                },
             });
         }
     }

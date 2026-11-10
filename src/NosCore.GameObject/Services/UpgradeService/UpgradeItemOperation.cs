@@ -31,8 +31,6 @@ public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IG
     protected override bool IsProtected => true;
 }
 
-// Whether this path also discounts the gold and cella is unconfirmed, so it charges the same as
-// the plain protected upgrade.
 [UsedImplicitly]
 public sealed class UpgradeItemGoldScrollOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
         IEquipmentUpgradeService equipmentUpgradeService)
@@ -43,4 +41,6 @@ public sealed class UpgradeItemGoldScrollOperation(IRandomNumberSource random, I
     protected override bool IsProtected => true;
 
     protected override short ProtectionScrollVNum => GoldScrollVNum;
+
+    protected override int GoldAndCellaDivisor => 2;
 }

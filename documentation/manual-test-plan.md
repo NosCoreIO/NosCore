@@ -271,8 +271,8 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
       attempt keeps the item instead of destroying it
 - [ ] With plain scrolls but no gold scroll, the gold scroll option is refused with the
       missing ingredients message and nothing is taken
-- [ ] Note the gold and Cella Powder the gold scroll option takes: the server charges the same
-      as the plain protected upgrade, and a lower price in the client would mean it should not
+- [ ] The gold scroll window (`wopen 43`) asks for half the gold and Cella Powder of the plain
+      upgrade (40 000 gold and 110 Cella at +5), and the upgrade takes exactly that
 
 ### Specialist points
 

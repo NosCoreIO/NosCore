@@ -44,6 +44,8 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
     protected virtual short ProtectionScrollVNum => NormalScrollVNum;
 
+    protected virtual int GoldAndCellaDivisor => 1;
+
     protected override Game18NConstString SuccessMessage => Game18NConstString.UpgradeSuccessful;
 
     // Unprotected failure: the item was destroyed. Protected failure uses ProtectedSaveMessage
@@ -112,7 +114,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
         var materials = new List<MaterialCost>
         {
-            new(CellonVNum, equipmentUpgradeService.GetCellaCost(upgrade)),
+            new(CellonVNum, (short)(equipmentUpgradeService.GetCellaCost(upgrade) / GoldAndCellaDivisor)),
             new(gemVNum, equipmentUpgradeService.GetGemCost(upgrade)),
         };
         var shards = equipmentUpgradeService.GetShardCost(upgrade);
@@ -128,7 +130,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         return new UpgradeContext(
             Source: source,
             Target: null,
-            GoldCost: equipmentUpgradeService.GetGoldCost(upgrade),
+            GoldCost: equipmentUpgradeService.GetGoldCost(upgrade) / GoldAndCellaDivisor,
             MaterialCosts: materials);
     }
 

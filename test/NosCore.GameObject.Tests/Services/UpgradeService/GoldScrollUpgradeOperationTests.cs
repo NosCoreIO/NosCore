@@ -90,6 +90,20 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
+        public async Task TheGoldScrollUpgradeChargesHalfTheGoldAndCella()
+        {
+            await new Spec("A +5 upgrade costs 40 000 gold and 110 cella instead of 80 000 and 220")
+                .Given(WearableAtUpgrade_, (byte)5)
+                .And(MaterialsAndBothScrolls)
+                .And(CharacterHasGold_, 1_000_000L)
+                .And(NextRollWillBe_, 0.99)
+                .WhenAsync(GoldScrollUpgradeIsExecuted)
+                .Then(GoldShouldBe_, 960_000L)
+                .And(CellaRemainingShouldBe_, 890)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task APlainScrollDoesNotStandInForTheGoldScroll()
         {
             await new Spec("Without a gold scroll the upgrade is refused even with plain scrolls")
@@ -163,6 +177,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void GoldScrollsRemainingShouldBe_(int expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(GoldScrollVNum));
+
+        private void GoldShouldBe_(long expected) => Assert.AreEqual(expected, _session.Character.Gold);
+
+        private void CellaRemainingShouldBe_(int expected) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));
 
         private void PlainScrollsRemainingShouldBe_(int expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(ScrollVNum));
