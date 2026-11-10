@@ -40,7 +40,7 @@ namespace NosCore.LoginServer
             }
             catch (Exception ex)
             {
-                logger.LogError(logLanguage[LogLanguageKey.DATABASE_ERROR], ex);
+                logger.LogError(ex, logLanguage[LogLanguageKey.DATABASE_ERROR]);
                 logger.LogError(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
