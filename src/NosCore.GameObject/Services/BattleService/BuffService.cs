@@ -125,25 +125,33 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         foreach (var cardId in buffs.Keys)
         {
-            if (!buffs.TryRemove(cardId, out var removed) || target.MapInstance == null)
+            if (buffs.TryRemove(cardId, out var removed))
             {
-                continue;
+                await SendIconRemovalAsync(target, removed);
             }
-
-            // The client keeps an icon on bfe; a bf with no duration left is what takes it down.
-            await target.MapInstance.SendPacketAsync(new BfPacket
-            {
-                VisualType = target.VisualType,
-                VisualId = target.VisualId,
-                Buff = new BfPacket.BuffElementSubPacket
-                {
-                    ChargeValue = 0,
-                    BuffId = cardId,
-                    Duration = 0,
-                },
-                BuffLevel = removed.Caster?.Level ?? 0,
-            });
         }
+    }
+
+    // The client keeps a greyed icon on bf_e; a bf with no duration left is what takes it down.
+    private static Task SendIconRemovalAsync(IAliveEntity target, BuffInstance buff)
+    {
+        if (target.MapInstance == null || buff.FromSkill)
+        {
+            return Task.CompletedTask;
+        }
+
+        return target.MapInstance.SendPacketAsync(new BfPacket
+        {
+            VisualType = target.VisualType,
+            VisualId = target.VisualId,
+            Buff = new BfPacket.BuffElementSubPacket
+            {
+                ChargeValue = 0,
+                BuffId = buff.CardId,
+                Duration = 0,
+            },
+            BuffLevel = buff.Caster?.Level ?? 0,
+        });
     }
 
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
@@ -204,24 +212,9 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
         }
 
-        // Notify the client for each expired card so icons disappear from the HUD.
-        // BfePacket is unicast to the target's map since the effect was map-visible
-        // (BfPacket is broadcast the same way on apply).
-        if (expired.Count > 0 && target.MapInstance != null)
-        {
-            foreach (var buff in expired)
-            {
-                await target.MapInstance.SendPacketAsync(new BfePacket
-                {
-                    VisualType = target.VisualType,
-                    VisualId = target.VisualId,
-                    CardId = buff.CardId,
-                }).ConfigureAwait(false);
-            }
-        }
-
         foreach (var buff in expired)
         {
+            await SendIconRemovalAsync(target, buff);
             await ApplyTimeoutBuffAsync(target, buff);
         }
 
