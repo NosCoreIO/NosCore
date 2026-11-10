@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.Algorithm.DignityService;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
@@ -43,7 +44,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 Logger,
                 DignityService.Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService);
+                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService, new Mock<IFamilyShopService>().Object);
         }
 
         [TestMethod]

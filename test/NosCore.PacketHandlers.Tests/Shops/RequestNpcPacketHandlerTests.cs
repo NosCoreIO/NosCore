@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.Algorithm.DignityService;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -48,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 NullLogger<ShoppingPacketHandler>.Instance,
                 new Mock<IDignityService>().Object,
                 TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService);
+                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService, new Mock<IFamilyShopService>().Object);
             _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 NullLogger<RequestNpcPacketHandler>.Instance,

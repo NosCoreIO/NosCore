@@ -551,4 +551,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Rodinné volání&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>Zpracováno {0} rodinných vylepšení!</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>Načteno {0} rodinných vylepšení!</value>
+  </data>
 </root>

@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcDialogService;
@@ -44,7 +45,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 TestHelpers.Instance.WorldConfiguration,
                 TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
-                new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object);
+                new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object,
+                new Mock<IFamilyShopService>().Object);
         }
 
         [TestMethod]

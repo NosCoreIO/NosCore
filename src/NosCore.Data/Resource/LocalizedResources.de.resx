@@ -571,4 +571,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Familienruf&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>{0} FamilyUpgrades geparsed!</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>{0} FamilyUpgrades geladen!</value>
+  </data>
 </root>

@@ -43,6 +43,8 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+using NosCore.Algorithm.FamilyUpgradeService;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.AuthService;
 using NosCore.GameObject.Services.BazaarService;
@@ -131,6 +133,7 @@ namespace NosCore.MasterServer
                 opts.Discovery.IncludeType<MailHub>();
                 opts.Discovery.IncludeType<PubSubHub>();
                 opts.Discovery.IncludeType<WarehouseHub>();
+                opts.Discovery.IncludeType<FamilyHub>();
             });
 
             services.AddHealthChecks().AddDbContextCheck<NosCoreContext>("database");
@@ -187,6 +190,7 @@ namespace NosCore.MasterServer
             // singleton lifetime from being overridden by the default-lifetime
             // scan.
             containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
+            containerBuilder.RegisterType<FamilyUpgradeService>().As<IFamilyUpgradeService>().SingleInstance();
 
             RegisterDto(containerBuilder);
         }

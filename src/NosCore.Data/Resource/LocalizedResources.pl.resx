@@ -504,4 +504,10 @@
   <data name="FAMILY_SHOUT" xml:space="preserve">
     <value>&lt;Okrzyk rodziny&gt; {0}</value>
   </data>
+  <data name="FAMILY_UPGRADES_PARSED" xml:space="preserve">
+    <value>{0} FamilyUpgrades wprowadzono!</value>
+  </data>
+  <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
+    <value>Załadowano: {0} FamilyUpgrades!</value>
+  </data>
 </root>

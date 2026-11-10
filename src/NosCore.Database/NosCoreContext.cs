@@ -74,6 +74,8 @@ namespace NosCore.Database
 
         public virtual DbSet<FamilyLog>? FamilyLog { get; set; }
 
+        public virtual DbSet<FamilyUpgrade>? FamilyUpgrade { get; set; }
+
         public virtual DbSet<Item>? Item { get; set; }
 
         public virtual DbSet<ItemInstance>? ItemInstance { get; set; }
@@ -465,6 +467,12 @@ namespace NosCore.Database
             modelBuilder.Entity<Item>()
                 .HasMany(e => e.ShopItem)
                 .WithOne(e => e.Item)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FamilyUpgrade>()
+                .HasOne(e => e.Item)
+                .WithOne()
+                .HasForeignKey<FamilyUpgrade>(e => e.ItemVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Mail>()
