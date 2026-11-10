@@ -357,6 +357,13 @@ The holders are the box items with effect 69 and effect value 1 or 2, such as 28
 - [ ] The Legendary Medal of Honour (`$CreateItem 5892`) adds 30 000
 - [ ] A Specialist Card Holder (`$CreateItem 287`) does not grant reputation
 
+### Buff potions
+
+- [ ] `$CreateItem 1246 3` and double-click the Attack Potion in the Main tab: the stack drops
+      to 2 and the Attack Potion buff icon appears top left for 10 minutes
+- [ ] The Defence, Energy and Experience potions (1247, 1248, 1249) show their own buff icon
+- [ ] Dead, the potion stays in the inventory
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove
