@@ -60,20 +60,60 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task UsingTheVehicleStartsTheBar()
+        [DataRow((byte)0)]
+        [DataRow((byte)1)]
+        public async Task UsingTheVehicleStartsTheBar(byte mode)
         {
             await new Spec("Using a vehicle starts the three-second bar and does not mount yet")
-                .WhenAsync(UsingTheVehicleWithMode_, (byte)1)
+                .WhenAsync(UsingTheVehicleWithMode_, mode)
                 .Then(ABarShouldHaveBeenSent)
                 .And(TheCharacterShouldNotHaveMounted)
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task TheBarsFollowUpMounts()
+        [DataRow((byte)0)]
+        [DataRow((byte)1)]
+        public async Task AnImportedMountUsesTheNormalMountingFlow(byte mode)
+        {
+            _vehicle.ItemInstance.Item.Type = NoscorePocketType.Mount;
+            _vehicle.ItemInstance.Item.ItemType = default;
+            _vehicle.ItemInstance.Item.Effect = 0;
+            _vehicle.ItemInstance.Item.Speed = 20;
+            _vehicle.ItemInstance.Item.Morph = 2406;
+            _vehicle.Type = NoscorePocketType.Mount;
+            await UsingTheVehicleWithMode_(mode);
+            ABarShouldHaveBeenSent();
+            _SecondsPass(3);
+            await UsingTheVehicleWithMode_(2);
+            TheCharacterShouldHaveMountedOnce();
+        }
+
+        [TestMethod]
+        public async Task ModeZeroCannotMountBeforeTheBarEnds()
+        {
+            await UsingTheVehicleWithMode_(0);
+            _SecondsPass(1);
+            await UsingTheVehicleWithMode_(2);
+            TheCharacterShouldNotHaveMounted();
+        }
+
+        [TestMethod]
+        public async Task ModeZeroDismountsAVehicledCharacter()
+        {
+            _session.Character.IsVehicled = true;
+            await UsingTheVehicleWithMode_(0);
+            _transformationService.Verify(t => t.RemoveVehicleAsync(_session), Times.Once);
+            Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+        }
+
+        [TestMethod]
+        [DataRow((byte)0)]
+        [DataRow((byte)1)]
+        public async Task TheBarsFollowUpMounts(byte mode)
         {
             await new Spec("Once the bar has run, its follow-up mounts the vehicle")
-                .GivenAsync(UsingTheVehicleWithMode_, (byte)1)
+                .GivenAsync(UsingTheVehicleWithMode_, mode)
                 .And(_SecondsPass, 3)
                 .WhenAsync(UsingTheVehicleWithMode_, (byte)2)
                 .Then(TheCharacterShouldHaveMounted)
@@ -90,10 +130,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task AFollowUpBeforeTheBarEndsIsIgnored()
+        [DataRow((byte)0)]
+        [DataRow((byte)1)]
+        public async Task AFollowUpBeforeTheBarEndsIsIgnored(byte mode)
         {
             await new Spec("A follow-up sent before the bar has run its three seconds does not mount")
-                .GivenAsync(UsingTheVehicleWithMode_, (byte)1)
+                .GivenAsync(UsingTheVehicleWithMode_, mode)
                 .And(_SecondsPass, 1)
                 .WhenAsync(UsingTheVehicleWithMode_, (byte)2)
                 .Then(TheCharacterShouldNotHaveMounted)
@@ -101,15 +143,33 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task TheFollowUpOnlyCountsOnce()
+        [DataRow((byte)0)]
+        [DataRow((byte)1)]
+        public async Task TheFollowUpOnlyCountsOnce(byte mode)
         {
             await new Spec("A second follow-up after one bar does not mount again")
-                .GivenAsync(UsingTheVehicleWithMode_, (byte)1)
+                .GivenAsync(UsingTheVehicleWithMode_, mode)
                 .And(_SecondsPass, 3)
                 .AndAsync(UsingTheVehicleWithMode_, (byte)2)
                 .WhenAsync(UsingTheVehicleWithMode_, (byte)2)
                 .Then(TheCharacterShouldHaveMountedOnce)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [DataRow((byte)0, (short)2406)]
+        [DataRow((byte)20, (short)0)]
+        public async Task AMountWithoutSpeedOrMorphIsIgnored(byte speed, short morph)
+        {
+            _vehicle.ItemInstance.Item.Type = NoscorePocketType.Mount;
+            _vehicle.ItemInstance.Item.ItemType = default;
+            _vehicle.ItemInstance.Item.Effect = 0;
+            _vehicle.ItemInstance.Item.Speed = speed;
+            _vehicle.ItemInstance.Item.Morph = morph;
+            await UsingTheVehicleWithMode_(0);
+            Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+            TheCharacterShouldNotHaveMounted();
+            _transformationService.Verify(t => t.RemoveVehicleAsync(_session), Times.Never);
         }
 
         private void _SecondsPass(int seconds) =>
@@ -121,8 +181,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             {
                 VisualType = VisualType.Player,
                 VisualId = _session.Character.CharacterId,
-                Type = PocketType.Main,
-                Slot = 0,
+                Type = (PocketType)_vehicle.Type,
+                Slot = _vehicle.Slot,
                 Mode = mode,
                 Parameter = 0,
             };

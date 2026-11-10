@@ -1496,3 +1496,14 @@ Recorded so nobody spends time hunting for them:
   collection flow (`guri 400`) that is not wired yet.
 - **Reputation target quests** (TargetReput) — no quest in the current client data uses this
   type, so there is nothing to implement or to check.
+
+## Mount activation
+
+- [ ] Double-click a vehicle in the Mount inventory: the three-second bar appears,
+      then the character mounts and moves at the vehicle's speed.
+- [ ] Use the vehicle again while mounted: dismount, with normal walking speed restored.
+- [ ] Repeat mounting and dismounting from Main inventory or an existing shortcut.
+- [ ] Relog and repeat: the vehicle remains usable and is not consumed.
+
+Early or missing delay completion is covered by automated tests; a stock client
+waits for its bar before sending the completion.
