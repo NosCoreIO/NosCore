@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Services.FamilyService
         : IFamilyShopService
     {
         /// <summary>The shopping window the family manager's dialog opens.</summary>
-        public const short ShopType = 48;
+        public const byte ShopType = 48;
 
         private List<FamilyUpgradeDto> Offered => familyUpgrades
             .Where(s => Enum.IsDefined(s.UpgradeType))

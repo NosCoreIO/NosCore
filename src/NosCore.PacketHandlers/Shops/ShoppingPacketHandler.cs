@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            if (shoppingPacket.VisualType == VisualType.Npc && shoppingPacket.ShopType == FamilyShopService.ShopType)
+            if (shoppingPacket.VisualType == VisualType.Npc && aliveEntity.Shop?.ShopType == FamilyShopService.ShopType)
             {
                 npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
                 await familyShopService.OpenAsync(clientSession, aliveEntity);

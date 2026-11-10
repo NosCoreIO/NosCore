@@ -157,6 +157,8 @@ namespace NosCore.PacketHandlers.Tests.Family
                     new() { MapNpcId = ManagerId, Dialog = 462, MapId = _head.Character.MapInstance.Map.MapId, MapX = 1, MapY = 1, VNum = 1 }
                 },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
+            var manager = _head.Character.MapInstance.GetNpcById(ManagerId)!.Value;
+            manager.Shop = new NosCore.GameObject.Services.ShopService.Shop { ShopType = FamilyShopService.ShopType };
             _head.WithWindowOpenedAt(ManagerId, NpcDialogWindow.Shop);
         }
 
@@ -391,7 +393,6 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private Task TheHeadOpensTheFamilyShop() => _shopping.ExecuteAsync(new ShoppingPacket
         {
-            ShopType = FamilyShopService.ShopType,
             VisualType = VisualType.Npc,
             VisualId = ManagerId
         }, _head);
