@@ -74,26 +74,14 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            session.Character.Gold -= price;
-            var result = FamilyExtensionPurchase.NotSaved;
-            try
-            {
-                result = await familyHub.PurchaseExtensionAsync(family.FamilyId, session.Character.CharacterId, upgrade.ItemVNum);
-            }
-            finally
-            {
-                if (result != FamilyExtensionPurchase.Purchased)
-                {
-                    session.Character.Gold += price;
-                }
-            }
-
+            var result = await familyHub.PurchaseExtensionAsync(family.FamilyId, session.Character.CharacterId, upgrade.ItemVNum);
             if (result != FamilyExtensionPurchase.Purchased)
             {
                 await SendRefusalAsync(session, result);
                 return;
             }
 
+            session.Character.Gold -= price;
             await session.Character.AddGoldAsync();
             await session.SendPacketAsync(new Msgi2Packet
             {
