@@ -16,6 +16,7 @@ using NosCore.Tests.Shared;
 using SpecLight;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System;
 using TwoFactorAuthNet;
 using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
 
@@ -103,6 +104,27 @@ namespace NosCore.GameObject.Tests.Networking
                 .WhenAsync(AnMfaCodeArrives)
                 .Then(Packet_ShouldHaveRun, typeof(ClientGuriPacket).Name)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task QueuedPacketsWaitToValidateUntilMapWorkReleasesTheSession()
+        {
+            Session.Account.Authority = AuthorityType.GameMaster;
+            Task queued;
+            using (await Session.AcquirePacketLockAsync())
+            {
+                queued = Session.HandlePacketsAsync(new IPacket[]
+                {
+                    new SetMaintenancePacket { Header = "$SetMaintenance", KeepAliveId = 2 },
+                    new SetMaintenancePacket { Header = "$SetMaintenance", KeepAliveId = 3 },
+                }, true);
+                Assert.AreEqual(1, Session.LastKeepAliveIdentity);
+                Assert.AreEqual(0, Handled.Count);
+            }
+
+            await queued.WaitAsync(TimeSpan.FromSeconds(5));
+            Assert.AreEqual(3, Session.LastKeepAliveIdentity);
+            Assert.AreEqual(2, Handled.Count);
         }
 
         private void AccountAuthorityIs_(AuthorityType authority) => Session.Account.Authority = authority;

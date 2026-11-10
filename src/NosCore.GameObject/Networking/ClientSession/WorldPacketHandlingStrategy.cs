@@ -26,6 +26,23 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
     {
         if (isFromNetwork)
         {
+            using (await session.AcquirePacketLockAsync())
+            {
+                if (!session.IsClosing)
+                {
+                    await HandlePacketClaimedAsync(packet, session, true);
+                }
+            }
+            return;
+        }
+
+        await HandlePacketClaimedAsync(packet, session, false);
+    }
+
+    private async Task HandlePacketClaimedAsync(IPacket packet, ClientSession session, bool isFromNetwork)
+    {
+        if (isFromNetwork)
+        {
             if (await HandleInitialConnectionAsync(packet, session))
             {
                 return;
@@ -74,7 +91,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             return;
         }
 
-        await ExecuteHandlerAsync(handler, processedPacket, session, isFromNetwork);
+        await handler.ExecuteAsync(processedPacket, session);
     }
 
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
@@ -82,6 +99,8 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         if (session.LastKeepAliveIdentity != 0 && packet.KeepAliveId != session.LastKeepAliveIdentity + 1)
         {
             logger.LogError(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
+            logger.LogWarning("Packet sequence mismatch for session {SessionId}: expected {Expected}, received {Received}, packet {PacketType}",
+                session.SessionId, session.LastKeepAliveIdentity + 1, packet.KeepAliveId, packet.GetType().Name);
             await session.DisconnectAsync();
             return false;
         }
@@ -193,23 +212,4 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         return true;
     }
 
-    private async Task ExecuteHandlerAsync(IPacketHandler handler, IPacket packet, ClientSession session, bool isFromNetwork)
-    {
-        if (isFromNetwork)
-        {
-            using (await session.AcquirePacketLockAsync())
-            {
-                if (session.IsClosing)
-                {
-                    return;
-                }
-
-                await handler.ExecuteAsync(packet, session);
-            }
-        }
-        else
-        {
-            await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
-        }
-    }
 }

@@ -422,6 +422,8 @@ in those routes; do not change character progress to meet an entry requirement.
       required and leaves the character in port
 - [ ] Board shortly before a scheduled departure and shortly after it: the latter waits
       for the next departure, rather than leaving with the previous sailing
+- [ ] Move and use the captain menu as departure occurs: arrive or leave once, remain
+      connected, and continue moving on the destination map
 - [ ] Disconnect aboard ship and log in manually: return to the saved port position;
       there must be no delayed teleport from the abandoned ship
 - [ ] With a route that charges a fare, try boarding below that fare: receive the
