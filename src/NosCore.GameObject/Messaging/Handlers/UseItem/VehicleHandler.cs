@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -30,7 +31,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
-            if (item.ItemType != ItemType.Special || item.Effect != ItemEffectType.Vehicle)
+            var legacyVehicle = item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
+            var mount = item.Type == NoscorePocketType.Mount && item.Speed > 0 && item.Morph > 0;
+            if (!legacyVehicle && !mount)
             {
                 return;
             }
@@ -47,7 +50,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             character = session.Character;
-            if (packet.Mode == 1 && !character.IsVehicled)
+            if (packet.Mode is 0 or 1 && !character.IsVehicled)
             {
                 await character.StartDelayAsync(new DelayPacket
                 {
