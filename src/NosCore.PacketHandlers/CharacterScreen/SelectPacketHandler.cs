@@ -305,7 +305,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
             catch (Exception ex)
             {
-                logger.LogError(logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], ex, new
+                logger.LogError(ex, logLanguage[LogLanguageKey.CHARACTER_SELECTION_FAILED], new
                 {
                     clientSession.Account.AccountId,
                     packet.Slot

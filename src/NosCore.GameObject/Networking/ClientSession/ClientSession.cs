@@ -278,7 +278,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.LogError(logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR], ex);
+                _logger.LogError(ex, logLanguage[LogLanguageKey.PACKET_HANDLING_ERROR]);
                 await DisconnectAsync();
             }
         }
@@ -321,7 +321,7 @@ namespace NosCore.GameObject.Networking.ClientSession
             }
             catch (Exception ex)
             {
-                _logger.LogInformation(logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], ex);
+                _logger.LogError(ex, logLanguage[LogLanguageKey.CLIENT_DISCONNECTED], SessionId);
             }
             finally
             {
