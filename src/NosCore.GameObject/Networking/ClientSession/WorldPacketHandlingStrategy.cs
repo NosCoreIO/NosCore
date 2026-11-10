@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Networking.ClientSession;
 public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage, ISessionRefHolder sessionRefHolder)
     : IPacketHandlingStrategy
 {
+    /// <summary>Serialize network validation and execution with map work while allowing internal handler dispatch.</summary>
     public async Task HandlePacketAsync(IPacket packet, ClientSession session, bool isFromNetwork)
     {
         if (isFromNetwork)
@@ -39,6 +40,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         await HandlePacketClaimedAsync(packet, session, false);
     }
 
+    /// <summary>Apply connection, scope and authority checks before dispatching a packet in the current session flow.</summary>
     private async Task HandlePacketClaimedAsync(IPacket packet, ClientSession session, bool isFromNetwork)
     {
         if (isFromNetwork)
@@ -94,6 +96,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         await handler.ExecuteAsync(processedPacket, session);
     }
 
+    /// <summary>Reject missing or out-of-sequence network identities before updating session sequence state.</summary>
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
     {
         if (session.LastKeepAliveIdentity != 0 && packet.KeepAliveId != session.LastKeepAliveIdentity + 1)

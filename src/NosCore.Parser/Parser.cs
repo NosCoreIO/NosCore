@@ -24,6 +24,7 @@ namespace NosCore.Parser
         IHostApplicationLifetime lifetime)
         : BackgroundService
     {
+        /// <summary>Run the selected import mode and stop the host after a non-interactive import.</summary>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             try

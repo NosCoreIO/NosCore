@@ -27,6 +27,7 @@ public class ShipService(List<ShipRouteDto> routes, List<NpcMonsterDto> npcMonst
     IMapChangeService mapChange, IItemGenerationService items, ISessionRegistry sessions,
     IClock clock, ILogger<ShipService> logger) : IShipService, ISingletonService
 {
+    /// <summary>Validate configured routes and create their ship instances before players can board.</summary>
     public async Task InitializeAsync()
     {
         foreach (var route in routes)
@@ -65,6 +66,7 @@ public class ShipService(List<ShipRouteDto> routes, List<NpcMonsterDto> npcMonst
         }
     }
 
+    /// <summary>Return the next strictly later shared departure boundary for the configured interval.</summary>
     public static Instant NextDeparture(Instant now, int intervalSeconds)
     {
         if (intervalSeconds <= 0)
@@ -75,6 +77,7 @@ public class ShipService(List<ShipRouteDto> routes, List<NpcMonsterDto> npcMonst
         return Instant.FromUnixTimeSeconds(checked((seconds / intervalSeconds + 1) * intervalSeconds));
     }
 
+    /// <summary>Validate boarding eligibility and record the ticket and fare only after entering the ship.</summary>
     public async Task BoardAsync(ClientSession session, NpcComponentBundle npc, NrunRunnerType runner, short option)
     {
         var player = session.Character;
@@ -129,6 +132,7 @@ public class ShipService(List<ShipRouteDto> routes, List<NpcMonsterDto> npcMonst
         }
     }
 
+    /// <summary>Return a passenger to port only through the captain and cancellation menu of their route.</summary>
     public async Task CancelAsync(ClientSession session, NpcComponentBundle npc, NrunRunnerType runner, short option)
     {
         var ship = session.Character.MapInstance;
@@ -146,9 +150,11 @@ public class ShipService(List<ShipRouteDto> routes, List<NpcMonsterDto> npcMonst
         }
     }
 
+    /// <summary>Transfer ticketed passengers when due, revalidating their state under the session packet lock.</summary>
     public async Task DepartAsync()
     {
-        foreach (var session in sessions.GetSessions())
+        foreach (var session in sessions.GetSessions()
+            .Where(s => s.TryGetCharacter(out var character) && character.BoardedShipId != null))
         {
             using (await session.AcquirePacketLockAsync())
             {
@@ -189,6 +195,7 @@ public class ShipService(List<ShipRouteDto> routes, List<NpcMonsterDto> npcMonst
         }
     }
 
+    /// <summary>Send a localized boarding refusal to the passenger.</summary>
     private static Task SayAsync(ClientSession session, Game18NConstString message) =>
         session.SendPacketAsync(new SayiPacket
         {

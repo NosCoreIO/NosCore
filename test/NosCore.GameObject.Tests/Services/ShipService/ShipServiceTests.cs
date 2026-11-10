@@ -151,6 +151,27 @@ public class ShipServiceTests
             .GivenAsync(ConfigureFactionShipsAsync).And(PassengerFactionIs_, FactionType.Demon)
             .WhenAsync(BoardAsync).Then(DemonShipShouldBeBoarded).ExecuteAsync();
 
+    [TestMethod]
+    public async Task DepartureDoesNotWaitForANonPassengerPacketLock()
+    {
+        using (await _session.AcquirePacketLockAsync())
+        {
+            await _ships.DepartAsync().WaitAsync(TimeSpan.FromSeconds(2));
+        }
+        NoBaseMapChangeShouldOccur();
+    }
+
+    [TestMethod]
+    public async Task DepartureSkipsSessionsWithoutACharacter()
+    {
+        _session.ClearPlayerEntity();
+        using (await _session.AcquirePacketLockAsync())
+        {
+            await _ships.DepartAsync().WaitAsync(TimeSpan.FromSeconds(2));
+        }
+        NoBaseMapChangeShouldOccur();
+    }
+
     private async Task ConfigureFactionShipsAsync()
     {
         _routes.Clear();

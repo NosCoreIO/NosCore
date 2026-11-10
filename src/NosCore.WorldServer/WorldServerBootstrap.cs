@@ -218,6 +218,7 @@ namespace NosCore.WorldServer
             }
         }
 
+        /// <summary>Compose the world host with its services and recurring gameplay jobs.</summary>
         private static IHost BuildHost(string[] args)
         {
             var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "world.yml" });

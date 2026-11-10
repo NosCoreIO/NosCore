@@ -106,6 +106,24 @@ public class ShipRouteParserTests
         await new Spec("Boarding cannot create gold through a negative fare")
             .Given(FareIsNegative).WhenAsync(ImportShouldFailAsync).Then(NoRoutesShouldBeSaved).ExecuteAsync();
 
+    [TestMethod]
+    [DataRow("")]
+    [DataRow(" ")]
+    [DataRow("\t")]
+    public void EmptyShipRoutePathsAreRejected(string path)
+    {
+        Assert.ThrowsExactly<ArgumentException>(() => ParserCliOptions.Parse(["--ship-routes=" + path]));
+        Assert.ThrowsExactly<ArgumentException>(() => ParserCliOptions.Parse(["--ship-routes", path]));
+    }
+
+    [TestMethod]
+    public void InlineShipRoutePathsArePreserved()
+    {
+        var cli = ParserCliOptions.Parse(["--ship-routes=" + _path]);
+        Assert.IsTrue(cli.HasShipRoutes);
+        Assert.AreEqual(_path, cli.ShipRoutes);
+    }
+
     private void FareIsNegative() => _routes[0].Fare = -1;
     private void AddAFactionMenu()
     {

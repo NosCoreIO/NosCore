@@ -13,6 +13,7 @@ public sealed record ParserCliOptions(string? Folder)
 
     public bool HasFolder => !string.IsNullOrWhiteSpace(Folder);
 
+    /// <summary>Select mutually exclusive folder or ship-route import inputs and reject missing ship-route paths.</summary>
     public static ParserCliOptions Parse(string[] args)
     {
         string? folder = null;
@@ -22,7 +23,7 @@ public sealed record ParserCliOptions(string? Folder)
             var arg = args[i];
             if (arg == "--ship-routes")
             {
-                if (i + 1 >= args.Length || args[i + 1].StartsWith("-", System.StringComparison.Ordinal))
+                if (i + 1 >= args.Length || string.IsNullOrWhiteSpace(args[i + 1]) || args[i + 1].StartsWith("-", System.StringComparison.Ordinal))
                 {
                     throw new System.ArgumentException("--ship-routes requires a file path.");
                 }
@@ -31,6 +32,10 @@ public sealed record ParserCliOptions(string? Folder)
             else if (arg.StartsWith("--ship-routes=", System.StringComparison.Ordinal))
             {
                 shipRoutes = arg["--ship-routes=".Length..];
+                if (string.IsNullOrWhiteSpace(shipRoutes))
+                {
+                    throw new System.ArgumentException("--ship-routes requires a file path.");
+                }
             }
             else if ((arg == "--folder" || arg == "-f") && i + 1 < args.Length)
             {

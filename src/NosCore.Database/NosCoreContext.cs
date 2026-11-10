@@ -177,6 +177,7 @@ namespace NosCore.Database
                 .Select(x => translator.TranslateMemberName(x)).ToArray());
         }
 
+        /// <summary>Configure entity mappings, database enums and relationships, including optional ship factions.</summary>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             typeof(NosCoreContext).Assembly

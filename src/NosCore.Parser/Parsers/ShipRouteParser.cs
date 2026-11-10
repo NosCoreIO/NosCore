@@ -16,6 +16,7 @@ public class ShipRouteParser(IDao<ShipRouteDto, short> routeDao, IDao<MapDto, sh
     IDao<MapNpcDto, int> npcDao, IDao<NpcMonsterDto, short> monsters,
     IDao<NpcTalkDto, short> dialogs)
 {
+    /// <summary>Validate every route and its world references before saving any route from the JSON file.</summary>
     public async Task ImportAsync(string path)
     {
         var options = new JsonSerializerOptions { UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow };
@@ -64,6 +65,7 @@ public class ShipRouteParser(IDao<ShipRouteDto, short> routeDao, IDao<MapDto, sh
         }
     }
 
+    /// <summary>Check map dimensions and cell flags without reading beyond the stored map grid.</summary>
     private static bool Walkable(Dictionary<short, MapDto> maps, short id, short x, short y)
     {
         if (!maps.TryGetValue(id, out var map) || map.Data.Length < 4)

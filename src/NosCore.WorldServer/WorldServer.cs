@@ -34,6 +34,7 @@ namespace NosCore.WorldServer
             ISessionRegistry sessionRegistry, IShipService ships)
         : BackgroundService
     {
+        /// <summary>Initialize maps and ships before accepting clients and registering the world channel.</summary>
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             await mapInstanceGeneratorService.InitializeAsync();

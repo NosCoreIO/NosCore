@@ -84,6 +84,7 @@ namespace NosCore.Parser
                 .SingleInstance();
         }
 
+        /// <summary>Run the parser host and report targeted import failures without waiting for console input.</summary>
         public static async Task Main(string[] args)
         {
             var cli = ParserCliOptions.Parse(args);

@@ -359,6 +359,7 @@ public class MapWorld : IDisposable
         return entity;
     }
 
+    /// <summary>Create a player entity with initial gameplay components and no active ship ticket.</summary>
     public Entity CreatePlayer(
         int visaulId,
         long characterId,
@@ -424,6 +425,7 @@ public class MapWorld : IDisposable
         return entity;
     }
 
+    /// <summary>Recreate a player in this world with the supplied components during a map transfer.</summary>
     public Entity ClonePlayer(
         EntityIdentityComponent identity,
         HealthComponent health,
