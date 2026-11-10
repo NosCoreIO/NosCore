@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPacket("act6");
             await session.SendPacketAsync(new NosCore.Packets.ServerPackets.Player.FsPacket
             {
-                Faction = (FactionType)session.Character.CharacterDto.Faction
+                Faction = session.Character.CharacterDto.Faction
             });
             // p_clear wipes one panel holding both the party and the mate list, so both bursts
             // have to follow it rather than straddle it.

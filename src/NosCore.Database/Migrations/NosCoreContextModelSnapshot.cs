@@ -30,6 +30,7 @@ namespace NosCore.Database.Migrations
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_state", new[] { "active", "inactive" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "element_type", new[] { "neutral", "fire", "water", "light", "dark" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "equipment_type", new[] { "main_weapon", "armor", "hat", "gloves", "boots", "secondary_weapon", "necklace", "ring", "bracelet", "mask", "fairy", "amulet", "sp", "costume_suit", "costume_hat", "weapon_skin", "wing_skin" });
+            NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "faction_type", new[] { "neutral", "angel", "demon" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority", new[] { "head", "assistant", "manager", "member" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority_type", new[] { "none", "put", "all" });
             NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_log_type", new[] { "daily_message", "raid_won", "rainbow_battle", "family_xp", "family_level_up", "level_up", "item_upgraded", "right_changed", "authority_changed", "family_managed", "user_managed", "ware_house_added", "ware_house_removed" });

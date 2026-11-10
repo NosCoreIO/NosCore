@@ -33,7 +33,7 @@ public class FactionEggHandlerTests
         _session = await TestHelpers.Instance.GenerateSessionAsync();
         _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
         _session.Character.Hp = 100;
-        _session.Character.CharacterDto.Faction = 0;
+        _session.Character.CharacterDto.Faction = FactionType.Neutral;
         _session.Character.CharacterDto.Act4Points = 123;
         var instance = new EggInstance { Amount = 2 };
         _item = InventoryItemInstance.Create(instance, _session.Character.CharacterId);
@@ -66,10 +66,10 @@ public class FactionEggHandlerTests
     [DataRow(2, 1)]
     public async Task ConfirmationChangesFactionAndConsumesOneEgg(int previous, int target)
     {
-        _session.Character.CharacterDto.Faction = (byte)previous;
+        _session.Character.CharacterDto.Faction = (FactionType)previous;
         _item.ItemInstance.Item.EffectValue = target;
         await UseAsync(1);
-        Assert.AreEqual((byte)target, _session.Character.CharacterDto.Faction);
+        Assert.AreEqual((FactionType)target, _session.Character.CharacterDto.Faction);
         Assert.AreEqual(0, _session.Character.CharacterDto.Act4Points);
         Assert.AreEqual((short)1, _item.ItemInstance.Amount);
         Assert.AreEqual((FactionType)target, _session.LastPackets.OfType<FsPacket>().Single().Faction);
@@ -84,10 +84,10 @@ public class FactionEggHandlerTests
     [DataRow(2)]
     public async Task SameFactionKeepsEggAndPoints(int faction)
     {
-        _session.Character.CharacterDto.Faction = (byte)faction;
+        _session.Character.CharacterDto.Faction = (FactionType)faction;
         _item.ItemInstance.Item.EffectValue = faction;
         await UseAsync(1);
-        AssertUnchanged((byte)faction);
+        AssertUnchanged((FactionType)faction);
         Assert.AreEqual(faction == 1 ? Game18NConstString.AlreadyAngelFaction : Game18NConstString.AlreadyDemonFaction,
             _session.LastPackets.OfType<MsgiPacket>().Single().Message);
     }
@@ -157,7 +157,7 @@ public class FactionEggHandlerTests
     private Task UseAsync(byte mode) => _handler.Handle(new ItemUsedEvent(_session, _item,
         new UseItemPacket { Type = PocketType.Main, Slot = 0, Mode = mode }));
 
-    private void AssertUnchanged(byte faction = 0)
+    private void AssertUnchanged(FactionType faction = FactionType.Neutral)
     {
         Assert.AreEqual(faction, _session.Character.CharacterDto.Faction);
         Assert.AreEqual(123, _session.Character.CharacterDto.Act4Points);

@@ -307,7 +307,7 @@ public static class PlayerBundleExtensions
                 ReputIco = GetIcon(player),
                 Invisible = false,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
-                Faction = (NosCore.Packets.Enumerations.FactionType)player.CharacterDto.Faction,
+                Faction = player.CharacterDto.Faction,
                 MorphUpgrade2 = player.UseSp ? (byte)player.MorphDesign : (byte)0,
                 Level = player.Level,
                 FamilyLevel = 0,
