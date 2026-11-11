@@ -19,8 +19,8 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class DropParserTests
     {
-        private Mock<IDao<DropDto, short>> _dropDaoMock = null!;
-        private List<DropDto> _savedDrops = null!;
+        private Mock<IDao<DropDto, short>> _dropDaoMock;
+        private List<DropDto> _savedDrops;
 
         [TestInitialize]
         public void Setup()

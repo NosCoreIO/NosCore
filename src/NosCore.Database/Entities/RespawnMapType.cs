@@ -26,7 +26,7 @@ namespace NosCore.Database.Entities
 
         public short DefaultY { get; set; }
 
-        public virtual Map Map { get; set; } = null!;
+        public virtual Map Map { get; set; }
 
         public virtual ICollection<MapType> MapTypes { get; set; }
 

@@ -34,9 +34,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private const short RechargerVNum = 5500;
         private const int MaxAdditionalSp = 100_000;
-        private ClientSession _session = null!;
-        private SpRechargerHandler _handler = null!;
-        private InventoryItemInstance _recharger = null!;
+        private ClientSession _session;
+        private SpRechargerHandler _handler;
+        private InventoryItemInstance _recharger;
 
         [TestInitialize]
         public async Task SetupAsync()

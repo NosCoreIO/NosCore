@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class QuicklistExtensionsTests
     {
-        private ClientSession Session = null!;
+        private ClientSession Session;
         private IReadOnlyList<QsetClientPacket> Packets = [];
 
         [TestInitialize]

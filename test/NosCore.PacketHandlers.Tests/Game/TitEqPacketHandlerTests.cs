@@ -23,8 +23,8 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class TitEqPacketHandlerTests
     {
-        private TitEqPacketHandler Handler = null!;
-        private ClientSession Session = null!;
+        private TitEqPacketHandler Handler;
+        private ClientSession Session;
         private const short TitleId = 1;
 
         [TestInitialize]
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
         }
 
         private void CharacterHasTitle()

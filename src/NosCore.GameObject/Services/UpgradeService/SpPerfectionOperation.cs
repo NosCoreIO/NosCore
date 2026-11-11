@@ -98,14 +98,14 @@ public sealed class SpPerfectionOperation(
     }
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx) =>
-        roll * 100 < spPerfectionService.GetSuccessRate(((SpecialistInstance)ctx.Source.ItemInstance!).SpStoneUpgrade)
+        roll * 100 < spPerfectionService.GetSuccessRate(((SpecialistInstance)ctx.Source.ItemInstance).SpStoneUpgrade)
             ? UpgradeOutcome.Success
             : UpgradeOutcome.Failure;
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
-        var card = (SpecialistInstance)ctx.Source.ItemInstance!;
-        var gain = (PerfectionGain)ctx.ExtraData!;
+        var card = (SpecialistInstance)ctx.Source.ItemInstance;
+        var gain = ctx.Data<PerfectionGain>();
         var minimum = spPerfectionService.GetMinimumGain(card.SpStoneUpgrade);
         gain.Points = (byte)(minimum + Roll(spPerfectionService.GetMaximumGain(card.SpStoneUpgrade) - minimum + 1));
         gain.Stat = Roll(StatFaces) switch
@@ -172,7 +172,7 @@ public sealed class SpPerfectionOperation(
         var msgi = base.BuildMsgi(ctx, outcome, message);
         if (outcome == UpgradeOutcome.Success)
         {
-            var gain = (PerfectionGain)ctx.ExtraData!;
+            var gain = ctx.Data<PerfectionGain>();
             msgi.ArgumentType = StatArgumentType;
             msgi.Game18NArguments.Add((long)gain.Stat);
             msgi.Game18NArguments.Add((long)gain.Points);

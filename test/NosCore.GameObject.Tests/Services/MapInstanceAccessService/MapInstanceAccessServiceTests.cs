@@ -16,7 +16,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceAccessService
     [TestClass]
     public class MapInstanceAccessServiceTests
     {
-        private IMapInstanceAccessorService Service = null!;
+        private IMapInstanceAccessorService Service;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -41,16 +41,16 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class FinsPacketHandlerTests
     {
         private static readonly ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry> Logger = new Mock<ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>>().Object;
-        private NosCoreFixture Fixture = null!;
+        private NosCoreFixture Fixture;
         private readonly Mock<IChannelHub> ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
         private readonly Mock<IPubSubHub> ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
-        private Mock<IChannelHub> ChannelHub = null!;
-        private FinsPacketHandler FinsPacketHandler = null!;
+        private Mock<IChannelHub> ChannelHub;
+        private FinsPacketHandler FinsPacketHandler;
         private readonly Mock<IFriendHub> FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private FriendRequestRegistry FriendRequestHolder = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
+        private FriendRequestRegistry FriendRequestHolder;
+        private ClientSession Session;
+        private ClientSession TargetSession;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>
                 {
-                    new ChannelInfo { Type = ServerType.WorldServer, Id = 1 }
+                    new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 }
                 });
             FriendRequestHolder = new FriendRequestRegistry();
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())

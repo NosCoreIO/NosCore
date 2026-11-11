@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class StatInfoPercentageTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()

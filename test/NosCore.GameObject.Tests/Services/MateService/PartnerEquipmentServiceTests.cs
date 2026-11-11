@@ -35,10 +35,10 @@ namespace NosCore.GameObject.Tests.Services.MateService
         private const short PlayerWeapon = 1;
         private const short HighLevelGloves = 4;
 
-        private ClientSession _session = null!;
-        private ItemGenerationService _items = null!;
-        private GameObject.Services.MateService.Mate _partner = null!;
-        private PartnerEquipmentService _service = null!;
+        private ClientSession _session;
+        private ItemGenerationService _items;
+        private GameObject.Services.MateService.Mate _partner;
+        private PartnerEquipmentService _service;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -92,8 +92,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.AreEqual(PartnerWeapon, Worn(EquipmentType.MainWeapon)?.ItemInstance.ItemVNum);
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));
             var scn = _session.LastPackets.OfType<ScnPacket>().Single();
-            Assert.AreEqual(PartnerWeapon, scn.WeaponInstanceDetails!.ItemId);
-            Assert.AreEqual(-1, scn.ArmorInstanceDetails!.ItemId);
+            Assert.AreEqual(PartnerWeapon, scn.WeaponInstanceDetails.NotNull().ItemId);
+            Assert.AreEqual(-1, scn.ArmorInstanceDetails.NotNull().ItemId);
         }
 
         [TestMethod]
@@ -102,13 +102,13 @@ namespace NosCore.GameObject.Tests.Services.MateService
             InEquipment(PartnerArmor, 0);
             InEquipment(PartnerArmor, 1);
             await _service.WearAsync(_session.Character, 0, 1);
-            var first = Worn(EquipmentType.Armor)!.ItemInstance.Id;
+            var first = Worn(EquipmentType.Armor).NotNull().ItemInstance.Id;
 
             await _service.WearAsync(_session.Character, 1, 1);
 
-            Assert.AreNotEqual(first, Worn(EquipmentType.Armor)!.ItemInstance.Id);
+            Assert.AreNotEqual(first, Worn(EquipmentType.Armor).NotNull().ItemInstance.Id);
             Assert.AreEqual(first,
-                _session.Character.InventoryService.LoadBySlotAndType(1, NoscorePocketType.Equipment)!.ItemInstance.Id);
+                _session.Character.InventoryService.LoadBySlotAndType(1, NoscorePocketType.Equipment).NotNull().ItemInstance.Id);
         }
 
         [TestMethod]
@@ -166,8 +166,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             Assert.IsNull(Worn(EquipmentType.MainWeapon));
             Assert.AreEqual(PartnerWeapon,
-                _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance.ItemVNum);
-            Assert.AreEqual(-1, _session.LastPackets.OfType<ScnPacket>().Last().WeaponInstanceDetails!.ItemId);
+                _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance.ItemVNum);
+            Assert.AreEqual(-1, _session.LastPackets.OfType<ScnPacket>().Last().WeaponInstanceDetails.NotNull().ItemId);
         }
 
         [TestMethod]

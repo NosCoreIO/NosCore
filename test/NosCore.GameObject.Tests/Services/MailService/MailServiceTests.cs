@@ -26,15 +26,15 @@ namespace NosCore.GameObject.Tests.Services.MailService
     [TestClass]
     public class MailServiceTests
     {
-        private IMailService Service = null!;
-        private Mock<IDao<MailDto, long>> MailDao = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
-        private Mock<IItemGenerationService> ItemProvider = null!;
-        private Mock<IParcelRegistry> ParcelRegistry = null!;
-        private Mock<IDao<CharacterDto, long>> CharacterDao = null!;
-        private List<ItemDto> Items = null!;
+        private IMailService Service;
+        private Mock<IDao<MailDto, long>> MailDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<IChannelHub> ChannelHub;
+        private Mock<IItemGenerationService> ItemProvider;
+        private Mock<IParcelRegistry> ParcelRegistry;
+        private Mock<IDao<CharacterDto, long>> CharacterDao;
+        private List<ItemDto> Items;
         private long CharacterId = 1;
 
         [TestInitialize]
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
                 .ExecuteAsync();
         }
 
-        private List<MailData>? MailResult;
+        private List<MailData> MailResult;
 
         private void NoMailsExist()
         {

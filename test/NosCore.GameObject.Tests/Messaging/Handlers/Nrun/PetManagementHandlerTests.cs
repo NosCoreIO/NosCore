@@ -29,9 +29,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class PetManagementHandlerTests
     {
-        private ClientSession _session = null!;
-        private Mock<IMinilandService> _miniland = null!;
-        private PetManagementHandler _handler = null!;
+        private ClientSession _session;
+        private Mock<IMinilandService> _miniland;
+        private PetManagementHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -137,7 +137,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 
             var question = _session.LastPackets.OfType<QnaiPacket>().Single();
             Assert.AreEqual(Game18NConstString.AskMateReturn, question.Question);
-            Assert.AreEqual((short)5, ((NrunPacket)question.YesPacket!).Type);
+            Assert.AreEqual((short)5, ((NrunPacket)question.YesPacket.NotNull()).Type);
             Assert.IsTrue(pet.IsTeamMember);
         }
 
@@ -150,7 +150,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             await RunAsync(5, pet);
             var bar = _session.LastPackets.OfType<DelayPacket>().Single();
             Assert.AreEqual(DelayPacketType.BackToMiniland, bar.Type);
-            Assert.AreEqual((short)6, ((NrunPacket)bar.Packet!).Type);
+            Assert.AreEqual((short)6, ((NrunPacket)bar.Packet.NotNull()).Type);
 
             BarRanOut();
             await RunAsync(6, pet);
@@ -192,7 +192,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             var home = Add(TestMates.Partner(_session.Character.CharacterId, false));
 
             await RunAsync(7, home);
-            Assert.AreEqual((short)9, ((NrunPacket)_session.LastPackets.OfType<DelayPacket>().Single().Packet!).Type);
+            Assert.AreEqual((short)9, ((NrunPacket)_session.LastPackets.OfType<DelayPacket>().Single().Packet.NotNull()).Type);
             BarRanOut();
             await RunAsync(9, home);
 

@@ -24,9 +24,9 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class GuriPacketHandlerTests
     {
-        private GuriPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IMessageBus> MessageBus = null!;
+        private GuriPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IMessageBus> MessageBus;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
         }
 
         private async Task ExecutingGuriPacket()

@@ -114,7 +114,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     characterDto.MapY = Arena.ExitDestinationY;
                 }
 
-                var mapInstance = mapInstanceAccessorService.GetBaseMapById(characterDto.MapId)!;
+                var mapInstance = mapInstanceAccessorService.GetBaseMapById(characterDto.MapId)
+                    ?? throw new InvalidOperationException($"Map {characterDto.MapId} is not loaded.");
                 var script = characterDto.CurrentScriptId != null
                     ? await scriptDao.FirstOrDefaultAsync(s => s.Id == characterDto.CurrentScriptId)
                     : null;
@@ -123,11 +124,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)
                     ?.ToList() ?? new List<InventoryItemInstanceDto>();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToList();
-                var itemInstances = itemInstanceDao.Where(s => ids.Contains(s.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+                var itemInstances = (itemInstanceDao.Where(s => ids.Contains(s.Id)) ?? []).OfType<IItemInstanceDto>().ToList();
 
                 var inventoryService = new InventoryService(items, configuration, loggerFactory.CreateLogger<InventoryService>());
                 inventories.ForEach(k => inventoryService[k.ItemInstanceId] =
-                    InventoryItemInstance.Create(itemProvider.Convert(itemInstances.First(s => s!.Id == k.ItemInstanceId)!),
+                    InventoryItemInstance.Create(itemProvider.Convert(itemInstances.First(s => s.Id == k.ItemInstanceId)),
                         characterId, k));
 
                 var maxHp = (int)hpService.GetHp(characterDto.Class, characterDto.Level);
@@ -262,10 +263,10 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     ?? new List<CharacterQuestObjectiveDto>();
                 character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>(daoQuests.ToDictionary(x => x.Id, x =>
                     {
-                        var charquest = x.Adapt<CharacterQuest>();
-                        charquest.Quest = quests.First(s => s.QuestId == charquest.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
-                        charquest.Quest.QuestObjectives =
-                            questObjectives.Where(s => s.QuestId == charquest.QuestId).ToList();
+                        var quest = quests.First(s => s.QuestId == x.QuestId).Adapt<GameObject.Services.QuestService.Quest>();
+                        quest.QuestObjectives = questObjectives.Where(s => s.QuestId == x.QuestId).ToList();
+                        var charquest = new CharacterQuest { Quest = quest };
+                        x.Adapt(charquest);
                         foreach (var progress in daoObjectives.Where(o => o.CharacterQuestId == charquest.Id))
                         {
                             charquest.ObjectiveProgress[progress.QuestObjectiveId] = progress.Count;

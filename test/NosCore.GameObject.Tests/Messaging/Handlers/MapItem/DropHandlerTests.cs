@@ -25,15 +25,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
     {
         private const short PickedItem = 1012;
 
-        private ClientSession _session = null!;
-        private Mock<IMessageBus> _messageBus = null!;
+        private ClientSession _session;
+        private Mock<IMessageBus> _messageBus;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
             _messageBus = new Mock<IMessageBus>();
         }
 
@@ -50,8 +50,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         private Task PickingUp_Of_(int amount, short vNum)
         {
             var item = _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                TestHelpers.Instance.GenerateItemProvider().Create(vNum, (short)amount), _session.Character.CharacterId))!.First().ItemInstance;
-            var mapItem = _session.Character.MapInstance.PutItem((short)amount, item, _session)!.Value;
+                TestHelpers.Instance.GenerateItemProvider().Create(vNum, (short)amount), _session.Character.CharacterId)).NotNull().First().ItemInstance;
+            var mapItem = _session.Character.MapInstance.PutItem((short)amount, item, _session).NotNull();
             return new DropHandler(_messageBus.Object).Handle(new MapItemPickedUpEvent(
                 _session, mapItem.VisualId, vNum, (short)amount, mapItem.ItemInstance,
                 new GetPacket { PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = mapItem.VisualId }));

@@ -25,9 +25,10 @@ namespace NosCore.Data.Dto
                 {
                     continue;
                 }
-                dic.Add(prop,
-                    new Tuple<PropertyInfo, Type>(key,
-                        prop.GetCustomAttribute<I18NFromAttribute>()!.Type));
+
+                var from = prop.GetCustomAttribute<I18NFromAttribute>()
+                    ?? throw new InvalidOperationException($"{staticDto.Name}.{prop.Name} has an I18N key but no I18NFrom attribute.");
+                dic.Add(prop, new Tuple<PropertyInfo, Type>(key, from.Type));
             }
 
             return dic;
@@ -49,7 +50,7 @@ namespace NosCore.Data.Dto
                         continue;
                     }
 
-                    if (langDictionary[prop.Value.Item2][key].ContainsKey((RegionType)region!))
+                    if (langDictionary[prop.Value.Item2][key].ContainsKey((RegionType)region))
                     {
                         dic[(RegionType)region] = langDictionary[prop.Value.Item2][key][(RegionType)region].Text;
                     }

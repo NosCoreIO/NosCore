@@ -34,9 +34,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CModPacketHandlerTests
     {
         private static readonly ILogger<CModPacketHandler> Logger = new Mock<ILogger<CModPacketHandler>>().Object;
-        private Mock<IBazaarHub> BazaarHttpClient = null!;
-        private CModPacketHandler CmodPacketHandler = null!;
-        private ClientSession Session = null!;
+        private Mock<IBazaarHub> BazaarHttpClient;
+        private CModPacketHandler CmodPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

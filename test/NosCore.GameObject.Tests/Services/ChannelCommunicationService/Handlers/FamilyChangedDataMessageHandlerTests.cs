@@ -30,11 +30,11 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class FamilyChangedDataMessageHandlerTests
     {
-        private ClientSession _member = null!;
-        private ClientSession _joiner = null!;
-        private ClientSession _bystander = null!;
-        private Mock<IFamilyService> _familyService = null!;
-        private FamilyChangedDataMessageChannelCommunicationMessageHandler _handler = null!;
+        private ClientSession _member;
+        private ClientSession _joiner;
+        private ClientSession _bystander;
+        private Mock<IFamilyService> _familyService;
+        private FamilyChangedDataMessageChannelCommunicationMessageHandler _handler;
         private readonly NosCore.GameObject.Services.FamilyService.Family _family = new() { FamilyId = 42, Name = "Testers", MaxSize = 50 };
 
         [TestInitialize]

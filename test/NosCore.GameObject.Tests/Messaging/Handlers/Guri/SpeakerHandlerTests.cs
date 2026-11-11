@@ -30,9 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     {
         private const short SpeakerVNum = 2173;
         private const short SpeakerSlot = 4;
-        private ClientSession _speaker = null!;
-        private ClientSession _listener = null!;
-        private SpeakerHandler _handler = null!;
+        private ClientSession _speaker;
+        private ClientSession _listener;
+        private SpeakerHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         private static void Register(ClientSession session) =>
             TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
             {
-                ChannelId = session.Channel!.Id,
+                ChannelId = session.Channel.NotNull().Id,
                 SessionId = session.SessionId,
                 Sender = session,
                 AccountName = session.Account.Name,

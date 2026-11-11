@@ -27,8 +27,7 @@ namespace NosCore.PacketHandlers.Game
                 case ComplimentOutcome.NoTarget:
                     return;
 
-                case ComplimentOutcome.Complimented:
-                    var target = result.Target!.Value;
+                case ComplimentOutcome.Complimented when result.Target is { } target:
                     await session.SendPacketAsync(new Sayi2Packet
                     {
                         VisualType = VisualType.Player,

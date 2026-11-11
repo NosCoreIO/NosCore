@@ -37,8 +37,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class SelectPacketHandlerTests
     {
         private static readonly ILogger<SelectPacketHandler> Logger = new Mock<ILogger<SelectPacketHandler>>().Object;
-        private SelectPacketHandler SelectPacketHandler = null!;
-        private ClientSession Session = null!;
+        private SelectPacketHandler SelectPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -131,8 +131,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterHasSavedOptions()
         {
             var accountId = Session.Account.AccountId;
-            var row = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.AccountId == accountId && s.Slot == 1);
-            row!.ExchangeBlocked = true;
+            var row = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.AccountId == accountId && s.Slot == 1)).NotNull();
+            row.ExchangeBlocked = true;
             row.WhisperBlocked = true;
             row.GroupRequestBlocked = true;
             row.HeroChatBlocked = true;
@@ -176,7 +176,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task TheCharacterInSlot_HasSpecialistPoints_AndAdditionalPoints_(int slot, int points, int additional)
         {
-            var dto = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.Slot == slot))!;
+            var dto = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.Slot == slot)).NotNull();
             dto.SpPoint = points;
             dto.SpAdditionPoint = additional;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(dto);

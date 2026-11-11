@@ -32,8 +32,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private const short HolderVNum = 4500;
         private const short HolderSlot = 1;
 
-        private SpecialistHolderHandler _handler = null!;
-        private InventoryItemInstance _holder = null!;
+        private SpecialistHolderHandler _handler;
+        private InventoryItemInstance _holder;
 
         [TestInitialize]
         public override async Task SetupAsync()
@@ -109,7 +109,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             _holder = Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(holder, Session.Character.CharacterId),
-                NoscorePocketType.Equipment, HolderSlot)!.Single();
+                NoscorePocketType.Equipment, HolderSlot).NotNull().Single();
         }
 
         private void TheBagIsFull()

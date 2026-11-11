@@ -25,10 +25,10 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
     [TestClass]
     public class InventorySortTests
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider = null!;
-        private IInventoryService Inventory = null!;
-        private IReadOnlyList<short> TouchedSlots = null!;
-        private List<ItemDto> Items = null!;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider;
+        private IInventoryService Inventory;
+        private IReadOnlyList<short> TouchedSlots;
+        private List<ItemDto> Items;
 
         [TestInitialize]
         public void Setup()
@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(Items,
                 NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             Inventory = new GameObject.Services.InventoryService.InventoryService(Items,
-                Options.Create(new WorldConfiguration { BackpackSize = 48, MaxItemAmount = 999 }),
+                Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 48, MaxItemAmount = 999 }),
                 NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance);
         }
 

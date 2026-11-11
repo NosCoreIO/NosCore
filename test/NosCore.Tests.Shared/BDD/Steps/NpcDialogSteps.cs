@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Tests.Shared.BDD.Steps
 {
@@ -40,7 +41,7 @@ namespace NosCore.Tests.Shared.BDD.Steps
         }
 
         public static NpcComponentBundle Npc(this ClientSession session, int mapNpcId) =>
-            session.Character.MapInstance.GetNpcById(mapNpcId)!.Value;
+            session.Character.MapInstance.GetNpcById(mapNpcId).NotNull();
 
         public static void WithWindowOpenedAt(this ClientSession session, int mapNpcId, NpcDialogWindow window) =>
             TestHelpers.Instance.NpcDialogService.Open(session.Character, session.Npc(mapNpcId), window);
@@ -57,7 +58,7 @@ namespace NosCore.Tests.Shared.BDD.Steps
         public static void IsRegistered(this ClientSession session) =>
             TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
             {
-                ChannelId = session.Channel!.Id,
+                ChannelId = session.Channel.NotNull().Id,
                 SessionId = session.SessionId,
                 Sender = session,
                 AccountName = session.Account.Name,
@@ -68,6 +69,6 @@ namespace NosCore.Tests.Shared.BDD.Steps
 
         // The dialog stays recorded for the map instance it was opened on.
         public static void WithDialogLeftOnAnotherMap(this ClientSession session) =>
-            session.Character.NpcDialog = session.Character.NpcDialog! with { MapInstanceId = System.Guid.NewGuid() };
+            session.Character.NpcDialog = session.Character.NpcDialog.NotNull() with { MapInstanceId = System.Guid.NewGuid() };
     }
 }

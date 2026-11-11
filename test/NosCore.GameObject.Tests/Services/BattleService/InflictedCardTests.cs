@@ -27,12 +27,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     {
         private const short StunCardId = 7;
 
-        private BuffService _service = null!;
-        private Mock<ICardCatalog> _catalog = null!;
-        private Mock<IRandomProvider> _random = null!;
-        private MapWorld _world = null!;
-        private IAliveEntity _target = null!;
-        private IAliveEntity _caster = null!;
+        private BuffService _service;
+        private Mock<ICardCatalog> _catalog;
+        private Mock<IRandomProvider> _random;
+        private MapWorld _world;
+        private IAliveEntity _target;
+        private IAliveEntity _caster;
 
         private static readonly CardDto StunCard = new() { CardId = StunCardId, Duration = 30 };
 
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             new MonsterComponentBundle(
                 _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
-                    new NpcStateComponent(null!, null!, null!, null!, null, null, null, null!, null, false))),
+                    new NpcStateComponent())),
                 _world);
 
         private void RollGives(int value) => _random.Setup(r => r.Next(0, 100)).Returns(value);

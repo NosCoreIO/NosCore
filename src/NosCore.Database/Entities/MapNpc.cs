@@ -35,7 +35,7 @@ namespace NosCore.Database.Entities
 
         public bool IsSitting { get; set; }
 
-        public virtual Map Map { get; set; } = null!;
+        public virtual Map Map { get; set; }
 
         public short MapId { get; set; }
 
@@ -47,7 +47,7 @@ namespace NosCore.Database.Entities
 
         public short MapY { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; } = null!;
+        public virtual NpcMonster NpcMonster { get; set; }
 
         public short VNum { get; set; }
 
@@ -59,6 +59,6 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Teleporter> Teleporter { get; set; }
 
-        public virtual NpcTalk? NpcTalk { get; set; } = null!;
+        public virtual NpcTalk? NpcTalk { get; set; }
     }
 }

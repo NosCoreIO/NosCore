@@ -28,8 +28,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class BlInsPacketHandlerTests
     {
         private static readonly ILogger<BlInsPackettHandler> Logger = new Mock<ILogger<BlInsPackettHandler>>().Object;
-        private BlInsPackettHandler BlInsPacketHandler = null!;
-        private ClientSession Session = null!;
+        private BlInsPackettHandler BlInsPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -41,6 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
+                      Host = "127.0.0.1",
                       Type = ServerType.WorldServer,
                       Id = 1
                     }
@@ -76,8 +77,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ExecuteAsync();
         }
 
-        private ClientSession? TargetSession;
-        private Mock<IBlacklistCacheService> BlacklistCache = null!;
+        private ClientSession TargetSession;
+        private Mock<IBlacklistCacheService> BlacklistCache;
 
         private void TheCachedBlacklistShouldBeDropped()
         {
@@ -112,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task BlacklistingTargetCharacter()
         {
-            await BlInsPacketHandler.ExecuteAsync(new BlInsPacket { CharacterId = TargetSession!.Character.CharacterId }, Session);
+            await BlInsPacketHandler.ExecuteAsync(new BlInsPacket { CharacterId = TargetSession.Character.CharacterId }, Session);
         }
 
         private async Task NoBlockedRelationShouldExist()
@@ -127,7 +128,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private async Task BlockedRelationShouldExist()
         {
             var characterId = Session.Character.CharacterId;
-            var targetCharacterId = TargetSession!.Character.CharacterId;
+            var targetCharacterId = TargetSession.Character.CharacterId;
             var result = await TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
                 characterId == s.CharacterId &&
                 targetCharacterId == s.RelatedCharacterId &&

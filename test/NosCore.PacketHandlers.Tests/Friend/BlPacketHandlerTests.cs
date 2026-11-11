@@ -31,9 +31,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class BlPacketHandlerTests
     {
         private static readonly ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry> Logger = new Mock<ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>>().Object;
-        private BlPacketHandler BlPacketHandler = null!;
-        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
-        private ClientSession Session = null!;
+        private BlPacketHandler BlPacketHandler;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -46,6 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
+                        Host = "127.0.0.1",
                         Type = ServerType.WorldServer,
                         Id = 1
                     }
@@ -70,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ExecuteAsync();
         }
 
-        private ClientSession? TargetSession;
+        private ClientSession TargetSession;
 
         private async Task TargetPlayerIsOnline()
         {
@@ -94,13 +95,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task BlacklistingTargetByName()
         {
-            await BlPacketHandler.ExecuteAsync(new BlPacket { CharacterName = TargetSession!.Character.Name }, Session);
+            await BlPacketHandler.ExecuteAsync(new BlPacket { CharacterName = TargetSession.Character.Name }, Session);
         }
 
         private async Task BlockedRelationShouldExist()
         {
             var characterId = Session.Character.CharacterId;
-            var targetCharacterId = TargetSession!.Character.CharacterId;
+            var targetCharacterId = TargetSession.Character.CharacterId;
             var result = await CharacterRelationDao.FirstOrDefaultAsync(s =>
                 s.CharacterId == characterId &&
                 s.RelatedCharacterId == targetCharacterId &&

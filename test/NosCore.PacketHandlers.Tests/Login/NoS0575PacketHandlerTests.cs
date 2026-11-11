@@ -36,14 +36,14 @@ namespace NosCore.PacketHandlers.Tests.Login
     public class NoS0575PacketHandlerSpecs
     {
         private static readonly ILogger<NoS0575PacketHandler> Logger = new Mock<ILogger<NoS0575PacketHandler>>().Object;
-        private string Password = null!;
-        private Mock<IAuthHub> AuthHttpClient = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private IOptions<LoginConfiguration> LoginConfiguration = null!;
-        private NoS0575PacketHandler NoS0575PacketHandler = null!;
-        private ClientSession Session = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
-        private SessionRefHolder SessionRefHolder = null!;
+        private string Password;
+        private Mock<IAuthHub> AuthHttpClient;
+        private Mock<IPubSubHub> PubSubHub;
+        private IOptions<LoginConfiguration> LoginConfiguration;
+        private NoS0575PacketHandler NoS0575PacketHandler;
+        private ClientSession Session;
+        private Mock<IChannelHub> ChannelHub;
+        private SessionRefHolder SessionRefHolder;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -53,10 +53,10 @@ namespace NosCore.PacketHandlers.Tests.Login
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AuthHttpClient = new Mock<IAuthHub>();
             PubSubHub = TestHelpers.Instance.PubSubHub;
-            LoginConfiguration = Options.Create(new LoginConfiguration());
+            LoginConfiguration = Options.Create(new LoginConfiguration { Database = new(), MasterCommunication = new() });
             SessionRefHolder = new SessionRefHolder();
             ChannelHub = new Mock<IChannelHub>();
-            SessionRefHolder[Session.Channel!.Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
+            SessionRefHolder[Session.Channel.NotNull().Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
             NoS0575PacketHandler = new NoS0575PacketHandler(new LoginService(LoginConfiguration,
                     TestHelpers.Instance.AccountDao,
                     AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, TestHelpers.Instance.CharacterDao, SessionRefHolder),
@@ -173,14 +173,14 @@ namespace NosCore.PacketHandlers.Tests.Login
 
         private void ServerIsAvailable()
         {
-            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer } });
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer } });
             PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
         }
 
         private void AccountIsAlreadyConnected()
         {
-            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer } });
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer } });
             PubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(
                 new List<Subscriber>
                     { new() { Name = Session.Account.Name } });
@@ -195,7 +195,7 @@ namespace NosCore.PacketHandlers.Tests.Login
 
         private void ServerIsInMaintenance()
         {
-            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer, IsMaintenance = true } });
+            ChannelHub.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer, IsMaintenance = true } });
             PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>());
         }

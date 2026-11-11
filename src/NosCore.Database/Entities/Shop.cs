@@ -21,7 +21,7 @@ namespace NosCore.Database.Entities
             ShopSkill = new HashSet<ShopSkill>();
         }
 
-        public virtual MapNpc MapNpc { get; set; } = null!;
+        public virtual MapNpc MapNpc { get; set; }
 
         public int MapNpcId { get; set; }
 

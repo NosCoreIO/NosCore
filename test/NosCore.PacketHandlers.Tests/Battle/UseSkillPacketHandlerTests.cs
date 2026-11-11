@@ -30,10 +30,10 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class UseSkillPacketHandlerTests
     {
-        private UseSkillPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
-        private Mock<IBattleService> BattleService = null!;
+        private UseSkillPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession TargetSession;
+        private Mock<IBattleService> BattleService;
         private readonly ILogger<UseSkillPacketHandler> Logger = new Mock<ILogger<UseSkillPacketHandler>>().Object;
 
         [TestInitialize]
@@ -452,13 +452,13 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void SkillCarriesAnUpgradeLinkWithoutBeingAnUpgrade()
         {
-            _learnedSkill.Skill!.UpgradeSkill = 200;
+            _learnedSkill.Skill.UpgradeSkill = 200;
             _learnedSkill.Skill.SkillType = 1;
         }
 
         private void SkillIsCentredOnTheCasterWithArea_(byte area)
         {
-            _learnedSkill.Skill!.TargetType = 1;
+            _learnedSkill.Skill.TargetType = 1;
             _learnedSkill.Skill.Range = 0;
             _learnedSkill.Skill.TargetRange = area;
         }
@@ -492,7 +492,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void SkillHasRange_(byte range)
         {
-            _learnedSkill.Skill!.Range = range;
+            _learnedSkill.Skill.Range = range;
             _learnedSkill.Skill.TargetType = 0;
         }
 
@@ -528,12 +528,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void TargetIsOnSameMap()
         {
-            TargetSession.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            TargetSession.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterCannotFight()
@@ -546,7 +546,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             Session.Character.IsSitting = true;
         }
 
-        private CharacterSkill _learnedSkill = null!;
+        private CharacterSkill _learnedSkill;
 
         private void CharacterHasLearnedSkillWithCastId_MpCost_Cooldown_(short castId, short mpCost, short cooldown)
         {

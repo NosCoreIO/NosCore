@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
     [TestClass]
     public class MatePartyPanelTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var pinit = _session.Character.GeneratePinit();
 
             Assert.AreEqual(0, pinit.GroupSize);
-            Assert.AreEqual(0, pinit.PinitSubPackets!.Count, "the recording sends a bare pinit 0 when alone");
+            Assert.AreEqual(0, pinit.PinitSubPackets.NotNull().Count, "the recording sends a bare pinit 0 when alone");
         }
 
         [TestMethod]
@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var pinit = _session.Character.GeneratePinit();
 
             Assert.AreEqual(1, pinit.GroupSize);
-            var entry = pinit.PinitSubPackets!.Single()!;
+            var entry = pinit.PinitSubPackets.NotNull().Single().NotNull();
             Assert.AreEqual(VisualType.Npc, entry.VisualType);
             Assert.AreEqual(pet.MateTransportId, entry.VisualId);
             Assert.AreEqual(1, entry.GroupPosition);
@@ -61,7 +61,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var pet = TestMates.Pet(_session.Character.CharacterId, isTeamMember: false);
             _session.Character.Mates[pet.MateTransportId] = pet;
 
-            Assert.AreEqual(0, _session.Character.GeneratePinit().PinitSubPackets!.Count);
+            Assert.AreEqual(0, _session.Character.GeneratePinit().PinitSubPackets.NotNull().Count);
         }
 
         [TestMethod]
@@ -79,7 +79,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             Assert.AreEqual(3, pinit.GroupSize);
             CollectionAssert.AreEqual(
                 new[] { VisualType.Player, VisualType.Player, VisualType.Npc },
-                pinit.PinitSubPackets!.Select(s => s!.VisualType).ToArray());
+                pinit.PinitSubPackets.NotNull().Select(s => s.NotNull().VisualType).ToArray());
         }
     }
 }

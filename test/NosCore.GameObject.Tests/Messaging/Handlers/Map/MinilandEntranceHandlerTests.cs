@@ -27,10 +27,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
     [TestClass]
     public class MinilandEntranceHandlerTests
     {
-        private ClientSession _session = null!;
-        private Mock<IMinilandService> _minilandService = null!;
-        private MinilandEntranceHandler _handler = null!;
-        private Miniland _miniland = null!;
+        private ClientSession _session;
+        private Mock<IMinilandService> _minilandService;
+        private MinilandEntranceHandler _handler;
+        private Miniland _miniland;
         private int _initialDailyVisitCount;
         private int _initialVisitCount;
 

@@ -21,8 +21,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class ClientDirPacketHandlerTests
     {
-        private ClientDirPacketHandler Handler = null!;
-        private ClientSession Session = null!;
+        private ClientDirPacketHandler Handler;
+        private ClientSession Session;
         private readonly ILogger<ClientDirPacketHandler> Logger = new Mock<ILogger<ClientDirPacketHandler>>().Object;
 
         [TestInitialize]
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task ChangingDirectionForPlayer()

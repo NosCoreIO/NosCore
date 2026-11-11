@@ -285,7 +285,7 @@ namespace NosCore.PacketHandlers.Exchange
             var validation = exchangeService.ValidateExchange(clientSession, exchangeTarget, claim.Own, claim.Partner);
             if (validation.Item1 == ExchangeResultType.Failure)
             {
-                foreach (var infoPacket in validation.Item2!)
+                foreach (var infoPacket in validation.Item2 ?? new())
                 {
                     if (infoPacket.Key == clientSession.Character.CharacterId)
                     {

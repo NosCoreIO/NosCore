@@ -25,10 +25,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class TargetResolverTests
     {
-        private ClientSession _caster = null!;
-        private ClientSession _bystander = null!;
-        private MapInstance _map = null!;
-        private TargetResolver _resolver = null!;
+        private ClientSession _caster;
+        private ClientSession _bystander;
+        private MapInstance _map;
+        private TargetResolver _resolver;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await TestHelpers.ResetAsync();
             _caster = await TestHelpers.Instance.GenerateSessionAsync();
             _bystander = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.GetBaseMap(0);
             _caster.Character.MapInstance = _map;
             _bystander.Character.MapInstance = _map;
             _caster.Character.PositionX = 0;

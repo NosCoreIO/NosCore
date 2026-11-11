@@ -34,7 +34,7 @@ namespace NosCore.Database.Entities
 
         public short QuestId { get; set; }
 
-        public virtual Quest Quest { get; set; } = null!;
+        public virtual Quest Quest { get; set; }
 
         public virtual ICollection<CharacterQuestObjective> CharacterQuestObjective { get; set; }
     }

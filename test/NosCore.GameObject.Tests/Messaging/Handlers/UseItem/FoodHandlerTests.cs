@@ -33,10 +33,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class FoodHandlerTests
     {
         private const short FoodVNum = 2017;
-        private ClientSession _session = null!;
-        private Mock<ICardCatalog> _cards = null!;
-        private FoodHandler _handler = null!;
-        private InventoryItemInstance _food = null!;
+        private ClientSession _session;
+        private Mock<ICardCatalog> _cards;
+        private FoodHandler _handler;
+        private InventoryItemInstance _food;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -11,6 +11,7 @@ using NosCore.PacketHandlers.Login;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests
 {
@@ -37,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests
                 .Select(t => new
                 {
                     Type = t,
-                    Declared = (Type?)t.GetProperty(nameof(IPacketHandler.PacketType))!
+                    Declared = (Type?)t.GetProperty(nameof(IPacketHandler.PacketType)).NotNull()
                         .GetValue(System.Runtime.CompilerServices.RuntimeHelpers.GetUninitializedObject(t)),
                     FromBase = t.BaseType?.GenericTypeArguments.FirstOrDefault()
                 })

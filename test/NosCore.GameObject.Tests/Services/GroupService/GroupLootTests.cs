@@ -38,10 +38,10 @@ namespace NosCore.GameObject.Tests.Services.GroupService
         private const short GoldVNum = 1046;
         private const short DroppableVNum = 1012;
 
-        private ClientSession _first = null!;
-        private ClientSession _second = null!;
-        private MapInstance _map = null!;
-        private RewardService _service = null!;
+        private ClientSession _first;
+        private ClientSession _second;
+        private MapInstance _map;
+        private RewardService _service;
         private MonsterComponentBundle _monster;
 
         [TestInitialize]
@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             TestHelpers.Instance.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
             _first = await TestHelpers.Instance.GenerateSessionAsync();
             _second = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.GetBaseMap(0);
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(1)).Returns(new List<DropDto>
             {
@@ -59,7 +59,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             });
             _service = new RewardService(
                 TestHelpers.Instance.GenerateItemProvider(),
-                TestHelpers.Instance.MapItemProvider!,
+                TestHelpers.Instance.MapItemProvider.NotNull(),
                 catalog.Object,
                 new Mock<IExperienceProgressionService>().Object,
                 new ExperienceShareService(),

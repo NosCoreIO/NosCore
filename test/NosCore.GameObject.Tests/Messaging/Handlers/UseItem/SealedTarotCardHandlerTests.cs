@@ -32,10 +32,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private const short TarotVNum = 1810;
         private const short RewardVNum = 1013;
-        private ClientSession _session = null!;
-        private IItemGenerationService _itemProvider = null!;
-        private SealedTarotCardHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private IItemGenerationService _itemProvider;
+        private SealedTarotCardHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

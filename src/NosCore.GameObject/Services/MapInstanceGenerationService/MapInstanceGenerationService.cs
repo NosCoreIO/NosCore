@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 .ToDictionary(group => group.Key, group => group.ToList());
 
             var recipeItems = recipeItemDtos.GroupBy(s => s.RecipeId).ToDictionary(s => s.Key, s => s.ToList());
-            var recipes = recipeDtos.Where(s => s.MapNpcId != null).GroupBy(s => s.MapNpcId!.Value).ToDictionary(s => s.Key, s => (IReadOnlyList<Recipe>)s.Select(r =>
+            var recipes = recipeDtos.Where(s => s.MapNpcId != null).GroupBy(s => s.MapNpcId.GetValueOrDefault()).ToDictionary(s => s.Key, s => (IReadOnlyList<Recipe>)s.Select(r =>
             {
                 var recipe = r.Adapt<Recipe>();
                 recipe.Items = recipeItems.TryGetValue(r.RecipeId, out var items) ? items : new List<RecipeItemDto>();
@@ -125,7 +125,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                             if (shopsOfNpc.Count > 0)
                             {
                                 var shopIds = shopsOfNpc.Select(sh => sh.ShopId).ToHashSet();
-                                dtoShopItems = shopItems!.Where(si => shopIds.Contains(si.ShopId))!.ToList()!;
+                                dtoShopItems = shopItems?.Where(si => shopIds.Contains(si.ShopId))?.ToList() ?? new List<ShopItemDto>();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
                             bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider);
@@ -147,11 +147,16 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         // The arenas are entered through an NPC rather than a portal, so the data has no way out of
         // them. The exit leads back to wherever the fighter came from.
-        private IEnumerable<PortalDto> ArenaExitPortals() =>
-            maps.Where(map => Arena.IsArena(map.MapId)).Select(map =>
+        private IEnumerable<PortalDto> ArenaExitPortals()
+        {
+            foreach (var map in maps)
             {
-                var (x, y) = Arena.ExitPortal(map.MapId)!.Value;
-                return new PortalDto
+                if (Arena.ExitPortal(map.MapId) is not (var x, var y))
+                {
+                    continue;
+                }
+
+                yield return new PortalDto
                 {
                     SourceMapId = map.MapId,
                     SourceX = x,
@@ -161,7 +166,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                     DestinationY = Arena.ExitDestinationY,
                     Type = PortalType.MapPortal,
                 };
-            });
+            }
+        }
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)
         {

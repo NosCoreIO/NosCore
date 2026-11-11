@@ -30,16 +30,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class ChangeGenderHandlerTests
     {
         private const short GenderScrollVNum = 5105;
-        private ClientSession _session = null!;
-        private ChangeGenderHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private ChangeGenderHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             _handler = new ChangeGenderHandler();
         }
 
@@ -158,7 +158,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             var qna = _session.LastPackets.OfType<QnaiPacket>().SingleOrDefault();
             Assert.IsNotNull(qna);
             Assert.AreEqual(Game18NConstString.AskChangeGender, qna.Question);
-            Assert.AreEqual((byte)1, ((UseItemPacket)qna.YesPacket!).Mode);
+            Assert.AreEqual((byte)1, ((UseItemPacket)qna.YesPacket.NotNull()).Mode);
         }
 
         private async Task UsingTheItemWithMode_(byte mode)

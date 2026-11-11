@@ -21,8 +21,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharacterDeletePacketHandlerTests
     {
-        private CharacterDeletePacketHandler CharacterDeletePacketHandler = null!;
-        private ClientSession Session = null!;
+        private CharacterDeletePacketHandler CharacterDeletePacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

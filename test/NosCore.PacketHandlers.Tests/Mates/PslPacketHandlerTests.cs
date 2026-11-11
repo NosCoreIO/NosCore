@@ -44,20 +44,20 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private const short PlayerSpecialist = 901;
         private const short SpecialistMorph = 2041;
 
-        private ClientSession _session = null!;
-        private ItemGenerationService _items = null!;
-        private PartnerSpecialistService _specialists = null!;
-        private PartnerEquipmentService _equipment = null!;
-        private PslPacketHandler _handler = null!;
-        private Mate _partner = null!;
-        private Mock<ISessionGroup> _onlookers = null!;
+        private ClientSession _session;
+        private ItemGenerationService _items;
+        private PartnerSpecialistService _specialists;
+        private PartnerEquipmentService _equipment;
+        private PslPacketHandler _handler;
+        private Mate _partner;
+        private Mock<ISessionGroup> _onlookers;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
             _onlookers = new Mock<ISessionGroup>();
             _session.Character.MapInstance.Sessions = _onlookers.Object;
             _items = new ItemGenerationService(new List<ItemDto>
@@ -261,7 +261,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             var delay = _session.LastPackets.OfType<PdelayPacket>().Single();
             Assert.AreEqual(5000, delay.Delay);
             Assert.AreEqual(DelayPacketType.Locomotion, delay.Type);
-            Assert.AreEqual(PslPacketType.Wear, ((PslPacket)delay.Packet!).Type);
+            Assert.AreEqual(PslPacketType.Wear, ((PslPacket)delay.Packet.NotNull()).Type);
         }
 
         private void NoBarShouldStart() => Assert.IsFalse(_session.LastPackets.OfType<PdelayPacket>().Any());
@@ -281,7 +281,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             var cMode = Broadcast().OfType<CModePacket>().Last();
             Assert.AreEqual(_partner.MateTransportId, cMode.VisualId);
             Assert.AreEqual(morph, cMode.Morph);
-            Assert.AreEqual(morph, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket!.Morph);
+            Assert.AreEqual(morph, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull().Morph);
             Assert.AreEqual(morph, _session.LastPackets.OfType<ScnPacket>().Last().MorphId);
         }
 

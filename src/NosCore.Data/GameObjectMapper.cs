@@ -6,6 +6,7 @@
 
 using Mapster;
 using System;
+using System.Linq;
 
 namespace NosCore.Data
 {
@@ -15,6 +16,14 @@ namespace NosCore.Data
         {
             TypeAdapterConfig<TDto, TGameObject>.NewConfig().ConstructUsing(_ => resolve());
         }
+    }
+
+    public static class GameObjectMapper
+    {
+        // Mapster cannot build a type with required members through a factory, so only types
+        // that need injected constructor arguments are built by the container.
+        public static bool BuildsThroughContainer(Type gameObject) =>
+            gameObject.GetConstructors().Any(c => c.GetParameters().Length > 0);
     }
 
     public interface IGameObjectMapper<TDto>

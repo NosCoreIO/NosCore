@@ -29,9 +29,9 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class ReqInfoPacketHandlerTests
     {
-        private ReqInfoPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private List<NpcMonsterDto> NpcMonsters = null!;
+        private ReqInfoPacketHandler Handler;
+        private ClientSession Session;
+        private List<NpcMonsterDto> NpcMonsters;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
             {
-                ChannelId = Session.Channel!.Id,
+                ChannelId = Session.Channel.NotNull().Id,
                 SessionId = Session.SessionId,
                 Sender = Session,
                 AccountName = Session.Account.Name,

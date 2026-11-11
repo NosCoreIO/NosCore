@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.MfaValidated = grant?.MfaValidated ?? false;
                     return grant != null;
                 }, sessionRefHolder, logLanguage);
-            if (clientSession.Account == null!)
+            if (!clientSession.HasAccount)
             {
                 return;
             }

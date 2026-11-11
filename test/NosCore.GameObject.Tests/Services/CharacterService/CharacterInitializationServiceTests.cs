@@ -25,10 +25,10 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
     public class CharacterInitializationServiceTests
     {
         private static readonly ILogger<CharacterInitializationServiceTests> Logger = new Mock<ILogger<CharacterInitializationServiceTests>>().Object;
-        private ICharacterInitializationService Service = null!;
-        private IMinilandService MinilandService = null!;
-        private ClientSession Session = null!;
-        private Mock<IFriendHub> FriendHttpClient = null!;
+        private ICharacterInitializationService Service;
+        private IMinilandService MinilandService;
+        private ClientSession Session;
+        private Mock<IFriendHub> FriendHttpClient;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -112,9 +112,9 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
                 .ExecuteAsync();
         }
 
-        private ICharacterInitializationService? NullService;
-        private ICharacterInitializationService? PartialService;
-        private ClientSession? SecondSession;
+        private ICharacterInitializationService NullService;
+        private ICharacterInitializationService PartialService;
+        private ClientSession SecondSession;
         private bool InitializationCompleted;
         private bool SecondInitializationCompleted;
 
@@ -131,7 +131,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private async Task InitializingCharacterWithNullServices()
         {
-            await NullService!.InitializeAsync(Session.Character);
+            await NullService.InitializeAsync(Session.Character);
             InitializationCompleted = true;
         }
 
@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private async Task InitializingCharacterWithPartialServices()
         {
-            await PartialService!.InitializeAsync(Session.Character);
+            await PartialService.InitializeAsync(Session.Character);
             InitializationCompleted = true;
         }
 
@@ -184,7 +184,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
             Assert.IsTrue(SecondInitializationCompleted);
 
             var miniland1 = MinilandService.GetMiniland(Session.Character.CharacterId);
-            var miniland2 = MinilandService.GetMiniland(SecondSession!.Character.CharacterId);
+            var miniland2 = MinilandService.GetMiniland(SecondSession.Character.CharacterId);
 
             Assert.IsNotNull(miniland1);
             Assert.IsNotNull(miniland2);

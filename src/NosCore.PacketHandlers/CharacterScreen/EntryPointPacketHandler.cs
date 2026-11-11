@@ -101,7 +101,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
 
         public override async Task ExecuteAsync(EntryPointPacket packet, ClientSession clientSession)
         {
-            if (clientSession.Account == null!) // we bypass this when Create new char
+            if (!clientSession.HasAccount) // we bypass this when Create new char
             {
                 var password = packet.Password ?? throw new InvalidOperationException();
                 await VerifyConnectionAsync(clientSession, logger, authHttpClient,
@@ -114,7 +114,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         }
                         : account => Task.FromResult(account.Password?.Equals(new Sha512Hasher().Hash(password), StringComparison.OrdinalIgnoreCase) == true),
                     sessionRefHolder, logLanguage);
-                if (clientSession.Account == null!)
+                if (!clientSession.HasAccount)
                 {
                     return;
                 }
@@ -134,11 +134,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
             }
 
             var characters = characterDao.Where(s =>
-                (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId);
+                (s.AccountId == clientSession.Account.AccountId) && (s.State == CharacterState.Active) && s.ServerId == configuration.Value.ServerId) ?? [];
 
             // load characterlist packet for each character in Character
             await clientSession.SendPacketAsync(new ClistStartPacket { Type = (byte)(configuration.Value.AllClassAvailableOnCreate ? 1 : 0) });
-            foreach (var character in characters!)
+            foreach (var character in characters)
             {
                 var equipment = new WearableInstance?[16];
                 /* IEnumerable<ItemInstanceDTO> inventory = _iteminstanceDAO.Where(s => s.CharacterId == character.CharacterId && s.Type == (byte)InventoryType.Wear);
@@ -153,8 +153,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                  }
                     */
                 var petlist = new List<short?>();
-                var mates = mateDao.Where(s => s.CharacterId == character.CharacterId)!
-                    .ToList();
+                var mates = (mateDao.Where(s => s.CharacterId == character.CharacterId) ?? []).ToList();
                 for (var i = 0; i < 26; i++)
                 {
                     if (mates.Count > i)

@@ -35,12 +35,12 @@ namespace NosCore.GameObject.Tests.Services.SaveService
     [TestClass]
     public class SaveServiceTests
     {
-        private ClientSession Session = null!;
-        private ISaveService Service = null!;
-        private IItemGenerationService ItemProvider = null!;
-        private IDao<CharacterQuestObjectiveDto, Guid> CharacterQuestObjectiveDao = null!;
-        private IDao<IItemInstanceDto?, Guid> ItemInstanceDao = null!;
-        private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao = null!;
+        private ClientSession Session;
+        private ISaveService Service;
+        private IItemGenerationService ItemProvider;
+        private IDao<CharacterQuestObjectiveDto, Guid> CharacterQuestObjectiveDao;
+        private IDao<IItemInstanceDto?, Guid> ItemInstanceDao;
+        private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -101,8 +101,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
             await Service.SaveAsync(Session);
 
-            var row = await TestHelpers.Instance.MateDao.FirstOrDefaultAsync(s => s.MateId == pet.MateId);
-            Assert.AreEqual(2500, row!.Loyalty);
+            var row = (await TestHelpers.Instance.MateDao.FirstOrDefaultAsync(s => s.MateId == pet.MateId)).NotNull();
+            Assert.AreEqual(2500, row.Loyalty);
             Assert.AreEqual(9, row.Experience);
         }
 
@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             await Service.SaveAsync(Session);
 
             var characterId = Session.Character.CharacterId;
-            Assert.AreEqual(1, TestHelpers.Instance.MateDao.Where(s => s.CharacterId == characterId)!.Count());
+            Assert.AreEqual(1, TestHelpers.Instance.MateDao.Where(s => s.CharacterId == characterId).NotNull().Count());
         }
 
         private async Task<NosCore.GameObject.Services.MateService.Mate> OwnedPetAsync()
@@ -206,7 +206,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task ObjectiveProgressShouldBePersisted()
         {
             var rows = CharacterQuestObjectiveDao
-                .Where(o => o.CharacterQuestId == _trackedCharacterQuestId)!
+                .Where(o => o.CharacterQuestId == _trackedCharacterQuestId).NotNull()
                 .ToList();
             Assert.AreEqual(1, rows.Count);
             Assert.AreEqual(2, rows[0].Count);
@@ -215,7 +215,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task ObjectiveProgressShouldReflectLatestCount()
         {
             var rows = CharacterQuestObjectiveDao
-                .Where(o => o.CharacterQuestId == _trackedCharacterQuestId)!
+                .Where(o => o.CharacterQuestId == _trackedCharacterQuestId).NotNull()
                 .ToList();
             Assert.AreEqual(1, rows.Count);
             Assert.AreEqual(5, rows[0].Count);
@@ -388,8 +388,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task OptionsShouldBePersisted()
         {
             var characterId = Session.Character.CharacterId;
-            var row = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
-            Assert.IsTrue(row!.ExchangeBlocked);
+            var row = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId)).NotNull();
+            Assert.IsTrue(row.ExchangeBlocked);
             Assert.IsTrue(row.FriendRequestBlocked);
             Assert.IsTrue(row.FamilyRequestBlocked);
             Assert.IsTrue(row.WhisperBlocked);

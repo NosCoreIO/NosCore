@@ -21,8 +21,8 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class CharacterStatsPacketTests
     {
-        private ClientSession _session = null!;
-        private Mock<IBattleStatsProvider> _stats = null!;
+        private ClientSession _session;
+        private Mock<IBattleStatsProvider> _stats;
 
         [TestInitialize]
         public async Task SetupAsync()

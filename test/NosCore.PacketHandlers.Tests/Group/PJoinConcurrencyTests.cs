@@ -31,8 +31,8 @@ namespace NosCore.PacketHandlers.Tests.Group
         private const int Contenders = 6;
 
         private readonly List<ClientSession> _sessions = new();
-        private PjoinPacketHandler _handler = null!;
-        private ISessionGroupFactory _groups = null!;
+        private PjoinPacketHandler _handler;
+        private ISessionGroupFactory _groups;
 
         [TestInitialize]
         public async Task SetupAsync()

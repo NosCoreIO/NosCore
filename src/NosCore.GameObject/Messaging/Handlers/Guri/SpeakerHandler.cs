@@ -80,9 +80,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             {
                 InventoryItemInstance? deeplink = null;
                 if (short.TryParse(valueSplit[1], out var slot) &
-                    Enum.TryParse(typeof(NoscorePocketType), valueSplit[0], out var type))
+                    Enum.TryParse<NoscorePocketType>(valueSplit[0], out var type))
                 {
-                    deeplink = session.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)type!);
+                    deeplink = session.Character.InventoryService.LoadBySlotAndType(slot, type);
                 }
                 if (deeplink == null)
                 {
@@ -90,12 +90,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                     return;
                 }
                 message = CraftMessage(message, valueSplit.Skip(2).ToArray()).Replace(' ', '|');
-                await BroadcastToListenersAsync(session.Character.GenerateSayItem(message, deeplink), session.Channel!.Id);
+                await BroadcastToListenersAsync(session.Character.GenerateSayItem(message, deeplink), session.ConnectedChannel.Id);
             }
             else
             {
                 message = CraftMessage(message, valueSplit);
-                await BroadcastToListenersAsync(session.Character.GenerateSay(message, (SayColorType)13), session.Channel!.Id);
+                await BroadcastToListenersAsync(session.Character.GenerateSay(message, (SayColorType)13), session.ConnectedChannel.Id);
             }
 
             session.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);

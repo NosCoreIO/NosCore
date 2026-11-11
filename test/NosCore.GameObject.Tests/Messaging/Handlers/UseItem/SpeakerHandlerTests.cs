@@ -30,9 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class SpeakerHandlerTests
     {
         private const short SpeakerVNum = 5792;
-        private ClientSession _session = null!;
-        private SpeakerHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private SpeakerHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

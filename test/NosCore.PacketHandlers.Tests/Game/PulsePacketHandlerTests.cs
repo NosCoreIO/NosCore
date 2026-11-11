@@ -18,9 +18,9 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class PulsePacketHandlerTests
     {
-        private PulsePacketHandler PulsePacketHandler = null!;
-        private ClientSession Session = null!;
-        private PulsePacket LastPulsePacket = null!;
+        private PulsePacketHandler PulsePacketHandler;
+        private ClientSession Session;
+        private PulsePacket LastPulsePacket;
 
         [TestInitialize]
         public async Task SetupAsync()

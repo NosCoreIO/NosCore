@@ -112,8 +112,8 @@ namespace NosCore.MasterServer
             services.AddOptions<WebApiConfiguration>().Bind(configuration.GetSection(nameof(MasterConfiguration.WebApi))).ValidateDataAnnotations();
             services.AddI18NLogs();
 
-            var masterConfiguration = new MasterConfiguration();
-            configuration.Bind(masterConfiguration);
+            var masterConfiguration = configuration.Get<MasterConfiguration>()
+                ?? throw new InvalidOperationException("The MasterConfiguration section could not be read.");
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
             services.AddDbContext<NosCoreContext>(

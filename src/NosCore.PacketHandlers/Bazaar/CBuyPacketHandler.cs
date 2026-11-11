@@ -137,7 +137,7 @@ namespace NosCore.PacketHandlers.Bazaar
                             await clientSession.SendPacketAsync(newInv.GeneratePocketChange());
 
                             await clientSession.HandlePacketsAsync(new[] { new CBListPacket { Index = 0, ItemVNumFilter = new List<short>() } });
-                            await clientSession.SendPacketAsync(new RCBuyPacket(bz.SellerName!)
+                            await clientSession.SendPacketAsync(new RCBuyPacket(bz.SellerName ?? string.Empty)
                             {
                                 Type = VisualType.Player,
                                 VNum = bz.ItemInstance.ItemVNum,

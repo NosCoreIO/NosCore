@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs;
@@ -74,7 +75,7 @@ public sealed class SpecialistHolderService(IItemGenerationService itemProvider)
 
     public SpecialistInstance TakeOut(BoxInstance holder)
     {
-        var card = (SpecialistInstance)itemProvider.Create(holder.HoldingVNum!.Value, 1, 0, holder.Upgrade, (byte)holder.Design);
+        var card = (SpecialistInstance)itemProvider.Create(holder.HoldingVNum ?? throw new InvalidOperationException("The holder is empty."), 1, 0, holder.Upgrade, (byte)holder.Design);
         card.BoundCharacterId = holder.BoundCharacterId;
         card.Xp = holder.Xp;
         card.SpLevel = holder.SpLevel;

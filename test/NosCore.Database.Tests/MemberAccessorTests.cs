@@ -10,6 +10,7 @@ using NosCore.Data.StaticEntities;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Database.Tests
 {
@@ -76,7 +77,7 @@ namespace NosCore.Database.Tests
 
             accessor[target, "Hidden"] = new List<string> { "a", "b" };
 
-            Assert.AreEqual(2, target.Hidden!.Count);
+            Assert.AreEqual(2, target.Hidden.NotNull().Count);
             Assert.AreSame(target.Hidden, accessor[target, "Hidden"]);
         }
 
@@ -92,10 +93,10 @@ namespace NosCore.Database.Tests
                      })
             {
                 var setter = type.GetProperty(member,
-                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)!.GetSetMethod(true)!;
+                    BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).NotNull().GetSetMethod(true).NotNull();
                 Assert.IsFalse(setter.IsPublic, $"{type.Name}.{member} is expected to be non-public");
 
-                var instance = Activator.CreateInstance(type)!;
+                var instance = Activator.CreateInstance(type).NotNull();
                 MemberAccessor.For(type)[instance, member] = null;
             }
         }

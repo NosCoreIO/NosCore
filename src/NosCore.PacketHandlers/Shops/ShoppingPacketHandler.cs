@@ -73,10 +73,10 @@ namespace NosCore.PacketHandlers.Shops
                 return;
             }
 
-            if (aliveEntity.Shop?.ShopItems.IsEmpty == false)
+            if (aliveEntity.Shop is { ShopItems.IsEmpty: false } shop)
             {
                 npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
-                await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(percent, shoppingPacket.ShopType));
+                await clientSession.SendPacketAsync(aliveEntity.GenerateNInv(shop, percent, shoppingPacket.ShopType));
             }
         }
     }

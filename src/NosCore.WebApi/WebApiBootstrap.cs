@@ -30,6 +30,7 @@ using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
+using System;
 
 namespace NosCore.WebApi
 {
@@ -43,9 +44,9 @@ namespace NosCore.WebApi
             builder.Services.AddHealthChecks()
                 .AddDbContextCheck<NosCoreContext>("database");
             builder.Services.AddNosCoreTelemetry("NosCore.WebApi", includeAspNetCore: true);
-            var loginConfiguration = new ApiConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "api.yml" });
-            conf.Bind(loginConfiguration);
+            var loginConfiguration = conf.Get<ApiConfiguration>()
+                ?? throw new InvalidOperationException("The ApiConfiguration section could not be read.");
             builder.Services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             builder.Services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();

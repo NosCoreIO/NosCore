@@ -55,14 +55,19 @@ namespace NosCore.PacketHandlers.Shops
 
             if (aliveEntity != null)
             {
+                if (aliveEntity.Shop is not { } shop)
+                {
+                    return Task.CompletedTask;
+                }
+
                 if (!npcDialogService.IsOpenWith(clientSession.Character, aliveEntity, NpcDialogWindow.Shop))
                 {
                     return Task.CompletedTask;
                 }
 
-                return buyPacket.VisualType == VisualType.Npc && aliveEntity.Shop?.ShopType == FamilyShopService.ShopType
+                return buyPacket.VisualType == VisualType.Npc && shop.ShopType == FamilyShopService.ShopType
                     ? familyShopService.BuyAsync(clientSession, aliveEntity, buyPacket.Slot)
-                    : clientSession.Character.BuyAsync(aliveEntity.Shop!, buyPacket.Slot, buyPacket.Amount, worldConfiguration,
+                    : clientSession.Character.BuyAsync(shop, buyPacket.Slot, buyPacket.Amount, worldConfiguration,
                         itemProvider, shellOptionService, itemInstanceDao);
             }
 

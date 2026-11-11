@@ -136,7 +136,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
-        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
+        var wearable = (WearableInstance)ctx.Source.ItemInstance;
         var percent = roll * 100;
         if (wearable.PityGauge >= equipmentUpgradeService.PityGaugeMaximum
             || percent >= 100 - equipmentUpgradeService.GetSuccessRate(wearable.Upgrade))
@@ -154,7 +154,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
-        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
+        var wearable = (WearableInstance)ctx.Source.ItemInstance;
         wearable.Upgrade = (byte)(wearable.Upgrade + 1);
         wearable.PityGauge = 0;
     }
@@ -163,7 +163,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     // by a scroll or destroyed; a full gauge makes the next attempt succeed.
     private void FillPityGauge(UpgradeContext ctx)
     {
-        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
+        var wearable = (WearableInstance)ctx.Source.ItemInstance;
         wearable.PityGauge = (short)Math.Min(equipmentUpgradeService.PityGaugeMaximum,
             wearable.PityGauge + equipmentUpgradeService.GetPityGaugeGain(wearable.Upgrade));
     }
@@ -179,7 +179,7 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     protected override void ApplyFixed(ClientSession session, UpgradeContext ctx)
     {
         FillPityGauge(ctx);
-        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
+        var wearable = (WearableInstance)ctx.Source.ItemInstance;
         wearable.IsFixed = true;
     }
 

@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class StartupInventoryTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -53,13 +53,13 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(card, _session.Character.CharacterId), NoscorePocketType.Equipment, 1);
 
-            var listed = Pocket(PocketType.Equipment).IvnSubPackets!.Single();
+            var listed = Pocket(PocketType.Equipment).IvnSubPackets.NotNull().Single();
 
             Assert.AreEqual((short)901, listed.VNum);
             Assert.AreEqual((short)1, listed.Slot);
             Assert.AreEqual((short)7, listed.UpgradeDesign);
             Assert.AreEqual((byte)3, listed.SecondUpgrade);
-            Assert.IsFalse(Pocket(PocketType.Costume).IvnSubPackets!.Any());
+            Assert.IsFalse(Pocket(PocketType.Costume).IvnSubPackets.NotNull().Any());
         }
 
         [TestMethod]
@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(holder, _session.Character.CharacterId), NoscorePocketType.Equipment, 0);
 
-            var listed = Pocket(PocketType.Equipment).IvnSubPackets!.Single();
+            var listed = Pocket(PocketType.Equipment).IvnSubPackets.NotNull().Single();
 
             Assert.AreEqual((short)287, listed.VNum);
             Assert.AreEqual((short)0, listed.Slot);
@@ -110,7 +110,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             var inventoryItem = InventoryItemInstance.Create(card, _session.Character.CharacterId);
             inventoryItem.Type = NoscorePocketType.Equipment;
 
-            var listed = inventoryItem.GeneratePocketChange(PocketType.Equipment, 4).IvnSubPackets!.Single();
+            var listed = inventoryItem.GeneratePocketChange(PocketType.Equipment, 4).IvnSubPackets.NotNull().Single();
 
             Assert.AreEqual((short)4, listed.Slot);
             Assert.AreEqual((short)7, listed.UpgradeDesign);

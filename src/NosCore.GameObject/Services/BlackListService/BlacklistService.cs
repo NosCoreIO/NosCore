@@ -55,8 +55,8 @@ namespace NosCore.GameObject.Services.BlackListService
 
             var data = new CharacterRelationDto
             {
-                CharacterId = character.ConnectedCharacter!.Id,
-                RelatedCharacterId = targetCharacter.ConnectedCharacter!.Id,
+                CharacterId = characterId,
+                RelatedCharacterId = secondCharacterId,
                 RelationType = CharacterRelationType.Blocked
             };
 
@@ -77,8 +77,9 @@ namespace NosCore.GameObject.Services.BlackListService
             var servers = await channelHub.GetCommunicationChannels();
             var worldServerIds = servers.Where(c => c.Type == ServerType.WorldServer).Select(c => c.Id).ToHashSet();
             var online = (await pubSubHub.GetSubscribersAsync())
-                .Where(s => s.ConnectedCharacter != null && worldServerIds.Contains(s.ChannelId))
-                .Select(s => s.ConnectedCharacter!.Id)
+                .Where(s => worldServerIds.Contains(s.ChannelId))
+                .Select(s => s.ConnectedCharacter?.Id)
+                .OfType<long>()
                 .ToHashSet();
             var relatedIds = list.Select(s => s.RelatedCharacterId).Distinct().ToList();
             var names = characterDao.Where(s => relatedIds.Contains(s.CharacterId))?

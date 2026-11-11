@@ -24,7 +24,7 @@ namespace NosCore.Core
                 throw new ArgumentNullException(nameof(options));
             }
 
-            var password = hasher.Hash(webApiConfiguration.Value.Password!, webApiConfiguration.Value.Salt);
+            var password = hasher.Hash(webApiConfiguration.Value.Password ?? throw new InvalidOperationException("The web API password is not configured."), webApiConfiguration.Value.Salt);
             if (name == JwtBearerDefaults.AuthenticationScheme)
             {
                 options.RequireHttpsMetadata = false;

@@ -17,12 +17,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             ItemVNum = item.VNum;
         }
 
-        [Obsolete]
-        public UsableInstance()
-        {
-        }
 
-        public Item Item { get; set; } = null!;
+        public Item Item { get; set; }
         public object Clone()
         {
             return (UsableInstance)MemberwiseClone();

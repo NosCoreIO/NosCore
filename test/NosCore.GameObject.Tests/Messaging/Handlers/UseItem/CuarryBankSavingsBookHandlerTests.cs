@@ -32,9 +32,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class CuarryBankSavingsBookHandlerTests
     {
         private const short BookVNum = 5836;
-        private ClientSession _session = null!;
-        private CuarryBankSavingsBookHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private CuarryBankSavingsBookHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

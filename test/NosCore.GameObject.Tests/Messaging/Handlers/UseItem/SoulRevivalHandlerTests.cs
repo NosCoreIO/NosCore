@@ -27,10 +27,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class SoulRevivalHandlerTests
     {
         private const short CardSlot = 2;
-        private ClientSession _session = null!;
-        private SoulRevivalHandler _handler = null!;
-        private InventoryItemInstance _stone = null!;
-        private SpecialistInstance _card = null!;
+        private ClientSession _session;
+        private SoulRevivalHandler _handler;
+        private InventoryItemInstance _stone;
+        private SpecialistInstance _card;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             var question = _session.LastPackets.OfType<QnaiPacket>().Single();
             Assert.AreEqual(Game18NConstString.AskWantToUse, question.Question);
-            var yes = (UseItemPacket)question.YesPacket!;
+            var yes = ((UseItemPacket)question.YesPacket.NotNull()).NotNull();
             Assert.AreEqual(1, yes.Mode);
             Assert.AreEqual(PocketType.Equipment, yes.TargetType);
             Assert.AreEqual(CardSlot, yes.TargetSlot);

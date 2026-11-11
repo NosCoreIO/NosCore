@@ -18,6 +18,6 @@ namespace NosCore.Data.WebApi
         public short Slot { get; set; }
 
         //todo move this to a generic ItemInstance with a converter
-        public ItemInstanceDto? ItemInstance { get; set; }
+        public required ItemInstanceDto ItemInstance { get; set; }
     }
 }

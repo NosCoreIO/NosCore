@@ -24,8 +24,8 @@ namespace NosCore.GameObject.Tests
     [TestClass]
     public class GroupTests
     {
-        private Group Group = null!;
-        private List<ClientSession> Sessions = null!;
+        private Group Group;
+        private List<ClientSession> Sessions;
 
         [TestInitialize]
         public async Task SetupAsync()

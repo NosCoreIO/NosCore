@@ -29,7 +29,8 @@ namespace NosCore.Parser.Parsers
                 if (currentPacket[0].Equals("n_inv"))
                 {
                     var npcid = short.Parse(currentPacket[2]);
-                    if (shopdb.FirstOrDefault(s => s.MapNpcId == npcid) == null)
+                    var shop = shopdb.FirstOrDefault(s => s.MapNpcId == npcid);
+                    if (shop == null)
                     {
                         continue;
                     }
@@ -45,8 +46,7 @@ namespace NosCore.Parser.Parsers
 
                         var sitem = new ShopItemDto
                         {
-                            ShopId = shopdb.FirstOrDefault(s => s.MapNpcId == npcid)!
-                                .ShopId,
+                            ShopId = shop.ShopId,
                             Type = type,
                             Slot = byte.Parse(item[1]),
                             ItemVNum = short.Parse(item[2]),

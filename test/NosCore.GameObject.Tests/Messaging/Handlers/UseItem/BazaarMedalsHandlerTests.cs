@@ -31,9 +31,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class BazaarMedalsHandlerTests
     {
         private const short MedalVNum = 5108;
-        private ClientSession _session = null!;
-        private BazaarMedalsHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private BazaarMedalsHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

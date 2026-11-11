@@ -19,8 +19,8 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class EffectCommandPacketHandlerTests
     {
-        private EffectCommandPackettHandler Handler = null!;
-        private ClientSession Session = null!;
+        private EffectCommandPackettHandler Handler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Session.Character.MapInstance.LastPackets.Clear();
         }
 

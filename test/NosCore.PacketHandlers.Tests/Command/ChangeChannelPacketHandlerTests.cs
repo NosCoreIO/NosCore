@@ -20,9 +20,9 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class ChangeChannelPacketHandlerTests
     {
-        private ChangeChannelPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IChannelService> ChannelService = null!;
+        private ChangeChannelPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IChannelService> ChannelService;
 
         [TestInitialize]
         public async Task SetupAsync()

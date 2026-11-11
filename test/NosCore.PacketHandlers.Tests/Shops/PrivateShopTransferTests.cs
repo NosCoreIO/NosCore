@@ -44,17 +44,17 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private const long UnitPrice = 100;
         private const short WeaponVNum = 2;
 
-        private ClientSession _owner = null!;
-        private ClientSession _buyer = null!;
-        private ClientSession _secondBuyer = null!;
-        private ClientSession _visitor = null!;
-        private ItemGenerationService _items = null!;
-        private MShopPacketHandler _mShop = null!;
+        private ClientSession _owner;
+        private ClientSession _buyer;
+        private ClientSession _secondBuyer;
+        private ClientSession _visitor;
+        private ItemGenerationService _items;
+        private MShopPacketHandler _mShop;
         private readonly Dictionary<short, Guid> _ownerInstances = new();
-        private Exception? _buyFailure;
-        private IDao<EquipmentOptionDto, Guid> _optionDao = null!;
-        private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
-        private ShellOptionService _options = null!;
+        private Exception _buyFailure;
+        private IDao<EquipmentOptionDto, Guid> _optionDao;
+        private IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
+        private ShellOptionService _options;
         private Guid _weaponId;
 
         [TestInitialize]
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             _mShop = new MShopPacketHandler(TestHelpers.Instance.DistanceCalculator);
 
-            _owner.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _owner.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             _owner.Character.PositionX = 7;
             _owner.Character.PositionY = 7;
             foreach (var (slot, amount) in new (short, short)[] { (0, 1), (1, 3) })
@@ -260,14 +260,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         private Task TheBuyerBuysTheWeapon() =>
-            _buyer.Character.BuyAsync(_owner.Character.Shop!, 0, 1, TestHelpers.Instance.WorldConfiguration, _items,
+            _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), 0, 1, TestHelpers.Instance.WorldConfiguration, _items,
                 _options, _itemInstanceDao);
 
         private Task TheBuyerBuysTheWeaponButItsOptionsCannotBeCopied()
         {
             var options = new Mock<IShellOptionService>();
             options.Setup(o => o.CopyAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(false);
-            return _buyer.Character.BuyAsync(_owner.Character.Shop!, 0, 1, TestHelpers.Instance.WorldConfiguration,
+            return _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), 0, 1, TestHelpers.Instance.WorldConfiguration,
                 _items, options.Object, _itemInstanceDao);
         }
 
@@ -297,7 +297,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             try
             {
-                await _buyer.Character.BuyAsync(_owner.Character.Shop!, slot, amount,
+                await _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), slot, amount,
                     TestHelpers.Instance.WorldConfiguration, _items);
             }
             catch (Exception e)
@@ -318,7 +318,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             try
             {
-                await _buyer.Character.BuyAsync(_keptShop!, 1, 3, TestHelpers.Instance.WorldConfiguration, _items);
+                await _buyer.Character.BuyAsync(_keptShop.NotNull(), 1, 3, TestHelpers.Instance.WorldConfiguration, _items);
             }
             catch (Exception e)
             {
@@ -342,11 +342,11 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private Task TheOwnerChangesMap() =>
             TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(_owner,
-                TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!.MapInstanceId);
+                TestHelpers.Instance.GetBaseMap(0).MapInstanceId);
 
         private async Task TwoBuyersBuy_FromShopSlot_AtOnce(short amount, short slot)
         {
-            var shop = _owner.Character.Shop!;
+            var shop = _owner.Character.Shop.NotNull();
             using var barrier = new Barrier(2);
             Task Buy(ClientSession session) => Task.Run(async () =>
             {

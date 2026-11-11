@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -21,6 +21,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -65,8 +66,8 @@ namespace NosCore.DtoGenerator
                     int keyCount = 0;
                     string dtoInterface = "IDto";
                     var propertyList = "";
-                    var classSymbol = cc.BaseList?.Types.Select(s => semanticModel.GetTypeInfo(s.Type).Type!);
-                    if (classSymbol?.Any(s => s.TypeKind != TypeKind.Interface) == true)
+                    var classSymbol = cc.BaseList?.Types.Select(s => semanticModel.GetTypeInfo(s.Type).Type).OfType<ITypeSymbol>().ToList() ?? new List<ITypeSymbol>();
+                    if (classSymbol.Any(s => s.TypeKind != TypeKind.Interface))
                     {
                         if (classSymbol.Any(s => s.Name.EndsWith("Instance")))
                         {
@@ -100,7 +101,7 @@ namespace NosCore.DtoGenerator
                         classNamespace = "NosCore.Data.I18N";
                     }
 
-                    if (classSymbol?.FirstOrDefault(s => s.TypeKind == TypeKind.Interface && s.Name.Contains("IStaticEntity")) != null)
+                    if (classSymbol.Any(s => s.TypeKind == TypeKind.Interface && s.Name.Contains("IStaticEntity")))
                     {
                         //directory = "StaticEntities";
                         dtoInterface = "IStaticDto";
@@ -115,9 +116,9 @@ namespace NosCore.DtoGenerator
                         var typeSymbol = semanticModel.GetTypeInfo(prop.Type).Type;
 
                         var i18nStr = prop.AttributeLists.SelectMany(o => o.Attributes).FirstOrDefault(o => o.Name.ToString() == "I18NString");
-                        if (i18nStr != null)
+                        if (i18nStr?.ArgumentList is { } i18nArguments)
                         {
-                            propertyList += $"       [I18NFrom({i18nStr.ArgumentList!.Arguments[0].ToString().TrimEnd(')')}Dto))]";
+                            propertyList += $"       [I18NFrom({i18nArguments.Arguments[0].ToString().TrimEnd(')')}Dto))]";
                             propertyList += $"       public I18NString {prop.Identifier} {{ get; set; }} = new I18NString();";
                             propertyList += $"       [AdaptMember(\"{prop.Identifier}\")]";
                             propertyList += $"       public {prop.Type} {prop.Identifier}I18NKey {{ get; set; }}";
@@ -138,10 +139,10 @@ namespace NosCore.DtoGenerator
                             }
 
                             var dtoName = prop.Type.ToString();
-                            if ((typeSymbol as INamedTypeSymbol)?.TypeArguments.Any() == true && typeSymbol?.Name == "Nullable" && (typeSymbol as INamedTypeSymbol)!.TypeArguments[0].ToString().StartsWith("NosCore"))
+                            if (typeSymbol is INamedTypeSymbol { Name: "Nullable", TypeArguments.Length: > 0 } nullable && nullable.TypeArguments[0].ToString().StartsWith("NosCore"))
                             {
                                 namespaceType = "";
-                                dtoName = (typeSymbol as INamedTypeSymbol)!.TypeArguments[0].ToString();
+                                dtoName = nullable.TypeArguments[0].ToString();
                                 if (nullableType)
                                 {
                                     dtoName += "?";

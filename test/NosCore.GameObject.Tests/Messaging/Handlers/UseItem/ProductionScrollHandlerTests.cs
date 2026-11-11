@@ -26,10 +26,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class ProductionScrollHandlerTests
     {
         private const short Scroll = 1014;
-        private ClientSession _session = null!;
-        private IItemGenerationService _itemProvider = null!;
-        private Mock<IProductionService> _productionService = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private IItemGenerationService _itemProvider;
+        private Mock<IProductionService> _productionService;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void TheCharacterHas_(short vnum) =>
             _item = _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(_itemProvider.Create(vnum, 1), _session.Character.CharacterId))![0];
+                InventoryItemInstance.Create(_itemProvider.Create(vnum, 1), _session.Character.CharacterId)).NotNull()[0];
 
         private Task UsingTheItem() =>
             new ProductionScrollHandler(_productionService.Object).Handle(new ItemUsedEvent(_session, _item,

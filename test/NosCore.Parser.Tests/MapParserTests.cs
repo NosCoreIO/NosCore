@@ -22,9 +22,9 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class MapParserTests
     {
-        private Mock<IDao<MapDto, short>> _daoMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private string _tempFolder = null!;
+        private Mock<IDao<MapDto, short>> _daoMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private string _tempFolder;
 
         [TestInitialize]
         public void Setup()

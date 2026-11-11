@@ -24,15 +24,15 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
     public class TransformationServiceTests
     {
         private static readonly ILogger<NosCore.GameObject.Services.TransformationService.TransformationService> Logger = new Mock<ILogger<NosCore.GameObject.Services.TransformationService.TransformationService>>().Object;
-        private ITransformationService Service = null!;
-        private ClientSession Session = null!;
+        private ITransformationService Service;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
 
             Service = new GameObject.Services.TransformationService.TransformationService(
                 TestHelpers.Instance.Clock,

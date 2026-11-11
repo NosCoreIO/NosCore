@@ -31,12 +31,12 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class WhisperPacketHandlerTests
     {
-        private WhisperPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
-        private Mock<IBlacklistHub> BlacklistHub = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<ISerializer> Serializer = null!;
+        private WhisperPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession TargetSession;
+        private Mock<IBlacklistHub> BlacklistHub;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<ISerializer> Serializer;
         private readonly ILogger<WhisperPacketHandler> Logger = new Mock<ILogger<WhisperPacketHandler>>().Object;
 
         [TestInitialize]
@@ -201,7 +201,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void TargetIsOnline()

@@ -29,10 +29,10 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
     [TestClass]
     public class SessionStateJobsTests
     {
-        private ClientSession Session = null!;
-        private Mock<ISaveService> SaveService = null!;
-        private Mock<ISessionRegistry> SessionRegistry = null!;
-        private FakeClock Clock = null!;
+        private ClientSession Session;
+        private Mock<ISaveService> SaveService;
+        private Mock<ISessionRegistry> SessionRegistry;
+        private FakeClock Clock;
         private ClientSession.PacketLockScope? HeldLock;
         private Task Job = Task.CompletedTask;
         private int Saves;

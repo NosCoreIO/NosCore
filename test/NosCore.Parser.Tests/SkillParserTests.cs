@@ -17,20 +17,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Parser.Tests
 {
     [TestClass]
     public class SkillParserTests
     {
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<SkillDto, short>> _skillDaoMock = null!;
-        private Mock<IDao<BCardDto, int>> _bCardDaoMock = null!;
-        private Mock<IDao<ComboDto, int>> _comboDaoMock = null!;
-        private string _tempFolder = null!;
-        private List<SkillDto> _savedSkills = null!;
-        private List<BCardDto> _savedBCards = null!;
-        private List<ComboDto> _savedCombos = null!;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<SkillDto, short>> _skillDaoMock;
+        private Mock<IDao<BCardDto, int>> _bCardDaoMock;
+        private Mock<IDao<ComboDto, int>> _comboDaoMock;
+        private string _tempFolder;
+        private List<SkillDto> _savedSkills;
+        private List<BCardDto> _savedBCards;
+        private List<ComboDto> _savedCombos;
 
         [TestInitialize]
         public void Setup()
@@ -228,8 +229,8 @@ namespace NosCore.Parser.Tests
             var skill = await ParseOneAsync(CreateSkillData(skillVNum: 1857,
                 cells: Line(30), tailCells: Line(4, dx: 1)));
 
-            Assert.AreEqual(34, skill.CellPattern!.Split(',').Length / 2);
-            Assert.IsTrue(skill.CellPattern!.EndsWith("1,-4,1,-3,1,-2,1,-1"),
+            Assert.AreEqual(34, skill.CellPattern.NotNull().Split(',').Length / 2);
+            Assert.IsTrue(skill.CellPattern.NotNull().EndsWith("1,-4,1,-3,1,-2,1,-1"),
                 "the tail is appended after the thirty CELL holds");
         }
 
@@ -237,7 +238,7 @@ namespace NosCore.Parser.Tests
         public async Task AFullCellWithAnEmptyTailStopsAtThirty()
         {
             var skill = await ParseOneAsync(CreateSkillData(skillVNum: 1175, cells: Line(30)));
-            Assert.AreEqual(30, skill.CellPattern!.Split(',').Length / 2);
+            Assert.AreEqual(30, skill.CellPattern.NotNull().Split(',').Length / 2);
         }
 
         [TestMethod]

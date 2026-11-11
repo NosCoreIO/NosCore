@@ -19,9 +19,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewJobPacketHandlerTests
     {
-        private CharNewJobPacketHandler CharNewJobPacketHandler = null!;
-        private ClientSession Session = null!;
-        private CharacterDto ExistingCharacter = null!;
+        private CharNewJobPacketHandler CharNewJobPacketHandler;
+        private ClientSession Session;
+        private CharacterDto ExistingCharacter;
         private const string TestCharacterName = "TestCharacter";
 
         [TestInitialize]

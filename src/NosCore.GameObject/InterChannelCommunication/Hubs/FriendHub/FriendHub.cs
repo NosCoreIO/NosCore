@@ -16,7 +16,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
 {
     public class FriendHub(IFriendService friendService) : IFriendHub
     {
-        public Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket) => friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket!.CharacterId, friendPacket.FinsPacket.Type);
+        public Task<LanguageKey> AddFriendAsync(FriendShipRequest friendPacket) => friendService.AddFriendAsync(friendPacket.CharacterId, friendPacket.FinsPacket.CharacterId, friendPacket.FinsPacket.Type);
 
         public Task<List<CharacterRelationStatus>> GetFriendsAsync(long id) => friendService.GetFriendsAsync(id);
 

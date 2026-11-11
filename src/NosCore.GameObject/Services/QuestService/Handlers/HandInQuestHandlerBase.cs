@@ -20,7 +20,7 @@ public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
             .Where(o => o.NpcVNum(QuestType) == npcVNum && o.ItemVNum(QuestType) != null
                 && !(quest.ObjectiveProgress.TryGetValue(o.QuestObjectiveId, out var c) && c >= o.RequiredAmount(QuestType)))
             .ToList();
-        if (due.Count == 0 || due.Any(o => CountCarried(character, o.ItemVNum(QuestType)!.Value) < o.RequiredAmount(QuestType)))
+        if (due.Count == 0 || due.Any(o => CountCarried(character, o.ItemVNum(QuestType).GetValueOrDefault()) < o.RequiredAmount(QuestType)))
         {
             return ItemQuestProgress.None;
         }
@@ -28,7 +28,7 @@ public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
         foreach (var objective in due)
         {
             var amount = objective.RequiredAmount(QuestType);
-            var packets = TakeCarried(character, objective.ItemVNum(QuestType)!.Value, amount);
+            var packets = TakeCarried(character, objective.ItemVNum(QuestType).GetValueOrDefault(), amount);
             quest.ObjectiveProgress[objective.QuestObjectiveId] = amount;
             await character.SendPacketsAsync(packets);
         }

@@ -16,7 +16,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
     [TestClass]
     public class MapInstanceRegistryTests
     {
-        private IMapInstanceRegistry Registry = null!;
+        private IMapInstanceRegistry Registry;
 
         [TestInitialize]
         public void Setup()

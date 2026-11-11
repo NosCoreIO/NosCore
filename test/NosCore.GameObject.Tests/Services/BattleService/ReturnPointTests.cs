@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -22,9 +23,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     {
         private const short Act1Map = 2550;
         private const short UntypedMap = 9999;
-        private List<RespawnDto> _respawns = null!;
-        private Mock<ICharacterEntity> _character = null!;
-        private RespawnService _service = null!;
+        private List<RespawnDto> _respawns;
+        private Mock<ICharacterEntity> _character;
+        private RespawnService _service;
 
         [TestInitialize]
         public void Setup()
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(2, _respawns.Count);
             Assert.AreEqual(((short)Act1Map, (short)21, (short)34), _service.GetReturnPoint(_character.Object, Act1Map));
-            Assert.AreEqual((short)5, _respawns.Find(r => r.RespawnMapTypeId == (long)RespawnType.DefaultAct1)!.X);
+            Assert.AreEqual((short)5, _respawns.Find(r => r.RespawnMapTypeId == (long)RespawnType.DefaultAct1).NotNull().X);
         }
 
         [TestMethod]

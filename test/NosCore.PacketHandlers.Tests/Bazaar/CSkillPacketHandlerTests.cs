@@ -26,8 +26,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CSkillPacketHandlerTests
     {
-        private CSkillPacketHandler CskillPacketHandler = null!;
-        private ClientSession Session = null!;
+        private CSkillPacketHandler CskillPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

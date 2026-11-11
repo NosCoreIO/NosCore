@@ -53,8 +53,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Name = "TEST SHOP"
         };
 
-        private MShopPacketHandler MShopPacketHandler = null!;
-        private ClientSession Session = null!;
+        private MShopPacketHandler MShopPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -216,7 +216,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasItemsWithAmount_(int value)
@@ -234,7 +234,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, (short)value), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasTradableItems()
@@ -252,7 +252,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterIsInExchange()
@@ -262,7 +262,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsOnShopAllowedMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task CreatingShopAtPortal()
@@ -325,7 +325,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             await MShopPacketHandler.ExecuteAsync(ShopPacket, Session);
         }
 
-        private ClientSession Visitor = null!;
+        private ClientSession Visitor;
 
         private async Task AnotherPlayerClicksTheShopAsync()
         {
@@ -339,8 +339,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
             var packet = Visitor.LastPackets.OfType<NInvPacket>().Single();
             Assert.AreEqual(VisualType.Player, packet.VisualType);
             Assert.AreEqual(Session.Character.VisualId, packet.VisualId);
-            Assert.AreEqual(Session.Character.Shop!.ShopItems.Count, packet.Items!.Count(i => i != null));
-            Assert.IsTrue(Session.Character.Shop.ShopItems.Count > 0);
+            Assert.AreEqual(Session.Character.Shop.NotNull().ShopItems.Count, packet.Items.NotNull().Count(i => i != null));
+            Assert.IsTrue(Session.Character.Shop.NotNull().ShopItems.Count > 0);
         }
 
         private void NoErrorShouldBeSent()

@@ -27,8 +27,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class OpenBankHandlerTests
     {
-        private ClientSession _session = null!;
-        private OpenBankHandler _handler = null!;
+        private ClientSession _session;
+        private OpenBankHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

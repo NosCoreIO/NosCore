@@ -18,7 +18,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class ReputationIconTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.Dignity = 100;
             _session.Character.Reputation = 5_000;
 
-            Assert.AreEqual((byte)ReputationType.RedExperienced, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.ReputIco);
+            Assert.AreEqual((byte)ReputationType.RedExperienced, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco);
         }
 
         [TestMethod]
@@ -42,10 +42,10 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.Dignity = 100;
 
             _session.Character.Reputation = 250;
-            var beginner = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.ReputIco;
+            var beginner = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco;
 
             _session.Character.Reputation = 251;
-            var trainee = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.ReputIco;
+            var trainee = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco;
 
             Assert.AreEqual((byte)ReputationType.RedBeginner, beginner);
             Assert.AreEqual((byte)ReputationType.GreenTrainee, trainee);
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.Reputation = 5_000;
             _session.Character.Dignity = -300;
 
-            Assert.AreEqual(unchecked((byte)-(int)DignityType.Dreadful), _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.ReputIco);
+            Assert.AreEqual(unchecked((byte)-(int)DignityType.Dreadful), _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco);
         }
 
         [TestMethod]
@@ -66,10 +66,10 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.Reputation = 5_000;
 
             _session.Character.Dignity = -99;
-            var stillReputation = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.ReputIco;
+            var stillReputation = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco;
 
             _session.Character.Dignity = -100;
-            var nowDignity = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.ReputIco;
+            var nowDignity = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().ReputIco;
 
             Assert.AreEqual((byte)ReputationType.RedExperienced, stillReputation);
             Assert.AreEqual(unchecked((byte)-(int)DignityType.Dubious), nowDignity);

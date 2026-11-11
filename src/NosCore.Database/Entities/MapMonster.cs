@@ -17,7 +17,7 @@ namespace NosCore.Database.Entities
     {
         public bool IsDisabled { get; set; }
 
-        public virtual Map Map { get; set; } = null!;
+        public virtual Map Map { get; set; }
 
         public short MapId { get; set; }
 
@@ -31,7 +31,7 @@ namespace NosCore.Database.Entities
 
         public short VNum { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; } = null!;
+        public virtual NpcMonster NpcMonster { get; set; }
 
         public byte Direction { get; set; }
     }

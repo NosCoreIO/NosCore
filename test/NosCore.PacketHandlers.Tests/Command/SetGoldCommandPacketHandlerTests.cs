@@ -25,9 +25,9 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetGoldCommandPacketHandlerTests
     {
-        private SetGoldCommandPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
+        private SetGoldCommandPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IRemoteCharacterService> RemoteCharacters;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void TargetPlayerIsOnline()

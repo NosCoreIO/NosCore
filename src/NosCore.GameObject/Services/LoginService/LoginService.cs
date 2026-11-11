@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Services.LoginService
             IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
         : ILoginService
     {
-        public async Task LoginAsync(string? username, string md5String, ClientVersionSubPacket clientVersion,
+        public async Task LoginAsync(string? username, string? md5String, ClientVersionSubPacket? clientVersion,
             Networking.ClientSession.ClientSession clientSession, string passwordToken, bool useApiAuth, RegionType language)
         {
             try
@@ -155,9 +155,9 @@ namespace NosCore.GameObject.Services.LoginService
                             });
 
                             nstest.ServerCharacters[serverId].WorldId = i;
-                            nstest.ServerCharacters[serverId].CharacterCount = (byte)characterDao.Where(o =>
+                            nstest.ServerCharacters[serverId].CharacterCount = (byte)(characterDao.Where(o =>
                                 o.AccountId == acc.AccountId && o.State == CharacterState.Active &&
-                                o.ServerId == serverId)!.Count();
+                                o.ServerId == serverId)?.Count() ?? 0);
 
                             i++;
                         }

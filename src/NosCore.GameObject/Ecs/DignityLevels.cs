@@ -24,9 +24,8 @@ public static class DignityLevels
 
         // Worst first, so the first band a value falls into is the one it belongs to.
         _ladder = imported
-            .Where(level => level.MaxDignity != null)
-            .OrderBy(level => level.MaxDignity)
-            .Select(level => new DignityBand(level.MaxDignity!.Value, (DignityType)level.DignityLevelId))
+            .SelectMany(level => level.MaxDignity is { } max ? new[] { new DignityBand(max, (DignityType)level.DignityLevelId) } : [])
+            .OrderBy(band => band.MaxDignity)
             .ToArray();
     }
 

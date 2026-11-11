@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -55,8 +56,8 @@ public sealed class CellonOperation(
             return null;
         }
 
-        var jewel = jewelSlot.ItemInstance!.Item;
-        if (cellonSlot.ItemInstance!.Item.EffectValue > jewel.MaxCellonLvl)
+        var jewel = jewelSlot.ItemInstance.Item;
+        if (cellonSlot.ItemInstance.Item.EffectValue > jewel.MaxCellonLvl)
         {
             return Reject(Game18NConstString.CellonLevelHigherThanAccessory);
         }
@@ -73,7 +74,7 @@ public sealed class CellonOperation(
             return null;
         }
 
-        var level = (byte)cellonSlot.ItemInstance!.Item.EffectValue;
+        var level = (byte)cellonSlot.ItemInstance.Item.EffectValue;
         return new UpgradeContext(
             Source: jewelSlot,
             Target: cellonSlot,
@@ -84,7 +85,7 @@ public sealed class CellonOperation(
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
-        var data = (CellonRollData)ctx.ExtraData!;
+        var data = ctx.Data<CellonRollData>();
         var options = data.Options;
         data.Option = options[Math.Min((int)(roll * options.Count), options.Count - 1)];
         return data.Taken.Contains((byte)data.Option.Type) ? UpgradeOutcome.Failure : UpgradeOutcome.Success;
@@ -92,9 +93,9 @@ public sealed class CellonOperation(
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
-        var data = (CellonRollData)ctx.ExtraData!;
-        var jewel = (WearableInstance)ctx.Source.ItemInstance!;
-        var option = data.Option!;
+        var data = ctx.Data<CellonRollData>();
+        var jewel = (WearableInstance)ctx.Source.ItemInstance;
+        var option = data.Option ?? throw new InvalidOperationException("No cellon option was rolled.");
 
         data.Rolled = new EquipmentOptionDto
         {
@@ -112,35 +113,35 @@ public sealed class CellonOperation(
 
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
     {
-        session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Target!.ItemInstanceId);
+        session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.RequiredTarget.ItemInstanceId);
     }
 
     protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
         UpgradeOutcome outcome, List<IPacket> playerPackets)
     {
-        var rolled = ((CellonRollData)ctx.ExtraData!).Rolled;
+        var rolled = ctx.Data<CellonRollData>().Rolled;
         if (rolled is not null)
         {
             await equipmentOptionDao.TryInsertOrUpdateAsync(rolled);
             // Dropped rather than appended to: combat may be reading the list being replaced.
-            ((WearableInstance)ctx.Source.ItemInstance!).EquipmentOptions = null;
+            ((WearableInstance)ctx.Source.ItemInstance).EquipmentOptions = null;
         }
     }
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
-        var cellon = ctx.Target!;
-        yield return (cellon.ItemInstance!.Amount > 0 ? cellon : null)
+        var cellon = ctx.RequiredTarget;
+        yield return (cellon.ItemInstance.Amount > 0 ? cellon : null)
             .GeneratePocketChange(cellon.Type.ToPocketType(), cellon.Slot);
         yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
     }
 
     // Only an upgrade material carries a tier in EffectValue, and only a cellon among them.
     private bool TryResolve(ClientSession session, UpgradePacket packet,
-        out InventoryItemInstance jewelSlot, out InventoryItemInstance cellonSlot)
+        [NotNullWhen(true)] out InventoryItemInstance? jewelSlot, [NotNullWhen(true)] out InventoryItemInstance? cellonSlot)
     {
-        jewelSlot = null!;
-        cellonSlot = null!;
+        jewelSlot = null;
+        cellonSlot = null;
         if (packet.CellonInventoryType is null || packet.CellonSlot is null)
         {
             return false;

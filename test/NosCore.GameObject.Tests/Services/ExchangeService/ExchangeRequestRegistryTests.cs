@@ -15,7 +15,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
     [TestClass]
     public class ExchangeRequestRegistryTests
     {
-        private IExchangeRequestRegistry Registry = null!;
+        private IExchangeRequestRegistry Registry;
 
         [TestInitialize]
         public void Setup()

@@ -30,10 +30,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private const int TeleporterNpcId = 100;
         private const int OtherNpcId = 101;
 
-        private ClientSession _session = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private List<TeleporterDto> _teleporters = null!;
-        private INrunEventHandler _handler = null!;
+        private ClientSession _session;
+        private Mock<IMapChangeService> _mapChangeService;
+        private List<TeleporterDto> _teleporters;
+        private INrunEventHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -208,7 +208,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 
         private void HandlerOf_ShouldAnswer_(System.Type type, NrunRunnerType runner)
         {
-            var handler = (INrunEventHandler)System.Activator.CreateInstance(type, _mapChangeService.Object, _teleporters)!;
+            var handler = ((INrunEventHandler)System.Activator.CreateInstance(type, _mapChangeService.Object, _teleporters).NotNull()).NotNull();
             Assert.AreEqual(runner, handler.Runner);
         }
 

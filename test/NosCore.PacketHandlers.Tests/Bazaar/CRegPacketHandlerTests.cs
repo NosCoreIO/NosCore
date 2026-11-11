@@ -28,10 +28,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CRegPacketHandlerTests : SpecBase
     {
-        private Mock<IBazaarHub> BazaarHttpClient = null!;
-        private CRegPacketHandler CregPacketHandler = null!;
-        private Mock<IDao<InventoryItemInstanceDto, Guid>> InventoryItemInstanceDao = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
+        private Mock<IBazaarHub> BazaarHttpClient;
+        private CRegPacketHandler CregPacketHandler;
+        private Mock<IDao<InventoryItemInstanceDto, Guid>> InventoryItemInstanceDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao;
 
         [TestInitialize]
         public override async Task SetupAsync()

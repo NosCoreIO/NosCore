@@ -39,15 +39,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short JewelVNum = 900;
         private const short CellonVNum = 1017;
 
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private Mock<IDao<EquipmentOptionDto, Guid>> _optionDao = null!;
-        private List<EquipmentOptionDto> _existingOptions = null!;
-        private List<EquipmentOptionDto> _persisted = null!;
-        private CellonOperation _operation = null!;
-        private InventoryItemInstance _jewel = null!;
-        private InventoryItemInstance _cellon = null!;
-        private IReadOnlyList<IPacket>? _result;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private Mock<IDao<EquipmentOptionDto, Guid>> _optionDao;
+        private List<EquipmentOptionDto> _existingOptions;
+        private List<EquipmentOptionDto> _persisted;
+        private CellonOperation _operation;
+        private InventoryItemInstance _jewel;
+        private InventoryItemInstance _cellon;
+        private IReadOnlyList<IPacket> _result;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -235,7 +235,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(expected, _persisted[0].Value);
 
         private void JewelCellonCountShouldBe_(byte expected) =>
-            Assert.AreEqual(expected, ((WearableInstance)_jewel.ItemInstance!).Cellon ?? 0);
+            Assert.AreEqual(expected, ((WearableInstance)_jewel.ItemInstance).Cellon ?? 0);
 
         private void GoldShouldBe_(long expected) => Assert.AreEqual(expected, _session.Character.Gold);
 
@@ -248,9 +248,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .LoadBySlotAndType(3, NoscorePocketType.Main)?.ItemInstance?.Amount ?? 0);
 
         private void MessageShouldBe_(Game18NConstString expected) =>
-            Assert.AreEqual(expected, _result!.OfType<MsgiPacket>().Single().Message);
+            Assert.AreEqual(expected, _result.OfType<MsgiPacket>().Single().Message);
 
-        private void NoPacketsShouldBeReturned() => Assert.AreEqual(0, _result!.Count);
+        private void NoPacketsShouldBeReturned() => Assert.AreEqual(0, _result.Count);
 
         private sealed class CellonItemForTest(short vnum, ItemType itemType, int effectValue) : ItemInstanceDto, IItemInstance
         {

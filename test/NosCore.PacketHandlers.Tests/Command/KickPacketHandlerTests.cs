@@ -22,9 +22,9 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class KickPacketHandlerTests
     {
-        private KickPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
+        private KickPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IRemoteCharacterService> RemoteCharacters;
 
         [TestInitialize]
         public async Task SetupAsync()

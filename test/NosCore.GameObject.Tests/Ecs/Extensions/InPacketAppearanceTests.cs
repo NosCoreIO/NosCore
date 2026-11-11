@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class InPacketAppearanceTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.MorphUpgrade = 7;
             _session.Character.MorphDesign = 2;
 
-            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!;
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
 
             Assert.AreEqual((byte)3, sub.Morph);
             Assert.AreEqual((byte)7, sub.MorphUpgrade);
@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             _session.Character.MorphUpgrade = 7;
             _session.Character.MorphDesign = 2;
 
-            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!;
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
 
             Assert.AreEqual((byte)0, sub.Morph);
             Assert.AreEqual((byte)0, sub.MorphUpgrade);
@@ -61,12 +61,12 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         public void AWornFairyIsShown()
         {
             var fairy = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(TestHelpers.Instance.GenerateItemProvider().Create(2, 1), _session.Character.CharacterId))!
+                .AddItemToPocket(InventoryItemInstance.Create(TestHelpers.Instance.GenerateItemProvider().Create(2, 1), _session.Character.CharacterId)).NotNull()
                 .First();
             fairy.Type = NoscorePocketType.Wear;
             fairy.Slot = (byte)EquipmentType.Fairy;
 
-            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!;
+            var sub = _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull();
 
             Assert.AreEqual((byte)4, sub.Fairy);
             Assert.AreEqual((byte)fairy.ItemInstance.Item.Element, sub.FairyElement);

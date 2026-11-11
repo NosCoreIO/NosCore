@@ -22,9 +22,9 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class PreqPacketHandlerTests
     {
-        private PreqPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IMovementService> MovementService = null!;
+        private PreqPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IMovementService> MovementService;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -25,12 +25,12 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
         private const string TargetName = "TargetPlayer";
         private const long TargetId = 12345;
 
-        private GameObject.Services.RemoteCharacterService.RemoteCharacterService Service = null!;
-        private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IMailHub> MailHub = null!;
+        private GameObject.Services.RemoteCharacterService.RemoteCharacterService Service;
+        private ClientSession Session;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<IMailHub> MailHub;
         private bool Found;
-        private MailRequest? SentMail;
+        private MailRequest SentMail;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
 
         private void AStatUpdateShouldBePublishedWithLevel_(long level) =>
             PubSubHub.Verify(x => x.SendMessageAsync(It.Is<StatData>(d =>
-                d.ActionType == UpdateStatActionType.UpdateLevel && d.Character!.Name == TargetName && d.Data == level)),
+                d.ActionType == UpdateStatActionType.UpdateLevel && d.Character.NotNull().Name == TargetName && d.Data == level)),
                 Times.Once);
 
         private void NothingShouldBePublished() =>
@@ -155,11 +155,11 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
 
         private void TheMailShouldCarryTheItemAndTheSender()
         {
-            Assert.AreEqual((short?)1, SentMail!.VNum);
+            Assert.AreEqual((short?)1, SentMail.VNum);
             Assert.AreEqual((short?)1, SentMail.Amount);
             Assert.AreEqual((sbyte?)5, SentMail.Rare);
             Assert.AreEqual((byte?)7, SentMail.Upgrade);
-            Assert.AreEqual(TargetId, SentMail.Mail!.ReceiverId);
+            Assert.AreEqual(TargetId, SentMail.Mail.ReceiverId);
             Assert.AreEqual(Session.Character.VisualId, SentMail.Mail.SenderId);
             Assert.AreEqual(Session.Character.Name, SentMail.Mail.Title);
             Assert.IsNull(SentMail.Mail.ItemInstanceId);

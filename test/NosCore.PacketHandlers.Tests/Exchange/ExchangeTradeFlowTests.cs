@@ -50,15 +50,15 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     [TestClass]
     public class ExchangeTradeFlowTests
     {
-        private ClientSession Requester = null!;
-        private ClientSession Target = null!;
+        private ClientSession Requester;
+        private ClientSession Target;
         private readonly List<ISessionDisconnectHandler> TargetDisconnectHandlers = new();
-        private ExchangeService Exchange = null!;
-        private ExchangeRequestPackettHandler RequestHandler = null!;
-        private ExcListPacketHandler ListHandler = null!;
-        private Mock<IBlacklistHub> Blacklist = null!;
-        private FakeClock Clock = null!;
-        private ItemGenerationService ItemProvider = null!;
+        private ExchangeService Exchange;
+        private ExchangeRequestPackettHandler RequestHandler;
+        private ExcListPacketHandler ListHandler;
+        private Mock<IBlacklistHub> Blacklist;
+        private FakeClock Clock;
+        private ItemGenerationService ItemProvider;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             await TestHelpers.ResetAsync();
             Requester = await TestHelpers.Instance.GenerateSessionAsync();
             Target = await TestHelpers.Instance.GenerateSessionAsync(disconnectHandlers: TargetDisconnectHandlers);
-            Requester.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Requester.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Target.Character.MapInstance = Requester.Character.MapInstance;
             Requester.Character.Gold = 0;
             Target.Character.Gold = 0;
@@ -81,6 +81,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Exchange = new ExchangeService(
                 Options.Create(new WorldConfiguration
                 {
+                    Database = new(),
+                    MasterCommunication = new(),
                     BackpackSize = 48,
                     MaxItemAmount = 999,
                     MaxGoldAmount = 1_000_000_000,
@@ -112,6 +114,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             return new TransferService(
                 Options.Create(new WorldConfiguration
                 {
+                    Database = new(),
+                    MasterCommunication = new(),
                     BackpackSize = 48,
                     MaxItemAmount = 999,
                     MaxGoldAmount = 1_000_000_000,
@@ -436,10 +440,10 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Assert.IsNotNull(Exchange.ConfirmExchange(Requester.Character.VisualId));
         }
 
-        private Task? _disconnect;
-        private Task? _settlement;
+        private Task _disconnect;
+        private Task _settlement;
         private readonly TaskCompletionSource<List<KeyValuePair<long, IvnPacket>>?> _heldTransfer = new();
-        private ExchangeRequestPackettHandler? _heldHandler;
+        private ExchangeRequestPackettHandler _heldHandler;
 
         private void TargetSessionEnds()
         {
@@ -460,15 +464,15 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void RequesterConfirmsWhileTheTransferIsHeld()
         {
-            _settlement = _heldHandler!.ExecuteAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Confirmed }, Requester);
+            _settlement = _heldHandler.ExecuteAsync(new ExchangeRequestPacket { RequestType = RequestExchangeType.Confirmed }, Requester);
             Assert.IsFalse(_settlement.IsCompleted);
         }
 
         private async Task TheTransferCompletes()
         {
             _heldTransfer.SetResult(new List<KeyValuePair<long, IvnPacket>>());
-            await _settlement!.WaitAsync(TimeSpan.FromSeconds(5));
-            await _disconnect!.WaitAsync(TimeSpan.FromSeconds(5));
+            await _settlement.WaitAsync(TimeSpan.FromSeconds(5));
+            await _disconnect.WaitAsync(TimeSpan.FromSeconds(5));
         }
 
         private void RequesterWasToldTheTradeSucceeded() =>
@@ -480,16 +484,16 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void TheDisconnectIsStillWaiting()
         {
             Thread.Sleep(200);
-            Assert.IsFalse(_disconnect!.IsCompleted);
+            Assert.IsFalse(_disconnect.IsCompleted);
         }
 
         private async Task TheSettlementClosesTheTrade()
         {
             Exchange.CloseExchange(Requester.Character.VisualId, ExchangeResultType.Success);
-            await _disconnect!.WaitAsync(TimeSpan.FromSeconds(5));
+            await _disconnect.WaitAsync(TimeSpan.FromSeconds(5));
         }
 
-        private Task TheDisconnectCompletes() => _disconnect!.WaitAsync(TimeSpan.FromSeconds(5));
+        private Task TheDisconnectCompletes() => _disconnect.WaitAsync(TimeSpan.FromSeconds(5));
 
         private void RequesterReceivedNoFailure() =>
             Assert.IsFalse(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Failure));

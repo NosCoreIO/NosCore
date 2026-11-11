@@ -26,6 +26,7 @@ using System.Threading.Tasks;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
 using MatePlacement = NosCore.GameObject.Services.MateService.MatePlacement;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.MateService
 {
@@ -190,11 +191,11 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var packet = mate.GenerateIn(RegionType.EN);
 
             Assert.AreEqual(VisualType.Npc, packet.VisualType);
-            Assert.AreEqual(CharacterId, packet.InNonPlayerSubPacket!.Owner);
-            Assert.AreEqual(3, packet.InNonPlayerSubPacket.GroupEffect);
+            Assert.AreEqual(CharacterId, packet.InNonPlayerSubPacket.NotNull().Owner);
+            Assert.AreEqual(3, packet.InNonPlayerSubPacket.NotNull().GroupEffect);
             Assert.AreEqual(mate.MateTransportId, packet.VisualId);
             Assert.AreEqual(26, packet.PositionX);
-            Assert.AreEqual(50, packet.InNonPlayerSubPacket.InAliveSubPacket!.Hp,
+            Assert.AreEqual(50, packet.InNonPlayerSubPacket.NotNull().InAliveSubPacket.NotNull().Hp,
                 "the spawn carries health as a percentage, not as points");
         }
 
@@ -211,9 +212,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var mates = await service.LoadAsync(CharacterId);
 
             Assert.AreEqual(0, mates.Single(s => s.MateType == MateType.Pet)
-                .GenerateIn(RegionType.EN).InNonPlayerSubPacket!.Unknow1);
+                .GenerateIn(RegionType.EN).InNonPlayerSubPacket.NotNull().Unknow1);
             Assert.AreEqual(1, mates.Single(s => s.MateType == MateType.Partner)
-                .GenerateIn(RegionType.EN).InNonPlayerSubPacket!.Unknow1);
+                .GenerateIn(RegionType.EN).InNonPlayerSubPacket.NotNull().Unknow1);
         }
 
         [TestMethod]
@@ -359,9 +360,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var service = Build(System.Array.Empty<MateDto>());
             var existing = new[]
             {
-                new Mate { MateType = MateType.Pet, PetSlot = 0 },
-                new Mate { MateType = MateType.Pet, PetSlot = 1 },
-                new Mate { MateType = MateType.Partner, PetSlot = 0 }
+                new Mate { MateType = MateType.Pet, PetSlot = 0, NpcMonster = new NpcMonsterDto() },
+                new Mate { MateType = MateType.Pet, PetSlot = 1, NpcMonster = new NpcMonsterDto() },
+                new Mate { MateType = MateType.Partner, PetSlot = 0, NpcMonster = new NpcMonsterDto() }
             };
 
             var mate = service.Adopt(

@@ -21,7 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class MviPacketHandlerTests : SpecBase
     {
-        private MviPacketHandler MviPacketHandler = null!;
+        private MviPacketHandler MviPacketHandler;
 
         [TestInitialize]
         public override async Task SetupAsync()

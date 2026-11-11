@@ -39,12 +39,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         private const short OtherNpc = 301;
         private const short Monster = 333;
 
-        private ClientSession _session = null!;
-        private IItemGenerationService _itemProvider = null!;
-        private Mock<IQuestService> _questService = null!;
-        private ItemQuestProgressHandler _handler = null!;
-        private CharacterQuest _quest = null!;
-        private QuestObjectiveDto _objective = null!;
+        private ClientSession _session;
+        private IItemGenerationService _itemProvider;
+        private Mock<IQuestService> _questService;
+        private ItemQuestProgressHandler _handler;
+        private CharacterQuest _quest;
+        private QuestObjectiveDto _objective;
 
         [TestInitialize]
         public async Task SetupAsync()

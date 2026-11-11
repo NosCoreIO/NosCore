@@ -37,9 +37,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     {
         private const short ScrollSlot = 0;
 
-        private Mock<IRandomNumberSource> _random = null!;
-        private EventSpUpgradeOperationBase[] _operations = null!;
-        private SpecialistInstance _card = null!;
+        private Mock<IRandomNumberSource> _random;
+        private EventSpUpgradeOperationBase[] _operations;
+        private SpecialistInstance _card;
         private IReadOnlyList<IPacket> _result = Array.Empty<IPacket>();
 
         [TestInitialize]
@@ -183,7 +183,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private Task UsingTheScrollIn_(short slot)
         {
-            var scroll = Session.Character.InventoryService.LoadBySlotAndType(slot, NoscorePocketType.Main)!;
+            var scroll = Session.Character.InventoryService.LoadBySlotAndType(slot, NoscorePocketType.Main).NotNull();
             return new UpgradeWindowItemHandler(_operations, TestHelpers.Instance.NpcDialogService)
                 .Handle(new ItemUsedEvent(Session, scroll, new UseItemPacket
                 {
@@ -209,7 +209,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(message, _result.OfType<SayiPacket>().Single().Message);
 
         private void TheWindowShouldBe_(WindowType window) =>
-            Assert.AreEqual(window, GetLastPacket<WopenPacket>()!.Type);
+            Assert.AreEqual(window, GetLastPacket<WopenPacket>().NotNull().Type);
 
         private void TheScrollWindowShouldBeOpen() =>
             Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.UpgradeScroll));

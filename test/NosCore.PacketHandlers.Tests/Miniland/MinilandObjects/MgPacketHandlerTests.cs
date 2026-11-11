@@ -37,11 +37,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
     [TestClass]
     public class MgPacketHandlerTests
     {
-        private MgPacketHandler _mgPacketHandler = null!;
-        private ClientSession _session = null!;
-        private IMinilandService _minilandProvider = null!;
-        private InventoryItemInstance _minilandObject = null!;
-        private ItemGenerationService _itemProvider = null!;
+        private MgPacketHandler _mgPacketHandler;
+        private ClientSession _session;
+        private IMinilandService _minilandProvider;
+        private InventoryItemInstance _minilandObject;
+        private ItemGenerationService _itemProvider;
 
         private List<ItemDto> MinilandItems => new()
         {
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
             await _minilandProvider.InitializeAsync(_session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
-            var mapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(miniland.MapInstanceId)!;
+            var mapInstance = TestHelpers.Instance.GetMap(miniland.MapInstanceId);
             _session.Character.MapInstance = mapInstance;
             _itemProvider = new ItemGenerationService(
                 MinilandItems,

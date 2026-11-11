@@ -11,7 +11,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
 {
     public class PostedPacket : IMessage
     {
-        public string? Packet { get; set; }
+        public required string Packet { get; set; }
 
         public Data.WebApi.Character? SenderCharacter { get; set; }
 

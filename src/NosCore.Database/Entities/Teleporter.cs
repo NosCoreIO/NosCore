@@ -17,11 +17,11 @@ namespace NosCore.Database.Entities
 
         public TeleporterType Type { get; set; }
 
-        public virtual Map Map { get; set; } = null!;
+        public virtual Map Map { get; set; }
 
         public short MapId { get; set; }
 
-        public virtual MapNpc MapNpc { get; set; } = null!;
+        public virtual MapNpc MapNpc { get; set; }
 
         public int MapNpcId { get; set; }
 

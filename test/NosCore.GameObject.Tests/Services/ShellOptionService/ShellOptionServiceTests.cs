@@ -19,9 +19,9 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
     [TestClass]
     public class ShellOptionServiceTests
     {
-        private ClientSession _session = null!;
-        private ShellTestBench _bench = null!;
-        private WearableInstance _shell = null!;
+        private ClientSession _session;
+        private ShellTestBench _bench;
+        private WearableInstance _shell;
         private int _rolled;
 
         [TestInitialize]

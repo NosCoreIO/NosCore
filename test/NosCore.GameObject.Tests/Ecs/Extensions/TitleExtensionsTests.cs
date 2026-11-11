@@ -20,7 +20,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     public class TitleExtensionsTests
     {
         private const short TitleId = 1;
-        private ClientSession Session = null!;
+        private ClientSession Session;
         private bool Toggled;
 
         [TestInitialize]

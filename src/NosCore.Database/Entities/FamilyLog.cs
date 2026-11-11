@@ -13,7 +13,7 @@ namespace NosCore.Database.Entities
 {
     public class FamilyLog : IEntity
     {
-        public virtual Family Family { get; set; } = null!;
+        public virtual Family Family { get; set; }
 
         public long FamilyId { get; set; }
 

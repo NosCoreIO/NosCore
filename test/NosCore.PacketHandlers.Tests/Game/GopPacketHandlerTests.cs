@@ -29,9 +29,9 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class GopPacketHandlerTests
     {
-        private GopPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
+        private GopPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IPubSubHub> PubSubHub;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -296,14 +296,14 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             var characterId = Session.Character.CharacterId;
             PubSubHub.Verify(x => x.SubscribeAsync(It.Is<Subscriber>(s =>
-                s.ConnectedCharacter!.Id == characterId && s.ConnectedCharacter.WhisperBlocked)), Times.Once);
+                s.ConnectedCharacter.NotNull().Id == characterId && s.ConnectedCharacter.NotNull().WhisperBlocked)), Times.Once);
         }
 
         private void SubscriberShouldBePublishedWithFriendRequestBlocked()
         {
             var characterId = Session.Character.CharacterId;
             PubSubHub.Verify(x => x.SubscribeAsync(It.Is<Subscriber>(s =>
-                s.ConnectedCharacter!.Id == characterId && s.ConnectedCharacter.FriendRequestBlocked)), Times.Once);
+                s.ConnectedCharacter.NotNull().Id == characterId && s.ConnectedCharacter.NotNull().FriendRequestBlocked)), Times.Once);
         }
 
         private void NothingShouldBeSent()

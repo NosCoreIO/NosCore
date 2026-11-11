@@ -26,12 +26,12 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ItemParserTests
     {
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<ItemDto, short>> _itemDaoMock = null!;
-        private Mock<IDao<BCardDto, int>> _bCardDaoMock = null!;
-        private string _tempFolder = null!;
-        private List<ItemDto> _savedItems = null!;
-        private List<BCardDto> _savedBCards = null!;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<ItemDto, short>> _itemDaoMock;
+        private Mock<IDao<BCardDto, int>> _bCardDaoMock;
+        private string _tempFolder;
+        private List<ItemDto> _savedItems;
+        private List<BCardDto> _savedBCards;
 
         [TestInitialize]
         public void Setup()

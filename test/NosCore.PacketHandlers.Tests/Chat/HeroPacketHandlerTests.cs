@@ -31,10 +31,10 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class HeroPacketHandlerTests
     {
-        private HeroPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IReputationRankingService> Ranking = null!;
+        private HeroPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<IReputationRankingService> Ranking;
         private readonly List<IPacket> Serialized = new();
         private readonly List<PostedPacket> Posted = new();
 
@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
         {
             Assert.AreEqual(1, Posted.Count);
             Assert.AreEqual(ReceiverType.AllNoHeroBlocked, Posted[0].ReceiverType);
-            Assert.AreEqual(Session.Character.CharacterId, Posted[0].SenderCharacter!.Id);
+            Assert.AreEqual(Session.Character.CharacterId, Posted[0].SenderCharacter.NotNull().Id);
             var msg = Serialized.OfType<MsgPacket>().Single();
             Assert.AreEqual(MessageType.Hero, msg.Type);
             Assert.AreEqual($"[{Session.Character.Name}]:Hello heroes", msg.Message);

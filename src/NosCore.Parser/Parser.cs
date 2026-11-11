@@ -29,7 +29,7 @@ namespace NosCore.Parser
             {
                 if (cli.HasFolder)
                 {
-                    await RunNonInteractiveAsync(cli.Folder!, stoppingToken).ConfigureAwait(false);
+                    await RunNonInteractiveAsync(cli.Folder, stoppingToken).ConfigureAwait(false);
                 }
                 else
                 {
@@ -77,7 +77,7 @@ namespace NosCore.Parser
                 key = Console.ReadKey(true);
             }
 
-            factory.SetFolder(folder!);
+            factory.SetFolder(folder ?? string.Empty);
             await factory.ImportPacketsAsync().ConfigureAwait(false);
 
             if (inputRedirected || key.KeyChar != 'n')

@@ -30,9 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class TitleHandlerTests
     {
         private const short TitleVNum = 9054;
-        private ClientSession _session = null!;
-        private TitleHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private TitleHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

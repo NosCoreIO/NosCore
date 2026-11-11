@@ -34,18 +34,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class MonsterAiTests
     {
-        private ClientSession _session = null!;
-        private MapInstance _map = null!;
-        private Mock<IBattleService> _battle = null!;
-        private AggroService _aggro = null!;
-        private MonsterAi _ai = null!;
+        private ClientSession _session;
+        private MapInstance _map;
+        private Mock<IBattleService> _battle;
+        private AggroService _aggro;
+        private MonsterAi _ai;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.GetBaseMap(0);
             _session.Character.MapInstance = _map;
             _map.Map = TestMap();
 

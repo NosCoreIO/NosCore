@@ -32,13 +32,13 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class BtkPacketHandlerTests
     {
-        private BtkPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession FriendSession = null!;
-        private Mock<IFriendHub> FriendHub = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<ISerializer> Serializer = null!;
-        private Mock<ISessionRegistry> SessionRegistry = null!;
+        private BtkPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession FriendSession;
+        private Mock<IFriendHub> FriendHub;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<ISerializer> Serializer;
+        private Mock<ISessionRegistry> SessionRegistry;
         private readonly ILogger<BtkPacketHandler> Logger = new Mock<ILogger<BtkPacketHandler>>().Object;
         private const long OfflineFriendId = 99998;
         private const long DifferentChannelFriendId = 99997;
@@ -135,7 +135,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void TargetIsFriend()

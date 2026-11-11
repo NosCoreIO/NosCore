@@ -32,18 +32,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class AreaAndTargetListSkillTests
     {
-        private ClientSession _caster = null!;
-        private ClientSession _bystander = null!;
-        private MapInstance _map = null!;
-        private IReadOnlyList<MonsterComponentBundle> _monsters = null!;
-        private IReadOnlyList<IAliveEntity> _resolved = null!;
+        private ClientSession _caster;
+        private ClientSession _bystander;
+        private MapInstance _map;
+        private IReadOnlyList<MonsterComponentBundle> _monsters;
+        private IReadOnlyList<IAliveEntity> _resolved;
 
-        private Mock<ISkillResolver> _skillResolver = null!;
-        private Mock<ITargetResolver> _targetResolver = null!;
-        private Mock<IHitQueue> _hitQueue = null!;
-        private GameObject.Services.BattleService.BattleService _service = null!;
+        private Mock<ISkillResolver> _skillResolver;
+        private Mock<ITargetResolver> _targetResolver;
+        private Mock<IHitQueue> _hitQueue;
+        private GameObject.Services.BattleService.BattleService _service;
         private readonly List<IAliveEntity> _hitEntities = new();
-        private FakeEntity _origin = null!;
+        private FakeEntity _origin;
         private bool _accepted;
 
         [TestInitialize]
@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await TestHelpers.ResetAsync();
             _caster = await TestHelpers.Instance.GenerateSessionAsync();
             _bystander = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0).NotNull();
             _caster.Character.MapInstance = _map;
             _bystander.Character.MapInstance = _map;
 
@@ -276,7 +276,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Hp = hp,
             VisualId = id,
             VisualType = VisualType.Monster,
-            MapInstance = onOtherMap ? null! : _map,
+            MapInstance = onOtherMap ? null : _map,
         };
 
         private FakeEntity Player(long id) => new()

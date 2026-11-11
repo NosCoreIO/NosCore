@@ -33,16 +33,16 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
     public class MapChangeServiceTests
     {
         private static readonly ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService> Logger = new Mock<ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService>>().Object;
-        private IMapChangeService Service = null!;
-        private ClientSession Session = null!;
-        private Mock<IMinilandService> MinilandService = null!;
+        private IMapChangeService Service;
+        private ClientSession Session;
+        private Mock<IMinilandService> MinilandService;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
 
             var minilandService = new Mock<IMinilandService>();
             MinilandService = minilandService;
@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 .ExecuteAsync();
         }
 
-        private DigestionState _digestion = null!;
+        private DigestionState _digestion;
 
         private void TheCharacterIsDigesting()
         {
@@ -170,7 +170,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             await ChangingToBaseMap1();
 
             var pinit = Session.LastPackets.OfType<PinitPacket>().Last();
-            Assert.IsTrue(pinit.PinitSubPackets!.Any(s => s!.VisualId == pet.MateTransportId));
+            Assert.IsTrue(pinit.PinitSubPackets.NotNull().Any(s => s.NotNull().VisualId == pet.MateTransportId));
             Assert.IsNotNull(pet.Entity, "the pet must be on the new map before the panel names it");
         }
 
@@ -189,8 +189,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
 
             Assert.IsNotNull(home.Entity);
             Assert.AreEqual(((short)4, (short)1), (home.PositionX, home.PositionY));
-            Assert.IsFalse(Session.LastPackets.OfType<PinitPacket>().Last().PinitSubPackets!
-                .Any(s => s!.VisualId == home.MateTransportId), "a NosMate at home is not in the party panel");
+            Assert.IsFalse(Session.LastPackets.OfType<PinitPacket>().Last().PinitSubPackets.NotNull()
+                .Any(s => s.NotNull().VisualId == home.MateTransportId), "a NosMate at home is not in the party panel");
         }
 
         [TestMethod]
@@ -223,7 +223,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
 
         private async Task ChangingToBaseMap1()
         {
-            var map1 = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            var map1 = TestHelpers.Instance.GetBaseMap(1);
             await Service.ChangeMapInstanceAsync(Session, map1.MapInstanceId, 10, 10);
         }
 
@@ -274,13 +274,13 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
 
         private void Map0ShouldExist()
         {
-            var map0 = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0);
+            var map0 = TestHelpers.Instance.GetBaseMap(0);
             Assert.IsNotNull(map0);
         }
 
         private void Map1ShouldExist()
         {
-            var map1 = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1);
+            var map1 = TestHelpers.Instance.GetBaseMap(1);
             Assert.IsNotNull(map1);
         }
     }

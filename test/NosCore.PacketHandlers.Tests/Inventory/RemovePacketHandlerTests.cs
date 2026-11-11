@@ -24,7 +24,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class RemovePacketHandlerTests : SpecBase
     {
-        private RemovePacketHandler RemovePacketHandler = null!;
+        private RemovePacketHandler RemovePacketHandler;
 
         [TestInitialize]
         public override async Task SetupAsync()

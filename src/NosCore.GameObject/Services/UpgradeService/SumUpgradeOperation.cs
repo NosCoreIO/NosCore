@@ -104,15 +104,15 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
     }
 
     protected override double GetSuccessRate(UpgradeContext ctx) =>
-        SuccessRateByCombinedLevel[(int)ctx.ExtraData!];
+        SuccessRateByCombinedLevel[ctx.Data<int>()];
 
     // OpenNos WearableInstance.cs:643-646 adds BOTH the target's accumulated (instance) resistance
     // AND its base-item resistance — a fresh pair of boots with Item.FireResistance=5 contributes
     // 5 to the fire total even if its accumulated instance resistance is 0.
     protected override void ApplySuccess(UpgradeContext ctx)
     {
-        var source = (WearableInstance)ctx.Source.ItemInstance!;
-        var target = (WearableInstance)ctx.Target!.ItemInstance!;
+        var source = (WearableInstance)ctx.Source.ItemInstance;
+        var target = (WearableInstance)ctx.RequiredTarget.ItemInstance;
 
         source.DarkResistance  = (short)((source.DarkResistance  ?? 0) + (target.DarkResistance  ?? 0) + target.Item.DarkResistance);
         source.LightResistance = (short)((source.LightResistance ?? 0) + (target.LightResistance ?? 0) + target.Item.LightResistance);
@@ -129,7 +129,7 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
     {
         // Target slot is consumed regardless of outcome.
-        session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Target!.ItemInstanceId);
+        session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.RequiredTarget.ItemInstanceId);
     }
 
     // OpenNos Sum effect pattern (WearableInstance.cs 651/658/662):
@@ -158,13 +158,13 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
         yield return ((InventoryItemInstance?)null).GeneratePocketChange(
-            ctx.Target!.Type.ToPocketType(), ctx.Target.Slot);
+            ctx.RequiredTarget.Type.ToPocketType(), ctx.RequiredTarget.Slot);
         if (outcome == UpgradeOutcome.Success)
         {
             yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
             // OpenNos WearableInstance.cs:648 pdti 10 popup announcing the combined upgrade level.
             // Type=10 (ResistanceFused), RecipeAmount=1, Slot=27 are fixed values from OpenNos.
-            var source = (WearableInstance)ctx.Source.ItemInstance!;
+            var source = (WearableInstance)ctx.Source.ItemInstance;
             yield return new PdtiPacket
             {
                 Type = PdtiPacketType.ResistanceFused,

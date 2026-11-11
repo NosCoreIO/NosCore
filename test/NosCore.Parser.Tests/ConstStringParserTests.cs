@@ -50,12 +50,12 @@ namespace NosCore.Parser.Tests
             "-800 to -1000#13#1050% price increase when purchasing shop items!#13#10You can no longer capture pets!#13#10Your NosMate will no longer accompany you."
         ];
 
-        private Mock<IDao<DignityLevelDto, byte>> _dignityDaoMock = null!;
-        private List<DignityLevelDto> _dignitySaved = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<ReputationLevelDto, byte>> _reputationDaoMock = null!;
-        private List<ReputationLevelDto> _reputationSaved = null!;
-        private string _tempFolder = null!;
+        private Mock<IDao<DignityLevelDto, byte>> _dignityDaoMock;
+        private List<DignityLevelDto> _dignitySaved;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<ReputationLevelDto, byte>> _reputationDaoMock;
+        private List<ReputationLevelDto> _reputationSaved;
+        private string _tempFolder;
 
         [TestInitialize]
         public void Setup()

@@ -16,11 +16,11 @@ namespace NosCore.Database.Entities
     {
         public short Amount { get; set; }
 
-        public virtual Item Item { get; set; } = null!;
+        public virtual Item Item { get; set; }
 
         public short ItemVNum { get; set; }
 
-        public virtual Recipe Recipe { get; set; } = null!;
+        public virtual Recipe Recipe { get; set; }
 
         public short RecipeId { get; set; }
 

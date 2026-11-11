@@ -17,8 +17,8 @@ namespace NosCore.GameObject.Tests.Services.GroupService
     [TestClass]
     public class GroupRegistryTests
     {
-        private IGroupRegistry Registry = null!;
-        private Mock<ISessionGroupFactory> MockSessionGroupFactory = null!;
+        private IGroupRegistry Registry;
+        private Mock<ISessionGroupFactory> MockSessionGroupFactory;
 
         [TestInitialize]
         public void Setup()
@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
                 .ExecuteAsync();
         }
 
-        private Group? TestGroup;
+        private Group TestGroup;
         private Group? ResultGroup;
         private const long TestGroupId = 1;
         private const long TestCharacterId = 100;
@@ -104,7 +104,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
         private void GroupIsRegistered()
         {
             GroupIsCreated();
-            Registry.Register(TestGroup!);
+            Registry.Register(TestGroup);
         }
 
         private void MemberIsRegistered()
@@ -115,7 +115,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
 
         private void RegisteringGroup()
         {
-            Registry.Register(TestGroup!);
+            Registry.Register(TestGroup);
         }
 
         private void GettingUnknownGroup()

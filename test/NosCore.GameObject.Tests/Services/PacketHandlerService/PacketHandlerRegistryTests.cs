@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Tests.Services.PacketHandlerService
     [TestClass]
     public class PacketHandlerRegistryTests
     {
-        private IPacketHandlerRegistry Registry = null!;
+        private IPacketHandlerRegistry Registry;
 
         [TestInitialize]
         public void Setup()

@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Command
                     return;
 
                 case ItemGrantOutcome.Granted:
-                    await session.SendPacketAsync(result.Items!.GeneratePocketChange());
+                    await session.SendPacketAsync((result.Items ?? []).GeneratePocketChange());
                     await session.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,

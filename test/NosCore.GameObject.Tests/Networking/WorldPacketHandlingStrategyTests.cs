@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class WorldPacketHandlingStrategyTests
     {
-        private ClientSession Session = null!;
+        private ClientSession Session;
         private readonly List<string> Handled = new();
 
         [TestInitialize]

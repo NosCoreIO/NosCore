@@ -33,9 +33,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class PotionHandlerTests
     {
         private const short PotionVNum = 1002;
-        private ClientSession _session = null!;
-        private PotionHandler _handler = null!;
-        private InventoryItemInstance _potion = null!;
+        private ClientSession _session;
+        private PotionHandler _handler;
+        private InventoryItemInstance _potion;
         private readonly List<MapTypeMapDto> _mapTypeMaps = new();
         private readonly List<MapTypeDto> _mapTypes = new();
 

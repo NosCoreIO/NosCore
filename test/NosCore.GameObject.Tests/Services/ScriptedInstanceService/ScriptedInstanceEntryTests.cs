@@ -25,8 +25,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
     {
         private const short SeedVnum = 1012;
 
-        private ClientSession _session = null!;
-        private IItemGenerationService _items = null!;
+        private ClientSession _session;
+        private IItemGenerationService _items;
 
         [TestInitialize]
         public async Task SetupAsync()

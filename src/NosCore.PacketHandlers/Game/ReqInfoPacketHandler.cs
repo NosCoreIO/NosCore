@@ -86,8 +86,12 @@ namespace NosCore.PacketHandlers.Game
         // VisualId of the clicked entity on the current map.
         private async Task HandleMapEntityInfoAsync(ReqInfoPacket packet, ClientSession session)
         {
+            if (packet.MateVNum is not { } visualId)
+            {
+                return;
+            }
+
             var visualType = (VisualType)(int)packet.TargetVNum;
-            var visualId = packet.MateVNum!.Value;
             NpcMonsterDto? template = null;
             switch (visualType)
             {

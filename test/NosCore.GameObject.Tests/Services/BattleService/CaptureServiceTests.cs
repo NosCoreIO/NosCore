@@ -39,11 +39,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class CaptureServiceTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
         private MonsterComponentBundle _monster;
-        private Mock<IRandomProvider> _random = null!;
-        private CaptureService _service = null!;
-        private MateServiceImpl _mateService = null!;
+        private Mock<IRandomProvider> _random;
+        private CaptureService _service;
+        private MateServiceImpl _mateService;
 
         private static readonly SkillInfo Capture = new(209, 16, 150, 15, -1, 0, 0, default, 1, 0, 0, 0, 0, 0,
             new List<BCardDto>
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await Catching();
 
             Assert.IsNotNull(Caught);
-            Assert.IsTrue(Caught!.IsTeamMember);
+            Assert.IsTrue(Caught.IsTeamMember);
             Assert.AreEqual(3000, Caught.Loyalty, "every fresh catch in the recording starts at 3000");
             Assert.IsTrue(Caught.MateId > 0, "the live pet keeps the row id so a save updates it");
             var spawn = _session.Character.MapInstance.LastPackets.OfType<InPacket>().Single(s => s.VisualId == Caught.MateTransportId);
@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             var order = _session.LastPackets
                 .Where(p => p is CtlPacket or MsgiPacket or PclearPacket or PinitPacket)
-                .Select(p => p!.GetType().Name)
+                .Select(p => p.NotNull().GetType().Name)
                 .ToArray();
             CollectionAssert.AreEqual(
                 new[] { nameof(CtlPacket), nameof(MsgiPacket), nameof(PclearPacket), nameof(PinitPacket), nameof(PclearPacket) },
@@ -144,8 +144,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             var sent = _session.LastPackets.ToList();
             var panel = sent.FindIndex(p => p is PinitPacket);
-            Assert.IsTrue(sent.FindIndex(p => p is CondPacket c && c.VisualId == Caught!.MateTransportId) > panel);
-            Assert.IsTrue(sent.FindIndex(p => p is PstPacket b && b.VisualId == Caught!.MateTransportId) > panel);
+            Assert.IsTrue(sent.FindIndex(p => p is CondPacket c && c.VisualId == Caught.NotNull().MateTransportId) > panel);
+            Assert.IsTrue(sent.FindIndex(p => p is PstPacket b && b.VisualId == Caught.NotNull().MateTransportId) > panel);
         }
 
         [TestMethod]
@@ -153,7 +153,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             // A second capture lands while the first is still writing its row.
             var dao = new Mock<IDao<MateDto, long>>();
-            CaptureService service = null!;
+            CaptureService? service = null;
             var reentered = false;
             dao.Setup(d => d.TryInsertOrUpdateAsync(It.IsAny<MateDto>()))
                 .Returns(async (MateDto row) =>
@@ -161,7 +161,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     if (!reentered)
                     {
                         reentered = true;
-                        await service.TryCaptureAsync(_session.Character, _monster, Capture);
+                        await service.NotNull().TryCaptureAsync(_session.Character, _monster, Capture);
                     }
 
                     return await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(row);
@@ -249,7 +249,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             await Catching();
 
-            Assert.IsFalse(Caught!.IsTeamMember);
+            Assert.IsFalse(Caught.NotNull().IsTeamMember);
             Assert.IsFalse(_session.LastPackets.OfType<PinitPacket>().Any());
             Assert.IsFalse(_session.Character.MapInstance.LastPackets.OfType<InPacket>().Any());
         }
@@ -260,7 +260,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await Catching();
             var map = _session.Character.MapInstance;
             var second = new MonsterComponentBundle(
-                map.EcsWorld.CreateMonster(9002, _monster.NpcMonster!, map, 13, 14, 2, 13, 14, false, true, false), map.EcsWorld);
+                map.EcsWorld.CreateMonster(9002, _monster.NpcMonster, map, 13, 14, 2, 13, 14, false, true, false), map.EcsWorld);
             second.Hp = 40;
 
             await _service.TryCaptureAsync(_session.Character, second, Capture);
@@ -285,7 +285,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _session.Character.Level = 1;
             var map = _session.Character.MapInstance;
-            var strong = new NpcMonsterDto { NpcMonsterVNum = 334, Level = 5, MaxHp = 100, Name = _monster.NpcMonster!.Name };
+            var strong = new NpcMonsterDto { NpcMonsterVNum = 334, Level = 5, MaxHp = 100, Name = _monster.NpcMonster.Name };
             var monster = new MonsterComponentBundle(
                 map.EcsWorld.CreateMonster(9003, strong, map, 13, 14, 2, 13, 14, false, true, false), map.EcsWorld);
             monster.Hp = 10;

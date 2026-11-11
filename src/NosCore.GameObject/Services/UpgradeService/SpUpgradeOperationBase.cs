@@ -134,7 +134,7 @@ public abstract class SpUpgradeOperationBase(
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
-        var upgrade = ((SpecialistInstance)ctx.Source.ItemInstance!).Upgrade;
+        var upgrade = ((SpecialistInstance)ctx.Source.ItemInstance).Upgrade;
         var percent = roll * 100;
         if (percent < spUpgradeService.GetDestructionRate(upgrade))
         {
@@ -148,7 +148,7 @@ public abstract class SpUpgradeOperationBase(
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
-        var card = (SpecialistInstance)ctx.Source.ItemInstance!;
+        var card = (SpecialistInstance)ctx.Source.ItemInstance;
         card.Upgrade = (byte)(card.Upgrade + 1);
     }
 
@@ -156,7 +156,7 @@ public abstract class SpUpgradeOperationBase(
 
     protected override void ApplyDestroyed(UpgradeContext ctx)
     {
-        ctx.Source.ItemInstance!.Rare = DestroyedSoulRare;
+        ctx.Source.ItemInstance.Rare = DestroyedSoulRare;
     }
 
     protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,

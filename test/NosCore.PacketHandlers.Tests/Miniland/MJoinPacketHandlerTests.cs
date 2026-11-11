@@ -38,11 +38,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private static readonly ILogger<MJoinPacketHandlerTests> Logger = new Mock<ILogger<MJoinPacketHandlerTests>>().Object;
         private readonly Mock<IPubSubHub> ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
         private readonly Mock<IFriendHub> FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
-        private Mock<IMinilandService> MinilandProvider = null!;
-        private MJoinPacketHandler MjoinPacketHandler = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
-        private Mock<IMapChangeService> MapChangeService = null!;
+        private Mock<IMinilandService> MinilandProvider;
+        private MJoinPacketHandler MjoinPacketHandler;
+        private ClientSession Session;
+        private ClientSession TargetSession;
+        private Mock<IMapChangeService> MapChangeService;
 
         [TestInitialize]
         public async Task SetupAsync()

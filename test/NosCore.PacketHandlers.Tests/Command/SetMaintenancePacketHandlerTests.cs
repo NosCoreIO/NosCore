@@ -20,9 +20,9 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetMaintenancePacketHandlerTests
     {
-        private SetMaintenancePacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
+        private SetMaintenancePacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IChannelHub> ChannelHub;
 
         [TestInitialize]
         public async Task SetupAsync()

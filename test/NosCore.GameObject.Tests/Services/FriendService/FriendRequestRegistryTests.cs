@@ -16,7 +16,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
     [TestClass]
     public class FriendRequestRegistryTests
     {
-        private IFriendRequestRegistry Registry = null!;
+        private IFriendRequestRegistry Registry;
 
         [TestInitialize]
         public void Setup()

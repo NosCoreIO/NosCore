@@ -90,9 +90,9 @@ namespace NosCore.WorldServer
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
-            var worldConfiguration = new WorldConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" });
-            conf.Bind(worldConfiguration);
+            var worldConfiguration = conf.Get<WorldConfiguration>()
+                ?? throw new InvalidOperationException("The WorldConfiguration section could not be read.");
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(worldConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<WorldConfiguration>().Bind(conf).ValidateDataAnnotations();
@@ -110,6 +110,11 @@ namespace NosCore.WorldServer
                 foreach (var tgo in typeof(MapWorld).Assembly.GetTypes().Where(t.IsAssignableFrom))
                 {
                     b.RegisterType(tgo);
+                    if (!GameObjectMapper.BuildsThroughContainer(tgo))
+                    {
+                        continue;
+                    }
+
                     b.RegisterType(typeof(GameObjectMapper<,>).MakeGenericType(t, tgo))
                         .As(typeof(IGameObjectMapper<>).MakeGenericType(t))
                         .AutoActivate();
@@ -117,8 +122,8 @@ namespace NosCore.WorldServer
             }));
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
-                    || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() is not { } header
+                    || (header.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
             listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
             containerBuilder.Register(c => new Deserializer(listofpacket))
@@ -141,7 +146,7 @@ namespace NosCore.WorldServer
                 return new Channel
                 {
                     MasterCommunication = configuration.Value.MasterCommunication,
-                    ClientName = configuration.Value.ServerName!,
+                    ClientName = configuration.Value.ServerName ?? throw new InvalidOperationException("ServerName is not configured."),
                     ClientType = ServerType.WorldServer,
                     ConnectedAccountLimit = configuration.Value.ConnectedAccountLimit,
                     Port = configuration.Value.Port,
@@ -149,7 +154,7 @@ namespace NosCore.WorldServer
                     DisplayHost = configuration.Value.DisplayHost,
                     ServerId = configuration.Value.ServerId,
                     StartInMaintenance = configuration.Value.StartInMaintenance,
-                    Host = configuration.Value.Host!,
+                    Host = configuration.Value.Host ?? throw new InvalidOperationException("Host is not configured."),
                 };
             });
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
@@ -221,7 +226,7 @@ namespace NosCore.WorldServer
         private static IHost BuildHost(string[] args)
         {
             var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "world.yml" });
-            var server = configuration.Get<ServerConfiguration>()!;
+            var server = configuration.Get<ServerConfiguration>() ?? new ServerConfiguration();
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .UseNosCoreWolverine(configuration, InterChannelNode.For("NosCore.WorldServer", "world", server.Host, server.Port),

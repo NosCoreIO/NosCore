@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 return;
             }
 
-            if (NameRules.HasOnlyAllowedCharacters(characterName!))
+            if (characterName != null && NameRules.HasOnlyAllowedCharacters(characterName))
             {
                 var character = await
                     characterDao.FirstOrDefaultAsync(s =>

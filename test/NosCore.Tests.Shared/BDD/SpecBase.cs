@@ -30,9 +30,9 @@ namespace NosCore.Tests.Shared.BDD
 {
     public abstract class SpecBase
     {
-        protected NosCoreFixture Fixture { get; private set; } = null!;
-        protected ClientSession Session { get; set; } = null!;
-        protected ItemGenerationService ItemProvider { get; set; } = null!;
+        protected NosCoreFixture Fixture { get; private set; }
+        protected ClientSession Session { get; set; }
+        protected ItemGenerationService ItemProvider { get; set; }
 
         protected List<ItemDto> DefaultItems { get; } = new()
         {

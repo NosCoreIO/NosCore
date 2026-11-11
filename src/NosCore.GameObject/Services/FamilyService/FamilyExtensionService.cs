@@ -36,12 +36,12 @@ namespace NosCore.GameObject.Services.FamilyService
             var family = membership?.FamilyId == familyId
                 ? await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId)
                 : null;
-            if (family == null)
+            if (membership == null || family == null)
             {
                 return FamilyExtensionPurchase.NotInFamily;
             }
 
-            if (membership!.Authority != FamilyAuthority.Head)
+            if (membership.Authority != FamilyAuthority.Head)
             {
                 return FamilyExtensionPurchase.NotHead;
             }

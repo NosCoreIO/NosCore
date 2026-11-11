@@ -27,9 +27,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class ShoppingPacketHandlerTests
     {
-        private ShoppingPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IDignityService> DignityService = null!;
+        private ShoppingPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IDignityService> DignityService;
         private readonly ILogger<ShoppingPacketHandler> Logger = new Mock<ILogger<ShoppingPacketHandler>>().Object;
 
         [TestInitialize]
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task ShoppingFromUnknownVisualType()

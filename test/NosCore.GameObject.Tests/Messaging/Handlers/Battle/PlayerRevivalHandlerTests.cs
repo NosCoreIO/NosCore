@@ -27,9 +27,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
     [TestClass]
     public class PlayerRevivalHandlerTests
     {
-        private PlayerRevivalHandler _handler = null!;
-        private ClientSession _session = null!;
-        private ClientSession _killerSession = null!;
+        private PlayerRevivalHandler _handler;
+        private ClientSession _session;
+        private ClientSession _killerSession;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -152,8 +152,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         private void TheDialogShouldAnswerWith_And_(RevivalType yes, RevivalType no)
         {
             var dlg = _session.LastPackets.OfType<DlgiPacket>().First();
-            Assert.AreEqual(yes, ((RevivalPacket)dlg.YesPacket!).Type);
-            Assert.AreEqual(no, ((RevivalPacket)dlg.NoPacket!).Type);
+            Assert.AreEqual(yes, ((RevivalPacket)dlg.YesPacket.NotNull()).Type);
+            Assert.AreEqual(no, ((RevivalPacket)dlg.NoPacket.NotNull()).Type);
         }
 
         private void CharacterHasHpMpAndDignity_(int hp, int mp, short dignity)

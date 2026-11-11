@@ -26,9 +26,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
     {
         private const short GoldVNum = 1046;
         private const short GoldAmount = 1000;
-        private ClientSession _session = null!;
-        private GoldDropHandler _handler = null!;
-        private MapItemPickedUpEvent _event = null!;
+        private ClientSession _session;
+        private GoldDropHandler _handler;
+        private MapItemPickedUpEvent _event;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
                 Name = new I18NString { [RegionType.EN] = "Gold" }
             };
             _handler = new GoldDropHandler(TestHelpers.Instance.WorldConfiguration, new List<ItemDto> { gold });
-            var mapItem = TestHelpers.Instance.MapItemProvider!.Create(_session.Character.MapInstance,
+            var mapItem = TestHelpers.Instance.MapItemProvider.NotNull().Create(_session.Character.MapInstance,
                 new ItemInstance(gold) { Amount = GoldAmount }, _session.Character.PositionX, _session.Character.PositionY);
             _event = new MapItemPickedUpEvent(_session, mapItem.VisualId, GoldVNum, GoldAmount, mapItem.ItemInstance,
                 new GetPacket { PickerType = VisualType.Player, VisualId = mapItem.VisualId });

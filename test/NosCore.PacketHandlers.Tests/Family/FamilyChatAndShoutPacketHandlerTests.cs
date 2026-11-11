@@ -25,8 +25,8 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyChatAndShoutPacketHandlerTests
     {
-        private ClientSession _session = null!;
-        private Mock<IPubSubHub> _pubSubHub = null!;
+        private ClientSession _session;
+        private Mock<IPubSubHub> _pubSubHub;
         private readonly List<IMessage> _sent = new();
 
         [TestInitialize]

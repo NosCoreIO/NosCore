@@ -28,8 +28,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem;
 [TestClass]
 public class FactionEggHandlerTests
 {
-    private ClientSession _session = null!;
-    private InventoryItemInstance _item = null!;
+    private ClientSession _session;
+    private InventoryItemInstance _item;
     private readonly FactionEggHandler _handler = new();
 
     [TestInitialize]
@@ -37,7 +37,7 @@ public class FactionEggHandlerTests
     {
         await TestHelpers.ResetAsync();
         _session = await TestHelpers.Instance.GenerateSessionAsync();
-        _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+        _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         _session.Character.Hp = 100;
         _session.Character.CharacterDto.Faction = FactionType.Neutral;
         _session.Character.CharacterDto.Act4Points = 123;
@@ -62,7 +62,7 @@ public class FactionEggHandlerTests
         var question = _session.LastPackets.OfType<QnaiPacket>().Single();
         Assert.AreEqual(faction == FactionType.Angel ? Game18NConstString.MessageToChangeFactionToAngelWithPointsReset
             : Game18NConstString.MessageToChangeFactionToDemonWithPointsReset, question.Question);
-        Assert.AreEqual((byte)1, ((UseItemPacket)question.YesPacket!).Mode);
+        Assert.AreEqual((byte)1, ((UseItemPacket)question.YesPacket.NotNull()).Mode);
     }
 
     [TestMethod]
@@ -79,7 +79,7 @@ public class FactionEggHandlerTests
         Assert.AreEqual(0, _session.Character.CharacterDto.Act4Points);
         Assert.AreEqual((short)1, _item.ItemInstance.Amount);
         Assert.AreEqual(target, _session.LastPackets.OfType<FsPacket>().Single().Faction);
-        Assert.AreEqual(target, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket!.Faction);
+        Assert.AreEqual(target, _session.Character.GenerateIn(string.Empty).InCharacterSubPacket.NotNull().Faction);
     }
 
     /// <summary>
@@ -204,7 +204,7 @@ public class FactionEggHandlerTests
         await UseAsync(1);
         var appearance = observer.LastPackets.OfType<InPacket>().Single();
         Assert.AreEqual(_session.Character.VisualId, appearance.VisualId);
-        Assert.AreEqual(FactionType.Angel, appearance.InCharacterSubPacket!.Faction);
+        Assert.AreEqual(FactionType.Angel, appearance.InCharacterSubPacket.NotNull().Faction);
     }
 
     [TestMethod]

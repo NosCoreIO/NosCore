@@ -109,7 +109,7 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
         }
 
         var firstItem = inv[0];
-        if (character.InventoryService.LoadBySlotAndType(firstItem.Slot, firstItem.Type)!.ItemInstance
+        if (character.InventoryService.LoadBySlotAndType(firstItem.Slot, firstItem.Type)?.ItemInstance
             is WearableInstance wearable)
         {
             switch (wearable.Item.EquipmentSlot)

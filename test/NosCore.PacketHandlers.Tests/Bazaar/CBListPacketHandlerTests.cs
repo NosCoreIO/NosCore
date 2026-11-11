@@ -28,10 +28,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CBListPacketHandlerTests
     {
-        private Mock<IBazaarHub> BazaarHttpClient = null!;
-        private CBListPacketHandler CblistPacketHandler = null!;
-        private ClientSession Session = null!;
-        private BazaarSearch? Search;
+        private Mock<IBazaarHub> BazaarHttpClient;
+        private CBListPacketHandler CblistPacketHandler;
+        private ClientSession Session;
+        private BazaarSearch Search;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -152,8 +152,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void ShouldReceiveTheListing()
         {
-            var packet = (RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket);
-            var listing = packet!.Items!.Single()!;
+            var packet = ((RcbListPacket?)Session.LastPackets.FirstOrDefault(s => s is RcbListPacket)).NotNull();
+            var listing = packet.Items.NotNull().Single().NotNull();
             Assert.AreEqual(7, listing.AuctionId);
             Assert.AreEqual(3, listing.OwnerId);
             Assert.AreEqual("test", listing.OwnerName);
@@ -187,7 +187,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void TheSearchShouldHaveNoItemFilter()
         {
-            Assert.AreEqual(0, Search!.ItemVNumFilter.Count);
+            Assert.AreEqual(0, Search.ItemVNumFilter.Count);
         }
     }
 }

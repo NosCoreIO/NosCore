@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
 
         private readonly List<EquipmentOptionDto> _options = new();
         private readonly List<SkillDto> _skills = new();
-        private GameObject.Services.ItemInfoService.ItemInfoService _service = null!;
+        private GameObject.Services.ItemInfoService.ItemInfoService _service;
 
         [TestInitialize]
         public void Setup()
@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
             new(item, new Mock<ILogger<WearableInstance>>().Object, TestHelpers.Instance.LogLanguageLocalizer);
 
         private string Info(IItemInstance instance) =>
-            Serializer.Serialize(new[] { _service.GenerateInfo(instance)! }).TrimEnd();
+            Serializer.Serialize(new[] { _service.GenerateInfo(instance).NotNull() }).TrimEnd();
 
         [TestMethod]
         public void AWeaponShowsItsDamageWithTheInstanceBonusAdded()

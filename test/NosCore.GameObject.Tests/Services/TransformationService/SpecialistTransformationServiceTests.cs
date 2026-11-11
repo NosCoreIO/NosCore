@@ -36,9 +36,9 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
     [TestClass]
     public class SpecialistTransformationServiceTests
     {
-        private IItemGenerationService Item = null!;
-        private ClientSession Session = null!;
-        private SpecialistTransformationService Service = null!;
+        private IItemGenerationService Item;
+        private ClientSession Session;
+        private SpecialistTransformationService Service;
         private SpecialistTransformationResult Toggle;
         private SpecialistPointsResult Points;
 
@@ -109,7 +109,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private SpecialistInstance WornCard() =>
             (SpecialistInstance)Session.Character.InventoryService
-                .LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)!.ItemInstance;
+                .LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear).NotNull().ItemInstance;
 
         private void TheCardIsLevelForty()
         {
@@ -321,10 +321,10 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private void CharacterHasSpAndMismatchedFairyEquipped()
         {
             var spItem = Session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(Item.Create(912, 1), Session.Character.CharacterId))!
+                .AddItemToPocket(InventoryItemInstance.Create(Item.Create(912, 1), Session.Character.CharacterId)).NotNull()
                 .First();
             var fairy = Session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(Item.Create(2, 1), Session.Character.CharacterId))!
+                .AddItemToPocket(InventoryItemInstance.Create(Item.Create(2, 1), Session.Character.CharacterId)).NotNull()
                 .First();
 
             spItem.Type = NoscorePocketType.Wear;

@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Networking
             await new FriendNotificationDisconnectHandler(friendHub.Object, pubSubHub.Object, serializer)
                 .HandleDisconnectAsync(session);
 
-            var posted = (PostedPacket)sent!.Single();
+            var posted = (PostedPacket)sent.NotNull().Single();
             Assert.AreEqual($"finfo {characterId}.0.{session.Character.Name}", posted.Packet);
         }
     }

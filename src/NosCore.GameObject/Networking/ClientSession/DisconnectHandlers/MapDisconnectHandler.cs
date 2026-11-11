@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
 using System.Threading.Tasks;
 
@@ -19,14 +20,16 @@ public class MapDisconnectHandler : ISessionDisconnectHandler
             return;
         }
 
+        // A character whose entity is already gone reads back a default component, with no map.
+        MapInstance? current = session.Character.MapInstance;
         if (session.Channel != null)
         {
-            session.Character.MapInstance?.Sessions.Remove(session.Channel);
+            current?.Sessions.Remove(session.Channel);
         }
 
         if (session.HasPlayerEntity)
         {
-            var mapInstance = session.Character.MapInstance!;
+            var mapInstance = session.Character.MapInstance;
             await mapInstance.SendPacketAsync(session.Character.GenerateOut());
             foreach (var mate in session.Character.Mates.Values)
             {

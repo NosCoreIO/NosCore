@@ -23,8 +23,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class UpgradeItemHandlerTests
     {
-        private ClientSession _session = null!;
-        private UpgradeItemHandler _handler = null!;
+        private ClientSession _session;
+        private UpgradeItemHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

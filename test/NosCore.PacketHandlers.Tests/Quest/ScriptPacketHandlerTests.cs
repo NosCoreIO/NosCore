@@ -21,9 +21,9 @@ namespace NosCore.PacketHandlers.Tests.Quest
     [TestClass]
     public class ScriptPacketHandlerTests
     {
-        private ScriptPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IQuestService> QuestService = null!;
+        private ScriptPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IQuestService> QuestService;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Quest
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task RunningScript()

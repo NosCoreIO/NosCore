@@ -23,10 +23,15 @@ namespace NosCore.PacketHandlers.Login
     {
         public override Task ExecuteAsync(NoS0575Packet packet, ClientSession clientSession)
         {
+            if (packet.Password is null)
+            {
+                return Task.CompletedTask;
+            }
+
             if (!loginConfiguration.Value.EnforceNewAuth)
             {
-                return loginService.LoginAsync(packet.Username, packet.Md5String!, packet.ClientVersion!, clientSession,
-                    packet.Password!,
+                return loginService.LoginAsync(packet.Username, packet.Md5String, packet.ClientVersion, clientSession,
+                    packet.Password,
                     false, packet.RegionType);
             }
 

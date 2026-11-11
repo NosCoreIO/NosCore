@@ -33,10 +33,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     public class MlEditPacketHandlerTests
     {
         private static readonly ILogger<MlEditPacketHandlerTests> Logger = new Mock<ILogger<MlEditPacketHandlerTests>>().Object;
-        private MlEditPacketHandler MlEditPacketHandler = null!;
-        private ClientSession Session = null!;
-        private IMinilandService MinilandProvider = null!;
-        private ClientSession Session2 = null!;
+        private MlEditPacketHandler MlEditPacketHandler;
+        private ClientSession Session;
+        private IMinilandService MinilandProvider;
+        private ClientSession Session2;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -207,15 +207,15 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         {
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
             Assert.AreEqual("Test Test", miniland.MinilandMessage);
-            var lastpacket2 = (MlintroPacket?)Session.LastPackets.FirstOrDefault(s => s is MlintroPacket);
+            var lastpacket2 = ((MlintroPacket?)Session.LastPackets.FirstOrDefault(s => s is MlintroPacket)).NotNull();
             Assert.AreEqual("Test Test", lastpacket2?.Intro);
-            Assert.AreEqual("mlintro Test^Test", new Serializer(new[] { typeof(MlintroPacket) }).Serialize(lastpacket2!));
+            Assert.AreEqual("mlintro Test^Test", new Serializer(new[] { typeof(MlintroPacket) }).Serialize(lastpacket2.NotNull()));
         }
 
         private void InfoPacketShouldBeSent()
         {
-            var lastpacket = (InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket);
-            Assert.AreEqual(Game18NConstString.MinilandChanged, lastpacket!.Message);
+            var lastpacket = ((InfoiPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoiPacket)).NotNull();
+            Assert.AreEqual(Game18NConstString.MinilandChanged, lastpacket.Message);
         }
 
         private void MinilandShouldBeLocked()

@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
 {
@@ -28,12 +29,12 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
     {
         private const long FamilyId = 3;
         private readonly List<FamilyLogDto> _logs = new();
-        private FakeClock _clock = null!;
-        private FamilyLogService _service = null!;
+        private FakeClock _clock;
+        private FamilyLogService _service;
         private bool _hasWritten;
         private bool _threw;
         private readonly List<IMessage> _published = new();
-        private IReadOnlyList<FamilyLogDto> _history = null!;
+        private IReadOnlyList<FamilyLogDto> _history;
 
         [TestInitialize]
         public void Setup()
@@ -248,7 +249,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
         private void ItShouldBeStampedNow() => Assert.AreEqual(_clock.GetCurrentInstant(), _logs.Single().Timestamp);
 
-        private void TheMessageArgumentShouldBe_CharactersLong(int length) => Assert.AreEqual(length, _logs.Single().SecondArgument!.Length);
+        private void TheMessageArgumentShouldBe_CharactersLong(int length) => Assert.AreEqual(length, _logs.Single().SecondArgument.NotNull().Length);
 
         private void TheAnnouncedLevelsShouldBe_(string[] levels)
         {

@@ -32,9 +32,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class BackPackHandlerTests
     {
         private const short BackpackVNum = 1272;
-        private ClientSession _session = null!;
-        private BackPackHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private BackPackHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

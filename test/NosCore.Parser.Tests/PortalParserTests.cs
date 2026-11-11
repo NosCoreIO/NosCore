@@ -21,11 +21,11 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class PortalParserTests
     {
-        private Mock<ILogger<PortalParser>> _loggerMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<PortalDto, int>> _portalDaoMock = null!;
-        private Mock<IDao<MapDto, short>> _mapDaoMock = null!;
-        private List<PortalDto> _savedPortals = null!;
+        private Mock<ILogger<PortalParser>> _loggerMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<PortalDto, int>> _portalDaoMock;
+        private Mock<IDao<MapDto, short>> _mapDaoMock;
+        private List<PortalDto> _savedPortals;
 
         [TestInitialize]
         public void Setup()

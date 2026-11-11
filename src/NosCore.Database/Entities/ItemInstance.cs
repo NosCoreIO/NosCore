@@ -40,7 +40,7 @@ namespace NosCore.Database.Entities
 
         public int DurabilityPoint { get; set; }
 
-        public virtual Item Item { get; set; } = null!;
+        public virtual Item Item { get; set; }
 
         public Instant? ItemDeleteTime { get; set; }
 

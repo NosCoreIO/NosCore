@@ -38,10 +38,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CScalcPacketHandlerTests
     {
         private static readonly ILogger<CScalcPacketHandler> Logger = new Mock<ILogger<CScalcPacketHandler>>().Object;
-        private Mock<IBazaarHub> BazaarHttpClient = null!;
-        private CScalcPacketHandler CScalcPacketHandler = null!;
-        private Mock<IItemGenerationService> ItemProvider = null!;
-        private ClientSession Session = null!;
+        private Mock<IBazaarHub> BazaarHttpClient;
+        private CScalcPacketHandler CScalcPacketHandler;
+        private Mock<IItemGenerationService> ItemProvider;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

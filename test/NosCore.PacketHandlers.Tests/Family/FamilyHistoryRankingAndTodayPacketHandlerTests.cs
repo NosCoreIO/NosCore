@@ -37,10 +37,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         private readonly List<FamilyDto> _families = new();
         private readonly List<FamilyCharacterDto> _memberships = new();
         private readonly List<CharacterDto> _characters = new();
-        private ClientSession _session = null!;
-        private GameObject.Services.FamilyService.Family _family = null!;
-        private FamilyLogService _familyLogService = null!;
-        private FamilyRankingService _familyRankingService = null!;
+        private ClientSession _session;
+        private GameObject.Services.FamilyService.Family _family;
+        private FamilyLogService _familyLogService;
+        private FamilyRankingService _familyRankingService;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -249,7 +249,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private void TheHistoryShouldHoldOneEntry_With_And__HoursAgo(FamilyLogType type, string first, string second, int hours)
         {
-            var entry = _session.LastPackets.OfType<GhisPacket>().Single().Entries!.Single()!;
+            var entry = _session.LastPackets.OfType<GhisPacket>().Single().Entries.NotNull().Single().NotNull();
             Assert.AreEqual(type, entry.Type);
             Assert.AreEqual(first, entry.FirstArgument);
             Assert.AreEqual(second, entry.SecondArgument);
@@ -263,8 +263,8 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.AreEqual(type, _session.LastPackets.OfType<FrankStcPacket>().Single().Type);
 
         private void TheRankingShouldBe_(string[] rows) => CollectionAssert.AreEqual(rows,
-            _session.LastPackets.OfType<FrankStcPacket>().Single().Entries!
-                .Select(s => $"{s!.Rank}|{s.FamilyName}|{s.FamilyLevel}|{s.Value}").ToList());
+            _session.LastPackets.OfType<FrankStcPacket>().Single().Entries.NotNull()
+                .Select(s => $"{s.NotNull().Rank}|{s.NotNull().FamilyName}|{s.NotNull().FamilyLevel}|{s.NotNull().Value}").ToList());
 
         private void TheDailyMessageBoxShouldOpen_(bool opened) =>
             Assert.AreEqual(opened, _session.LastPackets.OfType<TodayStcPacket>().Any());

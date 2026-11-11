@@ -32,10 +32,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class EntryPointSequenceTests
     {
         private const int SessionId = 70;
-        private ClientSession Session = null!;
-        private IAuthHub AuthHub = null!;
-        private WorldPacketHandlingStrategy Strategy = null!;
-        private string AccountName = null!;
+        private ClientSession Session;
+        private IAuthHub AuthHub;
+        private WorldPacketHandlingStrategy Strategy;
+        private string AccountName;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             });
             AccountName = Session.Account.Name;
             Session.ClearPlayerEntity();
-            Session.Account = null!;
+            Session.Account = null;
             sessionRefHolder[Session.SessionKey] = new RegionTypeMapping(SessionId, RegionType.EN);
             Strategy = new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance,
                 TestHelpers.Instance.LogLanguageLocalizer, sessionRefHolder);
@@ -122,7 +122,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AccountShouldBeRefused()
         {
-            Assert.IsNull(Session.Account);
+            Assert.IsFalse(Session.HasAccount);
         }
     }
 }

@@ -33,9 +33,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class DignityItemHandlerTests
     {
         private const short DignityItemVNum = 2156;
-        private ClientSession _session = null!;
-        private DignityItemHandler _handler = null!;
-        private InventoryItemInstance _dignityItem = null!;
+        private ClientSession _session;
+        private DignityItemHandler _handler;
+        private InventoryItemInstance _dignityItem;
 
         [TestInitialize]
         public async Task SetupAsync()

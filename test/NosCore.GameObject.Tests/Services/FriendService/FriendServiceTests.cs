@@ -29,10 +29,10 @@ namespace NosCore.GameObject.Tests.Services.FriendService
     public class FriendServiceTests
     {
         private static readonly ILogger<NosCore.GameObject.Services.FriendService.FriendService> Logger = new Mock<ILogger<NosCore.GameObject.Services.FriendService.FriendService>>().Object;
-        private IFriendService Service = null!;
-        private IFriendRequestRegistry FriendRequestHolder = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
+        private IFriendService Service;
+        private IFriendRequestRegistry FriendRequestHolder;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<IChannelHub> ChannelHub;
         private long CharacterId;
         private long TargetCharacterId;
 
@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>
                 {
-                    new ChannelInfo { Type = ServerType.WorldServer, Id = 1 }
+                    new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 }
                 });
 
             CharacterId = 1;
@@ -205,7 +205,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private void EveryFriendShouldBeListedWithItsNameAndStatus()
         {
-            Assert.AreEqual(ExpectedFriends.Count, FriendsList!.Count);
+            Assert.AreEqual(ExpectedFriends.Count, FriendsList.Count);
             foreach (var friend in FriendsList)
             {
                 Assert.AreEqual(ExpectedFriends[friend.CharacterId].Name, friend.CharacterName);
@@ -214,7 +214,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
         }
 
 
-        private List<CharacterRelationStatus>? FriendsList;
+        private List<CharacterRelationStatus> FriendsList;
         private bool DeleteResult;
         private Guid? FriendRelationId;
 
@@ -301,7 +301,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task DeletingFriend()
         {
-            DeleteResult = await Service.DeleteAsync(FriendRelationId!.Value);
+            DeleteResult = await Service.DeleteAsync(FriendRelationId.NotNull());
         }
 
         private async Task DeletingNonExistentFriend()

@@ -25,7 +25,7 @@ namespace NosCore.GameObject.Tests
         private const long Seller = 1;
         private const long Buyer = 2;
 
-        private BazaarTestMaster Master = null!;
+        private BazaarTestMaster Master;
         private long ListingId;
         private Guid InstanceId;
         private Guid OperationId;

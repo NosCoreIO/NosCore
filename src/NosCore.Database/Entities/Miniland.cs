@@ -18,7 +18,7 @@ namespace NosCore.Database.Entities
 
         public long MinilandPoint { get; set; }
 
-        public virtual Character Owner { get; set; } = null!;
+        public virtual Character Owner { get; set; }
 
         [Key]
         public Guid MinilandId { get; set; }

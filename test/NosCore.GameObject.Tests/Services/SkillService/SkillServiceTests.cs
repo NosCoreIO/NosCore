@@ -24,10 +24,10 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     public class SkillServiceTests
     {
         private static readonly ILogger<SkillServiceTests> Logger = new Mock<ILogger<SkillServiceTests>>().Object;
-        private ISkillService Service = null!;
-        private Mock<IDao<CharacterSkillDto, Guid>> CharacterSkillDao = null!;
-        private List<SkillDto> Skills = null!;
-        private ClientSession Session = null!;
+        private ISkillService Service;
+        private Mock<IDao<CharacterSkillDto, Guid>> CharacterSkillDao;
+        private List<SkillDto> Skills;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

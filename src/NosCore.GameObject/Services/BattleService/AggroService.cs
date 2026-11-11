@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Diagnostics.CodeAnalysis;
 using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
@@ -79,7 +80,7 @@ public sealed class AggroService(IClock clock) : IAggroService
         world.SetComponent(handle, new AggroComponent(Shared.Enumerations.VisualType.Object, 0, 0, Instant.MinValue));
     }
 
-    private static bool TryReadAggro(IAliveEntity entity, out AggroComponent aggro, out MapWorld world, out Arch.Core.Entity handle)
+    private static bool TryReadAggro(IAliveEntity entity, out AggroComponent aggro, [NotNullWhen(true)] out MapWorld? world, out Arch.Core.Entity handle)
     {
         switch (entity)
         {
@@ -97,7 +98,7 @@ public sealed class AggroService(IClock clock) : IAggroService
                 }
         }
         aggro = default;
-        world = null!;
+        world = null;
         handle = default;
         return false;
     }

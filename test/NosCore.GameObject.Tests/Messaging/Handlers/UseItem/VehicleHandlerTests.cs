@@ -31,10 +31,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class VehicleHandlerTests
     {
         private const short BroomVNum = 5319;
-        private ClientSession _session = null!;
-        private Mock<ITransformationService> _transformationService = null!;
-        private VehicleHandler _handler = null!;
-        private InventoryItemInstance _vehicle = null!;
+        private ClientSession _session;
+        private Mock<ITransformationService> _transformationService;
+        private VehicleHandler _handler;
+        private InventoryItemInstance _vehicle;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -20,8 +20,8 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class QsetPacketHandlerTests
     {
-        private QSetPacketHandler QsetPacketHandler = null!;
-        private ClientSession Session = null!;
+        private QSetPacketHandler QsetPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

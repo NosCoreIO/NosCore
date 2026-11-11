@@ -27,18 +27,18 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class UseAoeSkillPacketHandlerTests
     {
-        private UseAoeSkillPacketHandler _handler = null!;
-        private ClientSession _session = null!;
-        private Mock<IBattleService> _battleService = null!;
+        private UseAoeSkillPacketHandler _handler;
+        private ClientSession _session;
+        private Mock<IBattleService> _battleService;
         private readonly Mock<IEquipmentStatsService> _gear = new();
-        private CharacterSkill _skill = null!;
+        private CharacterSkill _skill;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1).NotNull();
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _gear.Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);

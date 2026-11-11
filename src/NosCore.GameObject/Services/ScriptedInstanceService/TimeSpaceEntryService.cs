@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             }
 
             var run = await scriptedInstanceService.InstantiateAsync(entrance);
-            if (run == null)
+            if (run == null || entrance.Definition is not { } definition)
             {
                 await RefuseAsync(session, Game18NConstString.TimespaceDoesNotExist);
                 return;
@@ -58,9 +58,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
             await character.TakeRequiredItemsAsync(entrance);
 
-            var firstRoom = run.Rooms[entrance.Definition!.Rooms[0].Key];
+            var firstRoom = run.Rooms[definition.Rooms[0].Key];
             await mapChangeService.ChangeMapInstanceAsync(session, firstRoom,
-                entrance.Definition.StartX, entrance.Definition.StartY);
+                definition.StartX, definition.StartY);
         }
 
         private static Task RefuseAsync(ClientSession session, Game18NConstString message)

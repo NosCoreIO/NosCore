@@ -104,14 +104,14 @@ namespace NosCore.GameObject.Services.BattleService
         {
             var mapInstance = origin.MapInstance;
             var skill = CanCast(origin) && mapInstance != null ? skillResolver.Resolve(origin, arguments.SkillId) : null;
-            if (skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill))
+            if (mapInstance == null || skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill))
             {
                 await CancelAsync(origin, null);
                 return false;
             }
 
             var presentation = new HitPresentation(mapX, mapY, true);
-            var targets = targetResolver.ResolveArea(origin, mapInstance!, mapX, mapY, skill);
+            var targets = targetResolver.ResolveArea(origin, mapInstance, mapX, mapY, skill);
             for (var i = 0; i < targets.Count; i++)
             {
                 await TryProcessHitAsync(origin, targets[i], skill, i == 0, presentation);

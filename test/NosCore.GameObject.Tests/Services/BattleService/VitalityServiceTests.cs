@@ -69,9 +69,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             }
         };
 
-        private VitalityService _service = null!;
-        private ClientSession _session = null!;
-        private IItemGenerationService _items = null!;
+        private VitalityService _service;
+        private ClientSession _session;
+        private IItemGenerationService _items;
 
         [TestInitialize]
         public async Task SetupAsync()

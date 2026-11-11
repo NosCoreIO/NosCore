@@ -50,7 +50,7 @@ namespace NosCore.WebApi.Controllers
             var account = await accountDao.FirstOrDefaultAsync(s => s.Name == session.Identity);
             if (account == null
                 || (account.Password?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password))
-                    && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password, account.NewAuthSalt!))))
+                    && account.NewAuthPassword?.ToLower(CultureInfo.CurrentCulture) != (hasher.Hash(session.Password, account.NewAuthSalt))))
             {
                 return BadRequest(logLanguage[LogLanguageKey.AUTH_INCORRECT]);
             }
@@ -71,7 +71,7 @@ namespace NosCore.WebApi.Controllers
                 new Claim(ClaimTypes.Sid, platformGameAccountId.ToString()),
                 new Claim(ClaimTypes.Role, account.Authority.ToString())
             });
-            var password = hasher.Hash(apiConfiguration.Value.Password!, apiConfiguration.Value.Salt);
+            var password = hasher.Hash(apiConfiguration.Value.Password ?? throw new InvalidOperationException("The web API password is not configured."), apiConfiguration.Value.Salt);
 
             var keyByteArray = Encoding.Default.GetBytes(password);
             var signinKey = new SymmetricSecurityKey(keyByteArray);
@@ -132,13 +132,13 @@ namespace NosCore.WebApi.Controllers
     public class ApiSession
     {
         [Required]
-        public string GfLang { get; set; } = null!;
+        public required string GfLang { get; set; }
         [Required]
-        public string Identity { get; set; } = null!;
+        public required string Identity { get; set; }
         [Required]
-        public string Locale { get; set; } = null!;
+        public required string Locale { get; set; }
         [Required]
-        public string Password { get; set; } = null!;
+        public required string Password { get; set; }
         public string? Mfa { get; set; }
     }
 

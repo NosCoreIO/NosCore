@@ -26,9 +26,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private const long Member = 4;
         private const long SecondMember = 5;
 
-        private Family _family = null!;
-        private FamilyServiceImpl _service = null!;
-        private Mock<IDao<FamilyCharacterDto, long>> _memberships = null!;
+        private Family _family;
+        private FamilyServiceImpl _service;
+        private Mock<IDao<FamilyCharacterDto, long>> _memberships;
 
         [TestInitialize]
         public void Setup()

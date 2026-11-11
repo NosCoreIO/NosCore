@@ -36,10 +36,15 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             var character = session.Character;
             var quest = character.Quests.Values.FirstOrDefault(q =>
                 q.QuestId == questId && q.ObjectivesCompletedOn is null && q.CompletedOn is null);
-            var handler = quest == null ? null : questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
-            if (handler != null && await handler.OnQuestDialogAnsweredAsync(character, npc, quest!))
+            if (quest == null)
             {
-                await questService.CompleteQuestAsync(character, quest!);
+                return;
+            }
+
+            var handler = questTypeHandlers.FirstOrDefault(h => h.QuestType == quest.Quest.QuestType);
+            if (handler != null && await handler.OnQuestDialogAnsweredAsync(character, npc, quest))
+            {
+                await questService.CompleteQuestAsync(character, quest);
             }
         }
     }

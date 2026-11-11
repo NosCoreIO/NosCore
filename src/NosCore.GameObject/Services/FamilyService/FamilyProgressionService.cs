@@ -27,14 +27,14 @@ namespace NosCore.GameObject.Services.FamilyService
             var family = membership?.FamilyId == familyId
                 ? await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId)
                 : null;
-            if (family == null || experience <= 0)
+            if (membership == null || family == null || experience <= 0)
             {
                 return null;
             }
 
             var previousLevel = family.FamilyLevel;
             family.FamilyExperience += experience;
-            membership!.Experience += experience;
+            membership.Experience += experience;
             // The curve has no row past the last level, so the family stops there with a full bar.
             while (familyExperienceService.GetFamilyExperience((byte)(family.FamilyLevel + 1)) != uint.MaxValue
                 && family.FamilyExperience >= familyExperienceService.GetFamilyExperience(family.FamilyLevel))

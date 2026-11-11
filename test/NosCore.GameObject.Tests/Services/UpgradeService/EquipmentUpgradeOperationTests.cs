@@ -37,12 +37,12 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short DimensionalForceVNum = 2774;
         private const short ShardVNum = 2748;
 
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private UpgradeItemOperation _unprotected = null!;
-        private UpgradeItemProtectedOperation _protected = null!;
-        private InventoryItemInstance _wearable = null!;
-        private IReadOnlyList<IPacket>? _result;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private UpgradeItemOperation _unprotected;
+        private UpgradeItemProtectedOperation _protected;
+        private InventoryItemInstance _wearable;
+        private IReadOnlyList<IPacket> _result;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -396,15 +396,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void WearableUpgradeShouldBe_(byte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Upgrade);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).Upgrade);
 
         private void WearableShouldBeFixed() =>
             Assert.AreEqual(true, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).IsFixed);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).IsFixed);
 
         private void WearableShouldNotBeFixed() =>
             Assert.AreNotEqual(true, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).IsFixed);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).IsFixed);
 
         private void SourceSlotShouldBeEmpty() =>
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));

@@ -24,13 +24,13 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class PtctlPacketHandlerTests
     {
-        private PtctlPacketHandler _handler = null!;
-        private ClientSession _session = null!;
-        private ClientSession _otherSession = null!;
-        private MapInstance _map = null!;
-        private Mate _pet = null!;
-        private Mate _partner = null!;
-        private Mate _otherPet = null!;
+        private PtctlPacketHandler _handler;
+        private ClientSession _session;
+        private ClientSession _otherSession;
+        private MapInstance _map;
+        private Mate _pet;
+        private Mate _partner;
+        private Mate _otherPet;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _otherSession = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.GetBaseMap(0);
             _session.Character.MapInstance = _map;
             _otherSession.Character.MapInstance = _map;
             _handler = new PtctlPacketHandler(MateControl.Service());
@@ -191,7 +191,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private static void AssertStandsAt(Mate mate, short x, short y)
         {
             Assert.AreEqual((x, y), (mate.PositionX, mate.PositionY));
-            Assert.AreEqual((x, y), (mate.Entity!.Value.PositionX, mate.Entity.Value.PositionY));
+            Assert.AreEqual((x, y), (mate.Entity.NotNull().PositionX, mate.Entity.NotNull().PositionY));
         }
 
         private void TheMapShouldSeeThePetMoveTo_(short x, short y)

@@ -15,6 +15,7 @@ using NosCore.GameObject.Services.QuestService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests
 {
@@ -137,10 +138,10 @@ namespace NosCore.GameObject.Tests
         {
             if (!type.IsGenericType)
             {
-                return type.FullName!.Replace('+', '.');
+                return type.FullName.NotNull().Replace('+', '.');
             }
 
-            var definition = type.GetGenericTypeDefinition().FullName!.Replace('+', '.');
+            var definition = type.GetGenericTypeDefinition().FullName.NotNull().Replace('+', '.');
             var tick = definition.IndexOf('`');
             if (tick >= 0)
             {

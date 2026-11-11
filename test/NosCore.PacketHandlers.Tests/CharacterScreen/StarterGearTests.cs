@@ -41,8 +41,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private readonly List<IItemInstanceDto> _savedItems = new();
         private readonly List<InventoryItemInstanceDto> _savedSlots = new();
-        private IOptions<WorldConfiguration> _configuration = null!;
-        private ClientSession _session = null!;
+        private IOptions<WorldConfiguration> _configuration;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _configuration.Value.AllClassAvailableOnCreate = allClassAvailable;
             var itemInstances = new Mock<IDao<IItemInstanceDto?, Guid>>();
             itemInstances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<IItemInstanceDto?>>()))
-                .Callback<IEnumerable<IItemInstanceDto?>>(items => _savedItems.AddRange(items!))
+                .Callback<IEnumerable<IItemInstanceDto?>>(items => _savedItems.AddRange(items.OfType<IItemInstanceDto>()))
                 .ReturnsAsync(true);
             var slots = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
             slots.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<InventoryItemInstanceDto>>()))
@@ -132,7 +132,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ChangingClassAddsTheNewClassPack()
         {
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
 
             await _session.ChangeClassAsync(CharacterClassType.Swordsman, _configuration, new ExperienceService(),
                 new JobExperienceService(), new HeroExperienceService(), TestHelpers.Instance.GenerateItemProvider(),
@@ -145,10 +145,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ChangingClassWithEquipmentWornAddsNothing()
         {
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             var worn = _session.Character.InventoryService.AddItemToPocket(
                 GameObject.Services.InventoryService.InventoryItemInstance.Create(TestHelpers.Instance.GenerateItemProvider().Create(Weapon, 1), _session.Character.CharacterId),
-                NoscorePocketType.Equipment)!.First();
+                NoscorePocketType.Equipment).NotNull().First();
             Assert.IsNotNull(_session.Character.InventoryService.MoveInPocket(worn.Slot, worn.Type, NoscorePocketType.Wear, 0, false));
 
             await _session.ChangeClassAsync(CharacterClassType.Swordsman, _configuration, new ExperienceService(),

@@ -12,6 +12,6 @@ namespace NosCore.Parser
     public class ParserConfiguration : LanguageConfiguration
     {
         [Required]
-        public SqlConnectionConfiguration Database { get; set; } = null!;
+        public required SqlConnectionConfiguration Database { get; set; }
     }
 }

@@ -40,21 +40,21 @@ namespace NosCore.Data
 
                 if (property.GetGetMethod(true) is { } getMethod)
                 {
-                    _getters[property.Name] = EmitGetter(type, property.PropertyType, getMethod, null);
+                    _getters[property.Name] = EmitGetter(type, property.PropertyType, getMethod);
                 }
 
                 if (property.GetSetMethod(true) is { } setMethod)
                 {
-                    _setters[property.Name] = EmitSetter(type, property.PropertyType, setMethod, null);
+                    _setters[property.Name] = EmitSetter(type, property.PropertyType, setMethod);
                 }
             }
 
             foreach (var field in type.GetFields(flags))
             {
-                _getters[field.Name] = EmitGetter(type, field.FieldType, null, field);
+                _getters[field.Name] = EmitGetter(type, field.FieldType, field);
                 if (!field.IsInitOnly)
                 {
-                    _setters[field.Name] = EmitSetter(type, field.FieldType, null, field);
+                    _setters[field.Name] = EmitSetter(type, field.FieldType, field);
                 }
             }
         }
@@ -70,7 +70,7 @@ namespace NosCore.Data
                     ThrowUnknown(target, name, "readable");
                 }
 
-                return getter!(target);
+                return getter(target);
             }
             set
             {
@@ -79,7 +79,7 @@ namespace NosCore.Data
                     ThrowUnknown(target, name, "writable");
                 }
 
-                setter!(target, value);
+                setter(target, value);
             }
         }
 
@@ -91,20 +91,21 @@ namespace NosCore.Data
             throw new ArgumentOutOfRangeException(nameof(name), name,
                 $"{target.GetType().Name} has no {kind} member named '{name}'.");
 
-        private static Func<object, object?> EmitGetter(Type owner, Type memberType, MethodInfo? getMethod, FieldInfo? field)
+        private static Func<object, object?> EmitGetter(Type owner, Type memberType, MemberInfo member)
         {
-            var method = new DynamicMethod($"get_{field?.Name ?? getMethod!.Name}", typeof(object),
+            var method = new DynamicMethod($"get_{member.Name}", typeof(object),
                 new[] { typeof(object) }, owner.Module, skipVisibility: true);
             var il = method.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Castclass, owner);
-            if (field != null)
+            if (member is FieldInfo field)
             {
                 il.Emit(OpCodes.Ldfld, field);
             }
             else
             {
-                il.Emit(getMethod!.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, getMethod);
+                var getMethod = (MethodInfo)member;
+                il.Emit(getMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, getMethod);
             }
 
             if (memberType.IsValueType)
@@ -116,22 +117,23 @@ namespace NosCore.Data
             return (Func<object, object?>)method.CreateDelegate(typeof(Func<object, object?>));
         }
 
-        private static Action<object, object?> EmitSetter(Type owner, Type memberType, MethodInfo? setMethod, FieldInfo? field)
+        private static Action<object, object?> EmitSetter(Type owner, Type memberType, MemberInfo member)
         {
-            var method = new DynamicMethod($"set_{field?.Name ?? setMethod!.Name}", null,
+            var method = new DynamicMethod($"set_{member.Name}", null,
                 new[] { typeof(object), typeof(object) }, owner.Module, skipVisibility: true);
             var il = method.GetILGenerator();
             il.Emit(OpCodes.Ldarg_0);
             il.Emit(OpCodes.Castclass, owner);
             il.Emit(OpCodes.Ldarg_1);
             il.Emit(memberType.IsValueType ? OpCodes.Unbox_Any : OpCodes.Castclass, memberType);
-            if (field != null)
+            if (member is FieldInfo field)
             {
                 il.Emit(OpCodes.Stfld, field);
             }
             else
             {
-                il.Emit(setMethod!.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, setMethod);
+                var setMethod = (MethodInfo)member;
+                il.Emit(setMethod.IsVirtual ? OpCodes.Callvirt : OpCodes.Call, setMethod);
             }
 
             il.Emit(OpCodes.Ret);

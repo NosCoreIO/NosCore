@@ -127,10 +127,10 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             }
         };
 
-        private EquipmentStatsService _service = null!;
-        private ClientSession _session = null!;
-        private IItemGenerationService _items = null!;
-        private List<EquipmentOptionDto> _options = null!;
+        private EquipmentStatsService _service;
+        private ClientSession _session;
+        private IItemGenerationService _items;
+        private List<EquipmentOptionDto> _options;
         private int _optionReads;
 
         [TestInitialize]

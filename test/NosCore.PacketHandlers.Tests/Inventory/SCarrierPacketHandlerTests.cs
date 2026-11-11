@@ -22,6 +22,7 @@ using NosCore.Packets.ServerPackets.Shop;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared.BDD;
 using SpecLight;
+using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Inventory
 {
@@ -34,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private const short CardSlot = 0;
         private const byte HolderSlot = 1;
 
-        private SCarrierPacketHandler _handler = null!;
-        private InventoryItemInstance _holder = null!;
+        private SCarrierPacketHandler _handler;
+        private InventoryItemInstance _holder;
 
         [TestInitialize]
         public override async Task SetupAsync()
@@ -125,7 +126,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             _holder = Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(vnum, 1), Session.Character.CharacterId),
-                NoscorePocketType.Equipment, HolderSlot)!.Single();
+                NoscorePocketType.Equipment, HolderSlot).NotNull().Single();
         }
 
         private void AnEmptyHolder() => PlaceHolder(HolderVNum);
@@ -156,13 +157,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         private IvnSubPacket LastRedrawOf(short slot) =>
-            Session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets!).Last(i => i.Slot == slot);
+            Session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets ?? []).OfType<IvnSubPacket>().Last(i => i.Slot == slot);
 
         private void TheCardSlotIsCleared() => Assert.AreNotEqual(CardVNum, LastRedrawOf(CardSlot).VNum);
 
         private void TheWindowClosesWith_(Game18NConstString message)
         {
-            Assert.AreEqual(ShopEndPacketType.CloseSubWindow, GetLastPacket<ShopEndPacket>()!.Type);
+            Assert.AreEqual(ShopEndPacketType.CloseSubWindow, GetLastPacket<ShopEndPacket>().NotNull().Type);
             ShouldReceiveMessage(message);
         }
     }

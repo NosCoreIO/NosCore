@@ -73,8 +73,8 @@ namespace NosCore.GameObject.Services.MateService
 
         private Mate Build(MateDto row, NpcMonsterDto npcMonster)
         {
-            var mate = row.Adapt<Mate>();
-            mate.NpcMonster = npcMonster;
+            var mate = new Mate { NpcMonster = npcMonster };
+            row.Adapt(mate);
             mate.MateTransportId = mateIdService.GetNextId();
             mate.XpLoad = mate.MateType == MateType.Pet
                 ? mateExperienceService.GetPetExperience(mate.Level)

@@ -54,10 +54,10 @@ namespace NosCore.PacketHandlers.Bazaar
                 Items = definitivelist
                     .Select(bzlink => new RcbListElementPacket
                     {
-                        AuctionId = bzlink.BazaarItem!.BazaarItemId,
+                        AuctionId = bzlink.BazaarItem.BazaarItemId,
                         OwnerId = bzlink.BazaarItem.SellerId,
                         OwnerName = bzlink.SellerName,
-                        ItemId = bzlink.ItemInstance!.ItemVNum,
+                        ItemId = bzlink.ItemInstance.ItemVNum,
                         Amount = bzlink.ItemInstance.Amount,
                         IsPackage = bzlink.BazaarItem.IsPackage,
                         Price = bzlink.BazaarItem.Price,

@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Bank
     public class GboxPacketHandlerTests : SpecBase
     {
         private const long GreenBeginnerFee = 528_000;
-        private GboxPacketHandler _handler = null!;
+        private GboxPacketHandler _handler;
 
         [TestInitialize]
         public override async Task SetupAsync()
@@ -42,6 +42,8 @@ namespace NosCore.PacketHandlers.Tests.Bank
             Session.Character.Reputation = 0;
             _handler = new GboxPacketHandler(new BankService(), Options.Create(new WorldConfiguration
             {
+                Database = new(),
+                MasterCommunication = new(),
                 MaxGoldAmount = 1_000_000_000,
                 MaxBankGoldAmount = 100_000_000_000
             }), TestHelpers.Instance.NpcDialogService);

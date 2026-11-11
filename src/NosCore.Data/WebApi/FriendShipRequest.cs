@@ -11,6 +11,6 @@ namespace NosCore.Data.WebApi
     public class FriendShipRequest
     {
         public long CharacterId { get; set; }
-        public FinsPacket? FinsPacket { get; set; }
+        public required FinsPacket FinsPacket { get; set; }
     }
 }

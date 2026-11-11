@@ -22,11 +22,11 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class MapMonsterParserTests
     {
-        private Mock<ILogger<MapMonsterParser>> _loggerMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<MapMonsterDto, int>> _mapMonsterDaoMock = null!;
-        private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock = null!;
-        private List<MapMonsterDto> _savedMonsters = null!;
+        private Mock<ILogger<MapMonsterParser>> _loggerMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<MapMonsterDto, int>> _mapMonsterDaoMock;
+        private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock;
+        private List<MapMonsterDto> _savedMonsters;
 
         [TestInitialize]
         public void Setup()

@@ -52,7 +52,7 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public required string Message { get; set; }
 
-        public virtual Character Receiver { get; set; } = null!;
+        public virtual Character Receiver { get; set; }
 
         public long ReceiverId { get; set; }
 

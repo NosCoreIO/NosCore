@@ -16,7 +16,7 @@ namespace NosCore.Database.Entities
 
         public short OriginalItemDesign { get; set; }
 
-        public virtual Item OriginalItem { get; set; } = null!;
+        public virtual Item OriginalItem { get; set; }
 
         public short OriginalItemVNum { get; set; }
 
@@ -34,7 +34,7 @@ namespace NosCore.Database.Entities
 
         public short MaximumOriginalItemRare { get; set; }
 
-        public virtual Item ItemGenerated { get; set; } = null!;
+        public virtual Item ItemGenerated { get; set; }
 
         public bool IsSuperReward { get; set; }
     }

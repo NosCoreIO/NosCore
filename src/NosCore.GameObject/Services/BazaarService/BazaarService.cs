@@ -65,12 +65,12 @@ namespace NosCore.GameObject.Services.BazaarService
             if (typeFilter is { } type && type != BazaarListType.Default)
             {
                 var links = bzlinks.Where(s => s.ItemInstance != null).ToList();
-                var vnums = links.Select(s => s.ItemInstance!.ItemVNum)
+                var vnums = links.Select(s => s.ItemInstance.ItemVNum)
                     .Concat(links.Select(s => (s.ItemInstance as BoxInstanceDto)?.HoldingVNum ?? 0))
                     .ToHashSet();
                 var itemsByVNum = items.Where(s => vnums.Contains(s.VNum)).ToDictionary(s => s.VNum);
                 var filter = new BazaarFilter(type, subTypeFilter ?? 0, levelFilter ?? 0, rareFilter ?? 0, upgradeFilter ?? 0);
-                bzlinks = links.Where(s => itemsByVNum.TryGetValue(s.ItemInstance!.ItemVNum, out var item)
+                bzlinks = links.Where(s => itemsByVNum.TryGetValue(s.ItemInstance.ItemVNum, out var item)
                     && filter.Matches(s.ItemInstance, item, itemsByVNum));
             }
 
@@ -88,21 +88,21 @@ namespace NosCore.GameObject.Services.BazaarService
             var now = clock.GetCurrentInstant();
             var searched = GetBazaar(-1, null, null, search.TypeFilter, search.SubTypeFilter, search.LevelFilter,
                     search.RareFilter, search.UpgradeFilter, null)
-                .Where(s => (vnumFilter.Count == 0 || vnumFilter.Contains(s.ItemInstance!.ItemVNum))
-                    && s.BazaarItem!.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration)) > now
-                    && s.ItemInstance!.Amount > 0)
+                .Where(s => (vnumFilter.Count == 0 || vnumFilter.Contains(s.ItemInstance.ItemVNum))
+                    && s.BazaarItem.DateStart.Plus(Duration.FromHours(s.BazaarItem.Duration)) > now
+                    && s.ItemInstance.Amount > 0)
                 .ToList();
 
-            var vnums = searched.Select(s => s.ItemInstance!.ItemVNum).ToHashSet();
+            var vnums = searched.Select(s => s.ItemInstance.ItemVNum).ToHashSet();
             var names = items.Where(s => vnums.Contains(s.VNum))
                 .ToDictionary(s => s.VNum, s => s.Name[search.Language]);
-            var byName = searched.OrderBy(s => names.GetValueOrDefault(s.ItemInstance!.ItemVNum) ?? "");
+            var byName = searched.OrderBy(s => names.GetValueOrDefault(s.ItemInstance.ItemVNum) ?? "");
             var ordered = search.OrderFilter switch
             {
-                0 => byName.ThenBy(s => s.BazaarItem!.Price),
-                1 => byName.ThenByDescending(s => s.BazaarItem!.Price),
-                2 => byName.ThenBy(s => s.BazaarItem!.Amount),
-                3 => byName.ThenByDescending(s => s.BazaarItem!.Amount),
+                0 => byName.ThenBy(s => s.BazaarItem.Price),
+                1 => byName.ThenByDescending(s => s.BazaarItem.Price),
+                2 => byName.ThenBy(s => s.BazaarItem.Amount),
+                3 => byName.ThenByDescending(s => s.BazaarItem.Amount),
                 _ => byName
             };
 
@@ -403,15 +403,16 @@ namespace NosCore.GameObject.Services.BazaarService
         private static BazaarClaim ToClaim(BazaarLink bzlink, BazaarOperationDto operation)
         {
             ItemInstanceDto? returned = null;
-            if ((operation.Amount > 0) && (bzlink.ItemInstance != null))
+            if ((operation.Amount > 0)
+                && (bzlink.ItemInstance.Adapt(bzlink.ItemInstance.GetType(), bzlink.ItemInstance.GetType()) is ItemInstanceDto copy))
             {
-                returned = (ItemInstanceDto)bzlink.ItemInstance.Adapt(bzlink.ItemInstance.GetType(), bzlink.ItemInstance.GetType())!;
+                returned = copy;
                 returned.Amount = operation.Amount;
             }
 
             return new BazaarClaim
             {
-                Listing = bzlink.BazaarItem!.Adapt<BazaarItemDto>(),
+                Listing = bzlink.BazaarItem.Adapt<BazaarItemDto>(),
                 Item = returned,
                 SoldAmount = operation.SoldAmount,
                 ReturnedAmount = operation.Amount,
@@ -420,8 +421,8 @@ namespace NosCore.GameObject.Services.BazaarService
             };
         }
 
-        private Task<BazaarOperationDto?> FindOperationAsync(Guid operationId) =>
-            bazaarOperationDao.FirstOrDefaultAsync(s => s.BazaarOperationId == operationId)!;
+        private async Task<BazaarOperationDto?> FindOperationAsync(Guid operationId) =>
+            await bazaarOperationDao.FirstOrDefaultAsync(s => s.BazaarOperationId == operationId);
 
         private async Task<int> PendingBuysAsync(long id) =>
             (bazaarOperationDao.Where(s => s.BazaarItemId == id && s.State == BazaarOperationState.Pending
@@ -455,7 +456,11 @@ namespace NosCore.GameObject.Services.BazaarService
 
         private async Task<bool> SaveItemAmountAsync(ItemInstanceDto item, short amount)
         {
-            var updated = (IItemInstanceDto)item.Adapt(item.GetType(), item.GetType())!;
+            if (item.Adapt(item.GetType(), item.GetType()) is not IItemInstanceDto updated)
+            {
+                return false;
+            }
+
             updated.Amount = amount;
             return await itemInstanceDao.TryInsertOrUpdateAsync(updated) != null;
         }

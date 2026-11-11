@@ -30,11 +30,11 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class UpetPacketHandlerTests
     {
-        private ClientSession _session = null!;
-        private MapInstance _map = null!;
-        private Mock<IBattleService> _battleService = null!;
-        private UpetPacketHandler _handler = null!;
-        private Mate _pet = null!;
+        private ClientSession _session;
+        private MapInstance _map;
+        private Mock<IBattleService> _battleService;
+        private UpetPacketHandler _handler;
+        private Mate _pet;
         private MonsterComponentBundle _monster;
 
         [TestInitialize]
@@ -128,7 +128,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private async Task ThePetAttacksAPlayerOnAnotherMap()
         {
             var other = await TestHelpers.Instance.GenerateSessionAsync();
-            other.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            other.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             other.Character.PositionX = 5;
             other.Character.PositionY = 5;
             await _handler.ExecuteAsync(new UpetPacket

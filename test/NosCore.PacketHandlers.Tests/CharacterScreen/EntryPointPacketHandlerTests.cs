@@ -28,11 +28,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class EntryPointPacketHandlerTests
     {
         private static readonly Mock<ILogger<EntryPointPacketHandler>> Logger = new();
-        private EntryPointPacketHandler EntryPointPacketHandler = null!;
-        private ClientSession Session = null!;
-        private Mock<IAuthHub> AuthHttpClient = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private string AccountName = null!;
+        private EntryPointPacketHandler EntryPointPacketHandler;
+        private ClientSession Session;
+        private Mock<IAuthHub> AuthHttpClient;
+        private Mock<IPubSubHub> PubSubHub;
+        private string AccountName;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             AccountName = Session.Account.Name;
             await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
             Session.ClearPlayerEntity();
-            Session.Account = null!;
+            Session.Account = null;
             AuthHttpClient = new Mock<IAuthHub>();
             PubSubHub = TestHelpers.Instance.PubSubHub;
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
@@ -229,8 +229,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task AccountAuthorityIs_(AuthorityType authority)
         {
-            var account = await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName);
-            account!.Authority = authority;
+            var account = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            account.Authority = authority;
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(account);
         }
 
@@ -241,15 +241,15 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task AccountHasMfaEnabled()
         {
-            var account = await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName);
-            account!.MfaSecret = "testsecret";
+            var account = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            account.MfaSecret = "testsecret";
             await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(account);
         }
 
         private async Task AccountIsAlreadyInitialized()
         {
-            var account = await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName);
-            Session.InitializeAccount(account!);
+            var account = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            Session.InitializeAccount(account);
         }
 
         private async Task ConnectingWithValidPassword()
@@ -298,7 +298,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString()!.Contains(expected)),
+                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString().NotNull().Contains(expected)),
                     It.IsAny<System.Exception?>(),
                     It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
                 Times.Once);
@@ -310,7 +310,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString()!.Contains(expected)),
+                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString().NotNull().Contains(expected)),
                     It.IsAny<System.Exception?>(),
                     It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
                 Times.Once);
@@ -322,7 +322,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString()!.Contains(expected)),
+                    It.Is<It.IsAnyType>((v, _) => v != null && v.ToString().NotNull().Contains(expected)),
                     It.IsAny<System.Exception?>(),
                     It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
                 Times.Once);
@@ -330,12 +330,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AccountShouldBeNull()
         {
-            Assert.IsNull(Session.Account);
+            Assert.IsFalse(Session.HasAccount);
         }
 
         private void AccountShouldBeSet()
         {
-            Assert.IsNotNull(Session.Account);
+            Assert.IsTrue(Session.HasAccount);
         }
 
         private void MfaShouldNotBeValidated()
@@ -351,14 +351,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task GuriPacketShouldBeSent()
         {
             await Task.CompletedTask;
-            Assert.IsNotNull(Session.Account);
+            Assert.IsTrue(Session.HasAccount);
             Assert.IsFalse(Session.MfaValidated);
         }
 
         private async Task CharacterListShouldBeSent()
         {
             await Task.CompletedTask;
-            Assert.IsNotNull(Session.Account);
+            Assert.IsTrue(Session.HasAccount);
         }
     }
 }

@@ -22,12 +22,12 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class MapNpcParserTests
     {
-        private Mock<ILogger<MapNpcParser>> _loggerMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<MapNpcDto, int>> _mapNpcDaoMock = null!;
-        private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock = null!;
-        private Mock<IDao<NpcTalkDto, short>> _npcTalkDaoMock = null!;
-        private List<MapNpcDto> _savedNpcs = null!;
+        private Mock<ILogger<MapNpcParser>> _loggerMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<MapNpcDto, int>> _mapNpcDaoMock;
+        private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock;
+        private Mock<IDao<NpcTalkDto, short>> _npcTalkDaoMock;
+        private List<MapNpcDto> _savedNpcs;
 
         [TestInitialize]
         public void Setup()

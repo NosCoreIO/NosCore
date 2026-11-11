@@ -23,12 +23,12 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class CardParserTests
     {
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<CardDto, short>> _cardDaoMock = null!;
-        private Mock<IDao<BCardDto, int>> _bCardDaoMock = null!;
-        private string _tempFolder = null!;
-        private List<CardDto> _savedCards = null!;
-        private List<BCardDto> _savedBCards = null!;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<CardDto, short>> _cardDaoMock;
+        private Mock<IDao<BCardDto, int>> _bCardDaoMock;
+        private string _tempFolder;
+        private List<CardDto> _savedCards;
+        private List<BCardDto> _savedBCards;
 
         [TestInitialize]
         public void Setup()

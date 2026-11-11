@@ -28,8 +28,8 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class NcifPacketHandlerTests
     {
-        private NcifPacketHandler Handler = null!;
-        private ClientSession Session = null!;
+        private NcifPacketHandler Handler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -176,10 +176,10 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
             TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
             {
-                ChannelId = Session.Channel!.Id,
+                ChannelId = Session.Channel.NotNull().Id,
                 SessionId = Session.SessionId,
                 Sender = Session,
                 AccountName = Session.Account.Name,

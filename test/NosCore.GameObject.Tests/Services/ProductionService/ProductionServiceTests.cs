@@ -35,11 +35,11 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         private const short Scroll = 1014;
         private const short ScrollProduct = 1015;
 
-        private ClientSession _session = null!;
-        private IItemGenerationService _itemProvider = null!;
-        private GameObject.Services.ProductionService.ProductionService _service = null!;
-        private InventoryItemInstance _materialStack = null!;
-        private Mock<Wolverine.IMessageBus> _messageBus = null!;
+        private ClientSession _session;
+        private IItemGenerationService _itemProvider;
+        private GameObject.Services.ProductionService.ProductionService _service;
+        private InventoryItemInstance _materialStack;
+        private Mock<Wolverine.IMessageBus> _messageBus;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -223,7 +223,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
                     }
                 },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
-            var npc = mapInstance.GetNpcById(NpcId)!.Value;
+            var npc = mapInstance.GetNpcById(NpcId).NotNull();
             npc.Recipes = new List<Recipe>
             {
                 new()
@@ -239,7 +239,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
 
         private void TheCharacterHas_Materials(short amount) =>
             _materialStack = _session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(_itemProvider.Create(Material, amount), _session.Character.CharacterId))![0];
+                InventoryItemInstance.Create(_itemProvider.Create(Material, amount), _session.Character.CharacterId)).NotNull()[0];
 
         private void TheCharacterHoldsTheScroll() =>
             _session.Character.InventoryService.AddItemToPocket(
@@ -276,7 +276,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
             Assert.AreEqual(1, _session.Character.InventoryService.CountItem(Scroll));
 
         private Task TheProductionWindowIsOpened() =>
-            _service.OpenAsync(_session, _session.Character.MapInstance.GetNpcById(NpcId)!.Value);
+            _service.OpenAsync(_session, _session.Character.MapInstance.GetNpcById(NpcId).NotNull());
 
         private Task TheRecipeIsShown() => _service.ShowRecipeAsync(_session, Product);
 
@@ -321,7 +321,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         {
             var update = _session.LastPackets.OfType<IvnPacket>()
                 .Where(s => s.Type == (PocketType)_materialStack.Type)
-                .SelectMany(s => s.IvnSubPackets!)
+                .SelectMany(s => s.IvnSubPackets ?? []).OfType<IvnSubPacket>()
                 .Single(s => s.Slot == _materialStack.Slot);
             Assert.AreNotEqual(Material, update.VNum);
         }

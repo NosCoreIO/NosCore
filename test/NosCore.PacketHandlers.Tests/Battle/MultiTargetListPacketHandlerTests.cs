@@ -30,11 +30,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class MultiTargetListPacketHandlerTests
     {
-        private MultiTargetListPacketHandler _listHandler = null!;
-        private UseSkillPacketHandler _castHandler = null!;
-        private ClientSession _session = null!;
-        private MapInstance _map = null!;
-        private Mock<IBattleService> _battleService = null!;
+        private MultiTargetListPacketHandler _listHandler;
+        private UseSkillPacketHandler _castHandler;
+        private ClientSession _session;
+        private MapInstance _map;
+        private Mock<IBattleService> _battleService;
         private readonly Mock<IEquipmentStatsService> _gear = new();
         private List<HitArguments> _casts = new();
 
@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1).NotNull();
             _session.Character.MapInstance = _map;
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -162,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         }
 
         private void TheListedTargetsShouldBe_(long[] ids) =>
-            CollectionAssert.AreEqual(ids, _casts.Last().ListedTargets!.Select(t => t.VisualId).ToArray());
+            CollectionAssert.AreEqual(ids, _casts.Last().ListedTargets.NotNull().Select(t => t.VisualId).ToArray());
 
         private void TheLastCastShouldListNothing() =>
             Assert.IsTrue(_casts.Last().ListedTargets is null or { Count: 0 });

@@ -27,11 +27,11 @@ namespace NosCore.GameObject.Tests.Services.MovementService
     [TestClass]
     public class MovementServiceTests
     {
-        private GameObject.Services.MovementService.MovementService Service = null!;
-        private ClientSession Session = null!;
-        private Mock<IHeuristic> DistanceCalculator = null!;
-        private Mock<IMinilandService> MinilandService = null!;
-        private Mock<IMapChangeService> MapChangeService = null!;
+        private GameObject.Services.MovementService.MovementService Service;
+        private ClientSession Session;
+        private Mock<IHeuristic> DistanceCalculator;
+        private Mock<IMinilandService> MinilandService;
+        private Mock<IMapChangeService> MapChangeService;
         private WalkResult LastWalk;
         private PortalResult LastPortal;
 
@@ -201,7 +201,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsAt_WithSpeed_(short x, short y, byte speed)
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Session.Character.PositionX = x;
             Session.Character.PositionY = y;
             Session.Character.Speed = speed;
@@ -281,7 +281,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Session.Character.PositionX = 4;
             Session.Character.PositionY = 4;
             Session.Character.Speed = 20;
@@ -374,7 +374,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsOnBaseMapAtTheEntryPortal()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Session.Character.PositionX = 10;
             Session.Character.PositionY = 10;
         }
@@ -394,7 +394,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsInsideMinilandWithBasePositionRememberedAt_(short baseMapId, short baseX, short baseY)
         {
-            var miniland = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(TestHelpers.Instance.MinilandId)!;
+            var miniland = TestHelpers.Instance.GetMap(TestHelpers.Instance.MinilandId);
             miniland.MapInstanceType = MapInstanceType.NormalInstance;
             Session.Character.MapInstance = miniland;
             Session.Character.MapId = baseMapId;
@@ -406,7 +406,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void MinilandHasExitPortalToBaseMap()
         {
-            var baseMap = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            var baseMap = TestHelpers.Instance.GetBaseMap(1);
             Session.Character.MapInstance.Portals.Clear();
             Session.Character.MapInstance.Portals.Add(new NosCore.GameObject.Map.Portal
             {
@@ -425,7 +425,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void BaseMapHasEntryPortalToMiniland()
         {
-            var miniland = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(TestHelpers.Instance.MinilandId)!;
+            var miniland = TestHelpers.Instance.GetMap(TestHelpers.Instance.MinilandId);
             miniland.MapInstanceType = MapInstanceType.NormalInstance;
             Session.Character.MapInstance.Portals.Clear();
             Session.Character.MapInstance.Portals.Add(new NosCore.GameObject.Map.Portal

@@ -54,11 +54,11 @@ public sealed class SkillResolver : ISkillResolver
 
         var upgrade = character.Skills.Values
             .Select(s => s.Skill)
-            .Where(s => s != null && s!.UpgradeSkill == match.Skill!.SkillVNum && s.Effect > 0 && s.SkillType == 2)
-            .OrderBy(s => s!.SkillVNum)
+            .Where(s => s != null && s.UpgradeSkill == match.Skill.SkillVNum && s.Effect > 0 && s.SkillType == 2)
+            .OrderBy(s => s.SkillVNum)
             .FirstOrDefault();
 
-        return BuildInfo(match.Skill!, upgrade, castId);
+        return BuildInfo(match.Skill, upgrade, castId);
     }
 
     // The packet guard spends cooldown and mana on this same skill, so both must pick it the same way.
@@ -70,8 +70,8 @@ public sealed class SkillResolver : ISkillResolver
             .Where(s => s.Skill != null && s.Skill.CastId == castId)
             .ToList();
         if (owned == null) return null;
-        return owned.FirstOrDefault(s => s.Skill!.UpgradeSkill == 0)
-            ?? owned.FirstOrDefault(s => s.Skill!.SkillType != 2);
+        return owned.FirstOrDefault(s => s.Skill.UpgradeSkill == 0)
+            ?? owned.FirstOrDefault(s => s.Skill.SkillType != 2);
     }
 
     private SkillInfo? ResolveNpc(INonPlayableEntity npc, long castId)

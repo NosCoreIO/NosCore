@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Services.MateService
 {
     public class Mate : MateDto
     {
-        public NpcMonsterDto NpcMonster { get; set; } = null!;
+        public required NpcMonsterDto NpcMonster { get; set; }
 
         public long MateTransportId { get; set; }
 

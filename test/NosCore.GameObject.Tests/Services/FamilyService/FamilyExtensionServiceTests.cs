@@ -28,10 +28,10 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private const long DeputyId = 2;
         private const short Warehouse = 9694;
 
-        private IDao<FamilyDto, long> _familyDao = null!;
-        private FamilyExtensionService _service = null!;
+        private IDao<FamilyDto, long> _familyDao;
+        private FamilyExtensionService _service;
         private long _familyId;
-        private FamilyExtensionPurchase[] _results = null!;
+        private FamilyExtensionPurchase[] _results;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _familyId = (await _familyDao.TryInsertOrUpdateAsync(new FamilyDto
             {
                 Name = "Testers", FamilyLevel = 2, MaxSize = 50, FamilyMessage = string.Empty
-            }))!.FamilyId;
+            })).FamilyId;
             await familyCharacterDao.TryInsertOrUpdateAsync(new[]
             {
                 new FamilyCharacterDto { FamilyId = _familyId, CharacterId = HeadId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty },
@@ -117,6 +117,6 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         private async Task TheWarehouseShouldHave_(byte size) =>
-            Assert.AreEqual(size, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId))!.WarehouseSize);
+            Assert.AreEqual(size, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId)).NotNull().WarehouseSize);
     }
 }

@@ -23,14 +23,14 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class NpcMonsterParserTests
     {
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<SkillDto, short>> _skillDaoMock = null!;
-        private Mock<IDao<BCardDto, int>> _bCardDaoMock = null!;
-        private Mock<IDao<DropDto, short>> _dropDaoMock = null!;
-        private Mock<IDao<NpcMonsterSkillDto, long>> _npcMonsterSkillDaoMock = null!;
-        private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock = null!;
-        private string _tempFolder = null!;
-        private List<NpcMonsterDto> _savedMonsters = null!;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<SkillDto, short>> _skillDaoMock;
+        private Mock<IDao<BCardDto, int>> _bCardDaoMock;
+        private Mock<IDao<DropDto, short>> _dropDaoMock;
+        private Mock<IDao<NpcMonsterSkillDto, long>> _npcMonsterSkillDaoMock;
+        private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock;
+        private string _tempFolder;
+        private List<NpcMonsterDto> _savedMonsters;
 
         [TestInitialize]
         public void Setup()

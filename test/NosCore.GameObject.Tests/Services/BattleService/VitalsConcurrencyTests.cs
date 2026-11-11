@@ -39,8 +39,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class VitalsConcurrencyTests
     {
-        private ClientSession _session = null!;
-        private MapInstance _map = null!;
+        private ClientSession _session;
+        private MapInstance _map;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -122,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 });
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
-            var rewards = new RewardService(TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.MapItemProvider!,
+            var rewards = new RewardService(TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.MapItemProvider.NotNull(),
                 catalog.Object, experience.Object, new ExperienceShareService(), new LevelPenaltyService(),
                 new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
 

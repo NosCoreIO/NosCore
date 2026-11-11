@@ -22,7 +22,7 @@ namespace NosCore.Database.Entities
 
         public byte Amount { get; set; }
 
-        public virtual Item Item { get; set; } = null!;
+        public virtual Item Item { get; set; }
 
         public short ItemVNum { get; set; }
 

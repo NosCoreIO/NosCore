@@ -22,6 +22,7 @@ using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
 using FamilyServiceImpl = NosCore.GameObject.Services.FamilyService.FamilyService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
 {
@@ -72,11 +73,11 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             var familyDao = new Mock<IDao<FamilyDto, long>>();
             familyDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<FamilyDto, bool>>>()))
-                .ReturnsAsync((Expression<Func<FamilyDto, bool>> p) => families.FirstOrDefault(p.Compile())!);
+                .Returns((Expression<Func<FamilyDto, bool>> p) => Task.FromResult<FamilyDto?>(families.FirstOrDefault(p.Compile())));
 
             var membershipDao = new Mock<IDao<FamilyCharacterDto, long>>();
             membershipDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<FamilyCharacterDto, bool>>>()))
-                .ReturnsAsync((Expression<Func<FamilyCharacterDto, bool>> p) => memberships.FirstOrDefault(p.Compile())!);
+                .Returns((Expression<Func<FamilyCharacterDto, bool>> p) => Task.FromResult<FamilyCharacterDto?>(memberships.FirstOrDefault(p.Compile())));
             membershipDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyCharacterDto, bool>>>()))
                 .Returns((Expression<Func<FamilyCharacterDto, bool>> p) => memberships.Where(p.Compile()));
 
@@ -84,7 +85,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             characterDao.Setup(s => s.Where(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns((Expression<Func<CharacterDto, bool>> p) => characters.Where(p.Compile()));
             characterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .ReturnsAsync((Expression<Func<CharacterDto, bool>> p) => characters.FirstOrDefault(p.Compile())!);
+                .Returns((Expression<Func<CharacterDto, bool>> p) => Task.FromResult<CharacterDto?>(characters.FirstOrDefault(p.Compile())));
 
             return new FamilyServiceImpl(familyDao.Object, membershipDao.Object,
                 new Mock<IDao<FamilyLogDto, long>>().Object, characterDao.Object);
@@ -123,26 +124,26 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task EachMemberIsReadAtTheirOwnRankAsync()
         {
-            var family = await Nemesis().GetFamilyAsync(MemberId);
+            var family = (await Nemesis().GetFamilyAsync(MemberId)).NotNull();
 
-            Assert.AreEqual(FamilyAuthority.Member, family!.AuthorityOf(MemberId));
+            Assert.AreEqual(FamilyAuthority.Member, family.AuthorityOf(MemberId));
             Assert.AreEqual(FamilyAuthority.Head, family.AuthorityOf(HeadId));
         }
 
         [TestMethod]
         public async Task ARankThatIsNotInTheListReadsAsMemberAsync()
         {
-            var family = await Nemesis().GetFamilyAsync(MemberId);
+            var family = (await Nemesis().GetFamilyAsync(MemberId)).NotNull();
 
-            Assert.AreEqual(FamilyAuthority.Member, family!.AuthorityOf(999));
+            Assert.AreEqual(FamilyAuthority.Member, family.AuthorityOf(999));
         }
 
         [TestMethod]
         public async Task TheHeadsNameIsFetchedForTheWindowAsync()
         {
-            var family = await Nemesis().GetFamilyAsync(MemberId);
+            var family = (await Nemesis().GetFamilyAsync(MemberId)).NotNull();
 
-            Assert.AreEqual("Yzigor", family!.HeadCharacterName);
+            Assert.AreEqual("Yzigor", family.HeadCharacterName);
         }
 
         [TestMethod]

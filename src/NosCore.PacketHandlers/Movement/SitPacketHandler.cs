@@ -25,9 +25,9 @@ namespace NosCore.PacketHandlers.Movement
     {
         public override Task ExecuteAsync(SitPacket sitpacket, ClientSession clientSession)
         {
-            return Task.WhenAll(sitpacket.Users!.Select(u =>
+            return Task.WhenAll((sitpacket.Users ?? []).OfType<SitSubPacket>().Select(u =>
             {
-                switch (u!.VisualType)
+                switch (u.VisualType)
                 {
                     case VisualType.Player:
                         if (!sessionRegistry.TryGetCharacter(s => s.VisualId == u.VisualId, out var player))

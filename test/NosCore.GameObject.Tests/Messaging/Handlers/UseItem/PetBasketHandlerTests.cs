@@ -32,9 +32,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class PetBasketHandlerTests
     {
         private const short PetBasketVNum = 1907;
-        private ClientSession _session = null!;
-        private PetBasketHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private PetBasketHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -29,11 +29,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class SpUpgradeOperationTests
     {
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private SpUpgradeOperation _unprotected = null!;
-        private SpUpgradeProtectedOperation _protected = null!;
-        private SpecialistInstance _card = null!;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private SpUpgradeOperation _unprotected;
+        private SpUpgradeProtectedOperation _protected;
+        private SpecialistInstance _card;
         private IReadOnlyList<IPacket> _result = Array.Empty<IPacket>();
 
         [TestInitialize]

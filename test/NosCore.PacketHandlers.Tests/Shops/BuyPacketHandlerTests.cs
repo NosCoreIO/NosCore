@@ -27,10 +27,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class BuyPacketHandlerTests
     {
-        private BuyPacketHandler Handler = null!;
+        private BuyPacketHandler Handler;
         private const int ShopNpcId = 100;
-        private ClientSession Session = null!;
-        private ClientSession Seller = null!;
+        private ClientSession Session;
+        private ClientSession Seller;
         private readonly ILogger<BuyPacketHandler> Logger = new Mock<ILogger<BuyPacketHandler>>().Object;
 
         [TestInitialize]
@@ -208,7 +208,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task BuyingFromUnknownVisualType()

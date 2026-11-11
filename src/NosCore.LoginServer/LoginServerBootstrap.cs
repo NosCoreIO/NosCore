@@ -68,9 +68,9 @@ namespace NosCore.LoginServer
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
-            var loginConfiguration = new LoginConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
-            conf.Bind(loginConfiguration);
+            var loginConfiguration = conf.Get<LoginConfiguration>()
+                ?? throw new InvalidOperationException("The LoginConfiguration section could not be read.");
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
@@ -126,7 +126,7 @@ namespace NosCore.LoginServer
                     ClientType = ServerType.LoginServer,
                     ClientName = $"{ServerType.LoginServer}",
                     Port = conf.Value.Port,
-                    Host = conf.Value.Host!
+                    Host = conf.Value.Host ?? throw new InvalidOperationException("Host is not configured.")
                 };
             });
 
@@ -134,7 +134,7 @@ namespace NosCore.LoginServer
                 .AsImplementedInterfaces();
 
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() is not { } header || (header.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();
             containerBuilder.Register(c => new Deserializer(listofpacket))
                 .AsImplementedInterfaces()
                 .SingleInstance();
@@ -159,7 +159,7 @@ namespace NosCore.LoginServer
         private static IHost BuildHost(string[] args)
         {
             var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "login.yml" });
-            var server = configuration.Get<ServerConfiguration>()!;
+            var server = configuration.Get<ServerConfiguration>() ?? new ServerConfiguration();
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .UseNosCoreWolverine(configuration, InterChannelNode.For("NosCore.LoginServer", "login", server.Host, server.Port),

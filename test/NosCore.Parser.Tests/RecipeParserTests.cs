@@ -23,11 +23,11 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class RecipeParserTests
     {
-        private Mock<IDao<RecipeDto, short>> _recipeDao = null!;
-        private Mock<IDao<RecipeItemDto, short>> _recipeItemDao = null!;
-        private List<RecipeDto> _savedRecipes = null!;
-        private List<RecipeItemDto> _savedItems = null!;
-        private RecipeParser _parser = null!;
+        private Mock<IDao<RecipeDto, short>> _recipeDao;
+        private Mock<IDao<RecipeItemDto, short>> _recipeItemDao;
+        private List<RecipeDto> _savedRecipes;
+        private List<RecipeItemDto> _savedItems;
+        private RecipeParser _parser;
 
         [TestInitialize]
         public void Setup()

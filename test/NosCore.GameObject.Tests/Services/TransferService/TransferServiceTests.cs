@@ -47,29 +47,31 @@ namespace NosCore.GameObject.Tests.Services.TransferService
 
         private readonly IOptions<WorldConfiguration> _configuration = Options.Create(new WorldConfiguration
         {
+            Database = new(),
+            MasterCommunication = new(),
             BackpackSize = 2,
             MaxItemAmount = 999,
             MaxGoldAmount = 1_000_000_000,
             MaxBankGoldAmount = 100_000_000_000
         });
 
-        private ClientSession _first = null!;
-        private ClientSession _second = null!;
-        private IDao<IItemInstanceDto?, Guid> _itemInstanceDao = null!;
-        private IDao<InventoryItemInstanceDto, Guid> _inventoryDao = null!;
-        private IDao<EquipmentOptionDto, Guid> _optionDao = null!;
-        private GameObject.Services.TransferService.TransferService _service = null!;
+        private ClientSession _first;
+        private ClientSession _second;
+        private IDao<IItemInstanceDto?, Guid> _itemInstanceDao;
+        private IDao<InventoryItemInstanceDto, Guid> _inventoryDao;
+        private IDao<EquipmentOptionDto, Guid> _optionDao;
+        private GameObject.Services.TransferService.TransferService _service;
         private TransferOffer _firstOffer = Nothing;
         private TransferOffer _secondOffer = Nothing;
         private List<KeyValuePair<long, IvnPacket>>? _result;
-        private Mock<IDaoTransaction>? _transaction;
+        private Mock<IDaoTransaction> _transaction;
 
-        private InventoryItemInstance? _firstStack;
-        private InventoryItemInstance? _secondStack;
-        private InventoryItemInstance? _secondOther;
-        private WearableInstance? _armor;
-        private InventoryItemInstance? _armorEntry;
-        private Snapshot? _before;
+        private InventoryItemInstance _firstStack;
+        private InventoryItemInstance _secondStack;
+        private InventoryItemInstance _secondOther;
+        private WearableInstance _armor;
+        private InventoryItemInstance _armorEntry;
+        private Snapshot _before;
 
         private static TransferOffer Nothing => new(0, 0, new Dictionary<InventoryItemInstance, short>());
 
@@ -170,7 +172,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private Task FirstOffersGoldAndPartOfAStack()
         {
             _first.Character.Gold = 1_000;
-            _firstStack = _first.Character.InventoryService.AddItemToPocket(Stack(Stackable, 10, _first), NoscorePocketType.Main, 0)!.First();
+            _firstStack = _first.Character.InventoryService.AddItemToPocket(Stack(Stackable, 10, _first), NoscorePocketType.Main, 0).NotNull().First();
             _firstOffer = new TransferOffer(600, 0, new Dictionary<InventoryItemInstance, short> { [_firstStack] = 4 });
             _before = new Snapshot(_first, _second);
             return Task.CompletedTask;
@@ -189,7 +191,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 ShellRarity = 3,
                 DurabilityPoint = 40
             };
-            _armorEntry = _second.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_armor, _second.Character.CharacterId))!.First();
+            _armorEntry = _second.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(_armor, _second.Character.CharacterId)).NotNull().First();
             await _itemInstanceDao.TryInsertOrUpdateAsync(_armor);
             await _inventoryDao.TryInsertOrUpdateAsync(_armorEntry);
             await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
@@ -202,15 +204,15 @@ namespace NosCore.GameObject.Tests.Services.TransferService
 
         private void FirstOffersPartOfAStackSecondAlreadyHolds()
         {
-            _firstStack = _first.Character.InventoryService.AddItemToPocket(Stack(Stackable, 5, _first), NoscorePocketType.Main, 0)!.First();
+            _firstStack = _first.Character.InventoryService.AddItemToPocket(Stack(Stackable, 5, _first), NoscorePocketType.Main, 0).NotNull().First();
             _first.Character.InventoryService.AddItemToPocket(Stack(Filler, 999, _first), NoscorePocketType.Main, 1);
-            _secondStack = _second.Character.InventoryService.AddItemToPocket(Stack(Stackable, 10, _second), NoscorePocketType.Main, 0)!.First();
+            _secondStack = _second.Character.InventoryService.AddItemToPocket(Stack(Stackable, 10, _second), NoscorePocketType.Main, 0).NotNull().First();
             _firstOffer = new TransferOffer(0, 0, new Dictionary<InventoryItemInstance, short> { [_firstStack] = 3 });
         }
 
         private void SecondOffersAnItemFirstHasNoRoomFor()
         {
-            _secondOther = _second.Character.InventoryService.AddItemToPocket(Stack(Other, 1, _second), NoscorePocketType.Main, 1)!.First();
+            _secondOther = _second.Character.InventoryService.AddItemToPocket(Stack(Other, 1, _second), NoscorePocketType.Main, 1).NotNull().First();
             _secondOffer = new TransferOffer(0, 0, new Dictionary<InventoryItemInstance, short> { [_secondOther] = 1 });
             _before = new Snapshot(_first, _second);
         }
@@ -241,7 +243,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
 
         private void NothingIsCommitted()
         {
-            _transaction!.Verify(t => t.CommitAsync(), Times.Never);
+            _transaction.Verify(t => t.CommitAsync(), Times.Never);
             _transaction.Verify(t => t.DisposeAsync(), Times.Once);
         }
 
@@ -251,35 +253,35 @@ namespace NosCore.GameObject.Tests.Services.TransferService
             var secondId = _second.Character.CharacterId;
             var firstAccountId = _first.Character.Account.AccountId;
             var secondAccountId = _second.Character.Account.AccountId;
-            var first = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == firstId);
-            var second = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == secondId);
-            Assert.AreEqual(400L, first!.Gold);
-            Assert.AreEqual(600L, second!.Gold);
-            var firstAccount = await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.AccountId == firstAccountId);
-            var secondAccount = await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.AccountId == secondAccountId);
-            Assert.AreEqual(5_000L, firstAccount!.BankMoney);
-            Assert.AreEqual(0L, secondAccount!.BankMoney);
+            var first = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == firstId)).NotNull();
+            var second = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == secondId)).NotNull();
+            Assert.AreEqual(400L, first.Gold);
+            Assert.AreEqual(600L, second.Gold);
+            var firstAccount = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.AccountId == firstAccountId)).NotNull();
+            var secondAccount = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.AccountId == secondAccountId)).NotNull();
+            Assert.AreEqual(5_000L, firstAccount.BankMoney);
+            Assert.AreEqual(0L, secondAccount.BankMoney);
         }
 
         private async Task TheItemsAreStoredOnTheirNewOwners()
         {
             var firstId = _first.Character.CharacterId;
             var secondId = _second.Character.CharacterId;
-            var firstRows = _inventoryDao.Where(i => i.CharacterId == firstId)!.ToList();
-            var secondRows = _inventoryDao.Where(i => i.CharacterId == secondId)!.ToList();
+            var firstRows = _inventoryDao.Where(i => i.CharacterId == firstId).NotNull().ToList();
+            var secondRows = _inventoryDao.Where(i => i.CharacterId == secondId).NotNull().ToList();
             Assert.AreEqual(2, firstRows.Count, "the rest of the stack and the armor");
             Assert.AreEqual(1, secondRows.Count, "the received part of the stack");
 
-            var stackId = _firstStack!.ItemInstanceId;
-            var armorId = _armor!.Id;
-            var remaining = await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == stackId);
-            Assert.AreEqual((short)6, remaining!.Amount);
+            var stackId = _firstStack.ItemInstanceId;
+            var armorId = _armor.Id;
+            var remaining = (await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == stackId)).NotNull();
+            Assert.AreEqual((short)6, remaining.Amount);
 
             Assert.IsNull(await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == armorId), "the given armor row is gone");
             var receivedArmor = _first.Character.InventoryService.Values.Single(i => i.ItemInstance.ItemVNum == Armor.VNum);
             var receivedId = receivedArmor.ItemInstanceId;
             Assert.IsNotNull(await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == receivedId));
-            var options = _optionDao.Where(o => o.WearableInstanceId == receivedId)!.ToList();
+            var options = _optionDao.Where(o => o.WearableInstanceId == receivedId).NotNull().ToList();
             Assert.AreEqual(1, options.Count);
             Assert.AreEqual(3, options[0].Value);
         }
@@ -288,7 +290,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         {
             var received = (WearableInstance)_first.Character.InventoryService.Values.Single().ItemInstance;
             Assert.AreNotSame(_armor, received);
-            Assert.AreNotEqual(_armor!.Id, received.Id);
+            Assert.AreNotEqual(_armor.Id, received.Id);
             Assert.AreEqual(_armor.Rare, received.Rare);
             Assert.AreEqual(_armor.Upgrade, received.Upgrade);
             Assert.AreEqual(_armor.IsFixed, received.IsFixed);
@@ -298,7 +300,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
             Assert.AreEqual(0, _second.Character.InventoryService.Count);
         }
 
-        private void BothCharactersAreAsBefore() => _before!.AssertUnchanged(_first, _second);
+        private void BothCharactersAreAsBefore() => _before.AssertUnchanged(_first, _second);
 
         private sealed class Snapshot
         {

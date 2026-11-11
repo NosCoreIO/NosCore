@@ -153,7 +153,7 @@ namespace NosCore.GameObject.Services.BattleService
 
         private static async Task ShowCaughtAsync(PlayerComponentBundle owner, MonsterComponentBundle monster, SuPacket caughtAt)
         {
-            await monster.MapInstance!.SendPacketAsync(caughtAt);
+            await monster.MapInstance.SendPacketAsync(caughtAt);
             await monster.MapInstance.SendPacketAsync(owner.GenerateEff(CaughtEffect));
             await monster.MapInstance.SendPacketAsync(new OutPacket
             {
@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Services.BattleService
             HitMode = SuPacketHitMode.NoDamageSuccess,
             SkillTypeMinusOne = 0,
             TargetCurrentHp = monster.Hp,
-            TargetMaxHp = monster.NpcMonster!.MaxHp
+            TargetMaxHp = monster.NpcMonster.MaxHp
         };
 
         // In a cast cancel the TargetId field carries the cast id.

@@ -25,7 +25,7 @@ namespace NosCore.Database.Entities
         public byte ActPartNumber { get; set; }
 
         public byte ActId { get; set; }
-        public virtual Act Act { get; set; } = null!;
+        public virtual Act Act { get; set; }
 
         public byte MaxTs { get; set; }
 

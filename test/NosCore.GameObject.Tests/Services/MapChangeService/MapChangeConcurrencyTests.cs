@@ -30,19 +30,19 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
     {
         private static readonly QueryDescription Players = new QueryDescription().WithAll<PlayerComponent>();
 
-        private ClientSession _session = null!;
-        private MapInstance _start = null!;
-        private MapInstance _first = null!;
-        private MapInstance _second = null!;
+        private ClientSession _session;
+        private MapInstance _start;
+        private MapInstance _first;
+        private MapInstance _second;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _start = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
-            _first = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            _second = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(TestHelpers.Instance.MinilandId)!;
+            _start = TestHelpers.Instance.GetBaseMap(0);
+            _first = TestHelpers.Instance.GetBaseMap(1);
+            _second = TestHelpers.Instance.GetMap(TestHelpers.Instance.MinilandId);
         }
 
         private Task ChangeMapAsync(MapInstance to) =>
@@ -147,7 +147,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         {
             var clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             var map = new MapInstance(new Map.Map { MapId = 0, NameI18NKey = "testMap", Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 } },
-                Guid.NewGuid(), false, MapInstanceType.NormalInstance, TestHelpers.Instance.MapItemProvider!,
+                Guid.NewGuid(), false, MapInstanceType.NormalInstance, TestHelpers.Instance.MapItemProvider.NotNull(),
                 NullLogger<MapInstance>.Instance, clock, TestHelpers.Instance.MapChangeService,
                 TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.DistanceCalculator);

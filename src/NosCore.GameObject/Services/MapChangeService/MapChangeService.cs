@@ -163,7 +163,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 }
                 await session.SendPacketAsync(currentMapInstance.GenerateCMap(false));
                 currentMapInstance.LastUnregister = clock.GetCurrentInstant();
-                await currentMapInstance.SendPacketAsync(character.GenerateOut(), new EveryoneBut(session.Channel!.Id));
+                await currentMapInstance.SendPacketAsync(character.GenerateOut(), new EveryoneBut(session.ConnectedChannel.Id));
                 foreach (var mate in character.Mates.Values)
                 {
                     await mate.DespawnAsync(currentMapInstance);
@@ -273,7 +273,7 @@ namespace NosCore.GameObject.Services.MapChangeService
 
                 if (channelId != null)
                 {
-                    newMapInstance.Sessions.Add(session.Channel!);
+                    newMapInstance.Sessions.Add(session.ConnectedChannel);
                     if (!invisible)
                     {
                         var prefix = authority == AuthorityType.Moderator

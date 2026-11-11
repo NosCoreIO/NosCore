@@ -8,11 +8,6 @@ namespace NosCore.GameObject.Networking.ClientSession
 {
     public class RequestData<T> : RequestData
     {
-        public RequestData(T data)
-        {
-            Data = data;
-        }
-
         public RequestData(ClientSession clientSession, T data) : base(clientSession)
         {
             Data = data;
@@ -23,10 +18,6 @@ namespace NosCore.GameObject.Networking.ClientSession
 
     public class RequestData(ClientSession clientSession) : IRequestData
     {
-        public RequestData() : this(null!)
-        {
-        }
-
         public ClientSession ClientSession { get; } = clientSession;
     }
 

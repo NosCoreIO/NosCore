@@ -34,9 +34,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class RewardExperienceTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
         private MonsterComponentBundle _monster;
-        private RewardService _service = null!;
+        private RewardService _service;
         private readonly Dictionary<long, (long Xp, long JobXp)> _awarded = new();
 
         [TestInitialize]

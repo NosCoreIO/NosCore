@@ -51,12 +51,12 @@ public sealed class RemoteCharacterService(IPubSubHub pubSubHub, IMailHub mailHu
     public async Task<bool> KickAsync(string? characterName)
     {
         var receiver = await FindAsync(characterName);
-        if (receiver == null)
+        if (receiver?.ConnectedCharacter is not { } connected)
         {
             return false;
         }
 
-        await pubSubHub.UnsubscribeAsync(receiver.ConnectedCharacter!.Id);
+        await pubSubHub.UnsubscribeAsync(connected.Id);
         return true;
     }
 
@@ -64,12 +64,12 @@ public sealed class RemoteCharacterService(IPubSubHub pubSubHub, IMailHub mailHu
         sbyte rare, byte upgrade)
     {
         var receiver = await FindAsync(characterName);
-        if (receiver == null)
+        if (receiver?.ConnectedCharacter is not { } connected)
         {
             return false;
         }
 
-        await mailHub.SendMailAsync(GiftHelper.GenerateMailRequest(clock, sender, receiver.ConnectedCharacter!.Id, null,
+        await mailHub.SendMailAsync(GiftHelper.GenerateMailRequest(clock, sender, connected.Id, null,
             vnum, amount, rare, upgrade, false, null, null));
         return true;
     }

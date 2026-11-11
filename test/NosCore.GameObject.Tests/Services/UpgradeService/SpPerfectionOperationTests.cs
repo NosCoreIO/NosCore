@@ -29,10 +29,10 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class SpPerfectionOperationTests
     {
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private SpPerfectionOperation _operation = null!;
-        private SpecialistInstance _card = null!;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private SpPerfectionOperation _operation;
+        private SpecialistInstance _card;
         private IReadOnlyList<IPacket> _result = Array.Empty<IPacket>();
 
         [TestInitialize]

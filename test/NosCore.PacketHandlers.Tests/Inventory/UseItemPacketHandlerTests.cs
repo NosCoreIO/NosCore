@@ -34,10 +34,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     {
         private const short BoxVNum = 1013;
         private const short RewardVNum = 1012;
-        private ClientSession Session = null!;
-        private IItemGenerationService ItemProvider = null!;
-        private UseItemPacketHandler Handler = null!;
-        private InlineOrDeferredMessageBus<ItemUsedEvent> Bus = null!;
+        private ClientSession Session;
+        private IItemGenerationService ItemProvider;
+        private UseItemPacketHandler Handler;
+        private InlineOrDeferredMessageBus<ItemUsedEvent> Bus;
 
         [TestInitialize]
         public async Task SetupAsync()

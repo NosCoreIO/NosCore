@@ -27,7 +27,7 @@ namespace NosCore.Database.Entities
         public short ScriptStepId { get; set; }
 
         [Required]
-        public string StepType { get; set; } = null!;
+        public required string StepType { get; set; }
 
         public string? StringArgument { get; set; }
 

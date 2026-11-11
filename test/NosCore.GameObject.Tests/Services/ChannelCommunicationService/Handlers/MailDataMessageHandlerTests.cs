@@ -25,9 +25,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class MailDataMessageHandlerTests
     {
-        private MailDataMessageChannelCommunicationMessageHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<ISessionRegistry> SessionRegistry = null!;
+        private MailDataMessageChannelCommunicationMessageHandler Handler;
+        private ClientSession Session;
+        private Mock<ISessionRegistry> SessionRegistry;
 
         [TestInitialize]
         public async Task SetupAsync()

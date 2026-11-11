@@ -35,10 +35,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             new BCardDto { ItemVNum = AttackPotionVNum, Type = 25, SubType = 11, FirstData = 400, SecondData = 116 }
         };
 
-        private ClientSession _session = null!;
-        private Mock<IBuffService> _buffs = null!;
-        private BuffPotionHandler _handler = null!;
-        private InventoryItemInstance _potion = null!;
+        private ClientSession _session;
+        private Mock<IBuffService> _buffs;
+        private BuffPotionHandler _handler;
+        private InventoryItemInstance _potion;
 
         [TestInitialize]
         public async Task SetupAsync()
