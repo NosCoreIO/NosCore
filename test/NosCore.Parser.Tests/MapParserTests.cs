@@ -64,8 +64,8 @@ namespace NosCore.Parser.Tests
         {
             WriteMapIdDat(
                 "1 1 0 0 nosvillage\r\nDATA 0\r\n" +
-                "2 1 0 0 alveus\r\nDATA 0\r\n" +
-                "145 1 0 0 oldnosville\r\nDATA 0\r\n");
+                "2 2 0 0 alveus\r\nDATA 0\r\n" +
+                "145 145 0 0 oldnosville\r\nDATA 0\r\n");
             var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             var result = await parser.ParseDatAsync(_tempFolder);
 
@@ -73,6 +73,42 @@ namespace NosCore.Parser.Tests
             Assert.IsTrue(result.Any(m => m.MapId == 1 && m.NameI18NKey == "nosvillage"));
             Assert.IsTrue(result.Any(m => m.MapId == 2 && m.NameI18NKey == "alveus"));
             Assert.IsTrue(result.Any(m => m.MapId == 145 && m.NameI18NKey == "oldnosville"));
+        }
+
+        [TestMethod]
+        public async Task MapParser_KeepsAnEntryFollowedByANonZeroRegion()
+        {
+            WriteMapIdDat(
+                "170 170 2 3 desert\rDATA 1\r\r" +
+                "171 171 2 4 portsurroundings\rDATA 1\r\r" +
+                "172 172 2 5 neilscamp\rDATA 0\r");
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            var result = await parser.ParseDatAsync(_tempFolder);
+
+            Assert.AreEqual(3, result.Count);
+            Assert.IsTrue(result.Any(m => m.MapId == 171 && m.NameI18NKey == "portsurroundings"));
+        }
+
+        [TestMethod]
+        public async Task MapParser_NamesEveryMapOfARange()
+        {
+            WriteMapIdDat("# startMapId endMapId\r4000 4002 1 -1 arena\rDATA 0\r");
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            var result = await parser.ParseDatAsync(_tempFolder);
+
+            CollectionAssert.AreEquivalent(new short[] { 4000, 4001, 4002 }, result.Select(m => m.MapId).ToArray());
+            Assert.IsTrue(result.All(m => m.NameI18NKey == "arena"));
+        }
+
+        [TestMethod]
+        public async Task MapParser_KeepsTheFirstLineForARepeatedMap()
+        {
+            WriteMapIdDat("2592 2592 1 -1 first\rDATA 0\r2592 2592 1 -1 second\rDATA 0\r");
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            var result = await parser.ParseDatAsync(_tempFolder);
+
+            Assert.AreEqual(1, result.Count);
+            Assert.AreEqual("first", result[0].NameI18NKey);
         }
 
         [TestMethod]

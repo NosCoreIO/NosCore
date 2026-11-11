@@ -13,6 +13,10 @@ using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Dto;
+using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets;
@@ -352,6 +356,28 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 StringAssert.Contains(line, "Joyeux^Mouton",
                     $"the name has to travel as one field: {line}");
             }
+        }
+
+        [TestMethod]
+        public async Task APartnerWearingACardSendsTheFieldTheClientReadsAfterItAsync()
+        {
+            var service = Build(new[]
+            {
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner, IsTeamMember = true }
+            }, Creature(PartnerVNum, "Bob", 870, 200));
+            var partner = (await service.LoadAsync(CharacterId))[0];
+            var card = new SpecialistInstance(new Item { VNum = 4324, ItemType = ItemType.Specialist, EquipmentSlot = EquipmentType.Sp });
+            var wearing = new Mock<IInventoryService>();
+            wearing.Setup(s => s.LoadBySlotAndType((short)EquipmentType.Sp, NoscorePocketType.FirstPartnerInventory))
+                .Returns(InventoryItemInstance.Create(card, CharacterId));
+            var serializer = new Serializer(new[] { typeof(ScnPacket) });
+
+            var withCard = serializer.Serialize(partner.GenerateScn(RegionType.EN, wearing.Object)).Split(' ');
+            var withoutCard = serializer.Serialize(partner.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object)).Split(' ');
+
+            Assert.AreEqual("4324.0", withCard[40]);
+            Assert.AreEqual(47, withCard.Length);
+            Assert.AreEqual(46, withoutCard.Length);
         }
 
         [TestMethod]

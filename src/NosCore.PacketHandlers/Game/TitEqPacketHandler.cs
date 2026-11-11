@@ -20,7 +20,7 @@ namespace NosCore.PacketHandlers.Game
     {
         public override async Task ExecuteAsync(TitEqPacket titEqPacket, ClientSession session)
         {
-            var visibility = titEqPacket.Mode == 1;
+            var visibility = titEqPacket.Mode == TitEqPacketType.ToggleVisibility;
             var toggled = visibility
                 ? session.Character.ToggleTitleVisibility(titEqPacket.TitleId)
                 : session.Character.ToggleTitleEffect(titEqPacket.TitleId);

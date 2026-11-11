@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             await new Spec("Right clicking a weapon in the bag shows its details")
                 .Given(AWeaponIsInEquipmentSlot_, (short)0)
-                .WhenAsync(AskingForInfoOn_Slot_, (byte)1, (short)0)
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Equipment, (short)0)
                 .Then(TheDetailsAreSent)
                 .ExecuteAsync();
         }
@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             await new Spec("Right clicking a worn weapon shows its details")
                 .Given(AWeaponIsWorn)
-                .WhenAsync(AskingForInfoOn_Slot_, (byte)0, (short)EquipmentType.MainWeapon)
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Worn, (short)EquipmentType.MainWeapon)
                 .Then(TheDetailsAreSent)
                 .ExecuteAsync();
         }
@@ -60,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task AnEmptySlotSendsNothing()
         {
             await new Spec("An empty slot sends nothing")
-                .WhenAsync(AskingForInfoOn_Slot_, (byte)1, (short)0)
+                .WhenAsync(AskingForInfoOn_Slot_, EquipmentInfoType.Equipment, (short)0)
                 .Then(NothingIsSent)
                 .ExecuteAsync();
         }
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             await new Spec("An unhandled source sends nothing")
                 .Given(AWeaponIsInEquipmentSlot_, (short)0)
-                .WhenAsync(AskingForInfoOn_Slot_, (byte)5, (short)0)
+                .WhenAsync(AskingForInfoOn_Slot_, (EquipmentInfoType)5, (short)0)
                 .Then(NothingIsSent)
                 .ExecuteAsync();
         }
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 InventoryItemInstance.Create(ItemProvider.Create(1, 1), Session.Character.CharacterId),
                 NoscorePocketType.Wear, (short)EquipmentType.MainWeapon);
 
-        private Task AskingForInfoOn_Slot_(byte type, short slot) =>
+        private Task AskingForInfoOn_Slot_(EquipmentInfoType type, short slot) =>
             _handler.ExecuteAsync(new EquipmentInfoPacket { Type = type, Slot = slot }, Session);
 
         private void TheDetailsAreSent() => Assert.AreSame(_info, GetLastPacket<EInfoWeaponPacket>());

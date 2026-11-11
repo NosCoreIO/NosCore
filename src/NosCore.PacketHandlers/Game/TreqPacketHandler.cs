@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Game
                 return Task.CompletedTask;
             }
 
-            return packet.StartPress == 1
+            return packet.StartPress == true
                 ? timeSpaceEntryService.EnterAsync(session, entrance)
                 : timeSpaceEntryService.ShowAsync(session, entrance);
         }

@@ -157,7 +157,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .And(_HasAMemberWith_Reputation, "Alpha", 300L)
                 .And(_HasAMemberWith_Reputation, "Alpha", 400L)
                 .And(_HasAMemberWith_Reputation, "Beta", 500L)
-                .WhenAsync(AskingForTheRanking_, FamilyRankingType.CurrentDemons)
+                .WhenAsync(AskingForTheRanking_, FamilyRankingType.DailyReputation)
                 .Then(TheRankingShouldBe_, new[] { "1|Alpha|1|700", "2|Beta|2|500" })
                 .ExecuteAsync();
         }
@@ -165,10 +165,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task TheRankingNamesTheTabItWasAskedFor()
         {
-            await new Spec("The ranking reply names the tab it fills, so the client puts the first family in it")
+            await new Spec("The ranking reply names the window tab it fills, so the client lists it there")
                 .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
-                .WhenAsync(AskingForTheRanking_, FamilyRankingType.CurrentDemons)
-                .Then(TheRankingTabShouldBe_, FamilyRankingType.CurrentDemons)
+                .WhenAsync(AskingForTheRanking_, FamilyRankingType.DailyReputation)
+                .Then(TheRankingTabShouldBe_, FamilyRankingTab.More)
                 .ExecuteAsync();
         }
 
@@ -178,6 +178,33 @@ namespace NosCore.PacketHandlers.Tests.Family
             await new Spec("Nothing records monthly experience, so that tab comes back empty rather than wrong")
                 .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
                 .WhenAsync(AskingForTheRanking_, FamilyRankingType.MonthlyExperience)
+                .Then(TheRankingShouldBe_, Array.Empty<string>())
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheDailyExperienceTabListsTheSameOrderAsTheCurrentOne()
+        {
+            await new Spec("The More tab's FXP ranking orders families like the Current tab")
+                .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
+                .And(AFamily_AtLevel_With_Experience, "Beta", (byte)5, 10)
+                .WhenAsync(AskingForTheRanking_, FamilyRankingType.DailyExperience)
+                .Then(TheRankingShouldBe_, new[] { "1|Beta|5|10", "2|Alpha|3|100" })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        [DataRow(FamilyRankingType.CurrentAngels)]
+        [DataRow(FamilyRankingType.CurrentDemons)]
+        [DataRow(FamilyRankingType.LastMonthExperience)]
+        [DataRow(FamilyRankingType.LastMonthAngels)]
+        [DataRow(FamilyRankingType.LastMonthDemons)]
+        [DataRow(FamilyRankingType.SpireCatacombs)]
+        public async Task AnUntrackedTabIsEmpty(FamilyRankingType tab)
+        {
+            await new Spec("Nothing records PvP points, last month's results or the catacombs, so those tabs come back empty")
+                .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
+                .WhenAsync(AskingForTheRanking_, tab)
                 .Then(TheRankingShouldBe_, Array.Empty<string>())
                 .ExecuteAsync();
         }
@@ -260,7 +287,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private void NoHistoryShouldBeSent() => Assert.IsFalse(_session.LastPackets.OfType<GhisPacket>().Any());
 
-        private void TheRankingTabShouldBe_(FamilyRankingType type) =>
+        private void TheRankingTabShouldBe_(FamilyRankingTab type) =>
             Assert.AreEqual(type, _session.LastPackets.OfType<FrankStcPacket>().Single().Type);
 
         private void TheRankingShouldBe_(string[] rows) => CollectionAssert.AreEqual(rows,

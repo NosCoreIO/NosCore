@@ -7,36 +7,46 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
-using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
     public class MapParser(IDao<MapDto, short> mapDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
-        //{ID} {ID} {MapPoint} {MapPoint} {Name}
-        //DATA 0
+        // startMapId endMapId worldMap worldMapIndex name, then a DATA line holding the world region.
+        // One line names every map from startMapId to endMapId.
 
         private readonly ILogger<MapParser> _logger = loggerFactory.CreateLogger<MapParser>();
         private readonly string _fileMapIdDat = $"{Path.DirectorySeparatorChar}MapIDData.dat";
         private readonly string _folderMap = $"{Path.DirectorySeparatorChar}map";
 
-        public Task<List<MapDto>> ParseDatAsync(string folder)
+        public async Task<List<MapDto>> ParseDatAsync(string folder)
         {
-            var actionList = new Dictionary<string, Func<Dictionary<string, string[][]>, object?>>
+            using var stream = new StreamReader(folder + _fileMapIdDat, Encoding.Default);
+            var content = await stream.ReadToEndAsync();
+            var maps = new Dictionary<short, MapDto>();
+            foreach (var line in content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.RemoveEmptyEntries))
             {
-                {nameof(MapDto.MapId), chunk => Convert.ToInt16(chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][0])},
-                {nameof(MapDto.NameI18NKey), chunk => chunk.First(s=>char.IsDigit(s.Key.FirstOrDefault())).Value[0][4]}
-            };
-            var genericParser = new GenericParser<MapDto>(folder + _fileMapIdDat, "DATA 0", 0, actionList,
-                loggerFactory.CreateLogger<GenericParser<MapDto>>(), logLanguage);
-            return genericParser.GetDtosAsync(" ");
+                var columns = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                if (columns.Length < 5 || !short.TryParse(columns[0], out var start) || !short.TryParse(columns[1], out var end))
+                {
+                    continue;
+                }
+
+                for (int mapId = start; mapId <= end; mapId++)
+                {
+                    maps.TryAdd((short)mapId, new MapDto { MapId = (short)mapId, NameI18NKey = columns[4] });
+                }
+            }
+
+            return maps.Values.ToList();
         }
 
         public async Task InsertOrUpdateMapsAsync(string folder, List<string[]> packetList)

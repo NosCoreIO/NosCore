@@ -84,6 +84,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static ScnPacket GenerateScn(this Mate mate, RegionType language, IInventoryService inventory)
         {
+            var specialist = mate.Specialist(inventory);
             return new ScnPacket
             {
                 PetId = mate.PetSlot,
@@ -122,12 +123,11 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Name = mate.DisplayName(language),
                 MorphId = mate.Morph(),
                 IsSummonable = mate.IsSummonable,
-                SpDetails = mate.Specialist(inventory) is { } specialist
-                    ? new ScnPacket.ScSpDetails { ItemId = specialist.ItemVNum }
-                    : null,
+                SpDetails = specialist is null ? null : new ScnPacket.ScSpDetails { ItemId = specialist.ItemVNum },
                 Skill1Details = null,
                 Skill2Details = null,
-                Skill3Details = null
+                Skill3Details = null,
+                Unknown6 = specialist is null ? null : (byte)0
             };
         }
 
