@@ -323,8 +323,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            if (!await familyService.UpdateAsync(family.FamilyId, s => s.FamilyMessage = notice))
+            {
+                return;
+            }
+
             family.FamilyMessage = notice;
-            await familyService.SaveAsync(family);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
 
@@ -344,8 +348,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            if (!await familyService.UpdateMemberAsync(membership.CharacterId, s => s.DailyMessage = dailyMessage))
+            {
+                return;
+            }
+
             membership.DailyMessage = dailyMessage;
-            await familyService.SaveMembersAsync(new[] { membership });
             await familyLogService.AddAsync(family.FamilyId, FamilyLogType.DailyMessage, session.Character.Name, dailyMessage);
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
@@ -372,8 +380,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
+            if (!await familyService.UpdateMemberAsync(membership.CharacterId, s => s.Rank = rank))
+            {
+                return;
+            }
+
             membership.Rank = rank;
-            await familyService.SaveMembersAsync(new[] { membership });
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }
 
@@ -385,29 +397,30 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var previousRanks = family.Members.ToDictionary(s => s.CharacterId, s => s.Rank);
-            var previousGender = family.FamilyHeadGender;
+            await using (var transaction = daoTransactionScope.Begin())
+            {
+                foreach (var member in family.Members)
+                {
+                    if (!await familyService.UpdateMemberAsync(member.CharacterId, s => s.Rank = FamilyMemberRank.Nothing))
+                    {
+                        return;
+                    }
+                }
+
+                if (!await familyService.UpdateAsync(family.FamilyId, s => s.FamilyHeadGender = gender))
+                {
+                    return;
+                }
+
+                await transaction.CommitAsync();
+            }
+
             foreach (var member in family.Members)
             {
                 member.Rank = FamilyMemberRank.Nothing;
             }
 
             family.FamilyHeadGender = gender;
-            await using (var transaction = daoTransactionScope.Begin())
-            {
-                if (!await familyService.SaveMembersAsync(family.Members) || !await familyService.SaveAsync(family))
-                {
-                    foreach (var member in family.Members)
-                    {
-                        member.Rank = previousRanks[member.CharacterId];
-                    }
-
-                    family.FamilyHeadGender = previousGender;
-                    return;
-                }
-
-                await transaction.CommitAsync();
-            }
 
             await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
         }

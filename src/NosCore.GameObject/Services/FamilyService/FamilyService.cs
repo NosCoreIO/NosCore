@@ -9,6 +9,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Family;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -154,19 +155,47 @@ namespace NosCore.GameObject.Services.FamilyService
 
             if (authority == FamilyAuthority.Head)
             {
-                var head = family.Members.First(s => s.CharacterId == actorId);
-                head.Authority = FamilyAuthority.Assistant;
-                await familyCharacterDao.TryInsertOrUpdateAsync(head);
+                if (!await UpdateMemberAsync(actorId, s => s.Authority = FamilyAuthority.Assistant))
+                {
+                    return FamilyAuthorityChange.NotInFamily;
+                }
+
+                family.Members.First(s => s.CharacterId == actorId).Authority = FamilyAuthority.Assistant;
+            }
+
+            if (!await UpdateMemberAsync(targetId, s => s.Authority = authority))
+            {
+                return FamilyAuthorityChange.NotInFamily;
             }
 
             membership.Authority = authority;
-            await familyCharacterDao.TryInsertOrUpdateAsync(membership);
             return FamilyAuthorityChange.Changed;
         }
 
-        public async Task<bool> SaveAsync(Family family) => await familyDao.TryInsertOrUpdateAsync(family.Adapt<FamilyDto>()) != null;
+        // The copy held by a session can be hours old, so a change is applied to the stored row rather
+        // than writing that copy back over what the master has saved since.
+        public async Task<bool> UpdateAsync(long familyId, Action<FamilyDto> change)
+        {
+            var family = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
+            if (family == null)
+            {
+                return false;
+            }
 
-        public Task<bool> SaveMembersAsync(IEnumerable<FamilyCharacterDto> members) =>
-            familyCharacterDao.TryInsertOrUpdateAsync(members);
+            change(family);
+            return await familyDao.TryInsertOrUpdateAsync(family) != null;
+        }
+
+        public async Task<bool> UpdateMemberAsync(long characterId, Action<FamilyCharacterDto> change)
+        {
+            var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
+            if (membership == null)
+            {
+                return false;
+            }
+
+            change(membership);
+            return await familyCharacterDao.TryInsertOrUpdateAsync(membership) != null;
+        }
     }
 }
