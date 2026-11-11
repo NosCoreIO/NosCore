@@ -999,8 +999,8 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 
 ### Miniland minigames
 
-`/mnt/project-files/pr-merge-run/scripts/reset-minigame.sh` with `MGX=6 MGY=8` places a Basic
-Quarry next to where the Bell of Sweet Home puts you, with 0 production points.
+Place a Basic Quarry (3117, with some durability) at (6, 8) in your miniland, next to where the
+Bell of Sweet Home puts you (5, 8), and leave the miniland at 0 production points.
 
 - [ ] Enter the miniland with the bell: a blue arrow next to your character points at the
       quarry; click it, then Open, and the quarry window shows
