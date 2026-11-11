@@ -62,6 +62,9 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class PlayerBundleExtensions
 {
+    public static FsPacket GenerateFaction(this PlayerComponentBundle player) =>
+        new() { Faction = player.CharacterDto.Faction };
+
     public static Task SendPacketAsync(this PlayerComponentBundle player, IPacket? packet)
     {
         return player.Sender?.SendPacketAsync(packet) ?? Task.CompletedTask;
@@ -265,6 +268,9 @@ public static class PlayerBundleExtensions
         });
     }
 
+    /// <summary>
+    /// Builds the player's map appearance packet, including faction and visible equipment.
+    /// </summary>
     public static InPacket GenerateIn(this PlayerComponentBundle player, string prefix)
     {
         var fairy = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
@@ -304,7 +310,7 @@ public static class PlayerBundleExtensions
                 ReputIco = GetIcon(player),
                 Invisible = false,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
-                Faction = 0,
+                Faction = player.CharacterDto.Faction,
                 MorphUpgrade2 = player.UseSp ? (byte)player.MorphDesign : (byte)0,
                 Level = player.Level,
                 FamilyLevel = 0,

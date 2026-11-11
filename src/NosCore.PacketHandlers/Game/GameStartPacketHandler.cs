@@ -46,6 +46,9 @@ namespace NosCore.PacketHandlers.Game
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
+        /// <summary>
+        /// Initializes world entry and sends the character's current state, including the persisted faction.
+        /// </summary>
         public override async Task ExecuteAsync(GameStartPacket packet, ClientSession session)
         {
             if (session.GameStarted || !session.HasSelectedCharacter)
@@ -156,7 +159,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketsAsync(session.Character.Quests.Values.Where(o => o.CompletedOn == null).Select(qst => qst.Quest.GenerateTargetPacket()));
             //            // sqst bf
             //            Session.SendPacket("act6");
-            //            Session.SendPacket(Session.Character.GenerateFaction());
+            await session.SendPacketAsync(session.Character.GenerateFaction());
             // p_clear wipes one panel holding both the party and the mate list, so both bursts
             // have to follow it rather than straddle it.
             await session.SendPacketsAsync(session.Character.GenerateMateRoster());

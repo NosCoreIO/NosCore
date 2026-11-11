@@ -11,6 +11,7 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using FactionType = NosCore.Packets.Enumerations.FactionType;
 
 namespace NosCore.Database.Entities
 {
@@ -89,7 +90,7 @@ namespace NosCore.Database.Entities
 
         public bool ShouldRename { get; set; }
 
-        public byte Faction { get; set; }
+        public FactionType Faction { get; set; }
 
         public virtual ICollection<FamilyCharacter> FamilyCharacter { get; set; }
 
