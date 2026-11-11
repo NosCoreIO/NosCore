@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _bench = new ShellTestBench();
             _bench.Random.Setup(r => r.NextDouble()).Returns(0d);
         }

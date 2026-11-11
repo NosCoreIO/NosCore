@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         [TestMethod]

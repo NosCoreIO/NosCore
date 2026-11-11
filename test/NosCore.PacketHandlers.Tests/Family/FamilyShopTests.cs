@@ -88,8 +88,8 @@ namespace NosCore.PacketHandlers.Tests.Family
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _head = await World.GenerateSessionAsync();
-            _member = await World.GenerateSessionAsync();
+            _head = await World.CreateSessionAsync();
+            _member = await World.CreateSessionAsync();
             _published.Clear();
 
             var context = World.DbContextBuilder;

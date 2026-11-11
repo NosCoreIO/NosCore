@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         private static Family Nemesis(long characterId, FamilyAuthority authority = FamilyAuthority.Member)

@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.MapInstance = World.GetBaseMap(0);
 
             var minilandService = new Mock<IMinilandService>();
@@ -208,7 +208,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         [TestMethod]
         public async Task InAGroupThePanelArrivesBeforeTheMembersBars()
         {
-            var other = await World.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
             var group = new Group(GroupType.Group, World.SessionGroupFactory);
             Session.Character.JoinGroup(group);
             other.Character.JoinGroup(group);

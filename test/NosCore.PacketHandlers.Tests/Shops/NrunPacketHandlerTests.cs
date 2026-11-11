@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _fakeHandlerMock = new Mock<INrunEventHandler>();
             _fakeHandlerMock.SetupGet(h => h.Runner).Returns(NrunRunnerType.ChangeClass);
             _fakeHandlerMock

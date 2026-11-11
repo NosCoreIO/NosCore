@@ -80,8 +80,8 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _first = await World.GenerateSessionAsync();
-            _second = await World.GenerateSessionAsync();
+            _first = await World.CreateSessionAsync();
+            _second = await World.CreateSessionAsync();
             foreach (var session in new[] { _first, _second })
             {
                 session.Character.Gold = 0;

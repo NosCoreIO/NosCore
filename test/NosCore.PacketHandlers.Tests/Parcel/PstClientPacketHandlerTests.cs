@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             MailHub = new Mock<IMailHub>();
             Handler = new PstClientPacketHandler(MailHub.Object, new Mock<IDao<CharacterDto, long>>().Object,
                 SystemClock.Instance);

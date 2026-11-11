@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _map = _session.Character.MapInstance;
             _battleService = World.Freeze<Mock<IBattleService>>();
             _battleService.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
@@ -124,7 +124,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
         private async Task ThePetAttacksAPlayerOnAnotherMap()
         {
-            var other = await World.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
             other.Character.MapInstance = World.GetBaseMap(1);
             other.Character.PositionX = 5;
             other.Character.PositionY = 5;

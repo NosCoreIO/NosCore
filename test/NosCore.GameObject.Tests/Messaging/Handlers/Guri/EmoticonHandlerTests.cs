@@ -36,8 +36,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
-            _onlooker = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
+            _onlooker = await World.CreateSessionAsync();
             var map = World.GetBaseMap(1);
             _session.Character.MapInstance = map;
             _onlooker.Character.MapInstance = map;

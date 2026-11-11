@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             CskillPacketHandler = World.Create<CSkillPacketHandler>();
         }

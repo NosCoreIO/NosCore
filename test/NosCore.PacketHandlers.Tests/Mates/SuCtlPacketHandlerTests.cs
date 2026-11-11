@@ -48,8 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
-            _otherSession = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
+            _otherSession = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
             _session.Character.MapInstance = _map;
             _otherSession.Character.MapInstance = _map;

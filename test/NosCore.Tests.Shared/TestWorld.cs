@@ -269,7 +269,7 @@ namespace NosCore.Tests.Shared
 
         public GroupLootService GroupLootService => Create<GroupLootService>();
 
-        public async Task<ClientSession> GenerateSessionAsync(List<IPacketHandler>? packetHandlers = null,
+        public async Task<ClientSession> CreateSessionAsync(List<IPacketHandler>? packetHandlers = null,
             List<ISessionDisconnectHandler>? disconnectHandlers = null)
         {
             var id = ++_lastId;

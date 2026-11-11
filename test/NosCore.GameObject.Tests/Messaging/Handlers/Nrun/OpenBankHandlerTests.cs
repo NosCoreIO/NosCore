@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Reputation = 0;
             _handler = new OpenBankHandler(new BankService(), World.NpcDialogService);
         }

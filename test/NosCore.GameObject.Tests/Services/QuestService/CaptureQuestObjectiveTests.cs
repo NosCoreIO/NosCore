@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
 
             var questService = new GameObject.Services.QuestService.QuestService(

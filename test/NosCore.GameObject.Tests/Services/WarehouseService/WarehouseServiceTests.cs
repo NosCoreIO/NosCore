@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
                 WarehouseDao,
                 ItemInstanceDao);
 
-            var session = await World.GenerateSessionAsync();
+            var session = await World.CreateSessionAsync();
             OwnerId = session.Character.CharacterId;
         }
 

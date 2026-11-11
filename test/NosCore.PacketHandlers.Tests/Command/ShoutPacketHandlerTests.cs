@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             Serializer = World.Freeze<Mock<ISerializer>>();
 

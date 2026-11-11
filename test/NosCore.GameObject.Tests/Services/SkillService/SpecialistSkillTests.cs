@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(
                 new Mock<IDao<CharacterSkillDto, Guid>>().Object, Catalog);
         }

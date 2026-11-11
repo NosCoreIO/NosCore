@@ -49,8 +49,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             World = await TestWorld.CreateAsync();
             World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
-            _first = await World.GenerateSessionAsync();
-            _second = await World.GenerateSessionAsync();
+            _first = await World.CreateSessionAsync();
+            _second = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
             _experience = new Mock<IExperienceProgressionService>();
             _catalog = new Mock<INpcCombatCatalog>();

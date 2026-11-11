@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Handler = new BuyPacketHandler(
                 Logger,
                 World.LogLanguageLocalizer,
@@ -172,7 +172,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private async Task APlayerShopStandsAt_(short x, short y)
         {
-            Seller = await World.GenerateSessionAsync();
+            Seller = await World.CreateSessionAsync();
             Seller.WalkTo(x, y);
             Seller.Character.Shop = AShop();
             Seller.IsRegistered();

@@ -42,9 +42,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _member = await World.GenerateSessionAsync();
-            _joiner = await World.GenerateSessionAsync();
-            _bystander = await World.GenerateSessionAsync();
+            _member = await World.CreateSessionAsync();
+            _joiner = await World.CreateSessionAsync();
+            _bystander = await World.CreateSessionAsync();
             _member.Character.Family = _family;
             _joiner.Character.Family = null;
             _bystander.Character.Family = null;

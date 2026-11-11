@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(1);
             _arena = World.GetBaseMap(0);
             _arena.Map = ArenaTestMap.Create();

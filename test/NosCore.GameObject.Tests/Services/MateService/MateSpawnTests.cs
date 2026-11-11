@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _pet = TestMates.Pet(_session.Character.CharacterId);
             _session.Character.Mates[_pet.MateTransportId] = _pet;
             _session.Character.MapInstance.LastPackets.Clear();

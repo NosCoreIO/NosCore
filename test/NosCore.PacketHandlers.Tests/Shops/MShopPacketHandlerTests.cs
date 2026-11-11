@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             World = await TestWorld.CreateAsync();
 
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.MapInstance.Portals = new List<Portal>
             {
                 new()
@@ -330,7 +330,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private async Task AnotherPlayerClicksTheShopAsync()
         {
-            Visitor = await World.GenerateSessionAsync();
+            Visitor = await World.CreateSessionAsync();
             Visitor.LastPackets.Clear();
             Session.Character.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(Visitor));
         }

@@ -50,9 +50,9 @@ namespace NosCore.PacketHandlers.Tests.Family
             _warehouse = World.Freeze<Mock<IFamilyWarehouseService>>();
             World.PubSubHub
                 .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
-            _head = await World.GenerateSessionAsync();
-            _second = await World.GenerateSessionAsync();
-            _third = await World.GenerateSessionAsync();
+            _head = await World.CreateSessionAsync();
+            _second = await World.CreateSessionAsync();
+            _third = await World.CreateSessionAsync();
             _head.Character.Gold = 200000;
             foreach (var session in new[] { _head, _second, _third })
             {

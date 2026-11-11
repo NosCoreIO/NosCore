@@ -37,7 +37,7 @@ public class FactionEggHandlerTests
     public async Task SetupAsync()
     {
         World = await TestWorld.CreateAsync();
-        _session = await World.GenerateSessionAsync();
+        _session = await World.CreateSessionAsync();
         _session.Character.MapInstance = World.GetBaseMap(1);
         _session.Character.Hp = 100;
         _session.Character.CharacterDto.Faction = FactionType.Neutral;
@@ -190,7 +190,7 @@ public class FactionEggHandlerTests
     [TestMethod]
     public async Task SuccessfulChangeBroadcastsFactionToMap()
     {
-        var observer = await World.GenerateSessionAsync();
+        var observer = await World.CreateSessionAsync();
         observer.Character.MapInstance = _session.Character.MapInstance;
         var sessions = new Mock<ISessionGroup>();
         sessions.Setup(group => group.Broadcast(It.IsAny<IPacket[]>()))

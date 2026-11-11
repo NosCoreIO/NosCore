@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Networking
             World.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
                 .Callback(() => Events.Add("unsubscribe"))
                 .ReturnsAsync(true);
-            Session = await World.GenerateSessionAsync(
+            Session = await World.CreateSessionAsync(
                 new List<IPacketHandler> { PulseHandler },
                 new List<ISessionDisconnectHandler> { DisconnectHandler.Object });
             Session.LastKeepAliveIdentity = 1;

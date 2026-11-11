@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(1);
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService = new Mock<IRespawnService>();

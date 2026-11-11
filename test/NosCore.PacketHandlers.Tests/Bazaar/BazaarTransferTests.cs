@@ -57,9 +57,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _seller = await World.GenerateSessionAsync();
-            _buyer = await World.GenerateSessionAsync();
-            _third = await World.GenerateSessionAsync();
+            _seller = await World.CreateSessionAsync();
+            _buyer = await World.CreateSessionAsync();
+            _third = await World.CreateSessionAsync();
             foreach (var session in new[] { _seller, _buyer, _third })
             {
                 session.WithWindowOpenedRemotely(NpcDialogWindow.Bazaar);

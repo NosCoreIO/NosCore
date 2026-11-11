@@ -32,8 +32,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            TargetSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             MapChangeService = World.Freeze<Mock<IMapChangeService>>();
 
             Handler = World.Create<TeleportPacketHandler>();

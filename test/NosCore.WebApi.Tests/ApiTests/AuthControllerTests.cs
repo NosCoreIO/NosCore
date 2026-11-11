@@ -44,7 +44,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             World = await TestWorld.CreateAsync();
             AuthCodeService = new AuthCodeService(NodaTime.SystemClock.Instance);
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Logger = new Mock<ILogger<AuthController>>();
             Controller = new AuthController(Options.Create(new WebApiConfiguration()
             {

@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = await World.GenerateSessionAsync();
+                var session = await World.CreateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);

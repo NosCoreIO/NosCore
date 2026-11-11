@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _dao = new RememberingSkillDao();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao, Catalog);
         }

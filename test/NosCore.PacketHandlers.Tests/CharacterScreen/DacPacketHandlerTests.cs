@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             World = await TestWorld.CreateAsync();
             Logger.Invocations.Clear();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
             await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
             Session.ClearPlayerEntity();

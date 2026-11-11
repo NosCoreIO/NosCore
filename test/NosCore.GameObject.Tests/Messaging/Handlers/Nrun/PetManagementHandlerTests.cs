@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Level = 30;
             _miniland = World.Freeze<Mock<IMinilandService>>();
             _handler = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>().Create<PetManagementHandler>();

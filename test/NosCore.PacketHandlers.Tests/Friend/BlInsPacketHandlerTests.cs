@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
 
             World.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetIsOnline()
         {
-            TargetSession = await World.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber

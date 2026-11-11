@@ -28,7 +28,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.Titles = new List<TitleDto>
             {
                 new TitleDto { TitleType = TitleId, Visible = false, Active = false },

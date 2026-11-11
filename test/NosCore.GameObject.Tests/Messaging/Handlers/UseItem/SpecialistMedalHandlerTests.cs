@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             World.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
             World.WorldConfiguration.Value.MaxSpPoints = MaxSp;
             _handler = World.Create<SpecialistMedalHandler>();

@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var map = _session.Character.MapInstance;
             var creature = new NpcMonsterDto
             {
@@ -94,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task TwoGroupMembersEachEarnThreeQuartersOfTheKill()
         {
-            var other = await World.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
             JoinGroup(_session, other);
             foreach (var member in new[] { _session, other })
             {
@@ -111,8 +111,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task ThreeGroupMembersEachEarnSeventyPercentOfTheKill()
         {
-            var second = await World.GenerateSessionAsync();
-            var third = await World.GenerateSessionAsync();
+            var second = await World.CreateSessionAsync();
+            var third = await World.CreateSessionAsync();
             JoinGroup(_session, second, third);
             foreach (var member in new[] { _session, second, third })
             {

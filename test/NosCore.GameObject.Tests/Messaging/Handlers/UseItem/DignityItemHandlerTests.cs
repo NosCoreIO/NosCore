@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             World = await TestWorld.CreateAsync();
             DignityLevels.Load(ClientLadders.DignityLevels());
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _handler = World.Create<DignityItemHandler>();
         }
 

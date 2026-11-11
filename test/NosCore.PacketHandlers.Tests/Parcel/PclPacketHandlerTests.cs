@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Item = World.GenerateItemProvider();
             MailHttpClient = World.Freeze<Mock<IMailHub>>();
             ItemInstanceDao = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();

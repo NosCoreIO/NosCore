@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var mapSessions = new Mock<ISessionGroup>();
             mapSessions.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
                 .Callback<IPacket[]>(packets => _broadcast.AddRange(packets))

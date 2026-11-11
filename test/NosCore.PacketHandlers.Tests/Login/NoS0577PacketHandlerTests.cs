@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             World = await TestWorld.CreateAsync();
             ChannelHub = new Mock<IChannelHub>();
             SessionRefHolder = new SessionRefHolder();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             SessionRefHolder[Session.Channel.NotNull().Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
             AuthHttpClient.Setup(s => s.GetAwaitingConnectionAsync(It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<int>())).ReturnsAsync((string a, string b, int c) =>

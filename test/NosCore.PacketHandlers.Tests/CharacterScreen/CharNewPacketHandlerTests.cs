@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             CharNewPacketHandler =
                 new CharNewPacketHandler(World.CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
                     new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), World.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, World.ItemList, NullLoggerFactory.Instance);
-            Session = await World.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
+            Session = await World.CreateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
             MapChangeService = new Mock<IMapChangeService>();
             Session.ClearPlayerEntity();
         }
@@ -103,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsInGame()
         {
-            Session = await World.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
+            Session = await World.CreateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
         }
 
         private async Task CreatingCharacterViaPacket()

@@ -48,8 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            FriendSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            FriendSession = await World.CreateSessionAsync();
             FriendHub = new Mock<IFriendHub>();
             PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             Serializer = new Mock<ISerializer>();

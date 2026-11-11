@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Handler = World.Create<WithdrawPacketHandler>();
             ItemProvider = World.GenerateItemProvider();
         }

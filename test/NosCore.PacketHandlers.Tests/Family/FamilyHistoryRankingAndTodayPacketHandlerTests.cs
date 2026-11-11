@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _families.Clear();
             _memberships.Clear();
             _characters.Clear();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _family = new GameObject.Services.FamilyService.Family
             {
                 FamilyId = FamilyId,

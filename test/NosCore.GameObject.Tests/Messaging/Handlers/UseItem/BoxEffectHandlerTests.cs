@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _rollDao = World.Freeze<Mock<IDao<RollGeneratedItemDto, short>>>();
             _handler = World.Create<BoxEffectHandler>();
         }

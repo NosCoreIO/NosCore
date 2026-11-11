@@ -49,8 +49,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            TargetSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             MinilandProvider = new Mock<IMinilandService>();
             MapChangeService = new Mock<IMapChangeService>();
             MjoinPacketHandler = new MJoinPacketHandler(FriendHttpClient.Object, MinilandProvider.Object, MapChangeService.Object, World.SessionRegistry);

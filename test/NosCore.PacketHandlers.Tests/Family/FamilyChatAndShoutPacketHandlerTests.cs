@@ -39,7 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
                 .Callback<IMessage>(_sent.Add)
                 .ReturnsAsync(true);
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         private void JoinFamily(FamilyAuthority authority, bool managerCanShout = true)

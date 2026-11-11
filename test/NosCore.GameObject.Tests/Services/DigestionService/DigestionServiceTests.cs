@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MaxHp = 1000;
             _session.Character.MaxMp = 1000;
             _session.Character.IsSitting = true;

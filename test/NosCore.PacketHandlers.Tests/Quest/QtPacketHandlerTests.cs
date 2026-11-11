@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Tests.Quest
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             CharacterId = Session.Character.VisualId;
             QuestService = World.Freeze<Mock<IQuestService>>();
             Handler = World.Create<QtPacketHandler>();

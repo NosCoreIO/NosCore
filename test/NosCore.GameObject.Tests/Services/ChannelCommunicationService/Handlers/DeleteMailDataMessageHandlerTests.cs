@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             Handler = World.Create<DeleteMailDataMessageChannelCommunicationMessageHandler>();
         }

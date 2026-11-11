@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ExistingCharacter = Session.Character.CharacterDto;
             Session.ClearPlayerEntity();
             CharNewJobPacketHandler = World.Create<CharNewJobPacketHandler>();

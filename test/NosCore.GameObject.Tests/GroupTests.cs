@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Tests
 
         private async Task<ClientSession> CreateCharacterAsync()
         {
-            var session = await World.GenerateSessionAsync();
+            var session = await World.CreateSessionAsync();
             Sessions.Add(session);
             return session;
         }

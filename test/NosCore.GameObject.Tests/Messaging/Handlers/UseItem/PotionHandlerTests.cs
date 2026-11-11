@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MaxHp = 1000;
             _session.Character.MaxMp = 800;
             _handler = new PotionHandler(new PotionCooldownService(_mapTypeMaps, _mapTypes, World.Clock));

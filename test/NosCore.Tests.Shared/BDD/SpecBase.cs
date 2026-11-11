@@ -49,7 +49,7 @@ namespace NosCore.Tests.Shared.BDD
         public virtual async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             ItemProvider = new ItemGenerationService(
                 DefaultItems,

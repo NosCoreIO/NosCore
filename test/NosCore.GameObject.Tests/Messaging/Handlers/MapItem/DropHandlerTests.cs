@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(0);
             _messageBus = World.Freeze<Mock<IMessageBus>>();
         }

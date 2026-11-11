@@ -44,8 +44,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            TargetSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             BlacklistHub = World.Freeze<Mock<IBlacklistHub>>();
             PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             Serializer = new Mock<ISerializer>();

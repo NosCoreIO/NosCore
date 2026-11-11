@@ -55,8 +55,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            TargetSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             CharacterRelationDao = World.CharacterRelationDao;
             ChannelHub = new Mock<IChannelHub>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
@@ -193,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TheTargetBlacklistedSomeoneElseAsync()
         {
-            var someoneElse = await World.GenerateSessionAsync();
+            var someoneElse = await World.CreateSessionAsync();
             await TheTargetBlacklistsAsync(someoneElse.Character.CharacterId);
         }
 

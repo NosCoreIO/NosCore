@@ -26,7 +26,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task InAGroupThePetComesAfterThePlayers()
         {
-            var other = await World.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
             var group = new Group(GroupType.Group, World.SessionGroupFactory);
             _session.Character.JoinGroup(group);
             other.Character.JoinGroup(group);

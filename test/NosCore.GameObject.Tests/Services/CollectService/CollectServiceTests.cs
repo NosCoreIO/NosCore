@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(ObjectVNum)).Returns(new List<DropDto>
             {

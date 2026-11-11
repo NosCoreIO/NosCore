@@ -242,8 +242,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private async Task<(PlayerComponentBundle Attacker, PlayerComponentBundle Target)> TwoPlayersAsync()
         {
             World = await TestWorld.CreateAsync();
-            var attacker = (await World.GenerateSessionAsync()).Character;
-            var target = (await World.GenerateSessionAsync()).Character;
+            var attacker = (await World.CreateSessionAsync()).Character;
+            var target = (await World.CreateSessionAsync()).Character;
             target.MaxHp = 1000;
             target.Hp = 1000;
             return (attacker, target);

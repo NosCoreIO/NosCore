@@ -40,7 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
             ExperienceService = World.Freeze<Mock<IExperienceService>>();
             JobExperienceService = World.Freeze<Mock<IJobExperienceService>>();

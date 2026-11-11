@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _member = await World.GenerateSessionAsync();
-            _outsider = await World.GenerateSessionAsync();
+            _member = await World.CreateSessionAsync();
+            _outsider = await World.CreateSessionAsync();
             _member.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId, Name = "Testers" };
             _outsider.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId + 1, Name = "Others" };
             var sessions = new[] { _member, _outsider };

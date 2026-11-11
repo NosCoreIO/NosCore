@@ -62,9 +62,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _owner = await World.GenerateSessionAsync();
-            _buyer = await World.GenerateSessionAsync();
-            _secondBuyer = await World.GenerateSessionAsync();
+            _owner = await World.CreateSessionAsync();
+            _buyer = await World.CreateSessionAsync();
+            _secondBuyer = await World.CreateSessionAsync();
             _items = new ItemGenerationService(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true },

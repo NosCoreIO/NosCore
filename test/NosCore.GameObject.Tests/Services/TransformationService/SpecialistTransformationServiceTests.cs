@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         {
             World = await TestWorld.CreateAsync();
             Item = World.GenerateItemProvider();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Service = new SpecialistTransformationService(World.Clock,
                 new GameObject.Services.TransformationService.TransformationService(World.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,

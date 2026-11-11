@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Service = new Mock<ISpecialistTransformationService>();
             ItemInfo.Setup(i => i.GenerateInfo(It.IsAny<IItemInstance>())).Returns(new SlInfoPacket());
             Handler = new SpTransformPacketHandler(Service.Object, ItemInfo.Object, new Mock<IBattleStatsProvider>().Object);

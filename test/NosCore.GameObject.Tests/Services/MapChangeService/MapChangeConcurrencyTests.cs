@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _start = World.GetBaseMap(0);
             _first = World.GetBaseMap(1);
             _second = World.GetMap(World.MinilandId);

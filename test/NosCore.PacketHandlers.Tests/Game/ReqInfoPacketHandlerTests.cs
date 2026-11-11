@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             World.SessionRegistry.Register(new SessionInfo
             {
                 ChannelId = Session.Channel.NotNull().Id,

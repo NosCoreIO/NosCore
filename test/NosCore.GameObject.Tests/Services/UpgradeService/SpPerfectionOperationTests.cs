@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _operation = new SpPerfectionOperation(_random.Object, World.GameLanguageLocalizer,
                 new SpPerfectionService());

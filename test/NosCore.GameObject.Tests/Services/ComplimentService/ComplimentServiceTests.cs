@@ -32,8 +32,8 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            Target = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            Target = await World.CreateSessionAsync();
             Session.Character.Level = 31;
             InitialCompliment = Target.Character.Compliment;
             Service = new GameObject.Services.ComplimentService.ComplimentService(World.Clock,

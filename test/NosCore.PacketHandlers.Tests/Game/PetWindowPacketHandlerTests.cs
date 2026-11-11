@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.LastPackets.Clear();
         }
 

@@ -44,8 +44,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            TargetSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             ExchangeService = World.Freeze<Mock<IExchangeService>>();
 
             var items = new List<ItemDto>

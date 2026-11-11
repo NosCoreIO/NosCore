@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             World = await TestWorld.CreateAsync();
             CharacterRelationDao = World.CharacterRelationDao;
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ChannelHttpClient = World.ChannelHub;
             ConnectedAccountHttpClient = World.PubSubHub;
             ChannelHub = new Mock<IChannelHub>();
@@ -143,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetIsOnlineWithFriendRelation()
         {
-            TargetSession = await World.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             TargetCharacterId = TargetSession.Character.CharacterId;
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
@@ -175,7 +175,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetIsOnline()
         {
-            TargetSession = await World.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             TargetCharacterId = TargetSession.Character.CharacterId;
             var list = new List<CharacterDto>
             {

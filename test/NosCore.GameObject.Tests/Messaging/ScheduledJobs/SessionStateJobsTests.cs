@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             SaveService = World.Freeze<Mock<ISaveService>>();
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))

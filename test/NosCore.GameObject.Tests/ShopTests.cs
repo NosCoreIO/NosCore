@@ -242,7 +242,7 @@ namespace NosCore.GameObject.Tests
         {
             var itemBuilder = CreateItemBuilder();
             var shop = CreateShop(itemBuilder, 1, 1000);
-            var owner = (await World.GenerateSessionAsync()).Character;
+            var owner = (await World.CreateSessionAsync()).Character;
             owner.Gold = World.WorldConfiguration.Value.MaxGoldAmount;
             shop.OwnerCharacter = owner;
             Session.LastPackets.Clear();

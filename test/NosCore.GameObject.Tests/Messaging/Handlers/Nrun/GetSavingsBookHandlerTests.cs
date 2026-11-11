@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var items = new List<ItemDto> { new Item { VNum = GetSavingsBookHandler.SavingsBookVNum, Type = NoscorePocketType.Main } };
             _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer));
         }

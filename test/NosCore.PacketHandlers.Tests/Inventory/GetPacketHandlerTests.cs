@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ItemProvider = World.GenerateItemProvider();
             var dropHandler = World.Create<DropHandler>();
             var goldHandler = World.Create<GoldDropHandler>();
@@ -147,7 +147,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
-        private async Task AnotherCharacterOwnsTheDrop() => Owner = await World.GenerateSessionAsync();
+        private async Task AnotherCharacterOwnsTheDrop() => Owner = await World.CreateSessionAsync();
 
         private async Task TheCharacterIsInAPartyWithTheOwner()
         {
@@ -160,7 +160,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private async Task TheOwnerIsInAPartyThatSharesLootWithoutTheCharacter()
         {
             await AnotherCharacterOwnsTheDrop();
-            var third = await World.GenerateSessionAsync();
+            var third = await World.CreateSessionAsync();
             var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             Owner.Character.JoinGroup(group);
             third.Character.JoinGroup(group);

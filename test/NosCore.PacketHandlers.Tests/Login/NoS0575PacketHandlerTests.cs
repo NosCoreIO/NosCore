@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             World = await TestWorld.CreateAsync();
             Password = new Sha512Hasher().Hash("test").ToUpperInvariant();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             AuthHttpClient = new Mock<IAuthHub>();
             PubSubHub = World.PubSubHub;
             LoginConfiguration = Options.Create(new LoginConfiguration { Database = new(), MasterCommunication = new() });

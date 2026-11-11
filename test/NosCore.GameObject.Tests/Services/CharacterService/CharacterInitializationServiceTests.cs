@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
 
             FriendHttpClient = new Mock<IFriendHub>();
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private async Task InitializingMultipleCharacters()
         {
-            SecondSession = await World.GenerateSessionAsync();
+            SecondSession = await World.CreateSessionAsync();
             await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
             {
                 OwnerId = SecondSession.Character.CharacterId

@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             MapChangeService = new Mock<IMapChangeService>();
             CharRenPacketHandler =
                 World.Create<CharRenPacketHandler>();
-            Session = await World.GenerateSessionAsync(new List<IPacketHandler>
+            Session = await World.CreateSessionAsync(new List<IPacketHandler>
             {
                 CharRenPacketHandler
             });
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsInGame()
         {
-            Session = await World.GenerateSessionAsync(new List<IPacketHandler> { CharRenPacketHandler });
+            Session = await World.CreateSessionAsync(new List<IPacketHandler> { CharRenPacketHandler });
         }
 
         private async Task CharacterIsNotFlaggedForRename()

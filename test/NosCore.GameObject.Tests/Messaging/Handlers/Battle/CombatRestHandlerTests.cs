@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _handler = World.Create<CombatRestHandler>();
         }
 

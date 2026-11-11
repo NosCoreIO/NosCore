@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _minilandService = World.Freeze<Mock<IMinilandService>>();
             _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
 

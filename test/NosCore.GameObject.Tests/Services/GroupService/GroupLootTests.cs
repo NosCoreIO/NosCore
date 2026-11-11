@@ -50,8 +50,8 @@ namespace NosCore.GameObject.Tests.Services.GroupService
         {
             World = await TestWorld.CreateAsync();
             World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
-            _first = await World.GenerateSessionAsync();
-            _second = await World.GenerateSessionAsync();
+            _first = await World.CreateSessionAsync();
+            _second = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(1)).Returns(new List<DropDto>

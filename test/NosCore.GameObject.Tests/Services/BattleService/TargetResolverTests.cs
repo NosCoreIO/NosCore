@@ -35,8 +35,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _caster = await World.GenerateSessionAsync();
-            _bystander = await World.GenerateSessionAsync();
+            _caster = await World.CreateSessionAsync();
+            _bystander = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
             _caster.Character.MapInstance = _map;
             _bystander.Character.MapInstance = _map;

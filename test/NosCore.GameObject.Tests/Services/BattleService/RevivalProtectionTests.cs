@@ -37,8 +37,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _protected = (await World.GenerateSessionAsync()).Character;
-            _other = (await World.GenerateSessionAsync()).Character;
+            _protected = (await World.CreateSessionAsync()).Character;
+            _other = (await World.CreateSessionAsync()).Character;
             foreach (var player in new[] { _protected, _other })
             {
                 player.MaxHp = 1000;

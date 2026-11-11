@@ -138,7 +138,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer);
             _options = new List<EquipmentOptionDto>();

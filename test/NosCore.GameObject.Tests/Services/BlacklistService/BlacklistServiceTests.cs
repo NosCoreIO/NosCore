@@ -142,10 +142,10 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private async Task ThreeBlockedCharactersOfWhichOneIsOnline()
         {
-            CharacterId = (await World.GenerateSessionAsync()).Character.CharacterId;
+            CharacterId = (await World.CreateSessionAsync()).Character.CharacterId;
             for (var i = 0; i < 3; i++)
             {
-                var blocked = (await World.GenerateSessionAsync()).Character;
+                var blocked = (await World.CreateSessionAsync()).Character;
                 ExpectedBlocked[blocked.CharacterId] = (blocked.Name, i == 0);
                 await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
                 {
@@ -184,8 +184,8 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private async Task BothPlayersAreOnline()
         {
-            var session1 = await World.GenerateSessionAsync();
-            var session2 = await World.GenerateSessionAsync();
+            var session1 = await World.CreateSessionAsync();
+            var session2 = await World.CreateSessionAsync();
             CharacterId = session1.Character.CharacterId;
             TargetCharacterId = session2.Character.CharacterId;
 

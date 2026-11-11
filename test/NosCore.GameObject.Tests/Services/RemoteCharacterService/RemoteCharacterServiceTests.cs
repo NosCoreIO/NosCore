@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             MailHub = World.Freeze<Mock<IMailHub>>();
             PubSubHub.Setup(x => x.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());

@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Tests.Networking
         public async Task FriendsAreToldWhoWentOfflineByName()
         {
             World = await TestWorld.CreateAsync();
-            var session = await World.GenerateSessionAsync();
+            var session = await World.CreateSessionAsync();
             var characterId = session.Character.CharacterId;
             var friendHub = new Mock<IFriendHub>();
             friendHub.Setup(s => s.GetFriendsAsync(characterId)).ReturnsAsync(new List<CharacterRelationStatus>

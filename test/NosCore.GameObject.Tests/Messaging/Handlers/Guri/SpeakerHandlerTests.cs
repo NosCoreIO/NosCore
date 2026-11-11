@@ -39,8 +39,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _speaker = await World.GenerateSessionAsync();
-            _listener = await World.GenerateSessionAsync();
+            _speaker = await World.CreateSessionAsync();
+            _listener = await World.CreateSessionAsync();
             Register(_speaker);
             Register(_listener);
             GiveSpeakerItem();

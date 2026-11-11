@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(
                 new List<ItemDto> { new() { VNum = SeedVnum, Type = NoscorePocketType.Etc } },
                 NullLoggerFactory.Instance, World.LogLanguageLocalizer);

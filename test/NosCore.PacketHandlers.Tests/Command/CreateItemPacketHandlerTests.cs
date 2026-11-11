@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ItemGrantService = World.Freeze<Mock<IItemGrantService>>();
             Handler = World.Create<CreateItemPackettHandler>();
         }

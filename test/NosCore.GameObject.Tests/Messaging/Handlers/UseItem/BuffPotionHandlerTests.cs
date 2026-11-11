@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _buffs = new Mock<IBuffService>();
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetItemBCards(AttackPotionVNum)).Returns(PotionBCards);

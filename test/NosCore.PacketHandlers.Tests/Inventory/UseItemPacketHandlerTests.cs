@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ItemProvider = World.GenerateItemProvider();
             var rollDao = new Mock<IDao<RollGeneratedItemDto, short>>();
             rollDao.Setup(x => x.Where(It.IsAny<Expression<Func<RollGeneratedItemDto, bool>>>()))

@@ -35,17 +35,15 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         private Mock<ISessionRegistry> SessionRegistry;
         private Mock<IDeserializer> Deserializer;
         private Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>> Logger;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             Deserializer = World.Freeze<Mock<IDeserializer>>();
             Logger = World.Freeze<Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>>();
-            LogLanguage = World.Freeze<Mock<ILogLanguageLocalizer<LogLanguageKey>>>();
             Handler = World.Create<PostedPacketMessageChannelCommunicationMessageHandler>();
         }
 
@@ -140,7 +138,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private async Task TwoPlayersAreOnline()
         {
-            Listener = await World.GenerateSessionAsync();
+            Listener = await World.CreateSessionAsync();
             var characters = new[] { Session.Character, Listener.Character };
             SessionRegistry.Setup(x => x.GetCharacters(It.IsAny<System.Func<PlayerComponentBundle, bool>?>()))
                 .Returns((System.Func<PlayerComponentBundle, bool>? predicate) =>

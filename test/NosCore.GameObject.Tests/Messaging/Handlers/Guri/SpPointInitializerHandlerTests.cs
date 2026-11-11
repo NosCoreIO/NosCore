@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var itemInfo = new Mock<IItemInfoService>();
             itemInfo.Setup(i => i.GenerateInfo(It.IsAny<IItemInstance>())).Returns(new SlInfoPacket());
             _handler = new SpPointInitializerHandler(new SpecialistCardService(new SpecialistPointService()),

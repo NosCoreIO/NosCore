@@ -30,8 +30,8 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _attacker = await World.GenerateSessionAsync();
-            _defender = await World.GenerateSessionAsync();
+            _attacker = await World.CreateSessionAsync();
+            _defender = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
             _map.Map = ArenaTestMap.Create();
             Place(_attacker, 0, 0);

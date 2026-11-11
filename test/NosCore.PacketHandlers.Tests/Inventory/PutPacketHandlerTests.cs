@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             World = await TestWorld.CreateAsync();
             Item = World.GenerateItemProvider();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             PutPacketHandler = World.Create<PutPacketHandler>();
         }
 

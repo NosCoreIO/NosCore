@@ -69,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 }
             };
             _configuration = World.WorldConfiguration;
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         private async Task CreateAsync(CharacterClassType @class, bool allClassAvailable = false)

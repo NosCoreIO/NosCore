@@ -49,9 +49,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
-            _friend = await World.GenerateSessionAsync();
-            _otherFriend = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
+            _friend = await World.CreateSessionAsync();
+            _otherFriend = await World.CreateSessionAsync();
             _otherFriend.Character.MapInstance = World.GetBaseMap(1);
             _session.Character.MapInstance = World.GetBaseMap(1);
             _friend.Character.MapInstance = World.GetBaseMap(1);

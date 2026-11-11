@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             MovementService = World.Freeze<Mock<IMovementService>>();
             Handler = World.Create<PreqPacketHandler>();
         }

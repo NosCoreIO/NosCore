@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             World = await TestWorld.CreateAsync();
             CharacterRelationDao = World.CharacterRelationDao;
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
 
             World.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
@@ -76,7 +76,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetPlayerIsOnline()
         {
-            TargetSession = await World.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber

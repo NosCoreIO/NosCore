@@ -179,10 +179,10 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task ThreeFriendsOfWhichOneIsOnline()
         {
-            CharacterId = (await World.GenerateSessionAsync()).Character.CharacterId;
+            CharacterId = (await World.CreateSessionAsync()).Character.CharacterId;
             for (var i = 0; i < 3; i++)
             {
-                var friend = (await World.GenerateSessionAsync()).Character;
+                var friend = (await World.CreateSessionAsync()).Character;
                 ExpectedFriends[friend.CharacterId] = (friend.Name, i == 0);
                 await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
                 {
@@ -221,8 +221,8 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task BothPlayersAreOnlineSameChannel()
         {
-            var session1 = await World.GenerateSessionAsync();
-            var session2 = await World.GenerateSessionAsync();
+            var session1 = await World.CreateSessionAsync();
+            var session2 = await World.CreateSessionAsync();
             CharacterId = session1.Character.CharacterId;
             TargetCharacterId = session2.Character.CharacterId;
 

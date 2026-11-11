@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
             _respawnService = World.Freeze<Mock<IRespawnService>>();
             _mapChangeService = World.Freeze<Mock<IMapChangeService>>();

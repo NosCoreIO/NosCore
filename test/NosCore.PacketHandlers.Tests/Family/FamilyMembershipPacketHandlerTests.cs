@@ -60,8 +60,8 @@ namespace NosCore.PacketHandlers.Tests.Family
             _familyService = World.Freeze<Mock<IFamilyService>>();
             _pubSubHub = World.PubSubHub;
             _blacklistHub = World.BlacklistHub;
-            _head = await World.GenerateSessionAsync();
-            _other = await World.GenerateSessionAsync();
+            _head = await World.CreateSessionAsync();
+            _other = await World.CreateSessionAsync();
             _other.Character.Family = null;
             _otherId = _other.Character.CharacterId;
             _otherName = _other.Character.Name;
@@ -113,7 +113,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task APlayerWithoutAFamilyCannotInvite()
         {
-            var third = await World.GenerateSessionAsync();
+            var third = await World.CreateSessionAsync();
             third.Character.Family = null;
 
             await InviteAsync(_other, third.Character.Name);

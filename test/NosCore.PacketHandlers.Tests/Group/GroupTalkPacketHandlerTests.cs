@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             for (var i = 0; i < 3; i++)
             {
-                var session = await World.GenerateSessionAsync();
+                var session = await World.CreateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);

@@ -44,8 +44,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _owner = await World.GenerateSessionAsync();
-            _guest = await World.GenerateSessionAsync();
+            _owner = await World.CreateSessionAsync();
+            _guest = await World.CreateSessionAsync();
             _guestId = _guest.Character.CharacterId;
             _miniland = new GameObject.Services.MinilandService.Miniland
             {

@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            OtherSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            OtherSession = await World.CreateSessionAsync();
             Handler = World.Create<SitPacketHandler>();
         }
 

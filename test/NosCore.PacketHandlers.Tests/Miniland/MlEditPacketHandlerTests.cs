@@ -43,9 +43,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            Session2 = await World.GenerateSessionAsync();
-            var session3 = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            Session2 = await World.CreateSessionAsync();
+            var session3 = await World.CreateSessionAsync();
             World.FriendHub
                 .Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>

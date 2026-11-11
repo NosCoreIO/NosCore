@@ -33,8 +33,8 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            Target = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            Target = await World.CreateSessionAsync();
             ComplimentService = World.Freeze<Mock<IComplimentService>>();
             Handler = World.Create<ComplPacketHandler>();
         }

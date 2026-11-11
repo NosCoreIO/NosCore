@@ -43,7 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
             Ranking = new Mock<IReputationRankingService>();
             var serializer = new Mock<ISerializer>();

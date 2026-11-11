@@ -41,7 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             World = await TestWorld.CreateAsync();
             for (var i = 0; i < Contenders + 2; i++)
             {
-                _sessions.Add(await World.GenerateSessionAsync());
+                _sessions.Add(await World.CreateSessionAsync());
             }
 
             var groups = new Mock<ISessionGroupFactory>();

@@ -240,8 +240,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private async Task SessionAndTargetAreSetUp()
         {
-            _sessionA = await World.GenerateSessionAsync();
-            _sessionB = await World.GenerateSessionAsync();
+            _sessionA = await World.CreateSessionAsync();
+            _sessionB = await World.CreateSessionAsync();
             _realExchange = CreateExchangeService();
             _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
         }

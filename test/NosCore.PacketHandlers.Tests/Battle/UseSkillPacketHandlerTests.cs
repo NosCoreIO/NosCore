@@ -41,8 +41,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
-            TargetSession = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             BattleService = new Mock<IBattleService>();
             Gear.Setup(g => g.Resolve(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>())).Returns(EquipmentStats.None);
             BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),

@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(0);
             _onlookers = new Mock<ISessionGroup>();
             _session.Character.MapInstance.Sessions = _onlookers.Object;

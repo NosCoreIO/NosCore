@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var map = _session.Character.MapInstance;
             var name = new I18NString();
             name[RegionType.EN] = "Chicken";
@@ -227,7 +227,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task CapturingSomethingThatIsNotAMonsterReleasesTheClient()
         {
-            var other = await World.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
 
             await _service.TryCaptureAsync(_session.Character, other.Character, Capture);
 

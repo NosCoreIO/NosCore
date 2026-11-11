@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _random = World.Freeze<Mock<IRandomNumberSource>>();
             _operation = World.Create<SumUpgradeOperation>();
         }

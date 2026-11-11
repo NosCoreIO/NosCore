@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             // Register ShoppingPacketHandler so the shop-no-dialog branch can dispatch
             // a ShoppingPacket through HandlePacketsAsync and we can observe the n_inv.
             var shoppingHandler = World.Create<ShoppingPacketHandler>();
-            _session = await World.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
+            _session = await World.CreateSessionAsync(new List<IPacketHandler> { shoppingHandler });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 NullLogger<RequestNpcPacketHandler>.Instance,
                 World.LogLanguageLocalizer,

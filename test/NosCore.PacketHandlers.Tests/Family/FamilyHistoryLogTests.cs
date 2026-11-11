@@ -59,8 +59,8 @@ namespace NosCore.PacketHandlers.Tests.Family
             _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             World.Inject(_sessionRegistry.Object);
             _logs.Clear();
-            _head = await World.GenerateSessionAsync();
-            _other = await World.GenerateSessionAsync();
+            _head = await World.CreateSessionAsync();
+            _other = await World.CreateSessionAsync();
             _head.Character.Family = FamilyOf((_head.Character.CharacterId, FamilyAuthority.Head));
             _other.Character.Family = null;
 

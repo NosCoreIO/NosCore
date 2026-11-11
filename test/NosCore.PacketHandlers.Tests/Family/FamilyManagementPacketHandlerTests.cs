@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             World.UseReal<IFamilyManagementService, FamilyManagementService>();
             _familyService = World.Freeze<Mock<IFamilyService>>();
             _pubSubHub = World.PubSubHub;
-            _head = await World.GenerateSessionAsync();
+            _head = await World.CreateSessionAsync();
             _headId = _head.Character.CharacterId;
             _family = new GameObject.Services.FamilyService.Family
             {

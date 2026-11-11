@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Reputation = 0;
             _handler = new CuarryBankSavingsBookHandler(new BankService(), World.NpcDialogService);
         }

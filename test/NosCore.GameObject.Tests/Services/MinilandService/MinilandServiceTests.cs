@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             FriendHttpClient = new Mock<IFriendHub>();
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());

@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         Id = 1
                     }
                 });
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             FlPacketHandler = new FlCommandPacketHandler(World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>());
         }
 
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetPlayerIsOnlineAndFriendRequestExists()
         {
-            TargetSession = await World.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             var friendRequestHolder = World.Create<FriendRequestRegistry>();
             friendRequestHolder.RegisterRequest(Guid.NewGuid(),
                 TargetSession.Character.CharacterId, Session.Character.CharacterId);

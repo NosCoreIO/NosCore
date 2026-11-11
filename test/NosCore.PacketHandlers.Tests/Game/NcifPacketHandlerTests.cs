@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
 
             var logger = new Mock<ILogger<NcifPacketHandler>>().Object;
             Handler = World.Create<NcifPacketHandler>();

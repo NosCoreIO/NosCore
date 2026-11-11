@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Tests.Networking
         {
             World = await TestWorld.CreateAsync();
             Handled.Clear();
-            Session = await World.GenerateSessionAsync(new List<IPacketHandler>
+            Session = await World.CreateSessionAsync(new List<IPacketHandler>
             {
                 new RecordingHandler<SetMaintenancePacket>(Handled),
                 new RecordingHandler<SelectPacket>(Handled),

@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MaxHp = 5000;
             _session.Character.MaxMp = 5000;
             _session.Character.Hp = 1000;

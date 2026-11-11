@@ -27,15 +27,13 @@ namespace NosCore.PacketHandlers.Tests.Command
         private SizePacketHandler Handler;
         private ClientSession Session;
         private Mock<ILogger<SizePacketHandler>> Logger;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Logger = World.Freeze<Mock<ILogger<SizePacketHandler>>>();
-            LogLanguage = World.Freeze<Mock<ILogLanguageLocalizer<LogLanguageKey>>>();
             Handler = World.Create<SizePacketHandler>();
         }
 

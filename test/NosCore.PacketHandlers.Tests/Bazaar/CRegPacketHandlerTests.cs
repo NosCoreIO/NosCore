@@ -30,7 +30,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     {
         private Mock<IBazaarHub> BazaarHttpClient;
         private CRegPacketHandler CregPacketHandler;
-        private Mock<IDao<InventoryItemInstanceDto, Guid>> InventoryItemInstanceDao;
         private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao;
 
         [TestInitialize]
@@ -40,7 +39,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
-            InventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
             ItemInstanceDao = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();
             BazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>()))
                 .ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);

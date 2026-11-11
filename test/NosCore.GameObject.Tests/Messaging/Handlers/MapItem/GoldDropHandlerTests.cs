@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var gold = new Item
             {
                 VNum = GoldVNum,

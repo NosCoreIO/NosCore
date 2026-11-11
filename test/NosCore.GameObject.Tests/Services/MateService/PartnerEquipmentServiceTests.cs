@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _service = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>().Create<PartnerEquipmentService>();
             _items = new ItemGenerationService(new List<ItemDto>
             {

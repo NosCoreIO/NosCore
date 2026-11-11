@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             var pubSubHub = World.PubSubHub;
             pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             pubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
-            Session = await World.GenerateSessionAsync(new List<IPacketHandler>
+            Session = await World.CreateSessionAsync(new List<IPacketHandler>
             {
                 new EntryPointPacketHandler(World.CharacterDao, World.AccountDao,
                     World.MateDao, NullLogger<EntryPointPacketHandler>.Instance, AuthHub,

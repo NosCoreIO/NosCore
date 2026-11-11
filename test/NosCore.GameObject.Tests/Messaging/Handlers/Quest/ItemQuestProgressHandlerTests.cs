@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
             _itemProvider = World.GenerateItemProvider();
             _questService = new Mock<IQuestService>();

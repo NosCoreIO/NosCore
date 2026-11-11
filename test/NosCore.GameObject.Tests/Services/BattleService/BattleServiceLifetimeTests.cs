@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task ACastCharacterIsToldWhenTheSkillIsReadyAgain()
         {
             World = await TestWorld.CreateAsync();
-            var session = await World.GenerateSessionAsync();
+            var session = await World.CreateSessionAsync();
             var map = World.GetBaseMap(0);
             session.Character.MapInstance = map;
             map.LoadMonsters(

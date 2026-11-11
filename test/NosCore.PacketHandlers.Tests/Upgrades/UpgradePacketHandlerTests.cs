@@ -37,7 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _session.WithNpcAt(100, 1, 1);
             _session.WithWindowOpenedAt(100, NpcDialogWindow.Upgrade);
             _matchingOperation = new Mock<IUpgradeOperation>();

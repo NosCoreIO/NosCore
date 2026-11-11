@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ItemProvider = World.GenerateItemProvider();
 
             // Every DAO has to share one database: inside the transaction scope they all
@@ -241,7 +241,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         {
             var held = Session.Character.InventoryService.Values.Single();
             _sharedInstanceId = held.ItemInstanceId;
-            var other = await World.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
             await InventoryItemInstanceDao.TryInsertOrUpdateAsync(new InventoryItemInstanceDto
             {
                 Id = Guid.NewGuid(),

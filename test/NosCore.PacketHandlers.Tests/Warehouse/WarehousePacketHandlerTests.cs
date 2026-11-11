@@ -28,7 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             WarehouseHub = World.Freeze<Mock<IWarehouseHub>>();
         }
 

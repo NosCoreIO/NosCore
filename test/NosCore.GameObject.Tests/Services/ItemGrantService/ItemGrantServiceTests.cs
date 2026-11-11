@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             ItemProvider = new Mock<IItemGenerationService>();
             var items = new List<ItemDto>
             {

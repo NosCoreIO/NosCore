@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             DistanceCalculator = World.Freeze<Mock<IHeuristic>>();
             MinilandService = World.Freeze<Mock<IMinilandService>>();
             MapChangeService = World.Freeze<Mock<IMapChangeService>>();

@@ -61,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
             {
                 OwnerId = _session.Character.CharacterId,

@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             var spUpgrade = new Mock<IUpgradeOperation>();
             spUpgrade.SetupGet(o => o.Kind).Returns(UpgradePacketType.UpgradeSpNoProtection);
             spUpgrade.SetupGet(o => o.Window).Returns(NpcDialogWindow.Upgrade);

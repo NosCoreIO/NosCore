@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _itemProvider = World.GenerateItemProvider();
             _service = new GameObject.Services.ProductionService.ProductionService(_itemProvider, World.DistanceCalculator,
                 new List<RecipeDto>

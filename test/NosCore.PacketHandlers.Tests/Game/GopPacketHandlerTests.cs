@@ -38,7 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
             Handler = new GopPacketHandler(PubSubHub.Object, World.GroupLootService, NullLogger<GopPacketHandler>.Instance);
         }
@@ -203,7 +203,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private async Task TheCharacterJoinsAnotherCharactersParty()
         {
-            var master = await World.GenerateSessionAsync();
+            var master = await World.CreateSessionAsync();
             var group = new GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             master.Character.JoinGroup(group);
             Session.Character.JoinGroup(group);
@@ -211,7 +211,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private async Task TheCharacterLeadsAParty()
         {
-            var member = await World.GenerateSessionAsync();
+            var member = await World.CreateSessionAsync();
             var group = new GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             Session.Character.JoinGroup(group);
             member.Character.JoinGroup(group);

@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Session = await World.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.MapInstance = World.GetBaseMap(1);
 
             AuthHub = World.Freeze<Mock<IAuthHub>>();

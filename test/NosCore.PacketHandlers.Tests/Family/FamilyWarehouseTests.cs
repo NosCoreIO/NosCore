@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            _session = await World.GenerateSessionAsync();
+            _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
