@@ -638,8 +638,10 @@ partner out plus one of each at home, one of them above your level.
 - [ ] With a pet in the team, kill a monster that gives experience, then reopen the pet's page
       in the character window: its experience went up. A kill that fills the bar plays the
       level-up effect on the pet, and the page shows the next level with HP and MP refilled
-- [ ] A pet one level below you keeps a full bar instead of levelling; level up yourself and the
-      next kill levels it
+- [ ] A pet one level below you keeps a full bar instead of levelling; a kill that levels you up
+      levels the pet on that same kill
+- [ ] Repeat with a partner in the team: its page in the character window shows the gain, and a
+      full bar levels it with the level-up effect (not yet checked in the client)
 - [ ] A pet left in the Miniland gains nothing from your kills
 - [ ] Relog: the pet's level and experience are kept
 
