@@ -20,6 +20,6 @@ namespace NosCore.GameObject.Services.MateService
 
         Mate Adopt(MateDto row, NpcMonsterDto npcMonster, IEnumerable<Mate> existing);
 
-        Task ReleaseAsync(PlayerComponentBundle owner, Mate mate);
+        Task<bool> ReleaseAsync(PlayerComponentBundle owner, Mate mate);
     }
 }

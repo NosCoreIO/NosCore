@@ -82,15 +82,15 @@ namespace NosCore.GameObject.Services.MateService
             return mate;
         }
 
-        public async Task ReleaseAsync(PlayerComponentBundle owner, Mate mate)
+        public async Task<bool> ReleaseAsync(PlayerComponentBundle owner, Mate mate)
         {
-            if (!owner.Mates.TryRemove(mate.MateTransportId, out _))
+            if (!owner.Mates.ContainsKey(mate.MateTransportId) || await mateDao.TryDeleteAsync(mate.MateId) == null)
             {
-                return;
+                return false;
             }
 
+            owner.Mates.TryRemove(mate.MateTransportId, out _);
             await mate.DespawnAsync(owner.MapInstance);
-            await mateDao.TryDeleteAsync(mate.MateId);
 
             // Slots follow the order mates are loaded in, so the ones after it move up now rather than
             // on the next login, and a partner's equipment pocket moves with its slot.
@@ -111,6 +111,8 @@ namespace NosCore.GameObject.Services.MateService
                     item.Type = target;
                 }
             }
+
+            return true;
         }
 
         public async Task<bool> SaveAsync(IEnumerable<Mate> mates)

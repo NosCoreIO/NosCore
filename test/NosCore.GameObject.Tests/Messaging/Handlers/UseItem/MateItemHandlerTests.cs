@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mapster;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Algorithm.MateExperienceService;
@@ -160,7 +161,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task APetAtHomeIsReleasedAsync()
         {
-            var pet = Owned(TestMates.Pet(_session.Character.CharacterId, isTeamMember: false));
+            var pet = await SavedAsync(Owned(TestMates.Pet(_session.Character.CharacterId, isTeamMember: false)));
             Holding(TeacherItemEffectType.ReleasePet);
 
             await UseOnAsync(pet);
@@ -168,6 +169,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.IsFalse(_session.Character.Mates.ContainsKey(pet.MateTransportId));
             Assert.AreEqual(0, Remaining());
             Assert.IsTrue(_session.LastPackets.OfType<PclearPacket>().Any(), "the pet windows keep a released pet until cleared");
+        }
+
+        [TestMethod]
+        public async Task APetThatCannotBeDeletedIsKeptWithItsItemAsync()
+        {
+            var pet = Owned(TestMates.Pet(_session.Character.CharacterId, isTeamMember: false));
+            Holding(TeacherItemEffectType.ReleasePet);
+
+            await UseOnAsync(pet);
+
+            Assert.IsTrue(_session.Character.Mates.ContainsKey(pet.MateTransportId));
+            Assert.AreEqual(1, Remaining());
         }
 
         [TestMethod]
@@ -186,7 +199,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task ThePartnerAfterAReleasedOneKeepsItsEquipmentAsync()
         {
-            var first = Owned(TestMates.Partner(_session.Character.CharacterId, isTeamMember: false));
+            var first = await SavedAsync(Owned(TestMates.Partner(_session.Character.CharacterId, isTeamMember: false)));
             var second = Owned(TestMates.Partner(_session.Character.CharacterId, isTeamMember: false));
             second.PetSlot = 1;
             var gear = Wearing(NoscorePocketType.SecondPartnerInventory);
@@ -240,6 +253,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private Mate Owned(Mate mate)
         {
             _session.Character.Mates[mate.MateTransportId] = mate;
+            return mate;
+        }
+
+        private static async Task<Mate> SavedAsync(Mate mate)
+        {
+            var saved = await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(mate.Adapt<MateDto>());
+            mate.MateId = saved!.MateId;
             return mate;
         }
 

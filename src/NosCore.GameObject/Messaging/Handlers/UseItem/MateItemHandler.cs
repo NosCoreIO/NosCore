@@ -159,7 +159,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return false;
             }
 
-            await mateService.ReleaseAsync(owner, mate);
+            if (!await mateService.ReleaseAsync(owner, mate))
+            {
+                return false;
+            }
+
             await owner.SendPacketsAsync(owner.GenerateMateRoster());
             return true;
         }
