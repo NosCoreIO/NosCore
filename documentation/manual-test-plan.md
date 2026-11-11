@@ -1359,6 +1359,21 @@ windows"); the table shows the stored arguments:
 - [ ] Levelling a family member from 29 to 30 writes type 6 with `<name>`, `30`; 30 to 31
       writes nothing, and every level past 80 writes one row
 
+### Family experience
+
+Same seeded family, with a member 100 XP short of level 30 and the family at
+level 1 with 79 800 / 80 000 experience.
+
+- [ ] Reaching level 30 writes type 4 with `<name>`, `600` and the history reads "<name> has
+      earned 600 action points!"; the family window's level bar moves on its own
+- [ ] When that fills the bar, every online member sees "Family level increased to 2!", the
+      history gains "Reached family level 2!" (type 5 with `2`) and the window shows level 2
+      with the remainder
+- [ ] Reaching 31, or 20, gives the family nothing; reaching 40 gives 800
+- [ ] Members on another channel see the new level too
+- [ ] Not verifiable yet: experience from time-spaces, raids and Instant Combat, which do not
+      exist yet
+
 ---
 
 ## Instances

@@ -11,12 +11,19 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
 {
-    public class FamilyHub(IFamilyExtensionService familyExtensionService) : IFamilyHub
+    public class FamilyHub(IFamilyExtensionService familyExtensionService,
+        IFamilyProgressionService familyProgressionService) : IFamilyHub
     {
         public Task<FamilyExtensionPurchase> PurchaseExtensionAsync(long familyId, long characterId, short itemVNum) =>
             familyExtensionService.PurchaseAsync(familyId, characterId, itemVNum);
 
         public static async Task<Reply<FamilyExtensionPurchase>> Handle(PurchaseFamilyExtensionRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<FamilyHub>().PurchaseExtensionAsync(r.FamilyId, r.CharacterId, r.ItemVNum));
+
+        public Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience) =>
+            familyProgressionService.AddExperienceAsync(familyId, characterId, experience);
+
+        public static async Task<Reply<FamilyExperienceGain?>> Handle(AddFamilyExperienceRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<FamilyHub>().AddExperienceAsync(r.FamilyId, r.CharacterId, r.Experience));
     }
 }

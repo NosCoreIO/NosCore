@@ -18,6 +18,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
 
         public string? JoinedCharacterName { get; set; }
 
+        public byte? ReachedFamilyLevel { get; set; }
+
         public Guid Id { get; set; } = Guid.NewGuid();
     }
 }

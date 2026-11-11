@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Services.ExperienceService
         ISkillService skillService,
         BattleService.IVitalityService vitalityService,
         BattleService.IBattleStatsProvider battleStatsProvider,
-        FamilyService.IFamilyLogService familyLogService) : IExperienceProgressionService
+        FamilyService.IFamilyContributionService familyContributionService) : IExperienceProgressionService
     {
         private const byte MaxLevel = 99;
         private const byte MaxJobLevel = 80;
@@ -222,7 +222,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                     await mapInstance.SendPacketAsync(player.GenerateEff(198));
                     if (player.Family is { } family)
                     {
-                        await familyLogService.AddLevelUpsAsync(family.FamilyId, player.Name, previousLevel, player.Level);
+                        await familyContributionService.CharacterLevelledUpAsync(family.FamilyId, player.CharacterId, player.Name, previousLevel, player.Level);
                     }
                 }
 

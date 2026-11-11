@@ -44,6 +44,17 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     });
                 }
 
+                if (data.ReachedFamilyLevel is { } familyLevel && character.Family?.FamilyId == data.FamilyId)
+                {
+                    await session.SendPacketAsync(new MsgiPacket
+                    {
+                        Type = MessageType.Default,
+                        Message = Game18NConstString.FamilyLevelIncreased,
+                        ArgumentType = 4,
+                        Game18NArguments = { (long)familyLevel }
+                    });
+                }
+
                 if (!data.CharacterIds.Contains(character.CharacterId))
                 {
                     continue;
