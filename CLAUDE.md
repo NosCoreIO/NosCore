@@ -1,6 +1,6 @@
 # NosCore
 
-A NosTale server reimplementation. .NET 10, EF Core + Npgsql + NodaTime, Autofac,
+A NosTale server reimplementation. .NET 11, EF Core + Npgsql + NodaTime, Autofac,
 Arch.Core ECS, Wolverine for messaging, source generators, `TreatWarningsAsErrors`.
 
 ---
