@@ -26,9 +26,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private const long OutsiderId = 2;
 
         private readonly FamilyExperienceService _curve = new();
-        private IDao<FamilyDto, long> _familyDao = null!;
-        private IDao<FamilyCharacterDto, long> _familyCharacterDao = null!;
-        private FamilyProgressionService _service = null!;
+        private IDao<FamilyDto, long> _familyDao;
+        private IDao<FamilyCharacterDto, long> _familyCharacterDao;
+        private FamilyProgressionService _service;
         private long _familyId;
 
         [TestInitialize]
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _familyId = (await _familyDao.TryInsertOrUpdateAsync(new FamilyDto
             {
                 Name = "Testers", FamilyLevel = 1, MaxSize = 50, FamilyMessage = string.Empty
-            }))!.FamilyId;
+            })).NotNull().FamilyId;
             await _familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
             {
                 FamilyId = _familyId, CharacterId = MemberId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
@@ -59,8 +59,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             Assert.IsNotNull(gain);
             Assert.IsFalse(gain.LeveledUp);
-            Assert.AreEqual(600, (await FamilyAsync())!.FamilyExperience);
-            Assert.AreEqual(600, (await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == MemberId))!.Experience);
+            Assert.AreEqual(600, (await FamilyAsync()).NotNull().FamilyExperience);
+            Assert.AreEqual(600, (await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == MemberId)).NotNull().Experience);
         }
 
         [TestMethod]
@@ -68,11 +68,11 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             var bar = (int)_curve.GetFamilyExperience(1);
 
-            var gain = await _service.AddExperienceAsync(_familyId, MemberId, bar + 400);
+            var gain = (await _service.AddExperienceAsync(_familyId, MemberId, bar + 400)).NotNull();
 
-            Assert.IsTrue(gain!.LeveledUp);
+            Assert.IsTrue(gain.LeveledUp);
             Assert.AreEqual(2, gain.FamilyLevel);
-            var family = (await FamilyAsync())!;
+            var family = (await FamilyAsync()).NotNull();
             Assert.AreEqual(2, family.FamilyLevel);
             Assert.AreEqual(400, family.FamilyExperience);
         }
@@ -80,13 +80,13 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheLastLevelKeepsAFullBar()
         {
-            var family = (await FamilyAsync())!;
+            var family = (await FamilyAsync()).NotNull();
             family.FamilyLevel = 30;
             await _familyDao.TryInsertOrUpdateAsync(family);
 
-            var gain = await _service.AddExperienceAsync(_familyId, MemberId, (int)_curve.GetFamilyExperience(30));
+            var gain = (await _service.AddExperienceAsync(_familyId, MemberId, (int)_curve.GetFamilyExperience(30))).NotNull();
 
-            Assert.IsFalse(gain!.LeveledUp);
+            Assert.IsFalse(gain.LeveledUp);
             Assert.AreEqual(30, gain.FamilyLevel);
         }
 
@@ -96,16 +96,19 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             var gain = await _service.AddExperienceAsync(_familyId, OutsiderId, 600);
 
             Assert.IsNull(gain);
-            Assert.AreEqual(0, (await FamilyAsync())!.FamilyExperience);
+            Assert.AreEqual(0, (await FamilyAsync()).NotNull().FamilyExperience);
         }
+
         [TestMethod]
         public async Task AFailedSaveReportsNoGain()
         {
             var familyCharacterDao = new Mock<IDao<FamilyCharacterDto, long>>();
             familyCharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<FamilyCharacterDto, bool>>>()))
                 .ReturnsAsync(new FamilyCharacterDto { CharacterId = MemberId, FamilyId = _familyId });
+#nullable disable
             familyCharacterDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
-                .Returns(Task.FromResult<FamilyCharacterDto>(null!));
+                .Returns(Task.FromResult<FamilyCharacterDto>(null));
+#nullable restore
             var service = new FamilyProgressionService(_familyDao, familyCharacterDao.Object, _curve,
                 new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
 

@@ -19,8 +19,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
     public class MateProgressionServiceTests
     {
         private readonly MateExperienceService _curve = new();
-        private MateProgressionService _service = null!;
-        private ClientSession _session = null!;
+        private MateProgressionService _service;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()

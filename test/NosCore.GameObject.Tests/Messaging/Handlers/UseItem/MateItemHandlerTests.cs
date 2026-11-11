@@ -39,16 +39,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private const short PartnerVNum = 317;
         private const short BobSkin = 1100;
 
-        private ClientSession _session = null!;
-        private MateItemHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private MateItemHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             _session.Character.Level = 30;
             var mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, new List<NpcMonsterDto>(),
                 new IdService<Mate>(1), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
@@ -259,7 +259,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private static async Task<Mate> SavedAsync(Mate mate)
         {
             var saved = await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(mate.Adapt<MateDto>());
-            mate.MateId = saved!.MateId;
+            mate.MateId = saved.NotNull().MateId;
             return mate;
         }
 

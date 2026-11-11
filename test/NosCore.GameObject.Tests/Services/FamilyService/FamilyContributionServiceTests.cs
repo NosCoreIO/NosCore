@@ -14,6 +14,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.FamilyService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.FamilyService
 {
@@ -25,8 +26,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
         private readonly List<(FamilyLogType Type, object[] Arguments)> _logs = new();
         private readonly List<IMessage> _published = new();
-        private Mock<IFamilyHub> _hub = null!;
-        private FamilyContributionService _service = null!;
+        private Mock<IFamilyHub> _hub;
+        private FamilyContributionService _service;
 
         [TestInitialize]
         public void Setup()
