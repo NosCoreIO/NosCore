@@ -668,6 +668,8 @@ in the Equipment bag; a second player on the map watches the partner.
 
 - [ ] Drag the card onto the partner: it shows in the partner's specialist slot. A player's own
       specialist card is refused with "The partner cannot use this equipment."
+- [ ] With the card on, open the Character window's partner tab: the card shows in its slot and the
+      partner's HP, MP and stats read the same as without it (nothing is shifted by one field)
 - [ ] Press the partner's transform button: a five-second bar runs and the partner dances. Walking
       during the bar cancels it
 - [ ] When the bar ends the partner takes the card's look, for you and for the watcher, with the
