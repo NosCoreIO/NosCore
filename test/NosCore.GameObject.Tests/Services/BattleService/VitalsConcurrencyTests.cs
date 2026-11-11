@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.MateExperienceService;
+using NosCore.GameObject.Services.MateService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -122,7 +124,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
             var rewards = new RewardService(TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.MapItemProvider!,
                 catalog.Object, experience.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, NullLogger<RewardService>.Instance);
+                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
 
             const int kills = 50;
             _map.LoadMonsters(
