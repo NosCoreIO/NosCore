@@ -165,10 +165,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task TheRankingNamesTheTabItWasAskedFor()
         {
-            await new Spec("The ranking reply names the tab it fills, so the client puts the first family in it")
+            await new Spec("The ranking reply names the window tab it fills, so the client lists it there")
                 .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
                 .WhenAsync(AskingForTheRanking_, FamilyRankingType.DailyReputation)
-                .Then(TheRankingTabShouldBe_, FamilyRankingType.DailyReputation)
+                .Then(TheRankingTabShouldBe_, FamilyRankingTab.More)
                 .ExecuteAsync();
         }
 
@@ -287,7 +287,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private void NoHistoryShouldBeSent() => Assert.IsFalse(_session.LastPackets.OfType<GhisPacket>().Any());
 
-        private void TheRankingTabShouldBe_(FamilyRankingType type) =>
+        private void TheRankingTabShouldBe_(FamilyRankingTab type) =>
             Assert.AreEqual(type, _session.LastPackets.OfType<FrankStcPacket>().Single().Type);
 
         private void TheRankingShouldBe_(string[] rows) => CollectionAssert.AreEqual(rows,

@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             await Handler.ExecuteAsync(new TitEqPacket
             {
                 TitleId = 9999,
-                Mode = 0
+                Mode = TitEqPacketType.ToggleEffect
             }, Session);
         }
 
@@ -99,7 +99,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             await Handler.ExecuteAsync(new TitEqPacket
             {
                 TitleId = TitleId,
-                Mode = 1
+                Mode = TitEqPacketType.ToggleVisibility
             }, Session);
         }
 
@@ -109,7 +109,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             await Handler.ExecuteAsync(new TitEqPacket
             {
                 TitleId = TitleId,
-                Mode = 0
+                Mode = TitEqPacketType.ToggleEffect
             }, Session);
         }
 

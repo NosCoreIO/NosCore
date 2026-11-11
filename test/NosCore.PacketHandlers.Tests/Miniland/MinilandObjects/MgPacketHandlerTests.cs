@@ -206,7 +206,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var minigamePacket = new MinigamePacket
             {
-                Type = 1,
+                Type = MinigamePacketType.Play,
                 Id = 99,
                 MinigameVNum = 3000
             };
@@ -217,7 +217,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var minigamePacket = new MinigamePacket
             {
-                Type = 1,
+                Type = MinigamePacketType.Play,
                 Id = 0,
                 MinigameVNum = 3001
             };
@@ -228,7 +228,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var minigamePacket = new MinigamePacket
             {
-                Type = 1,
+                Type = MinigamePacketType.Play,
                 Id = 0,
                 MinigameVNum = 3000
             };
@@ -239,7 +239,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var minigamePacket = new MinigamePacket
             {
-                Type = 5,
+                Type = MinigamePacketType.ShowManagement,
                 Id = 0,
                 MinigameVNum = 3000
             };
@@ -250,7 +250,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var minigamePacket = new MinigamePacket
             {
-                Type = 7,
+                Type = MinigamePacketType.ShowGifts,
                 Id = 0,
                 MinigameVNum = 3000
             };

@@ -10,23 +10,20 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemInfoService;
 using NosCore.Packets.ClientPackets.Player;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.PacketHandlers.Inventory
 {
     public class EquipmentInfoPacketHandler(IItemInfoService itemInfoService)
         : PacketHandler<EquipmentInfoPacket>, IWorldPacketHandler
     {
-        private const byte Worn = 0;
-        private const byte EquipmentPocket = 1;
-        private const byte SpecialistPocket = 7;
-
         public override async Task ExecuteAsync(EquipmentInfoPacket packet, ClientSession clientSession)
         {
             NoscorePocketType? pocket = packet.Type switch
             {
-                Worn => NoscorePocketType.Wear,
-                EquipmentPocket => NoscorePocketType.Equipment,
-                SpecialistPocket => NoscorePocketType.Specialist,
+                EquipmentInfoType.Worn => NoscorePocketType.Wear,
+                EquipmentInfoType.Equipment => NoscorePocketType.Equipment,
+                EquipmentInfoType.Specialist => NoscorePocketType.Specialist,
                 _ => null
             };
             if (pocket == null)

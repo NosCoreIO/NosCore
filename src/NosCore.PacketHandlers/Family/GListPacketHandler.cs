@@ -8,6 +8,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.ClientPackets.Families;
+using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Family
@@ -15,9 +16,7 @@ namespace NosCore.PacketHandlers.Family
     public class GListPacketHandler(IFamilyManagementService familyManagementService)
         : PacketHandler<GListPacket>, IWorldPacketHandler
     {
-        private const byte MemberList = 2;
-
         public override Task ExecuteAsync(GListPacket packet, ClientSession session) =>
-            packet.Type == MemberList ? familyManagementService.SendMemberListAsync(session) : Task.CompletedTask;
+            packet.Type == GListPacketType.MemberList ? familyManagementService.SendMemberListAsync(session) : Task.CompletedTask;
     }
 }

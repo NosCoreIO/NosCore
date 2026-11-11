@@ -62,39 +62,39 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             switch (minigamePacket.Type)
             {
-                case 1:
+                case MinigamePacketType.Play:
                     await PlayAsync(mg, game);
                     break;
 
-                case 2:
+                case MinigamePacketType.BroadcastEffect:
                     await BroadcastEffectAsync(mg);
                     break;
 
-                case 3:
+                case MinigamePacketType.ShowBoxLevels:
                     await ShowBoxLevelsAsync(mg, game);
                     break;
 
-                case 4:
+                case MinigamePacketType.SelectGift:
                     await SelectGiftAsync(mg);
                     break;
 
-                case 5:
+                case MinigamePacketType.ShowManagement:
                     await ShowMinilandManagmentAsync(mg);
                     break;
 
-                case 6:
+                case MinigamePacketType.Refill:
                     await RefillAsync(mg);
                     break;
 
-                case 7:
+                case MinigamePacketType.ShowGifts:
                     await ShowGiftsAsync(mg);
                     break;
 
-                case 8:
+                case MinigamePacketType.OpenGiftBatch:
                     await OpenGiftBatchAsync(mg);
                     break;
 
-                case 9:
+                case MinigamePacketType.UseCoupon:
                     await UseCouponAsync(mg);
                     break;
             }
@@ -346,7 +346,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             await mg.Session.SendPacketAsync(level != -1
                 ? new MloLvPacket { Level = level }
                 : (IPacket)new MinigamePacket
-                { Type = 3, Id = game, MinigameVNum = mg.Packet.MinigameVNum, Unknown = 0, Point = 0 });
+                { Type = MinigamePacketType.ShowBoxLevels, Id = game, MinigameVNum = mg.Packet.MinigameVNum, Unknown = 0, Point = 0 });
         }
 
         private Task BroadcastEffectAsync(Minigame mg)
@@ -380,7 +380,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 {
                     YesPacket = new MinigamePacket
                     {
-                        Type = 1,
+                        Type = MinigamePacketType.Play,
                         Id = 7,
                         MinigameVNum = 3125,
                         Point = 1,

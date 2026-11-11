@@ -8,21 +8,19 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ProductionService;
 using NosCore.Packets.ClientPackets.Shops;
+using NosCore.Packets.Enumerations;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
 {
     public class PdtsePacketHandler(IProductionService productionService) : PacketHandler<PdtsePacket>, IWorldPacketHandler
     {
-        private const byte Produce = 0;
-        private const byte ShowRecipe = 1;
-
         public override Task ExecuteAsync(PdtsePacket packet, ClientSession session)
         {
             return packet.Type switch
             {
-                Produce => productionService.ProduceAsync(session, packet.VNum),
-                ShowRecipe => productionService.ShowRecipeAsync(session, packet.VNum),
+                PdtsePacketType.Produce => productionService.ProduceAsync(session, packet.VNum),
+                PdtsePacketType.ShowRecipe => productionService.ShowRecipeAsync(session, packet.VNum),
                 _ => Task.CompletedTask
             };
         }

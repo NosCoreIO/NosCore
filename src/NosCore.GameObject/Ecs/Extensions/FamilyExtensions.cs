@@ -9,6 +9,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
 using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
+using FamilyRankingTypeExtensions = NosCore.Packets.Enumerations.FamilyRankingTypeExtensions;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Shared.Enumerations;
 using NodaTime;
@@ -157,7 +158,7 @@ public static class FamilyExtensions
 
     public static FrankStcPacket GenerateFrank(this IEnumerable<FamilyRankingEntry> ranking, FamilyRankingType type) => new()
     {
-        Type = type,
+        Type = FamilyRankingTypeExtensions.Tab(type),
         Entries = ranking.Select(s => (FrankStcSubPacket?)new FrankStcSubPacket
         {
             Rank = s.Rank,

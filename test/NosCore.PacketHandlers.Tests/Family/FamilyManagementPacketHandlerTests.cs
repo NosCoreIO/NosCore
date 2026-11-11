@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             });
 
             await World.Create<GListPacketHandler>()
-                .ExecuteAsync(new GListPacket { Type = 2 }, _head);
+                .ExecuteAsync(new GListPacket { Type = GListPacketType.MemberList }, _head);
 
             var members = _head.LastPackets.OfType<GmbrPacket>().Single().Members.NotNull();
             Assert.AreEqual(2, members.Count);
