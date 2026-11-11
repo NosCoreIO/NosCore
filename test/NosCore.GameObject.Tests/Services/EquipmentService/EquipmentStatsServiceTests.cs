@@ -52,6 +52,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         private const short EnchantedGlovesVnum = 905;
         private const short SpecialistVnum = 906;
         private const short NecklaceVnum = 907;
+        private const short WingSkinVnum = 908;
 
         private static readonly List<ItemDto> Catalog = new()
         {
@@ -98,6 +99,11 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                 VNum = NecklaceVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
                 EquipmentSlot = EquipmentType.Necklace, MaxCellon = 3, MaxCellonLvl = 10
             },
+            new Item
+            {
+                VNum = WingSkinVnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.WingSkin
+            },
         };
 
         // The effects are not in the item: NosCore.Data keeps the navigation collections
@@ -111,6 +117,13 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                 Type = BCardEffect.DefenceAllIncreased.Type(),
                 SubType = BCardEffect.DefenceAllIncreased.SubType(),
                 FirstData = 25
+            },
+            new BCardDto
+            {
+                ItemVNum = WingSkinVnum,
+                Type = BCardEffect.DefenceAllIncreased.Type(),
+                SubType = BCardEffect.DefenceAllIncreased.SubType(),
+                FirstData = 10
             }
         };
 
@@ -304,6 +317,17 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             Assert.AreEqual(1, effects.Count);
             Assert.AreEqual((byte)BCardType.CardType.Defence, effects[0].Type);
             Assert.AreEqual(25, effects[0].FirstData);
+        }
+
+        [TestMethod]
+        public void AWornWingSkinCarriesItsDeclaredEffects()
+        {
+            Wear(EquipmentType.WingSkin, WingSkinVnum);
+
+            var effects = _service.Resolve(_session.Character).BCards;
+
+            Assert.AreEqual(1, effects.Count);
+            Assert.AreEqual(10, effects[0].FirstData);
         }
 
         [TestMethod]
