@@ -28,9 +28,9 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class CreateItemPacketHandlerTests
     {
-        private CreateItemPackettHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IItemGrantService> ItemGrantService = null!;
+        private CreateItemPackettHandler Handler;
+        private ClientSession Session;
+        private Mock<IItemGrantService> ItemGrantService;
 
         [TestInitialize]
         public async Task SetupAsync()

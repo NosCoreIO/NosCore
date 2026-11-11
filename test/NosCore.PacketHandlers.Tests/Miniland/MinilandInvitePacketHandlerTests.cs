@@ -32,11 +32,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     public class MinilandInvitePacketHandlerTests
     {
         private const short SeedOfPower = 1012;
-        private ClientSession _owner = null!;
-        private ClientSession _guest = null!;
-        private Mock<IMinilandService> _minilandService = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private GameObject.Services.MinilandService.Miniland _miniland = null!;
+        private ClientSession _owner;
+        private ClientSession _guest;
+        private Mock<IMinilandService> _minilandService;
+        private Mock<IMapChangeService> _mapChangeService;
+        private GameObject.Services.MinilandService.Miniland _miniland;
         private long _guestId;
 
         [TestInitialize]
@@ -81,8 +81,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland
 
             var question = _guest.LastPackets.OfType<Dlgi2Packet>().Single();
             Assert.AreEqual(Game18NConstString.HasInvitedToMiniland, question.Question);
-            Assert.AreEqual(_owner.Character.CharacterId, ((MJoinPacket)question.YesPacket!).VisualId);
-            Assert.AreEqual(VisualType.Npc, ((MJoinPacket)question.NoPacket!).Type);
+            Assert.AreEqual(_owner.Character.CharacterId, ((MJoinPacket)question.YesPacket.NotNull()).VisualId);
+            Assert.AreEqual(VisualType.Npc, ((MJoinPacket)question.NoPacket.NotNull()).Type);
             Assert.AreEqual(0, _owner.Character.InventoryService.CountItem(SeedOfPower));
         }
 

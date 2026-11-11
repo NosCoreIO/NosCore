@@ -15,7 +15,7 @@ namespace NosCore.GameObject.Tests.Services.ShopService
     [TestClass]
     public class ShopRegistryTests
     {
-        private IShopRegistry Registry = null!;
+        private IShopRegistry Registry;
 
         [TestInitialize]
         public void Setup()
@@ -72,8 +72,8 @@ namespace NosCore.GameObject.Tests.Services.ShopService
                 .ExecuteAsync();
         }
 
-        private Shop? TestShop;
-        private Shop? NewShop;
+        private Shop TestShop;
+        private Shop NewShop;
         private Shop? ResultShop;
         private int ShopCount;
         private const long TestCharacterId = 1;
@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Tests.Services.ShopService
         private void ShopIsRegistered()
         {
             ShopIsCreated();
-            Registry.RegisterPlayerShop(TestCharacterId, TestShop!);
+            Registry.RegisterPlayerShop(TestCharacterId, TestShop);
         }
 
         private void MultipleShopsAreRegistered()
@@ -100,7 +100,7 @@ namespace NosCore.GameObject.Tests.Services.ShopService
 
         private void RegisteringPlayerShop()
         {
-            Registry.RegisterPlayerShop(TestCharacterId, TestShop!);
+            Registry.RegisterPlayerShop(TestCharacterId, TestShop);
         }
 
         private void GettingUnknownShop()

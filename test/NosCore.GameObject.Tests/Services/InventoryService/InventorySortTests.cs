@@ -25,10 +25,10 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
     [TestClass]
     public class InventorySortTests
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider = null!;
-        private IInventoryService Inventory = null!;
-        private IReadOnlyList<short> TouchedSlots = null!;
-        private List<ItemDto> Items = null!;
+        private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider;
+        private IInventoryService Inventory;
+        private IReadOnlyList<short> TouchedSlots;
+        private List<ItemDto> Items;
 
         [TestInitialize]
         public void Setup()

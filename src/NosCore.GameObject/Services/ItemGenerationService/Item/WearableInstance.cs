@@ -18,8 +18,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 {
     public class WearableInstance : WearableInstanceDto, IItemInstance
     {
-        private readonly ILogger<WearableInstance> _logger = null!;
-        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage = null!;
+        private readonly ILogger<WearableInstance> _logger;
+        private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public WearableInstance(Item item, ILogger<WearableInstance> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
@@ -30,15 +30,11 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             _logLanguage = logLanguage;
         }
 
-        [Obsolete]
-        public WearableInstance()
-        {
-        }
 
         public bool IsBound => BoundCharacterId.HasValue && (Item?.ItemType != ItemType.Armor)
             && (Item?.ItemType != ItemType.Weapon);
 
-        public Item Item { get; set; } = null!;
+        public Item Item { get; set; }
 
         // The options live in their own table, so they are read on first use rather than with
         // the instance; null means not read yet.

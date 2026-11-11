@@ -23,9 +23,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class PutPacketHandlerTests
     {
-        private IItemGenerationService Item = null!;
-        private PutPacketHandler PutPacketHandler = null!;
-        private ClientSession Session = null!;
+        private IItemGenerationService Item;
+        private PutPacketHandler PutPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

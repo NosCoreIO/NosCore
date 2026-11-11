@@ -14,14 +14,14 @@ namespace NosCore.Database.Entities
     [StaticMetaData(LoadedMessage = LogLanguageKey.SHOPSKILLS_LOADED)]
     public class ShopSkill : IStaticEntity
     {
-        public virtual Shop Shop { get; set; } = null!;
+        public virtual Shop Shop { get; set; }
 
         public int ShopId { get; set; }
 
         [Key]
         public int ShopSkillId { get; set; }
 
-        public virtual Skill Skill { get; set; } = null!;
+        public virtual Skill Skill { get; set; }
 
         public short SkillVNum { get; set; }
 

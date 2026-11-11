@@ -18,7 +18,7 @@ namespace NosCore.Database.Entities
         [Key]
         public short DropId { get; set; }
 
-        public virtual Item Item { get; set; } = null!;
+        public virtual Item Item { get; set; }
 
         public short VNum { get; set; }
 

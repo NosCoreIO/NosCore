@@ -177,16 +177,13 @@ namespace NosCore.GameObject.Services.ExchangeService
             var targetFirstItem = targetInfo.ExchangeItems.Keys.FirstOrDefault();
             var exchangeFirstItem = exchangeInfo.ExchangeItems.Keys.FirstOrDefault();
 
-            var targetHasItems = targetFirstItem != null;
-            var exchangeHasItems = exchangeFirstItem != null;
-
-            var targetEnoughPlace = !targetHasItems || session.Character.InventoryService.EnoughPlace(
+            var targetEnoughPlace = targetFirstItem == null || session.Character.InventoryService.EnoughPlace(
                 targetInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
-                targetFirstItem!.Type);
+                targetFirstItem.Type);
 
-            var exchangeEnoughPlace = !exchangeHasItems || targetSession.InventoryService.EnoughPlace(
+            var exchangeEnoughPlace = exchangeFirstItem == null || targetSession.InventoryService.EnoughPlace(
                 exchangeInfo.ExchangeItems.Keys.Select(s => s.ItemInstance).ToList(),
-                exchangeFirstItem!.Type);
+                exchangeFirstItem.Type);
 
             if (targetEnoughPlace && exchangeEnoughPlace)
             {

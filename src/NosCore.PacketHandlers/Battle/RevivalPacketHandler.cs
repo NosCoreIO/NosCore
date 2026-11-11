@@ -165,7 +165,7 @@ namespace NosCore.PacketHandlers.Battle
             foreach (var slot in inventory.GetAll().Where(i => i.ItemInstance?.ItemVNum == SeedOfPowerVNum).ToList())
             {
                 if (remaining <= 0) break;
-                var take = (short)Math.Min(remaining, slot.ItemInstance!.Amount);
+                var take = (short)Math.Min(remaining, slot.ItemInstance.Amount);
                 inventory.RemoveItemAmountFromInventory(take, slot.ItemInstanceId);
                 remaining -= take;
             }

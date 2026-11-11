@@ -78,8 +78,8 @@ namespace NosCore.GameObject.Services.SkillService
         private async Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
         {
             var ordered = character.Skills.Values
-                .Where(s => s.Skill != null && (s.Skill!.Class >= PyjamaSpecialistClass) == useSpecialist)
-                .OrderBy(s => s.Skill!.CastId)
+                .Where(s => s.Skill != null && (s.Skill.Class >= PyjamaSpecialistClass) == useSpecialist)
+                .OrderBy(s => s.Skill.CastId)
                 .Select(s => s.SkillVNum)
                 .ToList();
 

@@ -12,7 +12,7 @@ namespace NosCore.Data.WebApi
     // settled sales and, when some of the listing is unsold, that rest as Item.
     public class BazaarClaim
     {
-        public BazaarItemDto Listing { get; set; } = null!;
+        public required BazaarItemDto Listing { get; set; }
 
         public ItemInstanceDto? Item { get; set; }
 

@@ -22,9 +22,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     public class FamilyHistoryChangedDataMessageHandlerTests
     {
         private const long FamilyId = 42;
-        private ClientSession _member = null!;
-        private ClientSession _outsider = null!;
-        private Mock<ISessionRegistry> _sessionRegistry = null!;
+        private ClientSession _member;
+        private ClientSession _outsider;
+        private Mock<ISessionRegistry> _sessionRegistry;
 
         [TestInitialize]
         public async Task SetupAsync()

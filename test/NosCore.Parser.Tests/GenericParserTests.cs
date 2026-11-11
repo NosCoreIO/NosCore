@@ -20,9 +20,9 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class GenericParserTests
     {
-        private Mock<ILogger<GenericParser<TestDto>>> _loggerMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private string _tempFolder = null!;
+        private Mock<ILogger<GenericParser<TestDto>>> _loggerMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private string _tempFolder;
 
         [TestInitialize]
         public void Setup()

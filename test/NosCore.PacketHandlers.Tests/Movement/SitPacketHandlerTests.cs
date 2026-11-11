@@ -25,9 +25,9 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class SitPacketHandlerTests
     {
-        private SitPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession OtherSession = null!;
+        private SitPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession OtherSession;
         private readonly ILogger<SitPacketHandler> Logger = new Mock<ILogger<SitPacketHandler>>().Object;
 
         [TestInitialize]
@@ -248,7 +248,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Session.Character.MapInstance.LastPackets.Clear();
         }
 

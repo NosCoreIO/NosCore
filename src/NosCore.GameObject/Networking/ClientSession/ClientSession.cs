@@ -22,6 +22,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -117,7 +118,19 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public int LastPulse { get; set; }
 
-        public AccountDto Account { get; set; } = null!;
+        private AccountDto? _account;
+
+        [AllowNull]
+        public AccountDto Account
+        {
+            get => _account ?? throw new InvalidOperationException("Account not initialized");
+            set => _account = value;
+        }
+
+        public bool HasAccount => _account != null;
+
+        // A session's channel is registered before its first packet is handled.
+        public IChannel ConnectedChannel => Channel ?? throw new InvalidOperationException("Channel not registered");
 
         public int? WaitForPacketsAmount { get; set; }
 
@@ -340,10 +353,10 @@ namespace NosCore.GameObject.Networking.ClientSession
                 {
                     sessionRegistry.Unregister(Channel.Id);
                 }
-                if (Account != null!)
+                if (_account is { } account)
                 {
-                    try { await authHub.UnregisterSessionIpAsync(Account.Name); }
-                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to unregister session IP for {Account}", Account.Name); }
+                    try { await authHub.UnregisterSessionIpAsync(account.Name); }
+                    catch (Exception ex) { _logger.LogWarning(ex, "Failed to unregister session IP for {Account}", account.Name); }
                 }
                 if (_subscribedSessionId is { } subscribedSessionId)
                 {

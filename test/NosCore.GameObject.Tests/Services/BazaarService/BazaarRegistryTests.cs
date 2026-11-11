@@ -21,13 +21,13 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
     [TestClass]
     public class BazaarRegistryTests
     {
-        private IBazaarRegistry Registry = null!;
-        private Mock<IDao<BazaarItemDto, long>> MockBazaarItemDao = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> MockItemInstanceDao = null!;
-        private Mock<IDao<CharacterDto, long>> MockCharacterDao = null!;
+        private IBazaarRegistry Registry;
+        private Mock<IDao<BazaarItemDto, long>> MockBazaarItemDao;
+        private Mock<IDao<IItemInstanceDto?, Guid>> MockItemInstanceDao;
+        private Mock<IDao<CharacterDto, long>> MockCharacterDao;
 
         private BazaarLink? ResultLink;
-        private IEnumerable<BazaarLink>? ResultLinks;
+        private IEnumerable<BazaarLink> ResultLinks;
         private bool UnregisterResult;
         private int CountResult;
 
@@ -115,8 +115,8 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
                 .ExecuteAsync();
         }
 
-        private BazaarLink? TestBazaarLink;
-        private BazaarLink? UpdatedBazaarLink;
+        private BazaarLink TestBazaarLink;
+        private BazaarLink UpdatedBazaarLink;
 
         private void ABazaarLinkIsCreated()
         {
@@ -126,7 +126,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
         private void ABazaarLinkIsRegistered()
         {
             ABazaarLinkIsCreated();
-            Registry.Register(TestBazaarItemId, TestBazaarLink!);
+            Registry.Register(TestBazaarItemId, TestBazaarLink);
         }
 
         private void MultipleBazaarLinksAreRegistered()
@@ -142,7 +142,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
 
         private void RegisteringTheBazaarLink()
         {
-            Registry.Register(TestBazaarItemId, TestBazaarLink!);
+            Registry.Register(TestBazaarItemId, TestBazaarLink);
         }
 
         private void GettingBazaarLinkByUnknownId()

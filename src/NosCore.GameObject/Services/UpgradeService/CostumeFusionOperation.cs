@@ -67,16 +67,18 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
 
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
-        if (LoadPair(session, packet) is null)
+        var inventory = session.Character.InventoryService;
+        if (LoadPair(session, packet) is null
+            || packet.Slot2 is not { } slot2 || packet.InventoryType2 is not { } type2
+            || inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType) is not { } source)
         {
             return null;
         }
 
-        var inventory = session.Character.InventoryService;
         var fusionVNum = inventory.CountItem(CostumeFusionVNum) > 0 ? CostumeFusionVNum : BoundCostumeFusionVNum;
         return new UpgradeContext(
-            Source: inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType)!,
-            Target: inventory.LoadBySlotAndType(packet.Slot2!.Value, (NoscorePocketType)packet.InventoryType2!.Value),
+            Source: source,
+            Target: inventory.LoadBySlotAndType(slot2, (NoscorePocketType)type2),
             GoldCost: GoldCost,
             MaterialCosts: new[] { new MaterialCost(fusionVNum, 1) });
     }
@@ -84,16 +86,16 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx) => UpgradeOutcome.Success;
 
     protected override void ApplySuccess(UpgradeContext ctx) =>
-        ((WearableInstance)ctx.Source.ItemInstance).AppearanceVNum = ctx.Target!.ItemInstance.ItemVNum;
+        ((WearableInstance)ctx.Source.ItemInstance).AppearanceVNum = ctx.RequiredTarget.ItemInstance.ItemVNum;
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx) { }
 
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx) =>
-        session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Target!.ItemInstanceId);
+        session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.RequiredTarget.ItemInstanceId);
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
-        yield return ((InventoryItemInstance?)null).GeneratePocketChange((PocketType)ctx.Target!.Type, ctx.Target.Slot);
+        yield return ((InventoryItemInstance?)null).GeneratePocketChange((PocketType)ctx.RequiredTarget.Type, ctx.RequiredTarget.Slot);
         yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
     }
 

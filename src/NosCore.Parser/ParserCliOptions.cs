@@ -4,10 +4,13 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace NosCore.Parser;
 
 public sealed record ParserCliOptions(string? Folder)
 {
+    [MemberNotNullWhen(true, nameof(Folder))]
     public bool HasFolder => !string.IsNullOrWhiteSpace(Folder);
 
     public static ParserCliOptions Parse(string[] args)

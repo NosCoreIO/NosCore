@@ -75,8 +75,8 @@ namespace NosCore.Tests.Shared
                 Amount = amount
             });
             await Hub.SettleBazaarAsync(operationId);
-            var operation = await OperationDao.FirstOrDefaultAsync(s => s.BazaarOperationId == operationId);
-            return operation!.BazaarItemId;
+            var operation = (await OperationDao.FirstOrDefaultAsync(s => s.BazaarOperationId == operationId)).NotNull();
+            return operation.BazaarItemId;
         }
     }
 }

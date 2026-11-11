@@ -38,22 +38,22 @@ public sealed class NpcCombatCatalog : INpcCombatCatalog, ISingletonService
 
         _dropsByMob = drops
             .Where(d => d.MonsterVNum.HasValue)
-            .GroupBy(d => d.MonsterVNum!.Value)
+            .GroupBy(d => d.MonsterVNum.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<DropDto>)g.ToArray());
 
         _bcardsByMob = bCards
             .Where(b => b.NpcMonsterVNum.HasValue)
-            .GroupBy(b => b.NpcMonsterVNum!.Value)
+            .GroupBy(b => b.NpcMonsterVNum.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
 
         _deathBCardsByMob = bCards
             .Where(b => b.NpcMonsterVNum.HasValue && b.Slot == 2)
-            .GroupBy(b => b.NpcMonsterVNum!.Value)
+            .GroupBy(b => b.NpcMonsterVNum.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
 
         _bcardsBySkill = bCards
             .Where(b => b.SkillVNum.HasValue)
-            .GroupBy(b => b.SkillVNum!.Value)
+            .GroupBy(b => b.SkillVNum.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
     }
 

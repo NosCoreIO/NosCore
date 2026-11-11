@@ -19,7 +19,7 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class MapDisconnectHandlerTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -28,8 +28,8 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
     [TestClass]
     public class InventoryServiceTests
     {
-        private GameObject.Services.ItemGenerationService.ItemGenerationService? ItemProvider;
-        private IInventoryService? Inventory { get; set; }
+        private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider;
+        private IInventoryService Inventory { get; set; }
 
         [TestInitialize]
         public void Setup()
@@ -285,194 +285,194 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 .Execute();
         }
 
-        private InventoryItemInstance? ItemForDelete;
-        private InventoryItemInstance? ItemToMove;
-        private InventoryItemInstance? FashionItem;
-        private InventoryItemInstance? SpecialistItem;
-        private InventoryItemInstance? WeaponItem;
-        private InventoryItemInstance? WeaponItem2;
+        private InventoryItemInstance ItemForDelete;
+        private InventoryItemInstance ItemToMove;
+        private InventoryItemInstance FashionItem;
+        private InventoryItemInstance SpecialistItem;
+        private InventoryItemInstance WeaponItem;
+        private InventoryItemInstance WeaponItem2;
         private InventoryItemInstance? OriginItem;
         private InventoryItemInstance? DestItem;
         private InventoryItemInstance? MovedItem;
 
         private void AddingItemToPocket()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012), 0));
         }
 
         private void ItemShouldBeInInventory()
         {
-            var item = Inventory!.Values.First();
+            var item = Inventory.Values.First();
             Assert.IsTrue((item.ItemInstance?.Amount == 1) && (item.ItemInstance.ItemVNum == 1012) &&
                 (item.Type == NoscorePocketType.Main));
         }
 
         private void ItemAlreadyInPocket()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012), 0));
         }
 
         private void AddingSameItemAgain()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012), 0));
         }
 
         private void AmountShouldBeTwo()
         {
-            var item = Inventory!.Values.First();
+            var item = Inventory.Values.First();
             Assert.IsTrue((item.ItemInstance?.Amount == 2) && (item.ItemInstance.ItemVNum == 1012));
         }
 
         private void FullStackInPocket()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 999), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 999), 0));
         }
 
         private void AddingOneMoreItem()
         {
-            AddedItems = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012), 0));
+            AddedItems = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012), 0));
         }
 
         private void NewStackShouldHaveOneItem()
         {
-            Assert.IsTrue(AddedItems![0].ItemInstance?.Amount == 1);
+            Assert.IsTrue(AddedItems.NotNull()[0].ItemInstance?.Amount == 1);
         }
 
         private void AlmostFullStackInPocket()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 990), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
         }
 
         private IList<InventoryItemInstance>? AddedItems;
 
         private void AddingABox() =>
-            AddedItems = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(4500), 0));
+            AddedItems = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(4500), 0));
 
         private void TheBoxShouldBeInTheEquipmentPocket()
         {
-            Assert.AreEqual(1, AddedItems!.Count);
-            Assert.AreEqual(NoscorePocketType.Equipment, AddedItems[0].Type);
-            Assert.IsInstanceOfType<BoxInstance>(AddedItems[0].ItemInstance);
+            Assert.AreEqual(1, AddedItems.NotNull().Count);
+            Assert.AreEqual(NoscorePocketType.Equipment, AddedItems.NotNull()[0].Type);
+            Assert.IsInstanceOfType<BoxInstance>(AddedItems.NotNull()[0].ItemInstance);
         }
 
         private void AddingItemsThatOverflow()
         {
-            AddedItems = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 29), 0));
+            AddedItems = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 29), 0));
         }
 
         private void ShouldSplitIntoTwoStacks()
         {
-            Assert.IsTrue((AddedItems![0].ItemInstance?.Amount == 999) && (AddedItems.Last().ItemInstance?.Amount == 20));
+            Assert.IsTrue((AddedItems.NotNull()[0].ItemInstance?.Amount == 999) && (AddedItems.NotNull().Last().ItemInstance?.Amount == 20));
         }
 
         private void ThreeAlmostFullStacks()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 990), 0), NoscorePocketType.Main, 0);
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0), NoscorePocketType.Main, 0);
             Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0), NoscorePocketType.Main, 1);
             Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0), NoscorePocketType.Main, 2);
         }
 
         private void AddingItemsToFillAll()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 27), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 27), 0));
         }
 
         private void AllStacksShouldBeFull()
         {
-            var items = Inventory!.Values.ToList();
+            var items = Inventory.Values.ToList();
             Assert.IsTrue(items.All(item => item.ItemInstance.Amount == 999) && (items.Count == 3));
         }
 
         private void AddingTooManyItems()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 99), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 99), 0));
         }
 
         private void StacksShouldRemainUnchanged()
         {
-            Assert.IsTrue(Inventory!.Values.All(item => item.ItemInstance?.Amount == 990));
+            Assert.IsTrue(Inventory.Values.All(item => item.ItemInstance?.Amount == 990));
         }
 
         private void MixedItemsInInventory()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 990), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
             Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 990), 0));
         }
 
         private void AddingItemThatStacksOnSecond()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1013), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013), 0));
         }
 
         private void SecondStackShouldIncrease()
         {
-            Assert.IsTrue(Inventory!.Values.First(item => item.Slot == 1).ItemInstance.Amount == 991);
+            Assert.IsTrue(Inventory.Values.First(item => item.Slot == 1).ItemInstance.Amount == 991);
         }
 
         private void AddingDifferentItem()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1013, 19), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1013, 19), 0));
         }
 
         private void FirstStackShouldRemainUnchanged()
         {
-            Assert.IsTrue(Inventory!.Values.First(item => item.Slot == 0).ItemInstance?.Amount == 990);
+            Assert.IsTrue(Inventory.Values.First(item => item.Slot == 0).ItemInstance?.Amount == 990);
         }
 
         private void ItemInSlotZero()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 990), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
         }
 
         private void LoadShouldReturnItem()
         {
-            var item = Inventory!.LoadBySlotAndType(0, NoscorePocketType.Main);
-            Assert.IsTrue((item!.ItemInstance?.ItemVNum == 1012) && (item.ItemInstance?.Amount == 990));
+            var item = Inventory.LoadBySlotAndType(0, NoscorePocketType.Main).NotNull();
+            Assert.IsTrue((item.ItemInstance?.ItemVNum == 1012) && (item.ItemInstance?.Amount == 990));
         }
 
         private void LoadSlotOneShouldReturnNull()
         {
-            var item = Inventory!.LoadBySlotAndType(1, NoscorePocketType.Main);
+            var item = Inventory.LoadBySlotAndType(1, NoscorePocketType.Main);
             Assert.IsNull(item);
         }
 
         private void TwoStacksInInventory()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 990), 0));
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
             Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
         }
 
         private void DeletingFromSlotZero()
         {
-            Inventory!.DeleteFromTypeAndSlot(NoscorePocketType.Main, 0);
+            Inventory.DeleteFromTypeAndSlot(NoscorePocketType.Main, 0);
         }
 
         private void OnlyOneItemShouldRemain()
         {
-            Assert.IsTrue(Inventory!.Count == 1);
+            Assert.IsTrue(Inventory.Count == 1);
         }
 
         private void TwoStacksInInventoryForDelete()
         {
-            Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 990), 0));
-            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
-            ItemForDelete = items![0];
+            Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0));
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 990), 0)).NotNull();
+            ItemForDelete = items[0];
         }
 
         private void DeletingByInstanceId()
         {
-            Inventory!.DeleteById(ItemForDelete!.ItemInstanceId);
+            Inventory.DeleteById(ItemForDelete.ItemInstanceId);
         }
 
         private void FullStackForMove()
         {
-            var items = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 999), 0));
-            ItemToMove = items![0];
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 999), 0)).NotNull();
+            ItemToMove = items[0];
         }
 
         private void MovingFullStack()
         {
-            Inventory!.TryMoveItem(ItemToMove!.Type, ItemToMove.Slot, 999, 1, out OriginItem, out DestItem);
+            Inventory.TryMoveItem(ItemToMove.Type, ItemToMove.Slot, 999, 1, out OriginItem, out DestItem);
         }
 
         private void OriginShouldBeNullDestinationShouldHaveAll()
@@ -483,7 +483,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void MovingHalfStack()
         {
-            Inventory!.TryMoveItem(ItemToMove!.Type, ItemToMove.Slot, 499, 1, out OriginItem, out DestItem);
+            Inventory.TryMoveItem(ItemToMove.Type, ItemToMove.Slot, 499, 1, out OriginItem, out DestItem);
         }
 
         private void BothShouldHaveItems()
@@ -494,7 +494,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void MovingHalfThenRemaining()
         {
-            Inventory!.TryMoveItem(ItemToMove!.Type, ItemToMove.Slot, 499, 1, out _, out _);
+            Inventory.TryMoveItem(ItemToMove.Type, ItemToMove.Slot, 499, 1, out _, out _);
             Inventory.TryMoveItem(ItemToMove.Type, 0, 500, 1, out OriginItem, out DestItem);
         }
 
@@ -506,14 +506,14 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void TwoStacksForOverflowTest()
         {
-            var items = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1012, 999), 0));
-            ItemToMove = items![0];
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 999), 0)).NotNull();
+            ItemToMove = items[0];
             Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 500), 0));
         }
 
         private void MovingWithOverflow()
         {
-            Inventory!.TryMoveItem(ItemToMove!.Type, ItemToMove.Slot, 600, 1, out OriginItem, out DestItem);
+            Inventory.TryMoveItem(ItemToMove.Type, ItemToMove.Slot, 600, 1, out OriginItem, out DestItem);
         }
 
         private void OriginShouldHaveOverflow()
@@ -524,13 +524,13 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void FashionItemInEquipment()
         {
-            var items = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(924), 0));
-            FashionItem = items![0];
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(924), 0)).NotNull();
+            FashionItem = items[0];
         }
 
         private void MovingToCostumePocket()
         {
-            MovedItem = Inventory!.MoveInPocket(FashionItem!.Slot, FashionItem.Type, NoscorePocketType.Costume);
+            MovedItem = Inventory.MoveInPocket(FashionItem.Slot, FashionItem.Type, NoscorePocketType.Costume);
         }
 
         private void ItemShouldBeInCostume()
@@ -540,7 +540,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void MovingFashionToSpecialist()
         {
-            MovedItem = Inventory!.MoveInPocket(FashionItem!.Slot, FashionItem.Type, NoscorePocketType.Specialist);
+            MovedItem = Inventory.MoveInPocket(FashionItem.Slot, FashionItem.Type, NoscorePocketType.Specialist);
         }
 
         private void MoveShouldReturnNull()
@@ -550,18 +550,18 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void SpecialistItemInEquipment()
         {
-            var items = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(912), 0));
-            SpecialistItem = items![0];
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(912), 0)).NotNull();
+            SpecialistItem = items[0];
         }
 
         private void MovingSpecialistToCostume()
         {
-            MovedItem = Inventory!.MoveInPocket(SpecialistItem!.Slot, SpecialistItem.Type, NoscorePocketType.Costume);
+            MovedItem = Inventory.MoveInPocket(SpecialistItem.Slot, SpecialistItem.Type, NoscorePocketType.Costume);
         }
 
         private void MovingToSpecialistPocket()
         {
-            MovedItem = Inventory!.MoveInPocket(SpecialistItem!.Slot, SpecialistItem.Type, NoscorePocketType.Specialist);
+            MovedItem = Inventory.MoveInPocket(SpecialistItem.Slot, SpecialistItem.Type, NoscorePocketType.Specialist);
         }
 
         private void ItemShouldBeInSpecialist()
@@ -571,13 +571,13 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void WeaponInEquipment()
         {
-            var items = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(1), 0));
-            WeaponItem = items![0];
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1), 0)).NotNull();
+            WeaponItem = items[0];
         }
 
         private void MovingToWear()
         {
-            MovedItem = Inventory!.MoveInPocket(WeaponItem!.Slot, WeaponItem.Type, NoscorePocketType.Wear);
+            MovedItem = Inventory.MoveInPocket(WeaponItem.Slot, WeaponItem.Type, NoscorePocketType.Wear);
         }
 
         private void ItemShouldBeInWear()
@@ -587,29 +587,29 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
 
         private void SwappingToEmptyWearSlot()
         {
-            MovedItem = Inventory!.MoveInPocket(WeaponItem!.Slot, WeaponItem.Type, NoscorePocketType.Wear,
+            MovedItem = Inventory.MoveInPocket(WeaponItem.Slot, WeaponItem.Type, NoscorePocketType.Wear,
                 (short)EquipmentType.MainWeapon, true);
         }
 
         private void WeaponShouldBeInWearSlotOriginEmpty()
         {
             Assert.IsTrue((MovedItem?.Type == NoscorePocketType.Wear) &&
-                (Inventory!.LoadBySlotAndType(0, NoscorePocketType.Equipment) == null));
+                (Inventory.LoadBySlotAndType(0, NoscorePocketType.Equipment) == null));
         }
 
         private void TwoWeaponsInEquipment()
         {
-            var items = Inventory!.AddItemToPocket(InventoryItemInstance.Create(ItemProvider!.Create(2), 0));
-            WeaponItem = items![0];
-            var items2 = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1), 0));
-            WeaponItem2 = items2![0];
+            var items = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(2), 0)).NotNull();
+            WeaponItem = items[0];
+            var items2 = Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1), 0)).NotNull();
+            WeaponItem2 = items2[0];
         }
 
         private void SwappingWeapons()
         {
-            MovedItem = Inventory!.MoveInPocket(WeaponItem!.Slot, WeaponItem.Type, NoscorePocketType.Wear,
+            MovedItem = Inventory.MoveInPocket(WeaponItem.Slot, WeaponItem.Type, NoscorePocketType.Wear,
                 (short)EquipmentType.MainWeapon, true);
-            MovedItem = Inventory.MoveInPocket(WeaponItem2!.Slot, WeaponItem2.Type, NoscorePocketType.Wear,
+            MovedItem = Inventory.MoveInPocket(WeaponItem2.Slot, WeaponItem2.Type, NoscorePocketType.Wear,
                 (short)EquipmentType.MainWeapon, true);
         }
 

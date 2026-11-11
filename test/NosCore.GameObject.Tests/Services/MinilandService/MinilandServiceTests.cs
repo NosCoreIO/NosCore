@@ -29,9 +29,9 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
     [TestClass]
     public class MinilandServiceTests
     {
-        private IMinilandService Service = null!;
-        private Mock<IFriendHub> FriendHttpClient = null!;
-        private ClientSession Session = null!;
+        private IMinilandService Service;
+        private Mock<IFriendHub> FriendHttpClient;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -153,12 +153,12 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 .ExecuteAsync();
         }
 
-        private Mock<IMapInstanceAccessorService>? _isolatedAccessor;
-        private IMinilandService? _isolatedService;
-        private MapInstance? _nosvilleInstance;
-        private MapInstance? _oldNosvilleInstance;
-        private MapInstance? _minilandInstance;
-        private List<NosCore.GameObject.Map.Portal>? _returnedPortals;
+        private Mock<IMapInstanceAccessorService> _isolatedAccessor;
+        private IMinilandService _isolatedService;
+        private MapInstance _nosvilleInstance;
+        private MapInstance _oldNosvilleInstance;
+        private MapInstance _minilandInstance;
+        private List<NosCore.GameObject.Map.Portal> _returnedPortals;
 
         private async Task MinilandAndBothBaseMapsAreRegisteredOnIsolatedService()
         {
@@ -169,7 +169,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             var clock = TestHelpers.Instance.Clock;
             var logger = new Mock<ILogger<MapInstance>>().Object;
             var sessionGroupFactory = TestHelpers.Instance.SessionGroupFactory;
-            var mapItemProvider = TestHelpers.Instance.MapItemProvider!;
+            var mapItemProvider = TestHelpers.Instance.MapItemProvider.NotNull();
             var mapChangeService = new Mock<GameObject.Services.MapChangeService.IMapChangeService>().Object;
 
             _nosvilleInstance = new MapInstance(mapNosville, Guid.NewGuid(), false,
@@ -210,36 +210,36 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
 
         private void RequestingMinilandPortals()
         {
-            _returnedPortals = _isolatedService!.GetMinilandPortals(Session.Character.CharacterId);
+            _returnedPortals = _isolatedService.GetMinilandPortals(Session.Character.CharacterId);
         }
 
         private void PortalListShouldHaveCount_(int expected) =>
-            Assert.AreEqual(expected, _returnedPortals!.Count);
+            Assert.AreEqual(expected, _returnedPortals.Count);
 
         private void NosvillePortalIsWiredCorrectly()
         {
-            var p = _returnedPortals!.FirstOrDefault(x => x.SourceMapId == 1);
+            var p = _returnedPortals.FirstOrDefault(x => x.SourceMapId == 1);
             Assert.IsNotNull(p);
             Assert.AreEqual(48, p.SourceX);
             Assert.AreEqual(132, p.SourceY);
-            Assert.AreEqual(_nosvilleInstance!.MapInstanceId, p.SourceMapInstanceId);
-            Assert.AreEqual(_minilandInstance!.MapInstanceId, p.DestinationMapInstanceId);
+            Assert.AreEqual(_nosvilleInstance.MapInstanceId, p.SourceMapInstanceId);
+            Assert.AreEqual(_minilandInstance.MapInstanceId, p.DestinationMapInstanceId);
             Assert.AreEqual(20001, p.DestinationMapId);
         }
 
         private void OldNosvillePortalIsWiredCorrectly()
         {
-            var p = _returnedPortals!.FirstOrDefault(x => x.SourceMapId == 145);
+            var p = _returnedPortals.FirstOrDefault(x => x.SourceMapId == 145);
             Assert.IsNotNull(p);
             Assert.AreEqual(9, p.SourceX);
             Assert.AreEqual(171, p.SourceY);
-            Assert.AreEqual(_oldNosvilleInstance!.MapInstanceId, p.SourceMapInstanceId);
-            Assert.AreEqual(_minilandInstance!.MapInstanceId, p.DestinationMapInstanceId);
+            Assert.AreEqual(_oldNosvilleInstance.MapInstanceId, p.SourceMapInstanceId);
+            Assert.AreEqual(_minilandInstance.MapInstanceId, p.DestinationMapInstanceId);
             Assert.AreEqual(20001, p.DestinationMapId);
         }
 
-        private Miniland? InitializedMiniland;
-        private Miniland? RetrievedMiniland;
+        private Miniland InitializedMiniland;
+        private Miniland RetrievedMiniland;
         private Guid? DeleteResult;
 
         private async Task InitializingMiniland()
@@ -296,7 +296,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
         private void MinilandShouldBeReturned()
         {
             Assert.IsNotNull(RetrievedMiniland);
-            Assert.AreEqual(InitializedMiniland!.MapInstanceId, RetrievedMiniland.MapInstanceId);
+            Assert.AreEqual(InitializedMiniland.MapInstanceId, RetrievedMiniland.MapInstanceId);
         }
 
         private void ShouldThrowInvalidOperationException_(Lazy<Exception> exception)

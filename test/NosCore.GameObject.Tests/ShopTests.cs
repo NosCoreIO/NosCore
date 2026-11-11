@@ -32,8 +32,8 @@ namespace NosCore.GameObject.Tests
     [TestClass]
     public class ShopTests : SpecBase
     {
-        private IMapInstanceAccessorService InstanceProvider = null!;
-        private ItemGenerationService ItemBuilder = null!;
+        private IMapInstanceAccessorService InstanceProvider;
+        private ItemGenerationService ItemBuilder;
 
         [TestInitialize]
         public override async Task SetupAsync()

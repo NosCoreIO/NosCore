@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             await TestHelpers.ResetAsync();
             var session = await TestHelpers.Instance.GenerateSessionAsync();
-            var map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            var map = TestHelpers.Instance.GetBaseMap(0);
             session.Character.MapInstance = map;
             map.LoadMonsters(
                 new System.Collections.Generic.List<NosCore.Data.Dto.MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },

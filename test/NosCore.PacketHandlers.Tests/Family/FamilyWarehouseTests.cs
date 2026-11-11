@@ -39,8 +39,8 @@ namespace NosCore.PacketHandlers.Tests.Family
     public class FamilyWarehouseTests
     {
         private const long FamilyId = 9;
-        private ClientSession _session = null!;
-        private IItemGenerationService _items = null!;
+        private ClientSession _session;
+        private IItemGenerationService _items;
         private readonly Dictionary<Guid, IItemInstanceDto> _instances = new();
         private readonly List<(Guid Id, short Slot, Guid ItemInstanceId)> _stored = new();
         private bool _takenElsewhere;
@@ -88,7 +88,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             hub.Setup(s => s.AddWarehouseItemAsync(It.IsAny<WareHouseDepositRequest>()))
                 .ReturnsAsync((WareHouseDepositRequest r) =>
                 {
-                    _stored.Add((Guid.NewGuid(), r.Slot, r.ItemInstance!.Id));
+                    _stored.Add((Guid.NewGuid(), r.Slot, r.ItemInstance.NotNull().Id));
                     return true;
                 });
             hub.Setup(s => s.DeleteWarehouseItemAsync(It.IsAny<Guid>()))
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                         return false;
                     }
 
-                    var instance = _instances[_stored[index].ItemInstanceId]!;
+                    var instance = _instances[_stored[index].ItemInstanceId];
                     if (amount > instance.Amount)
                     {
                         return false;
@@ -137,9 +137,9 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync((long _, WarehouseType _, short slot, ItemInstanceDto item) =>
                 {
                     var existing = _stored.FindIndex(s => s.Slot == slot);
-                    if (existing >= 0 && _instances[_stored[existing].ItemInstanceId]!.ItemVNum == item.ItemVNum)
+                    if (existing >= 0 && _instances[_stored[existing].ItemInstanceId].ItemVNum == item.ItemVNum)
                     {
-                        _instances[_stored[existing].ItemInstanceId]!.Amount += item.Amount;
+                        _instances[_stored[existing].ItemInstanceId].Amount += item.Amount;
                         return true;
                     }
 
@@ -154,14 +154,14 @@ namespace NosCore.PacketHandlers.Tests.Family
                         return false;
                     }
 
-                    _instances[_stored.Single(s => s.Slot == from).ItemInstanceId]!.Amount -= split.Amount;
+                    _instances[_stored.Single(s => s.Slot == from).ItemInstanceId].Amount -= split.Amount;
                     _stored.Add((Guid.NewGuid(), to, split.Id));
                     return true;
                 });
 
             var instances = new Mock<IDao<IItemInstanceDto?, Guid>>();
             instances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
-                .ReturnsAsync((IItemInstanceDto? i) => _instances[i!.Id] = i);
+                .ReturnsAsync((IItemInstanceDto? i) => _instances[i.NotNull().Id] = i.NotNull());
             instances.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
@@ -190,7 +190,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var stash = _session.LastPackets.OfType<FStashAllPacket>().Single();
             Assert.AreEqual(21, stash.WarehouseSize);
-            Assert.AreEqual(3, stash.Items!.Single().Slot);
+            Assert.AreEqual(3, stash.Items.NotNull().Single().Slot);
         }
 
         [TestMethod]
@@ -214,7 +214,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new FDepositPacket { Inventory = PocketType.Main, Slot = 0, Amount = 4, NewSlot = 2 }, _session);
 
             Assert.AreEqual(4, At(2).Amount);
-            Assert.AreEqual(6, _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Main)!.ItemInstance.Amount);
+            Assert.AreEqual(6, _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Main).NotNull().ItemInstance.Amount);
         }
 
         [TestMethod]

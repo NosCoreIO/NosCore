@@ -182,7 +182,7 @@ namespace NosCore.GameObject.Services.ProductionService
         {
             var items = recipeItems.GroupBy(s => s.RecipeId).ToDictionary(s => s.Key, s => s.ToList());
             return recipes.Where(s => s.ScrollVNum != null)
-                .GroupBy(s => s.ScrollVNum!.Value)
+                .GroupBy(s => s.ScrollVNum.GetValueOrDefault())
                 .ToDictionary(s => s.Key, s => s.Select(r => new Recipe
                 {
                     RecipeId = r.RecipeId,

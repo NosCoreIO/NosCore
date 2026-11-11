@@ -16,7 +16,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
     [TestClass]
     public class MinilandRegistryTests
     {
-        private IMinilandRegistry Registry = null!;
+        private IMinilandRegistry Registry;
 
         [TestInitialize]
         public void Setup()
@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 .ExecuteAsync();
         }
 
-        private Miniland? TestMiniland;
+        private Miniland TestMiniland;
         private Miniland? ResultMiniland;
         private Miniland? UnregisteredMiniland;
         private bool UnregisterResult;
@@ -124,7 +124,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
         private void MinilandIsRegistered()
         {
             MinilandIsCreated();
-            Registry.Register(TestCharacterId, TestMiniland!);
+            Registry.Register(TestCharacterId, TestMiniland);
         }
 
         private void MultipleMinilandsAreRegistered()
@@ -137,7 +137,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
 
         private void RegisteringMiniland()
         {
-            Registry.Register(TestCharacterId, TestMiniland!);
+            Registry.Register(TestCharacterId, TestMiniland);
         }
 
         private void GettingUnknownMiniland()

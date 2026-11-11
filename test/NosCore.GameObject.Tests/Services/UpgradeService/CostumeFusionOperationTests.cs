@@ -41,9 +41,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short DesignSlot = 1;
         private const short FusionSlot = 0;
 
-        private CostumeFusionOperation _operation = null!;
-        private WearableInstance _effects = null!;
-        private WearableInstance _design = null!;
+        private CostumeFusionOperation _operation;
+        private WearableInstance _effects;
+        private WearableInstance _design;
         private IReadOnlyList<IPacket> _result = Array.Empty<IPacket>();
 
         [TestInitialize]
@@ -256,7 +256,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private Task UsingTheFusionItem()
         {
-            var item = Session.Character.InventoryService.LoadBySlotAndType(FusionSlot, NoscorePocketType.Main)!;
+            var item = Session.Character.InventoryService.LoadBySlotAndType(FusionSlot, NoscorePocketType.Main).NotNull();
             return new UpgradeWindowItemHandler(new IUpgradeOperation[] { _operation }, TestHelpers.Instance.NpcDialogService)
                 .Handle(new ItemUsedEvent(Session, item, new UseItemPacket
                 {
@@ -292,7 +292,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(vnum, Session.Character.GetEquipmentSubPacket().CostumeSuit);
 
         private void TheWindowShouldBe_(WindowType window) =>
-            Assert.AreEqual(window, GetLastPacket<WopenPacket>()!.Type);
+            Assert.AreEqual(window, GetLastPacket<WopenPacket>().NotNull().Type);
 
         private void TheItemWindowShouldBeOpen() =>
             Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.UpgradeScroll));

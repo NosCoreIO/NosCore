@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Messaging;
 using System.Collections.Generic;
 using System.Text.Json;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.InterChannelCommunication
 {
@@ -40,7 +41,8 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         {
             var options = new JsonSerializerOptions();
             WolverineHostExtensions.ConfigureMessageSerialization(options);
-            return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value, options), options)!;
+            return JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value, options), options)
+                ?? throw new AssertFailedException("The message deserialized to null.");
         }
 
         [TestMethod]
@@ -48,10 +50,10 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         {
             var reply = new Reply<List<BazaarLink>>(new List<BazaarLink>
             {
-                new() { BazaarItem = new BazaarItemDto { DateStart = Start, Duration = 168 } }
+                new() { BazaarItem = new BazaarItemDto { DateStart = Start, Duration = 168 }, ItemInstance = new ItemInstanceDto() }
             });
 
-            Assert.AreEqual(Start, RoundTrip(reply).Value[0].BazaarItem!.DateStart);
+            Assert.AreEqual(Start, RoundTrip(reply).Value[0].BazaarItem.DateStart);
         }
 
         private static IMessage? Read(string typeName)
@@ -66,19 +68,19 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         {
             var message = (MailData)RoundTrip<IMessage>(new MailData { ItemInstance = new ItemInstanceDto { ItemDeleteTime = Start } });
 
-            Assert.AreEqual(Start, message.ItemInstance!.ItemDeleteTime);
+            Assert.AreEqual(Start, message.ItemInstance.NotNull().ItemDeleteTime);
         }
 
         [TestMethod]
         public void MessagesFromOlderNodesNamingTheAssemblyAreRead()
         {
-            Assert.IsInstanceOfType<DeleteMailData>(Read(typeof(DeleteMailData).AssemblyQualifiedName!));
+            Assert.IsInstanceOfType<DeleteMailData>(Read(typeof(DeleteMailData).AssemblyQualifiedName.NotNull()));
         }
 
         [TestMethod]
         public void OnlyMessagesDeclaredByNosCoreAreRead()
         {
-            Assert.ThrowsExactly<JsonException>(() => Read(typeof(UnlistedMessage).AssemblyQualifiedName!));
+            Assert.ThrowsExactly<JsonException>(() => Read(typeof(UnlistedMessage).AssemblyQualifiedName.NotNull()));
         }
 
         [TestMethod]
@@ -86,7 +88,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         {
             ConstructionProbe.Constructed = 0;
 
-            Assert.ThrowsExactly<JsonException>(() => Read(typeof(ConstructionProbe).AssemblyQualifiedName!));
+            Assert.ThrowsExactly<JsonException>(() => Read(typeof(ConstructionProbe).AssemblyQualifiedName.NotNull()));
             Assert.AreEqual(0, ConstructionProbe.Constructed);
         }
     }

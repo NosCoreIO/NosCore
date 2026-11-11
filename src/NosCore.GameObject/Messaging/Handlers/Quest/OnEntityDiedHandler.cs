@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Diagnostics.CodeAnalysis;
 using System;
 using System.Threading.Tasks;
 using Arch.Core;
@@ -54,7 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             }
         }
 
-        private static bool TryFindCharacter(IAliveEntity victim, Entity handle, out ICharacterEntity character)
+        private static bool TryFindCharacter(IAliveEntity victim, Entity handle, [NotNullWhen(true)] out ICharacterEntity? character)
         {
             if (victim.MapInstance is not null)
             {
@@ -69,7 +70,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                     }
                 }
             }
-            character = null!;
+            character = null;
             return false;
         }
     }

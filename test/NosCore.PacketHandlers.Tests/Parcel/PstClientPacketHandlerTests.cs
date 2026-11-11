@@ -27,9 +27,9 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     [TestClass]
     public class PstClientPacketHandlerTests
     {
-        private Mock<IMailHub> MailHub = null!;
-        private PstClientPacketHandler Handler = null!;
-        private ClientSession Session = null!;
+        private Mock<IMailHub> MailHub;
+        private PstClientPacketHandler Handler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

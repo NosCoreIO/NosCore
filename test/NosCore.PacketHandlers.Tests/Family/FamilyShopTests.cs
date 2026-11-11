@@ -72,14 +72,14 @@ namespace NosCore.PacketHandlers.Tests.Family
             new() { VNum = MembersExpansion, Type = NoscorePocketType.Main, Price = 10000000 },
         };
 
-        private ClientSession _head = null!;
-        private ClientSession _member = null!;
-        private IDao<FamilyDto, long> _familyDao = null!;
-        private IDao<FamilyCharacterDto, long> _familyCharacterDao = null!;
-        private FamilyService _familyService = null!;
-        private ShoppingPacketHandler _shopping = null!;
-        private BuyPacketHandler _buy = null!;
-        private FamilyChangedDataMessageChannelCommunicationMessageHandler _familyChanged = null!;
+        private ClientSession _head;
+        private ClientSession _member;
+        private IDao<FamilyDto, long> _familyDao;
+        private IDao<FamilyCharacterDto, long> _familyCharacterDao;
+        private FamilyService _familyService;
+        private ShoppingPacketHandler _shopping;
+        private BuyPacketHandler _buy;
+        private FamilyChangedDataMessageChannelCommunicationMessageHandler _familyChanged;
         private readonly List<FamilyChangedData> _published = new();
         private long _familyId;
 
@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 FamilyLevel = 1,
                 MaxSize = 50,
                 FamilyMessage = string.Empty
-            }))!.FamilyId;
+            })).FamilyId;
             await _familyCharacterDao.TryInsertOrUpdateAsync(new[]
             {
                 Membership(_head, FamilyAuthority.Head),
@@ -158,7 +158,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                     new() { MapNpcId = ManagerId, Dialog = 462, MapId = _head.Character.MapInstance.Map.MapId, MapX = 1, MapY = 1, VNum = 1 }
                 },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
-            var manager = _head.Character.MapInstance.GetNpcById(ManagerId)!.Value;
+            var manager = _head.Character.MapInstance.GetNpcById(ManagerId).NotNull();
             manager.Shop = new NosCore.GameObject.Services.ShopService.Shop { ShopType = FamilyShopService.ShopType };
             _head.WithWindowOpenedAt(ManagerId, NpcDialogWindow.Shop);
         }
@@ -362,7 +362,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
         private async Task UpdateFamilyAsync(Action<FamilyDto> change)
         {
-            var family = (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId))!;
+            var family = (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId)).NotNull();
             change(family);
             await _familyDao.TryInsertOrUpdateAsync(family);
             await RefreshAsync();
@@ -383,7 +383,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private async Task TheHeadIsDemotedToDeputy()
         {
             var headId = _head.Character.CharacterId;
-            var membership = (await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == headId))!;
+            var membership = (await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == headId)).NotNull();
             membership.Authority = FamilyAuthority.Assistant;
             await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
             await RefreshAsync();
@@ -426,10 +426,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private async Task TheWarehouseShouldHave_(byte size) =>
-            Assert.AreEqual(size, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId))!.WarehouseSize);
+            Assert.AreEqual(size, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId)).NotNull().WarehouseSize);
 
         private async Task TheMemberLimitShouldBe_(byte limit) =>
-            Assert.AreEqual(limit, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId))!.MaxSize);
+            Assert.AreEqual(limit, (await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId)).NotNull().MaxSize);
 
         private void TheHeadShouldHaveGold_(long gold) => Assert.AreEqual(gold, _head.Character.Gold);
 

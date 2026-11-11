@@ -23,13 +23,13 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ActParserTests
     {
-        private Mock<ILogger<ActParser>> _loggerMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<ActDto, byte>> _actDaoMock = null!;
-        private Mock<IDao<ActPartDto, byte>> _actPartDaoMock = null!;
-        private string _tempFolder = null!;
-        private List<ActDto> _savedActs = null!;
-        private List<ActPartDto> _savedActParts = null!;
+        private Mock<ILogger<ActParser>> _loggerMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<ActDto, byte>> _actDaoMock;
+        private Mock<IDao<ActPartDto, byte>> _actPartDaoMock;
+        private string _tempFolder;
+        private List<ActDto> _savedActs;
+        private List<ActPartDto> _savedActParts;
 
         [TestInitialize]
         public void Setup()

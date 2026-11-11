@@ -15,13 +15,14 @@ using NosCore.Tests.Shared.BDD;
 using SpecLight;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Inventory
 {
     [TestClass]
     public class SortOpenPacketHandlerTests : SpecBase
     {
-        private SortOpenPacketHandler Handler = null!;
+        private SortOpenPacketHandler Handler;
 
         [TestInitialize]
         public override async Task SetupAsync()
@@ -62,10 +63,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private void InvForSpecialistsShouldList_(string expected)
         {
             var inv = Session.LastPackets.OfType<InvPacket>().Single(p => p.Type == PocketType.Specialist);
-            Assert.AreEqual(expected, string.Join(" ", inv.IvnSubPackets!.Select(s => $"{s!.Slot}:{s.VNum}")));
+            Assert.AreEqual(expected, string.Join(" ", inv.IvnSubPackets.NotNull().Select(s => $"{s.Slot}:{s.VNum}")));
         }
 
         private void InvForCostumesShouldBeEmpty() =>
-            Assert.AreEqual(0, Session.LastPackets.OfType<InvPacket>().Single(p => p.Type == PocketType.Costume).IvnSubPackets!.Count);
+            Assert.AreEqual(0, Session.LastPackets.OfType<InvPacket>().Single(p => p.Type == PocketType.Costume).IvnSubPackets.NotNull().Count);
     }
 }

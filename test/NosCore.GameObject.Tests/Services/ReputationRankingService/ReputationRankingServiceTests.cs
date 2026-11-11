@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
         private const long SenderId = 1000;
         private const long SenderReputation = 5000;
 
-        private GameObject.Services.ReputationRankingService.ReputationRankingService Service = null!;
+        private GameObject.Services.ReputationRankingService.ReputationRankingService Service;
         private bool Result;
         private long NextId = 2000;
 

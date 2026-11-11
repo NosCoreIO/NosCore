@@ -36,13 +36,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     public class FriendshipWingsHandlerTests
     {
         private const short WingsVNum = 2160;
-        private ClientSession _session = null!;
-        private ClientSession _friend = null!;
-        private ClientSession _otherFriend = null!;
-        private Mock<IFriendHub> _friendHub = null!;
-        private Mock<ISessionRegistry> _sessionRegistry = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private FriendshipWingsHandler _handler = null!;
+        private ClientSession _session;
+        private ClientSession _friend;
+        private ClientSession _otherFriend;
+        private Mock<IFriendHub> _friendHub;
+        private Mock<ISessionRegistry> _sessionRegistry;
+        private Mock<IMapChangeService> _mapChangeService;
+        private FriendshipWingsHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -51,9 +51,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _friend = await TestHelpers.Instance.GenerateSessionAsync();
             _otherFriend = await TestHelpers.Instance.GenerateSessionAsync();
-            _otherFriend.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            _friend.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _otherFriend.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            _friend.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             _friend.Character.MapId = 1;
             _friend.Character.PositionX = 7;
             _friend.Character.PositionY = 9;
@@ -270,7 +270,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         {
             var delay = _session.LastPackets.OfType<DelayPacket>().SingleOrDefault();
             Assert.IsNotNull(delay);
-            var next = (ClientGuriPacket)delay.Packet!;
+            var next = ((ClientGuriPacket)delay.Packet.NotNull()).NotNull();
             Assert.AreEqual(GuriPacketType.FriendshipWings, next.Type);
             Assert.AreEqual(2, next.Argument);
             Assert.AreEqual(_friend.Character.CharacterId, next.VisualId);

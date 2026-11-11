@@ -38,11 +38,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
     public class RevivalPacketHandlerTests
     {
         private const short SeedOfPowerVNum = 1012;
-        private RevivalPacketHandler _handler = null!;
-        private ClientSession _session = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private Mock<IRespawnService> _respawnService = null!;
-        private BuffService _buffs = null!;
+        private RevivalPacketHandler _handler;
+        private ClientSession _session;
+        private Mock<IMapChangeService> _mapChangeService;
+        private Mock<IRespawnService> _respawnService;
+        private BuffService _buffs;
         private readonly List<IPacket> _broadcast = new();
 
         [TestInitialize]
@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService = new Mock<IRespawnService>();
             _respawnService.Setup(r => r.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns((long?)1);
@@ -315,8 +315,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             var bf = _broadcast.OfType<BfPacket>().Single();
             Assert.AreEqual(_session.Character.VisualId, bf.VisualId);
-            Assert.AreEqual(RevivalProtectionCard.CardId, bf.Buff!.BuffId);
-            Assert.AreEqual(deciseconds, bf.Buff.Duration);
+            Assert.AreEqual(RevivalProtectionCard.CardId, bf.Buff.NotNull().BuffId);
+            Assert.AreEqual(deciseconds, bf.Buff.NotNull().Duration);
         }
 
         private void CharacterIsDeadAtLevel_(byte level)

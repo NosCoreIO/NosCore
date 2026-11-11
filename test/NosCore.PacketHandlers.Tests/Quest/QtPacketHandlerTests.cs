@@ -21,9 +21,9 @@ namespace NosCore.PacketHandlers.Tests.Quest
     [TestClass]
     public class QtPacketHandlerTests
     {
-        private QtPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IQuestService> QuestService = null!;
+        private QtPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IQuestService> QuestService;
         private const short QuestId = 1001;
         private long CharacterId;
 

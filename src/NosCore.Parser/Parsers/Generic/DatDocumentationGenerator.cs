@@ -39,9 +39,9 @@ namespace NosCore.Parser.Parsers.Generic
             // evidence about — we can't flag columns or whole sections we've never
             // seen without reading the actual .dat file.
             var fieldsBySection = builder.Fields
-                .Where(f => f.Section != null)
-                .GroupBy(f => f.Section!)
-                .ToDictionary(g => g.Key, g => g.ToList());
+                .SelectMany(f => f.Section is { } section ? new[] { (Section: section, Field: f) } : [])
+                .GroupBy(f => f.Section)
+                .ToDictionary(g => g.Key, g => g.Select(f => f.Field).ToList());
             var docsBySection = builder.ColumnDocs
                 .GroupBy(d => d.Section)
                 .ToDictionary(g => g.Key, g => g.ToList());

@@ -28,11 +28,11 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
     [TestClass]
     public class ShellHandlersTests
     {
-        private ClientSession _session = null!;
-        private ShellTestBench _bench = null!;
-        private InventoryItemInstance _shell = null!;
-        private InventoryItemInstance _equipment = null!;
-        private InventoryItemInstance _consumable = null!;
+        private ClientSession _session;
+        private ShellTestBench _bench;
+        private InventoryItemInstance _shell;
+        private InventoryItemInstance _equipment;
+        private InventoryItemInstance _consumable;
 
         [TestInitialize]
         public async Task SetupAsync()

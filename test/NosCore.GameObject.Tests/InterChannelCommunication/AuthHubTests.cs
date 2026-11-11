@@ -24,8 +24,8 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
     {
         private const string AccountName = "Account";
         private readonly string TokenGuid = Guid.NewGuid().ToString();
-        private IAuthCodeService AuthCodeService = null!;
-        private AuthHub Hub = null!;
+        private IAuthCodeService AuthCodeService;
+        private AuthHub Hub;
         private const string ChannelKey = "world-channel-2";
         private const string OtherChannelKey = "world-channel-3";
         private string? Result;
@@ -36,8 +36,8 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         {
             AuthCodeService = new AuthCodeService(new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)));
             var masterClientList = new MasterClientList();
-            masterClientList.Channels[ChannelKey] = new ChannelInfo { Id = 2 };
-            masterClientList.Channels[OtherChannelKey] = new ChannelInfo { Id = 3 };
+            masterClientList.Channels[ChannelKey] = new ChannelInfo { Host = "127.0.0.1", Id = 2 };
+            masterClientList.Channels[OtherChannelKey] = new ChannelInfo { Host = "127.0.0.1", Id = 3 };
             Hub = new AuthHub(AuthCodeService, masterClientList);
         }
 

@@ -15,7 +15,7 @@ namespace NosCore.Database.Entities
     [StaticMetaData(LoadedMessage = LogLanguageKey.TIMESPACES_PARSED)]
     public class ScriptedInstance : IStaticEntity
     {
-        public virtual Map Map { get; set; } = null!;
+        public virtual Map Map { get; set; }
 
         public short MapId { get; set; }
 

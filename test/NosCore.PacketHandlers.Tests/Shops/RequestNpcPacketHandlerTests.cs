@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class RequestNpcPacketHandlerTests
     {
-        private RequestNpcPacketHandler _requestNpcPacketHandler = null!;
-        private ClientSession _session = null!;
+        private RequestNpcPacketHandler _requestNpcPacketHandler;
+        private ClientSession _session;
         private readonly Mock<Wolverine.IMessageBus> MessageBus = new();
 
         [TestInitialize]
@@ -211,7 +211,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { npc },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
-            var bundle = _session.Character.MapInstance.GetNpcById(100)!.Value;
+            var bundle = _session.Character.MapInstance.GetNpcById(100).NotNull();
             bundle.InitializeShopAndDialog(
                 new List<ShopDto> { new() { ShopId = 1, MapNpcId = 100, MenuType = 0, ShopType = 0 } },
                 null,

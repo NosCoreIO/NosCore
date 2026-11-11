@@ -23,15 +23,15 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class QuestParserTests
     {
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<QuestDto, short>> _questDaoMock = null!;
-        private Mock<IDao<QuestObjectiveDto, Guid>> _questObjectiveDaoMock = null!;
-        private Mock<IDao<QuestRewardDto, short>> _questRewardDaoMock = null!;
-        private Mock<IDao<QuestQuestRewardDto, Guid>> _questQuestRewardDaoMock = null!;
-        private string _tempFolder = null!;
-        private List<QuestDto> _savedQuests = null!;
-        private List<QuestObjectiveDto> _savedObjectives = null!;
-        private List<QuestQuestRewardDto> _savedQuestRewards = null!;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<QuestDto, short>> _questDaoMock;
+        private Mock<IDao<QuestObjectiveDto, Guid>> _questObjectiveDaoMock;
+        private Mock<IDao<QuestRewardDto, short>> _questRewardDaoMock;
+        private Mock<IDao<QuestQuestRewardDto, Guid>> _questQuestRewardDaoMock;
+        private string _tempFolder;
+        private List<QuestDto> _savedQuests;
+        private List<QuestObjectiveDto> _savedObjectives;
+        private List<QuestQuestRewardDto> _savedQuestRewards;
 
         [TestInitialize]
         public void Setup()

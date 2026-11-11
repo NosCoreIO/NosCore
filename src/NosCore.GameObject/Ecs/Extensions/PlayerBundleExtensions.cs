@@ -155,8 +155,8 @@ public static class PlayerBundleExtensions
         if (friends.Count > 0)
         {
             var online = (await pubSubHub.GetSubscribersAsync())
-                .Where(s => s.ConnectedCharacter != null)
-                .Select(s => s.ConnectedCharacter!.Id)
+                .Select(s => s.ConnectedCharacter?.Id)
+                .OfType<long>()
                 .ToHashSet();
 
             friendSubPackets.AddRange(friends.Select(relation => new FinitSubPacket
@@ -824,8 +824,8 @@ public static class PlayerBundleExtensions
                 Slot = item.Slot,
                 MlObjSubPacket = new MlobjSubPacket
                 {
-                    MapX = used ? mp!.MapX : (short)0,
-                    MapY = used ? mp!.MapY : (short)0,
+                    MapX = mp?.MapX ?? 0,
+                    MapY = mp?.MapY ?? 0,
                     Width = item.ItemInstance.Item.Width != 0 ? item.ItemInstance.Item.Width : (byte)1,
                     Height = item.ItemInstance.Item.Height != 0 ? item.ItemInstance.Item.Height : (byte)1,
                     DurabilityPoint = used ? item.ItemInstance.DurabilityPoint : 0,
@@ -1023,22 +1023,22 @@ public static class ClientSessionMailExtensions
             {
                 if (mail.ItemInstance != null)
                 {
-                    await session.SendPacketAsync(mail.GeneratePost(0)!);
+                    await session.SendPacketAsync(mail.GeneratePost(0));
                 }
                 else
                 {
-                    await session.SendPacketAsync(mail.GeneratePost(1)!);
+                    await session.SendPacketAsync(mail.GeneratePost(1));
                 }
             }
             else
             {
                 if (mail.ItemInstance != null)
                 {
-                    await session.SendPacketAsync(mail.GeneratePost(3)!);
+                    await session.SendPacketAsync(mail.GeneratePost(3));
                 }
                 else
                 {
-                    await session.SendPacketAsync(mail.GeneratePost(2)!);
+                    await session.SendPacketAsync(mail.GeneratePost(2));
                 }
             }
         }
@@ -1153,9 +1153,9 @@ public static class ClientSessionMailExtensions
         };
 
         character = session.Character;
-        var channelId = session.Channel!.Id;
+        var channelId = session.ConnectedChannel.Id;
         var inPacket = character.GenerateIn("");
-        var pidxPacket = group!.GeneratePidx(character);
+        var pidxPacket = group.GeneratePidx(character);
         var effPacket6 = character.GenerateEff(6);
         var effPacket198 = character.GenerateEff(198);
 

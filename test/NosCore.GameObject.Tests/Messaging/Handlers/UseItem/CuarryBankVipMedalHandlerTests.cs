@@ -30,9 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class CuarryBankVipMedalHandlerTests
     {
         private const short MedalVNum = 5838;
-        private ClientSession _session = null!;
-        private CuarryBankVipMedalHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private CuarryBankVipMedalHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

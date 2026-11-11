@@ -10,7 +10,7 @@ namespace NosCore.Database.Entities
 {
     public class Title : SynchronizableBaseEntity
     {
-        public virtual Character Character { get; set; } = null!;
+        public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 

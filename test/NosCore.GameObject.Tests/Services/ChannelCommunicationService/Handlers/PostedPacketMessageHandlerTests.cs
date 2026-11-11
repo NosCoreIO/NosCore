@@ -29,12 +29,12 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class PostedPacketMessageHandlerTests
     {
-        private PostedPacketMessageChannelCommunicationMessageHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<ISessionRegistry> SessionRegistry = null!;
-        private Mock<IDeserializer> Deserializer = null!;
-        private Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>> Logger = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
+        private PostedPacketMessageChannelCommunicationMessageHandler Handler;
+        private ClientSession Session;
+        private Mock<ISessionRegistry> SessionRegistry;
+        private Mock<IDeserializer> Deserializer;
+        private Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>> Logger;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -126,7 +126,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 .ExecuteAsync();
         }
 
-        private IPacket DeserializedPacket = null!;
+        private IPacket DeserializedPacket;
 
         private void DeserializerReturnsPacket()
         {
@@ -135,7 +135,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 .Returns(DeserializedPacket);
         }
 
-        private ClientSession Listener = null!;
+        private ClientSession Listener;
 
         private async Task TwoPlayersAreOnline()
         {

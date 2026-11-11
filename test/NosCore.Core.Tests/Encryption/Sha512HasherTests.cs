@@ -18,8 +18,8 @@ namespace NosCore.Core.Tests.Encryption
     public class Sha512HasherTests
     {
         private readonly Sha512Hasher Hasher = new();
-        private string First = null!;
-        private string Second = null!;
+        private string First;
+        private string Second;
 
         [TestMethod]
         public async Task SaltedHashCoversSaltThenPassword()

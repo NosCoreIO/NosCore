@@ -30,11 +30,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class BattleServiceTests
     {
-        private Mock<ISkillResolver> _skillResolver = null!;
-        private Mock<ITargetResolver> _targetResolver = null!;
-        private Mock<IHitQueue> _hitQueue = null!;
-        private Mock<IMessageBus> _bus = null!;
-        private GameObject.Services.BattleService.BattleService _service = null!;
+        private Mock<ISkillResolver> _skillResolver;
+        private Mock<ITargetResolver> _targetResolver;
+        private Mock<IHitQueue> _hitQueue;
+        private Mock<IMessageBus> _bus;
+        private GameObject.Services.BattleService.BattleService _service;
 
         [TestInitialize]
         public void Setup()
@@ -129,7 +129,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
 
-            _bus.Verify(b => b.PublishAsync(It.Is<EntityDiedEvent>(e => e.Victim == target && e.Killer == origin), null!), Times.Once);
+            _bus.Verify(b => b.PublishAsync(It.Is<EntityDiedEvent>(e => e.Victim == target && e.Killer == origin), null), Times.Once);
         }
 
         [TestMethod]
@@ -209,7 +209,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             public long VisualId { get; set; }
             public byte Direction { get; set; }
             public Guid MapInstanceId { get; }
-            public NosCore.GameObject.Services.MapInstanceGenerationService.MapInstance MapInstance { get; set; } = null!;
+            // Off any map, which the services handle although the interface does not say so.
+#nullable disable
+            public NosCore.GameObject.Services.MapInstanceGenerationService.MapInstance MapInstance { get; set; }
+#nullable restore
             public short PositionX { get; set; }
             public short PositionY { get; set; }
         }

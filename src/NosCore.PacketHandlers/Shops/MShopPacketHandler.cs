@@ -77,10 +77,10 @@ namespace NosCore.PacketHandlers.Shops
                     var shop = new Shop();
                     var usedSlots = new HashSet<(NoscorePocketType, short)>();
                     sbyte shopSlot = -1;
-                    foreach (var item in mShopPacket.ItemList!)
+                    foreach (var item in (mShopPacket.ItemList ?? []).OfType<MShopItemSubPacket>())
                     {
                         shopSlot++;
-                        if (item!.Amount == 0)
+                        if (item.Amount == 0)
                         {
                             continue;
                         }
@@ -162,7 +162,7 @@ namespace NosCore.PacketHandlers.Shops
 
                     var owner = clientSession.Character;
                     shop.DialogSubscription = owner.Requests[typeof(NpcDialogRequestSubject)].Subscribe(data =>
-                        data.ClientSession.SendPacketAsync(owner.GenerateNInv(0, 0)));
+                        data.ClientSession.SendPacketAsync(owner.GenerateNInv(shop, 0, 0)));
                     clientSession.Character.Shop = shop;
 
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateShop(clientSession.Character.AccountLanguage));
@@ -172,7 +172,7 @@ namespace NosCore.PacketHandlers.Shops
                     });
 
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GeneratePFlag(),
-                        new EveryoneBut(clientSession.Channel!.Id));
+                        new EveryoneBut(clientSession.ConnectedChannel.Id));
                     clientSession.Character.IsSitting = true;
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateCond());
                     await clientSession.Character.MapInstance.SendPacketAsync(clientSession.Character.GenerateRest());

@@ -32,11 +32,11 @@ namespace NosCore.WebApi.Tests.ApiTests
     [TestClass]
     public class AuthControllerTests
     {
-        private AuthController Controller = null!;
-        private ClientSession Session = null!;
-        private Mock<ILogger<AuthController>> Logger = null!;
-        private IAuthCodeService AuthCodeService = null!;
-        private IActionResult? Result;
+        private AuthController Controller;
+        private ClientSession Session;
+        private Mock<ILogger<AuthController>> Logger;
+        private IAuthCodeService AuthCodeService;
+        private IActionResult Result;
 
         [TestInitialize]
         public async Task Setup()
@@ -78,7 +78,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o!.ToString(), StringComparison.InvariantCultureIgnoreCase)),
+                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.NotNull().ToString(), StringComparison.InvariantCultureIgnoreCase)),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
@@ -99,13 +99,14 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Identity = Session.Account.Name,
                 GfLang = "EN",
+                Locale = "en-GB",
                 Password = "test2"
             });
         }
 
         private void ShouldReturnAuthIncorrectError()
         {
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result));
         }
 
         [TestMethod]
@@ -123,6 +124,7 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Identity = Session.Account.Name + "abc",
                 GfLang = "EN",
+                Locale = "en-GB",
                 Password = "test"
             });
         }
@@ -137,7 +139,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 .ExecuteAsync();
         }
 
-        private TwoFactorAuth? Tfa;
+        private TwoFactorAuth Tfa;
 
         private async Task UserHasMfaEnabled()
         {
@@ -152,14 +154,15 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Identity = Session.Account.Name,
                 GfLang = "EN",
+                Locale = "en-GB",
                 Password = "test",
-                Mfa = Tfa!.GetCode(string.Concat(Session.Account.MfaSecret!.Reverse())),
+                Mfa = Tfa.GetCode(string.Concat(Session.Account.MfaSecret.NotNull().Reverse())),
             });
         }
 
         private void ShouldReturnMfaIncorrectError()
         {
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result!));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result));
         }
 
         [TestMethod]
@@ -178,8 +181,9 @@ namespace NosCore.WebApi.Tests.ApiTests
             {
                 Identity = Session.Account.Name,
                 GfLang = "EN",
+                Locale = "en-GB",
                 Password = "test2",
-                Mfa = Tfa!.GetCode(string.Concat(Session.Account.MfaSecret!.Reverse())),
+                Mfa = Tfa.GetCode(string.Concat(Session.Account.MfaSecret.NotNull().Reverse())),
             });
         }
 
@@ -226,7 +230,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 GfLang = "EN",
                 Locale = "en-GB",
                 Password = "test",
-                Mfa = Tfa!.GetCode(Session.Account.MfaSecret!),
+                Mfa = Tfa.GetCode(Session.Account.MfaSecret),
             });
         }
 
@@ -267,7 +271,7 @@ namespace NosCore.WebApi.Tests.ApiTests
 
         private void ShouldReturnValidGuid()
         {
-            var okResult = (OkObjectResult)Result!;
+            var okResult = (OkObjectResult)Result;
             Assert.IsNotNull(okResult.Value);
             var codeProperty = okResult.Value.GetType().GetProperty("code");
             Assert.IsNotNull(codeProperty);
@@ -325,7 +329,7 @@ namespace NosCore.WebApi.Tests.ApiTests
 
         private void ShouldReturnTrueValue()
         {
-            Assert.AreEqual(true, ((OkObjectResult)Result!).Value);
+            Assert.AreEqual(true, ((OkObjectResult)Result).Value);
         }
 
         [TestMethod]
@@ -339,7 +343,7 @@ namespace NosCore.WebApi.Tests.ApiTests
 
         private void ShouldReturnFalseValue()
         {
-            Assert.AreEqual(false, ((OkObjectResult)Result!).Value);
+            Assert.AreEqual(false, ((OkObjectResult)Result).Value);
         }
     }
 }

@@ -42,9 +42,9 @@ namespace NosCore.GameObject.Services.BazaarService
             _bazaarItems = new ConcurrentDictionary<long, BazaarLink>(billist.ToDictionary(x => x.BazaarItemId,
                 x => new BazaarLink
                 {
-                    ItemInstance = (ItemInstanceDto?)itemInstancelist.First(s => s!.Id == x.ItemInstanceId),
+                    ItemInstance = itemInstancelist.OfType<ItemInstanceDto>().First(s => s.Id == x.ItemInstanceId),
                     BazaarItem = x,
-                    SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name!
+                    SellerName = characterList.First(s => s.CharacterId == x.SellerId).Name
                 }));
         }
 

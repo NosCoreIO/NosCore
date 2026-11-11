@@ -21,10 +21,10 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class TeleportPacketHandlerTests
     {
-        private TeleportPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
-        private Mock<IMapChangeService> MapChangeService = null!;
+        private TeleportPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession TargetSession;
+        private Mock<IMapChangeService> MapChangeService;
         private readonly ILogger<TeleportPacketHandler> Logger = new Mock<ILogger<TeleportPacketHandler>>().Object;
 
         [TestInitialize]
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void TargetIsOnlineAtMapXY_(short x, short y)
         {
-            TargetSession.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            TargetSession.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapX = x;
             TargetSession.Character.MapY = y;
         }
@@ -138,12 +138,12 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void TargetIsOnline()
         {
-            TargetSession.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            TargetSession.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task TeleportingToPlayer()

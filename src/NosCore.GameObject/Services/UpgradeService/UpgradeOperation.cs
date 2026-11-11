@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.I18N;
@@ -183,9 +184,9 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     protected virtual Game18NConstString MsgMessageFor(UpgradeOutcome outcome) =>
         SayMessageFor(outcome);
 
-    private static bool CanAfford(ClientSession session, UpgradeContext ctx, out InfoiPacket rejection)
+    private static bool CanAfford(ClientSession session, UpgradeContext ctx, [NotNullWhen(false)] out InfoiPacket? rejection)
     {
-        rejection = null!;
+        rejection = null;
         if (session.Character.Gold < ctx.GoldCost)
         {
             rejection = new InfoiPacket { Message = Game18NConstString.NotEnoughGold };
@@ -222,7 +223,7 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
                 {
                     break;
                 }
-                var taken = Math.Min(remaining, inst.ItemInstance!.Amount);
+                var taken = Math.Min(remaining, inst.ItemInstance.Amount);
                 session.Character.InventoryService.RemoveItemAmountFromInventory(taken, inst.ItemInstanceId);
                 remaining -= taken;
                 outPackets.Add(inst.GeneratePocketChange(inst.Type.ToPocketType(), inst.Slot));

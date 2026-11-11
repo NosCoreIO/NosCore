@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         private const string Channel1 = "world-1";
         private const string Channel2 = "world-2";
 
-        private MasterClientList Clients = null!;
-        private PubSubHub Hub = null!;
+        private MasterClientList Clients;
+        private PubSubHub Hub;
         private bool Result;
         private bool[] RaceResults = [];
 
@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
             Clients = new MasterClientList();
             foreach (var (key, id) in new[] { (Channel1, 1), (Channel2, 2) })
             {
-                Clients.Channels[key] = new ChannelInfo { Id = id, Type = ServerType.WorldServer };
+                Clients.Channels[key] = new ChannelInfo { Host = "127.0.0.1", Id = id, Type = ServerType.WorldServer };
                 Clients.ConnectedAccounts[key] = new ConcurrentDictionary<long, Subscriber>();
             }
 

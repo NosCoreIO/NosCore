@@ -22,11 +22,11 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ScriptedInstanceParserTests
     {
-        private Mock<IDao<MapDto, short>> _mapDao = null!;
-        private Mock<IDao<ScriptedInstanceDto, short>> _instanceDao = null!;
-        private List<ScriptedInstanceDto> _saved = null!;
-        private List<ScriptedInstanceDto> _existing = null!;
-        private ScriptedInstanceParser _parser = null!;
+        private Mock<IDao<MapDto, short>> _mapDao;
+        private Mock<IDao<ScriptedInstanceDto, short>> _instanceDao;
+        private List<ScriptedInstanceDto> _saved;
+        private List<ScriptedInstanceDto> _existing;
+        private ScriptedInstanceParser _parser;
 
         [TestInitialize]
         public void Setup()

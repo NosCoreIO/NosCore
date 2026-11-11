@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
                     NameI18NKey = "testMap",
                     Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 },
                 },
-                Guid.NewGuid(), false, MapInstanceType.NormalInstance, TestHelpers.Instance.MapItemProvider!,
+                Guid.NewGuid(), false, MapInstanceType.NormalInstance, TestHelpers.Instance.MapItemProvider.NotNull(),
                 NullLogger<MapInstance>.Instance, TestHelpers.Instance.Clock, TestHelpers.Instance.MapChangeService,
                 TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry,
                 TestHelpers.Instance.DistanceCalculator, buffService: buffs, regenerationService: regeneration);

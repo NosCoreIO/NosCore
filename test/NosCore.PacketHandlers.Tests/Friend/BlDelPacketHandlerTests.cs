@@ -37,15 +37,15 @@ namespace NosCore.PacketHandlers.Tests.Friend
     public class BlDelPacketHandlerTests
     {
         private static readonly ILogger<BlDelPacketHandlerTests> Logger = new Mock<ILogger<BlDelPacketHandlerTests>>().Object;
-        private BlacklistService BlackListController = null!;
-        private Mock<IBlacklistHub> BlackListHttpClient = null!;
-        private BlDelPacketHandler BlDelPacketHandler = null!;
-        private Mock<IDao<CharacterDto, long>> CharacterDao = null!;
-        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
-        private Mock<IPubSubHub> ConnectedAccountHttpClient = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
-        private ClientSession Session = null!;
-        private Mock<IBlacklistCacheService> BlacklistCache = null!;
+        private BlacklistService BlackListController;
+        private Mock<IBlacklistHub> BlackListHttpClient;
+        private BlDelPacketHandler BlDelPacketHandler;
+        private Mock<IDao<CharacterDto, long>> CharacterDao;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
+        private Mock<IPubSubHub> ConnectedAccountHttpClient;
+        private Mock<IChannelHub> ChannelHub;
+        private ClientSession Session;
+        private Mock<IBlacklistCacheService> BlacklistCache;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
             ChannelHub = new Mock<IChannelHub>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
-                .ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer, Id = 1 } });
+                .ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 } });
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -115,7 +115,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ExecuteAsync();
         }
 
-        private ClientSession? TargetSession;
+        private ClientSession TargetSession;
         private long TargetCharacterId = 2;
 
         private void TargetPlayerIsDisconnected()
@@ -126,7 +126,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 new() { CharacterId = 2, Name = "test" }
             };
             CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult<CharacterDto?>(list.FirstOrDefault(exp.Compile())));
         }
 
         private async Task TargetPlayerIsOnline()
@@ -139,7 +139,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 TargetSession.Character.CharacterDto
             };
             CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult<CharacterDto?>(list.FirstOrDefault(exp.Compile())));
         }
 
         private async Task CharacterHasBlockedDisconnectedTarget()
@@ -164,7 +164,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             {
                 new CharacterRelationDto
                 {
-                    RelatedCharacterId = TargetSession!.Character.CharacterId,
+                    RelatedCharacterId = TargetSession.Character.CharacterId,
                     CharacterRelationId = targetGuid,
                     CharacterId = Session.Character.CharacterId,
                     RelationType = CharacterRelationType.Blocked
@@ -189,8 +189,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private void ShouldReceiveNotInBlacklistMessage()
         {
-            var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language], lastpacket!.Message);
+            var lastpacket = ((InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket)).NotNull();
+            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language], lastpacket.Message);
         }
     }
 }

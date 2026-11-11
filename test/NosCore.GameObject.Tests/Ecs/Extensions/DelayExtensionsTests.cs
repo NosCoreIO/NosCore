@@ -21,7 +21,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     {
         private readonly Guid _vehicle = Guid.NewGuid();
         private readonly Guid _specialist = Guid.NewGuid();
-        private ClientSession _session = null!;
+        private ClientSession _session;
         private bool _completed;
 
         [TestInitialize]

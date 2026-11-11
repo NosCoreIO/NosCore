@@ -86,9 +86,15 @@ namespace NosCore.GameObject.Services.MailService
             }
 
             var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
-            mail = JsonSerializer.Deserialize<MailDto>(result.GetRawText())!;
+            var edited = JsonSerializer.Deserialize<MailDto>(result.GetRawText());
+            if (edited == null)
+            {
+                return null;
+            }
+
+            mail = edited;
             await mailDao.TryInsertOrUpdateAsync(mail);
-            var targetCharacterId = mail.IsSenderCopy ? (long)mail.SenderId! : mail.ReceiverId;
+            var targetCharacterId = mail.IsSenderCopy && mail.SenderId is { } senderId ? senderId : mail.ReceiverId;
             var savedData = parcelRegistry.GetMails(targetCharacterId, mail.IsSenderCopy)
                     .FirstOrDefault(s => s.Value.MailDto.MailId == id);
             if (savedData.Value.ItemInstance == null || savedData.Value.ReceiverName == null)
@@ -112,7 +118,7 @@ namespace NosCore.GameObject.Services.MailService
                 return false;
             }
 
-            var receiverName = receivdto.Name!;
+            var receiverName = receivdto.Name;
             var it = items.Find(item => item.VNum == vNum);
             IItemInstanceDto? itemInstance = null;
             if ((mail?.ItemInstanceId == null) && (vNum != null))
@@ -186,12 +192,16 @@ namespace NosCore.GameObject.Services.MailService
             var senderCopy = mailref.Adapt<MailDto>();
             senderCopy.IsSenderCopy = true;
             senderCopy.MailId = 0;
-            var senderItem = (IItemInstanceDto)itemInstance.Adapt(itemInstance.GetType(), itemInstance.GetType())!;
+            if (itemInstance.Adapt(itemInstance.GetType(), itemInstance.GetType()) is not IItemInstanceDto senderItem)
+            {
+                return true;
+            }
+
             senderItem.Id = new Guid();
-            senderItem = await itemInstanceDao.TryInsertOrUpdateAsync(senderItem);
-            senderCopy.ItemInstanceId = senderItem?.Id;
+            var savedSenderItem = await itemInstanceDao.TryInsertOrUpdateAsync(senderItem);
+            senderCopy.ItemInstanceId = savedSenderItem?.Id;
             senderCopy = await mailDao.TryInsertOrUpdateAsync(senderCopy);
-            var mailDataCopy = await GenerateMailDataAsync(senderCopy, (short?)it?.ItemType ?? -1, senderItem!, receiverName);
+            var mailDataCopy = await GenerateMailDataAsync(senderCopy, (short?)it?.ItemType ?? -1, savedSenderItem, receiverName);
             if (!await TryRegisterAsync(mailref.ReceiverId, mailDataCopy))
             {
                 return false;
@@ -218,7 +228,7 @@ namespace NosCore.GameObject.Services.MailService
             return false;
         }
 
-        private async Task<MailData> GenerateMailDataAsync(MailDto mailref, short itemType, IItemInstanceDto itemInstance,
+        private async Task<MailData> GenerateMailDataAsync(MailDto mailref, short itemType, IItemInstanceDto? itemInstance,
             string receiverName)
         {
             var sender = mailref.SenderId != null
@@ -227,7 +237,7 @@ namespace NosCore.GameObject.Services.MailService
             {
                 ReceiverName = receiverName,
                 MailDto = mailref,
-                ItemInstance = (ItemInstanceDto)itemInstance,
+                ItemInstance = (ItemInstanceDto?)itemInstance,
                 ItemType = itemType,
                 SenderName = sender
             };
@@ -238,7 +248,7 @@ namespace NosCore.GameObject.Services.MailService
             var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver?.Name)
                 ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;
 
-            if (receiver == null)
+            if (receiver?.ConnectedCharacter is not { } connected)
             {
                 return;
             }
@@ -251,7 +261,7 @@ namespace NosCore.GameObject.Services.MailService
                 case 1:
                     await pubSubHub.SendMessageAsync(new DeleteMailData()
                     {
-                        CharacterId = receiver.ConnectedCharacter!.Id,
+                        CharacterId = connected.Id,
                         MailId = (short)mailData.MailId,
                         PostType = type
                     });

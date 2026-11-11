@@ -27,9 +27,9 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
     [TestClass]
     public class BlacklistServiceTests
     {
-        private IBlacklistService Service = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
+        private IBlacklistService Service;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<IChannelHub> ChannelHub;
         private long CharacterId;
         private long TargetCharacterId;
 
@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>
                 {
-                    new ChannelInfo { Type = ServerType.WorldServer, Id = 1 }
+                    new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 }
                 });
 
             CharacterId = 1;
@@ -172,7 +172,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private void EveryBlockedCharacterShouldBeListedWithItsNameAndStatus()
         {
-            Assert.AreEqual(ExpectedBlocked.Count, BlacklistedList!.Count);
+            Assert.AreEqual(ExpectedBlocked.Count, BlacklistedList.Count);
             foreach (var blocked in BlacklistedList)
             {
                 Assert.AreEqual(ExpectedBlocked[blocked.CharacterId].Name, blocked.CharacterName);
@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
         }
 
 
-        private List<CharacterRelationStatus>? BlacklistedList;
+        private List<CharacterRelationStatus> BlacklistedList;
         private bool UnblacklistResult;
         private Guid? BlockRelationId;
 
@@ -249,7 +249,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private async Task UnblacklistingTarget()
         {
-            UnblacklistResult = await Service.UnblacklistAsync(BlockRelationId!.Value);
+            UnblacklistResult = await Service.UnblacklistAsync(BlockRelationId.NotNull());
         }
 
         private async Task UnblacklistingNonExistent()

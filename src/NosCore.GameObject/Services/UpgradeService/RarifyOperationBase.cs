@@ -122,7 +122,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     // outcome is Failure (unprotected → destroy) or ProtectedSave (scroll absorbs).
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
     {
-        var state = (RarifyRollState)ctx.ExtraData!;
+        var state = ctx.Data<RarifyRollState>();
         var rnd = roll * 80.0;
 
         foreach (var (rare, threshold) in NormalBands)
@@ -145,8 +145,8 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
     protected override void ApplySuccess(UpgradeContext ctx)
     {
-        var wearable = (WearableInstance)ctx.Source.ItemInstance!;
-        wearable.Rare = ((RarifyRollState)ctx.ExtraData!).NewRare;
+        var wearable = (WearableInstance)ctx.Source.ItemInstance;
+        wearable.Rare = ctx.Data<RarifyRollState>().NewRare;
         // OpenNos line 413/422/431/…/SetRarityPoint re-rolls the rarity-driven stat bonuses
         // (defence for armor, damage/concentrate for weapons) to match the new rare tier.
         wearable.SetRarityPoint();
@@ -199,7 +199,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         {
             return base.BuildMsgi(ctx, outcome, message);
         }
-        var newRare = ((RarifyRollState)ctx.ExtraData!).NewRare;
+        var newRare = ctx.Data<RarifyRollState>().NewRare;
         return new MsgiPacket
         {
             Type = MessageType.Default,

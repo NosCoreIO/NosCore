@@ -31,7 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Bank
     public class GboxPacketHandlerTests : SpecBase
     {
         private const long GreenBeginnerFee = 528_000;
-        private GboxPacketHandler _handler = null!;
+        private GboxPacketHandler _handler;
 
         [TestInitialize]
         public override async Task SetupAsync()

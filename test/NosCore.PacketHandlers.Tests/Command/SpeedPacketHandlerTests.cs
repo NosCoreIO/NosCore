@@ -20,8 +20,8 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SpeedPacketHandlerTests
     {
-        private SpeedPacketHandler Handler = null!;
-        private ClientSession Session = null!;
+        private SpeedPacketHandler Handler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()

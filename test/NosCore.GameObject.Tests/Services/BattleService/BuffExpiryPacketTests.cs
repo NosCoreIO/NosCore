@@ -29,9 +29,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private static readonly CardDto Card = new() { CardId = 136, Duration = 100 };
 
         private readonly List<IPacket> _broadcast = new();
-        private FakeClock _clock = null!;
-        private BuffService _service = null!;
-        private ClientSession _session = null!;
+        private FakeClock _clock;
+        private BuffService _service;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -61,8 +61,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             var bf = _broadcast.OfType<BfPacket>().Single();
             Assert.AreEqual(_session.Character.VisualId, bf.VisualId);
-            Assert.AreEqual(Card.CardId, bf.Buff!.BuffId);
-            Assert.AreEqual(0, bf.Buff.Duration);
+            Assert.AreEqual(Card.CardId, bf.Buff.NotNull().BuffId);
+            Assert.AreEqual(0, bf.Buff.NotNull().Duration);
             Assert.IsFalse(_broadcast.OfType<BfePacket>().Any());
         }
 

@@ -26,9 +26,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class SpTransformPacketHandlerTests
     {
-        private ClientSession Session = null!;
-        private SpTransformPacketHandler Handler = null!;
-        private Mock<ISpecialistTransformationService> Service = null!;
+        private ClientSession Session;
+        private SpTransformPacketHandler Handler;
+        private Mock<ISpecialistTransformationService> Service;
         private readonly Mock<IItemInfoService> ItemInfo = new();
 
         [TestInitialize]

@@ -23,6 +23,7 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared.BDD;
 using SpecLight;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
 {
@@ -35,10 +36,10 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         private const short CardSlot = 0;
         private const byte HolderSlot = 1;
 
-        private GameObject.Services.SpecialistHolderService.SpecialistHolderService _service = null!;
+        private GameObject.Services.SpecialistHolderService.SpecialistHolderService _service;
         private SpecialistStoreResult _result;
-        private SpecialistHolderHandler _takeOut = null!;
-        private InventoryItemInstance _holder = null!;
+        private SpecialistHolderHandler _takeOut;
+        private InventoryItemInstance _holder;
 
         [TestInitialize]
         public override async Task SetupAsync()
@@ -171,7 +172,7 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         {
             _holder = Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(vnum, 1), Session.Character.CharacterId),
-                NoscorePocketType.Equipment, HolderSlot)!.Single();
+                NoscorePocketType.Equipment, HolderSlot).NotNull().Single();
         }
 
         private void AnEmptyHolder() => PlaceHolder(HolderVNum);
@@ -230,7 +231,7 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
 
         private void TheCardCameBackUnchanged()
         {
-            var card = (SpecialistInstance)CardIn(NoscorePocketType.Equipment)!.ItemInstance;
+            var card = (SpecialistInstance)CardIn(NoscorePocketType.Equipment).NotNull().ItemInstance;
             Assert.AreEqual((byte)12, card.Upgrade);
             Assert.AreEqual((byte)80, card.SpLevel);
             Assert.AreEqual(123_456L, card.Xp);
@@ -242,15 +243,15 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         }
 
         private IvnSubPacket LastRedrawOf(short slot) =>
-            Session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets!).Last(i => i.Slot == slot);
+            Session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets ?? []).OfType<IvnSubPacket>().Last(i => i.Slot == slot);
 
         private void TheOutcomeShouldBe_(SpecialistStoreOutcome outcome) => Assert.AreEqual(outcome, _result.Outcome);
 
         private void TheResultShouldNameTheCardAndHolderSlots()
         {
-            Assert.AreEqual(CardSlot, _result.Card!.Slot);
+            Assert.AreEqual(CardSlot, _result.Card.NotNull().Slot);
             Assert.IsNull(_result.Remaining);
-            Assert.AreEqual((short)HolderSlot, _result.Holder!.Slot);
+            Assert.AreEqual((short)HolderSlot, _result.Holder.NotNull().Slot);
         }
 
         private void TheHolderSlotIsCleared() => Assert.AreNotEqual(HolderVNum, LastRedrawOf(HolderSlot).VNum);

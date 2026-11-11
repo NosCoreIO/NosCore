@@ -23,10 +23,10 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SizePacketHandlerTests
     {
-        private SizePacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<ILogger<SizePacketHandler>> Logger = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
+        private SizePacketHandler Handler;
+        private ClientSession Session;
+        private Mock<ILogger<SizePacketHandler>> Logger;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             Session.LastPackets.Clear();
         }
 

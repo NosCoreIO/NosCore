@@ -17,11 +17,11 @@ namespace NosCore.Database.Entities
             CharacterQuestObjective = new HashSet<CharacterQuestObjective>();
         }
 
-        public virtual Character Character { get; set; } = null!;
+        public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 
-        public virtual Quest Quest { get; set; } = null!;
+        public virtual Quest Quest { get; set; }
 
         public short QuestId { get; set; }
 

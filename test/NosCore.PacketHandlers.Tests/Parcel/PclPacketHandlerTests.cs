@@ -28,12 +28,12 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     [TestClass]
     public class PclPacketHandlerTests
     {
-        private Mock<IMailHub> MailHttpClient = null!;
-        private PclPacketHandler PclPacketHandler = null!;
-        private IItemGenerationService Item = null!;
-        private ClientSession Session = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = null!;
-        private MailData? Mail;
+        private Mock<IMailHub> MailHttpClient;
+        private PclPacketHandler PclPacketHandler;
+        private IItemGenerationService Item;
+        private ClientSession Session;
+        private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao;
+        private MailData Mail;
 
         [TestInitialize]
         public async Task SetupAsync()

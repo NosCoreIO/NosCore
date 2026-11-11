@@ -34,11 +34,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private static readonly CardDto FollowUpCard = new() { CardId = FollowUpCardId, Duration = 1200 };
 
-        private FakeClock _clock = null!;
-        private Mock<IRandomProvider> _random = null!;
-        private BuffService _service = null!;
-        private MapWorld _world = null!;
-        private IAliveEntity _target = null!;
+        private FakeClock _clock;
+        private Mock<IRandomProvider> _random;
+        private BuffService _service;
+        private MapWorld _world;
+        private IAliveEntity _target;
 
         [TestInitialize]
         public void Setup()
@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _target = new MonsterComponentBundle(
                 _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
-                    new NpcStateComponent(null!, null!, null!, null!, null, null, null, null!, null, false))),
+                    new NpcStateComponent())),
                 _world);
             _service = new BuffService(_clock, catalog.Object, _random.Object);
         }

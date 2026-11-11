@@ -15,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ServiceUnderTest = NosCore.GameObject.Services.ScriptedInstanceService.ScriptedInstanceService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 {
@@ -61,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public void TheGlobalsAreReadOffTheValueAttribute()
         {
-            var definition = ScriptedInstanceDefinitionParser.Parse(FullScript)!;
+            var definition = ScriptedInstanceDefinitionParser.Parse(FullScript).NotNull();
 
             Assert.AreEqual(3, definition.Id);
             Assert.AreEqual("Cuby", definition.Label);
@@ -79,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public void EachRewardListIsReadIntoItsOwnPlace()
         {
-            var definition = ScriptedInstanceDefinitionParser.Parse(FullScript)!;
+            var definition = ScriptedInstanceDefinitionParser.Parse(FullScript).NotNull();
 
             Assert.AreEqual(1000, definition.RequiredItems.Single().VNum);
             Assert.AreEqual(2, definition.DrawItems.Count);
@@ -90,20 +91,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestMethod]
         public void AGiftKeepsItsRarityFlags()
         {
-            var drawn = ScriptedInstanceDefinitionParser.Parse(FullScript)!.DrawItems[0];
+            var drawn = ScriptedInstanceDefinitionParser.Parse(FullScript).NotNull().DrawItems[0];
 
             Assert.AreEqual(1012, drawn.VNum);
             Assert.AreEqual(3, drawn.Amount);
             Assert.AreEqual(7, drawn.Design);
             Assert.IsTrue(drawn.IsRandomRare);
             Assert.IsFalse(drawn.IsHeroic);
-            Assert.IsTrue(ScriptedInstanceDefinitionParser.Parse(FullScript)!.SpecialItems[0].IsHeroic);
+            Assert.IsTrue(ScriptedInstanceDefinitionParser.Parse(FullScript).NotNull().SpecialItems[0].IsHeroic);
         }
 
         [TestMethod]
         public void TheRoomsKeepTheKeyTheRestOfTheScriptRefersToThemBy()
         {
-            var rooms = ScriptedInstanceDefinitionParser.Parse(FullScript)!.Rooms;
+            var rooms = ScriptedInstanceDefinitionParser.Parse(FullScript).NotNull().Rooms;
 
             Assert.AreEqual(2, rooms.Count);
             Assert.AreEqual(1, rooms[0].Key);
@@ -121,7 +122,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                     <LevelMinimum Value="1" />
                   </Globals>
                 </Definition>
-                """)!;
+                """).NotNull();
 
             Assert.AreEqual(1, definition.LevelMinimum);
             Assert.AreEqual(0, definition.Reputation);
@@ -179,7 +180,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 }
             ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance);
 
-            var entrance = service.GetAt(1, 5, 6)!;
+            var entrance = service.GetAt(1, 5, 6).NotNull();
 
             Assert.AreEqual(55, entrance.EffectiveLevelMinimum);
             Assert.AreEqual(60, entrance.EffectiveLevelMaximum);
@@ -196,7 +197,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 }
             ], [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), NodaTime.SystemClock.Instance, NullLogger<ServiceUnderTest>.Instance);
 
-            var entrance = service.GetAt(1, 5, 6)!;
+            var entrance = service.GetAt(1, 5, 6).NotNull();
 
             Assert.AreEqual(10, entrance.EffectiveLevelMinimum);
             Assert.AreEqual(99, entrance.EffectiveLevelMaximum);
@@ -212,11 +213,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
             var packet = instance.GenerateRbr();
 
-            Assert.AreEqual(5, packet.DrawRewards!.Count);
-            Assert.AreEqual(2, packet.SpecialRewards!.Count);
-            Assert.AreEqual(3, packet.BonusRewards!.Count);
-            Assert.AreEqual<short?>(1012, packet.DrawRewards[0]!.ItemId);
-            Assert.IsNull(packet.DrawRewards[4]!.ItemId, "an empty slot is a null id, which the serializer writes as -1");
+            Assert.AreEqual(5, packet.DrawRewards.NotNull().Count);
+            Assert.AreEqual(2, packet.SpecialRewards.NotNull().Count);
+            Assert.AreEqual(3, packet.BonusRewards.NotNull().Count);
+            Assert.AreEqual<short?>(1012, packet.DrawRewards.NotNull()[0].NotNull().ItemId);
+            Assert.IsNull(packet.DrawRewards.NotNull()[4].NotNull().ItemId, "an empty slot is a null id, which the serializer writes as -1");
         }
 
         [TestMethod]
@@ -239,8 +240,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             }.GenerateRbr();
 
             Assert.IsFalse(packet.Completed);
-            Assert.AreEqual(0, packet.HighScore!.Score);
-            Assert.IsNull(packet.HighScore.Nickname);
+            Assert.AreEqual(0, packet.HighScore.NotNull().Score);
+            Assert.IsNull(packet.HighScore.NotNull().Nickname);
         }
 
         [TestMethod]
@@ -252,9 +253,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 LevelMaximum = 55
             }.GenerateRbr();
 
-            Assert.AreEqual(30, packet.MinMaxLevel!.MinLevel);
-            Assert.AreEqual(55, packet.MinMaxLevel.MaxLevel);
-            Assert.AreEqual(5, packet.DrawRewards!.Count);
+            Assert.AreEqual(30, packet.MinMaxLevel.NotNull().MinLevel);
+            Assert.AreEqual(55, packet.MinMaxLevel.NotNull().MaxLevel);
+            Assert.AreEqual(5, packet.DrawRewards.NotNull().Count);
         }
 
         [TestMethod]
@@ -262,10 +263,10 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             Assert.AreEqual(NosCore.Packets.Enumerations.RbrPacketTsType.HeroMission,
                 new GameObject.Services.ScriptedInstanceService.ScriptedInstance { IsHeroic = true }
-                    .GenerateRbr().TsBasicInfo!.TsType);
+                    .GenerateRbr().TsBasicInfo.NotNull().TsType);
             Assert.AreEqual(NosCore.Packets.Enumerations.RbrPacketTsType.MainMission,
                 new GameObject.Services.ScriptedInstanceService.ScriptedInstance()
-                    .GenerateRbr().TsBasicInfo!.TsType);
+                    .GenerateRbr().TsBasicInfo.NotNull().TsType);
         }
     }
 }

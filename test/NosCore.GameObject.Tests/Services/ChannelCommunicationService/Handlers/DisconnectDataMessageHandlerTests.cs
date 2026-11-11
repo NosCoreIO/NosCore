@@ -21,9 +21,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class DisconnectDataMessageHandlerTests
     {
-        private DisconnectDataMessageChannelCommunicationMessageHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<ISessionRegistry> SessionRegistry = null!;
+        private DisconnectDataMessageChannelCommunicationMessageHandler Handler;
+        private ClientSession Session;
+        private Mock<ISessionRegistry> SessionRegistry;
 
         [TestInitialize]
         public async Task SetupAsync()

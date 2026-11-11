@@ -115,8 +115,8 @@ namespace NosCore.GameObject.Services.FamilyService
 
             var characters = await familyService.GetMemberCharactersAsync(family);
             var connected = (await pubSubHub.GetSubscribersAsync())
-                .Where(s => s.ConnectedCharacter != null)
-                .Select(s => s.ConnectedCharacter!.Id)
+                .Select(s => s.ConnectedCharacter?.Id)
+                .OfType<long>()
                 .ToHashSet();
             await session.SendPacketsAsync(new IPacket?[]
             {

@@ -42,13 +42,13 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
     [TestClass]
     public class UseobjPacketHandlerTests
     {
-        private UseobjPacketHandler _useobjPacketHandler = null!;
-        private ClientSession _session = null!;
-        private IMinilandService _minilandProvider = null!;
-        private InventoryItemInstance _minilandObject = null!;
-        private Mock<IWarehouseHub> _warehouseHubMock = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> _itemInstanceDaoMock = null!;
-        private ItemGenerationService _itemProvider = null!;
+        private UseobjPacketHandler _useobjPacketHandler;
+        private ClientSession _session;
+        private IMinilandService _minilandProvider;
+        private InventoryItemInstance _minilandObject;
+        private Mock<IWarehouseHub> _warehouseHubMock;
+        private Mock<IDao<IItemInstanceDto?, Guid>> _itemInstanceDaoMock;
+        private ItemGenerationService _itemProvider;
 
         private List<ItemDto> MinilandItems => new()
         {
@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
             await _minilandProvider.InitializeAsync(_session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
-            var mapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetMapInstance(miniland.MapInstanceId)!;
+            var mapInstance = TestHelpers.Instance.GetMap(miniland.MapInstanceId);
             _session.Character.MapInstance = mapInstance;
             _warehouseHubMock = new Mock<IWarehouseHub>();
             _itemInstanceDaoMock = new Mock<IDao<IItemInstanceDto?, Guid>>();
@@ -227,7 +227,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private void TheWarehousePacketShouldListAnItemAtSlot_(short slot)
         {
             var stash = _session.LastPackets.OfType<StashAllPacket>().Single();
-            Assert.AreEqual(slot, stash.Items!.Single().Slot);
+            Assert.AreEqual(slot, stash.Items.NotNull().Single().Slot);
         }
 
         private void ShouldReceiveWarehousePacket()

@@ -19,11 +19,11 @@ namespace NosCore.Database.Entities
         }
 
 
-        public virtual Character Character { get; set; } = null!;
+        public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 
-        public virtual ItemInstance ItemInstance { get; set; } = null!;
+        public virtual ItemInstance ItemInstance { get; set; }
 
         public Guid ItemInstanceId { get; set; }
 

@@ -30,18 +30,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class GoToArenaHandlerTests
     {
-        private ClientSession _session = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private MapInstance _arena = null!;
-        private GoToArenaHandler _handler = null!;
+        private ClientSession _session;
+        private Mock<IMapChangeService> _mapChangeService;
+        private MapInstance _arena;
+        private GoToArenaHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
-            _arena = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            _arena = TestHelpers.Instance.GetBaseMap(0);
             _arena.Map = ArenaTestMap.Create();
             _arena.MapInstanceType = MapInstanceType.ArenaInstance;
             _mapChangeService = new Mock<IMapChangeService>();

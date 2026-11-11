@@ -43,8 +43,10 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
 
             var mapInstance = session.Character.MapInstance;
             var blocking = sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId)
-                .Where(s => s.Character.EmoticonsBlocked && s.Channel != null)
-                .Select(s => s.Channel!.Id)
+                .Where(s => s.Character.EmoticonsBlocked)
+                .Select(s => s.Channel)
+                .OfType<IChannel>()
+                .Select(channel => channel.Id)
                 .ToHashSet();
             return mapInstance.SendPacketAsync(
                 session.Character.GenerateEff(Convert.ToInt32(packet.Data) + 4099), new EveryoneExcept(blocking));

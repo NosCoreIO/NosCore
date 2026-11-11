@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(PostedPacket postedPacket)
         {
-            var message = deserializer.Deserialize(postedPacket.Packet!);
+            var message = deserializer.Deserialize(postedPacket.Packet);
             switch (postedPacket.ReceiverType)
             {
                 case ReceiverType.All:
@@ -45,17 +45,21 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         }));
                     break;
                 case ReceiverType.OnlySomeone:
-                    ClientSession? receiverSession;
+                    if (postedPacket.ReceiverCharacter is not { } receiver)
+                    {
+                        break;
+                    }
 
-                    if (postedPacket.ReceiverCharacter!.Name != null)
+                    ClientSession? receiverSession;
+                    if (receiver.Name != null)
                     {
                         receiverSession = sessionRegistry.GetSession(s =>
-                            s.Character.Name == postedPacket.ReceiverCharacter.Name);
+                            s.Character.Name == receiver.Name);
                     }
                     else
                     {
                         receiverSession = sessionRegistry.GetSession(s =>
-                            s.Character.VisualId == postedPacket.ReceiverCharacter.Id);
+                            s.Character.VisualId == receiver.Id);
                     }
 
                     if (receiverSession == null)

@@ -134,9 +134,9 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             {
                 Header = "EntryPoint",
                 KeepAliveId = packet.KeepAliveId,
-                Name = session.WaitForPacketList[0].Header!,
+                Name = session.WaitForPacketList[0].Header ?? string.Empty,
                 // A launcher client sends thisisgfmode in place of the password.
-                Password = session.WaitForPacketList[1].Header!,
+                Password = session.WaitForPacketList[1].Header,
             };
 
             session.WaitForPacketsAmount = null;
@@ -163,7 +163,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         }
 
         var isMfa = packet is GuriPacket guri && guri.Type == GuriPacketType.TextInput && guri.Argument == 3 && guri.VisualId == 0;
-        if (session.IsAuthenticated && !session.MfaValidated && session.Account?.MfaSecret != null && !isMfa)
+        if (session.IsAuthenticated && !session.MfaValidated && session.HasAccount && session.Account.MfaSecret != null && !isMfa)
         {
             logger.LogWarning("Packet {Header} refused until MFA is validated", packet.Header);
             return false;

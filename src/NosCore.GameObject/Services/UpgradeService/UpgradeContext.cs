@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Collections.Generic;
 using NosCore.GameObject.Services.InventoryService;
 
@@ -16,6 +17,14 @@ public sealed record UpgradeContext(
     InventoryItemInstance? Target,
     long GoldCost,
     IReadOnlyList<MaterialCost> MaterialCosts,
-    object? ExtraData = null);
+    object? ExtraData = null)
+{
+    public InventoryItemInstance RequiredTarget =>
+        Target ?? throw new InvalidOperationException("This upgrade has no target.");
+
+    public T Data<T>() => ExtraData is T data
+        ? data
+        : throw new InvalidOperationException($"This upgrade carries no {typeof(T).Name}.");
+}
 
 public sealed record MaterialCost(short VNum, short Amount, bool OnSuccessOnly = false);

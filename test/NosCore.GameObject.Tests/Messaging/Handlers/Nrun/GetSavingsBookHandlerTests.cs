@@ -29,8 +29,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class GetSavingsBookHandlerTests
     {
-        private ClientSession _session = null!;
-        private GetSavingsBookHandler _handler = null!;
+        private ClientSession _session;
+        private GetSavingsBookHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

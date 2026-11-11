@@ -26,10 +26,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class EmoticonHandlerTests
     {
-        private ClientSession _session = null!;
-        private ClientSession _onlooker = null!;
-        private EmoticonHandler _handler = null!;
-        private ISessionMatcher? _broadcastMatcher;
+        private ClientSession _session;
+        private ClientSession _onlooker;
+        private EmoticonHandler _handler;
+        private ISessionMatcher _broadcastMatcher;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -37,12 +37,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _onlooker = await TestHelpers.Instance.GenerateSessionAsync();
-            var map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            var map = TestHelpers.Instance.GetBaseMap(1);
             _session.Character.MapInstance = map;
             _onlooker.Character.MapInstance = map;
             TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
             {
-                ChannelId = _onlooker.Channel!.Id,
+                ChannelId = _onlooker.Channel.NotNull().Id,
                 SessionId = _onlooker.SessionId,
                 Sender = _onlooker,
                 AccountName = _onlooker.Account.Name,
@@ -140,14 +140,14 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         private void OnlookerShouldNotReceiveTheEffect()
         {
             Assert.IsNotNull(_broadcastMatcher);
-            Assert.IsFalse(_broadcastMatcher.Matches(_onlooker.Channel!.Id));
-            Assert.IsTrue(_broadcastMatcher.Matches(_session.Channel!.Id));
+            Assert.IsFalse(_broadcastMatcher.Matches(_onlooker.Channel.NotNull().Id));
+            Assert.IsTrue(_broadcastMatcher.Matches(_session.Channel.NotNull().Id));
         }
 
         private void OnlookerShouldReceiveTheEffect()
         {
             Assert.IsNotNull(_broadcastMatcher);
-            Assert.IsTrue(_broadcastMatcher.Matches(_onlooker.Channel!.Id));
+            Assert.IsTrue(_broadcastMatcher.Matches(_onlooker.Channel.NotNull().Id));
         }
 
         private async Task HandlingGuri_(GuriPacketType type, int data, long visualId)

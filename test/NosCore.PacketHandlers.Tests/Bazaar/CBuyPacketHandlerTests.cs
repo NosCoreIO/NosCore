@@ -38,10 +38,10 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     public class CBuyPacketHandlerTests
     {
         private static readonly ILogger<CBuyPacketHandler> Logger = new Mock<ILogger<CBuyPacketHandler>>().Object;
-        private Mock<IBazaarHub> BazaarHttpClient = null!;
-        private CBuyPacketHandler CbuyPacketHandler = null!;
-        private Mock<IItemGenerationService> ItemProvider = null!;
-        private ClientSession Session = null!;
+        private Mock<IBazaarHub> BazaarHttpClient;
+        private CBuyPacketHandler CbuyPacketHandler;
+        private Mock<IItemGenerationService> ItemProvider;
+        private ClientSession Session;
         private readonly Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao = new();
 
         [TestInitialize]
@@ -352,11 +352,11 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             // can both pass the price and amount checks. Only one wins the claim.
             Session.Character.Gold = 500;
             ItemProviderIsConfigured();
-            BazaarHttpClient!
+            BazaarHttpClient
                 .Setup(b => b.BuyBazaarAsync(It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<short>(), It.IsAny<long>(), It.IsAny<long>()))
                 .ReturnsAsync(false);
 
-            await CbuyPacketHandler!.ExecuteAsync(new CBuyPacket { BazaarId = 0, Amount = 1, Price = 50 }, Session);
+            await CbuyPacketHandler.ExecuteAsync(new CBuyPacket { BazaarId = 0, Amount = 1, Price = 50 }, Session);
 
             Assert.AreEqual(500, Session.Character.Gold, "the loser must keep their gold");
             Assert.AreEqual(0, Session.Character.InventoryService.Count, "the loser must not receive an item");

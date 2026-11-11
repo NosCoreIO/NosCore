@@ -26,11 +26,11 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
     [TestClass]
     public class UpgradePacketHandlerTests
     {
-        private ClientSession _session = null!;
-        private Mock<IUpgradeOperation> _matchingOperation = null!;
-        private Mock<IUpgradeOperation> _otherOperation = null!;
-        private Mock<ILogger<UpgradePacketHandler>> _logger = null!;
-        private UpgradePacketHandler _handler = null!;
+        private ClientSession _session;
+        private Mock<IUpgradeOperation> _matchingOperation;
+        private Mock<IUpgradeOperation> _otherOperation;
+        private Mock<ILogger<UpgradePacketHandler>> _logger;
+        private UpgradePacketHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

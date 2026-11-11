@@ -25,10 +25,10 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class TeleporterParserTests
     {
-        private Mock<IDao<TeleporterDto, short>> _teleporterDao = null!;
-        private List<TeleporterDto> _existing = null!;
-        private List<TeleporterDto> _saved = null!;
-        private TeleporterParser _parser = null!;
+        private Mock<IDao<TeleporterDto, short>> _teleporterDao;
+        private List<TeleporterDto> _existing;
+        private List<TeleporterDto> _saved;
+        private TeleporterParser _parser;
 
         [TestInitialize]
         public void Setup()

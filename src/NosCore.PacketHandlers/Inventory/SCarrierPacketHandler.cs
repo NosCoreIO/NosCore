@@ -33,9 +33,7 @@ namespace NosCore.PacketHandlers.Inventory
                     });
                     return;
 
-                case SpecialistStoreOutcome.Stored:
-                    var card = result.Card!;
-                    var holder = result.Holder!;
+                case SpecialistStoreOutcome.Stored when result is { Card: { } card, Holder: { } holder }:
                     await clientSession.SendPacketAsync(result.Remaining.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
                     await clientSession.SendPacketAsync(holder.GeneratePocketChange(holder.Type.ToPocketType(), holder.Slot));
                     await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });

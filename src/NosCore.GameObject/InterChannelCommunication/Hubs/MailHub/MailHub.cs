@@ -23,7 +23,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.MailHub
 
         public Task<MailData?> ViewMailAsync(long id, JsonPatch mailData) => mailService.EditMailAsync(id, mailData);
 
-        public Task<bool> SendMailAsync(MailRequest mail) => mailService.SendMailAsync(mail.Mail!, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);
+        public Task<bool> SendMailAsync(MailRequest mail) => mailService.SendMailAsync(mail.Mail, mail.VNum, mail.Amount, mail.Rare, mail.Upgrade);
 
         public static async Task<Reply<List<MailData>>> Handle(GetMailsRequest r, IServiceProvider services) => new(await services.GetRequiredService<MailHub>().GetMails(r.Id, r.CharacterId, r.SenderCopy));
 

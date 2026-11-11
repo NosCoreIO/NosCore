@@ -55,8 +55,8 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var service = Build(TimeSpace(1, 1, 10, 10), TimeSpace(2, 1, 14, 10));
 
-            Assert.AreEqual(1, service.GetNear(1, 11, 9)!.ScriptedInstanceId);
-            Assert.AreEqual(2, service.GetNear(1, 14, 10)!.ScriptedInstanceId);
+            Assert.AreEqual(1, service.GetNear(1, 11, 9).NotNull().ScriptedInstanceId);
+            Assert.AreEqual(2, service.GetNear(1, 14, 10).NotNull().ScriptedInstanceId);
             Assert.IsNull(service.GetNear(1, 12, 10));
         }
 
@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var service = Build(TimeSpace(1, 1, 10, 20), TimeSpace(2, 1, 30, 40));
 
-            Assert.AreEqual(2, service.GetAt(1, 30, 40)!.ScriptedInstanceId);
+            Assert.AreEqual(2, service.GetAt(1, 30, 40).NotNull().ScriptedInstanceId);
             Assert.IsNull(service.GetAt(1, 30, 41));
         }
 
@@ -129,7 +129,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(1, service.GenerateWp(2500).Single().ScriptedInstanceId);
         }
 
-        private static ScriptedInstanceDto Scripted(short id, short mapId, short x, short y, string script,
+        private static ScriptedInstanceDto Scripted(short id, short mapId, short x, short y, string? script,
             ScriptedInstanceType type = ScriptedInstanceType.TimeSpace)
         {
             return new ScriptedInstanceDto
@@ -181,7 +181,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var (service, _, _) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);
 
-            var run = await service.InstantiateAsync(service.GetAt(1, 5, 6)!);
+            var run = await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull());
 
             Assert.IsNotNull(run);
             var rooms = run.Rooms;
@@ -195,20 +195,20 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task TwoPartiesEnteringTheSameDoorDoNotMeetAsync()
         {
             var (service, _, _) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);
-            var entrance = service.GetAt(1, 5, 6)!;
+            var entrance = service.GetAt(1, 5, 6).NotNull();
 
-            var first = await service.InstantiateAsync(entrance);
-            var second = await service.InstantiateAsync(entrance);
+            var first = (await service.InstantiateAsync(entrance)).NotNull();
+            var second = (await service.InstantiateAsync(entrance)).NotNull();
 
-            Assert.AreNotEqual(first!.Rooms[1], second!.Rooms[1]);
+            Assert.AreNotEqual(first.Rooms[1], second.Rooms[1]);
         }
 
         [TestMethod]
         public async Task ADoorWithNoScriptBuildsNothingAsync()
         {
-            var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, null!));
+            var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, null));
 
-            Assert.IsNull(await service.InstantiateAsync(service.GetAt(1, 5, 6)!));
+            Assert.IsNull(await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull()));
             generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
                 Times.Never);
         }
@@ -218,7 +218,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         {
             var (service, _, removed) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004);
 
-            var run = await service.InstantiateAsync(service.GetAt(1, 5, 6)!);
+            var run = await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull());
 
             Assert.IsNull(run);
             Assert.AreEqual(1, removed.Count, "the room that was built before the failure has to be torn down");
@@ -228,9 +228,9 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         public async Task TearingDownRemovesEveryRoomAsync()
         {
             var (service, _, removed) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);
-            var run = await service.InstantiateAsync(service.GetAt(1, 5, 6)!);
+            var run = (await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull())).NotNull();
 
-            Assert.IsTrue(await service.DisposeIfEmptyAsync(run!));
+            Assert.IsTrue(await service.DisposeIfEmptyAsync(run));
             Assert.AreEqual(2, removed.Count);
         }
     }

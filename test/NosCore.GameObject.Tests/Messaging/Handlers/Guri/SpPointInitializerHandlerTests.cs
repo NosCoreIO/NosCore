@@ -32,9 +32,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     public class SpPointInitializerHandlerTests
     {
         private const short PotionVNum = 1366;
-        private ClientSession _session = null!;
-        private SpecialistInstance _card = null!;
-        private SpPointInitializerHandler _handler = null!;
+        private ClientSession _session;
+        private SpecialistInstance _card;
+        private SpPointInitializerHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -30,9 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class MedalOfHonourHandlerTests
     {
         private const short MedalVNum = 5899;
-        private ClientSession _session = null!;
-        private MedalOfHonourHandler _handler = null!;
-        private InventoryItemInstance _medal = null!;
+        private ClientSession _session;
+        private MedalOfHonourHandler _handler;
+        private InventoryItemInstance _medal;
 
         [TestInitialize]
         public async Task SetupAsync()

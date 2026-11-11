@@ -23,10 +23,10 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class ShoutPacketHandlerTests
     {
-        private ShoutPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<ISerializer> Serializer = null!;
+        private ShoutPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<ISerializer> Serializer;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task ShoutingMessage()

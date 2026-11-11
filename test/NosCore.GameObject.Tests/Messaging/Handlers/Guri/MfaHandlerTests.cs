@@ -26,8 +26,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class MfaHandlerTests
     {
-        private ClientSession _session = null!;
-        private MfaHandler _handler = null!;
+        private ClientSession _session;
+        private MfaHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -124,7 +124,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .ExecuteAsync();
         }
 
-        private Mock<IChannel> _channel = null!;
+        private Mock<IChannel> _channel;
 
         private void SessionChannelIsWatched()
         {

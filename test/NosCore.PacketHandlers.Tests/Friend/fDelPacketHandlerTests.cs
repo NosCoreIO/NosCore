@@ -37,15 +37,15 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FDelPacketHandlerTests
     {
-        private Mock<IChannelHub> ChannelHttpClient = null!;
-        private Mock<IDao<CharacterDto, long>> CharacterDao = null!;
-        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
-        private Mock<IPubSubHub> ConnectedAccountHttpClient = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
-        private FdelPacketHandler FDelPacketHandler = null!;
-        private FriendService FriendController = null!;
-        private Mock<IFriendHub> FriendHttpClient = null!;
-        private ClientSession Session = null!;
+        private Mock<IChannelHub> ChannelHttpClient;
+        private Mock<IDao<CharacterDto, long>> CharacterDao;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
+        private Mock<IPubSubHub> ConnectedAccountHttpClient;
+        private Mock<IChannelHub> ChannelHub;
+        private FdelPacketHandler FDelPacketHandler;
+        private FriendService FriendController;
+        private Mock<IFriendHub> FriendHttpClient;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -57,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
             ChannelHub = new Mock<IChannelHub>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
-                .ReturnsAsync(new List<ChannelInfo> { new() { Type = ServerType.WorldServer, Id = 1 } });
+                .ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 } });
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
@@ -107,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ExecuteAsync();
         }
 
-        private ClientSession? TargetSession;
+        private ClientSession TargetSession;
         private long TargetCharacterId = 2;
 
         private async Task TargetIsDisconnectedWithFriendRelation()
@@ -120,7 +120,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 new() { CharacterId = 2, Name = "test" }
             };
             CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult<CharacterDto?>(list.FirstOrDefault(exp.Compile())));
             await CharacterRelationDao.TryInsertOrUpdateAsync(new[]
             {
                 new CharacterRelationDto
@@ -151,8 +151,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Session.Character.CharacterDto,
                 TargetSession.Character.CharacterDto
             };
-            CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))!
-                .ReturnsAsync((Expression<Func<CharacterDto, bool>> exp) => list.FirstOrDefault(exp.Compile()));
+            CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult<CharacterDto?>(list.FirstOrDefault(exp.Compile())));
             await CharacterRelationDao.TryInsertOrUpdateAsync(new[]
             {
                 new CharacterRelationDto
@@ -182,7 +182,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 TargetSession.Character.CharacterDto
             };
             CharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult(list.FirstOrDefault(exp.Compile()))!);
+                .Returns((Expression<Func<CharacterDto, bool>> exp) => Task.FromResult<CharacterDto?>(list.FirstOrDefault(exp.Compile())));
         }
 
         private async Task DeletingFriend()

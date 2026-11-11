@@ -32,7 +32,7 @@ namespace NosCore.Database.Entities
 
         public virtual ICollection<Character> Character { get; set; }
 
-        public byte[] Data { get; set; } = null!;
+        public required byte[] Data { get; set; }
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.None)]

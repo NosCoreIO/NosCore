@@ -25,13 +25,13 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class ClientSessionLifecycleTests
     {
-        private ClientSession Session = null!;
-        private RecordingPulseHandler PulseHandler = null!;
-        private Mock<ISessionDisconnectHandler> DisconnectHandler = null!;
+        private ClientSession Session;
+        private RecordingPulseHandler PulseHandler;
+        private Mock<ISessionDisconnectHandler> DisconnectHandler;
         private readonly List<string> Events = new();
         private ClientSession.PacketLockScope? HeldPacketLock;
-        private Task? DisconnectTask;
-        private Task? QueuedPacketTask;
+        private Task DisconnectTask;
+        private Task QueuedPacketTask;
         private int ClaimedSessionId;
 
         [TestInitialize]
@@ -219,8 +219,8 @@ namespace NosCore.GameObject.Tests.Networking
 
         private async Task ThePacketFinishes()
         {
-            HeldPacketLock!.Value.Dispose();
-            await DisconnectTask!.WaitAsync(TimeSpan.FromSeconds(5));
+            HeldPacketLock.NotNull().Dispose();
+            await DisconnectTask.WaitAsync(TimeSpan.FromSeconds(5));
             if (QueuedPacketTask != null)
             {
                 await QueuedPacketTask.WaitAsync(TimeSpan.FromSeconds(5));

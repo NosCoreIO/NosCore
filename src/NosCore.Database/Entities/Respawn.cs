@@ -11,18 +11,18 @@ namespace NosCore.Database.Entities
 {
     public class Respawn : IEntity
     {
-        public virtual Character Character { get; set; } = null!;
+        public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 
-        public virtual Map Map { get; set; } = null!;
+        public virtual Map Map { get; set; }
 
         public short MapId { get; set; }
 
         [Key]
         public long RespawnId { get; set; }
 
-        public virtual RespawnMapType RespawnMapType { get; set; } = null!;
+        public virtual RespawnMapType RespawnMapType { get; set; }
 
         public long RespawnMapTypeId { get; set; }
 

@@ -33,9 +33,9 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         private const int MapNpcId = 100;
         private const short ObjectVNum = 2004;
         private const short ItemVNum = 1012;
-        private ClientSession _session = null!;
-        private Mock<Wolverine.IMessageBus> _messageBus = null!;
-        private GameObject.Services.CollectService.CollectService _service = null!;
+        private ClientSession _session;
+        private Mock<Wolverine.IMessageBus> _messageBus;
+        private GameObject.Services.CollectService.CollectService _service;
         private bool _started;
 
         [TestInitialize]
@@ -150,7 +150,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         private async Task OpeningTheObject()
         {
             _session.LastPackets.Clear();
-            _started = await _service.StartAsync(_session.Character, _session.Character.MapInstance.GetNpcById(MapNpcId)!.Value);
+            _started = await _service.StartAsync(_session.Character, _session.Character.MapInstance.GetNpcById(MapNpcId).NotNull());
         }
 
         private Task SendingTheCollectGuri() =>
@@ -164,7 +164,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
             var delay = _session.LastPackets.OfType<DelayPacket>().Single();
             Assert.AreEqual(5000, delay.Delay);
             Assert.AreEqual(DelayPacketType.InUse, delay.Type);
-            var guri = (ClientGuriPacket)delay.Packet!;
+            var guri = ((ClientGuriPacket)delay.Packet.NotNull()).NotNull();
             Assert.AreEqual(GuriPacketType.CollectItem, guri.Type);
             Assert.AreEqual(MapNpcId, guri.Argument);
         }
@@ -197,12 +197,12 @@ namespace NosCore.GameObject.Tests.Services.CollectService
 
         private void TheObjectShouldBeOut()
         {
-            Assert.IsFalse(_session.Character.MapInstance.GetNpcById(MapNpcId)!.Value.IsAlive);
+            Assert.IsFalse(_session.Character.MapInstance.GetNpcById(MapNpcId).NotNull().IsAlive);
         }
 
         private void TheObjectShouldStillStand()
         {
-            Assert.IsTrue(_session.Character.MapInstance.GetNpcById(MapNpcId)!.Value.IsAlive);
+            Assert.IsTrue(_session.Character.MapInstance.GetNpcById(MapNpcId).NotNull().IsAlive);
         }
 
         private void TheCollectShouldBePublished()

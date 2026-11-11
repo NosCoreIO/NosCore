@@ -16,7 +16,7 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub
 {
     public class BlacklistHub(IBlacklistService blacklistService) : IBlacklistHub
     {
-        public Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest) => blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket!.CharacterId);
+        public Task<LanguageKey> AddBlacklistAsync(BlacklistRequest blacklistRequest) => blacklistService.BlacklistPlayerAsync(blacklistRequest.CharacterId, blacklistRequest.BlInsPacket.CharacterId);
 
         public Task<List<CharacterRelationStatus>> GetBlacklistedAsync(long id) => blacklistService.GetBlacklistedListAsync(id);
 

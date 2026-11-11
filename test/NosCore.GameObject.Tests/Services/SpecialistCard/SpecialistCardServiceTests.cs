@@ -15,7 +15,7 @@ namespace NosCore.GameObject.Tests.Services.SpecialistCard
     public class SpecialistCardServiceTests
     {
         private readonly SpecialistPointService _points = new();
-        private CardService _service = null!;
+        private CardService _service;
 
         [TestInitialize]
         public void Setup() => _service = new CardService(_points);

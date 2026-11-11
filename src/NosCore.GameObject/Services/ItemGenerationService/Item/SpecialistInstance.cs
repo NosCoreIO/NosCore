@@ -18,12 +18,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             ItemVNum = item.VNum;
         }
 
-        [Obsolete]
-        public SpecialistInstance()
-        {
-        }
 
-        public Item Item { get; set; } = null!;
+        public Item Item { get; set; }
 
         // The card window sends it back when points are spent, naming the card it showed.
         public int TransportId => Id.GetHashCode() & int.MaxValue;

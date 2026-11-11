@@ -21,7 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class BiPacketHandlerTests : SpecBase
     {
-        private BiPacketHandler BiPacketHandler = null!;
+        private BiPacketHandler BiPacketHandler;
 
         [TestInitialize]
         public override async Task SetupAsync()

@@ -106,7 +106,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
         character.CancelDelay();
 
         await character.MapInstance.SendPacketAsync(character.GenerateMove(),
-            new EveryoneBut(session.Channel!.Id));
+            new EveryoneBut(session.ConnectedChannel.Id));
 
         await messageBus.PublishAsync(new CharacterMovedEvent(
             character, character.MapX, character.MapY, character.MapId));
@@ -137,9 +137,9 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
 
         character.LastPortal = clock.GetCurrentInstant();
 
-        if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)!.MapInstanceType
+        if ((mapInstanceAccessorService.GetMapInstance(portal.SourceMapInstanceId)?.MapInstanceType
                 != MapInstanceType.BaseMapInstance)
-            && (mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)!.MapInstanceType
+            && (mapInstanceAccessorService.GetMapInstance(portal.DestinationMapInstanceId)?.MapInstanceType
                 == MapInstanceType.BaseMapInstance))
         {
             await mapChangeService.ChangeMapAsync(session, character.MapId, character.MapX, character.MapY);

@@ -23,10 +23,10 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class ComplPacketHandlerTests
     {
-        private ComplPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession Target = null!;
-        private Mock<IComplimentService> ComplimentService = null!;
+        private ComplPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession Target;
+        private Mock<IComplimentService> ComplimentService;
 
         [TestInitialize]
         public async Task SetupAsync()

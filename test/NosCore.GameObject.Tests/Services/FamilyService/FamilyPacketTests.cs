@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
     [TestClass]
     public class FamilyPacketTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             // ginfo -Nemesis- Yzigor 0 7 130000 640000 68 70 3 1 1 1 1 2 1 2 coin^afk^go^rush
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
-            var packet = _session.Character.GenerateGInfo(new FamilyExperienceService())!;
+            var packet = _session.Character.GenerateGInfo(new FamilyExperienceService()).NotNull();
 
             Assert.AreEqual("-Nemesis-", packet.FamilyName);
             Assert.AreEqual("Yzigor", packet.CharacterName);
@@ -144,7 +144,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Head);
 
             var ginfo = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGInfo(
-                new FamilyExperienceService())! }).TrimEnd();
+                new FamilyExperienceService()).NotNull() }).TrimEnd();
             StringAssert.Contains(ginfo, "coin^afk^go^rush", $"the notice is one field: {ginfo}");
 
             var gidx = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGidx(
@@ -161,8 +161,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 foreach (var language in Enum.GetValues<RegionType>())
                 {
                     var tag = _session.Character.GenerateFamilyTag(TestHelpers.Instance.GameLanguageLocalizer,
-                        language);
-                    Assert.IsFalse(tag!.Contains(' '), $"{authority} in {language} splits the tag: {tag}");
+                        language).NotNull();
+                    Assert.IsFalse(tag.Contains(' '), $"{authority} in {language} splits the tag: {tag}");
                 }
             }
         }

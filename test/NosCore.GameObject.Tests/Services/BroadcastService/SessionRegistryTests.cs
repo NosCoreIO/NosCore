@@ -18,8 +18,8 @@ namespace NosCore.GameObject.Tests.Services.BroadcastService
     [TestClass]
     public class SessionRegistryTests
     {
-        private ISessionRegistry Registry = null!;
-        private Mock<ILogger<SessionRegistry>> MockLogger = null!;
+        private ISessionRegistry Registry;
+        private Mock<ILogger<SessionRegistry>> MockLogger;
 
         [TestInitialize]
         public void Setup()
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.BroadcastService
         private const long TestCharacterId = 100;
         private readonly Guid TestMapInstanceId = Guid.NewGuid();
         private readonly Guid TestMapInstanceId2 = Guid.NewGuid();
-        private Mock<IPacketSender> MockSender = null!;
+        private Mock<IPacketSender> MockSender;
         private IPacketSender? ResultSender;
         private int SessionCount;
         private int FilteredSessionCount;

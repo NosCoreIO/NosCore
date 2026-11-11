@@ -30,15 +30,15 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
 
         private readonly MessagingConfiguration Messaging = new();
         private readonly Dictionary<string, Mock<IDestinationEndpoint>> Endpoints = new();
-        private IServiceProvider Services = null!;
+        private IServiceProvider Services;
 
         [TestInitialize]
         public void Setup()
         {
             var clients = new MasterClientList();
-            clients.Channels[SenderChannel] = new ChannelInfo { Type = ServerType.WorldServer };
-            clients.Channels[OtherChannel] = new ChannelInfo { Type = ServerType.WorldServer };
-            clients.Channels[LoginChannel] = new ChannelInfo { Type = ServerType.LoginServer };
+            clients.Channels[SenderChannel] = new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer };
+            clients.Channels[OtherChannel] = new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer };
+            clients.Channels[LoginChannel] = new ChannelInfo { Host = "127.0.0.1", Type = ServerType.LoginServer };
 
             var bus = new Mock<IMessageBus>();
             foreach (var channel in clients.Channels.Keys)
@@ -82,7 +82,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
 
         private async Task AWorldChannelPublishesAMessage()
         {
-            await PubSubHub.Handle(new PublishMessagesRequest(new List<IMessage> { new PostedPacket() }), Services);
+            await PubSubHub.Handle(new PublishMessagesRequest(new List<IMessage> { new PostedPacket { Packet = string.Empty } }), Services);
         }
 
         private void TheChannelShouldReceiveIt_(string channel)

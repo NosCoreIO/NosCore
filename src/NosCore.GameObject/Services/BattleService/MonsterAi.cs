@@ -171,7 +171,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
     private static ChosenSkill BasicAttack(INonPlayableEntity entity)
     {
-        var npcMonster = entity.NpcMonster!;
+        var npcMonster = entity.NpcMonster;
         return new ChosenSkill(
             SkillVnum: 0,
             CastId: 0,
@@ -275,7 +275,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var map = entity.MapInstance;
         if (map == null) return null;
 
-        var skills = catalog.GetSkills(entity.NpcMonster!.NpcMonsterVNum);
+        var skills = catalog.GetSkills(entity.NpcMonster.NpcMonsterVNum);
         if (skills.Count == 0) return null;
 
         var cooldowns = map.EcsWorld.TryGetComponent<SkillCooldownComponent>(entity.Handle);
@@ -360,7 +360,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             _pathCache[entity.Handle] = cache;
         }
 
-        var speed = (int)Math.Max((byte)1, entity.NpcMonster!.Speed);
+        var speed = (int)Math.Max((byte)1, entity.NpcMonster.Speed);
         var stepCount = Math.Min(cache.Path.Count - cellsToLeave, Math.Max(1, speed / 2));
         if (stepCount <= 0) return false;
 

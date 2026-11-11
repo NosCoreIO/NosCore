@@ -78,13 +78,13 @@ namespace NosCore.Parser.Parsers
             // given option, so its copies take the destinations it has.
             foreach (var group in npcs.Values.GroupBy(s => (s.MapId, s.VNum, s.Dialog)))
             {
-                var known = captured.Values.Where(t => group.Any(n => n.MapNpcId == t.MapNpcId))
-                    .GroupBy(t => (t.Runner, t.Index)).Select(g => g.First()).ToList();
+                var known = captured.Where(t => group.Any(n => n.MapNpcId == t.Key.MapNpcId))
+                    .GroupBy(t => (t.Key.Runner, t.Key.Index)).Select(g => g.First()).ToList();
                 foreach (var npc in group)
                 {
-                    foreach (var teleporter in known.Where(t => !captured.ContainsKey((npc.MapNpcId, t.Runner!.Value, t.Index))))
+                    foreach (var (key, teleporter) in known.Where(t => !captured.ContainsKey((npc.MapNpcId, t.Key.Runner, t.Key.Index))))
                     {
-                        captured[(npc.MapNpcId, teleporter.Runner!.Value, teleporter.Index)] = new TeleporterDto
+                        captured[(npc.MapNpcId, key.Runner, key.Index)] = new TeleporterDto
                         {
                             MapNpcId = npc.MapNpcId,
                             Runner = teleporter.Runner,

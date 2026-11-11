@@ -91,7 +91,7 @@ namespace NosCore.GameObject.Services.BazaarService
                     return IsEmpty(box);
             }
 
-            if (IsEmpty(box) || !items.TryGetValue(box.HoldingVNum!.Value, out var held))
+            if (box.HoldingVNum is not { } holding || IsEmpty(box) || !items.TryGetValue(holding, out var held))
             {
                 return false;
             }

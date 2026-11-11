@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
         };
 
         private readonly List<BazaarLink> _links = new();
-        private GameObject.Services.BazaarService.BazaarService _service = null!;
+        private GameObject.Services.BazaarService.BazaarService _service;
 
         [TestInitialize]
         public void Setup()
@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
 
         private short[] Search(BazaarListType type, byte subType = 0, byte level = 0, byte rare = 0, byte upgrade = 0) =>
             _service.GetBazaar(-1, null, null, type, subType, level, rare, upgrade, null)
-                .Select(s => s.ItemInstance!.ItemVNum)
+                .Select(s => s.ItemInstance.ItemVNum)
                 .ToArray();
 
         [TestMethod]

@@ -30,15 +30,15 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class StatDataMessageHandlerTests
     {
-        private StatDataMessageChannelCommunicationMessageHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<ISessionRegistry> SessionRegistry = null!;
-        private Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>> Logger = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage = null!;
-        private IOptions<WorldConfiguration> WorldConfig = null!;
-        private Mock<IExperienceService> ExperienceService = null!;
-        private Mock<IJobExperienceService> JobExperienceService = null!;
-        private Mock<IHeroExperienceService> HeroExperienceService = null!;
+        private StatDataMessageChannelCommunicationMessageHandler Handler;
+        private ClientSession Session;
+        private Mock<ISessionRegistry> SessionRegistry;
+        private Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>> Logger;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
+        private IOptions<WorldConfiguration> WorldConfig;
+        private Mock<IExperienceService> ExperienceService;
+        private Mock<IJobExperienceService> JobExperienceService;
+        private Mock<IHeroExperienceService> HeroExperienceService;
 
         [TestInitialize]
         public async Task SetupAsync()

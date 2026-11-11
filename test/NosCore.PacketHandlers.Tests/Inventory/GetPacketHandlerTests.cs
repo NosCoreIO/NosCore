@@ -34,13 +34,13 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     public class GetPacketHandlerTests
     {
         private const short ItemVNum = 1012;
-        private ClientSession Session = null!;
-        private IItemGenerationService ItemProvider = null!;
-        private GetPacketHandler Handler = null!;
-        private InlineOrDeferredMessageBus<MapItemPickedUpEvent> Bus = null!;
+        private ClientSession Session;
+        private IItemGenerationService ItemProvider;
+        private GetPacketHandler Handler;
+        private InlineOrDeferredMessageBus<MapItemPickedUpEvent> Bus;
         private long MapItemVisualId;
         private Guid DroppedInstanceId;
-        private ClientSession Owner = null!;
+        private ClientSession Owner;
         private const short GoldVNum = 1046;
         private const short GoldAmount = 500;
 
@@ -169,7 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private void TheMasterSharesLootAsAGroup() => Owner.Character.GroupSharing = true;
 
         private void AnItemOwnedByTheOtherMemberLiesNextToTheCharacter() =>
-            MapItemVisualId = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance,
+            MapItemVisualId = TestHelpers.Instance.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
                 ItemProvider.Create(ItemVNum, 1), Session.Character.PositionX, Session.Character.PositionY,
                 Owner.Character.CharacterId).VisualId;
 
@@ -181,7 +181,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             });
             Session.Character.Gold = 0;
             Owner.Character.Gold = 0;
-            MapItemVisualId = TestHelpers.Instance.MapItemProvider!.Create(Session.Character.MapInstance,
+            MapItemVisualId = TestHelpers.Instance.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
                 ItemProvider.Create(GoldVNum, GoldAmount), Session.Character.PositionX, Session.Character.PositionY,
                 Owner.Character.CharacterId).VisualId;
         }
@@ -209,10 +209,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private void AnItemLiesNextToTheCharacter()
         {
             var inv = Session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(ItemProvider.Create(ItemVNum, 1), Session.Character.CharacterId))!.First();
-            var mapItem = Session.Character.MapInstance.PutItem(1, inv.ItemInstance, Session)!.Value;
+                InventoryItemInstance.Create(ItemProvider.Create(ItemVNum, 1), Session.Character.CharacterId)).NotNull().First();
+            var mapItem = Session.Character.MapInstance.PutItem(1, inv.ItemInstance, Session).NotNull();
             MapItemVisualId = mapItem.VisualId;
-            DroppedInstanceId = mapItem.ItemInstance!.Id;
+            DroppedInstanceId = mapItem.ItemInstance.NotNull().Id;
             Assert.AreEqual(0, Session.Character.InventoryService.CountItem(ItemVNum));
         }
 

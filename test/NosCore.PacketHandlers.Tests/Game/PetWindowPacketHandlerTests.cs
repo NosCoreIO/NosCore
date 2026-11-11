@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class PetWindowPacketHandlerTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -58,12 +58,12 @@ namespace NosCore.PacketHandlers.Tests.Game
             var packetTypes = typeof(IPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket))
                     && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
-                        || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0)
+                        || (p.GetCustomAttribute<PacketHeaderAttribute>().NotNull().Scopes & Scope.OnLoginScreen) == 0)
                     && p.IsClass && !p.IsAbstract);
 
             var packet = new Deserializer(packetTypes).Deserialize("npinfo 0");
 
-            Assert.IsInstanceOfType(packet, typeof(NpinfoPacketHandler).BaseType!.GetGenericArguments()[0],
+            Assert.IsInstanceOfType(packet, typeof(NpinfoPacketHandler).BaseType.NotNull().GetGenericArguments()[0],
                 "handlers are looked up by the exact type the deserializer produces");
         }
 

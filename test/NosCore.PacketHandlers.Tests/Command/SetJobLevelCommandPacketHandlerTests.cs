@@ -28,12 +28,12 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetJobLevelCommandPacketHandlerTests
     {
-        private SetJobLevelCommandPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
-        private Mock<IExperienceService> ExperienceService = null!;
-        private Mock<IJobExperienceService> JobExperienceService = null!;
-        private Mock<IHeroExperienceService> HeroExperienceService = null!;
+        private SetJobLevelCommandPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IRemoteCharacterService> RemoteCharacters;
+        private Mock<IExperienceService> ExperienceService;
+        private Mock<IJobExperienceService> JobExperienceService;
+        private Mock<IHeroExperienceService> HeroExperienceService;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void TargetPlayerIsOnline()

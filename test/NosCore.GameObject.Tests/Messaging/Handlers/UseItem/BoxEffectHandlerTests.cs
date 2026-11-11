@@ -38,10 +38,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private const short BoxVNum = 1013;
         private const short RewardVNum = 1012;
-        private ClientSession _session = null!;
-        private Mock<IDao<RollGeneratedItemDto, short>> _rollDao = null!;
-        private BoxEffectHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private Mock<IDao<RollGeneratedItemDto, short>> _rollDao;
+        private BoxEffectHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -38,15 +38,15 @@ namespace NosCore.PacketHandlers.Tests.Family
         private delegate bool TryGetCharacter(Func<PlayerComponentBundle, bool> predicate, out PlayerComponentBundle character);
 
         private const long FamilyId = 42;
-        private ClientSession _head = null!;
-        private ClientSession _other = null!;
-        private Mock<ISessionRegistry> _sessionRegistry = null!;
-        private Mock<IFamilyService> _familyService = null!;
-        private Mock<IPubSubHub> _pubSubHub = null!;
-        private Mock<IBlacklistHub> _blacklistHub = null!;
+        private ClientSession _head;
+        private ClientSession _other;
+        private Mock<ISessionRegistry> _sessionRegistry;
+        private Mock<IFamilyService> _familyService;
+        private Mock<IPubSubHub> _pubSubHub;
+        private Mock<IBlacklistHub> _blacklistHub;
         private readonly List<IMessage> _published = new();
         private long _otherId;
-        private string _otherName = null!;
+        private string _otherName;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -101,8 +101,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var question = _other.LastPackets.OfType<Dlgi2Packet>().Single();
             Assert.AreEqual(Game18NConstString.AskMemberFamily, question.Question);
-            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket!).Type);
-            Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket!).CharacterId);
+            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket.NotNull()).Type);
+            Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket.NotNull()).CharacterId);
             Assert.IsTrue(_head.Character.FamilyRequestCharacterIds.ContainsKey(_other.Character.CharacterId));
         }
 
@@ -162,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task AFullFamilyCannotInvite()
         {
-            _head.Character.Family!.MaxSize = 1;
+            _head.Character.Family.NotNull().MaxSize = 1;
 
             await InviteAsync(_head, _other.Character.Name);
 

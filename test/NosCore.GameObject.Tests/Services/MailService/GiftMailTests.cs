@@ -49,9 +49,9 @@ namespace NosCore.GameObject.Tests.Services.MailService
 
         private readonly List<IItemInstanceDto> _createdItems = new();
         private readonly List<MailDto> _savedMails = new();
-        private Mock<IParcelRegistry> _parcelRegistry = null!;
-        private Mock<IPubSubHub> _pubSubHub = null!;
-        private IMailService _service = null!;
+        private Mock<IParcelRegistry> _parcelRegistry;
+        private Mock<IPubSubHub> _pubSubHub;
+        private IMailService _service;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
 
             var characters = new Mock<IDao<CharacterDto, long>>();
             characters.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
-                .Returns<Expression<Func<CharacterDto, bool>>>(predicate => Task.FromResult(new[]
+                .Returns<Expression<Func<CharacterDto, bool>>>(predicate => Task.FromResult<CharacterDto?>(new[]
                 {
                     new CharacterDto { CharacterId = SenderId, Name = "Sender" },
                     new CharacterDto { CharacterId = ReceiverId, Name = "Receiver" }
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             itemInstances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(item =>
                 {
-                    _createdItems.Add(item!);
+                    _createdItems.Add(item.NotNull());
                     return Task.FromResult(item);
                 });
 
@@ -85,7 +85,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             var channels = new Mock<IChannelHub>();
             channels.Setup(s => s.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>
             {
-                new() { Id = WorldChannelId, Type = ServerType.WorldServer }
+                new() { Host = "127.0.0.1", Id = WorldChannelId, Type = ServerType.WorldServer }
             });
 
             _pubSubHub = new Mock<IPubSubHub>();

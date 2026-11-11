@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -26,8 +26,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
         private const int ClassTheOldRuleWouldPick = 31 + MorphOfCard;
 
-        private NosCore.GameObject.Services.SkillService.SkillService _service = null!;
-        private ClientSession _session = null!;
+        private NosCore.GameObject.Services.SkillService.SkillService _service;
+        private ClientSession _session;
 
         private static readonly List<SkillDto> Catalog = new()
         {

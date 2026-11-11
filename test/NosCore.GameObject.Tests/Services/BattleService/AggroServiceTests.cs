@@ -69,7 +69,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             public long VisualId => 1;
             public byte Direction { get; set; }
             public Guid MapInstanceId { get; }
-            public NosCore.GameObject.Services.MapInstanceGenerationService.MapInstance MapInstance { get; set; } = null!;
+            // Off any map, which the services handle although the interface does not say so.
+#nullable disable
+            public NosCore.GameObject.Services.MapInstanceGenerationService.MapInstance MapInstance { get; set; }
+#nullable restore
             public short PositionX { get; set; }
             public short PositionY { get; set; }
         }

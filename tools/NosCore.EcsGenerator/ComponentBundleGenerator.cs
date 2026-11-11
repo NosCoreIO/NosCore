@@ -31,7 +31,7 @@ public class ComponentBundleGenerator : IIncrementalGenerator
         var compilationAndBundles = context.CompilationProvider.Combine(bundleDeclarations.Collect());
 
         context.RegisterSourceOutput(compilationAndBundles,
-            static (spc, source) => Execute(source.Left, source.Right!, spc));
+            static (spc, source) => Execute(source.Left, source.Right, spc));
     }
 
     private static bool IsPartialStruct(SyntaxNode node)
@@ -126,7 +126,7 @@ public class ComponentBundleGenerator : IIncrementalGenerator
             if (containing != null && !containing.IsGlobalNamespace)
             {
                 var ns = containing.ToDisplayString();
-                if (!string.IsNullOrEmpty(ns) && ns != "System" && !ns!.StartsWith("System."))
+                if (!string.IsNullOrEmpty(ns) && ns != "System" && !ns.StartsWith("System."))
                 {
                     namespaces.Add(ns);
                 }

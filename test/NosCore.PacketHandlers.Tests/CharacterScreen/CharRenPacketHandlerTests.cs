@@ -32,10 +32,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     public class CharRenPacketHandlerTests
     {
         private static readonly ILogger<CharRenPacketHandlerTests> Logger = new Mock<ILogger<CharRenPacketHandlerTests>>().Object;
-        private CharRenPacketHandler CharRenPacketHandler = null!;
-        private ClientSession Session = null!;
-        private Data.Dto.CharacterDto ExistingCharacter = null!;
-        private Mock<IMapChangeService> MapChangeService = null!;
+        private CharRenPacketHandler CharRenPacketHandler;
+        private ClientSession Session;
+        private Data.Dto.CharacterDto ExistingCharacter;
+        private Mock<IMapChangeService> MapChangeService;
         private const string NewCharacterName = "TestCharacter2";
 
         [TestInitialize]
@@ -148,8 +148,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task ShouldRenameFlagShouldBeCleared()
         {
-            var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName);
-            Assert.IsFalse(character!.ShouldRename);
+            var character = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName)).NotNull();
+            Assert.IsFalse(character.ShouldRename);
         }
     }
 }

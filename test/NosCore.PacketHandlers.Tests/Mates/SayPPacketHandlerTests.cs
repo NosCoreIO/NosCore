@@ -23,11 +23,11 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class SayPPacketHandlerTests
     {
-        private SayPPacketHandler _handler = null!;
-        private ClientSession _session = null!;
-        private ClientSession _otherSession = null!;
-        private MapInstance _map = null!;
-        private Mate _pet = null!;
+        private SayPPacketHandler _handler;
+        private ClientSession _session;
+        private ClientSession _otherSession;
+        private MapInstance _map;
+        private Mate _pet;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             _otherSession = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.GetBaseMap(0);
             _session.Character.MapInstance = _map;
             _otherSession.Character.MapInstance = _map;
             _handler = new SayPPacketHandler(MateControl.Service());

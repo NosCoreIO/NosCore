@@ -25,18 +25,18 @@ namespace NosCore.GameObject.Tests.Services.QuestService
     [TestClass]
     public class QuestServiceTests
     {
-        private GameObject.Services.QuestService.QuestService Service = null!;
-        private ClientSession Session = null!;
-        private List<ScriptDto> Scripts = null!;
-        private List<QuestDto> Quests = null!;
-        private List<QuestObjectiveDto> QuestObjectives = null!;
+        private GameObject.Services.QuestService.QuestService Service;
+        private ClientSession Session;
+        private List<ScriptDto> Scripts;
+        private List<QuestDto> Quests;
+        private List<QuestObjectiveDto> QuestObjectives;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
             Session.Character.Level = 50;
 
@@ -468,7 +468,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Assert.IsFalse(ValidateResult);
         }
 
-        private CharacterQuest _trackedQuest = null!;
+        private CharacterQuest _trackedQuest;
         private const short TargetMobVNum = 42;
 
         private void CharacterHasHuntQuestWithOneKillRemaining()

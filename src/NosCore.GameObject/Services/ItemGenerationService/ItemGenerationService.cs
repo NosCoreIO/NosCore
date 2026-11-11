@@ -26,21 +26,19 @@ namespace NosCore.GameObject.Services.ItemGenerationService
     {
         public IItemInstance Convert(IItemInstanceDto k)
         {
-            IItemInstance item = k switch
+            var itemDto = items.Find(s => s.VNum == k.ItemVNum)
+                ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
+            var item = itemDto.Adapt<Item.Item>();
+            IItemInstance instance = k switch
             {
-                BoxInstanceDto _ => k.Adapt<BoxInstance>(),
-                SpecialistInstanceDto _ => k.Adapt<SpecialistInstance>(),
-                WearableInstanceDto _ => k.Adapt<WearableInstance>(),
-                UsableInstanceDto _ => k.Adapt<UsableInstance>(),
-                _ => k.Adapt<ItemInstance>()
+                BoxInstanceDto _ => new BoxInstance(item),
+                SpecialistInstanceDto _ => new SpecialistInstance(item),
+                WearableInstanceDto _ => new WearableInstance(item, loggerFactory.CreateLogger<WearableInstance>(), logLanguage),
+                UsableInstanceDto _ => new UsableInstance(item),
+                _ => new ItemInstance(item)
             };
-            var itemDto = items.Find(s => s.VNum == k.ItemVNum);
-            if (itemDto == null)
-            {
-                throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED]);
-            }
-            item.Item = itemDto.Adapt<Item.Item>();
-            return item;
+            k.Adapt(instance, k.GetType(), instance.GetType());
+            return instance;
         }
 
         public IItemInstance Create(short itemToCreateVNum) => Create(itemToCreateVNum, 1);
@@ -57,7 +55,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 
         public IItemInstance Generate(short itemToCreateVNum, short amount, sbyte rare, byte upgrade, byte design)
         {
-            var itemToCreate = items.Find(s => s.VNum == itemToCreateVNum)!.Adapt<Item.Item>();
+            var itemToCreate = (items.Find(s => s.VNum == itemToCreateVNum)
+                ?? throw new InvalidOperationException(logLanguage[LogLanguageKey.UNBOUND_ITEM_DETECTED])).Adapt<Item.Item>();
             switch (itemToCreate.Type)
             {
                 case NoscorePocketType.Miniland:

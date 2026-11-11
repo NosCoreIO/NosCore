@@ -21,8 +21,8 @@ namespace NosCore.GameObject.Tests.Services.AuthService
         private const long TestSessionId = 12345;
         private const long TestChannelId = 2;
 
-        private FakeClock Clock = null!;
-        private IAuthCodeService Service = null!;
+        private FakeClock Clock;
+        private IAuthCodeService Service;
         private string? ConsumedAccountName;
         private WorldEntryGrant? Grant;
 

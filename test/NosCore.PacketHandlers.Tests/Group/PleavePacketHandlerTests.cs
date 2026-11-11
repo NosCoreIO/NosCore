@@ -31,8 +31,8 @@ namespace NosCore.PacketHandlers.Tests.Group
     {
         private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> Sessions = new();
-        private PjoinPacketHandler PJoinPacketHandler = null!;
-        private PleavePacketHandler PLeavePacketHandler = null!;
+        private PjoinPacketHandler PJoinPacketHandler;
+        private PleavePacketHandler PLeavePacketHandler;
 
         [TestInitialize]
         public async Task SetupAsync()

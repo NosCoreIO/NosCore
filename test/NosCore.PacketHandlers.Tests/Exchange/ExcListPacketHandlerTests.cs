@@ -33,11 +33,11 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     [TestClass]
     public class ExcListPacketHandlerTests
     {
-        private ExcListPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
-        private Mock<IExchangeService> ExchangeService = null!;
-        private ItemGenerationService ItemProvider = null!;
+        private ExcListPacketHandler Handler;
+        private ClientSession Session;
+        private ClientSession TargetSession;
+        private Mock<IExchangeService> ExchangeService;
+        private ItemGenerationService ItemProvider;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -130,13 +130,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void CharacterHasNoGold()
         {
             Session.Character.Gold = 0;
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasGold()
         {
             Session.Character.Gold = 10000;
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasNonTradableItem()
@@ -144,7 +144,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(1013, 1), 0),
                 NoscorePocketType.Main, 0);
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasTradableItem()
@@ -152,7 +152,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(1012, 10), 0),
                 NoscorePocketType.Main, 0);
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void ExchangeIsOpenWithTarget()

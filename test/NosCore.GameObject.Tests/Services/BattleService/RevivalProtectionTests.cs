@@ -28,9 +28,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     {
         private PlayerComponentBundle _protected;
         private PlayerComponentBundle _other;
-        private BuffService _buffs = null!;
-        private HitQueue _queue = null!;
-        private HitOutcome? _outcome;
+        private BuffService _buffs;
+        private HitQueue _queue;
+        private HitOutcome _outcome;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Task TheBuffsAreTicked() => _buffs.TickAsync(_protected);
 
         private void TheBlowShouldMiss() =>
-            Assert.AreEqual(HitStatus.Missed, _outcome!.Status);
+            Assert.AreEqual(HitStatus.Missed, _outcome.Status);
 
         private void TheProtectedPlayerShouldHave_Hp(int hp) => Assert.AreEqual(hp, _protected.Hp);
 

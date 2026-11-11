@@ -366,11 +366,11 @@ namespace NosCore.GameObject.Ecs.Extensions
             experiencedEntity.Mp = experiencedEntity.MaxMp;
         }
 
-        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, double percent, short typeshop)
+        public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, Services.ShopService.Shop shop, double percent, short typeshop)
         {
             var shopItemList = new List<NInvItemSubPacket?>();
-            var list = aliveEntity.Shop!.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
-            for (var i = 0; i < aliveEntity.Shop.Size; i++)
+            var list = shop.ShopItems.Values.Where(s => s.Type == typeshop).ToList();
+            for (var i = 0; i < shop.Size; i++)
             {
                 var item = list.Find(s => s.Slot == i);
                 if (item == null)
@@ -381,7 +381,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 {
                     shopItemList.Add(new NInvItemSubPacket
                     {
-                        Type = item.ItemInstance!.Item.Type.ToPocketType(),
+                        Type = item.ItemInstance.Item.Type.ToPocketType(),
                         Slot = item.Slot,
                         Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),

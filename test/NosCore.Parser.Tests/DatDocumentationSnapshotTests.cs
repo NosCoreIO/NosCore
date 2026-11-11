@@ -15,6 +15,7 @@ using NosCore.Parser.Parsers;
 using NosCore.Parser.Parsers.Generic;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging.Abstractions;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Parser.Tests
 {
@@ -47,7 +48,7 @@ namespace NosCore.Parser.Tests
         {
             var md = DatDocumentationGenerator.Generate(builder);
             var path = DocumentationPaths.For(builder.FileName + ".md");
-            Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+            Directory.CreateDirectory(Path.GetDirectoryName(path).NotNull());
 
             if (Environment.GetEnvironmentVariable("UPDATE_SNAPSHOTS") == "1")
             {

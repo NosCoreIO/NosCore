@@ -16,7 +16,7 @@ namespace NosCore.Database.Entities
 
         public bool CanPickUp { get; set; }
 
-        public virtual Character Character { get; set; } = null!;
+        public virtual Character Character { get; set; }
 
         public long CharacterId { get; set; }
 
@@ -50,7 +50,7 @@ namespace NosCore.Database.Entities
         [MaxLength(255)]
         public string? Name { get; set; }
 
-        public virtual NpcMonster NpcMonster { get; set; } = null!;
+        public virtual NpcMonster NpcMonster { get; set; }
 
         public short VNum { get; set; }
 

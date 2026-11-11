@@ -18,6 +18,7 @@ using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -115,11 +116,11 @@ namespace NosCore.GameObject.Services.MateService
         }
 
         // Trusting the id alone would let a client drive somebody else's mate, or one left in the Miniland.
-        private static bool TryGetOutMate(PlayerComponentBundle owner, long mateTransportId, out Mate mate,
+        private static bool TryGetOutMate(PlayerComponentBundle owner, long mateTransportId, [NotNullWhen(true)] out Mate? mate,
             out MateComponentBundle entity)
         {
             entity = default;
-            if (!owner.Mates.TryGetValue(mateTransportId, out mate!)
+            if (!owner.Mates.TryGetValue(mateTransportId, out mate)
                 || !mate.IsTeamMember
                 || mate.Entity is not { } outMate)
             {

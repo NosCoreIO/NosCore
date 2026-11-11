@@ -34,22 +34,22 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             var minilandObject =
                 clientSession.Character.MapInstance.MapDesignObjects.Values.FirstOrDefault(s =>
                     s.Slot == useobjPacket.Slot);
-            if (minilandObject == null)
+            if (minilandObject?.InventoryItemInstance?.ItemInstance is not { } instance)
             {
                 return;
             }
 
-            if (!minilandObject.InventoryItemInstance!.ItemInstance.Item.IsWarehouse)
+            if (!instance.Item.IsWarehouse)
             {
-                var game = (byte)(minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot ==
+                var game = (byte)(instance.Item.EquipmentSlot ==
                     EquipmentType.MainWeapon
-                        ? (4 + minilandObject.InventoryItemInstance.ItemInstance.ItemVNum) % 10
-                        : (int)minilandObject.InventoryItemInstance.ItemInstance.Item.EquipmentSlot / 3);
+                        ? (4 + instance.ItemVNum) % 10
+                        : (int)instance.Item.EquipmentSlot / 3);
                 var full = false;
                 await clientSession.SendPacketAsync(new MloInfoPacket
                 {
                     IsOwner = miniland.MapInstanceId == clientSession.Character.MapInstanceId,
-                    ObjectVNum = minilandObject.InventoryItemInstance.ItemInstance.ItemVNum,
+                    ObjectVNum = instance.ItemVNum,
                     Slot = (byte)useobjPacket.Slot,
                     MinilandPoints = miniland.MinilandPoint,
                     LawDurability = minilandObject.DurabilityPoint < 1000,
@@ -101,7 +101,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 await clientSession.SendPacketAsync(new StashAllPacket
                 {
                     WarehouseSize =
-                        (byte)minilandObject.InventoryItemInstance.ItemInstance.Item.MinilandObjectPoint,
+                        (byte)instance.Item.MinilandObjectPoint,
                     Items = warehouseItems.Select(s => s.Item.GenerateWarehouseSubPacket(s.Slot)).ToList()
                 });
             }

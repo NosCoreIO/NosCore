@@ -48,10 +48,10 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 new() { Type = BCardEffect.CaptureCaptureAnimal.Type(), SubType = BCardEffect.CaptureCaptureAnimal.SubType() }
             });
 
-        private ClientSession Session = null!;
-        private CaptureService Captures = null!;
-        private InlineOrDeferredMessageBus<EntityCapturedEvent> Bus = null!;
-        private CharacterQuest TrackedQuest = null!;
+        private ClientSession Session;
+        private CaptureService Captures;
+        private InlineOrDeferredMessageBus<EntityCapturedEvent> Bus;
+        private CharacterQuest TrackedQuest;
         private readonly Dictionary<short, NpcMonsterDto> Creatures = new()
         {
             [ChickenVNum] = new NpcMonsterDto { NpcMonsterVNum = ChickenVNum, Level = 1, MaxHp = 100, MaxMp = 10, Name = Named("Chicken") },

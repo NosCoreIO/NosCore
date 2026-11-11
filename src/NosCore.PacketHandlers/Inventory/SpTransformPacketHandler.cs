@@ -73,8 +73,8 @@ namespace NosCore.PacketHandlers.Inventory
                         Message = Game18NConstString.SpecialistCardMustBeEquipped
                     });
                     break;
-                case SpecialistPointsOutcome.Spent:
-                    await clientSession.SendPacketAsync(itemInfoService.GenerateInfo(result.Card!)!);
+                case SpecialistPointsOutcome.Spent when result.Card is { } card:
+                    await clientSession.SendPacketAsync(itemInfoService.GenerateInfo(card));
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateSc(battleStatsProvider));
                     break;
             }

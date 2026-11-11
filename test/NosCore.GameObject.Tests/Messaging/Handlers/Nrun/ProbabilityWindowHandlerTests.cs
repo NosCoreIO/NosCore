@@ -24,8 +24,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class ProbabilityWindowHandlerTests
     {
-        private ClientSession _session = null!;
-        private ProbabilityWindowHandler _handler = null!;
+        private ClientSession _session;
+        private ProbabilityWindowHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

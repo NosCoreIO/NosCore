@@ -35,12 +35,12 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
 
         _bcardsByCard = bCards
             .Where(b => b.CardId.HasValue)
-            .GroupBy(b => b.CardId!.Value)
+            .GroupBy(b => b.CardId.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
 
         _bcardsByItem = bCards
             .Where(b => b.ItemVNum.HasValue)
-            .GroupBy(b => b.ItemVNum!.Value)
+            .GroupBy(b => b.ItemVNum.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
     }
 

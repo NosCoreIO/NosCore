@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
 
         private readonly FakeClock Clock = new(Instant.FromUtc(2021, 01, 01, 01, 01, 01));
         private readonly List<BazaarLink> Links = new();
-        private GameObject.Services.BazaarService.BazaarService Service = null!;
-        private BazaarSearch Search = null!;
+        private GameObject.Services.BazaarService.BazaarService Service;
+        private BazaarSearch Search;
         private List<BazaarLink> Page = new();
 
         [TestInitialize]
@@ -198,7 +198,7 @@ namespace NosCore.GameObject.Tests.Services.BazaarService
 
         private void PageShouldBe_(long[] expected)
         {
-            CollectionAssert.AreEqual(expected, Page.Select(s => s.BazaarItem!.BazaarItemId).ToArray());
+            CollectionAssert.AreEqual(expected, Page.Select(s => s.BazaarItem.BazaarItemId).ToArray());
         }
     }
 }

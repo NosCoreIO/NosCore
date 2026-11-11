@@ -13,9 +13,9 @@ namespace NosCore.Database.Entities
 {
     public class CharacterRelation : IEntity
     {
-        public virtual Character Character1 { get; set; } = null!;
+        public virtual Character Character1 { get; set; }
 
-        public virtual Character Character2 { get; set; } = null!;
+        public virtual Character Character2 { get; set; }
 
         public long CharacterId { get; set; }
 

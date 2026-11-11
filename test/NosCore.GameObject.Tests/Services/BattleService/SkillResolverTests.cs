@@ -30,8 +30,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class SkillResolverTests
     {
-        private INpcCombatCatalog _catalog = null!;
-        private IReadOnlyDictionary<short, SkillDto> _skills = null!;
+        private INpcCombatCatalog _catalog;
+        private IReadOnlyDictionary<short, SkillDto> _skills;
 
         [TestInitialize]
         public void Setup()
@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var resolved = resolver.Resolve(character.Object, 2);
 
             Assert.IsNotNull(resolved);
-            Assert.AreEqual((short)200, resolved!.SkillVnum);
+            Assert.AreEqual((short)200, resolved.SkillVnum);
             Assert.AreEqual(TargetHitType.AoeTargetHit, resolved.HitType);
         }
 

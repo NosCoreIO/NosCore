@@ -295,11 +295,11 @@ namespace NosCore.GameObject.Ecs.Extensions
                        }
                     }),
                     ReceiverType = ReceiverType.OnlySomeone,
-                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name! },
+                    SenderCharacter = new Data.WebApi.Character { Id = visualEntity.VisualId, Name = visualEntity.Name },
                     ReceiverCharacter = new Data.WebApi.Character
                     {
                         Id = friend.CharacterId,
-                        Name = friend.CharacterName!
+                        Name = friend.CharacterName
                     }
                 })));
         }
@@ -543,14 +543,14 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            var itemPrice = item.Price ?? item.ItemInstance!.Item.Price;
+            var itemPrice = item.Price ?? item.ItemInstance.Item.Price;
             if (itemPrice < 0 || itemPrice > long.MaxValue / amount)
             {
                 return;
             }
             var price = itemPrice * amount;
 
-            var itemReputPrice = item.Price == null ? item.ItemInstance!.Item.ReputPrice : 0;
+            var itemReputPrice = item.Price == null ? item.ItemInstance.Item.ReputPrice : 0;
             if (itemReputPrice < 0 || itemReputPrice > long.MaxValue / amount)
             {
                 return;
@@ -590,15 +590,15 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            if (shop.OwnerCharacter != null)
+            if (shop.OwnerCharacter is { } owner)
             {
-                await BuyFromPlayerShopAsync(characterEntity, shop, slot, amount, (long)(price * percent), price,
+                await BuyFromPlayerShopAsync(characterEntity, shop, owner, slot, amount, (long)(price * percent), price,
                     worldConfiguration, shellOptionService, itemInstanceDao);
                 return;
             }
 
             var inv = characterEntity.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                itemProvider.Create(item.ItemInstance!.ItemVNum, amount), characterEntity.CharacterId));
+                itemProvider.Create(item.ItemInstance.ItemVNum, amount), characterEntity.CharacterId));
 
             if (inv?.Count > 0)
             {
@@ -640,11 +640,10 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
         }
 
-        private static async Task BuyFromPlayerShopAsync(ICharacterEntity buyer, Shop shop, short slot, short amount,
+        private static async Task BuyFromPlayerShopAsync(ICharacterEntity buyer, Shop shop, ICharacterEntity owner, short slot, short amount,
             long cost, long sellAmount, Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
             IShellOptionService? shellOptionService, IDao<IItemInstanceDto?, Guid>? itemInstanceDao)
         {
-            var owner = shop.OwnerCharacter!;
             if (owner.CharacterId == buyer.CharacterId)
             {
                 return;
@@ -738,9 +737,9 @@ namespace NosCore.GameObject.Ecs.Extensions
                         }
 
                         buyer.Gold += cost;
-                        if (persisted != null)
+                        if (persisted != null && itemInstanceDao != null)
                         {
-                            await itemInstanceDao!.TryDeleteAsync(persisted.Id);
+                            await itemInstanceDao.TryDeleteAsync(persisted.Id);
                         }
 
                         failure = new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace };
@@ -774,7 +773,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            if (!sold)
+            if (!sold || delivered == null)
             {
                 return;
             }
@@ -787,10 +786,10 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
             else
             {
-                await buyer.SendPacketAsync(owner.GenerateNInv(1, 0));
+                await buyer.SendPacketAsync(owner.GenerateNInv(shop, 1, 0));
             }
 
-            await buyer.SendPacketsAsync(delivered!.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
+            await buyer.SendPacketsAsync(delivered.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
             await buyer.SendPacketAsync(new SMemoiPacket
             {
                 Type = SMemoType.SuccessNpc,

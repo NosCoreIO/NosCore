@@ -32,12 +32,12 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short CellonVNum = 1014;
         private const short ScrollVNum = 1218;
 
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private RarifyOperation _unprotected = null!;
-        private RarifyProtectedOperation _protected = null!;
-        private InventoryItemInstance _wearable = null!;
-        private IReadOnlyList<IPacket>? _result;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private RarifyOperation _unprotected;
+        private RarifyProtectedOperation _protected;
+        private InventoryItemInstance _wearable;
+        private IReadOnlyList<IPacket> _result;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -230,26 +230,26 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void WearableRarityShouldBe_(sbyte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Rare);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).Rare);
 
         private void WearableShouldNotBeFixed() =>
             Assert.AreNotEqual(true, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).IsFixed);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).IsFixed);
 
         private void SourceSlotShouldBeEmpty() =>
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));
 
         private void CloseDefenceShouldBe_(short expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).CloseDefence);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).CloseDefence);
 
         private void DistanceDefenceShouldBe_(short expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).DistanceDefence);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).DistanceDefence);
 
         private void MagicDefenceShouldBe_(short expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).MagicDefence);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).MagicDefence);
 
         private void CellonRemainingShouldBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));

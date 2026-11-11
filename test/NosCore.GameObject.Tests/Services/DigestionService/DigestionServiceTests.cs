@@ -21,9 +21,9 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
     [TestClass]
     public class DigestionServiceTests
     {
-        private ClientSession _session = null!;
-        private GameObject.Services.DigestionService.DigestionService _service = null!;
-        private DigestionState _digestion = null!;
+        private ClientSession _session;
+        private GameObject.Services.DigestionService.DigestionService _service;
+        private DigestionState _digestion;
 
         [TestInitialize]
         public async Task SetupAsync()

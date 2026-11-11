@@ -21,9 +21,9 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
     [TestClass]
     public class ArenaTests
     {
-        private ClientSession _attacker = null!;
-        private ClientSession _defender = null!;
-        private MapInstance _map = null!;
+        private ClientSession _attacker;
+        private ClientSession _defender;
+        private MapInstance _map;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -31,7 +31,7 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
             await TestHelpers.ResetAsync();
             _attacker = await TestHelpers.Instance.GenerateSessionAsync();
             _defender = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            _map = TestHelpers.Instance.GetBaseMap(0);
             _map.Map = ArenaTestMap.Create();
             Place(_attacker, 0, 0);
             Place(_defender, 1, 0);

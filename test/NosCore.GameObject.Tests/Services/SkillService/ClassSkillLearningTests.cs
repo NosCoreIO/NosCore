@@ -28,9 +28,9 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     [TestClass]
     public class ClassSkillLearningTests
     {
-        private NosCore.GameObject.Services.SkillService.SkillService _service = null!;
-        private ClientSession _session = null!;
-        private RememberingSkillDao _dao = null!;
+        private NosCore.GameObject.Services.SkillService.SkillService _service;
+        private ClientSession _session;
+        private RememberingSkillDao _dao;
 
         private static readonly List<SkillDto> Catalog = new()
         {
@@ -205,7 +205,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             public Task<CharacterSkillDto?> FirstOrDefaultAsync(
                 System.Linq.Expressions.Expression<Func<CharacterSkillDto, bool>> predicate) =>
-                Task.FromResult(Rows.AsQueryable().FirstOrDefault(predicate));
+                Task.FromResult<CharacterSkillDto?>(Rows.AsQueryable().FirstOrDefault(predicate));
 
             public IEnumerable<CharacterSkillDto>? Where(
                 System.Linq.Expressions.Expression<Func<CharacterSkillDto, bool>> predicate) =>
@@ -219,7 +219,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
                     Rows.Remove(row);
                 }
 
-                return Task.FromResult(row);
+                return Task.FromResult<CharacterSkillDto?>(row);
             }
 
             public Task<IEnumerable<CharacterSkillDto>?> TryDeleteAsync(IEnumerable<Guid> keys)

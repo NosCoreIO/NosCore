@@ -96,8 +96,8 @@ namespace NosCore.GameObject.Services.SaveService
                     return;
                 }
 
-                var quicklistEntriesToDelete = quicklistEntriesDao
-                        .Where(i => i.CharacterId == characterId)!.ToList()
+                var quicklistEntriesToDelete = (quicklistEntriesDao
+                        .Where(i => i.CharacterId == characterId) ?? [])
                     .Where(i => quicklistEntries.All(o => o.Id != i.Id)).ToList();
                 if (await quicklistEntriesDao.TryDeleteAsync(quicklistEntriesToDelete.Select(s => s.Id).ToArray()) == null)
                 {
@@ -110,8 +110,8 @@ namespace NosCore.GameObject.Services.SaveService
                     return;
                 }
 
-                var itemsToDelete = inventoryItemInstanceDao
-                        .Where(i => i.CharacterId == characterId)!.ToList()
+                var itemsToDelete = (inventoryItemInstanceDao
+                        .Where(i => i.CharacterId == characterId) ?? [])
                     .Where(i => inventoryService.Values.All(o => o.Id != i.Id)).ToList();
 
                 // Inventory delete order: child rows first, then parent ItemInstance rows.
@@ -153,8 +153,8 @@ namespace NosCore.GameObject.Services.SaveService
                     return;
                 }
 
-                var staticBonusToDelete = staticBonusDao
-                        .Where(i => i.CharacterId == characterId)!.ToList()
+                var staticBonusToDelete = (staticBonusDao
+                        .Where(i => i.CharacterId == characterId) ?? [])
                     .Where(i => staticBonusList.All(o => o.StaticBonusId != i.StaticBonusId)).ToList();
                 if (await staticBonusDao.TryDeleteAsync(staticBonusToDelete.Select(s => s.StaticBonusId)) == null)
                 {
@@ -180,8 +180,8 @@ namespace NosCore.GameObject.Services.SaveService
                     return;
                 }
 
-                var questsToDelete = characterQuestDao
-                        .Where(i => i.CharacterId == characterId)!.ToList()
+                var questsToDelete = (characterQuestDao
+                        .Where(i => i.CharacterId == characterId) ?? [])
                     .Where(i => quests.Values.All(o => o.QuestId != i.QuestId)).ToList();
                 if (await characterQuestDao.TryDeleteAsync(questsToDelete.Select(s => s.Id)) == null)
                 {

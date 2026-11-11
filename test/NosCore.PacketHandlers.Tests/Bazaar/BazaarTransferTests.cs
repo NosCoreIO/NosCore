@@ -42,14 +42,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     {
         private const short ItemVNum = 1012;
 
-        private BazaarTestMaster _master = null!;
-        private InterceptingHub _hub = null!;
-        private Mock<ISaveService> _saveService = null!;
-        private IDao<EquipmentOptionDto, Guid> _optionDao = null!;
-        private ShellOptionService _options = null!;
-        private ClientSession _seller = null!;
-        private ClientSession _buyer = null!;
-        private ClientSession _third = null!;
+        private BazaarTestMaster _master;
+        private InterceptingHub _hub;
+        private Mock<ISaveService> _saveService;
+        private IDao<EquipmentOptionDto, Guid> _optionDao;
+        private ShellOptionService _options;
+        private ClientSession _seller;
+        private ClientSession _buyer;
+        private ClientSession _third;
         private long _listingId;
 
         [TestInitialize]
@@ -308,7 +308,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .ExecuteAsync();
         }
 
-        private IShellOptionService? _failingOptions;
+        private IShellOptionService _failingOptions;
 
         private void OptionsCannotBeCopied()
         {
@@ -342,14 +342,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void TheListingReachesTheBuyerAsTheBaseItemType()
         {
-            var link = _master.Registry.GetById(_listingId)!;
+            var link = _master.Registry.GetById(_listingId).NotNull();
             var copy = new BazaarLink
             {
                 SellerName = link.SellerName,
                 BazaarItem = link.BazaarItem,
                 ItemInstance = new ItemInstanceDto
                 {
-                    Id = link.ItemInstance!.Id, ItemVNum = link.ItemInstance.ItemVNum, Amount = link.ItemInstance.Amount,
+                    Id = link.ItemInstance.Id, ItemVNum = link.ItemInstance.ItemVNum, Amount = link.ItemInstance.Amount,
                     Upgrade = link.ItemInstance.Upgrade
                 }
             };
@@ -358,7 +358,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private async Task TheListedWeaponHasAnOptionOfValue_(int value)
         {
-            var weapon = _master.Registry.GetById(_listingId)!.ItemInstance!.Id;
+            var weapon = _master.Registry.GetById(_listingId).NotNull().ItemInstance.Id;
             await _optionDao.TryInsertOrUpdateAsync(new EquipmentOptionDto
             {
                 Id = Guid.NewGuid(), WearableInstanceId = weapon, Level = 1, Type = 1, Value = value
@@ -390,7 +390,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void TheListedWeaponShouldHaveAnOptionOfValue_(int value)
         {
-            var listed = _master.Registry.GetBySellerId(_seller.Character.CharacterId).Single().ItemInstance!.Id;
+            var listed = _master.Registry.GetBySellerId(_seller.Character.CharacterId).Single().ItemInstance.Id;
             Assert.AreEqual(value, _options.Load(listed).Single().Value);
         }
 
@@ -411,9 +411,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Assert.AreEqual(damage, ((NosCore.GameObject.Services.ItemGenerationService.Item.WearableInstance)weapon).DamageMaximum);
         }
 
-        private void TheListingShowsAnotherSellerName() => _master.Registry.GetById(_listingId)!.SellerName = "someone else";
+        private void TheListingShowsAnotherSellerName() => _master.Registry.GetById(_listingId).NotNull().SellerName = "someone else";
 
-        private void TheListingShowsTheBuyersName() => _master.Registry.GetById(_listingId)!.SellerName = _buyer.Character.Name;
+        private void TheListingShowsTheBuyersName() => _master.Registry.GetById(_listingId).NotNull().SellerName = _buyer.Character.Name;
 
         private void TheBuyerHas_Gold(long gold) => _buyer.Character.Gold = gold;
 
@@ -431,7 +431,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         }
 
         private Task TheBuyerBuys_(short amount) =>
-            BuyAsync(_buyer, amount, _master.Registry.GetById(_listingId)!.BazaarItem!.Price);
+            BuyAsync(_buyer, amount, _master.Registry.GetById(_listingId).NotNull().BazaarItem.Price);
 
         private Task BuyAsync(ClientSession session, short amount, long price) =>
             NewCBuy().ExecuteAsync(new CBuyPacket
@@ -528,12 +528,12 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 SellerName = stale.SellerName,
                 BazaarItem = new BazaarItemDto
                 {
-                    BazaarItemId = _listingId, Amount = stale.BazaarItem!.Amount, Price = stale.BazaarItem.Price,
+                    BazaarItemId = _listingId, Amount = stale.BazaarItem.Amount, Price = stale.BazaarItem.Price,
                     SellerId = stale.BazaarItem.SellerId
                 },
                 ItemInstance = new ItemInstanceDto
                 {
-                    Id = stale.ItemInstance!.Id, ItemVNum = ItemVNum, Amount = stale.ItemInstance.Amount
+                    Id = stale.ItemInstance.Id, ItemVNum = ItemVNum, Amount = stale.ItemInstance.Amount
                 }
             };
             await _master.Hub.ModifyBazaarAsync(Guid.NewGuid(), _listingId, _seller.Character.CharacterId, price);
@@ -599,7 +599,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void TheListedInstanceShouldNotBeTheSellersStack()
         {
-            var listed = _master.Registry.GetBySellerId(_seller.Character.CharacterId).Single().ItemInstance!.Id;
+            var listed = _master.Registry.GetBySellerId(_seller.Character.CharacterId).Single().ItemInstance.Id;
             Assert.IsTrue(_seller.Character.InventoryService.Values.All(i => i.ItemInstanceId != listed));
         }
 

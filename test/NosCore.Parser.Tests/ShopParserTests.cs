@@ -22,11 +22,11 @@ namespace NosCore.Parser.Tests
     [TestClass]
     public class ShopParserTests
     {
-        private Mock<ILogger<ShopParser>> _loggerMock = null!;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock = null!;
-        private Mock<IDao<ShopDto, int>> _shopDaoMock = null!;
-        private Mock<IDao<MapNpcDto, int>> _mapNpcDaoMock = null!;
-        private List<ShopDto> _savedShops = null!;
+        private Mock<ILogger<ShopParser>> _loggerMock;
+        private Mock<ILogLanguageLocalizer<LogLanguageKey>> _logLanguageMock;
+        private Mock<IDao<ShopDto, int>> _shopDaoMock;
+        private Mock<IDao<MapNpcDto, int>> _mapNpcDaoMock;
+        private List<ShopDto> _savedShops;
 
         [TestInitialize]
         public void Setup()

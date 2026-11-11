@@ -66,7 +66,7 @@ namespace NosCore.PacketHandlers.Exchange
                         ? null
                         : character.InventoryService.LoadBySlotAndType(value.Slot, (NoscorePocketType)value.PocketType);
 
-                    if ((item == null) || (item.ItemInstance.Amount < value!.Amount) || offer.ContainsKey(item))
+                    if ((value == null) || (item == null) || (item.ItemInstance.Amount < value.Amount) || offer.ContainsKey(item))
                     {
                         await CancelAsync(clientSession, target);
                         logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE_LIST]);

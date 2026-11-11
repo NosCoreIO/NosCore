@@ -117,8 +117,8 @@ namespace NosCore.WorldServer
             }));
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces();
             var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
-                    || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
+                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() is not { } header
+                    || (header.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
             listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
                 .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
             containerBuilder.Register(c => new Deserializer(listofpacket))
@@ -141,7 +141,7 @@ namespace NosCore.WorldServer
                 return new Channel
                 {
                     MasterCommunication = configuration.Value.MasterCommunication,
-                    ClientName = configuration.Value.ServerName!,
+                    ClientName = configuration.Value.ServerName ?? throw new InvalidOperationException("ServerName is not configured."),
                     ClientType = ServerType.WorldServer,
                     ConnectedAccountLimit = configuration.Value.ConnectedAccountLimit,
                     Port = configuration.Value.Port,
@@ -149,7 +149,7 @@ namespace NosCore.WorldServer
                     DisplayHost = configuration.Value.DisplayHost,
                     ServerId = configuration.Value.ServerId,
                     StartInMaintenance = configuration.Value.StartInMaintenance,
-                    Host = configuration.Value.Host!,
+                    Host = configuration.Value.Host ?? throw new InvalidOperationException("Host is not configured."),
                 };
             });
             containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
@@ -221,7 +221,7 @@ namespace NosCore.WorldServer
         private static IHost BuildHost(string[] args)
         {
             var configuration = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "world.yml" });
-            var server = configuration.Get<ServerConfiguration>()!;
+            var server = configuration.Get<ServerConfiguration>() ?? new ServerConfiguration();
             return Host.CreateDefaultBuilder(args)
                 .UseSerilog()
                 .UseNosCoreWolverine(configuration, InterChannelNode.For("NosCore.WorldServer", "world", server.Host, server.Port),

@@ -136,9 +136,10 @@ namespace NosCore.GameObject.Services.BroadcastService
         public IEnumerable<PlayerComponentBundle> GetCharacters(Func<PlayerComponentBundle, bool>? predicate = null)
         {
             var characters = _sessionsByChannelId.Values
-                .Select(s => s.Sender as ClientSession)
-                .Where(s => s?.HasPlayerEntity == true)
-                .Select(s => s!.Character);
+                .Select(s => s.Sender)
+                .OfType<ClientSession>()
+                .Where(s => s.HasPlayerEntity)
+                .Select(s => s.Character);
 
             return predicate == null ? characters : characters.Where(predicate);
         }

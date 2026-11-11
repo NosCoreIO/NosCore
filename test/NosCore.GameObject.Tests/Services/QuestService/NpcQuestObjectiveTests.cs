@@ -38,18 +38,18 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private const short FirstCrateVNum = 1275;
         private const short SecondCrateVNum = 1276;
 
-        private ClientSession Session = null!;
-        private OnNpcTalkedHandler TalkedHandler = null!;
-        private QuestDialogHandler DialogHandler = null!;
-        private OnMapEntityCollectedHandler CollectedHandler = null!;
-        private CharacterQuest TrackedQuest = null!;
+        private ClientSession Session;
+        private OnNpcTalkedHandler TalkedHandler;
+        private QuestDialogHandler DialogHandler;
+        private OnMapEntityCollectedHandler CollectedHandler;
+        private CharacterQuest TrackedQuest;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
 
             var handlers = new IQuestTypeHandler[]

@@ -40,13 +40,18 @@ namespace NosCore.PacketHandlers.Chat
     {
         public override async Task ExecuteAsync(WhisperPacket whisperPacket, ClientSession session)
         {
+            if (whisperPacket.Message is not { } whisper)
+            {
+                return;
+            }
+
             try
             {
                 var messageBuilder = new StringBuilder();
 
                 //Todo: review this
-                var messageData = whisperPacket.Message!.Split(' ');
-                var receiverName = messageData[whisperPacket.Message.StartsWith("GM ") ? 1 : 0];
+                var messageData = whisper.Split(' ');
+                var receiverName = messageData[whisper.StartsWith("GM ") ? 1 : 0];
 
                 for (var i = messageData[0] == "GM" ? 2 : 1; i < messageData.Length; i++)
                 {

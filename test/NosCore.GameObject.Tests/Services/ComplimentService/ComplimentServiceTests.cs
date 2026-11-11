@@ -20,10 +20,10 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
     [TestClass]
     public class ComplimentServiceTests
     {
-        private GameObject.Services.ComplimentService.ComplimentService Service = null!;
+        private GameObject.Services.ComplimentService.ComplimentService Service;
         private ComplimentResult Result;
-        private ClientSession Session = null!;
-        private ClientSession Target = null!;
+        private ClientSession Session;
+        private ClientSession Target;
         private short InitialCompliment;
         private readonly List<MapTypeMapDto> MapTypeMaps = new();
 

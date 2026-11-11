@@ -19,8 +19,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
     [TestClass]
     public class MateSpawnTests
     {
-        private ClientSession _session = null!;
-        private GameObject.Services.MateService.Mate _pet = null!;
+        private ClientSession _session;
+        private GameObject.Services.MateService.Mate _pet;
 
         [TestInitialize]
         public async Task SetupAsync()

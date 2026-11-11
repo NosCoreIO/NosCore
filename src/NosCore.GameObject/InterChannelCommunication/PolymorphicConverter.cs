@@ -24,13 +24,16 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
     {
     }
 
+    // Only a generic parameter has no full name, and those are filtered out before this is called.
+    private static string NameOf(Type type) => type.FullName ?? type.Name;
+
     // Only concrete implementations of T declared in these assemblies can be named by a payload.
     public PolymorphicJsonConverter(params Assembly[] messageAssemblies)
     {
         _allowedTypes = messageAssemblies
             .SelectMany(assembly => assembly.GetTypes())
             .Where(type => typeof(T).IsAssignableFrom(type) && type is { IsAbstract: false, IsInterface: false, ContainsGenericParameters: false })
-            .ToDictionary(type => type.FullName!, StringComparer.Ordinal);
+            .ToDictionary(NameOf, StringComparer.Ordinal);
     }
 
     // The payload keeps the caller's converters (NodaTime among them) but not this one, which would wrap it again.
@@ -108,13 +111,14 @@ public class PolymorphicJsonConverter<T> : JsonConverter<T>
     public override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
     {
         var type = value?.GetType() ?? throw new InvalidOperationException();
-        if (!_allowedTypes.ContainsKey(type.FullName!))
+        var name = NameOf(type);
+        if (!_allowedTypes.ContainsKey(name))
         {
-            throw new JsonException($"{type.FullName} is not a {typeof(T).Name} this node accepts");
+            throw new JsonException($"{name} is not a {typeof(T).Name} this node accepts");
         }
 
         writer.WriteStartObject();
-        writer.WriteString("_type", type.FullName);
+        writer.WriteString("_type", name);
         writer.WritePropertyName("_object");
         JsonSerializer.Serialize(writer, value, type, PayloadOptions(options));
         writer.WriteEndObject();

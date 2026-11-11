@@ -29,9 +29,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
         private const short WeaponVNum = 1;
         private const short SpecialistVNum = 912;
 
-        private GameObject.Services.ItemGrantService.ItemGrantService Service = null!;
-        private ClientSession Session = null!;
-        private Mock<IItemGenerationService> ItemProvider = null!;
+        private GameObject.Services.ItemGrantService.ItemGrantService Service;
+        private ClientSession Session;
+        private Mock<IItemGenerationService> ItemProvider;
         private ItemGrantResult Result;
 
         [TestInitialize]

@@ -17,13 +17,14 @@ using NosCore.Tests.Shared.BDD;
 using SpecLight;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Inventory
 {
     [TestClass]
     public class ISortPacketHandlerTests : SpecBase
     {
-        private ISortPacketHandler Handler = null!;
+        private ISortPacketHandler Handler;
 
         [TestInitialize]
         public override async Task SetupAsync()
@@ -86,12 +87,12 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             var ivn = Session.LastPackets.OfType<IvnPacket>().Single();
             Assert.AreEqual(PocketType.Main, ivn.Type);
-            Assert.AreEqual(slots, string.Join(" ", ivn.IvnSubPackets!.Select(s => s!.Slot)));
+            Assert.AreEqual(slots, string.Join(" ", ivn.IvnSubPackets.NotNull().Select(s => s.Slot)));
         }
 
         private void Slot0ShouldBeSentWithTheItem()
         {
-            var item = Session.LastPackets.OfType<IvnPacket>().Single().IvnSubPackets!.Single(s => s!.Slot == 0)!;
+            var item = Session.LastPackets.OfType<IvnPacket>().Single().IvnSubPackets.NotNull().Single(s => s.Slot == 0);
             Assert.AreEqual((short)1012, item.VNum);
             Assert.AreEqual((short)7, item.RareAmount);
         }
@@ -100,7 +101,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             var ivn = Session.LastPackets.OfType<IvnPacket>().Single();
             var empty = ((IItemInstance?)null).GenerateIvnSubPacket(PocketType.Main, 1);
-            Assert.AreEqual(empty.VNum, ivn.IvnSubPackets!.Single(s => s!.Slot == 1)!.VNum);
+            Assert.AreEqual(empty.VNum, ivn.IvnSubPackets.NotNull().Single(s => s.Slot == 1).VNum);
         }
     }
 }

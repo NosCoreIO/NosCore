@@ -30,11 +30,11 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     [TestClass]
     public class ExchangeRequestPacketHandlerTests
     {
-        private ExchangeRequestPackettHandler Handler = null!;
-        private ClientSession Session = null!;
-        private ClientSession TargetSession = null!;
-        private Mock<IExchangeService> ExchangeService = null!;
-        private Mock<IBlacklistHub> BlacklistHub = null!;
+        private ExchangeRequestPackettHandler Handler;
+        private ClientSession Session;
+        private ClientSession TargetSession;
+        private Mock<IExchangeService> ExchangeService;
+        private Mock<IBlacklistHub> BlacklistHub;
         private readonly ILogger<ExchangeRequestPackettHandler> Logger = new Mock<ILogger<ExchangeRequestPackettHandler>>().Object;
 
         [TestInitialize]
@@ -140,20 +140,20 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void CharacterIsInShop()
         {
             Session.Character.InShop = true;
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
         }
 
         private void TargetIsAlreadyInExchange()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(true);
         }
 
         private void TargetBlocksExchange()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = true;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
@@ -161,7 +161,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void TargetAllowsExchange()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = false;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
@@ -169,13 +169,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void TargetIsSelf()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
         private void TargetIsBlacklisted()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
             var visualId = Session.Character.VisualId;
@@ -189,7 +189,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeIsOpen()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.GetTargetId(It.IsAny<long>()))
                 .Returns((long?)TargetSession.Character.CharacterId);

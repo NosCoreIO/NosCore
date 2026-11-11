@@ -25,8 +25,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class GuaranteedHitAndDodgeTests
     {
-        private Mock<IRandomProvider> _random = null!;
-        private DamageCalculator _calculator = null!;
+        private Mock<IRandomProvider> _random;
+        private DamageCalculator _calculator;
 
         // A defender built to dodge nearly always, so an attack that lands can only have landed
         // because the guarantee overrode the roll.

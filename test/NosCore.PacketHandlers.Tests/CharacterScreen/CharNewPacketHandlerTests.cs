@@ -37,9 +37,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewPacketHandlerTests
     {
-        private CharNewPacketHandler CharNewPacketHandler = null!;
-        private ClientSession Session = null!;
-        private Mock<IMapChangeService> MapChangeService = null!;
+        private CharNewPacketHandler CharNewPacketHandler;
+        private ClientSession Session;
+        private Mock<IMapChangeService> MapChangeService;
         private const string TestCharacterName = "TestCharacter";
 
         [TestInitialize]
@@ -166,12 +166,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void OnlyOneCharacterWithNameShouldExist()
         {
-            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == "TestExistingCharacter")!.Skip(1).Any());
+            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == "TestExistingCharacter").NotNull().Skip(1).Any());
         }
 
         private void OnlyOneCharacterInSlot_ShouldExist(int value)
         {
-            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == value)!.Skip(1).Any());
+            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == value).NotNull().Skip(1).Any());
         }
     }
 }

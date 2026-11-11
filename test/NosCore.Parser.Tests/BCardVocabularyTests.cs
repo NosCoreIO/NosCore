@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Tests.Shared;
 
 namespace NosCore.Parser.Tests
 {
@@ -23,8 +24,8 @@ namespace NosCore.Parser.Tests
         public void EveryEffectIsInTheVocabulary()
         {
             var documented = ReadVocabulary()
-                .Where(row => row.Effect!.Length > 0)
-                .Select(row => row.Effect!)
+                .Where(row => row.Effect.NotNull().Length > 0)
+                .Select(row => row.Effect)
                 .ToHashSet(StringComparer.Ordinal);
 
             var result = string.Join(Environment.NewLine, Enum.GetValues<BCardEffect>()
@@ -41,7 +42,7 @@ namespace NosCore.Parser.Tests
         public void EveryNamedRowMatchesItsEffect()
         {
             var result = string.Join(Environment.NewLine, ReadVocabulary()
-                .Where(row => row.Effect!.Length > 0)
+                .Where(row => row.Effect.NotNull().Length > 0)
                 .Where(row => !Enum.TryParse<BCardEffect>(row.Effect, out var effect) || (short)effect != row.Key)
                 .Select(row => $"{row.Effect} should be {row.Key} (type {row.Type}, subtype {row.SubType})"));
 
@@ -58,7 +59,7 @@ namespace NosCore.Parser.Tests
         public void EveryDeclaredEffectIsNamed()
         {
             var result = string.Join(Environment.NewLine, ReadVocabulary()
-                .Where(row => row.Declared && row.Effect!.Length == 0)
+                .Where(row => row.Declared && row.Effect.NotNull().Length == 0)
                 .Select(row => $"type {row.Type} subtype {row.SubType} has no BCardEffect member: {row.Text}"));
 
             if (result.Length != 0)

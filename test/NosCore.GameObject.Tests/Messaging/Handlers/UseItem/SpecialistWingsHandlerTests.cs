@@ -30,17 +30,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private const short WingsVNum = 1686;
         private const int DevilWings = 2;
-        private ClientSession _session = null!;
-        private SpecialistWingsHandler _handler = null!;
-        private InventoryItemInstance _wings = null!;
-        private InventoryItemInstance? _sp;
+        private ClientSession _session;
+        private SpecialistWingsHandler _handler;
+        private InventoryItemInstance _wings;
+        private InventoryItemInstance _sp;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
             _handler = new SpecialistWingsHandler();
             WingsInInventory();
         }
@@ -139,7 +139,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             }));
         }
 
-        private void SpecialistDesignShouldBe_(short design) => Assert.AreEqual(design, _sp!.ItemInstance.Design);
+        private void SpecialistDesignShouldBe_(short design) => Assert.AreEqual(design, _sp.ItemInstance.Design);
 
         private void CharacterMorphDesignShouldBe_(short design) => Assert.AreEqual(design, _session.Character.MorphDesign);
 
@@ -154,7 +154,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             var qna = _session.LastPackets.OfType<QnaiPacket>().SingleOrDefault();
             Assert.IsNotNull(qna);
             Assert.AreEqual(Game18NConstString.AskChangeWings, qna.Question);
-            Assert.AreEqual((byte)1, ((UseItemPacket)qna.YesPacket!).Mode);
+            Assert.AreEqual((byte)1, ((UseItemPacket)qna.YesPacket.NotNull()).Mode);
         }
 
         private sealed class ItemInstanceForTest(short vnum) : NosCore.Data.Dto.ItemInstanceDto, IItemInstance

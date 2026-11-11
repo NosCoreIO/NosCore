@@ -316,7 +316,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<NpcTalk>()
                 .HasMany(e => e.MapNpc)
-                .WithOne(e => e.NpcTalk!)
+                .WithOne(e => e.NpcTalk)
                 .HasForeignKey(e => e.Dialog)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -369,7 +369,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Mail)
-                .WithOne(e => e.Sender!)
+                .WithOne(e => e.Sender)
                 .IsRequired(false)
                 .HasForeignKey(e => e.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
@@ -610,7 +610,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<MapType>()
                 .HasMany(e => e.Drops)
-                .WithOne(e => e.MapType!)
+                .WithOne(e => e.MapType)
                 .HasForeignKey(e => e.MapTypeId)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -631,7 +631,7 @@ namespace NosCore.Database
 
             modelBuilder.Entity<NpcMonster>()
                 .HasMany(e => e.Drop)
-                .WithOne(e => e.NpcMonster!)
+                .WithOne(e => e.NpcMonster)
                 .HasForeignKey(e => e.MonsterVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
@@ -734,13 +734,13 @@ namespace NosCore.Database
 
             modelBuilder.Entity<Character>()
                 .HasMany(e => e.Warehouses)
-                .WithOne(e => e.Character!)
+                .WithOne(e => e.Character)
                 .HasForeignKey(e => e.CharacterId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Family>()
                 .HasMany(e => e.Warehouses)
-                .WithOne(e => e.Family!)
+                .WithOne(e => e.Family)
                 .HasForeignKey(e => e.FamilyId)
                 .OnDelete(DeleteBehavior.Restrict);
 

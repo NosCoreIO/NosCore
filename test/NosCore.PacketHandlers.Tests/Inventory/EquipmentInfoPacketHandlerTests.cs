@@ -25,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     public class EquipmentInfoPacketHandlerTests : SpecBase
     {
         private readonly EInfoWeaponPacket _info = new() { ItemVNum = 1 };
-        private EquipmentInfoPacketHandler _handler = null!;
+        private EquipmentInfoPacketHandler _handler;
 
         [TestInitialize]
         public override async Task SetupAsync()

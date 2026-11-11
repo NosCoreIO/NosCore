@@ -44,10 +44,10 @@ namespace NosCore.GameObject.Tests.Services.MailService
         };
 
         private readonly List<MailDto> _storedMails = new();
-        private Mock<IDao<CharacterDto, long>> _characters = null!;
-        private Mock<IDao<MailDto, long>> _mails = null!;
-        private Mock<IDao<IItemInstanceDto?, Guid>> _itemInstances = null!;
-        private ParcelRegistry _registry = null!;
+        private Mock<IDao<CharacterDto, long>> _characters;
+        private Mock<IDao<MailDto, long>> _mails;
+        private Mock<IDao<IItemInstanceDto?, Guid>> _itemInstances;
+        private ParcelRegistry _registry;
         private long _lastMailId;
 
         [TestInitialize]
@@ -65,7 +65,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
                 .Returns<Expression<Func<CharacterDto, bool>>>(async predicate =>
                 {
                     await Task.Delay(20);
-                    return characters.AsQueryable().FirstOrDefault(predicate)!;
+                    return characters.AsQueryable().FirstOrDefault(predicate);
                 });
             _characters.Setup(s => s.Where(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
                 .Returns<Expression<Func<CharacterDto, bool>>>(predicate => characters.AsQueryable().Where(predicate).ToList());

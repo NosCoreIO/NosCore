@@ -41,14 +41,14 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class GameStartPacketHandlerTests
     {
-        private GameStartPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IMapChangeService> MapChangeService = null!;
-        private Mock<ISkillService> SkillService = null!;
-        private Mock<IQuestService> QuestService = null!;
+        private GameStartPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IMapChangeService> MapChangeService;
+        private Mock<ISkillService> SkillService;
+        private Mock<IQuestService> QuestService;
         private readonly Mock<ILogger<GameStartPacketHandler>> Logger = new();
-        private TaskCompletionSource ScriptRun = null!;
-        private Task GameStart = null!;
+        private TaskCompletionSource ScriptRun;
+        private Task GameStart;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -292,7 +292,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void NoHistoryRefreshShouldBeSent() => Assert.IsFalse(Session.LastPackets.Any(p => p is FhisStcPacket));
 
-        private NosCore.GameObject.Services.MateService.Mate _pet = null!;
+        private NosCore.GameObject.Services.MateService.Mate _pet;
 
         private void CharacterHasAPetOut()
         {
@@ -303,7 +303,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private void ThePartyPanelShouldListThePet()
         {
             var pinit = Session.LastPackets.OfType<PinitPacket>().Last();
-            Assert.IsTrue(pinit.PinitSubPackets!.Any(s => s!.VisualType == VisualType.Npc && s.VisualId == _pet.MateTransportId));
+            Assert.IsTrue(pinit.PinitSubPackets.NotNull().Any(s => s.NotNull().VisualType == VisualType.Npc && s.NotNull().VisualId == _pet.MateTransportId));
         }
 
         private void GameStartedShouldBeFalse()

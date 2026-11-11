@@ -24,10 +24,10 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
     [TestClass]
     public class WarehouseServiceTests
     {
-        private IWarehouseService Service = null!;
-        private IDao<WarehouseItemDto, Guid> WarehouseItemDao = null!;
-        private IDao<WarehouseDto, Guid> WarehouseDao = null!;
-        private IDao<IItemInstanceDto?, Guid> ItemInstanceDao = null!;
+        private IWarehouseService Service;
+        private IDao<WarehouseItemDto, Guid> WarehouseItemDao;
+        private IDao<WarehouseDto, Guid> WarehouseDao;
+        private IDao<IItemInstanceDto?, Guid> ItemInstanceDao;
         private long OwnerId;
 
         [TestInitialize]
@@ -130,14 +130,14 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         [TestMethod]
         public async Task AnItemInstanceThatIsAlreadySavedIsStoredAsItIs()
         {
-            var saved = await ItemInstanceDao.TryInsertOrUpdateAsync(
-                new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = 3 });
+            var saved = (await ItemInstanceDao.TryInsertOrUpdateAsync(
+                new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = 3 })).NotNull();
 
             Assert.IsTrue(await Service.DepositItemAsync(1, WarehouseType.FamilyWareHouse,
-                new ItemInstanceDto { Id = saved!.Id, ItemVNum = 1012, Amount = 3 }, 4));
+                new ItemInstanceDto { Id = saved.Id, ItemVNum = 1012, Amount = 3 }, 4));
 
             var link = (await Service.GetItemsAsync(null, 1, WarehouseType.FamilyWareHouse, null)).Single();
-            Assert.AreEqual(saved.Id, link.ItemInstance!.Id);
+            Assert.AreEqual(saved.Id, link.ItemInstance.Id);
             Assert.AreEqual((await Service.GetWarehouseItemsAsync(1, WarehouseType.FamilyWareHouse)).Single().Id,
                 link.WarehouseItemId);
         }
@@ -234,7 +234,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         {
             Assert.IsTrue(await Service.DepositItemAsync(OwnerId, WarehouseType.FamilyWareHouse,
                 new ItemInstanceDto { Id = Guid.NewGuid(), ItemVNum = 1012, Amount = amount }, slot));
-            return (await Service.GetItemBySlotAsync(OwnerId, WarehouseType.FamilyWareHouse, slot))!.Id;
+            return ((await Service.GetItemBySlotAsync(OwnerId, WarehouseType.FamilyWareHouse, slot)).NotNull()).Id;
         }
 
         private async Task<short?> AmountAtAsync(short slot)

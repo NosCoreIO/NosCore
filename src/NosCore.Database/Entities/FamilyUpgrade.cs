@@ -20,7 +20,7 @@ namespace NosCore.Database.Entities
         [DatabaseGenerated(DatabaseGeneratedOption.None)]
         public short ItemVNum { get; set; }
 
-        public virtual Item Item { get; set; } = null!;
+        public virtual Item Item { get; set; }
 
         public byte FamilyLevelMinimum { get; set; }
 

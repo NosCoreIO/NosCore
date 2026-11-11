@@ -20,9 +20,9 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class WithdrawPacketHandlerTests
     {
-        private ClientSession Session = null!;
-        private WithdrawPacketHandler Handler = null!;
-        private IItemGenerationService ItemProvider = null!;
+        private ClientSession Session;
+        private WithdrawPacketHandler Handler;
+        private IItemGenerationService ItemProvider;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -87,7 +87,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasFullInventory()

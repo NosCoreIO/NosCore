@@ -138,7 +138,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                         ItemInstanceId = warehouseItem.ItemInstanceId,
                         WarehouseId = warehouseItem.WarehouseId,
                         WarehouseType = warehouseType,
-                        ItemInstance = itemInstance.Adapt<ItemInstance>()
+                        ItemInstance = itemInstance
                     });
                 }
             }
@@ -227,6 +227,10 @@ namespace NosCore.GameObject.Services.WarehouseService
                 item = itemInstance;
                 item.Id = Guid.NewGuid();
                 item = await itemInstanceDao.TryInsertOrUpdateAsync(item);
+                if (item == null)
+                {
+                    return false;
+                }
             }
 
             var existingWarehouse = await warehouseDao.FirstOrDefaultAsync(s =>
@@ -248,14 +252,19 @@ namespace NosCore.GameObject.Services.WarehouseService
                     FamilyId = warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null,
                     Type = warehouseType,
                 };
-                warehouse = await warehouseDao.TryInsertOrUpdateAsync(warehouse);
+                if (await warehouseDao.TryInsertOrUpdateAsync(warehouse) is not { } saved)
+                {
+                    return false;
+                }
+
+                warehouse = saved;
             }
 
             var warehouseItem = new WarehouseItemDto
             {
                 Slot = slot,
                 Id = Guid.NewGuid(),
-                ItemInstanceId = item!.Id,
+                ItemInstanceId = item.Id,
                 WarehouseId = warehouse.Id
             };
             await warehouseItemDao.TryInsertOrUpdateAsync(warehouseItem);

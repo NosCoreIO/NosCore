@@ -13,7 +13,7 @@ namespace NosCore.Core
     {
         public long Id { get; set; }
         public string? Name { get; set; }
-        public string Host { get; set; } = null!;
+        public required string Host { get; set; }
         public ushort Port { get; set; }
         public string? DisplayHost { get; set; }
         public ushort? DisplayPort { get; set; }

@@ -1,4 +1,4 @@
-﻿//  __  _  __    __   ___ __  ___ ___
+//  __  _  __    __   ___ __  ___ ___
 // |  \| |/__\ /' _/ / _//__\| _ \ __|
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
@@ -30,7 +31,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingNorthLeavesThePatternAsWritten()
         {
-            var pattern = SkillCells.Parse(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot).NotNull();
             var cells = SkillCells.Resolve(pattern, 50, 50, 50, 40);
 
             Assert.AreEqual(8, cells.Count);
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingSouthTurnsThePatternAround()
         {
-            var pattern = SkillCells.Parse(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot).NotNull();
             var cells = SkillCells.Resolve(pattern, 50, 50, 50, 60);
 
             Assert.AreEqual(8, cells.Count);
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingEastPutsTheLineOnTheXAxis()
         {
-            var pattern = SkillCells.Parse(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot).NotNull();
             var cells = SkillCells.Resolve(pattern, 50, 50, 60, 50);
 
             Assert.AreEqual(8, cells.Count);
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AimingDiagonallyPointsTheLineAtTheTarget()
         {
-            var pattern = SkillCells.Parse(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot).NotNull();
             var cells = SkillCells.Resolve(pattern, 50, 50, 60, 40);
 
             Assert.IsTrue(cells.All(c => c.X >= 50 && c.Y <= 50),
@@ -87,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void CastingOnYourOwnCellKeepsTheWrittenOrientation()
         {
-            var pattern = SkillCells.Parse(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot).NotNull();
             var cells = SkillCells.Resolve(pattern, 50, 50, 50, 50);
 
             Assert.AreEqual(8, cells.Count);
@@ -117,7 +118,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void AWellFormedColumnComesBackAsPairs()
         {
-            var pattern = SkillCells.Parse(PiercingShot)!;
+            var pattern = SkillCells.Parse(PiercingShot).NotNull();
             Assert.AreEqual(16, pattern.Length);
 
             var cells = Pairs(pattern);

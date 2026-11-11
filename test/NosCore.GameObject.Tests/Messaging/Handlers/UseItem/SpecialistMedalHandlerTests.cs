@@ -36,9 +36,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private const int MaxAdditionalSp = 100_000;
         private const int MaxSp = 10_000;
         private const int MedalValue = 2_000;
-        private ClientSession _session = null!;
-        private SpecialistMedalHandler _handler = null!;
-        private InventoryItemInstance _medal = null!;
+        private ClientSession _session;
+        private SpecialistMedalHandler _handler;
+        private InventoryItemInstance _medal;
 
         [TestInitialize]
         public async Task SetupAsync()

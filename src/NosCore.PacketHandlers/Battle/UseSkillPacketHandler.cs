@@ -95,7 +95,7 @@ namespace NosCore.PacketHandlers.Battle
                 if (moved)
                 {
                     await character.MapInstance.SendPacketAsync(character.GenerateMove(),
-                        new EveryoneBut(clientSession.Channel!.Id));
+                        new EveryoneBut(clientSession.ConnectedChannel.Id));
                 }
             }
             else

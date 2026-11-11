@@ -71,8 +71,8 @@ namespace NosCore.GameObject.Services.FriendService
                     return LanguageKey.ALREADY_FRIEND;
                 }
 
-                if (character.ConnectedCharacter!.FriendRequestBlocked ||
-                    targetCharacter.ConnectedCharacter!.FriendRequestBlocked)
+                if (character.ConnectedCharacter?.FriendRequestBlocked == true ||
+                    targetCharacter.ConnectedCharacter?.FriendRequestBlocked == true)
                 {
                     return LanguageKey.FRIEND_REQUEST_BLOCKED;
                 }
@@ -83,9 +83,7 @@ namespace NosCore.GameObject.Services.FriendService
                         .Any(s => s.Value.SenderId == characterId && s.Value.ReceiverId == secondCharacterId);
                     if (!alreadyRequested)
                     {
-                        friendRequestRegistry.RegisterRequest(Guid.NewGuid(),
-                            character.ConnectedCharacter.Id,
-                            targetCharacter.ConnectedCharacter.Id);
+                        friendRequestRegistry.RegisterRequest(Guid.NewGuid(), characterId, secondCharacterId);
                     }
 
                     return LanguageKey.FRIEND_REQUEST_SENT;
@@ -96,16 +94,16 @@ namespace NosCore.GameObject.Services.FriendService
                     case FinsPacketType.Accepted:
                         var data = new CharacterRelationDto
                         {
-                            CharacterId = character.ConnectedCharacter.Id,
-                            RelatedCharacterId = targetCharacter.ConnectedCharacter.Id,
+                            CharacterId = characterId,
+                            RelatedCharacterId = secondCharacterId,
                             RelationType = CharacterRelationType.Friend
                         };
 
                         await characterRelationDao.TryInsertOrUpdateAsync(data);
                         var data2 = new CharacterRelationDto
                         {
-                            CharacterId = targetCharacter.ConnectedCharacter.Id,
-                            RelatedCharacterId = character.ConnectedCharacter.Id,
+                            CharacterId = secondCharacterId,
+                            RelatedCharacterId = characterId,
                             RelationType = CharacterRelationType.Friend
                         };
 
@@ -138,8 +136,9 @@ namespace NosCore.GameObject.Services.FriendService
             var servers = await channelHub.GetCommunicationChannels();
             var worldServerIds = servers.Where(c => c.Type == ServerType.WorldServer).Select(c => c.Id).ToHashSet();
             var online = (await pubSubHub.GetSubscribersAsync())
-                .Where(s => s.ConnectedCharacter != null && worldServerIds.Contains(s.ChannelId))
-                .Select(s => s.ConnectedCharacter!.Id)
+                .Where(s => worldServerIds.Contains(s.ChannelId))
+                .Select(s => s.ConnectedCharacter?.Id)
+                .OfType<long>()
                 .ToHashSet();
             var relatedIds = list.Select(s => s.RelatedCharacterId).Distinct().ToList();
             var names = characterDao.Where(s => relatedIds.Contains(s.CharacterId))?

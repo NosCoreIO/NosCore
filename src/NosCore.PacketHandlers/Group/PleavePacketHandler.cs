@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Group
         {
             var group = clientSession.Character.Group;
 
-            if (group!.Count == 1)
+            if (group.Count == 1)
             {
                 return;
             }

@@ -38,10 +38,10 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short ScrollVNum = 1218;
         private const short GoldScrollVNum = 5369;
 
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private IUpgradeOperation _operation = null!;
-        private IReadOnlyList<IPacket>? _result;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private IUpgradeOperation _operation;
+        private IReadOnlyList<IPacket> _result;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -173,7 +173,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void WearableUpgradeShouldBe_(byte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Upgrade);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).Upgrade);
 
         private void GoldScrollsRemainingShouldBe_(int expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(GoldScrollVNum));

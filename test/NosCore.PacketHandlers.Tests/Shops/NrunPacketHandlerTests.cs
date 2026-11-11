@@ -29,11 +29,11 @@ namespace NosCore.PacketHandlers.Tests.Shops
     public class NrunPacketHandlerTests
     {
         private static readonly ILogger<NrunPacketHandler> Logger = new Mock<ILogger<NrunPacketHandler>>().Object;
-        private NrunPacketHandler _nrunPacketHandler = null!;
-        private ClientSession _session = null!;
-        private Mock<INrunEventHandler> _fakeHandlerMock = null!;
-        private Mock<INrunEventHandler> _npcHandlerMock = null!;
-        private RequestNpcPacketHandler _requestNpcPacketHandler = null!;
+        private NrunPacketHandler _nrunPacketHandler;
+        private ClientSession _session;
+        private Mock<INrunEventHandler> _fakeHandlerMock;
+        private Mock<INrunEventHandler> _npcHandlerMock;
+        private RequestNpcPacketHandler _requestNpcPacketHandler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -235,7 +235,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
             {
-                ChannelId = _session.Channel!.Id,
+                ChannelId = _session.Channel.NotNull().Id,
                 SessionId = _session.SessionId,
                 Sender = _session,
                 AccountName = _session.Account.Name,

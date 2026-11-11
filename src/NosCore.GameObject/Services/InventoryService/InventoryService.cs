@@ -128,24 +128,23 @@ namespace NosCore.GameObject.Services.InventoryService
                 {
                     foreach (var slotToAdd in itemInstances)
                     {
-                        var max = slotToAdd.ItemInstance?.Amount + newItem.ItemInstance?.Amount;
-                        max = max > configuration.Value.MaxItemAmount ? configuration.Value.MaxItemAmount : max;
-                        newItem.ItemInstance!.Amount =
-                            (short)((slotToAdd.ItemInstance?.Amount + newItem.ItemInstance?.Amount - max) ?? 0);
-                        slotToAdd.ItemInstance!.Amount = (short)(max ?? 0);
+                        var total = slotToAdd.ItemInstance.Amount + newItem.ItemInstance.Amount;
+                        var max = Math.Min(total, configuration.Value.MaxItemAmount);
+                        newItem.ItemInstance.Amount = (short)(total - max);
+                        slotToAdd.ItemInstance.Amount = (short)max;
                         invlist.Add(slotToAdd);
                     }
                 }
             }
 
-            if (newItem.ItemInstance == null || newItem.ItemInstance?.Amount <= 0)
+            if (newItem.ItemInstance.Amount <= 0)
             {
                 return invlist;
             }
 
             // Create new item
             var freeSlot = newItem.Type == NoscorePocketType.Wear
-                ? LoadBySlotAndType((short)newItem.ItemInstance!.Item.EquipmentSlot, NoscorePocketType.Wear) == null
+                ? LoadBySlotAndType((short)newItem.ItemInstance.Item.EquipmentSlot, NoscorePocketType.Wear) == null
                     ? (short?)newItem.ItemInstance.Item.EquipmentSlot
                     : null
                 : GetFreeSlot(newItem.Type);
@@ -252,7 +251,7 @@ namespace NosCore.GameObject.Services.InventoryService
             }
 
             var sourceInstance = LoadBySlotAndType(sourceSlot, sourceType);
-            if (!(sourceInstance!.ItemInstance is WearableInstance || sourceInstance.ItemInstance is SpecialistInstance))
+            if (sourceInstance?.ItemInstance is not (WearableInstance or SpecialistInstance))
             {
                 var e = new InvalidOperationException("SourceInstance can't be moved between pockets");
                 logger.LogError(e.Message, e);

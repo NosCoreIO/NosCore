@@ -30,9 +30,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FlPacketHandlerTests
     {
-        private IDao<CharacterRelationDto, Guid> CharacterRelationDao = null!;
-        private FlCommandPacketHandler FlPacketHandler = null!;
-        private ClientSession Session = null!;
+        private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
+        private FlCommandPacketHandler FlPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -43,6 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
+                        Host = "127.0.0.1",
                         Type = ServerType.WorldServer,
                         Id = 1
                     }
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 .ExecuteAsync();
         }
 
-        private ClientSession? TargetSession;
+        private ClientSession TargetSession;
 
         private async Task TargetPlayerIsOnlineAndFriendRequestExists()
         {
@@ -90,13 +91,13 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task AddingFriendByName()
         {
-            await FlPacketHandler.ExecuteAsync(new FlCommandPacket { CharacterName = TargetSession!.Character.Name }, Session);
+            await FlPacketHandler.ExecuteAsync(new FlCommandPacket { CharacterName = TargetSession.Character.Name }, Session);
         }
 
         private async Task FriendRelationShouldExist()
         {
             var characterId = Session.Character.CharacterId;
-            var targetCharacterId = TargetSession!.Character.CharacterId;
+            var targetCharacterId = TargetSession.Character.CharacterId;
             var result = await CharacterRelationDao.FirstOrDefaultAsync(s =>
                 s.CharacterId == characterId &&
                 s.RelatedCharacterId == targetCharacterId &&

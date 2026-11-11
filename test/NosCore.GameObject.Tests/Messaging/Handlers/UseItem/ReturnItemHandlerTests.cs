@@ -35,11 +35,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class ReturnItemHandlerTests
     {
         private const short ItemVNum = 2070;
-        private ClientSession _session = null!;
-        private Mock<IRespawnService> _respawnService = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private ReturnItemHandler _handler = null!;
-        private InventoryItemInstance _item = null!;
+        private ClientSession _session;
+        private Mock<IRespawnService> _respawnService;
+        private Mock<IMapChangeService> _mapChangeService;
+        private ReturnItemHandler _handler;
+        private InventoryItemInstance _item;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -299,7 +299,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void DelayPacketShouldReplayMode_(byte mode)
         {
-            var useItem = (UseItemPacket)_session.LastPackets.OfType<DelayPacket>().Single().Packet!;
+            var useItem = ((UseItemPacket)_session.LastPackets.OfType<DelayPacket>().Single().Packet.NotNull()).NotNull();
             Assert.AreEqual(mode, useItem.Mode);
         }
 
@@ -307,8 +307,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             var dialog = _session.LastPackets.OfType<DlgiPacket>().Single();
             Assert.AreEqual(Game18NConstString.AmuletMessageToSavePositionAndReturnToVillage, dialog.Question);
-            Assert.AreEqual((byte)1, ((UseItemPacket)dialog.YesPacket!).Mode);
-            Assert.AreEqual((byte)2, ((UseItemPacket)dialog.NoPacket!).Mode);
+            Assert.AreEqual((byte)1, ((UseItemPacket)dialog.YesPacket.NotNull()).Mode);
+            Assert.AreEqual((byte)2, ((UseItemPacket)dialog.NoPacket.NotNull()).Mode);
             Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
         }
 
@@ -316,7 +316,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             var rp = _session.LastPackets.OfType<RpPacket>().Single();
             Assert.AreEqual((2550, 20, 33), (rp.MapId, rp.X, rp.Y));
-            Assert.AreEqual((byte)1, ((UseItemPacket)rp.Packet!).Mode);
+            Assert.AreEqual((byte)1, ((UseItemPacket)rp.Packet.NotNull()).Mode);
             Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
         }
 

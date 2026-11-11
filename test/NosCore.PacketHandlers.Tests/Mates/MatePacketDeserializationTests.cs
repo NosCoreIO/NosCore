@@ -14,6 +14,7 @@ using NosCore.Packets.Attributes;
 using NosCore.Packets.ClientPackets.Mates;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Mates
 {
@@ -24,7 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private static readonly Deserializer Deserializer = new(typeof(IPacket).Assembly.GetTypes()
             .Where(p => p.GetInterfaces().Contains(typeof(IPacket))
                 && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
-                    || (p.GetCustomAttribute<PacketHeaderAttribute>()!.Scopes & Scope.OnLoginScreen) == 0)
+                    || (p.GetCustomAttribute<PacketHeaderAttribute>().NotNull().Scopes & Scope.OnLoginScreen) == 0)
                 && p.IsClass && !p.IsAbstract));
 
         [TestMethod]
@@ -33,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [DataRow("suctl 200 0 1135623 3 2045", typeof(SuCtlPacketHandler))]
         public void TheClientsLineReachesItsHandler(string line, Type handler)
         {
-            Assert.IsInstanceOfType(Deserializer.Deserialize(line), handler.BaseType!.GetGenericArguments()[0]);
+            Assert.IsInstanceOfType(Deserializer.Deserialize(line), handler.BaseType.NotNull().GetGenericArguments()[0]);
         }
 
         [TestMethod]

@@ -28,9 +28,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class SetPlaceOfRevivalHandlerTests
     {
-        private ClientSession _session = null!;
-        private Mock<IRespawnService> _respawnService = null!;
-        private SetPlaceOfRevivalHandler _handler = null!;
+        private ClientSession _session;
+        private Mock<IRespawnService> _respawnService;
+        private SetPlaceOfRevivalHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()

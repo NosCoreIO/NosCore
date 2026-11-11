@@ -35,11 +35,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     public class MinilandBellHandlerTests
     {
         private const short BellVNum = 1244;
-        private ClientSession _session = null!;
-        private Mock<IMinilandService> _minilandService = null!;
-        private Mock<IMapChangeService> _mapChangeService = null!;
-        private MinilandBellHandler _handler = null!;
-        private InventoryItemInstance _bell = null!;
+        private ClientSession _session;
+        private Mock<IMinilandService> _minilandService;
+        private Mock<IMapChangeService> _mapChangeService;
+        private MinilandBellHandler _handler;
+        private InventoryItemInstance _bell;
         private readonly Guid _minilandInstanceId = Guid.NewGuid();
 
         [TestInitialize]

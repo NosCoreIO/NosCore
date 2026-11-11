@@ -36,8 +36,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class SellPacketHandlerTests
     {
-        private SellPacketHandler SellPacketHandler = null!;
-        private ClientSession Session = null!;
+        private SellPacketHandler SellPacketHandler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -209,9 +209,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private void EquipmentSlotShouldBeCleared()
         {
             var ivn = Session.LastPackets.OfType<IvnPacket>().Last();
-            var sub = ivn.IvnSubPackets!.Single();
+            var sub = ivn.IvnSubPackets.NotNull().Single();
             Assert.AreEqual(PocketType.Equipment, ivn.Type);
-            Assert.AreEqual(0, sub!.Slot);
+            Assert.AreEqual(0, sub.Slot);
             Assert.AreEqual(0, sub.VNum);
         }
 
@@ -229,8 +229,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void SlotZeroShouldShowTwoLeft()
         {
-            var sub = Session.LastPackets.OfType<IvnPacket>().Last().IvnSubPackets!.Single();
-            Assert.AreEqual(0, sub!.Slot);
+            var sub = Session.LastPackets.OfType<IvnPacket>().Last().IvnSubPackets.NotNull().Single();
+            Assert.AreEqual(0, sub.Slot);
             Assert.AreEqual(1, sub.VNum);
             Assert.AreEqual(2, sub.RareAmount);
         }

@@ -11,6 +11,6 @@ namespace NosCore.Data.WebApi
     public class BlacklistRequest
     {
         public long CharacterId { get; set; }
-        public BlInsPacket? BlInsPacket { get; set; }
+        public required BlInsPacket BlInsPacket { get; set; }
     }
 }

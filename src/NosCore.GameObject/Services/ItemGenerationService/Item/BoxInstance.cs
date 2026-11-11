@@ -18,12 +18,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             ItemVNum = item.VNum;
         }
 
-        [Obsolete]
-        public BoxInstance()
-        {
-        }
 
-        public Item Item { get; set; } = null!;
+        public Item Item { get; set; }
 
         public object Clone()
         {

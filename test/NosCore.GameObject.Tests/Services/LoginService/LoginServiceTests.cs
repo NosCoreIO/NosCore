@@ -23,12 +23,12 @@ namespace NosCore.GameObject.Tests.Services.LoginService
     [TestClass]
     public class LoginServiceTests
     {
-        private ILoginService Service = null!;
-        private Mock<IAuthHub> AuthHub = null!;
-        private Mock<IPubSubHub> PubSubHub = null!;
-        private Mock<IChannelHub> ChannelHub = null!;
-        private SessionRefHolder SessionRefHolder = null!;
-        private IOptions<LoginConfiguration> LoginConfig = null!;
+        private ILoginService Service;
+        private Mock<IAuthHub> AuthHub;
+        private Mock<IPubSubHub> PubSubHub;
+        private Mock<IChannelHub> ChannelHub;
+        private SessionRefHolder SessionRefHolder;
+        private IOptions<LoginConfiguration> LoginConfig;
 
         [TestInitialize]
         public async Task SetupAsync()

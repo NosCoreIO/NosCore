@@ -21,8 +21,8 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class HelpPacketHandlerTests
     {
-        private HelpPacketHandler Handler = null!;
-        private ClientSession Session = null!;
+        private HelpPacketHandler Handler;
+        private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private void CharacterHasGameMasterAuthority()

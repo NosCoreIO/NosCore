@@ -20,8 +20,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class WarehousePacketHandlerTests
     {
-        private ClientSession Session = null!;
-        private Mock<IWarehouseHub> WarehouseHub = null!;
+        private ClientSession Session;
+        private Mock<IWarehouseHub> WarehouseHub;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1)!;
+            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
         }
 
         private async Task DepositingItemToWarehouse()

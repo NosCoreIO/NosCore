@@ -15,7 +15,7 @@ namespace NosCore.GameObject.Services.QuestService
 {
     public class CharacterQuest : CharacterQuestDto
     {
-        public Quest Quest { get; set; } = null!;
+        public required Quest Quest { get; set; }
 
         public ConcurrentDictionary<System.Guid, int> ObjectiveProgress { get; } = new();
 
@@ -113,6 +113,6 @@ namespace NosCore.GameObject.Services.QuestService
             };
         }
 
-        public List<QuestObjectiveDto> QuestObjectives { get; set; } = null!;
+        public List<QuestObjectiveDto> QuestObjectives { get; set; } = new();
     }
 }

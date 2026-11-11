@@ -24,9 +24,9 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class GiftPacketHandlerTests
     {
-        private GiftPacketHandler Handler = null!;
-        private ClientSession Session = null!;
-        private Mock<IRemoteCharacterService> RemoteCharacters = null!;
+        private GiftPacketHandler Handler;
+        private ClientSession Session;
+        private Mock<IRemoteCharacterService> RemoteCharacters;
 
         [TestInitialize]
         public async Task SetupAsync()

@@ -32,12 +32,12 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private const short ArmorVNum = 1;
         private const short SandVNum = 1027;
 
-        private ClientSession _session = null!;
-        private Mock<IRandomNumberSource> _random = null!;
-        private SumUpgradeOperation _operation = null!;
-        private InventoryItemInstance _source = null!;
-        private InventoryItemInstance _target = null!;
-        private IReadOnlyList<IPacket>? _result;
+        private ClientSession _session;
+        private Mock<IRandomNumberSource> _random;
+        private SumUpgradeOperation _operation;
+        private InventoryItemInstance _source;
+        private InventoryItemInstance _target;
+        private IReadOnlyList<IPacket> _result;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -240,11 +240,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
         private void SourceUpgradeShouldBe_(byte expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).Upgrade);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).Upgrade);
 
         private void SourceFireResistanceShouldBe_(short expected) =>
             Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment)!.ItemInstance!).FireResistance);
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).FireResistance);
 
         private void TargetSlotShouldBeEmpty() =>
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(1, NoscorePocketType.Equipment));

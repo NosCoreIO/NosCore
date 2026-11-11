@@ -20,8 +20,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class AggroThreatTests
     {
-        private FakeClock _clock = null!;
-        private AggroService _aggro = null!;
+        private FakeClock _clock;
+        private AggroService _aggro;
         private MonsterComponentBundle _monster;
 
         [TestInitialize]

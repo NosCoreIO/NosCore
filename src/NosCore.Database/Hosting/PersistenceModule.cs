@@ -62,7 +62,8 @@ public sealed class PersistenceModule : Autofac.Module
             }
         }
 
-        var registerMethod = typeof(PersistenceModule).GetMethod(nameof(RegisterDatabaseObject), BindingFlags.Public | BindingFlags.Static)!;
+        var registerMethod = typeof(PersistenceModule).GetMethod(nameof(RegisterDatabaseObject), BindingFlags.Public | BindingFlags.Static)
+            ?? throw new MissingMethodException(nameof(PersistenceModule), nameof(RegisterDatabaseObject));
         foreach (var mapping in DiscoverDaoMappings())
         {
             registerMethod.MakeGenericMethod(mapping.DtoType, mapping.DbType, mapping.PkType)
@@ -174,7 +175,7 @@ public sealed class PersistenceModule : Autofac.Module
             {
                 var regions = Enum.GetValues(typeof(RegionType));
                 var accessors = MemberAccessor.For(typeof(TDto));
-                Parallel.ForEach(items, s => ((IStaticDto)s!).InjectI18N(props, dic, regions, accessors));
+                Parallel.ForEach(items.OfType<IStaticDto>(), s => s.InjectI18N(props, dic, regions, accessors));
             }
 
             if (items.Count != 0 || staticMetaDataAttribute == null ||

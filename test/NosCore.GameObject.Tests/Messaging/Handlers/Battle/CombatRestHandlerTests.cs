@@ -22,8 +22,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
     [TestClass]
     public class CombatRestHandlerTests
     {
-        private CombatRestHandler _handler = null!;
-        private ClientSession _session = null!;
+        private CombatRestHandler _handler;
+        private ClientSession _session;
         private readonly IAliveEntity _monster = new Mock<INonPlayableEntity>().Object;
 
         [TestInitialize]
