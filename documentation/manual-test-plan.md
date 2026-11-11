@@ -380,6 +380,31 @@ The holders are the box items with effect 69 and effect value 1 or 2, such as 28
 - [ ] A second player who walks into the map, or logs in next to you, sees your specialist,
       its upgrade glow, its wings and your fairy
 
+### Costume fusion
+
+Which window slot keeps the effects and which lends the look is taken to be the first and
+the second; a fusion that swaps them means the order is reversed. No message is sent on
+success, on the assumption that the window says "Appearance changed" itself.
+
+- [ ] `$CreateItem 189` (Smart Men's Suit, permanent) and another permanent suit, wear and
+      take off each so both are bound, `$CreateItem 5874` (Costume Fusion) and have a million
+      gold. Double-click the Costume Fusion item: the fusion window opens and the item stays
+- [ ] Put the first suit in the effects slot and the second in the design slot and confirm:
+      the second suit is gone, the first keeps its own name and effects, one Costume Fusion
+      item and 1,000,000 gold are spent, and the window reports the change. If nothing at all
+      appears, the success message is missing
+- [ ] Wear the fused suit: the character shows the second suit's look, to you and to a second
+      player who walks into the map, and still after a relog
+- [ ] Try to fuse the fused suit again: "You cannot use an item whose appearance has been
+      changed." appears and nothing is spent
+- [ ] Try a 30-day costume: "Both materials must be permanent."; an unbound costume: "Both
+      materials must be bound (not tradeable) to change the appearance."
+- [ ] With less than a million gold, or without the Costume Fusion item, the fusion is refused
+      and nothing is spent
+- [ ] A hat and a suit, or a men's and a women's costume, cannot be fused
+- [ ] Not verifiable yet: the item's tooltip showing the look it took; the costume tooltip is not
+      sent by the server at all yet
+
 ### Medals of Honour
 
 - [ ] `$CreateItem 5899` and use it, confirming the client's "Use the item." box: a green

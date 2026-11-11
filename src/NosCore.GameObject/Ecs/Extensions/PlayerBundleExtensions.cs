@@ -329,8 +329,8 @@ public static class PlayerBundleExtensions
         return new InEquipmentSubPacket
         {
             Armor = inventory.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            CostumeHat = inventory.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            CostumeSuit = inventory.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
+            CostumeHat = inventory.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)?.ItemInstance?.LookVNum(),
+            CostumeSuit = inventory.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)?.ItemInstance?.LookVNum(),
             Fairy = inventory.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
             Hat = inventory.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
             MainWeapon = inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
@@ -659,7 +659,7 @@ public static class PlayerBundleExtensions
             return new EquipmentSubPacket
             {
                 EquipmentType = eqType,
-                VNum = eq.ItemInstance.ItemVNum,
+                VNum = eq.ItemInstance.LookVNum(),
                 Rare = eq.ItemInstance.Rare,
                 Upgrade = (eq.ItemInstance.Item.IsColored ? eq.ItemInstance?.Design
                     : eq.ItemInstance.Upgrade) ?? 0,

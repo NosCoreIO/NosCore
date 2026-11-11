@@ -3131,6 +3131,9 @@ namespace NosCore.Database.Migrations
                     b.Property<byte?>("Ammo")
                         .HasColumnType("smallint");
 
+                    b.Property<short?>("AppearanceVNum")
+                        .HasColumnType("smallint");
+
                     b.Property<byte?>("Cellon")
                         .HasColumnType("smallint");
 
