@@ -20,10 +20,13 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.TransformationService;
 
-public readonly record struct SpecialistTransformationResult(SpecialistTransformationOutcome Outcome,
-    short CooldownSecondsLeft = 0);
+public sealed record SpecialistOnCooldown(short SecondsLeft);
 
-public readonly record struct SpecialistPointsResult(SpecialistPointsOutcome Outcome, SpecialistInstance? Card = null);
+public union SpecialistTransformationResult(SpecialistOnCooldown, SpecialistTransformationOutcome);
+
+public sealed record SpecialistPointsSpent(SpecialistInstance Card);
+
+public union SpecialistPointsResult(SpecialistPointsSpent, SpecialistPointsOutcome);
 
 public interface ISpecialistTransformationService
 {
@@ -44,18 +47,18 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
         var character = session.Character;
         if (character.IsSitting)
         {
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.Ignored);
+            return SpecialistTransformationOutcome.Ignored;
         }
 
         if (character.InventoryService.LoadBySlotAndType((byte)EquipmentType.Sp, NoscorePocketType.Wear)?.ItemInstance
             is not SpecialistInstance specialistInstance)
         {
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.NoSpecialistCardEquipped);
+            return SpecialistTransformationOutcome.NoSpecialistCardEquipped;
         }
 
         if (character.IsVehicled)
         {
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.InVehicle);
+            return SpecialistTransformationOutcome.InVehicle;
         }
 
         var currentRunningSeconds = (clock.GetCurrentInstant() - character.LastSp).TotalSeconds;
@@ -64,18 +67,17 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
         {
             character.LastSp = clock.GetCurrentInstant();
             await transformationService.RemoveSpAsync(session);
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.Handled);
+            return SpecialistTransformationOutcome.Handled;
         }
 
         if ((character.SpPoint == 0) && (character.SpAdditionPoint == 0))
         {
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.NoPoints);
+            return SpecialistTransformationOutcome.NoPoints;
         }
 
         if (currentRunningSeconds < character.SpCooldown)
         {
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.OnCooldown,
-                (short)(character.SpCooldown - (int)Math.Round(currentRunningSeconds)));
+            return new SpecialistOnCooldown((short)(character.SpCooldown - (int)Math.Round(currentRunningSeconds)));
         }
 
         if (barCompleted)
@@ -85,7 +87,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
                 await transformationService.ChangeSpAsync(session);
             }
 
-            return new SpecialistTransformationResult(SpecialistTransformationOutcome.Handled);
+            return SpecialistTransformationOutcome.Handled;
         }
 
         await character.StartDelayAsync(new DelayPacket
@@ -100,7 +102,7 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
             Argument = 1,
             EntityId = character.CharacterId
         });
-        return new SpecialistTransformationResult(SpecialistTransformationOutcome.Handled);
+        return SpecialistTransformationOutcome.Handled;
     }
 
     public async Task<SpecialistPointsResult> SpendPointsAsync(ClientSession session, long? transportId, short damage,
@@ -112,15 +114,15 @@ public sealed class SpecialistTransformationService(IClock clock, ITransformatio
                 is not SpecialistInstance specialist
             || transportId != specialist.TransportId)
         {
-            return new SpecialistPointsResult(SpecialistPointsOutcome.CardNotWorn);
+            return SpecialistPointsOutcome.CardNotWorn;
         }
 
         if (!specialistCardService.TrySpendPoints(specialist, damage, defence, element, hp))
         {
-            return new SpecialistPointsResult(SpecialistPointsOutcome.Refused);
+            return SpecialistPointsOutcome.Refused;
         }
 
         await vitalityService.RefreshAndNotifyAsync(character);
-        return new SpecialistPointsResult(SpecialistPointsOutcome.Spent, specialist);
+        return new SpecialistPointsSpent(specialist);
     }
 }

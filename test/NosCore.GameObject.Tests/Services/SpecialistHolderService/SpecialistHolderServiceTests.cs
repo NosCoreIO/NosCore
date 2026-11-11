@@ -67,7 +67,6 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
                 .When(TheCardIsDroppedOnTheHolder)
                 .Then(TheCardIsGone)
                 .And(TheHolderKeepsTheCard)
-                .And(TheOutcomeShouldBe_, SpecialistStoreOutcome.Stored)
                 .And(TheResultShouldNameTheCardAndHolderSlots)
                 .ExecuteAsync();
         }
@@ -245,13 +244,19 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         private IvnSubPacket LastRedrawOf(short slot) =>
             Session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets ?? []).OfType<IvnSubPacket>().Last(i => i.Slot == slot);
 
-        private void TheOutcomeShouldBe_(SpecialistStoreOutcome outcome) => Assert.AreEqual(outcome, _result.Outcome);
+        private void TheOutcomeShouldBe_(SpecialistStoreOutcome outcome) => Assert.AreEqual(outcome, _result.Value);
 
         private void TheResultShouldNameTheCardAndHolderSlots()
         {
-            Assert.AreEqual(CardSlot, _result.Card.NotNull().Slot);
-            Assert.IsNull(_result.Remaining);
-            Assert.AreEqual((short)HolderSlot, _result.Holder.NotNull().Slot);
+            if (_result.Value is not SpecialistStored stored)
+            {
+                Assert.Fail();
+                return;
+            }
+
+            Assert.AreEqual(CardSlot, stored.Card.Slot);
+            Assert.IsNull(stored.Remaining);
+            Assert.AreEqual((short)HolderSlot, stored.Holder.Slot);
         }
 
         private void TheHolderSlotIsCleared() => Assert.AreNotEqual(HolderVNum, LastRedrawOf(HolderSlot).VNum);

@@ -22,8 +22,7 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override async Task ExecuteAsync(SCarrierPacket packet, ClientSession clientSession)
         {
-            var result = specialistHolderService.StoreFromEquipment(clientSession.Character, packet.Slot, packet.HolderSlot);
-            switch (result.Outcome)
+            switch (specialistHolderService.StoreFromEquipment(clientSession.Character, packet.Slot, packet.HolderSlot))
             {
                 case SpecialistStoreOutcome.CannotStore:
                     await clientSession.SendPacketAsync(new MsgiPacket
@@ -33,8 +32,8 @@ namespace NosCore.PacketHandlers.Inventory
                     });
                     return;
 
-                case SpecialistStoreOutcome.Stored when result is { Card: { } card, Holder: { } holder }:
-                    await clientSession.SendPacketAsync(result.Remaining.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
+                case SpecialistStored(var card, var remaining, var holder):
+                    await clientSession.SendPacketAsync(remaining.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
                     await clientSession.SendPacketAsync(holder.GeneratePocketChange(holder.Type.ToPocketType(), holder.Slot));
                     await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
                     await clientSession.SendPacketAsync(new MsgiPacket

@@ -32,39 +32,37 @@ namespace NosCore.PacketHandlers.Inventory
         {
             var result = await specialistTransformationService.ToggleAsync(clientSession,
                 packet.Type == SlPacketType.WearSpAndTransform);
-            var message = result.Outcome switch
+            var msgi = result switch
             {
-                SpecialistTransformationOutcome.NoSpecialistCardEquipped => Game18NConstString.NoSpecialistCardEquipped,
-                SpecialistTransformationOutcome.InVehicle => Game18NConstString.CantUseInVehicle,
-                SpecialistTransformationOutcome.NoPoints => Game18NConstString.ZeroPointsTransformationCancelled,
-                SpecialistTransformationOutcome.OnCooldown => Game18NConstString.CantTrasformWithSideEffect,
-                _ => (Game18NConstString?)null,
+                SpecialistOnCooldown(var secondsLeft) => new MsgiPacket
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.CantTrasformWithSideEffect,
+                    ArgumentType = 4,
+                    Game18NArguments = { secondsLeft }
+                },
+                SpecialistTransformationOutcome.NoSpecialistCardEquipped => Refusal(Game18NConstString.NoSpecialistCardEquipped),
+                SpecialistTransformationOutcome.InVehicle => Refusal(Game18NConstString.CantUseInVehicle),
+                SpecialistTransformationOutcome.NoPoints => Refusal(Game18NConstString.ZeroPointsTransformationCancelled),
+                _ => null,
             };
-            if (message == null)
+            if (msgi == null)
             {
                 return;
             }
 
-            var msgi = new MsgiPacket
-            {
-                Type = MessageType.Default,
-                Message = message.Value
-            };
-            if (result.Outcome == SpecialistTransformationOutcome.OnCooldown)
-            {
-                msgi.ArgumentType = 4;
-                msgi.Game18NArguments.Add(result.CooldownSecondsLeft);
-            }
-
             await clientSession.SendPacketAsync(msgi);
         }
+
+        private static MsgiPacket Refusal(Game18NConstString message) =>
+            new() { Type = MessageType.Default, Message = message };
 
         private async Task SpendPointsAsync(SpTransformPacket packet, ClientSession clientSession)
         {
             var result = await specialistTransformationService.SpendPointsAsync(clientSession, packet.TransportId,
                 packet.SpecialistDamage ?? 0, packet.SpecialistDefense ?? 0, packet.SpecialistElement ?? 0,
                 packet.SpecialistHP ?? 0);
-            switch (result.Outcome)
+            switch (result)
             {
                 case SpecialistPointsOutcome.CardNotWorn:
                     await clientSession.SendPacketAsync(new MsgiPacket
@@ -73,7 +71,7 @@ namespace NosCore.PacketHandlers.Inventory
                         Message = Game18NConstString.SpecialistCardMustBeEquipped
                     });
                     break;
-                case SpecialistPointsOutcome.Spent when result.Card is { } card:
+                case SpecialistPointsSpent(var card):
                     await clientSession.SendPacketAsync(itemInfoService.GenerateInfo(card));
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateSc(battleStatsProvider));
                     break;

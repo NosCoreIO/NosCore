@@ -77,7 +77,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task ACooldownShowsTheSecondsLeft()
         {
             await new Spec("A transformation on cooldown shows the seconds left")
-                .Given(TheToggleReturns_, new SpecialistTransformationResult(SpecialistTransformationOutcome.OnCooldown, 30))
+                .Given(TheToggleReturns_, new SpecialistTransformationResult(new SpecialistOnCooldown(30)))
                 .WhenAsync(Sending_, SlPacketType.WearSp)
                 .Then(ShouldReceiveCooldownMessage)
                 .ExecuteAsync();
@@ -97,7 +97,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public async Task SpentPointsRefreshTheCardInfo()
         {
             await new Spec("Spent points forward the packet values and refresh the card info")
-                .Given(SpendingReports_, new SpecialistPointsResult(SpecialistPointsOutcome.Spent, new SpecialistInstance(new NosCore.GameObject.Services.ItemGenerationService.Item.Item())))
+                .Given(SpendingReports_, new SpecialistPointsResult(new SpecialistPointsSpent(new SpecialistInstance(new NosCore.GameObject.Services.ItemGenerationService.Item.Item()))))
                 .WhenAsync(SpendingPoints)
                 .Then(ThePacketValuesShouldBeForwarded)
                 .And(TheCardInfoShouldBeSent)

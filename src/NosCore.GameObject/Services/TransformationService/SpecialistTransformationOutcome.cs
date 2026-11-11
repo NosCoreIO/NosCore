@@ -12,6 +12,5 @@ public enum SpecialistTransformationOutcome
     NoSpecialistCardEquipped,
     InVehicle,
     NoPoints,
-    OnCooldown,
     Handled,
 }

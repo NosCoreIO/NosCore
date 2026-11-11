@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             var item = InventoryItemInstance.Create(
                 new ItemInstance(new Item { VNum = 1012, Type = NosCore.Data.Enumerations.NoscorePocketType.Main }) { Amount = 5 },
                 Session.Character.CharacterId);
-            TheGrantReturns_(new ItemGrantResult(ItemGrantOutcome.Granted, new List<InventoryItemInstance> { item }, 5));
+            TheGrantReturns_(new ItemGranted(new List<InventoryItemInstance> { item }, 5));
         }
 
         private Task CreatingItem() =>

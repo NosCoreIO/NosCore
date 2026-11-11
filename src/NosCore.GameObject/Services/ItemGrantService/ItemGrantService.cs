@@ -43,13 +43,13 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
         short amount = 1;
         if (vnum == GoldVNum)
         {
-            return new ItemGrantResult(ItemGrantOutcome.Refused);
+            return ItemGrantOutcome.Refused;
         }
 
         var iteminfo = items.Find(item => item.VNum == vnum);
         if (iteminfo == null)
         {
-            return new ItemGrantResult(ItemGrantOutcome.UnknownItem);
+            return ItemGrantOutcome.UnknownItem;
         }
 
         if (iteminfo.IsColored || (iteminfo.Effect == ItemEffectType.BoxEffect))
@@ -105,7 +105,7 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
 
         if (inv == null || inv.Count <= 0)
         {
-            return new ItemGrantResult(ItemGrantOutcome.NotEnoughSpace);
+            return ItemGrantOutcome.NotEnoughSpace;
         }
 
         var firstItem = inv[0];
@@ -132,6 +132,6 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
             }
         }
 
-        return new ItemGrantResult(ItemGrantOutcome.Granted, inv, amount);
+        return new ItemGranted(inv, amount);
     }
 }
