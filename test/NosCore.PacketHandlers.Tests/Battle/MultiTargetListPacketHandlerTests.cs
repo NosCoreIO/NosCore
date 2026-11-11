@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class MultiTargetListPacketHandlerTests
     {
+        private TestWorld World;
         private MultiTargetListPacketHandler _listHandler;
         private UseSkillPacketHandler _castHandler;
         private ClientSession _session;
@@ -41,9 +42,9 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1).NotNull();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _map = World.GetBaseMap(1);
             _session.Character.MapInstance = _map;
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
@@ -55,12 +56,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _listHandler = new MultiTargetListPacketHandler();
             _castHandler = new UseSkillPacketHandler(
                 new Mock<ILogger<UseSkillPacketHandler>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
+                World.LogLanguageLocalizer,
                 _battleService.Object,
-                TestHelpers.Instance.SessionRegistry,
-                new SkillCastService(TestHelpers.Instance.Clock, _gear.Object),
-                TestHelpers.Instance.DistanceCalculator,
-                new WalkService(TestHelpers.Instance.Clock));
+                World.SessionRegistry,
+                new SkillCastService(World.Clock, _gear.Object),
+                World.DistanceCalculator,
+                new WalkService(World.Clock));
         }
 
         [TestMethod]

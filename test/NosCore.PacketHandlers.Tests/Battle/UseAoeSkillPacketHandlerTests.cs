@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class UseAoeSkillPacketHandlerTests
     {
+        private TestWorld World;
         private UseAoeSkillPacketHandler _handler;
         private ClientSession _session;
         private Mock<IBattleService> _battleService;
@@ -36,9 +37,9 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(1).NotNull();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
             _session.Character.PositionX = 0;
             _session.Character.PositionY = 0;
             _gear.Setup(g => g.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
@@ -47,8 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .ReturnsAsync(true);
             _handler = new UseAoeSkillPacketHandler(
                 _battleService.Object,
-                new SkillCastService(TestHelpers.Instance.Clock, _gear.Object),
-                TestHelpers.Instance.DistanceCalculator);
+                new SkillCastService(World.Clock, _gear.Object),
+                World.DistanceCalculator);
         }
 
         [TestMethod]
@@ -167,7 +168,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void TheCharacterHas_Mp(int mp) => _session.Character.Mp = mp;
 
-        private void TheSkillWasJustUsed() => _skill.LastUse = TestHelpers.Instance.Clock.GetCurrentInstant();
+        private void TheSkillWasJustUsed() => _skill.LastUse = World.Clock.GetCurrentInstant();
 
         private void TheCharacterIsVehicled() => _session.Character.IsVehicled = true;
 
@@ -194,7 +195,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void TheCharacterShouldHave_Mp(int mp) => Assert.AreEqual(mp, _session.Character.Mp);
 
-        private void TheSkillShouldBeOnCooldown() => Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _skill.LastUse);
+        private void TheSkillShouldBeOnCooldown() => Assert.AreEqual(World.Clock.GetCurrentInstant(), _skill.LastUse);
 
         private void TheSkillShouldNotBeOnCooldown() => Assert.IsNull(_skill.LastUse);
     }

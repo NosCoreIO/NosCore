@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
     [TestClass]
     public class FamilyProgressionServiceTests
     {
+        private TestWorld World;
         private const long MemberId = 1;
         private const long OutsiderId = 2;
 
@@ -34,8 +35,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            var context = TestHelpers.Instance.DbContextBuilder;
+            World = await TestWorld.CreateAsync();
+            var context = World.DbContextBuilder;
             _familyDao = new Dao<FamilyEntity, FamilyDto, long>(NullLogger<Dao<FamilyEntity, FamilyDto, long>>.Instance, context);
             _familyCharacterDao = new Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>(
                 NullLogger<Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>>.Instance, context);

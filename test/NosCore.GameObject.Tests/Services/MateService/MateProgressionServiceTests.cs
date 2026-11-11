@@ -18,6 +18,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
     [TestClass]
     public class MateProgressionServiceTests
     {
+        private TestWorld World;
         private readonly MateExperienceService _curve = new();
         private MateProgressionService _service;
         private ClientSession _session;
@@ -25,8 +26,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Level = 30;
             _service = new MateProgressionService(_curve);
         }
