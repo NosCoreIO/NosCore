@@ -27,7 +27,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
-            var legacyVehicle = item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
+            var legacyVehicle = item.Type != NoscorePocketType.Mount && item.ItemType == ItemType.Special && item.Effect == ItemEffectType.Vehicle;
             var mount = item.Type == NoscorePocketType.Mount && item.Speed > 0 && item.Morph > 0;
             if (!legacyVehicle && !mount)
             {

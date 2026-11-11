@@ -161,8 +161,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         public async Task AMountWithoutSpeedOrMorphIsIgnored(byte speed, short morph)
         {
             _vehicle.ItemInstance.Item.Type = NoscorePocketType.Mount;
-            _vehicle.ItemInstance.Item.ItemType = default;
-            _vehicle.ItemInstance.Item.Effect = 0;
+            _vehicle.ItemInstance.Item.ItemType = ItemType.Special;
+            _vehicle.ItemInstance.Item.Effect = ItemEffectType.Vehicle;
             _vehicle.ItemInstance.Item.Speed = speed;
             _vehicle.ItemInstance.Item.Morph = morph;
             await UsingTheVehicleWithMode_(0);

@@ -51,7 +51,7 @@ namespace NosCore.Parser.Parsers
                     source: "FLAG[25] + DATA[0] + INDEX[0,1]",
                     description: "Pocket type: FLAG[25]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map")
                 .Field(x => x.ItemType, chunk => ImportItemType(chunk),
-                    source: "INDEX[0,1]", description: "ItemType composite enum")
+                    source: "INDEX[0,1]", description: "ItemType composite enum, built from the INDEX pocket even for Raid and Mount items")
                 .Field(x => x.ItemSubType, "INDEX", 0, 4, s => Convert.ToByte(s), "Subtype within item category")
                 .Field(x => x.EquipmentSlot, chunk => ImportEquipmentType(chunk),
                     source: "INDEX[3]", description: "Equipment slot")
@@ -550,7 +550,7 @@ namespace NosCore.Parser.Parsers
                 chunks["INDEX"][0][5] != "-1" ? chunks["INDEX"][0][5] : "0");
 
         private ItemType ImportItemType(Dictionary<string, string[][]> chunk) => chunk["INDEX"][0][3] != "-1"
-                    ? (ItemType)Enum.Parse(typeof(ItemType), $"{(short)ImportType(chunk)}{chunk["INDEX"][0][3]}")
+                    ? (ItemType)Enum.Parse(typeof(ItemType), $"{(short)ImportIndexPocket(chunk)}{chunk["INDEX"][0][3]}")
                     : ItemType.Weapon;
 
         private NoscorePocketType ImportType(Dictionary<string, string[][]> chunks)
@@ -562,6 +562,11 @@ namespace NosCore.Parser.Parsers
                 return NoscorePocketType.Mount;
             }
 
+            return ImportIndexPocket(chunks);
+        }
+
+        private static NoscorePocketType ImportIndexPocket(Dictionary<string, string[][]> chunks)
+        {
             return Convert.ToByte(chunks["INDEX"][0][2]) switch
             {
                 4 => NoscorePocketType.Equipment,

@@ -306,6 +306,42 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_RaidItemKeepsTheItemTypeOfItsIndexPocket()
+        {
+            var raidFlag = string.Join("\t", Enumerable.Repeat("0", 24)) + "\t1";
+            CreateTestFile(CreateItemData(
+                vnum: 1127,
+                indexType: 1,
+                indexSubType: 4,
+                flags: raidFlag,
+                data: "301\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(NoscorePocketType.Raid, _savedItems[0].Type);
+            Assert.AreEqual(ItemType.Special, _savedItems[0].ItemType);
+            Assert.AreEqual((ItemEffectType)301, _savedItems[0].Effect);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_MountKeepsTheItemTypeOfItsIndexPocket()
+        {
+            CreateTestFile(CreateItemData(
+                vnum: 5196,
+                indexType: 1,
+                indexSubType: 4,
+                data: "1000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(NoscorePocketType.Mount, _savedItems[0].Type);
+            Assert.AreEqual(ItemType.Special, _savedItems[0].ItemType);
+            Assert.AreEqual(ItemEffectType.Vehicle, _savedItems[0].Effect);
+        }
+
+        [TestMethod]
         public async Task ItemParser_ParsesConsumableItem()
         {
             var content = CreateItemData(
