@@ -233,6 +233,25 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         [TestMethod]
+        public async Task PacketAfterTheCounterWrapsRuns()
+        {
+            await new Spec("A packet numbered 0 after 65535 runs")
+                .Given(TheLastPacketWasNumbered_, ushort.MaxValue)
+                .WhenAsync(A_Arrives, nameof(PulsePacket))
+                .Then(Packet_ShouldHaveRun, nameof(PulsePacket))
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PacketThatSkipsANumberIsRefused()
+        {
+            await new Spec("A packet that skips a number is refused")
+                .WhenAsync(APulseNumbered_, (ushort)3)
+                .Then(Packet_ShouldNotHaveRun, nameof(PulsePacket))
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RevivalIsRefusedWhileAlive()
         {
             await new Spec("Revival is refused while alive, without a message")
@@ -287,6 +306,15 @@ namespace NosCore.GameObject.Tests.Networking
 
         private Task A_Arrives(string packet) => FromNetwork(PacketNamed(packet));
 
+        private void TheLastPacketWasNumbered_(ushort id) => Session.LastKeepAliveIdentity = id;
+
+        private Task APulseNumbered_(ushort id)
+        {
+            var packet = PacketNamed(nameof(PulsePacket));
+            packet.KeepAliveId = id;
+            return Session.HandlePacketsAsync(new[] { packet }, true);
+        }
+
         private Task TheServerDispatches_(string packet) => Session.HandlePacketsAsync(new[] { PacketNamed(packet) });
 
         private static IPacket PacketNamed(string name) => name switch
@@ -340,7 +368,7 @@ namespace NosCore.GameObject.Tests.Networking
 
         private Task FromNetwork(IPacket packet)
         {
-            packet.KeepAliveId = (ushort)(Session.LastKeepAliveIdentity + 1);
+            packet.KeepAliveId = (ushort)((Session.LastKeepAliveIdentity ?? 0) + 1);
             return Session.HandlePacketsAsync(new[] { packet }, true);
         }
 

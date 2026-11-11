@@ -81,14 +81,15 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
     {
-        if (session.LastKeepAliveIdentity != 0 && packet.KeepAliveId != session.LastKeepAliveIdentity + 1)
+        // The client's counter is a ushort, so 0 follows 65535.
+        if (session.LastKeepAliveIdentity is { } last && packet.KeepAliveId != (ushort)(last + 1))
         {
             logger.LogError(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
             await session.DisconnectAsync();
             return false;
         }
 
-        session.LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
+        session.LastKeepAliveIdentity = packet.KeepAliveId;
 
         if (packet.KeepAliveId == null)
         {
@@ -101,7 +102,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
     private Task<bool> HandleInitialConnectionAsync(IPacket packet, ClientSession session)
     {
-        if (session.WaitForPacketsAmount.HasValue || session.LastKeepAliveIdentity != 0)
+        if (session.WaitForPacketsAmount.HasValue || session.LastKeepAliveIdentity != null)
         {
             return Task.FromResult(false);
         }
@@ -126,7 +127,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         {
             if (session.WaitForPacketList.Count != session.WaitForPacketsAmount)
             {
-                session.LastKeepAliveIdentity = packet.KeepAliveId ?? 0;
+                session.LastKeepAliveIdentity = packet.KeepAliveId;
                 return Task.FromResult<IPacket?>(null);
             }
 

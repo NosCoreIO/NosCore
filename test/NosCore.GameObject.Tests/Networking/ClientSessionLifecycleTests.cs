@@ -252,7 +252,7 @@ namespace NosCore.GameObject.Tests.Networking
         private PulsePacket Pulse() => new()
         {
             Header = "pulse",
-            KeepAliveId = (ushort)(Session.LastKeepAliveIdentity + 1),
+            KeepAliveId = (ushort)((Session.LastKeepAliveIdentity ?? 0) + 1),
             Tick = 60,
         };
 

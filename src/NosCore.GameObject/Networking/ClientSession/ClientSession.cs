@@ -112,7 +112,7 @@ namespace NosCore.GameObject.Networking.ClientSession
 
         public bool IsClosing { get; private set; }
 
-        public int LastKeepAliveIdentity { get; set; }
+        public ushort? LastKeepAliveIdentity { get; set; }
 
         public IList<IPacket> WaitForPacketList { get; } = new List<IPacket>();
 
