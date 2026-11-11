@@ -203,15 +203,15 @@ namespace NosCore.GameObject.Tests.Services.SkillService
                 return Task.FromResult(list.Count > 0);
             }
 
-            public Task<CharacterSkillDto> FirstOrDefaultAsync(
+            public Task<CharacterSkillDto?> FirstOrDefaultAsync(
                 System.Linq.Expressions.Expression<Func<CharacterSkillDto, bool>> predicate) =>
-                Task.FromResult(Rows.AsQueryable().FirstOrDefault(predicate)!);
+                Task.FromResult(Rows.AsQueryable().FirstOrDefault(predicate));
 
             public IEnumerable<CharacterSkillDto>? Where(
                 System.Linq.Expressions.Expression<Func<CharacterSkillDto, bool>> predicate) =>
                 Rows.AsQueryable().Where(predicate).ToList();
 
-            public Task<CharacterSkillDto> TryDeleteAsync(Guid key)
+            public Task<CharacterSkillDto?> TryDeleteAsync(Guid key)
             {
                 var row = Rows.FirstOrDefault(r => r.Id == key);
                 if (row != null)
@@ -219,7 +219,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
                     Rows.Remove(row);
                 }
 
-                return Task.FromResult(row!);
+                return Task.FromResult(row);
             }
 
             public Task<IEnumerable<CharacterSkillDto>?> TryDeleteAsync(IEnumerable<Guid> keys)

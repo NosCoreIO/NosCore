@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
                 {
                     new CharacterDto { CharacterId = SenderId, Name = "Sender" },
                     new CharacterDto { CharacterId = ReceiverId, Name = "Receiver" }
-                }.AsQueryable().FirstOrDefault(predicate)!));
+                }.AsQueryable().FirstOrDefault(predicate)));
 
             var itemInstances = new Mock<IDao<IItemInstanceDto?, Guid>>();
             itemInstances.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
