@@ -55,9 +55,9 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.ItemSubType, "INDEX", 0, 4, s => Convert.ToByte(s), "Subtype within item category")
                 .Field(x => x.EquipmentSlot, chunk => ImportEquipmentType(chunk),
                     source: "INDEX[3]", description: "Equipment slot")
-                .Field(x => x.Morph, chunk => ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ? Convert.ToInt16(chunk["INDEX"][0][5]) :
+                .Field(x => x.Morph, chunk => ImportEffect(chunk) == ItemEffectType.ApplySkinPartner ? Convert.ToInt16(chunk["DATA"][0][4]) :
                     ImportEquipmentType(chunk) != EquipmentType.Amulet ? Convert.ToInt16(chunk["INDEX"][0][7]) : default,
-                    source: "INDEX[3] + INDEX[5]", description: "Morph id (partner skin) or effect value")
+                    source: "DATA[4] (partner skin) or INDEX[7]", description: "Morph id: the partner skin's look, else the item's own")
                 .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]),
                     source: "TYPE[1] (fairy override: 15)", description: "Class restriction bitmask")
                 .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "FLAG bit 23 (unknown)")

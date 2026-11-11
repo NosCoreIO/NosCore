@@ -670,6 +670,34 @@ in the Equipment bag; a second player on the map watches the partner.
 - [ ] Without a card on the partner the button says "No Specialist Card equipped."
 - [ ] Transformed, change map: the partner arrives transformed
 
+#### Pet and partner items
+
+The client applies these to the NosMate you have targeted: click your pet or partner on the map,
+then double-click the item and confirm. `/mnt/project-files/mate-items/reset-mate-items.sh`
+sets up a level 30 character, a level 5 pet and a level 10 partner out, a level 3 pet at home,
+and the items in the Etc bag.
+
+- [ ] Gourmet Pet Food (2158) on a pet five or more levels below you: it goes up one level with
+      the level-up effect, the pet window shows the new level, and the food is used up
+- [ ] The same food on a pet less than five levels below you: "Your pet cannot currently level
+      up or it would no longer respect you!" and the food stays. Partner Medicine (2159) does
+      the same for a partner
+- [ ] Pet food on a partner, or partner medicine on a pet: nothing happens and the item stays
+- [ ] Your hair does not change when you use any of these
+- [ ] Special Pet Food (2187): "The pet can collect items from now on." and the pet window shows
+      the pick-up ability; a second one on the same pet stays in the bag
+- [ ] NosMate Summoning Book (2419) on a NosMate that cannot be summoned: it can be now; on one
+      that already can, "You have already used the NosMate Summoning Book for this NosMate."
+- [ ] Release Box (2088) on the pet following you: "You cannot release your NosMate while it is
+      accompanying you." On the pet at home it disappears from the pet window and the Miniland
+- [ ] Handkerchief of Separation (2171) on a partner wearing gear: "You can only use the
+      Handkerchief of Separation when your partner is not carrying any more equipment."
+- [ ] With two partners, release the first one: the second keeps its gear after logging out
+      and back in
+- [ ] Skin for Bob (1103) on Bob: Bob takes the costume look, for you and for a second player
+      on the map, and keeps it after changing map; on another partner "You cannot receive
+      costumes that do not fit you."
+
 ### Food and snacks
 
 Lose some HP first, otherwise there is nothing to watch.
