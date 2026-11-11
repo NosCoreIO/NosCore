@@ -119,6 +119,15 @@ subtle: a card worth 5 is fivefold.
       multiples, not by a few per cent
 - [ ] The decreasing half halves rather than taking a couple of points off
 
+### The equipped fairy's element — BCard type 96 subtypes 0 and 1
+
+- [ ] With a fire fairy worn, note a fire skill's hits on a monster, then gain an effect that
+      raises "the equipped fairy's element" (an Elemental Blessing buff, or gloves such as
+      Steam Gloves): the same skill hits harder
+- [ ] Take the fairy off with the effect still running: the hits drop back to no elemental
+      bonus at all, the effect does not stand in for a fairy
+- [ ] An effect that lowers the fairy's element makes the same skill hit softer
+
 ### Casting range
 
 A targeted skill reaches its range plus one cell, measured on the truncated diagonal

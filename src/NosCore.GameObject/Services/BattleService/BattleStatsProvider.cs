@@ -34,7 +34,7 @@ public sealed class BattleStatsProvider(
         // Flat equipment first: a card that raises attack by a percentage has to see the weapon.
         var withGear = ApplyEquipment(ResolveBaseStats(entity), gear);
 
-        return ApplyCards(withGear, buffService.GetActiveBuffs(entity), gear.BCards, entity);
+        return ApplyCards(withGear, buffService.GetActiveBuffs(entity), gear, entity);
     }
 
     // Adds what the worn pieces carry.
@@ -204,8 +204,9 @@ public sealed class BattleStatsProvider(
     // CombatStats record. Unknown BCard types fall through silently so content can ship
     // them ahead of server-side handling.
     private static CombatStats ApplyCards(CombatStats stats, IReadOnlyCollection<BuffInstance> buffs,
-        IReadOnlyList<BCardDto> equipment, IAliveEntity target)
+        EquipmentService.EquipmentStats gear, IAliveEntity target)
     {
+        var equipment = gear.BCards;
         if (buffs.Count == 0 && equipment.Count == 0) return stats;
 
         var totals = new CardTotals();
@@ -231,6 +232,10 @@ public sealed class BattleStatsProvider(
             4 => totals.ElementDark,
             _ => 0,
         };
+        if (gear.FairyWorn)
+        {
+            elementFlatBonus += totals.FairyElement;
+        }
 
         return stats with
         {
@@ -289,6 +294,7 @@ public sealed class BattleStatsProvider(
         public int FoeAll, FoeFire, FoeWater, FoeLight, FoeDark;
         public int ResistAll, ResistFire, ResistWater, ResistLight, ResistDark;
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
+        public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
     }
 
@@ -394,6 +400,11 @@ public sealed class BattleStatsProvider(
             [BCardEffect.ElementLightDecreased] = (t, v) => t.ElementLight -= v,
             [BCardEffect.ElementDarkIncreased] = (t, v) => t.ElementDark += v,
             [BCardEffect.ElementDarkDecreased] = (t, v) => t.ElementDark -= v,
+
+            // Type 96, "the equipped fairy's element": the fairy's rate is the character's
+            // element rate, so it lands there whatever element the fairy has.
+            [BCardEffect.Type96IncreaseFairyElement] = (t, v) => t.FairyElement += v,
+            [BCardEffect.Type96DecreaseFairyElement] = (t, v) => t.FairyElement -= v,
 
             // Type 13, the defender's side of the elemental exchange. Not to be confused
             // with type 7 above, which is the attacker's element rate: these four are read
