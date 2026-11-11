@@ -80,6 +80,13 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             var targets = targetResolver.Resolve(origin, target, skill);
+            if (skill.HitsSeveral && arguments.ListedTargets is { Count: > 0 } listed)
+            {
+                targets = targets
+                    .Concat(listed.Where(t => CanAttack(origin, t) && ReferenceEquals(t.MapInstance, origin.MapInstance)))
+                    .DistinctBy(t => (t.VisualType, t.VisualId))
+                    .ToList();
+            }
 
             // Primary target is always first; we pass IsPrimaryTarget so the queue /
             // packet layer can treat the main hit specially (big animation, SkillEffect).
@@ -111,30 +118,6 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             ScheduleCooldownReset(origin, skill);
-            return true;
-        }
-
-        public async Task<bool> HitTargets(IAliveEntity origin, IReadOnlyList<IAliveEntity> targets, HitArguments arguments)
-        {
-            var skill = CanCast(origin) ? skillResolver.Resolve(origin, arguments.SkillId) : null;
-            var valid = skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill)
-                ? new List<IAliveEntity>()
-                : targets.Where(t => CanAttack(origin, t) && ReferenceEquals(t.MapInstance, origin.MapInstance))
-                    .DistinctBy(t => (t.VisualType, t.VisualId))
-                    .ToList();
-            if (valid.Count == 0)
-            {
-                await CancelAsync(origin, null);
-                return false;
-            }
-
-            var presentation = new HitPresentation(origin.PositionX, origin.PositionY, false);
-            for (var i = 0; i < valid.Count; i++)
-            {
-                await TryProcessHitAsync(origin, valid[i], skill!, i == 0, presentation);
-            }
-
-            ScheduleCooldownReset(origin, skill!);
             return true;
         }
 

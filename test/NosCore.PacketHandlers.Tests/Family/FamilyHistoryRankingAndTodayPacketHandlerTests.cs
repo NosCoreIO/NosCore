@@ -156,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .And(_HasAMemberWith_Reputation, "Alpha", 300L)
                 .And(_HasAMemberWith_Reputation, "Alpha", 400L)
                 .And(_HasAMemberWith_Reputation, "Beta", 500L)
-                .WhenAsync(AskingForTheRanking_, FamilyRankingType.Reputation)
+                .WhenAsync(AskingForTheRanking_, FamilyRankingType.CurrentDemons)
                 .Then(TheRankingShouldBe_, new[] { "1|Alpha|1|700", "2|Beta|2|500" })
                 .ExecuteAsync();
         }
@@ -166,8 +166,8 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await new Spec("The ranking reply names the tab it fills, so the client puts the first family in it")
                 .Given(AFamily_AtLevel_With_Experience, "Alpha", (byte)3, 100)
-                .WhenAsync(AskingForTheRanking_, FamilyRankingType.Reputation)
-                .Then(TheRankingTabShouldBe_, FamilyRankingType.Reputation)
+                .WhenAsync(AskingForTheRanking_, FamilyRankingType.CurrentDemons)
+                .Then(TheRankingTabShouldBe_, FamilyRankingType.CurrentDemons)
                 .ExecuteAsync();
         }
 

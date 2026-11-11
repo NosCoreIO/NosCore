@@ -5,6 +5,8 @@
 //
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
@@ -55,6 +57,8 @@ namespace NosCore.PacketHandlers.Battle
             }
 
             clientSession.Character.CancelDelay();
+            var listed = clientSession.Character.ListedTargets;
+            clientSession.Character.ListedTargets = null;
 
             var target = ResolveTarget(packet, clientSession);
             if (target == null)
@@ -80,6 +84,7 @@ namespace NosCore.PacketHandlers.Battle
             var accepted = await battleService.Hit(character, target, new HitArguments
             {
                 SkillId = packet.CastId,
+                ListedTargets = ListedTargetsInReach(clientSession, packet.CastId, listed),
             });
 
             // A cast BattleService refuses spends neither mana nor cooldown, so the player can
@@ -144,27 +149,44 @@ namespace NosCore.PacketHandlers.Battle
             return true;
         }
 
+        private List<IAliveEntity>? ListedTargetsInReach(ClientSession session, long castId,
+            IReadOnlyList<(VisualType VisualType, long VisualId)>? listed)
+        {
+            var character = session.Character;
+            var skill = listed == null ? null : skillCastService.FindLearned(character, castId)?.Skill;
+            if (skill == null)
+            {
+                return null;
+            }
+
+            return listed!
+                .Select(t => FindTarget(t.VisualType, t.VisualId, session))
+                .OfType<IAliveEntity>()
+                .Where(t => SkillReach.IsTargetInReach(skill.Range,
+                    (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (t.PositionX, t.PositionY)),
+                    t is INonPlayableEntity { NpcMonster: { } npcMonster } ? npcMonster.BasicArea : (byte)0))
+                .ToList();
+        }
+
+        private IAliveEntity? FindTarget(VisualType visualType, long visualId, ClientSession clientSession) => visualType switch
+        {
+            VisualType.Player => sessionRegistry.TryGetCharacter(s => s.VisualId == visualId, out var player) ? player : null,
+            VisualType.Npc => clientSession.Character.MapInstance.FindNpc(s => s.VisualId == visualId),
+            VisualType.Monster => clientSession.Character.MapInstance.FindMonster(s => s.VisualId == visualId),
+            _ => null,
+        };
+
         // Split out of ExecuteAsync so each branch reads cleanly and unknown visual
         // types get logged once and at the correct severity.
         private IAliveEntity? ResolveTarget(UseSkillPacket packet, ClientSession clientSession)
         {
-            IAliveEntity? candidate;
-            switch (packet.TargetVisualType)
+            if (packet.TargetVisualType is not (VisualType.Player or VisualType.Npc or VisualType.Monster))
             {
-                case VisualType.Player:
-                    candidate = sessionRegistry.TryGetCharacter(s => s.VisualId == packet.TargetId, out var player) ? player : null;
-                    break;
-                case VisualType.Npc:
-                    candidate = clientSession.Character.MapInstance.FindNpc(s => s.VisualId == packet.TargetId);
-                    break;
-                case VisualType.Monster:
-                    candidate = clientSession.Character.MapInstance.FindMonster(s => s.VisualId == packet.TargetId);
-                    break;
-                default:
-                    logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.TargetVisualType);
-                    return null;
+                logger.LogError(logLanguage[LogLanguageKey.VISUALTYPE_UNKNOWN], packet.TargetVisualType);
+                return null;
             }
 
+            var candidate = FindTarget(packet.TargetVisualType, packet.TargetId, clientSession);
             if (candidate == null)
             {
                 logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);

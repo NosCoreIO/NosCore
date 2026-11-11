@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -24,10 +23,6 @@ namespace NosCore.GameObject.Services.BattleService
         // A skill cast at a map cell: hits everyone the origin may attack within the skill's
         // target range of that cell. A cast that lands on nobody is still a cast.
         Task<bool> HitArea(IAliveEntity origin, short mapX, short mapY, HitArguments arguments);
-
-        // A skill cast on targets the caster picked. Targets the origin may not attack are
-        // skipped; false when none is left.
-        Task<bool> HitTargets(IAliveEntity origin, IReadOnlyList<IAliveEntity> targets, HitArguments arguments);
 
         // Drain the pending skill-cooldown-reset table for characters on this map
         // and emit SkillResetPacket for any whose ReadyAt has elapsed. Called once

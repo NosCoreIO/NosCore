@@ -162,46 +162,35 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public async Task ASingleTargetSkillCannotBeCastOnAList()
+        public async Task ASingleTargetSkillIgnoresTheListedTargets()
         {
-            await new Spec("A skill with neither an area hit type nor a target range is refused on a target list")
+            await new Spec("A skill with neither an area hit type nor a target range only hits its own target")
                 .Given(TheSkillResolvesAsSingleTarget)
-                .WhenAsync(CastingOn_, new[] { Monster(1), Monster(2) })
-                .Then(TheCastShouldBeAccepted_, false)
-                .And(_HitsShouldBeSent, 0)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ATargetListHitsEachValidTargetOnce()
-        {
-            await new Spec("Each listed target is hit once, even when the client lists it twice")
-                .Given(TheSkillResolves)
-                .WhenAsync(CastingOn_, new[] { Monster(1), Monster(2), Monster(2) })
-                .Then(TheCastShouldBeAccepted_, true)
-                .And(TheTargetsHitShouldBe_, new long[] { 1, 2 })
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
-        public async Task ATargetListSkipsDeadAndFriendlyTargets()
-        {
-            await new Spec("Dead monsters, players and targets on another map are dropped from the list")
-                .Given(TheSkillResolves)
-                .WhenAsync(CastingOn_, new[] { Monster(1), Monster(2, hp: 0), Player(3), Monster(4, onOtherMap: true) })
+                .WhenAsync(CastingOnMonster1Listing_, new[] { Monster(2), Monster(3) })
                 .Then(TheCastShouldBeAccepted_, true)
                 .And(TheTargetsHitShouldBe_, new long[] { 1 })
                 .ExecuteAsync();
         }
 
         [TestMethod]
-        public async Task ATargetListWithNothingValidIsRefused()
+        public async Task ListedTargetsAreHitOnceAfterTheMainTarget()
         {
-            await new Spec("A list with no target left is refused, so it costs nothing")
+            await new Spec("Each listed target is hit once after the main target, even when listed twice or listed as the main target")
                 .Given(TheSkillResolves)
-                .WhenAsync(CastingOn_, new[] { Monster(2, hp: 0), Player(3) })
-                .Then(TheCastShouldBeAccepted_, false)
-                .And(_HitsShouldBeSent, 0)
+                .WhenAsync(CastingOnMonster1Listing_, new[] { Monster(2), Monster(2), Monster(1) })
+                .Then(TheCastShouldBeAccepted_, true)
+                .And(TheTargetsHitShouldBe_, new long[] { 1, 2 })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ListedDeadFriendlyAndFarAwayTargetsAreSkipped()
+        {
+            await new Spec("Dead monsters, players and targets on another map are dropped from the list")
+                .Given(TheSkillResolves)
+                .WhenAsync(CastingOnMonster1Listing_, new[] { Monster(2, hp: 0), Player(3), Monster(4, onOtherMap: true), Monster(5) })
+                .Then(TheCastShouldBeAccepted_, true)
+                .And(TheTargetsHitShouldBe_, new long[] { 1, 5 })
                 .ExecuteAsync();
         }
 
@@ -298,9 +287,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             MapInstance = _map,
         };
 
-        private async Task CastingOn_(FakeEntity[] targets)
+        private async Task CastingOnMonster1Listing_(FakeEntity[] listed)
         {
-            _accepted = await _service.HitTargets(_origin, targets, new HitArguments { SkillId = 1 });
+            var main = Monster(1);
+            _targetResolver.Setup(r => r.Resolve(_origin, main, It.IsAny<SkillInfo>())).Returns(new List<IAliveEntity> { main });
+            _accepted = await _service.Hit(_origin, main, new HitArguments { SkillId = 1, ListedTargets = listed });
         }
 
         private void TheCastShouldBeAccepted_(bool accepted)

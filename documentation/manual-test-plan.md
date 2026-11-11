@@ -174,16 +174,16 @@ The cell must be within the skill's range plus one cell of the caster.
 
 ### Skills on a list of targets
 
-A skill that hits the monsters the client picked (`mtlist`). Each listed monster must be
-within the skill's range plus one cell of the caster; the cast costs mana and cooldown once.
+Some skills (Finishing Blow, 816) make the client send `mtlist` with the extra monsters it
+picked, followed by the `u_s` that casts the skill on the main target. That cast also hits
+each listed monster within the skill's range plus one cell of the caster, and costs mana and
+cooldown once.
 
-- [ ] Use such a skill with several monsters around: every listed monster takes damage, and
-      mana drops by one cast's cost
-- [ ] With one listed monster out of range, the others are still hit and that one is not
+- [ ] Line up three monsters, target the nearest and cast the skill: all three take damage,
+      and mana drops by one cast's cost
+- [ ] With one listed monster moved out of range, the others are still hit and that one is not
+- [ ] Cast a single-target skill right after: only its target is hit
 - [ ] Recast before the cooldown resets: nothing is hit
-- [ ] Check the cast id in the logged `mtlist` against the skill's cast id: the handler reads
-      the first value of each pair as the cast id; if it is the cast id plus one, or a visual
-      type, the cast never resolves and the skill does nothing
 
 ---
 
