@@ -114,9 +114,9 @@ public sealed class EquipmentStatsService(
             stats = AddSpecialist(stats, specialist);
         }
 
-        for (byte slot = 0; slot < 16; slot++)
+        foreach (var slot in Enum.GetValues<EquipmentType>())
         {
-            var piece = inventory.LoadBySlotAndType(slot, NoscorePocketType.Wear)?.ItemInstance
+            var piece = inventory.LoadBySlotAndType((short)slot, NoscorePocketType.Wear)?.ItemInstance
                 as WearableInstance;
             if (piece?.Item == null)
             {

@@ -60,6 +60,8 @@ confirms it. The server log line `walk dropped` names every refused packet.
 - [ ] Hit a monster before and after equipping — the damage is visibly different
 - [ ] An upgraded piece (`$CreateItem <vnum> 1 <upgrade>`) contributes more than a +0 of
       the same vnum
+- [ ] Transformed into the Ninja card with a water fairy, hit a monster, then wear wing skin
+      4442 ("+20 to the equipped fairy's element") and hit again: the second hit is higher
 
 Both the item model and the instance count. A +0 and a +10 of the same vnum giving the
 same damage means only one of the two is being read.
