@@ -49,6 +49,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" VersionOverride="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" />
     <PackageReference Include="NosCore.Analyzers">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>build; analyzers; buildtransitive</IncludeAssets>
