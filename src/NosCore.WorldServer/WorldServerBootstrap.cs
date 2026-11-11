@@ -110,6 +110,11 @@ namespace NosCore.WorldServer
                 foreach (var tgo in typeof(MapWorld).Assembly.GetTypes().Where(t.IsAssignableFrom))
                 {
                     b.RegisterType(tgo);
+                    if (!GameObjectMapper.BuildsThroughContainer(tgo))
+                    {
+                        continue;
+                    }
+
                     b.RegisterType(typeof(GameObjectMapper<,>).MakeGenericType(t, tgo))
                         .As(typeof(IGameObjectMapper<>).MakeGenericType(t))
                         .AutoActivate();
