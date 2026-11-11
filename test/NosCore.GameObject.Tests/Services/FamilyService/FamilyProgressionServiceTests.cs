@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Algorithm.FamilyExperienceService;
+using Moq;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -96,6 +97,19 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             Assert.IsNull(gain);
             Assert.AreEqual(0, (await FamilyAsync())!.FamilyExperience);
+        }
+        [TestMethod]
+        public async Task AFailedSaveReportsNoGain()
+        {
+            var familyCharacterDao = new Mock<IDao<FamilyCharacterDto, long>>();
+            familyCharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<FamilyCharacterDto, bool>>>()))
+                .ReturnsAsync(new FamilyCharacterDto { CharacterId = MemberId, FamilyId = _familyId });
+            familyCharacterDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
+                .Returns(Task.FromResult<FamilyCharacterDto>(null!));
+            var service = new FamilyProgressionService(_familyDao, familyCharacterDao.Object, _curve,
+                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
+
+            Assert.IsNull(await service.AddExperienceAsync(_familyId, MemberId, 600));
         }
     }
 }

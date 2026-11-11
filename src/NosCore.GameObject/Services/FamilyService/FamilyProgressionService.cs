@@ -45,8 +45,12 @@ namespace NosCore.GameObject.Services.FamilyService
 
             await using (var transaction = daoTransactionScope.Begin())
             {
-                await familyDao.TryInsertOrUpdateAsync(family);
-                await familyCharacterDao.TryInsertOrUpdateAsync(membership);
+                if (await familyDao.TryInsertOrUpdateAsync(family) == null
+                    || await familyCharacterDao.TryInsertOrUpdateAsync(membership) == null)
+                {
+                    return null;
+                }
+
                 await transaction.CommitAsync();
             }
 

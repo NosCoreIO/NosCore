@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     });
                 }
 
-                if (data.ReachedFamilyLevel is { } familyLevel && character.Family != null)
+                if (data.ReachedFamilyLevel is { } familyLevel && character.Family?.FamilyId == data.FamilyId)
                 {
                     await session.SendPacketAsync(new MsgiPacket
                     {
