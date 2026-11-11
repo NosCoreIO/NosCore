@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
@@ -16,6 +17,7 @@ using NosCore.PacketHandlers.Family;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.ClientPackets.Commands;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,19 +27,19 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyChatAndShoutPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
-        private Mock<IPubSubHub> _pubSubHub;
         private readonly List<IMessage> _sent = new();
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _pubSubHub = new Mock<IPubSubHub>();
-            _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
+            World = await TestWorld.CreateAsync();
+            World.PubSubHub
+                .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
                 .Callback<IMessage>(_sent.Add)
                 .ReturnsAsync(true);
+            _session = await World.CreateSessionAsync();
         }
 
         private void JoinFamily(FamilyAuthority authority, bool managerCanShout = true)
@@ -55,11 +57,11 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private Task ChatAsync(string message) =>
-            new FamilyChatPacketHandler(_pubSubHub.Object)
+            World.Create<FamilyChatPacketHandler>()
                 .ExecuteAsync(new FamilyChatPacket { Message = message }, _session);
 
         private Task ShoutAsync(string message) =>
-            new FamilyShoutPacketHandler(_pubSubHub.Object)
+            World.Create<FamilyShoutPacketHandler>()
                 .ExecuteAsync(new FamilyShoutPacket { Message = message }, _session);
 
         [TestMethod]

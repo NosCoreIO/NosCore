@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
     [TestClass]
     public class TransformationServiceTests
     {
+        private TestWorld World;
         private static readonly ILogger<NosCore.GameObject.Services.TransformationService.TransformationService> Logger = new Mock<ILogger<NosCore.GameObject.Services.TransformationService.TransformationService>>().Object;
         private ITransformationService Service;
         private ClientSession Session;
@@ -30,19 +31,19 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(1);
 
             Service = new GameObject.Services.TransformationService.TransformationService(
-                TestHelpers.Instance.Clock,
+                World.Clock,
                 new Mock<IExperienceService>().Object,
                 new Mock<IJobExperienceService>().Object,
                 new Mock<IHeroExperienceService>().Object,
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.WorldConfiguration,
-                new GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
+                World.LogLanguageLocalizer,
+                World.WorldConfiguration,
+                World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                 new Mock<GameObject.Services.SkillService.ISkillService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }

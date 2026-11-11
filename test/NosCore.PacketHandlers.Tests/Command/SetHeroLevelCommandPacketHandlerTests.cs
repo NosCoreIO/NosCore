@@ -29,6 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetHeroLevelCommandPacketHandlerTests
     {
+        private TestWorld World;
         private SetHeroLevelCommandPacketHandler Handler;
         private ClientSession Session;
         private Mock<IRemoteCharacterService> RemoteCharacters;
@@ -39,15 +40,14 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            RemoteCharacters = new Mock<IRemoteCharacterService>();
-            ExperienceService = new Mock<IExperienceService>();
-            JobExperienceService = new Mock<IJobExperienceService>();
-            HeroExperienceService = new Mock<IHeroExperienceService>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
+            ExperienceService = World.Freeze<Mock<IExperienceService>>();
+            JobExperienceService = World.Freeze<Mock<IJobExperienceService>>();
+            HeroExperienceService = World.Freeze<Mock<IHeroExperienceService>>();
 
-            Handler = new SetHeroLevelCommandPacketHandler(RemoteCharacters.Object,
-                ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object);
+            Handler = World.Create<SetHeroLevelCommandPacketHandler>();
         }
 
         [TestMethod]
@@ -93,7 +93,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void TargetPlayerIsOnline()

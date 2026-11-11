@@ -26,6 +26,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetReputationPacketHandlerTests
     {
+        private TestWorld World;
         private SetReputationPacketHandler Handler;
         private ClientSession Session;
         private Mock<IRemoteCharacterService> RemoteCharacters;
@@ -33,11 +34,11 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            RemoteCharacters = new Mock<IRemoteCharacterService>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
 
-            Handler = new SetReputationPacketHandler(RemoteCharacters.Object);
+            Handler = World.Create<SetReputationPacketHandler>();
         }
 
         [TestMethod]
@@ -105,7 +106,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasReputation_(long reputation)

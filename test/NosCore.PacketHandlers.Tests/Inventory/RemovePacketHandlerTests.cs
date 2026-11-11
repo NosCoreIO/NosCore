@@ -30,9 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            RemovePacketHandler = new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
-                new Mock<NosCore.GameObject.Services.MateService.IPartnerEquipmentService>().Object);
+            RemovePacketHandler = World.Create<RemovePacketHandler>();
         }
 
         [TestMethod]
@@ -105,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
         private void EquipmentInventoryIsFull()
         {
-            for (short i = 0; i < TestHelpers.Instance.WorldConfiguration.Value.BackpackSize; i++)
+            for (short i = 0; i < World.WorldConfiguration.Value.BackpackSize; i++)
             {
                 var item = ItemProvider.Create(1, 1);
                 Session.Character.InventoryService.AddItemToPocket(

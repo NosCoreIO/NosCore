@@ -47,7 +47,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await base.SetupAsync();
             _random = new Mock<IRandomNumberSource>();
-            var localizer = TestHelpers.Instance.GameLanguageLocalizer;
+            var localizer = World.GameLanguageLocalizer;
             _operations = new EventSpUpgradeOperationBase[]
             {
                 new ChickenSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService()),
@@ -184,7 +184,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private Task UsingTheScrollIn_(short slot)
         {
             var scroll = Session.Character.InventoryService.LoadBySlotAndType(slot, NoscorePocketType.Main).NotNull();
-            return new UpgradeWindowItemHandler(_operations, TestHelpers.Instance.NpcDialogService)
+            return new UpgradeWindowItemHandler(_operations, World.NpcDialogService)
                 .Handle(new ItemUsedEvent(Session, scroll, new UseItemPacket
                 {
                     VisualType = VisualType.Player,
@@ -212,6 +212,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(window, GetLastPacket<WopenPacket>().NotNull().Type);
 
         private void TheScrollWindowShouldBeOpen() =>
-            Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.UpgradeScroll));
+            Assert.IsTrue(World.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.UpgradeScroll));
     }
 }

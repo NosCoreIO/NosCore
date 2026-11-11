@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class BuyPacketHandlerTests
     {
+        private TestWorld World;
         private BuyPacketHandler Handler;
         private const int ShopNpcId = 100;
         private ClientSession Session;
@@ -36,14 +37,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Handler = new BuyPacketHandler(
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.WorldConfiguration,
-                TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.NpcDialogService,
+                World.LogLanguageLocalizer,
+                World.SessionRegistry,
+                World.WorldConfiguration,
+                World.GenerateItemProvider(), World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
                 new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object,
                 new Mock<IFamilyShopService>().Object);
@@ -151,14 +152,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .ExecuteAsync();
         }
 
-        private static Shop AShop()
+        private Shop AShop()
         {
             var shopItems = new ConcurrentDictionary<int, ShopItem>();
             shopItems[0] = new ShopItem
             {
                 Slot = 0,
                 Price = 100,
-                ItemInstance = TestHelpers.Instance.GenerateItemProvider().Create(1012, 1)
+                ItemInstance = World.GenerateItemProvider().Create(1012, 1)
             };
             return new Shop { ShopItems = shopItems };
         }
@@ -171,7 +172,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private async Task APlayerShopStandsAt_(short x, short y)
         {
-            Seller = await TestHelpers.Instance.GenerateSessionAsync();
+            Seller = await World.CreateSessionAsync();
             Seller.WalkTo(x, y);
             Seller.Character.Shop = AShop();
             Seller.IsRegistered();
@@ -184,7 +185,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private void TheShopWindowWasOpenedAtTheNpc() => Session.WithWindowOpenedAt(ShopNpcId, NpcDialogWindow.Shop);
 
         private void TheShopWindowWasOpenedAtThePlayer() =>
-            TestHelpers.Instance.NpcDialogService.Open(Session.Character, Seller.Character, NpcDialogWindow.Shop);
+            World.NpcDialogService.Open(Session.Character, Seller.Character, NpcDialogWindow.Shop);
 
         private void TheSellerIsOnAnotherMap() => Seller.Character.MapInstanceId = Guid.NewGuid();
 
@@ -208,7 +209,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task BuyingFromUnknownVisualType()

@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
     [TestClass]
     public class ProductionServiceTests
     {
+        private TestWorld World;
         private const int NpcId = 100;
         private const short Material = 1012;
         private const short Product = 1013;
@@ -44,10 +45,10 @@ namespace NosCore.GameObject.Tests.Services.ProductionService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _itemProvider = TestHelpers.Instance.GenerateItemProvider();
-            _service = new GameObject.Services.ProductionService.ProductionService(_itemProvider, TestHelpers.Instance.DistanceCalculator,
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _itemProvider = World.GenerateItemProvider();
+            _service = new GameObject.Services.ProductionService.ProductionService(_itemProvider, World.DistanceCalculator,
                 new List<RecipeDto>
                 {
                     new() { RecipeId = 1, ScrollVNum = Scroll, ItemVNum = ScrollProduct, Amount = 1 },

@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SpecialistWingsHandlerTests
     {
+        private TestWorld World;
         private const short WingsVNum = 1686;
         private const int DevilWings = 2;
         private ClientSession _session;
@@ -38,10 +39,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
-            _handler = new SpecialistWingsHandler();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
+            _handler = World.Create<SpecialistWingsHandler>();
             WingsInInventory();
         }
 
@@ -116,7 +117,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void ASpecialistUpgradedTo_IsWorn(byte upgrade)
         {
-            var spInstance = TestHelpers.Instance.GenerateItemProvider().Create(912, 1);
+            var spInstance = World.GenerateItemProvider().Create(912, 1);
             spInstance.Upgrade = upgrade;
             _sp = InventoryItemInstance.Create(spInstance, _session.Character.CharacterId);
             _sp.Type = NoscorePocketType.Wear;

@@ -19,15 +19,16 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class EffectCommandPacketHandlerTests
     {
+        private TestWorld World;
         private EffectCommandPackettHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new EffectCommandPackettHandler();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Handler = World.Create<EffectCommandPackettHandler>();
         }
 
         [TestMethod]
@@ -52,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.Character.MapInstance.LastPackets.Clear();
         }
 

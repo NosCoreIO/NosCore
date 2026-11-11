@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Tests.Services.LoginService
     [TestClass]
     public class LoginServiceTests
     {
+        private TestWorld World;
         private ILoginService Service;
         private Mock<IAuthHub> AuthHub;
         private Mock<IPubSubHub> PubSubHub;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.LoginService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             SessionRefHolder = new SessionRefHolder();
 
             AuthHub = new Mock<IAuthHub>();
@@ -44,11 +45,11 @@ namespace NosCore.GameObject.Tests.Services.LoginService
 
             Service = new GameObject.Services.LoginService.LoginService(
                 LoginConfig,
-                TestHelpers.Instance.AccountDao,
+                World.AccountDao,
                 AuthHub.Object,
                 PubSubHub.Object,
                 ChannelHub.Object,
-                TestHelpers.Instance.CharacterDao,
+                World.CharacterDao,
                 SessionRefHolder);
         }
 

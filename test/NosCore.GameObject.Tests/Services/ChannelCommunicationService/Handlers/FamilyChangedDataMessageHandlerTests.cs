@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class FamilyChangedDataMessageHandlerTests
     {
+        private TestWorld World;
         private ClientSession _member;
         private ClientSession _joiner;
         private ClientSession _bystander;
@@ -40,10 +41,10 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _member = await TestHelpers.Instance.GenerateSessionAsync();
-            _joiner = await TestHelpers.Instance.GenerateSessionAsync();
-            _bystander = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _member = await World.CreateSessionAsync();
+            _joiner = await World.CreateSessionAsync();
+            _bystander = await World.CreateSessionAsync();
             _member.Character.Family = _family;
             _joiner.Character.Family = null;
             _bystander.Character.Family = null;
@@ -62,7 +63,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, registry.Object,
                 new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
-                TestHelpers.Instance.GameLanguageLocalizer, management);
+                World.GameLanguageLocalizer, management);
             foreach (var session in sessions)
             {
                 session.LastPackets.Clear();

@@ -28,20 +28,18 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class NcifPacketHandlerTests
     {
+        private TestWorld World;
         private NcifPacketHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
 
             var logger = new Mock<ILogger<NcifPacketHandler>>().Object;
-            Handler = new NcifPacketHandler(
-                logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+            Handler = World.Create<NcifPacketHandler>();
         }
 
         [TestMethod]
@@ -176,8 +174,8 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
-            TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
+            Session.Character.MapInstance = World.GetBaseMap(0);
+            World.SessionRegistry.Register(new SessionInfo
             {
                 ChannelId = Session.Channel.NotNull().Id,
                 SessionId = Session.SessionId,

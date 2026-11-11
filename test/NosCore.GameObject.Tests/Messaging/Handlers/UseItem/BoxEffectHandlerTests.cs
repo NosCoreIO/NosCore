@@ -36,6 +36,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class BoxEffectHandlerTests
     {
+        private TestWorld World;
         private const short BoxVNum = 1013;
         private const short RewardVNum = 1012;
         private ClientSession _session;
@@ -46,10 +47,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _rollDao = new Mock<IDao<RollGeneratedItemDto, short>>();
-            _handler = new BoxEffectHandler(TestHelpers.Instance.GenerateItemProvider(), _rollDao.Object);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _rollDao = World.Freeze<Mock<IDao<RollGeneratedItemDto, short>>>();
+            _handler = World.Create<BoxEffectHandler>();
         }
 
         [TestMethod]

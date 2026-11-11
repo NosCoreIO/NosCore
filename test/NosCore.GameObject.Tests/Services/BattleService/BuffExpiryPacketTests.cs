@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class BuffExpiryPacketTests
     {
+        private TestWorld World;
         private static readonly CardDto Card = new() { CardId = 136, Duration = 100 };
 
         private readonly List<IPacket> _broadcast = new();
@@ -36,8 +37,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             var mapSessions = new Mock<ISessionGroup>();
             mapSessions.Setup(s => s.Broadcast(It.IsAny<IPacket[]>()))
                 .Callback<IPacket[]>(packets => _broadcast.AddRange(packets))

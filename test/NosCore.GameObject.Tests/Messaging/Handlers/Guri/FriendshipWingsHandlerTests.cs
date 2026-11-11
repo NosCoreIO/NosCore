@@ -35,6 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class FriendshipWingsHandlerTests
     {
+        private TestWorld World;
         private const short WingsVNum = 2160;
         private ClientSession _session;
         private ClientSession _friend;
@@ -47,21 +48,21 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _friend = await TestHelpers.Instance.GenerateSessionAsync();
-            _otherFriend = await TestHelpers.Instance.GenerateSessionAsync();
-            _otherFriend.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
-            _friend.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _friend = await World.CreateSessionAsync();
+            _otherFriend = await World.CreateSessionAsync();
+            _otherFriend.Character.MapInstance = World.GetBaseMap(1);
+            _session.Character.MapInstance = World.GetBaseMap(1);
+            _friend.Character.MapInstance = World.GetBaseMap(1);
             _friend.Character.MapId = 1;
             _friend.Character.PositionX = 7;
             _friend.Character.PositionY = 9;
-            _friendHub = new Mock<IFriendHub>();
+            _friendHub = World.Freeze<Mock<IFriendHub>>();
             _friendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
-            _sessionRegistry = new Mock<ISessionRegistry>();
-            _mapChangeService = new Mock<IMapChangeService>();
-            _handler = new FriendshipWingsHandler(_friendHub.Object, _sessionRegistry.Object, _mapChangeService.Object, TestHelpers.Instance.Clock);
+            _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
+            _handler = World.Create<FriendshipWingsHandler>();
         }
 
         [TestMethod]
@@ -213,7 +214,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
 
         private Task ThePlayerIsHit()
         {
-            return new DelayInterruptionHandler().Handle(
+            return World.Create<DelayInterruptionHandler>().Handle(
                 new EntityDamagedEvent(_friend.Character, _session.Character, 10, false));
         }
 
@@ -254,7 +255,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             SecondsPass_(3);
         }
 
-        private void SecondsPass_(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+        private void SecondsPass_(int seconds) => World.Clock.AdvanceSeconds(seconds);
 
         private async Task SendingArgument_(int argument)
         {

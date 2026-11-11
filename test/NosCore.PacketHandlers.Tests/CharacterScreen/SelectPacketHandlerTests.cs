@@ -36,6 +36,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class SelectPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<SelectPacketHandler> Logger = new Mock<ILogger<SelectPacketHandler>>().Object;
         private SelectPacketHandler SelectPacketHandler;
         private ClientSession Session;
@@ -43,15 +44,15 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Session.ClearPlayerEntity();
             SelectPacketHandler = new SelectPacketHandler(
-                TestHelpers.Instance.CharacterDao,
+                World.CharacterDao,
                 Logger,
                 NullLoggerFactory.Instance,
                 new Mock<IItemGenerationService>().Object,
-                TestHelpers.Instance.MapInstanceAccessorService,
+                World.MapInstanceAccessorService,
                 new Mock<IDao<IItemInstanceDto?, Guid>>().Object,
                 new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object,
                 new Mock<IDao<StaticBonusDto, long>>().Object,
@@ -63,17 +64,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 new Mock<IDao<ScriptDto, Guid>>().Object,
                 new List<QuestDto>(),
                 new List<QuestObjectiveDto>(),
-                TestHelpers.Instance.WorldConfiguration,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.PubSubHub.Object,
-                TestHelpers.Instance.Clock,
+                World.WorldConfiguration,
+                World.LogLanguageLocalizer,
+                World.PubSubHub.Object,
+                World.Clock,
                 new List<ItemDto>(),
                 new HpService(),
                 new MpService(),
                 new SpeedService(),
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 new Mock<ISessionGroupFactory>().Object,
-                new CharacterInitializationService(),
+                World.Create<CharacterInitializationService>(),
                 new Mock<Wolverine.IMessageBus>().Object,
                 new Mock<NosCore.GameObject.Services.MateService.IMateService>().Object,
                 new Mock<NosCore.GameObject.Services.FamilyService.IFamilyService>().Object);
@@ -131,13 +132,13 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterHasSavedOptions()
         {
             var accountId = Session.Account.AccountId;
-            var row = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.AccountId == accountId && s.Slot == 1)).NotNull();
+            var row = (await World.CharacterDao.FirstOrDefaultAsync(s => s.AccountId == accountId && s.Slot == 1)).NotNull();
             row.ExchangeBlocked = true;
             row.WhisperBlocked = true;
             row.GroupRequestBlocked = true;
             row.HeroChatBlocked = true;
             row.EmoticonsBlocked = true;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(row);
+            await World.CharacterDao.TryInsertOrUpdateAsync(row);
         }
 
         private void OptionsShouldBeRestored()
@@ -162,7 +163,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         }
 
         private void MasterServerShouldKnowWhispersAreBlocked() =>
-            TestHelpers.Instance.PubSubHub.Verify(x => x.SubscribeAsync(It.Is<Subscriber>(s =>
+            World.PubSubHub.Verify(x => x.SubscribeAsync(It.Is<Subscriber>(s =>
                 s.ConnectedCharacter != null && s.ConnectedCharacter.WhisperBlocked)), Times.AtLeastOnce);
 
         private async Task SelectingCharacterInSlot_(int slot)
@@ -176,10 +177,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task TheCharacterInSlot_HasSpecialistPoints_AndAdditionalPoints_(int slot, int points, int additional)
         {
-            var dto = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.Slot == slot)).NotNull();
+            var dto = (await World.CharacterDao.FirstOrDefaultAsync(c => c.Slot == slot)).NotNull();
             dto.SpPoint = points;
             dto.SpAdditionPoint = additional;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(dto);
+            await World.CharacterDao.TryInsertOrUpdateAsync(dto);
         }
 
         private void TheCharacterShouldHaveSpecialistPoints_AndAdditionalPoints_(int points, int additional)

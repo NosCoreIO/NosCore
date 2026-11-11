@@ -23,6 +23,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class ComplPacketHandlerTests
     {
+        private TestWorld World;
         private ComplPacketHandler Handler;
         private ClientSession Session;
         private ClientSession Target;
@@ -31,11 +32,11 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Target = await TestHelpers.Instance.GenerateSessionAsync();
-            ComplimentService = new Mock<IComplimentService>();
-            Handler = new ComplPacketHandler(ComplimentService.Object);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Target = await World.CreateSessionAsync();
+            ComplimentService = World.Freeze<Mock<IComplimentService>>();
+            Handler = World.Create<ComplPacketHandler>();
         }
 
         [TestMethod]

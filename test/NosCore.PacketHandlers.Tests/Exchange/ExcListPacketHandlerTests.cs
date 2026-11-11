@@ -33,6 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     [TestClass]
     public class ExcListPacketHandlerTests
     {
+        private TestWorld World;
         private ExcListPacketHandler Handler;
         private ClientSession Session;
         private ClientSession TargetSession;
@@ -42,10 +43,10 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            ExchangeService = new Mock<IExchangeService>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
+            ExchangeService = World.Freeze<Mock<IExchangeService>>();
 
             var items = new List<ItemDto>
             {
@@ -53,13 +54,9 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 new Item { Type = NoscorePocketType.Main, VNum = 1013, IsTradable = false }
             };
             ItemProvider = new ItemGenerationService(items,
-                NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
-            Handler = new ExcListPacketHandler(
-                ExchangeService.Object,
-                NullLogger<ExcListPacketHandler>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+            Handler = World.Create<ExcListPacketHandler>();
         }
 
         [TestMethod]
@@ -130,13 +127,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void CharacterHasNoGold()
         {
             Session.Character.Gold = 0;
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasGold()
         {
             Session.Character.Gold = 10000;
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasNonTradableItem()
@@ -144,7 +141,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(1013, 1), 0),
                 NoscorePocketType.Main, 0);
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasTradableItem()
@@ -152,7 +149,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(ItemProvider.Create(1012, 10), 0),
                 NoscorePocketType.Main, 0);
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void ExchangeIsOpenWithTarget()

@@ -30,7 +30,8 @@ namespace NosCore.Tests.Shared.BDD
 {
     public abstract class SpecBase
     {
-        protected NosCoreFixture Fixture { get; private set; }
+        protected TestWorld World { get; private set; }
+        protected NosCoreFixture Fixture => World.Fixture;
         protected ClientSession Session { get; set; }
         protected ItemGenerationService ItemProvider { get; set; }
 
@@ -47,14 +48,13 @@ namespace NosCore.Tests.Shared.BDD
         [TestInitialize]
         public virtual async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Fixture = new NosCoreFixture();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
             ItemProvider = new ItemGenerationService(
                 DefaultItems,
                 NullLoggerFactory.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
         }
 
         protected void CharacterHasGold(long gold) => Session.Character.Gold = gold;

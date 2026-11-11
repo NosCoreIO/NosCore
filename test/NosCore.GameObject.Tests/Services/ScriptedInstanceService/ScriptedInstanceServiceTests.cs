@@ -23,15 +23,17 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
     [TestClass]
     public class ScriptedInstanceServiceTests
     {
+        private TestWorld World;
+
         [TestInitialize]
-        public Task SetupAsync()
+        public async Task SetupAsync()
         {
-            return TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
         }
 
-        private static ServiceUnderTest Build(params ScriptedInstanceDto[] entrances)
+        private ServiceUnderTest Build(params ScriptedInstanceDto[] entrances)
         {
-            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), TestHelpers.Instance.Clock, NullLogger<ServiceUnderTest>.Instance);
+            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), World.Create<MapInstanceRegistry>(), World.Clock, NullLogger<ServiceUnderTest>.Instance);
         }
 
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,
@@ -129,7 +131,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.AreEqual(1, service.GenerateWp(2500).Single().ScriptedInstanceId);
         }
 
-        private static ScriptedInstanceDto Scripted(short id, short mapId, short x, short y, string? script,
+        private ScriptedInstanceDto Scripted(short id, short mapId, short x, short y, string? script,
             ScriptedInstanceType type = ScriptedInstanceType.TimeSpace)
         {
             return new ScriptedInstanceDto
@@ -139,7 +141,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             };
         }
 
-        private static (ServiceUnderTest Service, Mock<IMapInstanceGeneratorService> Generator, List<Guid> Removed)
+        private (ServiceUnderTest Service, Mock<IMapInstanceGeneratorService> Generator, List<Guid> Removed)
             BuildWithMaps(ScriptedInstanceDto entrance, params short[] existingMapVNums)
         {
             var removed = new List<Guid>();
@@ -148,7 +150,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 .Setup(s => s.CreateMapInstance(It.IsAny<GameObject.Map.Map>(), It.IsAny<Guid>(), It.IsAny<bool>(),
                     It.IsAny<NosCore.Data.Enumerations.Map.MapInstanceType>()))
                 .Returns((GameObject.Map.Map map, Guid id, bool shop, NosCore.Data.Enumerations.Map.MapInstanceType type)
-                    => TestHelpers.Instance.MapInstanceGeneratorService.CreateMapInstance(map, id, shop, type));
+                    => World.MapInstanceGeneratorService.CreateMapInstance(map, id, shop, type));
             generator.Setup(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()))
                 .Returns(Task.CompletedTask);
             generator.Setup(s => s.RemoveMapAsync(It.IsAny<Guid>()))
@@ -161,7 +163,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }).ToList();
             return (new ServiceUnderTest([entrance], maps, new System.Lazy<IMapInstanceGeneratorService>(generator.Object),
-                    TestHelpers.Instance.MapInstanceRegistry, TestHelpers.Instance.Clock,
+                    World.MapInstanceRegistry, World.Clock,
                     NullLogger<ServiceUnderTest>.Instance),
                 generator, removed);
         }

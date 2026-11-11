@@ -27,6 +27,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
     [TestClass]
     public class MovementServiceTests
     {
+        private TestWorld World;
         private GameObject.Services.MovementService.MovementService Service;
         private ClientSession Session;
         private Mock<IHeuristic> DistanceCalculator;
@@ -38,29 +39,20 @@ namespace NosCore.GameObject.Tests.Services.MovementService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            DistanceCalculator = new Mock<IHeuristic>();
-            MinilandService = new Mock<IMinilandService>();
-            MapChangeService = new Mock<IMapChangeService>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            DistanceCalculator = World.Freeze<Mock<IHeuristic>>();
+            MinilandService = World.Freeze<Mock<IMinilandService>>();
+            MapChangeService = World.Freeze<Mock<IMapChangeService>>();
 
             DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
                 .Returns<(short X, short Y), (short X, short Y)>((from, to) =>
-                    TestHelpers.Instance.DistanceCalculator.GetDistance(from, to));
+                    World.DistanceCalculator.GetDistance(from, to));
 
             MinilandService.Setup(x => x.GetMinilandPortals(It.IsAny<long>()))
                 .Returns(new List<NosCore.GameObject.Map.Portal>());
 
-            Service = new GameObject.Services.MovementService.MovementService(
-                DistanceCalculator.Object,
-                new Mock<ILogger<GameObject.Services.MovementService.MovementService>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                new Mock<Wolverine.IMessageBus>().Object,
-                new WalkService(TestHelpers.Instance.Clock),
-                TestHelpers.Instance.MapInstanceAccessorService,
-                MinilandService.Object,
-                TestHelpers.Instance.Clock,
-                MapChangeService.Object);
+            Service = World.UseReal<IWalkService, WalkService>().Create<GameObject.Services.MovementService.MovementService>();
         }
 
         [TestMethod]
@@ -201,7 +193,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsAt_WithSpeed_(short x, short y, byte speed)
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.Character.PositionX = x;
             Session.Character.PositionY = y;
             Session.Character.Speed = speed;
@@ -228,7 +220,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private Task WalkingTo_After_Milliseconds(short x, short y, int milliseconds)
         {
-            TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
+            World.Clock.AdvanceMilliseconds(milliseconds);
             return WalkingTo_(x, y);
         }
 
@@ -266,14 +258,14 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             {
                 Delay = 5000,
                 Type = NosCore.Packets.Enumerations.DelayPacketType.ItemInUse,
-            }, BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant());
+            }, BarTarget, World.Clock.GetCurrentInstant());
         }
 
         private void TheBarShouldNotCompleteAfterFiveSeconds()
         {
-            TestHelpers.Instance.Clock.AdvanceSeconds(5);
+            World.Clock.AdvanceSeconds(5);
             Assert.IsFalse(Session.Character.TryCompleteDelay(NosCore.Packets.Enumerations.DelayPacketType.ItemInUse,
-                BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant()));
+                BarTarget, World.Clock.GetCurrentInstant()));
         }
 
         private short InitialX;
@@ -281,7 +273,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.Character.PositionX = 4;
             Session.Character.PositionY = 4;
             Session.Character.Speed = 20;
@@ -374,27 +366,27 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void CharacterIsOnBaseMapAtTheEntryPortal()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.Character.PositionX = 10;
             Session.Character.PositionY = 10;
         }
 
         private void CharacterRecentlyUsedPortal()
         {
-            Session.Character.LastPortal = TestHelpers.Instance.Clock.GetCurrentInstant();
+            Session.Character.LastPortal = World.Clock.GetCurrentInstant();
         }
 
         private void NoPortalNearby()
         {
             DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
                 .Returns(100);
-            TestHelpers.Instance.Clock.Advance(NodaTime.Duration.FromSeconds(10));
-            Session.Character.LastMove = TestHelpers.Instance.Clock.GetCurrentInstant();
+            World.Clock.Advance(NodaTime.Duration.FromSeconds(10));
+            Session.Character.LastMove = World.Clock.GetCurrentInstant();
         }
 
         private void CharacterIsInsideMinilandWithBasePositionRememberedAt_(short baseMapId, short baseX, short baseY)
         {
-            var miniland = TestHelpers.Instance.GetMap(TestHelpers.Instance.MinilandId);
+            var miniland = World.GetMap(World.MinilandId);
             miniland.MapInstanceType = MapInstanceType.NormalInstance;
             Session.Character.MapInstance = miniland;
             Session.Character.MapId = baseMapId;
@@ -406,7 +398,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void MinilandHasExitPortalToBaseMap()
         {
-            var baseMap = TestHelpers.Instance.GetBaseMap(1);
+            var baseMap = World.GetBaseMap(1);
             Session.Character.MapInstance.Portals.Clear();
             Session.Character.MapInstance.Portals.Add(new NosCore.GameObject.Map.Portal
             {
@@ -425,7 +417,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void BaseMapHasEntryPortalToMiniland()
         {
-            var miniland = TestHelpers.Instance.GetMap(TestHelpers.Instance.MinilandId);
+            var miniland = World.GetMap(World.MinilandId);
             miniland.MapInstanceType = MapInstanceType.NormalInstance;
             Session.Character.MapInstance.Portals.Clear();
             Session.Character.MapInstance.Portals.Add(new NosCore.GameObject.Map.Portal
@@ -445,9 +437,9 @@ namespace NosCore.GameObject.Tests.Services.MovementService
 
         private void PortalCooldownHasElapsed()
         {
-            TestHelpers.Instance.Clock.Advance(NodaTime.Duration.FromSeconds(10));
-            Session.Character.LastMove = TestHelpers.Instance.Clock.GetCurrentInstant();
-            Session.Character.LastPortal = TestHelpers.Instance.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(20);
+            World.Clock.Advance(NodaTime.Duration.FromSeconds(10));
+            Session.Character.LastMove = World.Clock.GetCurrentInstant();
+            Session.Character.LastPortal = World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(20);
         }
 
         private void ChangeMapAsyncWasCalledWith_(short expectedMapId, short expectedMapX, short expectedMapY)

@@ -21,6 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Quest
     [TestClass]
     public class QtPacketHandlerTests
     {
+        private TestWorld World;
         private QtPacketHandler Handler;
         private ClientSession Session;
         private Mock<IQuestService> QuestService;
@@ -30,11 +31,11 @@ namespace NosCore.PacketHandlers.Tests.Quest
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             CharacterId = Session.Character.VisualId;
-            QuestService = new Mock<IQuestService>();
-            Handler = new QtPacketHandler(QuestService.Object);
+            QuestService = World.Freeze<Mock<IQuestService>>();
+            Handler = World.Create<QtPacketHandler>();
         }
 
         [TestMethod]

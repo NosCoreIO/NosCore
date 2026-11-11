@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            MviPacketHandler = new MviPacketHandler();
+            MviPacketHandler = World.Create<MviPacketHandler>();
         }
 
         [TestMethod]

@@ -27,6 +27,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
     [TestClass]
     public class BlacklistServiceTests
     {
+        private TestWorld World;
         private IBlacklistService Service;
         private Mock<IPubSubHub> PubSubHub;
         private Mock<IChannelHub> ChannelHub;
@@ -36,9 +37,9 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            ChannelHub = new Mock<IChannelHub>();
+            World = await TestWorld.CreateAsync();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
 
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>
@@ -49,11 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
             CharacterId = 1;
             TargetCharacterId = 2;
 
-            Service = new GameObject.Services.BlackListService.BlacklistService(
-                PubSubHub.Object,
-                ChannelHub.Object,
-                TestHelpers.Instance.CharacterRelationDao,
-                TestHelpers.Instance.CharacterDao);
+            Service = World.Create<GameObject.Services.BlackListService.BlacklistService>();
         }
 
         [TestMethod]
@@ -145,12 +142,12 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private async Task ThreeBlockedCharactersOfWhichOneIsOnline()
         {
-            CharacterId = (await TestHelpers.Instance.GenerateSessionAsync()).Character.CharacterId;
+            CharacterId = (await World.CreateSessionAsync()).Character.CharacterId;
             for (var i = 0; i < 3; i++)
             {
-                var blocked = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
+                var blocked = (await World.CreateSessionAsync()).Character;
                 ExpectedBlocked[blocked.CharacterId] = (blocked.Name, i == 0);
-                await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
+                await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
                 {
                     CharacterId = CharacterId,
                     RelatedCharacterId = blocked.CharacterId,
@@ -187,8 +184,8 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private async Task BothPlayersAreOnline()
         {
-            var session1 = await TestHelpers.Instance.GenerateSessionAsync();
-            var session2 = await TestHelpers.Instance.GenerateSessionAsync();
+            var session1 = await World.CreateSessionAsync();
+            var session2 = await World.CreateSessionAsync();
             CharacterId = session1.Character.CharacterId;
             TargetCharacterId = session2.Character.CharacterId;
 
@@ -217,7 +214,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
                 RelatedCharacterId = TargetCharacterId,
                 RelationType = CharacterRelationType.Blocked
             };
-            var inserted = await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
+            var inserted = await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
             BlockRelationId = inserted.CharacterRelationId;
         }
 
@@ -229,7 +226,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
                 RelatedCharacterId = TargetCharacterId,
                 RelationType = CharacterRelationType.Friend
             };
-            await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
         }
 
         private async Task BlacklistingTarget()
@@ -259,7 +256,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
 
         private async Task BlacklistRelationShouldExist()
         {
-            var relation = await TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
+            var relation = await World.CharacterRelationDao.FirstOrDefaultAsync(s =>
                 s.CharacterId == CharacterId &&
                 s.RelatedCharacterId == TargetCharacterId &&
                 s.RelationType == CharacterRelationType.Blocked);

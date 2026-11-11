@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     [TestClass]
     public class SpecialistSkillTests
     {
+        private TestWorld World;
         // Flame Druid.
         private const short MorphOfCard = 42;
 
@@ -45,8 +46,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(
                 new Mock<IDao<CharacterSkillDto, Guid>>().Object, Catalog);
         }

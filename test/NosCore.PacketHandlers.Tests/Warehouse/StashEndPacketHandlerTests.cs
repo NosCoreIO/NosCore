@@ -18,15 +18,16 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class StashEndPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private StashEndPacketHandler Handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new StashEndPacketHandler();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Handler = World.Create<StashEndPacketHandler>();
         }
 
         [TestMethod]
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task ClosingWarehouse()

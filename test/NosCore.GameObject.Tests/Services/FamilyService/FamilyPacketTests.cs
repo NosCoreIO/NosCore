@@ -27,13 +27,14 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
     [TestClass]
     public class FamilyPacketTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         private static Family Nemesis(long characterId, FamilyAuthority authority = FamilyAuthority.Member)
@@ -73,7 +74,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             // gidx 1 521919 5052 -Nemesis-(Member) 7
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
 
-            var packet = _session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
+            var packet = _session.Character.GenerateGidx(World.GameLanguageLocalizer,
                 _session.Character.AccountLanguage);
 
             Assert.AreEqual(5052, packet.FamilyId);
@@ -87,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             // gidx 1 741328 -1 - 0 - silence would leave the last tag on screen.
             _session.Character.Family = null;
 
-            var packet = _session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
+            var packet = _session.Character.GenerateGidx(World.GameLanguageLocalizer,
                 _session.Character.AccountLanguage);
 
             Assert.IsNull(packet.FamilyId);
@@ -128,7 +129,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             _session.Character.Family = null;
             var line = serializer.Serialize(new[]
-                { (IPacket)_session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
+                { (IPacket)_session.Character.GenerateGidx(World.GameLanguageLocalizer,
                     RegionType.EN) }).TrimEnd('\uFFFF', '\n', ' ');
 
             StringAssert.StartsWith(line, "gidx 1 ");
@@ -148,7 +149,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             StringAssert.Contains(ginfo, "coin^afk^go^rush", $"the notice is one field: {ginfo}");
 
             var gidx = serializer.Serialize(new[] { (IPacket)_session.Character.GenerateGidx(
-                TestHelpers.Instance.GameLanguageLocalizer, RegionType.EN) }).TrimEnd();
+                World.GameLanguageLocalizer, RegionType.EN) }).TrimEnd();
             Assert.AreEqual(7, gidx.Split(' ').Length, $"the tag is one field: {gidx}");
         }
 
@@ -160,7 +161,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 _session.Character.Family = Nemesis(_session.Character.CharacterId, authority);
                 foreach (var language in Enum.GetValues<RegionType>())
                 {
-                    var tag = _session.Character.GenerateFamilyTag(TestHelpers.Instance.GameLanguageLocalizer,
+                    var tag = _session.Character.GenerateFamilyTag(World.GameLanguageLocalizer,
                         language).NotNull();
                     Assert.IsFalse(tag.Contains(' '), $"{authority} in {language} splits the tag: {tag}");
                 }
@@ -175,7 +176,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
             _session.Character.Family = Nemesis(_session.Character.CharacterId);
             var line = serializer.Serialize(new[]
-                { (IPacket)_session.Character.GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer,
+                { (IPacket)_session.Character.GenerateGidx(World.GameLanguageLocalizer,
                     RegionType.EN) }).TrimEnd('\uFFFF', '\n', ' ');
 
             var fields = line.Split(' ');
@@ -197,10 +198,10 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _session.Character.Family = Nemesis(_session.Character.CharacterId, FamilyAuthority.Manager);
 
             var english = _session.Character
-                .GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer, Shared.Enumerations.RegionType.EN)
+                .GenerateGidx(World.GameLanguageLocalizer, Shared.Enumerations.RegionType.EN)
                 .FamilyName;
             var french = _session.Character
-                .GenerateGidx(TestHelpers.Instance.GameLanguageLocalizer, Shared.Enumerations.RegionType.FR)
+                .GenerateGidx(World.GameLanguageLocalizer, Shared.Enumerations.RegionType.FR)
                 .FamilyName;
 
             Assert.AreNotEqual(english, french);

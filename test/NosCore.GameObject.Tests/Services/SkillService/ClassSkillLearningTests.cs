@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     [TestClass]
     public class ClassSkillLearningTests
     {
+        private TestWorld World;
         private NosCore.GameObject.Services.SkillService.SkillService _service;
         private ClientSession _session;
         private RememberingSkillDao _dao;
@@ -56,8 +57,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _dao = new RememberingSkillDao();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao, Catalog);
         }

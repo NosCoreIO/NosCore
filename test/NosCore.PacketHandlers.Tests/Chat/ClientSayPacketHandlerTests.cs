@@ -18,15 +18,16 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class ClientSayPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSayPacketHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new ClientSayPacketHandler();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Handler = World.Create<ClientSayPacketHandler>();
         }
 
         [TestMethod]
@@ -61,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task SendingSayMessage()

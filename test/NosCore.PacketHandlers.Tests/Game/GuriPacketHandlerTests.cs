@@ -24,6 +24,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class GuriPacketHandlerTests
     {
+        private TestWorld World;
         private GuriPacketHandler Handler;
         private ClientSession Session;
         private Mock<IMessageBus> MessageBus;
@@ -31,11 +32,11 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
 
-            MessageBus = new Mock<IMessageBus>();
-            Handler = new GuriPacketHandler(MessageBus.Object);
+            MessageBus = World.Freeze<Mock<IMessageBus>>();
+            Handler = World.Create<GuriPacketHandler>();
         }
 
         [TestMethod]
@@ -68,7 +69,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
+            Session.Character.MapInstance = World.GetBaseMap(0);
         }
 
         private async Task ExecutingGuriPacket()

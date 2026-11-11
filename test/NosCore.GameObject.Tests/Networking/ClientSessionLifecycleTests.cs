@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class ClientSessionLifecycleTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private RecordingPulseHandler PulseHandler;
         private Mock<ISessionDisconnectHandler> DisconnectHandler;
@@ -37,19 +38,19 @@ namespace NosCore.GameObject.Tests.Networking
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             Events.Clear();
             PulseHandler = new RecordingPulseHandler(Events);
             DisconnectHandler = new Mock<ISessionDisconnectHandler>();
             DisconnectHandler.Setup(h => h.HandleDisconnectAsync(It.IsAny<ClientSession>()))
                 .Callback(() => Events.Add("save"))
                 .Returns(Task.CompletedTask);
-            TestHelpers.Instance.PubSubHub.Reset();
-            TestHelpers.Instance.PubSubHub.Setup(h => h.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
-            TestHelpers.Instance.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
+            World.PubSubHub.Reset();
+            World.PubSubHub.Setup(h => h.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
+            World.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
                 .Callback(() => Events.Add("unsubscribe"))
                 .ReturnsAsync(true);
-            Session = await TestHelpers.Instance.GenerateSessionAsync(
+            Session = await World.CreateSessionAsync(
                 new List<IPacketHandler> { PulseHandler },
                 new List<ISessionDisconnectHandler> { DisconnectHandler.Object });
             Session.LastKeepAliveIdentity = 1;
@@ -170,7 +171,7 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         private void TheMasterFailsToUnsubscribe() =>
-            TestHelpers.Instance.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
+            World.PubSubHub.Setup(h => h.UnsubscribeAsync(It.IsAny<long>()))
                 .ThrowsAsync(new TimeoutException());
 
         private async Task ThePacketLockShouldBeFree()
@@ -228,12 +229,12 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         private void NothingShouldBeUnsubscribed() =>
-            TestHelpers.Instance.PubSubHub.Verify(h => h.UnsubscribeAsync(It.IsAny<long>()), Times.Never);
+            World.PubSubHub.Verify(h => h.UnsubscribeAsync(It.IsAny<long>()), Times.Never);
 
         private void OnlyTheClaimedIdShouldBeUnsubscribed()
         {
-            TestHelpers.Instance.PubSubHub.Verify(h => h.UnsubscribeAsync(ClaimedSessionId), Times.Once);
-            TestHelpers.Instance.PubSubHub.Verify(h => h.UnsubscribeAsync(It.IsAny<long>()), Times.Once);
+            World.PubSubHub.Verify(h => h.UnsubscribeAsync(ClaimedSessionId), Times.Once);
+            World.PubSubHub.Verify(h => h.UnsubscribeAsync(It.IsAny<long>()), Times.Once);
         }
 
         private void SaveShouldComeBeforeUnsubscribe() =>

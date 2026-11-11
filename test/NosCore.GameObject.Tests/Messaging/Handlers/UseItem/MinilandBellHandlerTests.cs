@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class MinilandBellHandlerTests
     {
+        private TestWorld World;
         private const short BellVNum = 1244;
         private ClientSession _session;
         private Mock<IMinilandService> _minilandService;
@@ -45,15 +46,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _minilandService = new Mock<IMinilandService>();
-            _mapChangeService = new Mock<IMapChangeService>();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _minilandService = World.Freeze<Mock<IMinilandService>>();
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
 
             _minilandService.Setup(x => x.GetMiniland(It.IsAny<long>()))
                 .Returns(new Miniland { MapInstanceId = _minilandInstanceId, MinilandMessage = "Test" });
 
-            _handler = new MinilandBellHandler(_minilandService.Object, _mapChangeService.Object, TestHelpers.Instance.Clock);
+            _handler = World.Create<MinilandBellHandler>();
         }
 
         [TestMethod]
@@ -162,7 +163,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private void _SecondsPass(int seconds) =>
-            TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+            World.Clock.AdvanceSeconds(seconds);
 
         private void CharacterIsOnBaseMap()
         {

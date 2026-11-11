@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class WhisperPacketHandlerTests
     {
+        private TestWorld World;
         private WhisperPacketHandler Handler;
         private ClientSession Session;
         private ClientSession TargetSession;
@@ -42,11 +43,11 @@ namespace NosCore.PacketHandlers.Tests.Chat
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            BlacklistHub = new Mock<IBlacklistHub>();
-            PubSubHub = new Mock<IPubSubHub>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
+            BlacklistHub = World.Freeze<Mock<IBlacklistHub>>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             Serializer = new Mock<ISerializer>();
 
             BlacklistHub.Setup(x => x.GetBlacklistedAsync(It.IsAny<long>()))
@@ -63,12 +64,12 @@ namespace NosCore.PacketHandlers.Tests.Chat
             Handler = new WhisperPacketHandler(
                 Logger,
                 Serializer.Object,
-                new BlacklistCacheService(BlacklistHub.Object, TestHelpers.Instance.Clock),
-                new SubscriberCacheService(PubSubHub.Object, TestHelpers.Instance.Clock),
+                World.Create<BlacklistCacheService>(),
+                World.Create<SubscriberCacheService>(),
                 PubSubHub.Object,
                 channel,
-                TestHelpers.Instance.GameLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                World.GameLanguageLocalizer,
+                World.SessionRegistry);
         }
 
         [TestMethod]
@@ -182,7 +183,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void TheCacheWindowPasses()
         {
-            TestHelpers.Instance.Clock.Advance(BlacklistCacheService.CacheDuration);
+            World.Clock.Advance(BlacklistCacheService.CacheDuration);
         }
 
         private void HubsShouldBeAskedOnce()
@@ -201,7 +202,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void TargetIsOnline()

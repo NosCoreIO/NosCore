@@ -3,10 +3,9 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
+using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.FamilyExperienceService;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -20,6 +19,7 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyManagementPacketHandlerTests
     {
+        private TestWorld World;
         private const long FamilyId = 42;
         private ClientSession _head;
         private long _headId;
@@ -41,8 +42,11 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _head = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            World.UseReal<IFamilyManagementService, FamilyManagementService>();
+            _familyService = World.Freeze<Mock<IFamilyService>>();
+            _pubSubHub = World.PubSubHub;
+            _head = await World.CreateSessionAsync();
             _headId = _head.Character.CharacterId;
             _family = new GameObject.Services.FamilyService.Family
             {
@@ -56,18 +60,12 @@ namespace NosCore.PacketHandlers.Tests.Family
                 }
             };
             _head.Character.Family = _family;
-            _familyService = new Mock<IFamilyService>();
-            _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             _familyService.Setup(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(true);
             _familyService.Setup(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>())).ReturnsAsync(true);
             _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
         }
-
-        private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService(),
-            new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry,
-            new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
 
         private void ChangeReturns(FamilyAuthorityChange result) =>
             _familyService.Setup(s => s.ChangeAuthorityAsync(_family, _headId, It.IsAny<long>(), It.IsAny<FamilyAuthority>()))
@@ -90,7 +88,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new() { ConnectedCharacter = new Character { Id = _headId } }
             });
 
-            await new GListPacketHandler(Management())
+            await World.Create<GListPacketHandler>()
                 .ExecuteAsync(new GListPacket { Type = 2 }, _head);
 
             var members = _head.LastPackets.OfType<GmbrPacket>().Single().Members.NotNull();
@@ -110,7 +108,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7 });
             ChangeReturns(FamilyAuthorityChange.Changed);
 
-            await new FamilyDeputyPacketHandler(Management())
+            await World.Create<FamilyDeputyPacketHandler>()
                 .ExecuteAsync(new FamilyDeputyPacket { CharacterName = "Buddy" }, _head);
 
             _familyService.Verify(s => s.ChangeAuthorityAsync(_family, _headId, 7, FamilyAuthority.Assistant), Times.Once);
@@ -123,7 +121,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             ChangeReturns(FamilyAuthorityChange.Changed);
 
-            await new FamilyManagementPacketHandler(Management())
+            await World.Create<FamilyManagementPacketHandler>()
                 .ExecuteAsync(new FamilyManagementPacket { TargetId = 7, FamilyAuthorityType = Packets.Enumerations.FamilyAuthority.Head }, _head);
 
             Assert.AreEqual(Game18NConstString.FamilyHeadChanged, LastInfo(_head));
@@ -135,7 +133,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             ChangeReturns(FamilyAuthorityChange.TooManyAssistants);
 
-            await new FamilyManagementPacketHandler(Management())
+            await World.Create<FamilyManagementPacketHandler>()
                 .ExecuteAsync(new FamilyManagementPacket { TargetId = 7, FamilyAuthorityType = Packets.Enumerations.FamilyAuthority.Assistant }, _head);
 
             Assert.AreEqual(Game18NConstString.CanNotAppointMoreDeputy, LastInfo(_head));
@@ -145,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task AnUnknownNameIsNotFound()
         {
-            await new FamilyKeeperPacketHandler(Management())
+            await World.Create<FamilyKeeperPacketHandler>()
                 .ExecuteAsync(new FamilyKeeperPacket { CharacterName = "Nobody" }, _head);
 
             Assert.AreEqual(Game18NConstString.CanNotFind, LastInfo(_head));
@@ -155,7 +153,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task TheHeadLetsKeepersInvite()
         {
-            await new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
+            await World.Create<FAuthPacketHandler>()
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsTrue(_family.ManagerCanInvite);
@@ -171,7 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new() { FamilyId = FamilyId, CharacterId = _headId, Authority = FamilyAuthority.Assistant }
             };
 
-            await new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
+            await World.Create<FAuthPacketHandler>()
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsFalse(_family.ManagerCanInvite);
@@ -184,7 +182,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task TheHeadSetsTheFamilyNotice()
         {
-            await new FamilyNoticePacketHandler(Management())
+            await World.Create<FamilyNoticePacketHandler>()
                 .ExecuteAsync(new FamilyNoticePacket { Message = "meet at the bank " }, _head);
 
             Assert.AreEqual("meet at the bank", _family.FamilyMessage);
@@ -197,14 +195,14 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             Become(FamilyAuthority.Manager);
 
-            await new FamilyNoticePacketHandler(Management())
+            await World.Create<FamilyNoticePacketHandler>()
                 .ExecuteAsync(new FamilyNoticePacket { Message = "hello" }, _head);
 
             Assert.AreEqual(Game18NConstString.NotAuthorizedToChangeNoticed, LastInfo(_head));
             Assert.IsNull(_family.FamilyMessage);
 
             _family.ManagerCanNotice = true;
-            await new FamilyNoticePacketHandler(Management())
+            await World.Create<FamilyNoticePacketHandler>()
                 .ExecuteAsync(new FamilyNoticePacket { Message = "hello" }, _head);
 
             Assert.AreEqual("hello", _family.FamilyMessage);
@@ -215,7 +213,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             Become(FamilyAuthority.Member);
 
-            await new FamilyNoticePacketHandler(Management())
+            await World.Create<FamilyNoticePacketHandler>()
                 .ExecuteAsync(new FamilyNoticePacket { Message = "hello" }, _head);
 
             Assert.AreEqual(Game18NConstString.NotAuthorizedToChangeNoticed, LastInfo(_head));
@@ -227,7 +225,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             Become(FamilyAuthority.Member);
 
-            await new FamilyTodayPacketHandler(Management())
+            await World.Create<FamilyTodayPacketHandler>()
                 .ExecuteAsync(new FamilyTodayPacket { Message = "good morning" }, _head);
 
             var mine = _family.Members.First(s => s.CharacterId == _headId);
@@ -241,9 +239,9 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             var tooLong = new string('a', 256);
 
-            await new FamilyNoticePacketHandler(Management())
+            await World.Create<FamilyNoticePacketHandler>()
                 .ExecuteAsync(new FamilyNoticePacket { Message = tooLong }, _head);
-            await new FamilyTodayPacketHandler(Management())
+            await World.Create<FamilyTodayPacketHandler>()
                 .ExecuteAsync(new FamilyTodayPacket { Message = tooLong }, _head);
 
             Assert.IsNull(_family.FamilyMessage);
@@ -257,7 +255,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7, Name = "Buddy" });
 
-            await new FamilyTitlePacketHandler(Management())
+            await World.Create<FamilyTitlePacketHandler>()
                 .ExecuteAsync(new FamilyTitlePacket { CharacterName = "Buddy", Rank = Packets.Enumerations.FamilyMemberRank.Uncle }, _head);
 
             Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Uncle, _family.Members.First(s => s.CharacterId == 7).Rank);
@@ -270,7 +268,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             Become(FamilyAuthority.Assistant);
             _familyService.Setup(s => s.FindCharacterAsync("Buddy")).ReturnsAsync(new CharacterDto { CharacterId = 7, Name = "Buddy" });
 
-            await new FamilyTitlePacketHandler(Management())
+            await World.Create<FamilyTitlePacketHandler>()
                 .ExecuteAsync(new FamilyTitlePacket { CharacterName = "Buddy", Rank = Packets.Enumerations.FamilyMemberRank.Uncle }, _head);
 
             Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Nothing, _family.Members.First(s => s.CharacterId == 7).Rank);
@@ -282,7 +280,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             _familyService.Setup(s => s.FindCharacterAsync("Stranger")).ReturnsAsync(new CharacterDto { CharacterId = 99, Name = "Stranger" });
 
-            await new FamilyTitlePacketHandler(Management())
+            await World.Create<FamilyTitlePacketHandler>()
                 .ExecuteAsync(new FamilyTitlePacket { CharacterName = "Stranger", Rank = Packets.Enumerations.FamilyMemberRank.Uncle }, _head);
 
             Assert.AreEqual(Game18NConstString.CanNotFind, LastInfo(_head));
@@ -294,7 +292,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
 
-            await new FamilyGenderPacketHandler(Management())
+            await World.Create<FamilyGenderPacketHandler>()
                 .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
 
             Assert.AreEqual(GenderType.Female, _family.FamilyHeadGender);
@@ -309,7 +307,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
             _familyService.Setup(s => s.SaveAsync(_family)).ReturnsAsync(false);
 
-            await new FamilyGenderPacketHandler(Management())
+            await World.Create<FamilyGenderPacketHandler>()
                 .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
 
             Assert.AreEqual(GenderType.Male, _family.FamilyHeadGender);
@@ -322,7 +320,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             Become(FamilyAuthority.Assistant);
 
-            await new FamilyGenderPacketHandler(Management())
+            await World.Create<FamilyGenderPacketHandler>()
                 .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);
 
             Assert.AreEqual(GenderType.Male, _family.FamilyHeadGender);

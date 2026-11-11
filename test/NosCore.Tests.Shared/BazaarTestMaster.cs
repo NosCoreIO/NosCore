@@ -14,6 +14,8 @@ using NosCore.Data.WebApi;
 using NosCore.Database.Entities;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Services.BazaarService;
+using Microsoft.EntityFrameworkCore;
+using NodaTime;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -23,9 +25,8 @@ namespace NosCore.Tests.Shared
     // A master-side bazaar on the test database, with real DAOs and transactions.
     public class BazaarTestMaster
     {
-        public BazaarTestMaster()
+        public BazaarTestMaster(Func<DbContext> context, IClock clock)
         {
-            var context = TestHelpers.Instance.DbContextBuilder;
             ItemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(
                 NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, context);
             BazaarItemDao = new Dao<BazaarItem, BazaarItemDto, long>(
@@ -35,7 +36,7 @@ namespace NosCore.Tests.Shared
             Registry = new BazaarRegistry(BazaarItemDao, ItemInstanceDao, new Mock<IDao<CharacterDto, long>>().Object,
                 OperationDao);
             Service = new BazaarService(Registry, BazaarItemDao, ItemInstanceDao, OperationDao,
-                new DaoTransactionScope(context), TestHelpers.Instance.Clock, new List<ItemDto>());
+                new DaoTransactionScope(context), clock, new List<ItemDto>());
             Hub = new BazaarHub(Service);
         }
 

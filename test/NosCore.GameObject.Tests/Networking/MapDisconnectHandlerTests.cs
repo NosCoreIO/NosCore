@@ -19,13 +19,14 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class MapDisconnectHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         [TestMethod]
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Tests.Networking
             var map = _session.Character.MapInstance;
             map.LastPackets.Clear();
 
-            await new MapDisconnectHandler().HandleDisconnectAsync(_session);
+            await World.Create<MapDisconnectHandler>().HandleDisconnectAsync(_session);
 
             Assert.IsTrue(map.LastPackets.OfType<OutPacket>()
                 .Any(s => s.VisualType == VisualType.Npc && s.VisualId == pet.MateTransportId));
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Tests.Networking
             var map = _session.Character.MapInstance;
             map.LastPackets.Clear();
 
-            await new MapDisconnectHandler().HandleDisconnectAsync(_session);
+            await World.Create<MapDisconnectHandler>().HandleDisconnectAsync(_session);
 
             Assert.IsFalse(map.LastPackets.OfType<OutPacket>().Any(s => s.VisualType == VisualType.Npc));
         }

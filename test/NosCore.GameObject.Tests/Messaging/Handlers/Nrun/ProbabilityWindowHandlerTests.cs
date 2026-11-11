@@ -24,18 +24,19 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class ProbabilityWindowHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private ProbabilityWindowHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             var spUpgrade = new Mock<IUpgradeOperation>();
             spUpgrade.SetupGet(o => o.Kind).Returns(UpgradePacketType.UpgradeSpNoProtection);
             spUpgrade.SetupGet(o => o.Window).Returns(NpcDialogWindow.Upgrade);
-            _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object }, TestHelpers.Instance.NpcDialogService);
+            _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object }, World.NpcDialogService);
         }
 
         [TestMethod]

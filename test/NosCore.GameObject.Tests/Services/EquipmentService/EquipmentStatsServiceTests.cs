@@ -44,6 +44,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
     [TestClass]
     public class EquipmentStatsServiceTests
     {
+        private TestWorld World;
         private const short MainWeaponVnum = 900;
         private const short SecondaryWeaponVnum = 901;
         private const short ArmourVnum = 902;
@@ -136,10 +137,10 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
             _options = new List<EquipmentOptionDto>();
             _optionReads = 0;
             var optionDao = new Mock<IDao<EquipmentOptionDto, Guid>>();

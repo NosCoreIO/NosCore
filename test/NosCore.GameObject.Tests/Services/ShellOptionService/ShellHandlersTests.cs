@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
     [TestClass]
     public class ShellHandlersTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private ShellTestBench _bench;
         private InventoryItemInstance _shell;
@@ -37,8 +38,8 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _bench = new ShellTestBench();
             _bench.Random.Setup(r => r.NextDouble()).Returns(0d);
         }
@@ -246,7 +247,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         private void EveryRollIs_(double roll) => _bench.Random.Setup(r => r.NextDouble()).Returns(roll);
 
         private Task UsingThePearl() =>
-            new RainbowPearlHandler().Handle(new ItemUsedEvent(_session, _consumable, Use(PocketType.Main, _consumable.Slot, 0)));
+            World.Create<RainbowPearlHandler>().Handle(new ItemUsedEvent(_session, _consumable, Use(PocketType.Main, _consumable.Slot, 0)));
 
         private Task PickingTheShellToIdentify() =>
             new ShellIdentificationHandler(_bench.Service, new Algorithm.ShellService.ShellService())

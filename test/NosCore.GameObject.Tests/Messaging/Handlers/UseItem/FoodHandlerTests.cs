@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class FoodHandlerTests
     {
+        private TestWorld World;
         private const short FoodVNum = 2017;
         private ClientSession _session;
         private Mock<ICardCatalog> _cards;
@@ -41,15 +42,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MaxHp = 5000;
             _session.Character.MaxMp = 5000;
             _session.Character.Hp = 1000;
             _session.Character.Mp = 1000;
-            _cards = new Mock<ICardCatalog>();
+            _cards = World.Freeze<Mock<ICardCatalog>>();
             _cards.Setup(c => c.GetItemBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
-            _handler = new FoodHandler(TestHelpers.Instance.Clock, _cards.Object);
+            _handler = World.Create<FoodHandler>();
         }
 
         [TestMethod]
@@ -218,10 +219,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void TheLastTickWas_SecondsAgo(int seconds) =>
             _session.Character.Digestion.LastTick =
-                TestHelpers.Instance.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds);
+                World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds);
 
         private void TheLastTickShouldStillBe_SecondsAgo(int seconds) =>
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds),
+            Assert.AreEqual(World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(seconds),
                 _session.Character.Digestion.LastTick);
 
         private void TheFullMessageShouldBeSaid()

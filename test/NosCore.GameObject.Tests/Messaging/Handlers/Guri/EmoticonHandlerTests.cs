@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class EmoticonHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private ClientSession _onlooker;
         private EmoticonHandler _handler;
@@ -34,13 +35,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _onlooker = await TestHelpers.Instance.GenerateSessionAsync();
-            var map = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _onlooker = await World.CreateSessionAsync();
+            var map = World.GetBaseMap(1);
             _session.Character.MapInstance = map;
             _onlooker.Character.MapInstance = map;
-            TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
+            World.SessionRegistry.Register(new SessionInfo
             {
                 ChannelId = _onlooker.Channel.NotNull().Id,
                 SessionId = _onlooker.SessionId,
@@ -55,7 +56,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .Callback<IPacket[], ISessionMatcher>((_, matcher) => _broadcastMatcher = matcher)
                 .Returns(Task.CompletedTask);
             map.Sessions = mapSessions.Object;
-            _handler = new EmoticonHandler(TestHelpers.Instance.SessionRegistry);
+            _handler = World.Create<EmoticonHandler>();
         }
 
         [TestMethod]

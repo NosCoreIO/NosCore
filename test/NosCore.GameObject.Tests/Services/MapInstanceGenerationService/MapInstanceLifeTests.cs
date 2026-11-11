@@ -27,23 +27,24 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
     [TestClass]
     public class MapInstanceLifeTests
     {
+        private TestWorld World;
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
         }
 
-        private static MapInstance NewMap(IBuffService? buffs = null, IRegenerationService? regeneration = null) =>
+        private MapInstance NewMap(IBuffService? buffs = null, IRegenerationService? regeneration = null) =>
             new(new GameObject.Map.Map
                 {
                     MapId = 0,
                     NameI18NKey = "testMap",
                     Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 },
                 },
-                Guid.NewGuid(), false, MapInstanceType.NormalInstance, TestHelpers.Instance.MapItemProvider.NotNull(),
-                NullLogger<MapInstance>.Instance, TestHelpers.Instance.Clock, TestHelpers.Instance.MapChangeService,
-                TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator, buffService: buffs, regenerationService: regeneration);
+                Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
+                NullLogger<MapInstance>.Instance, World.Clock, World.MapChangeService,
+                World.SessionGroupFactory, World.SessionRegistry,
+                World.DistanceCalculator, buffService: buffs, regenerationService: regeneration);
 
         [TestMethod]
         public async Task OneFailingEntityDoesNotCostTheRestOfTheMapItsTick()
@@ -72,12 +73,12 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
         public async Task RemovingAMapStopsItsLifeAndReleasesItsWorld()
         {
             var map = NewMap();
-            await TestHelpers.Instance.MapInstanceGeneratorService.AddMapInstanceAsync(map);
+            await World.MapInstanceGeneratorService.AddMapInstanceAsync(map);
             await map.StartLifeAsync();
             var item = map.EcsWorld.CreateMapItem(1, 1012, 1, map.MapInstanceId, 0, 0, null, Instant.MinValue,
                 Guid.NewGuid(), null);
 
-            await TestHelpers.Instance.MapInstanceGeneratorService.RemoveMapAsync(map.MapInstanceId);
+            await World.MapInstanceGeneratorService.RemoveMapAsync(map.MapInstanceId);
 
             Assert.IsTrue(map.Executor.IsClosed);
             Assert.IsFalse(map.EcsWorld.IsAlive(item));

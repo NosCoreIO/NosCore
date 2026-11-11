@@ -19,6 +19,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
     [TestClass]
     public class ShellOptionServiceTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private ShellTestBench _bench;
         private WearableInstance _shell;
@@ -27,8 +28,8 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _bench = new ShellTestBench();
         }
 

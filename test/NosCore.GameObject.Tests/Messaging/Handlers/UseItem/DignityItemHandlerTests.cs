@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class DignityItemHandlerTests
     {
+        private TestWorld World;
         private const short DignityItemVNum = 2156;
         private ClientSession _session;
         private DignityItemHandler _handler;
@@ -40,10 +41,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             DignityLevels.Load(ClientLadders.DignityLevels());
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new DignityItemHandler();
+            _session = await World.CreateSessionAsync();
+            _handler = World.Create<DignityItemHandler>();
         }
 
         [TestMethod]

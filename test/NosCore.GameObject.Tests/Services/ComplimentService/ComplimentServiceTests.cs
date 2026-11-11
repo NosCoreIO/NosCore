@@ -20,6 +20,7 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
     [TestClass]
     public class ComplimentServiceTests
     {
+        private TestWorld World;
         private GameObject.Services.ComplimentService.ComplimentService Service;
         private ComplimentResult Result;
         private ClientSession Session;
@@ -30,13 +31,13 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Target = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Target = await World.CreateSessionAsync();
             Session.Character.Level = 31;
             InitialCompliment = Target.Character.Compliment;
-            Service = new GameObject.Services.ComplimentService.ComplimentService(TestHelpers.Instance.Clock,
-                TestHelpers.Instance.SessionRegistry, MapTypeMaps);
+            Service = new GameObject.Services.ComplimentService.ComplimentService(World.Clock,
+                World.SessionRegistry, MapTypeMaps);
         }
 
         [TestMethod]
@@ -139,11 +140,11 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
 
         private void SenderIsLevel_(byte level) => Session.Character.Level = level;
 
-        private void OneHourHasPassedSinceConnection() => TestHelpers.Instance.Clock.AdvanceMinutes(60);
+        private void OneHourHasPassedSinceConnection() => World.Clock.AdvanceMinutes(60);
 
-        private void _MinutesHavePassedSinceConnection(int minutes) => TestHelpers.Instance.Clock.AdvanceMinutes(minutes);
+        private void _MinutesHavePassedSinceConnection(int minutes) => World.Clock.AdvanceMinutes(minutes);
 
-        private void ADayHasPassed() => TestHelpers.Instance.Clock.AdvanceHours(24);
+        private void ADayHasPassed() => World.Clock.AdvanceHours(24);
 
         private void ComplimentingTarget()
         {
@@ -174,7 +175,7 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
         private void MinutesToWaitShouldBe_(long minutes) => Assert.AreEqual(minutes, Result.MinutesToWait);
 
         private void LastComplimentShouldBeRecorded() =>
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), Session.Character.Account.LastCompliment);
+            Assert.AreEqual(World.Clock.GetCurrentInstant(), Session.Character.Account.LastCompliment);
 
         private void LastComplimentShouldNotBeRecorded() =>
             Assert.IsNull(Session.Character.Account.LastCompliment);

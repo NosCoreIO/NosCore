@@ -39,14 +39,15 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class VitalsConcurrencyTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private MapInstance _map;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _map = _session.Character.MapInstance;
         }
 
@@ -83,7 +84,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
-            var regeneration = new RegenerationService(TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.Clock,
+            var regeneration = new RegenerationService(World.SessionRegistry, World.Clock,
                 equipment.Object, buffs.Object, NullLogger<RegenerationService>.Instance);
             var lethal = Queue(1_000_000);
             var revived = 0;
@@ -93,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _session.Character.IsAlive = true;
                 _session.Character.Hp = 1;
                 _session.Character.IsSitting = true;
-                TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(2));
+                World.Clock.Advance(Duration.FromSeconds(2));
 
                 await Task.WhenAll(
                     Task.Run(() => HitAsync(lethal)),
@@ -122,9 +123,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 });
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
-            var rewards = new RewardService(TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.MapItemProvider.NotNull(),
+            var rewards = new RewardService(World.GenerateItemProvider(), World.MapItemProvider.NotNull(),
                 catalog.Object, experience.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
+                new LowLevelBoostService(), World.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
 
             const int kills = 50;
             _map.LoadMonsters(

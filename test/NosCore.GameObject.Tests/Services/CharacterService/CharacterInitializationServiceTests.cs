@@ -24,6 +24,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
     [TestClass]
     public class CharacterInitializationServiceTests
     {
+        private TestWorld World;
         private static readonly ILogger<CharacterInitializationServiceTests> Logger = new Mock<ILogger<CharacterInitializationServiceTests>>().Object;
         private ICharacterInitializationService Service;
         private IMinilandService MinilandService;
@@ -33,20 +34,20 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
 
             FriendHttpClient = new Mock<IFriendHub>();
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
 
-            await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
+            await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
             {
                 OwnerId = Session.Character.CharacterId
             });
 
             MinilandService = new GameObject.Services.MinilandService.MinilandService(
-                TestHelpers.Instance.MapInstanceAccessorService,
+                World.MapInstanceAccessorService,
                 FriendHttpClient.Object,
                 new List<MapDto>
                 {
@@ -57,11 +58,11 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
                         Data = new byte[] { }
                     }
                 },
-                TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao,
-                new MinilandRegistry());
+                World.MinilandDao,
+                World.MinilandObjectDao,
+                World.Create<MinilandRegistry>());
 
-            Service = new CharacterInitializationService(MinilandService, TestHelpers.Instance.MapInstanceGeneratorService);
+            Service = new CharacterInitializationService(MinilandService, World.MapInstanceGeneratorService);
         }
 
         [TestMethod]
@@ -126,7 +127,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private void ServiceWithNullDependencies()
         {
-            NullService = new CharacterInitializationService();
+            NullService = World.Create<CharacterInitializationService>();
         }
 
         private async Task InitializingCharacterWithNullServices()
@@ -142,7 +143,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private void ServiceWithOnlyMapInstanceService()
         {
-            PartialService = new CharacterInitializationService(mapInstanceGeneratorService: TestHelpers.Instance.MapInstanceGeneratorService);
+            PartialService = new CharacterInitializationService(mapInstanceGeneratorService: World.MapInstanceGeneratorService);
         }
 
         private async Task InitializingCharacterWithPartialServices()
@@ -153,8 +154,8 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private async Task InitializingMultipleCharacters()
         {
-            SecondSession = await TestHelpers.Instance.GenerateSessionAsync();
-            await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
+            SecondSession = await World.CreateSessionAsync();
+            await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
             {
                 OwnerId = SecondSession.Character.CharacterId
             });

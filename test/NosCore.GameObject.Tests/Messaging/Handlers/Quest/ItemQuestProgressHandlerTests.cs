@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
     [TestClass]
     public class ItemQuestProgressHandlerTests
     {
+        private TestWorld World;
         private const short QuestItem = 1012;
         private const short OtherItem = 1013;
         private const short Npc = 300;
@@ -49,22 +50,22 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
-            _itemProvider = TestHelpers.Instance.GenerateItemProvider();
+            _itemProvider = World.GenerateItemProvider();
             _questService = new Mock<IQuestService>();
             _handler = new ItemQuestProgressHandler(_questService.Object,
                 new IQuestTypeHandler[]
                 {
-                    new GoToQuestHandler(),
-                    new CollectQuestHandler(),
-                    new NeededQuestHandler(),
-                    new BringsQuestHandler(),
-                    new RequiredQuestHandler(),
-                    new ProductQuestHandler(),
-                    new UseQuestHandler(),
-                    new WearQuestHandler()
+                    World.Create<GoToQuestHandler>(),
+                    World.Create<CollectQuestHandler>(),
+                    World.Create<NeededQuestHandler>(),
+                    World.Create<BringsQuestHandler>(),
+                    World.Create<RequiredQuestHandler>(),
+                    World.Create<ProductQuestHandler>(),
+                    World.Create<UseQuestHandler>(),
+                    World.Create<WearQuestHandler>()
                 },
                 NullLogger<ItemQuestProgressHandler>.Instance);
         }

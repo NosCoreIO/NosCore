@@ -183,6 +183,9 @@ dotnet build NosCore.sln
 dotnet test NosCore.sln
 ```
 
+- **Tests** run against a per-test `TestWorld` and build the class under test with
+  `World.Create<T>()`; `test/README.md` shows the pattern. Do not hand-wire constructors or add
+  shared static state.
 - **Source generators** live under `tools/`. They pin their Roslyn version deliberately: a
   generator must target the *oldest* compiler it will run on. Letting them float to the
   central `Microsoft.CodeAnalysis` version produces `CS9057` and breaks every build that

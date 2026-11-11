@@ -36,6 +36,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
     [TestClass]
     public class TransferServiceTests
     {
+        private TestWorld World;
         private static readonly Item Stackable = new() { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true };
         private static readonly Item Filler = new() { Type = NoscorePocketType.Main, VNum = 1013, IsTradable = true };
         private static readonly Item Other = new() { Type = NoscorePocketType.Main, VNum = 1014, IsTradable = true };
@@ -78,9 +79,9 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _first = await TestHelpers.Instance.GenerateSessionAsync();
-            _second = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _first = await World.CreateSessionAsync();
+            _second = await World.CreateSessionAsync();
             foreach (var session in new[] { _first, _second })
             {
                 session.Character.Gold = 0;
@@ -88,7 +89,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
                 session.Character.InventoryService.Clear();
             }
 
-            var context = TestHelpers.Instance.DbContextBuilder;
+            var context = World.DbContextBuilder;
             _itemInstanceDao = new Dao<DbItemInstance, IItemInstanceDto?, Guid>(
                 NullLogger<Dao<DbItemInstance, IItemInstanceDto?, Guid>>.Instance, context);
             _inventoryDao = new Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>(
@@ -101,8 +102,8 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private GameObject.Services.TransferService.TransferService Create(IDaoTransactionScope scope,
             IDao<InventoryItemInstanceDto, Guid> inventoryDao) =>
             new(_configuration, NullLogger<GameObject.Services.TransferService.TransferService>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer, scope, TestHelpers.Instance.CharacterDao,
-                TestHelpers.Instance.AccountDao, _itemInstanceDao, inventoryDao, _optionDao);
+                World.LogLanguageLocalizer, scope, World.CharacterDao,
+                World.AccountDao, _itemInstanceDao, inventoryDao, _optionDao);
 
         [TestMethod]
         public async Task ATransferPersistsBothCharactersTogether()
@@ -181,7 +182,7 @@ namespace NosCore.GameObject.Tests.Services.TransferService
         private async Task SecondOffersBankGoldAndAnArmorWithOptions()
         {
             _second.Character.BankGold = 5_000;
-            _armor = new WearableInstance(Armor, NullLogger<WearableInstance>.Instance, TestHelpers.Instance.LogLanguageLocalizer)
+            _armor = new WearableInstance(Armor, NullLogger<WearableInstance>.Instance, World.LogLanguageLocalizer)
             {
                 Amount = 1,
                 Rare = 5,
@@ -253,12 +254,12 @@ namespace NosCore.GameObject.Tests.Services.TransferService
             var secondId = _second.Character.CharacterId;
             var firstAccountId = _first.Character.Account.AccountId;
             var secondAccountId = _second.Character.Account.AccountId;
-            var first = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == firstId)).NotNull();
-            var second = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == secondId)).NotNull();
+            var first = (await World.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == firstId)).NotNull();
+            var second = (await World.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == secondId)).NotNull();
             Assert.AreEqual(400L, first.Gold);
             Assert.AreEqual(600L, second.Gold);
-            var firstAccount = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.AccountId == firstAccountId)).NotNull();
-            var secondAccount = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.AccountId == secondAccountId)).NotNull();
+            var firstAccount = (await World.AccountDao.FirstOrDefaultAsync(a => a.AccountId == firstAccountId)).NotNull();
+            var secondAccount = (await World.AccountDao.FirstOrDefaultAsync(a => a.AccountId == secondAccountId)).NotNull();
             Assert.AreEqual(5_000L, firstAccount.BankMoney);
             Assert.AreEqual(0L, secondAccount.BankMoney);
         }

@@ -23,6 +23,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class TitEqPacketHandlerTests
     {
+        private TestWorld World;
         private TitEqPacketHandler Handler;
         private ClientSession Session;
         private const short TitleId = 1;
@@ -30,9 +31,9 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new TitEqPacketHandler();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Handler = World.Create<TitEqPacketHandler>();
         }
 
         [TestMethod]
@@ -71,7 +72,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
+            Session.Character.MapInstance = World.GetBaseMap(0);
         }
 
         private void CharacterHasTitle()

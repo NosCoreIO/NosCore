@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
     [TestClass]
     public class DigestionServiceTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private GameObject.Services.DigestionService.DigestionService _service;
         private DigestionState _digestion;
@@ -28,16 +29,14 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.MaxHp = 1000;
             _session.Character.MaxMp = 1000;
             _session.Character.IsSitting = true;
             _digestion = _session.Character.Digestion;
-            _digestion.LastTick = TestHelpers.Instance.Clock.GetCurrentInstant();
-            _service = new GameObject.Services.DigestionService.DigestionService(
-                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.Clock,
-                NullLogger<GameObject.Services.DigestionService.DigestionService>.Instance);
+            _digestion.LastTick = World.Clock.GetCurrentInstant();
+            _service = World.Create<GameObject.Services.DigestionService.DigestionService>();
         }
 
         [TestMethod]
@@ -201,10 +200,10 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
 
         private void SnackOwes_Hp_MpPerTick(int hp, int mp) => _digestion.Snack.Add(hp, mp);
 
-        private void _SecondsPass(int seconds) => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(seconds));
+        private void _SecondsPass(int seconds) => World.Clock.Advance(Duration.FromSeconds(seconds));
 
         private void _MillisecondsPass(int milliseconds) =>
-            TestHelpers.Instance.Clock.Advance(Duration.FromMilliseconds(milliseconds));
+            World.Clock.Advance(Duration.FromMilliseconds(milliseconds));
 
         private void TheCharacterStandsUp() => _session.Character.IsSitting = false;
 

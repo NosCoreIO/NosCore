@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     [TestClass]
     public class SkillServiceTests
     {
+        private TestWorld World;
         private static readonly ILogger<SkillServiceTests> Logger = new Mock<ILogger<SkillServiceTests>>().Object;
         private ISkillService Service;
         private Mock<IDao<CharacterSkillDto, Guid>> CharacterSkillDao;
@@ -32,8 +33,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
 
             CharacterSkillDao = new Mock<IDao<CharacterSkillDto, Guid>>();
             Skills = new List<SkillDto>

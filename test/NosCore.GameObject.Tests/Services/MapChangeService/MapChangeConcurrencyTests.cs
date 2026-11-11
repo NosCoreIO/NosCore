@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
     [TestClass]
     public class MapChangeConcurrencyTests
     {
+        private TestWorld World;
         private static readonly QueryDescription Players = new QueryDescription().WithAll<PlayerComponent>();
 
         private ClientSession _session;
@@ -38,15 +39,15 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _start = TestHelpers.Instance.GetBaseMap(0);
-            _first = TestHelpers.Instance.GetBaseMap(1);
-            _second = TestHelpers.Instance.GetMap(TestHelpers.Instance.MinilandId);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _start = World.GetBaseMap(0);
+            _first = World.GetBaseMap(1);
+            _second = World.GetMap(World.MinilandId);
         }
 
         private Task ChangeMapAsync(MapInstance to) =>
-            TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(_session, to.MapInstanceId, 1, 1);
+            World.MapChangeService.ChangeMapInstanceAsync(_session, to.MapInstanceId, 1, 1);
 
         private int PlayerEntities() =>
             new[] { _start, _first, _second }.Sum(map => map.EcsWorld.Exclusive(w => w.CountEntities(in Players)));
@@ -147,10 +148,10 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         {
             var clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             var map = new MapInstance(new Map.Map { MapId = 0, NameI18NKey = "testMap", Data = new byte[] { 2, 0, 2, 0, 0, 0, 0, 0 } },
-                Guid.NewGuid(), false, MapInstanceType.NormalInstance, TestHelpers.Instance.MapItemProvider.NotNull(),
-                NullLogger<MapInstance>.Instance, clock, TestHelpers.Instance.MapChangeService,
-                TestHelpers.Instance.SessionGroupFactory, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator);
+                Guid.NewGuid(), false, MapInstanceType.NormalInstance, World.MapItemProvider.NotNull(),
+                NullLogger<MapInstance>.Instance, clock, World.MapChangeService,
+                World.SessionGroupFactory, World.SessionRegistry,
+                World.DistanceCalculator);
             var sessions = new Mock<ISessionGroup>();
             map.Sessions = sessions.Object;
 

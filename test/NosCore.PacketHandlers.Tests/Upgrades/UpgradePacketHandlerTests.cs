@@ -26,6 +26,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
     [TestClass]
     public class UpgradePacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IUpgradeOperation> _matchingOperation;
         private Mock<IUpgradeOperation> _otherOperation;
@@ -35,8 +36,8 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _session.WithNpcAt(100, 1, 1);
             _session.WithWindowOpenedAt(100, NpcDialogWindow.Upgrade);
             _matchingOperation = new Mock<IUpgradeOperation>();
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
             _handler = new UpgradePacketHandler(
                 new[] { _otherOperation.Object, _matchingOperation.Object },
                 _logger.Object,
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
+                World.LogLanguageLocalizer, World.NpcDialogService);
         }
 
         [TestMethod]
@@ -132,7 +133,7 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         private void CharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
 
         private void AScrollWindowIsOpenInstead() =>
-            TestHelpers.Instance.NpcDialogService.OpenRemotely(_session.Character, NpcDialogWindow.UpgradeScroll);
+            World.NpcDialogService.OpenRemotely(_session.Character, NpcDialogWindow.UpgradeScroll);
 
         private void TheBankIsOpenAtTheNpcInstead() => _session.WithWindowOpenedAt(100, NpcDialogWindow.Bank);
 

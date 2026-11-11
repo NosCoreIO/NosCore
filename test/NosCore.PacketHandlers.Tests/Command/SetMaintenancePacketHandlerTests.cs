@@ -20,6 +20,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetMaintenancePacketHandlerTests
     {
+        private TestWorld World;
         private SetMaintenancePacketHandler Handler;
         private ClientSession Session;
         private Mock<IChannelHub> ChannelHub;
@@ -27,10 +28,10 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ChannelHub = new Mock<IChannelHub>();
-            Handler = new SetMaintenancePacketHandler(ChannelHub.Object);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            Handler = World.Create<SetMaintenancePacketHandler>();
         }
 
         [TestMethod]

@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
     [TestClass]
     public class ItemGrantServiceTests
     {
+        private TestWorld World;
         private const short PotionVNum = 1012;
         private const short WeaponVNum = 1;
         private const short SpecialistVNum = 912;
@@ -37,8 +38,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             ItemProvider = new Mock<IItemGenerationService>();
             var items = new List<ItemDto>
             {
@@ -54,9 +55,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
             Service = new GameObject.Services.ItemGrantService.ItemGrantService(
                 NullLogger<GameObject.Services.ItemGrantService.ItemGrantService>.Instance,
                 items,
-                TestHelpers.Instance.WorldConfiguration,
+                World.WorldConfiguration,
                 ItemProvider.Object,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
         }
 
         [TestMethod]

@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Tests
     [TestClass]
     public class BazaarTests
     {
+        private TestWorld World;
         private const long Seller = 1;
         private const long Buyer = 2;
 
@@ -38,8 +39,8 @@ namespace NosCore.GameObject.Tests
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Master = new BazaarTestMaster();
+            World = await TestWorld.CreateAsync();
+            Master = World.Create<BazaarTestMaster>();
         }
 
         [TestMethod]

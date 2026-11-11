@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     [TestClass]
     public class PstClientPacketHandlerTests
     {
+        private TestWorld World;
         private Mock<IMailHub> MailHub;
         private PstClientPacketHandler Handler;
         private ClientSession Session;
@@ -34,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             MailHub = new Mock<IMailHub>();
             Handler = new PstClientPacketHandler(MailHub.Object, new Mock<IDao<CharacterDto, long>>().Object,
                 SystemClock.Instance);

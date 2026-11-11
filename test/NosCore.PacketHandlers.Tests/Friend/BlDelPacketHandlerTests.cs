@@ -36,6 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class BlDelPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<BlDelPacketHandlerTests> Logger = new Mock<ILogger<BlDelPacketHandlerTests>>().Object;
         private BlacklistService BlackListController;
         private Mock<IBlacklistHub> BlackListHttpClient;
@@ -50,11 +51,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
-            ChannelHub = new Mock<IChannelHub>();
+            World = await TestWorld.CreateAsync();
+            CharacterRelationDao = World.CharacterRelationDao;
+            Session = await World.CreateSessionAsync();
+            ConnectedAccountHttpClient = World.PubSubHub;
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 } });
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
@@ -64,12 +65,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            BlackListHttpClient = TestHelpers.Instance.BlacklistHttpClient;
-            BlacklistCache = new Mock<IBlacklistCacheService>();
-            BlDelPacketHandler = new BlDelPacketHandler(BlackListHttpClient.Object, BlacklistCache.Object, TestHelpers.Instance.GameLanguageLocalizer);
-            CharacterDao = new Mock<IDao<CharacterDto, long>>();
-            BlackListController = new BlacklistService(ConnectedAccountHttpClient.Object, ChannelHub.Object, CharacterRelationDao,
-                CharacterDao.Object);
+            BlackListHttpClient = World.BlacklistHub;
+            BlacklistCache = World.Freeze<Mock<IBlacklistCacheService>>();
+            BlDelPacketHandler = World.Create<BlDelPacketHandler>();
+            CharacterDao = World.Freeze<Mock<IDao<CharacterDto, long>>>();
+            BlackListController = World.Create<BlacklistService>();
             BlackListHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns((long id) => BlackListController.GetBlacklistedListAsync(id));
             BlackListHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
@@ -131,7 +131,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetPlayerIsOnline()
         {
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             TargetCharacterId = TargetSession.Character.CharacterId;
             var list = new List<CharacterDto>
             {
@@ -190,7 +190,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private void ShouldReceiveNotInBlacklistMessage()
         {
             var lastpacket = ((InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket)).NotNull();
-            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language], lastpacket.Message);
+            Assert.AreEqual(World.GameLanguageLocalizer[LanguageKey.NOT_IN_BLACKLIST, Session.Account.Language], lastpacket.Message);
         }
     }
 }

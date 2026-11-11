@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class SpPerfectionOperationTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IRandomNumberSource> _random;
         private SpPerfectionOperation _operation;
@@ -38,10 +39,10 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
-            _operation = new SpPerfectionOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
+            _operation = new SpPerfectionOperation(_random.Object, World.GameLanguageLocalizer,
                 new SpPerfectionService());
             _session.Character.Gold = 10_000_000;
         }

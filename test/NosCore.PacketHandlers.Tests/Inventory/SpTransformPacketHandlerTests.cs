@@ -26,6 +26,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class SpTransformPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private SpTransformPacketHandler Handler;
         private Mock<ISpecialistTransformationService> Service;
@@ -34,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Service = new Mock<ISpecialistTransformationService>();
             ItemInfo.Setup(i => i.GenerateInfo(It.IsAny<IItemInstance>())).Returns(new SlInfoPacket());
             Handler = new SpTransformPacketHandler(Service.Object, ItemInfo.Object, new Mock<IBattleStatsProvider>().Object);

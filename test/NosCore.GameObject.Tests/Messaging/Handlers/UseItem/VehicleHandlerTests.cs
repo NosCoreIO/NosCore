@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class VehicleHandlerTests
     {
+        private TestWorld World;
         private const short BroomVNum = 5319;
         private ClientSession _session;
         private Mock<ITransformationService> _transformationService;
@@ -39,10 +40,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _transformationService = new Mock<ITransformationService>();
-            _handler = new VehicleHandler(_transformationService.Object, TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _transformationService = World.Freeze<Mock<ITransformationService>>();
+            _handler = World.Create<VehicleHandler>();
 
             var item = new Item
             {
@@ -172,7 +173,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private void _SecondsPass(int seconds) =>
-            TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+            World.Clock.AdvanceSeconds(seconds);
 
         private async Task UsingTheVehicleWithMode_(byte mode)
         {

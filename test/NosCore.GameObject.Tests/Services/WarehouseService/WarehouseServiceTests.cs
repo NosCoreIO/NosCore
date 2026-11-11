@@ -24,6 +24,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
     [TestClass]
     public class WarehouseServiceTests
     {
+        private TestWorld World;
         private IWarehouseService Service;
         private IDao<WarehouseItemDto, Guid> WarehouseItemDao;
         private IDao<WarehouseDto, Guid> WarehouseDao;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
 
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(
                 Guid.NewGuid().ToString());
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
                 WarehouseDao,
                 ItemInstanceDao);
 
-            var session = await TestHelpers.Instance.GenerateSessionAsync();
+            var session = await World.CreateSessionAsync();
             OwnerId = session.Character.CharacterId;
         }
 

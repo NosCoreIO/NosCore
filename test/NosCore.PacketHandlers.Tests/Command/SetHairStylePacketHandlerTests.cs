@@ -20,16 +20,17 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SetHairStylePacketHandlerTests
     {
+        private TestWorld World;
         private SetHairStylePacketHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
-            Handler = new SetHairStylePacketHandler();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(1);
+            Handler = World.Create<SetHairStylePacketHandler>();
         }
 
         [TestMethod]

@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
     [TestClass]
     public class RemoteCharacterServiceTests
     {
+        private TestWorld World;
         private const string TargetName = "TargetPlayer";
         private const long TargetId = 12345;
 
@@ -35,16 +36,15 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            MailHub = new Mock<IMailHub>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            MailHub = World.Freeze<Mock<IMailHub>>();
             PubSubHub.Setup(x => x.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             MailHub.Setup(x => x.SendMailAsync(It.IsAny<MailRequest>()))
                 .Callback<MailRequest>(request => SentMail = request)
                 .ReturnsAsync(true);
-            Service = new GameObject.Services.RemoteCharacterService.RemoteCharacterService(PubSubHub.Object,
-                MailHub.Object, TestHelpers.Instance.Clock);
+            Service = World.Create<GameObject.Services.RemoteCharacterService.RemoteCharacterService>();
         }
 
         [TestMethod]

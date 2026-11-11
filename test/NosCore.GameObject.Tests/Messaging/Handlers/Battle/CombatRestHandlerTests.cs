@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
     [TestClass]
     public class CombatRestHandlerTests
     {
+        private TestWorld World;
         private CombatRestHandler _handler;
         private ClientSession _session;
         private readonly IAliveEntity _monster = new Mock<INonPlayableEntity>().Object;
@@ -29,9 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new CombatRestHandler(TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _handler = World.Create<CombatRestHandler>();
         }
 
         [TestMethod]
@@ -108,13 +109,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         }
 
         private void CharacterLastAttacked_SecondsAgo(int seconds) =>
-            _session.Character.LastAttack = TestHelpers.Instance.Clock.GetCurrentInstant() - Duration.FromSeconds(seconds);
+            _session.Character.LastAttack = World.Clock.GetCurrentInstant() - Duration.FromSeconds(seconds);
 
         private void LastAttackShouldBeNow() =>
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _session.Character.LastAttack);
+            Assert.AreEqual(World.Clock.GetCurrentInstant(), _session.Character.LastAttack);
 
         private void LastAttackShouldBe_SecondsAgo(int seconds) =>
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant() - Duration.FromSeconds(seconds),
+            Assert.AreEqual(World.Clock.GetCurrentInstant() - Duration.FromSeconds(seconds),
                 _session.Character.LastAttack);
 
         private void CharacterIsSittingWithFoodDigesting()

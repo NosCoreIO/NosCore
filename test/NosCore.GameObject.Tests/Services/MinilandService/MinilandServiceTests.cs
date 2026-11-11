@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
     [TestClass]
     public class MinilandServiceTests
     {
+        private TestWorld World;
         private IMinilandService Service;
         private Mock<IFriendHub> FriendHttpClient;
         private ClientSession Session;
@@ -36,19 +37,19 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             FriendHttpClient = new Mock<IFriendHub>();
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
 
-            await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
+            await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto
             {
                 OwnerId = Session.Character.CharacterId
             });
 
             Service = new GameObject.Services.MinilandService.MinilandService(
-                TestHelpers.Instance.MapInstanceAccessorService,
+                World.MapInstanceAccessorService,
                 FriendHttpClient.Object,
                 new List<MapDto>
                 {
@@ -59,9 +60,9 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                         Data = new byte[] { }
                     }
                 },
-                TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao,
-                new MinilandRegistry());
+                World.MinilandDao,
+                World.MinilandObjectDao,
+                World.Create<MinilandRegistry>());
         }
 
         [TestMethod]
@@ -166,31 +167,31 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             var mapOldNosville = new NosCore.GameObject.Map.Map { MapId = 145, NameI18NKey = "oldnosville", Data = new byte[] { } };
             var mapMiniland = new NosCore.GameObject.Map.Map { MapId = 20001, NameI18NKey = "miniland", Data = new byte[] { } };
 
-            var clock = TestHelpers.Instance.Clock;
+            var clock = World.Clock;
             var logger = new Mock<ILogger<MapInstance>>().Object;
-            var sessionGroupFactory = TestHelpers.Instance.SessionGroupFactory;
-            var mapItemProvider = TestHelpers.Instance.MapItemProvider.NotNull();
+            var sessionGroupFactory = World.SessionGroupFactory;
+            var mapItemProvider = World.MapItemProvider.NotNull();
             var mapChangeService = new Mock<GameObject.Services.MapChangeService.IMapChangeService>().Object;
 
             _nosvilleInstance = new MapInstance(mapNosville, Guid.NewGuid(), false,
                 MapInstanceType.BaseMapInstance, mapItemProvider, logger, clock,
-                mapChangeService, sessionGroupFactory, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator);
+                mapChangeService, sessionGroupFactory, World.SessionRegistry,
+                World.DistanceCalculator);
             _oldNosvilleInstance = new MapInstance(mapOldNosville, Guid.NewGuid(), false,
                 MapInstanceType.BaseMapInstance, mapItemProvider, logger, clock,
-                mapChangeService, sessionGroupFactory, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator);
+                mapChangeService, sessionGroupFactory, World.SessionRegistry,
+                World.DistanceCalculator);
             _minilandInstance = new MapInstance(mapMiniland, Guid.NewGuid(), false,
                 MapInstanceType.NormalInstance, mapItemProvider, logger, clock,
-                mapChangeService, sessionGroupFactory, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator);
+                mapChangeService, sessionGroupFactory, World.SessionRegistry,
+                World.DistanceCalculator);
 
             _isolatedAccessor = new Mock<IMapInstanceAccessorService>();
             _isolatedAccessor.Setup(a => a.GetBaseMapById(1)).Returns(_nosvilleInstance);
             _isolatedAccessor.Setup(a => a.GetBaseMapById(145)).Returns(_oldNosvilleInstance);
             _isolatedAccessor.Setup(a => a.GetMapInstance(_minilandInstance.MapInstanceId)).Returns(_minilandInstance);
 
-            var registry = new MinilandRegistry();
+            var registry = World.Create<MinilandRegistry>();
             registry.Register(Session.Character.CharacterId, new Miniland
             {
                 MinilandId = Guid.NewGuid(),
@@ -202,8 +203,8 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 _isolatedAccessor.Object,
                 FriendHttpClient.Object,
                 new List<MapDto> { mapMiniland },
-                TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao,
+                World.MinilandDao,
+                World.MinilandObjectDao,
                 registry);
             await Task.CompletedTask;
         }
@@ -244,12 +245,12 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
 
         private async Task InitializingMiniland()
         {
-            InitializedMiniland = await Service.InitializeAsync(Session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
+            InitializedMiniland = await Service.InitializeAsync(Session.Character, World.MapInstanceGeneratorService);
         }
 
         private async Task MinilandIsInitialized()
         {
-            InitializedMiniland = await Service.InitializeAsync(Session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
+            InitializedMiniland = await Service.InitializeAsync(Session.Character, World.MapInstanceGeneratorService);
         }
 
         private void GettingMiniland()

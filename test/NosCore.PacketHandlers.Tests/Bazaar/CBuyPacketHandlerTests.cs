@@ -37,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CBuyPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<CBuyPacketHandler> Logger = new Mock<ILogger<CBuyPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient;
         private CBuyPacketHandler CbuyPacketHandler;
@@ -47,15 +48,15 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             ItemProvider = new Mock<IItemGenerationService>();
             CbuyPacketHandler = new CBuyPacketHandler(BazaarHttpClient.Object, ItemProvider.Object, Logger,
-                TestHelpers.Instance.LogLanguageLocalizer, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                ItemInstanceDao.Object, TestHelpers.Instance.NpcDialogService,
+                World.LogLanguageLocalizer, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
+                ItemInstanceDao.Object, World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
             ItemInstanceDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync(new ItemInstanceDto { ItemVNum = 1012, Amount = 99 });

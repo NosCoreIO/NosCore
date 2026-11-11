@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     [TestClass]
     public class GroupTalkPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> _sessions = new();
         private GroupTalkPacketHandler _groupTalkPacketHandler;
@@ -39,12 +40,12 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
 
             for (var i = 0; i < 3; i++)
             {
-                var session = await TestHelpers.Instance.GenerateSessionAsync();
+                var session = await World.CreateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);
@@ -55,17 +56,17 @@ namespace NosCore.PacketHandlers.Tests.Group
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            _groupTalkPacketHandler = new GroupTalkPacketHandler();
+            _groupTalkPacketHandler = World.Create<GroupTalkPacketHandler>();
 
             var mock = new Mock<IBlacklistHub>();
             _pJoinPacketHandler = new PjoinPacketHandler(
                 Logger,
                 mock.Object,
-                TestHelpers.Instance.Clock,
+                World.Clock,
                 idServer,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.GameLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                World.LogLanguageLocalizer,
+                World.GameLanguageLocalizer,
+                World.SessionRegistry);
         }
 
         [TestMethod]

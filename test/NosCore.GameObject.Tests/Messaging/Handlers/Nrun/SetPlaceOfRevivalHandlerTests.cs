@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class SetPlaceOfRevivalHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IRespawnService> _respawnService;
         private SetPlaceOfRevivalHandler _handler;
@@ -35,10 +36,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _respawnService = new Mock<IRespawnService>();
-            _handler = new SetPlaceOfRevivalHandler(_respawnService.Object, TestHelpers.Instance.NpcDialogService);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _respawnService = World.Freeze<Mock<IRespawnService>>();
+            _handler = World.Create<SetPlaceOfRevivalHandler>();
         }
 
         [TestMethod]

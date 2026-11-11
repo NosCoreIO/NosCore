@@ -38,6 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyWarehouseTests
     {
+        private TestWorld World;
         private const long FamilyId = 9;
         private ClientSession _session;
         private IItemGenerationService _items;
@@ -48,14 +49,14 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
                 new Item { Type = NoscorePocketType.Main, VNum = 1013 },
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon, IsTradable = true }
-            }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
             JoinFamily(FamilyAuthority.Head, 21);
         }
 

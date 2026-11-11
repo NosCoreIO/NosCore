@@ -35,6 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Login
     [TestClass]
     public class NoS0575PacketHandlerSpecs
     {
+        private TestWorld World;
         private static readonly ILogger<NoS0575PacketHandler> Logger = new Mock<ILogger<NoS0575PacketHandler>>().Object;
         private string Password;
         private Mock<IAuthHub> AuthHttpClient;
@@ -48,19 +49,19 @@ namespace NosCore.PacketHandlers.Tests.Login
         [TestInitialize]
         public async Task SetupAsync()
         {
+            World = await TestWorld.CreateAsync();
             Password = new Sha512Hasher().Hash("test").ToUpperInvariant();
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             AuthHttpClient = new Mock<IAuthHub>();
-            PubSubHub = TestHelpers.Instance.PubSubHub;
+            PubSubHub = World.PubSubHub;
             LoginConfiguration = Options.Create(new LoginConfiguration { Database = new(), MasterCommunication = new() });
             SessionRefHolder = new SessionRefHolder();
             ChannelHub = new Mock<IChannelHub>();
             SessionRefHolder[Session.Channel.NotNull().Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
             NoS0575PacketHandler = new NoS0575PacketHandler(new LoginService(LoginConfiguration,
-                    TestHelpers.Instance.AccountDao,
-                    AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, TestHelpers.Instance.CharacterDao, SessionRefHolder),
-                LoginConfiguration, Logger, TestHelpers.Instance.LogLanguageLocalizer);
+                    World.AccountDao,
+                    AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder),
+                LoginConfiguration, Logger, World.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -203,7 +204,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private async Task AccountIsGameMasterAsync()
         {
             Session.Account.Authority = AuthorityType.GameMaster;
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account);
         }
 
         private async Task LoggingInWithUppercaseNameAsync()

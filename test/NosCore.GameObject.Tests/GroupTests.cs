@@ -24,14 +24,15 @@ namespace NosCore.GameObject.Tests
     [TestClass]
     public class GroupTests
     {
+        private TestWorld World;
         private Group Group;
         private List<ClientSession> Sessions;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory)
+            World = await TestWorld.CreateAsync();
+            Group = new Group(GroupType.Group, World.SessionGroupFactory)
             {
                 GroupId = new IdService<Group>(1).GetNextId()
             };
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Tests
 
         private async Task<ClientSession> CreateCharacterAsync()
         {
-            var session = await TestHelpers.Instance.GenerateSessionAsync();
+            var session = await World.CreateSessionAsync();
             Sessions.Add(session);
             return session;
         }

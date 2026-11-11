@@ -41,6 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class MShopPacketHandlerTests
     {
+        private TestWorld World;
         private readonly MShopPacket ShopPacket = new()
         {
             Type = CreateShopPacketType.Open,
@@ -59,9 +60,9 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
 
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.MapInstance.Portals = new List<Portal>
             {
                 new()
@@ -78,7 +79,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                     SourceY = 0
                 }
             };
-            MShopPacketHandler = new MShopPacketHandler(TestHelpers.Instance.DistanceCalculator);
+            MShopPacketHandler = World.Create<MShopPacketHandler>();
         }
 
         [TestMethod]
@@ -213,10 +214,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0));
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasItemsWithAmount_(int value)
@@ -225,7 +226,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, (short)value), 0),
                 NoscorePocketType.Etc, 0);
@@ -234,7 +235,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, (short)value), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasTradableItems()
@@ -243,7 +244,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -252,7 +253,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 2);
 
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterIsInExchange()
@@ -262,7 +263,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsOnShopAllowedMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task CreatingShopAtPortal()
@@ -329,7 +330,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private async Task AnotherPlayerClicksTheShopAsync()
         {
-            Visitor = await TestHelpers.Instance.GenerateSessionAsync();
+            Visitor = await World.CreateSessionAsync();
             Visitor.LastPackets.Clear();
             Session.Character.Requests[typeof(NpcDialogRequestSubject)].OnNext(new RequestData(Visitor));
         }

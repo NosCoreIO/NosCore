@@ -4,45 +4,54 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Packets.Enumerations;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Microsoft.Extensions.Localization;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.Networking.SessionGroup;
+using NosCore.PathFinder.Heuristic;
+using NosCore.PathFinder.Interfaces;
 
 namespace NosCore.Tests.Shared.AutoFixture
 {
+    /// <summary>
+    /// Builds the class under test with every constructor dependency it does not care about mocked,
+    /// so a test only names the collaborators it sets up or verifies.
+    /// </summary>
+    /// <remarks>
+    /// <c>Freeze&lt;Mock&lt;IDep&gt;&gt;()</c> before <c>Create&lt;Sut&gt;()</c> to set up or verify a dependency.
+    /// Formula services from NosCore.Algorithm, the clock, the session registry, the localizers and the
+    /// world configuration are real and shared by everything the fixture builds. Collections are empty.
+    /// </remarks>
     public class NosCoreFixture : Fixture
     {
+        public static readonly Instant Epoch = Instant.FromUtc(2021, 01, 01, 01, 01, 01);
+
         public NosCoreFixture()
         {
-            Customize(new AutoMoqCustomization { ConfigureMembers = true });
+            TestMapping.EnsureConfigured();
+            Customize(new AutoMoqCustomization { GenerateDelegates = true });
+            Behaviors.Add(new EmptyMockDefaultsBehavior());
+            Customizations.Add(new AlgorithmServiceRelay());
+            Customizations.Add(new IdServiceRelay());
+            RepeatCount = 0;
 
-            this.Inject<IClock>(new FakeClock(Instant.FromUtc(2021, 01, 01, 01, 01, 01)));
+            var clock = new FakeClock(Epoch);
+            this.Inject(clock);
+            this.Inject<IClock>(clock);
 
-            var logLocalizer = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            logLocalizer.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            this.Inject(logLocalizer.Object);
+            var sessionRegistry = new SessionRegistry(NullLogger<SessionRegistry>.Instance);
+            this.Inject(sessionRegistry);
+            this.Inject<ISessionRegistry>(sessionRegistry);
 
-            var gameLocalizer = new Mock<IGameLanguageLocalizer>();
-            gameLocalizer.Setup(x => x[It.IsAny<LanguageKey>(), It.IsAny<RegionType>()])
-                .Returns((LanguageKey k, RegionType r) => new LocalizedString($"{k}{r}", $"{k}{r}", false));
-            this.Inject(gameLocalizer.Object);
-
+            this.Inject<ILoggerFactory>(NullLoggerFactory.Instance);
+            this.Inject<IHeuristic>(new OctileDistanceHeuristic());
             this.Inject(Options.Create(new WorldConfiguration
             {
                 Database = new(),
@@ -54,33 +63,12 @@ namespace NosCore.Tests.Shared.AutoFixture
                 MaxGoldAmount = 999_999_999
             }));
 
-            Customize<ItemDto>(c => c
-                .With(x => x.VNum, () => (short)(this.Create<int>() % 1000 + 1000))
-                .With(x => x.Type, NoscorePocketType.Main)
-                .With(x => x.IsSoldable, () => true)
-                .With(x => x.IsDroppable, () => true));
+            this.Inject(TestLocalizers.Log);
+            this.Inject(TestLocalizers.Game);
 
-            Customize<BazaarRequest>(c => c
-                .With(x => x.Amount, 1)
-                .With(x => x.Price, 1000)
-                .With(x => x.Duration, 3600)
-                .With(x => x.HasMedal, () => false)
-                .With(x => x.IsPackage, () => false));
-
-            Customize<CRegPacket>(c => c
-                .With(x => x.Type, 0)
-                .With(x => x.Inventory, 1)
-                .With(x => x.Slot, (short)0)
-                .With(x => x.Amount, 1)
-                .With(x => x.Price, 1000)
-                .With(x => x.Durability, BazaarListingDuration.OneDay)
-                .With(x => x.IsPackage, () => false)
-                .With(x => x.Taxe, 0)
-                .With(x => x.MedalUsed, 0));
-
-            Customize<ItemInstanceDto>(c => c
-                .With(x => x.Amount, 1)
-                .With(x => x.ItemVNum, (short)1012));
+            var sessionGroupFactory = new Mock<ISessionGroupFactory>();
+            sessionGroupFactory.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
+            this.Inject(sessionGroupFactory.Object);
         }
     }
 }

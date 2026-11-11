@@ -23,15 +23,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class UpgradeItemHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private UpgradeItemHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new UpgradeItemHandler(TestHelpers.Instance.NpcDialogService);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _handler = World.Create<UpgradeItemHandler>();
         }
 
         [TestMethod]

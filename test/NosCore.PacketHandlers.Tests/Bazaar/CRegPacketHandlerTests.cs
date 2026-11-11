@@ -30,7 +30,6 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     {
         private Mock<IBazaarHub> BazaarHttpClient;
         private CRegPacketHandler CregPacketHandler;
-        private Mock<IDao<InventoryItemInstanceDto, Guid>> InventoryItemInstanceDao;
         private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao;
 
         [TestInitialize]
@@ -39,19 +38,11 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await base.SetupAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
-            BazaarHttpClient = new Mock<IBazaarHub>();
-            InventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
-            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
+            BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
+            ItemInstanceDao = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();
             BazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>()))
                 .ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);
-            CregPacketHandler = new CRegPacketHandler(
-                TestHelpers.Instance.WorldConfiguration,
-                BazaarHttpClient.Object,
-                ItemInstanceDao.Object,
-                new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<CRegPacketHandler>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService,
-                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
+            CregPacketHandler = World.Create<CRegPacketHandler>();
             ItemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
         }
@@ -278,7 +269,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private async Task AttemptingToRegisterAboveMaxGold()
         {
-            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount + 1), Session);
+            await CregPacketHandler.ExecuteAsync(CreateCRegPacket(price: World.WorldConfiguration.Value.MaxGoldAmount + 1), Session);
         }
 
         private async Task AttemptingToRegisterForExtendedDuration()

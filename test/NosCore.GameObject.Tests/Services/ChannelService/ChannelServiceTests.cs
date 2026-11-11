@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
     [TestClass]
     public class ChannelServiceTests
     {
+        private TestWorld World;
         private IChannelService Service;
         private Mock<IAuthHub> AuthHub;
         private Mock<IChannelHub> ChannelHub;
@@ -34,21 +35,18 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(1);
 
-            AuthHub = new Mock<IAuthHub>();
-            ChannelHub = new Mock<IChannelHub>();
-            SaveService = new Mock<ISaveService>();
+            AuthHub = World.Freeze<Mock<IAuthHub>>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            SaveService = World.Freeze<Mock<ISaveService>>();
 
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
                 .Returns(Task.CompletedTask);
 
-            Service = new GameObject.Services.ChannelService.ChannelService(
-                AuthHub.Object,
-                ChannelHub.Object,
-                SaveService.Object);
+            Service = World.Create<GameObject.Services.ChannelService.ChannelService>();
         }
 
         [TestMethod]

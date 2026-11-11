@@ -36,6 +36,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class CellonOperationTests
     {
+        private TestWorld World;
         private const short JewelVNum = 900;
         private const short CellonVNum = 1017;
 
@@ -52,8 +53,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _existingOptions = new List<EquipmentOptionDto>();
             _persisted = new List<EquipmentOptionDto>();
@@ -68,7 +69,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                     return Task.FromResult(dto);
                 });
 
-            _operation = new CellonOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
+            _operation = new CellonOperation(_random.Object, World.GameLanguageLocalizer,
                 _optionDao.Object, new CellonService());
         }
 
@@ -180,7 +181,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 MaxCellonLvl = 1,
             };
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer)
+                World.LogLanguageLocalizer)
             {
                 Cellon = (byte)existing.Length,
             };

@@ -32,6 +32,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class UseItemPacketHandlerTests
     {
+        private TestWorld World;
         private const short BoxVNum = 1013;
         private const short RewardVNum = 1012;
         private ClientSession Session;
@@ -42,9 +43,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ItemProvider = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            ItemProvider = World.GenerateItemProvider();
             var rollDao = new Mock<IDao<RollGeneratedItemDto, short>>();
             rollDao.Setup(x => x.Where(It.IsAny<Expression<Func<RollGeneratedItemDto, bool>>>()))
                 .Returns(new List<RollGeneratedItemDto>

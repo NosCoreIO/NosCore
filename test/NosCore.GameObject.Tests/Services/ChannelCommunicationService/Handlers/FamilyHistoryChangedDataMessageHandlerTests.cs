@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class FamilyHistoryChangedDataMessageHandlerTests
     {
+        private TestWorld World;
         private const long FamilyId = 42;
         private ClientSession _member;
         private ClientSession _outsider;
@@ -29,13 +30,13 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _member = await TestHelpers.Instance.GenerateSessionAsync();
-            _outsider = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _member = await World.CreateSessionAsync();
+            _outsider = await World.CreateSessionAsync();
             _member.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId, Name = "Testers" };
             _outsider.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId + 1, Name = "Others" };
             var sessions = new[] { _member, _outsider };
-            _sessionRegistry = new Mock<ISessionRegistry>();
+            _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             _sessionRegistry.Setup(s => s.GetSessions(It.IsAny<Func<ClientSession, bool>?>()))
                 .Returns((Func<ClientSession, bool>? predicate) => predicate == null ? sessions : sessions.Where(predicate));
             _member.LastPackets.Clear();
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         }
 
         private Task TheFamilysHistoryChanges() =>
-            new FamilyHistoryChangedDataMessageChannelCommunicationMessageHandler(_sessionRegistry.Object)
+            World.Create<FamilyHistoryChangedDataMessageChannelCommunicationMessageHandler>()
                 .Handle(new FamilyHistoryChangedData { FamilyId = FamilyId });
 
         private void TheMemberShouldBeToldToRefresh() =>

@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     [TestClass]
     public class ExchangeRequestPacketHandlerTests
     {
+        private TestWorld World;
         private ExchangeRequestPackettHandler Handler;
         private ClientSession Session;
         private ClientSession TargetSession;
@@ -40,21 +41,15 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            ExchangeService = new Mock<IExchangeService>();
-            BlacklistHub = new Mock<IBlacklistHub>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
+            ExchangeService = World.Freeze<Mock<IExchangeService>>();
+            BlacklistHub = World.Freeze<Mock<IBlacklistHub>>();
             BlacklistHub.Setup(x => x.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns(Task.FromResult(new List<CharacterRelationStatus>()));
 
-            Handler = new ExchangeRequestPackettHandler(
-                ExchangeService.Object,
-                Logger,
-                BlacklistHub.Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
-                new Mock<ITransferService>().Object);
+            Handler = World.Create<ExchangeRequestPackettHandler>();
         }
 
         [TestMethod]
@@ -140,20 +135,20 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         private void CharacterIsInShop()
         {
             Session.Character.InShop = true;
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
         }
 
         private void TargetIsAlreadyInExchange()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(true);
         }
 
         private void TargetBlocksExchange()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = true;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
@@ -161,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void TargetAllowsExchange()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = false;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
@@ -169,13 +164,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void TargetIsSelf()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
         private void TargetIsBlacklisted()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
             var visualId = Session.Character.VisualId;
@@ -189,7 +184,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeIsOpen()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             ExchangeService.Setup(x => x.GetTargetId(It.IsAny<long>()))
                 .Returns((long?)TargetSession.Character.CharacterId);

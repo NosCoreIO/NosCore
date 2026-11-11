@@ -33,6 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CModPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<CModPacketHandler> Logger = new Mock<ILogger<CModPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient;
         private CModPacketHandler CmodPacketHandler;
@@ -41,12 +42,12 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
-            BazaarHttpClient = new Mock<IBazaarHub>();
-            CmodPacketHandler = new CModPacketHandler(BazaarHttpClient.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.NpcDialogService);
+            BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
+            CmodPacketHandler = World.Create<CModPacketHandler>();
 
             BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()

@@ -37,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FDelPacketHandlerTests
     {
+        private TestWorld World;
         private Mock<IChannelHub> ChannelHttpClient;
         private Mock<IDao<CharacterDto, long>> CharacterDao;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
@@ -50,11 +51,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;
-            ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+            World = await TestWorld.CreateAsync();
+            CharacterRelationDao = World.CharacterRelationDao;
+            Session = await World.CreateSessionAsync();
+            ChannelHttpClient = World.ChannelHub;
+            ConnectedAccountHttpClient = World.PubSubHub;
             ChannelHub = new Mock<IChannelHub>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 } });
@@ -65,12 +66,12 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
+            FriendHttpClient = World.FriendHub;
             FDelPacketHandler = new FdelPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.GameLanguageLocalizer, new NosCore.GameObject.Services.BroadcastService.SessionRegistry(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance));
+                World.PubSubHub.Object, World.GameLanguageLocalizer, World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>());
             CharacterDao = new Mock<IDao<CharacterDto, long>>();
             FriendController = new FriendService(NullLogger<FriendService>.Instance, CharacterRelationDao, CharacterDao.Object,
-                new FriendRequestRegistry(), ConnectedAccountHttpClient.Object, ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
+                World.Create<FriendRequestRegistry>(), ConnectedAccountHttpClient.Object, ChannelHub.Object, World.LogLanguageLocalizer);
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => FriendController.GetFriendsAsync(id));
             FriendHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))
@@ -142,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetIsOnlineWithFriendRelation()
         {
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             TargetCharacterId = TargetSession.Character.CharacterId;
             var guid = Guid.NewGuid();
             var targetGuid = Guid.NewGuid();
@@ -174,7 +175,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetIsOnline()
         {
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             TargetCharacterId = TargetSession.Character.CharacterId;
             var list = new List<CharacterDto>
             {
@@ -203,7 +204,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private void ShouldReceiveNotInFriendlistMessage()
         {
             var lastpacket = (InfoPacket?)Session.LastPackets.FirstOrDefault(s => s is InfoPacket);
-            Assert.AreEqual(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST, Session.Account.Language], lastpacket?.Message);
+            Assert.AreEqual(World.GameLanguageLocalizer[LanguageKey.NOT_IN_FRIENDLIST, Session.Account.Language], lastpacket?.Message);
         }
     }
 }

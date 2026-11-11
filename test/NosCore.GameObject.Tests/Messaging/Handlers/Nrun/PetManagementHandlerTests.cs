@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class PetManagementHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IMinilandService> _miniland;
         private PetManagementHandler _handler;
@@ -36,12 +37,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _session.Character.Level = 30;
-            _miniland = new Mock<IMinilandService>();
-            _handler = new PetManagementHandler(_miniland.Object, TestHelpers.Instance.Clock,
-                new PartnerSpecialistService(TestHelpers.Instance.Clock));
+            _miniland = World.Freeze<Mock<IMinilandService>>();
+            _handler = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>().Create<PetManagementHandler>();
         }
 
         private GameObject.Services.MateService.Mate Add(GameObject.Services.MateService.Mate mate)
@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
                 VisualId = mate.MateTransportId
             });
 
-        private void BarRanOut() => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(4));
+        private void BarRanOut() => World.Clock.Advance(Duration.FromSeconds(4));
 
         [TestMethod]
         public async Task JoiningTheTeamReplacesTheMateOfTheSameKind()

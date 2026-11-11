@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class WearHandlerTests
     {
+        private TestWorld World;
         private const short ArmorVNum = 1;
         private ClientSession _session;
         private WearHandler _handler;
@@ -43,12 +44,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
             _handler = new WearHandler(
-                TestHelpers.Instance.Clock,
-                TestHelpers.Instance.WorldConfiguration,
+                World.Clock,
+                World.WorldConfiguration,
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
                 (_messageBus = new Mock<Wolverine.IMessageBus>()).Object);

@@ -40,6 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class PslPacketHandlerTests
     {
+        private TestWorld World;
         private const short PartnerSpecialist = 900;
         private const short PlayerSpecialist = 901;
         private const short SpecialistMorph = 2041;
@@ -55,9 +56,9 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(0);
             _onlookers = new Mock<ISessionGroup>();
             _session.Character.MapInstance.Sessions = _onlookers.Object;
             _items = new ItemGenerationService(new List<ItemDto>
@@ -72,8 +73,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     Type = NoscorePocketType.Equipment, VNum = PlayerSpecialist, ItemType = ItemType.Specialist,
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 0, Morph = 1
                 }
-            }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
-            _specialists = new PartnerSpecialistService(TestHelpers.Instance.Clock);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+            _specialists = World.Create<PartnerSpecialistService>();
             _equipment = new PartnerEquipmentService(_specialists);
             _handler = new PslPacketHandler(_specialists);
         }
@@ -240,7 +241,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .SelectMany(a => a is IEnumerable<IPacket> many ? many : a is IPacket one ? new[] { one } : []);
 
         private void _MillisecondsPass(int milliseconds) =>
-            TestHelpers.Instance.Clock.Advance(Duration.FromMilliseconds(milliseconds));
+            World.Clock.Advance(Duration.FromMilliseconds(milliseconds));
 
         private void ThePartnerShouldWear_(short vnum) =>
             Assert.AreEqual(vnum, _partner.Specialist(_session.Character.InventoryService)?.ItemVNum);

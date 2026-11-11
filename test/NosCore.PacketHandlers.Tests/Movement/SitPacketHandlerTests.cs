@@ -25,6 +25,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class SitPacketHandlerTests
     {
+        private TestWorld World;
         private SitPacketHandler Handler;
         private ClientSession Session;
         private ClientSession OtherSession;
@@ -33,14 +34,10 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            OtherSession = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new SitPacketHandler(
-                Logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            OtherSession = await World.CreateSessionAsync();
+            Handler = World.Create<SitPacketHandler>();
         }
 
         [TestMethod]
@@ -191,7 +188,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
         private void CharacterAttacked_MillisecondsAgo(int milliseconds) =>
             Session.Character.LastAttack =
-                TestHelpers.Instance.Clock.GetCurrentInstant() - Duration.FromMilliseconds(milliseconds);
+                World.Clock.GetCurrentInstant() - Duration.FromMilliseconds(milliseconds);
 
         private void TheMapShouldSeeNoRestPacket() =>
             Assert.IsFalse(Session.Character.MapInstance.LastPackets.OfType<RestPacket>().Any());
@@ -248,7 +245,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.Character.MapInstance.LastPackets.Clear();
         }
 

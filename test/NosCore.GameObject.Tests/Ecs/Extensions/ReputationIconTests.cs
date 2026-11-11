@@ -18,13 +18,14 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class ReputationIconTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
         }
 
         [TestMethod]

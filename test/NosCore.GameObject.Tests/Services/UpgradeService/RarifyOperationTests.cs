@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class RarifyOperationTests
     {
+        private TestWorld World;
         private const short ArmorVNum = 1;
         private const short CellonVNum = 1014;
         private const short ScrollVNum = 1218;
@@ -42,11 +43,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
-            _unprotected = new RarifyOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer);
-            _protected = new RarifyProtectedOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _random = World.Freeze<Mock<IRandomNumberSource>>();
+            _unprotected = World.Create<RarifyOperation>();
+            _protected = World.Create<RarifyProtectedOperation>();
         }
 
         [TestMethod]
@@ -171,7 +172,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 EquipmentSlot = EquipmentType.Armor,
             };
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer)
+                World.LogLanguageLocalizer)
             {
                 Rare = rare,
             };

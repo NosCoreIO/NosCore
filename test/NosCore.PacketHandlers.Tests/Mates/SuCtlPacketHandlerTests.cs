@@ -29,6 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class SuCtlPacketHandlerTests
     {
+        private TestWorld World;
         private const short PetSkillVNum = 700;
         private const int PetCastId = 3;
         private const int NearMonsterId = 200;
@@ -46,10 +47,10 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _otherSession = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _otherSession = await World.CreateSessionAsync();
+            _map = World.GetBaseMap(0);
             _session.Character.MapInstance = _map;
             _otherSession.Character.MapInstance = _map;
 
@@ -60,10 +61,10 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new() { MapMonsterId = FarMonsterId, MapId = 0, MapX = 0, MapY = 0, VNum = 1 },
             }, new List<NpcMonsterDto> { monster });
 
-            _battleService = new Mock<IBattleService>();
+            _battleService = World.Freeze<Mock<IBattleService>>();
             _battleService.Setup(s => s.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
                 .ReturnsAsync(true);
-            _catalog = new Mock<INpcCombatCatalog>();
+            _catalog = World.Freeze<Mock<INpcCombatCatalog>>();
             _catalog.Setup(c => c.GetSkills(It.IsAny<short>())).Returns(new List<NpcMonsterSkillDto>
             {
                 new() { NpcMonsterVNum = 333, SkillVNum = PetSkillVNum }
@@ -73,7 +74,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new() { SkillVNum = PetSkillVNum, CastId = PetCastId, Range = 2, TargetType = 0, Cooldown = 10 },
                 new() { SkillVNum = LongReachSkillVNum, CastId = 0, Range = 20, TargetType = 0, Cooldown = 10 }
             };
-            _handler = new SuCtlPacketHandler(MateControl.Service(_battleService.Object, _catalog.Object, skills));
+            World.Inject(skills);
+            _handler = World.UseReal<IMateControlService, MateControlService>().Create<SuCtlPacketHandler>();
         }
 
         [TestMethod]
@@ -189,7 +191,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
         private void _SecondsPass(int seconds)
         {
-            TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(seconds));
+            World.Clock.Advance(Duration.FromSeconds(seconds));
         }
 
         private Task TheOwnerOrdersCast_OnMonster_(int castId, int monsterId) =>

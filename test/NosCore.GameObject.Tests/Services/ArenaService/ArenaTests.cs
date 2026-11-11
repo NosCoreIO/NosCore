@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
     [TestClass]
     public class ArenaTests
     {
+        private TestWorld World;
         private ClientSession _attacker;
         private ClientSession _defender;
         private MapInstance _map;
@@ -28,10 +29,10 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _attacker = await TestHelpers.Instance.GenerateSessionAsync();
-            _defender = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            _attacker = await World.CreateSessionAsync();
+            _defender = await World.CreateSessionAsync();
+            _map = World.GetBaseMap(0);
             _map.Map = ArenaTestMap.Create();
             Place(_attacker, 0, 0);
             Place(_defender, 1, 0);
@@ -111,7 +112,7 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
 
         private void BothAreInTheSameGroup()
         {
-            var group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var group = new Group(GroupType.Group, World.SessionGroupFactory);
             _attacker.Character.JoinGroup(group);
             _defender.Character.JoinGroup(group);
         }

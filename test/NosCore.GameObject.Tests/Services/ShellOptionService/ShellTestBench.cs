@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         private static InventoryItemInstance Wearable(ClientSession session, short slot, Item item, short rare, byte upgrade)
         {
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer)
+                TestLocalizers.Log)
             {
                 Amount = 1,
                 Rare = rare,

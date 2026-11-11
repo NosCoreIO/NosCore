@@ -35,15 +35,16 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class WorldPacketHandlingStrategyTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private readonly List<string> Handled = new();
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             Handled.Clear();
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>
+            Session = await World.CreateSessionAsync(new List<IPacketHandler>
             {
                 new RecordingHandler<SetMaintenancePacket>(Handled),
                 new RecordingHandler<SelectPacket>(Handled),

@@ -19,11 +19,12 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class WearPacketHandlerTests
     {
+        private TestWorld World;
         [TestMethod]
         public async Task WearingOnAPartnerGoesToThePartnersGear()
         {
-            await TestHelpers.ResetAsync();
-            var session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            var session = await World.CreateSessionAsync();
             var partners = new Mock<IPartnerEquipmentService>();
 
             await new WearPacketHandler(partners.Object)
@@ -35,8 +36,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestMethod]
         public async Task RemovingFromAPartnerGoesToThePartnersGear()
         {
-            await TestHelpers.ResetAsync();
-            var session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            var session = await World.CreateSessionAsync();
             var partners = new Mock<IPartnerEquipmentService>();
 
             await new RemovePacketHandler(new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,

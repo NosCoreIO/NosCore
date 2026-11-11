@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SpecialistMedalHandlerTests
     {
+        private TestWorld World;
         private const short MedalVNum = 1143;
         private const int MaxAdditionalSp = 100_000;
         private const int MaxSp = 10_000;
@@ -43,11 +44,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
-            TestHelpers.Instance.WorldConfiguration.Value.MaxSpPoints = MaxSp;
-            _handler = new SpecialistMedalHandler(TestHelpers.Instance.WorldConfiguration);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            World.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
+            World.WorldConfiguration.Value.MaxSpPoints = MaxSp;
+            _handler = World.Create<SpecialistMedalHandler>();
         }
 
         [TestMethod]

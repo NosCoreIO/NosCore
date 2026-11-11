@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class BuffPotionHandlerTests
     {
+        private TestWorld World;
         private const short AttackPotionVNum = 1246;
 
         private static readonly IReadOnlyList<BCardDto> PotionBCards = new[]
@@ -43,8 +44,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             _buffs = new Mock<IBuffService>();
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetItemBCards(AttackPotionVNum)).Returns(PotionBCards);

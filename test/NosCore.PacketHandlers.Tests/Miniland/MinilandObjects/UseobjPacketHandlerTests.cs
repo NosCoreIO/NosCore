@@ -42,6 +42,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
     [TestClass]
     public class UseobjPacketHandlerTests
     {
+        private TestWorld World;
         private UseobjPacketHandler _useobjPacketHandler;
         private ClientSession _session;
         private IMinilandService _minilandProvider;
@@ -59,32 +60,32 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
             {
                 OwnerId = _session.Character.CharacterId,
             });
-            _minilandProvider = new MinilandService(TestHelpers.Instance.MapInstanceAccessorService,
-                TestHelpers.Instance.FriendHttpClient.Object,
+            _minilandProvider = new MinilandService(World.MapInstanceAccessorService,
+                World.FriendHub.Object,
                 new List<MapDto> {new Map
                 {
                     MapId = 20001,
                     NameI18NKey = "miniland",
                     Data = new byte[] {}
                 }},
-                TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
-            await _minilandProvider.InitializeAsync(_session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
+                World.MinilandDao,
+                World.MinilandObjectDao, World.Create<MinilandRegistry>());
+            await _minilandProvider.InitializeAsync(_session.Character, World.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
-            var mapInstance = TestHelpers.Instance.GetMap(miniland.MapInstanceId);
+            var mapInstance = World.GetMap(miniland.MapInstanceId);
             _session.Character.MapInstance = mapInstance;
             _warehouseHubMock = new Mock<IWarehouseHub>();
             _itemInstanceDaoMock = new Mock<IDao<IItemInstanceDto?, Guid>>();
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
                 NullLoggerFactory.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider);
         }
 

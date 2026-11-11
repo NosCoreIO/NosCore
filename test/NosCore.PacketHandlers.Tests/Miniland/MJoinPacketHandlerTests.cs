@@ -35,9 +35,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     [TestClass]
     public class MJoinPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<MJoinPacketHandlerTests> Logger = new Mock<ILogger<MJoinPacketHandlerTests>>().Object;
-        private readonly Mock<IPubSubHub> ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
-        private readonly Mock<IFriendHub> FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private Mock<IPubSubHub> ConnectedAccountHttpClient => World.PubSubHub;
+        private Mock<IFriendHub> FriendHttpClient => World.FriendHub;
         private Mock<IMinilandService> MinilandProvider;
         private MJoinPacketHandler MjoinPacketHandler;
         private ClientSession Session;
@@ -47,12 +48,12 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            TargetSession = await World.CreateSessionAsync();
             MinilandProvider = new Mock<IMinilandService>();
             MapChangeService = new Mock<IMapChangeService>();
-            MjoinPacketHandler = new MJoinPacketHandler(FriendHttpClient.Object, MinilandProvider.Object, MapChangeService.Object, TestHelpers.Instance.SessionRegistry);
+            MjoinPacketHandler = new MJoinPacketHandler(FriendHttpClient.Object, MinilandProvider.Object, MapChangeService.Object, World.SessionRegistry);
         }
 
         [TestMethod]
@@ -230,19 +231,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private void MinilandIsLocked()
         {
             MinilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
-            { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Lock });
+            { MapInstanceId = World.MinilandId, State = MinilandState.Lock });
         }
 
         private void MinilandIsOpen()
         {
             MinilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
-            { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Open });
+            { MapInstanceId = World.MinilandId, State = MinilandState.Open });
         }
 
         private void MinilandIsPrivate()
         {
             MinilandProvider.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(new GameObject.Services.MinilandService.Miniland
-            { MapInstanceId = TestHelpers.Instance.MinilandId, State = MinilandState.Private });
+            { MapInstanceId = World.MinilandId, State = MinilandState.Private });
         }
 
         private async Task JoiningNonConnectedPlayer()
@@ -277,12 +278,12 @@ namespace NosCore.PacketHandlers.Tests.Miniland
 
         private void MapShouldNotChange()
         {
-            MapChangeService.Verify(x => x.ChangeMapInstanceAsync(Session, TestHelpers.Instance.MinilandId, 5, 8), Times.Never);
+            MapChangeService.Verify(x => x.ChangeMapInstanceAsync(Session, World.MinilandId, 5, 8), Times.Never);
         }
 
         private void MapShouldChangeToMiniland()
         {
-            MapChangeService.Verify(x => x.ChangeMapInstanceAsync(Session, TestHelpers.Instance.MinilandId, 5, 8), Times.Once);
+            MapChangeService.Verify(x => x.ChangeMapInstanceAsync(Session, World.MinilandId, 5, 8), Times.Once);
         }
 
         private void ShouldReceiveMinilandLockedMessage()

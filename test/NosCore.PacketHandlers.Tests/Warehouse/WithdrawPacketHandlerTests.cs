@@ -20,6 +20,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class WithdrawPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private WithdrawPacketHandler Handler;
         private IItemGenerationService ItemProvider;
@@ -27,10 +28,10 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Handler = new WithdrawPacketHandler();
-            ItemProvider = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Handler = World.Create<WithdrawPacketHandler>();
+            ItemProvider = World.GenerateItemProvider();
         }
 
         [TestMethod]
@@ -87,7 +88,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterHasFullInventory()

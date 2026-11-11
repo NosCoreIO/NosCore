@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class BattleServiceLifetimeTests
     {
+        private TestWorld World;
         [TestMethod]
         public void TheBattleServiceIsASingleton()
         {
@@ -46,9 +47,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task ACastCharacterIsToldWhenTheSkillIsReadyAgain()
         {
-            await TestHelpers.ResetAsync();
-            var session = await TestHelpers.Instance.GenerateSessionAsync();
-            var map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            var session = await World.CreateSessionAsync();
+            var map = World.GetBaseMap(0);
             session.Character.MapInstance = map;
             map.LoadMonsters(
                 new System.Collections.Generic.List<NosCore.Data.Dto.MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             var service = new GameObject.Services.BattleService.BattleService(
                 skillResolver.Object, targetResolver.Object, hitQueue.Object, new Mock<IMessageBus>().Object,
-                TestHelpers.Instance.SessionRegistry, clock, new Mock<ICaptureService>().Object,
+                World.SessionRegistry, clock, new Mock<ICaptureService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance);
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));

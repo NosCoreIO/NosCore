@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class RewardExperienceTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private MonsterComponentBundle _monster;
         private RewardService _service;
@@ -42,8 +43,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             var map = _session.Character.MapInstance;
             var creature = new NpcMonsterDto
             {
@@ -63,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _service = new RewardService(new Mock<IItemGenerationService>().Object,
                 new Mock<IMapItemGenerationService>().Object, catalog.Object,
                 progression.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
+                new LowLevelBoostService(), World.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
         }
 
         [TestMethod]
@@ -93,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task TwoGroupMembersEachEarnThreeQuartersOfTheKill()
         {
-            var other = await TestHelpers.Instance.GenerateSessionAsync();
+            var other = await World.CreateSessionAsync();
             JoinGroup(_session, other);
             foreach (var member in new[] { _session, other })
             {
@@ -110,8 +111,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task ThreeGroupMembersEachEarnSeventyPercentOfTheKill()
         {
-            var second = await TestHelpers.Instance.GenerateSessionAsync();
-            var third = await TestHelpers.Instance.GenerateSessionAsync();
+            var second = await World.CreateSessionAsync();
+            var third = await World.CreateSessionAsync();
             JoinGroup(_session, second, third);
             foreach (var member in new[] { _session, second, third })
             {
@@ -124,9 +125,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual((700L, 70L), _awarded[third.Character.CharacterId]);
         }
 
-        private static void JoinGroup(params ClientSession[] members)
+        private void JoinGroup(params ClientSession[] members)
         {
-            var group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var group = new Group(GroupType.Group, World.SessionGroupFactory);
             foreach (var member in members)
             {
                 member.Character.JoinGroup(group);

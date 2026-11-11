@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class EntryPointSequenceTests
     {
+        private TestWorld World;
         private const int SessionId = 70;
         private ClientSession Session;
         private IAuthHub AuthHub;
@@ -40,25 +41,25 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            AuthHub = new AuthHub(new AuthCodeService(TestHelpers.Instance.Clock), new MasterClientList());
+            World = await TestWorld.CreateAsync();
+            AuthHub = new AuthHub(World.Create<AuthCodeService>(), new MasterClientList());
             var sessionRefHolder = new SessionRefHolder();
-            var pubSubHub = TestHelpers.Instance.PubSubHub;
+            var pubSubHub = World.PubSubHub;
             pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             pubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>
+            Session = await World.CreateSessionAsync(new List<IPacketHandler>
             {
-                new EntryPointPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
-                    TestHelpers.Instance.MateDao, NullLogger<EntryPointPacketHandler>.Instance, AuthHub,
-                    TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.WorldConfiguration, sessionRefHolder,
-                    TestHelpers.Instance.LogLanguageLocalizer)
+                new EntryPointPacketHandler(World.CharacterDao, World.AccountDao,
+                    World.MateDao, NullLogger<EntryPointPacketHandler>.Instance, AuthHub,
+                    World.ChannelHub.Object, World.WorldConfiguration, sessionRefHolder,
+                    World.LogLanguageLocalizer)
             });
             AccountName = Session.Account.Name;
             Session.ClearPlayerEntity();
             Session.Account = null;
             sessionRefHolder[Session.SessionKey] = new RegionTypeMapping(SessionId, RegionType.EN);
             Strategy = new WorldPacketHandlingStrategy(NullLogger<WorldPacketHandlingStrategy>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer, sessionRefHolder);
+                World.LogLanguageLocalizer, sessionRefHolder);
         }
 
         [TestMethod]

@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            Handler = new ISortPacketHandler();
+            Handler = World.Create<ISortPacketHandler>();
         }
 
         [TestMethod]

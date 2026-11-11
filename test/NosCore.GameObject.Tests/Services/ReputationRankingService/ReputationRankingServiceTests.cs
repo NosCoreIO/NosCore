@@ -18,6 +18,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
     [TestClass]
     public class ReputationRankingServiceTests
     {
+        private TestWorld World;
         private const long SenderId = 1000;
         private const long SenderReputation = 5000;
 
@@ -28,10 +29,8 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Service = new GameObject.Services.ReputationRankingService.ReputationRankingService(
-                TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
-                TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            Service = World.Create<GameObject.Services.ReputationRankingService.ReputationRankingService>();
         }
 
         [TestMethod]
@@ -114,7 +113,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
             AddCharacterAsync(AuthorityType.User, SenderReputation + 3, CharacterState.Active);
 
         private void TheRefreshIntervalPasses() =>
-            TestHelpers.Instance.Clock.Advance(GameObject.Services.ReputationRankingService.ReputationRankingService.RefreshInterval);
+            World.Clock.Advance(GameObject.Services.ReputationRankingService.ReputationRankingService.RefreshInterval);
 
         private async Task TwoPlayersHaveMoreReputation()
         {
@@ -147,14 +146,14 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
         private async Task AddCharacterAsync(AuthorityType authority, long reputation, CharacterState state)
         {
             var id = NextId++;
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(new AccountDto
+            await World.AccountDao.TryInsertOrUpdateAsync(new AccountDto
             {
                 AccountId = id,
                 Name = "RankedAccount" + id,
                 Password = new Sha512Hasher().Hash("test"),
                 Authority = authority
             });
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(new CharacterDto
+            await World.CharacterDao.TryInsertOrUpdateAsync(new CharacterDto
             {
                 CharacterId = id,
                 AccountId = id,
@@ -163,7 +162,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
                 MapId = 1,
                 State = state,
                 Reput = reputation,
-                ServerId = TestHelpers.Instance.WorldConfiguration.Value.ServerId
+                ServerId = World.WorldConfiguration.Value.ServerId
             });
         }
     }

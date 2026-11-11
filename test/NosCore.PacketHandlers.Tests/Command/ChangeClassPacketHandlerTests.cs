@@ -29,6 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class ChangeClassPacketHandlerTests
     {
+        private TestWorld World;
         private ChangeClassPacketHandler Handler;
         private ClientSession Session;
         private Mock<IRemoteCharacterService> RemoteCharacters;
@@ -36,14 +37,11 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            RemoteCharacters = new Mock<IRemoteCharacterService>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
 
-            Handler = new ChangeClassPacketHandler(RemoteCharacters.Object,
-                TestHelpers.Instance.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService(),
-                TestHelpers.Instance.GenerateItemProvider(),
-                new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object);
+            Handler = World.Create<ChangeClassPacketHandler>();
         }
 
         [TestMethod]
@@ -89,7 +87,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void TargetPlayerIsOnline()

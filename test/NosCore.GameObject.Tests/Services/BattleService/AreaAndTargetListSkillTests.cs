@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class AreaAndTargetListSkillTests
     {
+        private TestWorld World;
         private ClientSession _caster;
         private ClientSession _bystander;
         private MapInstance _map;
@@ -49,10 +50,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _caster = await TestHelpers.Instance.GenerateSessionAsync();
-            _bystander = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.MapInstanceAccessorService.GetBaseMapById(0).NotNull();
+            World = await TestWorld.CreateAsync();
+            _caster = await World.CreateSessionAsync();
+            _bystander = await World.CreateSessionAsync();
+            _map = World.GetBaseMap(0);
             _caster.Character.MapInstance = _map;
             _bystander.Character.MapInstance = _map;
 
@@ -224,7 +225,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         private void TheCasterResolvesAGroundSkillOfTargetRange_At_(byte targetRange, (int X, int Y) cell)
         {
-            _resolved = new TargetResolver(TestHelpers.Instance.SessionRegistry)
+            _resolved = new TargetResolver(World.SessionRegistry)
                 .ResolveArea(_caster.Character, _map, (short)cell.X, (short)cell.Y, GroundSkill(targetRange));
         }
 

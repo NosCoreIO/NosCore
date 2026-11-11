@@ -35,6 +35,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
     [TestClass]
     public class GroupLootTests
     {
+        private TestWorld World;
         private const short GoldVNum = 1046;
         private const short DroppableVNum = 1012;
 
@@ -47,25 +48,25 @@ namespace NosCore.GameObject.Tests.Services.GroupService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            TestHelpers.Instance.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
-            _first = await TestHelpers.Instance.GenerateSessionAsync();
-            _second = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
+            _first = await World.CreateSessionAsync();
+            _second = await World.CreateSessionAsync();
+            _map = World.GetBaseMap(0);
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(1)).Returns(new List<DropDto>
             {
                 new() { VNum = DroppableVNum, Amount = 1, DropChance = 10000, MonsterVNum = 1 },
             });
             _service = new RewardService(
-                TestHelpers.Instance.GenerateItemProvider(),
-                TestHelpers.Instance.MapItemProvider.NotNull(),
+                World.GenerateItemProvider(),
+                World.MapItemProvider.NotNull(),
                 catalog.Object,
                 new Mock<IExperienceProgressionService>().Object,
                 new ExperienceShareService(),
                 new LevelPenaltyService(),
                 new LowLevelBoostService(),
-                TestHelpers.Instance.GroupLootService,
+                World.GroupLootService,
                 new MateProgressionService(new MateExperienceService()),
                 NullLogger<RewardService>.Instance);
 
@@ -124,7 +125,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
 
         private void BothAreInAParty()
         {
-            var group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var group = new Group(GroupType.Group, World.SessionGroupFactory);
             _first.Character.JoinGroup(group);
             _second.Character.JoinGroup(group);
         }

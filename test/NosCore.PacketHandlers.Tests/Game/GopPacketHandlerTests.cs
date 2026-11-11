@@ -29,6 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class GopPacketHandlerTests
     {
+        private TestWorld World;
         private GopPacketHandler Handler;
         private ClientSession Session;
         private Mock<IPubSubHub> PubSubHub;
@@ -36,10 +37,10 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
-            Handler = new GopPacketHandler(PubSubHub.Object, TestHelpers.Instance.GroupLootService, NullLogger<GopPacketHandler>.Instance);
+            Handler = new GopPacketHandler(PubSubHub.Object, World.GroupLootService, NullLogger<GopPacketHandler>.Instance);
         }
 
         [TestMethod]
@@ -202,16 +203,16 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private async Task TheCharacterJoinsAnotherCharactersParty()
         {
-            var master = await TestHelpers.Instance.GenerateSessionAsync();
-            var group = new GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var master = await World.CreateSessionAsync();
+            var group = new GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             master.Character.JoinGroup(group);
             Session.Character.JoinGroup(group);
         }
 
         private async Task TheCharacterLeadsAParty()
         {
-            var member = await TestHelpers.Instance.GenerateSessionAsync();
-            var group = new GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var member = await World.CreateSessionAsync();
+            var group = new GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             Session.Character.JoinGroup(group);
             member.Character.JoinGroup(group);
         }

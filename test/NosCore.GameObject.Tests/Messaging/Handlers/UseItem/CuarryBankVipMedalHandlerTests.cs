@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class CuarryBankVipMedalHandlerTests
     {
+        private TestWorld World;
         private const short MedalVNum = 5838;
         private ClientSession _session;
         private CuarryBankVipMedalHandler _handler;
@@ -37,9 +38,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new CuarryBankVipMedalHandler(TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _handler = World.Create<CuarryBankVipMedalHandler>();
         }
 
         [TestMethod]
@@ -111,7 +112,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private void BankVipShouldEndIn_Days(int days)
         {
             var bonus = _session.Character.StaticBonusList.Single(b => b.StaticBonusType == StaticBonusType.CuarryBankVip);
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant().Plus(Duration.FromDays(days)), bonus.DateEnd);
+            Assert.AreEqual(World.Clock.GetCurrentInstant().Plus(Duration.FromDays(days)), bonus.DateEnd);
         }
 
         private void MedalCountShouldBe_(int expected) =>

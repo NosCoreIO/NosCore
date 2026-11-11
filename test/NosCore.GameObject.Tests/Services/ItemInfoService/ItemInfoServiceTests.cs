@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.ItemInfoService
         }
 
         private static WearableInstance Wearable(Item item) =>
-            new(item, new Mock<ILogger<WearableInstance>>().Object, TestHelpers.Instance.LogLanguageLocalizer);
+            new(item, new Mock<ILogger<WearableInstance>>().Object, TestLocalizers.Log);
 
         private string Info(IItemInstance instance) =>
             Serializer.Serialize(new[] { _service.GenerateInfo(instance).NotNull() }).TrimEnd();

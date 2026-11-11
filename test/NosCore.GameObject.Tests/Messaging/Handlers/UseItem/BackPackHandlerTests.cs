@@ -31,6 +31,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class BackPackHandlerTests
     {
+        private TestWorld World;
         private const short BackpackVNum = 1272;
         private ClientSession _session;
         private BackPackHandler _handler;
@@ -39,9 +40,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new BackPackHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _handler = World.Create<BackPackHandler>();
         }
 
         [TestMethod]

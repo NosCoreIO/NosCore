@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class GoToArenaHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IMapChangeService> _mapChangeService;
         private MapInstance _arena;
@@ -38,19 +39,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
-            _arena = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
+            _arena = World.GetBaseMap(0);
             _arena.Map = ArenaTestMap.Create();
             _arena.MapInstanceType = MapInstanceType.ArenaInstance;
-            _mapChangeService = new Mock<IMapChangeService>();
-            _handler = new GoToArenaHandler(_mapChangeService.Object, TestHelpers.Instance.MapInstanceRegistry,
-                TestHelpers.Instance.Clock);
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
+            _handler = World.Create<GoToArenaHandler>();
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { new() { MapNpcId = 100, MapId = _session.Character.MapInstance.Map.MapId, VNum = 1 } },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });
-            _session.Character.LastPortal = TestHelpers.Instance.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(10);
+            _session.Character.LastPortal = World.Clock.GetCurrentInstant() - NodaTime.Duration.FromSeconds(10);
         }
 
         [TestMethod]
@@ -139,7 +139,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.TimeSpaceInstance;
 
         private void ThePlayerJustChangedMap() =>
-            _session.Character.LastPortal = TestHelpers.Instance.Clock.GetCurrentInstant();
+            _session.Character.LastPortal = World.Clock.GetCurrentInstant();
 
         private Task TheNpcIsAskedForArenaType_(short type) =>
             _handler.HandleAsync(_session, _session.Character.MapInstance.GetNpcById(100), Packet(type));

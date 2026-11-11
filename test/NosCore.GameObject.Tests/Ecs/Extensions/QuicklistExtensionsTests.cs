@@ -20,14 +20,15 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class QuicklistExtensionsTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private IReadOnlyList<QsetClientPacket> Packets = [];
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
         }
 
         [TestMethod]

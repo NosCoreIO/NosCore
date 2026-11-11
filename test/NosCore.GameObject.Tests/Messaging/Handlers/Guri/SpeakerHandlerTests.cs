@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class SpeakerHandlerTests
     {
+        private TestWorld World;
         private const short SpeakerVNum = 2173;
         private const short SpeakerSlot = 4;
         private ClientSession _speaker;
@@ -37,14 +38,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _speaker = await TestHelpers.Instance.GenerateSessionAsync();
-            _listener = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _speaker = await World.CreateSessionAsync();
+            _listener = await World.CreateSessionAsync();
             Register(_speaker);
             Register(_listener);
             GiveSpeakerItem();
-            _handler = new SpeakerHandler(NullLogger<SpeakerHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            _handler = World.Create<SpeakerHandler>();
         }
 
         [TestMethod]
@@ -67,8 +67,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .ExecuteAsync();
         }
 
-        private static void Register(ClientSession session) =>
-            TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
+        private void Register(ClientSession session) =>
+            World.SessionRegistry.Register(new SessionInfo
             {
                 ChannelId = session.Channel.NotNull().Id,
                 SessionId = session.SessionId,

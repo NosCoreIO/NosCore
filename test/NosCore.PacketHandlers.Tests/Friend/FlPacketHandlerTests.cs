@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FlPacketHandlerTests
     {
+        private TestWorld World;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
         private FlCommandPacketHandler FlPacketHandler;
         private ClientSession Session;
@@ -37,9 +38,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            await TestHelpers.ResetAsync();
-            TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
+            World = await TestWorld.CreateAsync();
+            CharacterRelationDao = World.CharacterRelationDao;
+            World.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
@@ -48,8 +49,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         Id = 1
                     }
                 });
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            FlPacketHandler = new FlCommandPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance));
+            Session = await World.CreateSessionAsync();
+            FlPacketHandler = new FlCommandPacketHandler(World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>());
         }
 
         [TestMethod]
@@ -66,11 +67,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetPlayerIsOnlineAndFriendRequestExists()
         {
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            var friendRequestHolder = new FriendRequestRegistry();
+            TargetSession = await World.CreateSessionAsync();
+            var friendRequestHolder = World.Create<FriendRequestRegistry>();
             friendRequestHolder.RegisterRequest(Guid.NewGuid(),
                 TargetSession.Character.CharacterId, Session.Character.CharacterId);
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+            World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
@@ -81,9 +82,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            var friend = new FriendService(NullLogger<FriendService>.Instance, CharacterRelationDao, TestHelpers.Instance.CharacterDao,
-                friendRequestHolder, TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object, TestHelpers.Instance.LogLanguageLocalizer);
-            TestHelpers.Instance.FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
+            var friend = new FriendService(NullLogger<FriendService>.Instance, CharacterRelationDao, World.CharacterDao,
+                friendRequestHolder, World.PubSubHub.Object, World.ChannelHub.Object, World.LogLanguageLocalizer);
+            World.FriendHub.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .Returns(friend.AddFriendAsync(Session.Character.CharacterId,
                     TargetSession.Character.VisualId,
                     FinsPacketType.Accepted));

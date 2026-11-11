@@ -41,6 +41,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class GameStartPacketHandlerTests
     {
+        private TestWorld World;
         private GameStartPacketHandler Handler;
         private ClientSession Session;
         private Mock<IMapChangeService> MapChangeService;
@@ -53,8 +54,8 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
 
             var friendHub = new Mock<IFriendHub>();
             var channelHub = new Mock<IChannelHub>();
@@ -74,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .ReturnsAsync(new List<MailData>());
 
             Handler = new GameStartPacketHandler(
-                TestHelpers.Instance.WorldConfiguration,
+                World.WorldConfiguration,
                 friendHub.Object,
                 channelHub.Object,
                 pubSubHub.Object,

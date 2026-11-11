@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class EntryPointPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly Mock<ILogger<EntryPointPacketHandler>> Logger = new();
         private EntryPointPacketHandler EntryPointPacketHandler;
         private ClientSession Session;
@@ -37,27 +38,27 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
+            World = await TestWorld.CreateAsync();
             Logger.Invocations.Clear();
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session = await World.CreateSessionAsync();
             AccountName = Session.Account.Name;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
+            await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
             Session.ClearPlayerEntity();
             Session.Account = null;
             AuthHttpClient = new Mock<IAuthHub>();
-            PubSubHub = TestHelpers.Instance.PubSubHub;
+            PubSubHub = World.PubSubHub;
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             PubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             EntryPointPacketHandler = new EntryPointPacketHandler(
-                TestHelpers.Instance.CharacterDao,
-                TestHelpers.Instance.AccountDao,
-                TestHelpers.Instance.MateDao,
+                World.CharacterDao,
+                World.AccountDao,
+                World.MateDao,
                 Logger.Object,
                 AuthHttpClient.Object,
-                TestHelpers.Instance.ChannelHub.Object,
-                TestHelpers.Instance.WorldConfiguration,
+                World.ChannelHub.Object,
+                World.WorldConfiguration,
                 new SessionRefHolder(),
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -203,7 +204,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AccountPasswordIsValid()
         {
-            // Password "test" is already set in TestHelpers with Sha512 hash
+            // Password "test" is already set by TestWorld with Sha512 hash
         }
 
         private void AccountIsNotInWaitingState()
@@ -229,26 +230,26 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task AccountAuthorityIs_(AuthorityType authority)
         {
-            var account = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            var account = (await World.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
             account.Authority = authority;
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(account);
+            await World.AccountDao.TryInsertOrUpdateAsync(account);
         }
 
         private void TheChannelIsInMaintenance()
         {
-            TestHelpers.Instance.ChannelHub.Setup(h => h.IsInMaintenanceAsync()).ReturnsAsync(true);
+            World.ChannelHub.Setup(h => h.IsInMaintenanceAsync()).ReturnsAsync(true);
         }
 
         private async Task AccountHasMfaEnabled()
         {
-            var account = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            var account = (await World.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
             account.MfaSecret = "testsecret";
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(account);
+            await World.AccountDao.TryInsertOrUpdateAsync(account);
         }
 
         private async Task AccountIsAlreadyInitialized()
         {
-            var account = (await TestHelpers.Instance.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
+            var account = (await World.AccountDao.FirstOrDefaultAsync(a => a.Name == AccountName)).NotNull();
             Session.InitializeAccount(account);
         }
 
@@ -294,7 +295,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AlreadyConnectedErrorShouldBeLogged()
         {
-            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED];
+            var expected = (string)World.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED];
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -306,7 +307,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void InvalidAccountErrorShouldBeLogged()
         {
-            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT];
+            var expected = (string)World.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT];
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -318,7 +319,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void InvalidPasswordErrorShouldBeLogged()
         {
-            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD];
+            var expected = (string)World.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD];
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),

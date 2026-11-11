@@ -20,15 +20,16 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class WarehousePacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private Mock<IWarehouseHub> WarehouseHub;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            WarehouseHub = new Mock<IWarehouseHub>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            WarehouseHub = World.Freeze<Mock<IWarehouseHub>>();
         }
 
         [TestMethod]
@@ -83,36 +84,36 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task DepositingItemToWarehouse()
         {
-            var handler = new DepositPacketHandler(WarehouseHub.Object);
+            var handler = World.Create<DepositPacketHandler>();
             await handler.ExecuteAsync(new DepositPacket(), Session);
         }
 
         private async Task WithdrawingItemFromWarehouse()
         {
-            var handler = new WithdrawPacketHandler();
+            var handler = World.Create<WithdrawPacketHandler>();
             await handler.ExecuteAsync(new WithdrawPacket(), Session);
         }
 
         private async Task ClosingWarehouse()
         {
-            var handler = new StashEndPacketHandler();
+            var handler = World.Create<StashEndPacketHandler>();
             await handler.ExecuteAsync(new StashEndPacket(), Session);
         }
 
         private async Task RearrangingWarehouseItems()
         {
-            var handler = new ReposPacketHandler();
+            var handler = World.Create<ReposPacketHandler>();
             await handler.ExecuteAsync(new ReposPacket(), Session);
         }
 
         private async Task ClosingFamilyWarehouse()
         {
-            var handler = new FStashEndPackettHandler();
+            var handler = World.Create<FStashEndPackettHandler>();
             await handler.ExecuteAsync(new FStashEndPacket(), Session);
         }
 

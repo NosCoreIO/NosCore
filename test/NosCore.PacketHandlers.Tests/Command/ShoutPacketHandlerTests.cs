@@ -23,6 +23,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class ShoutPacketHandlerTests
     {
+        private TestWorld World;
         private ShoutPacketHandler Handler;
         private ClientSession Session;
         private Mock<IPubSubHub> PubSubHub;
@@ -31,18 +32,15 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            Serializer = new Mock<ISerializer>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            Serializer = World.Freeze<Mock<ISerializer>>();
 
             Serializer.Setup(x => x.Serialize(It.IsAny<IPacket[]>()))
                 .Returns("serialized_packet");
 
-            Handler = new ShoutPacketHandler(
-                Serializer.Object,
-                PubSubHub.Object,
-                TestHelpers.Instance.GameLanguageLocalizer);
+            Handler = World.Create<ShoutPacketHandler>();
         }
 
         [TestMethod]
@@ -67,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task ShoutingMessage()

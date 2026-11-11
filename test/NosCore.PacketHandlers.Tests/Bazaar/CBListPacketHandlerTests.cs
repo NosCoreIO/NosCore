@@ -28,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CBListPacketHandlerTests
     {
+        private TestWorld World;
         private Mock<IBazaarHub> BazaarHttpClient;
         private CBListPacketHandler CblistPacketHandler;
         private ClientSession Session;
@@ -36,15 +37,15 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
-            BazaarHttpClient = new Mock<IBazaarHub>();
+            BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
             BazaarHttpClient.Setup(b => b.SearchBazaarAsync(It.IsAny<BazaarSearch>()))
                 .Callback((BazaarSearch search) => Search = search)
                 .ReturnsAsync(new List<BazaarLink>());
-            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, TestHelpers.Instance.Clock, TestHelpers.Instance.NpcDialogService);
+            CblistPacketHandler = World.Create<CBListPacketHandler>();
         }
 
         [TestMethod]
@@ -137,7 +138,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                         BazaarItem = new BazaarItemDto
                         {
                             BazaarItemId = 7, SellerId = 3, Price = 50, Amount = 1,
-                            DateStart = TestHelpers.Instance.Clock.GetCurrentInstant(), Duration = 2
+                            DateStart = World.Clock.GetCurrentInstant(), Duration = 2
                         },
                         ItemInstance = new ItemInstanceDto { ItemVNum = 1012, Amount = 4 }
                     }

@@ -21,6 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Quest
     [TestClass]
     public class ScriptPacketHandlerTests
     {
+        private TestWorld World;
         private ScriptPacketHandler Handler;
         private ClientSession Session;
         private Mock<IQuestService> QuestService;
@@ -28,11 +29,11 @@ namespace NosCore.PacketHandlers.Tests.Quest
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            QuestService = new Mock<IQuestService>();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            QuestService = World.Freeze<Mock<IQuestService>>();
 
-            Handler = new ScriptPacketHandler(QuestService.Object);
+            Handler = World.Create<ScriptPacketHandler>();
         }
 
         [TestMethod]
@@ -57,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Quest
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task RunningScript()

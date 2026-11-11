@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
     [TestClass]
     public class NpcQuestObjectiveTests
     {
+        private TestWorld World;
         private const short QuestGiverVNum = 305;
         private const short OtherNpcVNum = 301;
         private const short FirstCrateVNum = 1275;
@@ -47,27 +48,27 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(0);
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
 
             var handlers = new IQuestTypeHandler[]
             {
-                new Dialog1QuestHandler(),
-                new Dialog2QuestHandler(),
-                new InspectQuestHandler(),
-                new CollectMapEntityQuestHandler(),
-                new TransmitGoldQuestHandler(TestHelpers.Instance.GameLanguageLocalizer),
+                World.Create<Dialog1QuestHandler>(),
+                World.Create<Dialog2QuestHandler>(),
+                World.Create<InspectQuestHandler>(),
+                World.Create<CollectMapEntityQuestHandler>(),
+                World.Create<TransmitGoldQuestHandler>(),
             };
             var questService = new GameObject.Services.QuestService.QuestService(
                 new List<ScriptDto>(),
-                TestHelpers.Instance.WorldConfiguration,
+                World.WorldConfiguration,
                 new List<QuestDto>(),
                 new List<QuestObjectiveDto>(),
                 NullLogger<GameObject.Services.QuestService.QuestService>.Instance,
-                TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer,
+                World.Clock,
+                World.LogLanguageLocalizer,
                 handlers,
                 new Mock<Wolverine.IMessageBus>().Object,
                 new List<QuestRewardDto>(),

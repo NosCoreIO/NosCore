@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class BlPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry> Logger = new Mock<ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>>().Object;
         private BlPacketHandler BlPacketHandler;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
@@ -38,11 +39,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            CharacterRelationDao = World.CharacterRelationDao;
+            Session = await World.CreateSessionAsync();
 
-            TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
+            World.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
@@ -51,7 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         Id = 1
                     }
                 });
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+            World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
@@ -75,8 +76,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetPlayerIsOnline()
         {
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+            TargetSession = await World.CreateSessionAsync();
+            World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
@@ -87,9 +88,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
-                CharacterRelationDao, TestHelpers.Instance.CharacterDao);
-            TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
+            var blacklist = new BlacklistService(World.PubSubHub.Object, World.ChannelHub.Object,
+                CharacterRelationDao, World.CharacterDao);
+            World.BlacklistHub.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync(Session.Character.CharacterId, TargetSession.Character.VisualId));
         }
 

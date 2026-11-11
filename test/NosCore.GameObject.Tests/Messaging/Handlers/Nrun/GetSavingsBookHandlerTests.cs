@@ -29,16 +29,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class GetSavingsBookHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private GetSavingsBookHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
             var items = new List<ItemDto> { new Item { VNum = GetSavingsBookHandler.SavingsBookVNum, Type = NoscorePocketType.Main } };
-            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer));
+            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer));
         }
 
         [TestMethod]

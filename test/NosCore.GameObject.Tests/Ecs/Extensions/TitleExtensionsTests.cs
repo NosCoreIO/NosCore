@@ -19,6 +19,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class TitleExtensionsTests
     {
+        private TestWorld World;
         private const short TitleId = 1;
         private ClientSession Session;
         private bool Toggled;
@@ -26,8 +27,8 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
             Session.Character.Titles = new List<TitleDto>
             {
                 new TitleDto { TitleType = TitleId, Visible = false, Active = false },

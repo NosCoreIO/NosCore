@@ -29,23 +29,22 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class PostedPacketMessageHandlerTests
     {
+        private TestWorld World;
         private PostedPacketMessageChannelCommunicationMessageHandler Handler;
         private ClientSession Session;
         private Mock<ISessionRegistry> SessionRegistry;
         private Mock<IDeserializer> Deserializer;
         private Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>> Logger;
-        private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            SessionRegistry = new Mock<ISessionRegistry>();
-            Deserializer = new Mock<IDeserializer>();
-            Logger = new Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>();
-            LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            Handler = new PostedPacketMessageChannelCommunicationMessageHandler(Logger.Object, Deserializer.Object, LogLanguage.Object, SessionRegistry.Object);
+            World = await TestWorld.CreateAsync();
+            Session = await World.CreateSessionAsync();
+            SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            Deserializer = World.Freeze<Mock<IDeserializer>>();
+            Logger = World.Freeze<Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>>();
+            Handler = World.Create<PostedPacketMessageChannelCommunicationMessageHandler>();
         }
 
         [TestMethod]
@@ -139,7 +138,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private async Task TwoPlayersAreOnline()
         {
-            Listener = await TestHelpers.Instance.GenerateSessionAsync();
+            Listener = await World.CreateSessionAsync();
             var characters = new[] { Session.Character, Listener.Character };
             SessionRegistry.Setup(x => x.GetCharacters(It.IsAny<System.Func<PlayerComponentBundle, bool>?>()))
                 .Returns((System.Func<PlayerComponentBundle, bool>? predicate) =>

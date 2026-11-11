@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     [TestClass]
     public class MinilandInvitePacketHandlerTests
     {
+        private TestWorld World;
         private const short SeedOfPower = 1012;
         private ClientSession _owner;
         private ClientSession _guest;
@@ -42,31 +43,31 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _owner = await TestHelpers.Instance.GenerateSessionAsync();
-            _guest = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _owner = await World.CreateSessionAsync();
+            _guest = await World.CreateSessionAsync();
             _guestId = _guest.Character.CharacterId;
             _miniland = new GameObject.Services.MinilandService.Miniland
             {
                 MapInstanceId = _owner.Character.MapInstanceId,
                 State = MinilandState.Open
             };
-            _minilandService = new Mock<IMinilandService>();
+            _minilandService = World.Freeze<Mock<IMinilandService>>();
             _minilandService.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(_miniland);
-            _mapChangeService = new Mock<IMapChangeService>();
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
             GiveSeeds(1);
         }
 
         private void GiveSeeds(short amount) =>
             _owner.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                TestHelpers.Instance.GenerateItemProvider().Create(SeedOfPower, amount), _owner.Character.CharacterId));
+                World.GenerateItemProvider().Create(SeedOfPower, amount), _owner.Character.CharacterId));
 
         private Task InviteAsync(string name) =>
-            new MinilandInvitePacketHandler(TestHelpers.Instance.SessionRegistry, _minilandService.Object, TestHelpers.Instance.Clock)
+            World.Create<MinilandInvitePacketHandler>()
                 .ExecuteAsync(new MinilandInvitePacket { CharacterName = name }, _owner);
 
         private Task AnswerAsync(VisualType type) =>
-            new MJoinPacketHandler(TestHelpers.Instance.FriendHttpClient.Object, _minilandService.Object, _mapChangeService.Object, TestHelpers.Instance.SessionRegistry)
+            World.Create<MJoinPacketHandler>()
                 .ExecuteAsync(new MJoinPacket { Type = type, VisualId = _owner.Character.CharacterId }, _guest);
 
         private Task AcceptAsync() => AnswerAsync(VisualType.Player);
@@ -141,7 +142,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestMethod]
         public async Task TheInvitedPlayerEntersWithoutBeingAFriend()
         {
-            TestHelpers.Instance.FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
+            World.FriendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             await InviteAsync(_guest.Character.Name);
 
@@ -154,7 +155,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestMethod]
         public async Task AnInvitationIsUsedOnce()
         {
-            TestHelpers.Instance.FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
+            World.FriendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             await InviteAsync(_guest.Character.Name);
 
@@ -192,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
 
         private Task TheOwnerInvitesTheGuestAsync() => InviteAsync(_guest.Character.Name);
 
-        private static void TheCooldownPasses() => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(6));
+        private void TheCooldownPasses() => World.Clock.Advance(Duration.FromSeconds(6));
 
         private void TheGuestIsAsked_Times(int times) =>
             Assert.AreEqual(times, _guest.LastPackets.OfType<Dlgi2Packet>().Count());
@@ -205,7 +206,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestMethod]
         public async Task ALockedMinilandKeepsTheInvitationForLater()
         {
-            TestHelpers.Instance.FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
+            World.FriendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             await InviteAsync(_guest.Character.Name);
             _miniland.State = MinilandState.Lock;
@@ -221,7 +222,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestMethod]
         public async Task CancellingDropsTheInvitation()
         {
-            TestHelpers.Instance.FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
+            World.FriendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>());
             await InviteAsync(_guest.Character.Name);
 

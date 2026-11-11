@@ -26,15 +26,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class MfaHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private MfaHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new MfaHandler();
+            World = await TestWorld.CreateAsync();
+            _session = await World.CreateSessionAsync();
+            _handler = World.Create<MfaHandler>();
         }
 
         [TestMethod]
