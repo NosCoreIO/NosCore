@@ -47,7 +47,6 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
                 .Given(OneHourHasPassedSinceConnection)
                 .When(ComplimentingTarget)
                 .Then(TargetComplimentShouldBeIncreasedBy_, 1)
-                .And(OutcomeShouldBe_, ComplimentOutcome.Complimented)
                 .And(TheResultShouldNameTheTarget)
                 .And(LastComplimentShouldBeRecorded)
                 .ExecuteAsync();
@@ -72,7 +71,6 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
                 .Given(_MinutesHavePassedSinceConnection, 20)
                 .When(ComplimentingTarget)
                 .Then(TargetComplimentShouldBeIncreasedBy_, 0)
-                .And(OutcomeShouldBe_, ComplimentOutcome.TooSoonAfterConnection)
                 .And(MinutesToWaitShouldBe_, 40L)
                 .ExecuteAsync();
         }
@@ -167,12 +165,12 @@ namespace NosCore.GameObject.Tests.Services.ComplimentService
         private void SenderComplimentShouldBeUnchanged() =>
             Assert.AreEqual(InitialCompliment, Session.Character.Compliment);
 
-        private void OutcomeShouldBe_(ComplimentOutcome outcome) => Assert.AreEqual(outcome, Result.Outcome);
+        private void OutcomeShouldBe_(ComplimentOutcome outcome) => Assert.AreEqual(outcome, Result.Value);
 
         private void TheResultShouldNameTheTarget() =>
-            Assert.AreEqual(Target.Character.CharacterId, Result.Target?.CharacterId);
+            Assert.AreEqual(Target.Character.CharacterId, (Result.Value as Complimented)?.Target.CharacterId);
 
-        private void MinutesToWaitShouldBe_(long minutes) => Assert.AreEqual(minutes, Result.MinutesToWait);
+        private void MinutesToWaitShouldBe_(long minutes) => Assert.AreEqual(minutes, (Result.Value as ComplimentTooSoon)?.MinutesToWait);
 
         private void LastComplimentShouldBeRecorded() =>
             Assert.AreEqual(World.Clock.GetCurrentInstant(), Session.Character.Account.LastCompliment);

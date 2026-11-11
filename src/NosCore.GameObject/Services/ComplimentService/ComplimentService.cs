@@ -31,37 +31,36 @@ public sealed class ComplimentService(IClock clock, ISessionRegistry sessionRegi
         if (targetCharacterId == character.CharacterId
             || !sessionRegistry.TryGetCharacter(s => s.CharacterId == targetCharacterId, out var target))
         {
-            return new ComplimentResult(ComplimentOutcome.NoTarget);
+            return ComplimentOutcome.NoTarget;
         }
 
         var mapId = character.MapInstance.Map.MapId;
         if (mapTypeMaps.Any(m => m.MapId == mapId
                 && m.MapTypeId is (short)MapTypeType.Act4 or (short)MapTypeType.Act42))
         {
-            return new ComplimentResult(ComplimentOutcome.InGlacernon);
+            return ComplimentOutcome.InGlacernon;
         }
 
         if (character.Level < MinimumLevel)
         {
-            return new ComplimentResult(ComplimentOutcome.LevelTooLow);
+            return ComplimentOutcome.LevelTooLow;
         }
 
         var now = clock.GetCurrentInstant();
         var availableAt = character.ConnectedAt + DelayAfterConnection;
         if (now < availableAt)
         {
-            return new ComplimentResult(ComplimentOutcome.TooSoonAfterConnection,
-                MinutesToWait: (long)Math.Ceiling((availableAt - now).TotalMinutes));
+            return new ComplimentTooSoon((long)Math.Ceiling((availableAt - now).TotalMinutes));
         }
 
         var account = character.Account;
         if (account.LastCompliment is { } last && last.InUtc().Date == now.InUtc().Date)
         {
-            return new ComplimentResult(ComplimentOutcome.AlreadyComplimentedToday);
+            return ComplimentOutcome.AlreadyComplimentedToday;
         }
 
         target.Compliment = (short)(target.Compliment + 1);
         account.LastCompliment = now;
-        return new ComplimentResult(ComplimentOutcome.Complimented, target);
+        return new Complimented(target);
     }
 }

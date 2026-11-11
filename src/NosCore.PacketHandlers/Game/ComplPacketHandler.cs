@@ -21,13 +21,9 @@ namespace NosCore.PacketHandlers.Game
         public override async Task ExecuteAsync(ComplPacket packet, ClientSession session)
         {
             var character = session.Character;
-            var result = complimentService.Compliment(character, packet.CharacterId);
-            switch (result.Outcome)
+            switch (complimentService.Compliment(character, packet.CharacterId))
             {
-                case ComplimentOutcome.NoTarget:
-                    return;
-
-                case ComplimentOutcome.Complimented when result.Target is { } target:
+                case Complimented(var target):
                     await session.SendPacketAsync(new Sayi2Packet
                     {
                         VisualType = VisualType.Player,
@@ -48,7 +44,7 @@ namespace NosCore.PacketHandlers.Game
                     });
                     return;
 
-                case ComplimentOutcome.TooSoonAfterConnection:
+                case ComplimentTooSoon(var minutesToWait):
                     await session.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
@@ -56,17 +52,20 @@ namespace NosCore.PacketHandlers.Game
                         Type = SayColorType.Red,
                         Message = Game18NConstString.CantCommendNow,
                         ArgumentType = 4,
-                        Game18NArguments = { result.MinutesToWait }
+                        Game18NArguments = { minutesToWait }
                     });
                     return;
 
-                default:
+                case ComplimentOutcome.NoTarget:
+                    return;
+
+                case ComplimentOutcome refusal:
                     await session.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
                         VisualId = character.CharacterId,
                         Type = SayColorType.Red,
-                        Message = result.Outcome switch
+                        Message = refusal switch
                         {
                             ComplimentOutcome.InGlacernon => Game18NConstString.CannotLeadInGlacernon,
                             ComplimentOutcome.LevelTooLow => Game18NConstString.OnlyPlayersAboveLevelThirtyLead,

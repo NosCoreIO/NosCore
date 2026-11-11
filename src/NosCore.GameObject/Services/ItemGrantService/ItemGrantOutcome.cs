@@ -12,5 +12,4 @@ public enum ItemGrantOutcome
     Refused,
     UnknownItem,
     NotEnoughSpace,
-    Granted,
 }

@@ -10,5 +10,4 @@ public enum SpecialistStoreOutcome
 {
     Ignored,
     CannotStore,
-    Stored,
 }

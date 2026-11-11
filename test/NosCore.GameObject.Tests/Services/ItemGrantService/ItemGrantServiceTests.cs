@@ -85,8 +85,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
         {
             await new Spec("A stackable item takes the first value as its amount")
                 .When(Granting_WithDesignOrAmount_AndUpgrade_, PotionVNum, (short?)5, (byte?)null)
-                .Then(TheOutcomeShouldBe_, ItemGrantOutcome.Granted)
-                .And(TheGrantedAmountShouldBe_, (short)5)
+                .Then(TheGrantedAmountShouldBe_, (short)5)
                 .And(TheItemShouldBeCreatedWith_Amount_Rare_Upgrade_Design_, PotionVNum, (short)5, (sbyte)0, (byte)0, (byte)0)
                 .ExecuteAsync();
         }
@@ -121,9 +120,9 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
         private void Granting_WithDesignOrAmount_AndUpgrade_(short vnum, short? designOrAmount, byte? upgrade) =>
             Result = Service.Grant(Session.Character, vnum, designOrAmount, upgrade);
 
-        private void TheOutcomeShouldBe_(ItemGrantOutcome outcome) => Assert.AreEqual(outcome, Result.Outcome);
+        private void TheOutcomeShouldBe_(ItemGrantOutcome outcome) => Assert.AreEqual(outcome, Result.Value);
 
-        private void TheGrantedAmountShouldBe_(short amount) => Assert.AreEqual(amount, Result.Amount);
+        private void TheGrantedAmountShouldBe_(short amount) => Assert.AreEqual(amount, (Result.Value as ItemGranted)?.Amount);
 
         private void NothingShouldBeCreated() =>
             ItemProvider.Verify(x => x.Create(It.IsAny<short>(), It.IsAny<short>(), It.IsAny<sbyte>(), It.IsAny<byte>(), It.IsAny<byte>()),

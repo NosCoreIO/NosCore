@@ -10,5 +10,4 @@ public enum SpecialistPointsOutcome
 {
     CardNotWorn,
     Refused,
-    Spent,
 }

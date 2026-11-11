@@ -22,9 +22,8 @@ namespace NosCore.PacketHandlers.Command
     {
         public override async Task ExecuteAsync(CreateItemPacket createItemPacket, ClientSession session)
         {
-            var result = itemGrantService.Grant(session.Character, createItemPacket.VNum,
-                createItemPacket.DesignOrAmount, createItemPacket.Upgrade);
-            switch (result.Outcome)
+            switch (itemGrantService.Grant(session.Character, createItemPacket.VNum,
+                createItemPacket.DesignOrAmount, createItemPacket.Upgrade))
             {
                 case ItemGrantOutcome.UnknownItem:
                     await session.SendPacketAsync(new MsgiPacket
@@ -42,8 +41,8 @@ namespace NosCore.PacketHandlers.Command
                     });
                     return;
 
-                case ItemGrantOutcome.Granted:
-                    await session.SendPacketAsync((result.Items ?? []).GeneratePocketChange());
+                case ItemGranted(var items, var amount):
+                    await session.SendPacketAsync(items.GeneratePocketChange());
                     await session.SendPacketAsync(new SayiPacket
                     {
                         VisualType = VisualType.Player,
@@ -51,7 +50,7 @@ namespace NosCore.PacketHandlers.Command
                         Type = SayColorType.Green,
                         Message = Game18NConstString.ReceivedThisItem,
                         ArgumentType = 2,
-                        Game18NArguments = { createItemPacket.VNum.ToString(), result.Amount }
+                        Game18NArguments = { createItemPacket.VNum.ToString(), amount }
                     });
                     return;
             }

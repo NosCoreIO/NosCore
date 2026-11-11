@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task ComplimentingTooSoonShowsTheMinutesLeft()
         {
             await new Spec("Complimenting too soon after connecting shows the minutes left")
-                .Given(TheComplimentIsRefusedWith_, new ComplimentResult(ComplimentOutcome.TooSoonAfterConnection, MinutesToWait: 40))
+                .Given(TheComplimentIsRefusedWith_, new ComplimentResult(new ComplimentTooSoon(40)))
                 .WhenAsync(ComplimentingTargetAsync)
                 .Then(SenderShouldBeToldToWait_Minutes, 40L)
                 .ExecuteAsync();
@@ -85,7 +85,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             PlayerComponentBundle target = Target.Character;
             ComplimentService.Setup(x => x.Compliment(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>()))
-                .Returns(new ComplimentResult(ComplimentOutcome.Complimented, target));
+                .Returns(new Complimented(target));
         }
 
         private void TheComplimentIsRefusedWith_(ComplimentResult result)

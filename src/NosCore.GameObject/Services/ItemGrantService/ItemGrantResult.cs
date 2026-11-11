@@ -3,11 +3,11 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
-
 using NosCore.GameObject.Services.InventoryService;
 using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.ItemGrantService;
 
-public readonly record struct ItemGrantResult(ItemGrantOutcome Outcome, List<InventoryItemInstance>? Items = null,
-    short Amount = 0);
+public sealed record ItemGranted(List<InventoryItemInstance> Items, short Amount);
+
+public union ItemGrantResult(ItemGranted, ItemGrantOutcome);

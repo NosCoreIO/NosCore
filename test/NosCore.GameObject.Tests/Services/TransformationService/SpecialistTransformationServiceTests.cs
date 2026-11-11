@@ -133,8 +133,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         {
             Assert.AreEqual(10, WornCard().SlDamage);
             Assert.AreEqual(5, WornCard().SlHp);
-            Assert.AreEqual(SpecialistPointsOutcome.Spent, Points.Outcome);
-            Assert.AreSame(WornCard(), Points.Card);
+            Assert.AreSame(WornCard(), (Points.Value as SpecialistPointsSpent)?.Card);
         }
 
         private void TheCardShouldHaveNoPointsSpent()
@@ -144,7 +143,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private void TheCardShouldNotBeWorn()
         {
-            Assert.AreEqual(SpecialistPointsOutcome.CardNotWorn, Points.Outcome);
+            Assert.AreEqual(SpecialistPointsOutcome.CardNotWorn, Points.Value);
         }
 
         [TestMethod]
@@ -364,17 +363,17 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private void NoCardShouldBeEquipped()
         {
-            Assert.AreEqual(SpecialistTransformationOutcome.NoSpecialistCardEquipped, Toggle.Outcome);
+            Assert.AreEqual(SpecialistTransformationOutcome.NoSpecialistCardEquipped, Toggle.Value);
         }
 
         private void ShouldBeRefusedInVehicle()
         {
-            Assert.AreEqual(SpecialistTransformationOutcome.InVehicle, Toggle.Outcome);
+            Assert.AreEqual(SpecialistTransformationOutcome.InVehicle, Toggle.Value);
         }
 
         private void NoPacketShouldBeSent()
         {
-            Assert.AreEqual(SpecialistTransformationOutcome.Ignored, Toggle.Outcome);
+            Assert.AreEqual(SpecialistTransformationOutcome.Ignored, Toggle.Value);
             Assert.IsNull(Session.LastPackets.FirstOrDefault());
         }
 
@@ -405,13 +404,12 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private void ShouldBeOnCooldown()
         {
-            Assert.AreEqual(SpecialistTransformationOutcome.OnCooldown, Toggle.Outcome);
-            Assert.AreEqual((short)30, Toggle.CooldownSecondsLeft);
+            Assert.AreEqual((short)30, (Toggle.Value as SpecialistOnCooldown)?.SecondsLeft);
         }
 
         private void ShouldBeRefusedForNoPoints()
         {
-            Assert.AreEqual(SpecialistTransformationOutcome.NoPoints, Toggle.Outcome);
+            Assert.AreEqual(SpecialistTransformationOutcome.NoPoints, Toggle.Value);
         }
 
         private void ShouldReceiveDelayPacket()

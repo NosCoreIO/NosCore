@@ -50,7 +50,7 @@ public sealed class SpecialistHolderService(IItemGenerationService itemProvider)
     {
         if (character.InExchangeOrShop)
         {
-            return new SpecialistStoreResult(SpecialistStoreOutcome.Ignored);
+            return SpecialistStoreOutcome.Ignored;
         }
 
         var cardItem = character.InventoryService.LoadBySlotAndType(cardSlot, NoscorePocketType.Equipment);
@@ -60,17 +60,17 @@ public sealed class SpecialistHolderService(IItemGenerationService itemProvider)
             || !IsSpecialistHolder(holderItem.ItemInstance)
             || holderItem.ItemInstance is not BoxInstance { HoldingVNum: null or 0 } holder)
         {
-            return new SpecialistStoreResult(SpecialistStoreOutcome.Ignored);
+            return SpecialistStoreOutcome.Ignored;
         }
 
         if (!CanStore(card))
         {
-            return new SpecialistStoreResult(SpecialistStoreOutcome.CannotStore);
+            return SpecialistStoreOutcome.CannotStore;
         }
 
         Store(card, holder);
         var remaining = character.InventoryService.RemoveItemAmountFromInventory(1, cardItem.ItemInstanceId);
-        return new SpecialistStoreResult(SpecialistStoreOutcome.Stored, cardItem, remaining, holderItem);
+        return new SpecialistStored(cardItem, remaining, holderItem);
     }
 
     public SpecialistInstance TakeOut(BoxInstance holder)
