@@ -23,8 +23,9 @@ namespace NosCore.GameObject.Services.FamilyService
             var families = familyDao.LoadAll().ToList();
             return type switch
             {
-                FamilyRankingType.Experience => Rank(families, s => (s.FamilyLevel, s.FamilyExperience), s => s.FamilyExperience),
-                FamilyRankingType.CurrentDemons => RankByReputation(families),
+                FamilyRankingType.Experience or FamilyRankingType.DailyExperience =>
+                    Rank(families, s => (s.FamilyLevel, s.FamilyExperience), s => s.FamilyExperience),
+                FamilyRankingType.DailyReputation => RankByReputation(families),
                 _ => new List<FamilyRankingEntry>()
             };
         }
