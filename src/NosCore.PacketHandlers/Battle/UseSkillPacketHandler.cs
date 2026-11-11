@@ -153,13 +153,12 @@ namespace NosCore.PacketHandlers.Battle
             IReadOnlyList<(VisualType VisualType, long VisualId)>? listed)
         {
             var character = session.Character;
-            var skill = listed == null ? null : skillCastService.FindLearned(character, castId)?.Skill;
-            if (skill == null)
+            if (listed == null || skillCastService.FindLearned(character, castId)?.Skill is not { } skill)
             {
                 return null;
             }
 
-            return listed!
+            return listed
                 .Select(t => FindTarget(t.VisualType, t.VisualId, session))
                 .OfType<IAliveEntity>()
                 .Where(t => SkillReach.IsTargetInReach(skill.Range,
