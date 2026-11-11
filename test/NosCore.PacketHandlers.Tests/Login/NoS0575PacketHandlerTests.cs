@@ -53,7 +53,7 @@ namespace NosCore.PacketHandlers.Tests.Login
             Session = await TestHelpers.Instance.GenerateSessionAsync();
             AuthHttpClient = new Mock<IAuthHub>();
             PubSubHub = TestHelpers.Instance.PubSubHub;
-            LoginConfiguration = Options.Create(new LoginConfiguration());
+            LoginConfiguration = Options.Create(new LoginConfiguration { Database = new(), MasterCommunication = new() });
             SessionRefHolder = new SessionRefHolder();
             ChannelHub = new Mock<IChannelHub>();
             SessionRefHolder[Session.Channel.NotNull().Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);

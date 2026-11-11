@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.LoginService
             PubSubHub = new Mock<IPubSubHub>();
             ChannelHub = new Mock<IChannelHub>();
 
-            LoginConfig = Options.Create(new LoginConfiguration());
+            LoginConfig = Options.Create(new LoginConfiguration { Database = new(), MasterCommunication = new() });
 
             Service = new GameObject.Services.LoginService.LoginService(
                 LoginConfig,
@@ -91,6 +91,8 @@ namespace NosCore.GameObject.Tests.Services.LoginService
         {
             LoginConfig = Options.Create(new LoginConfiguration
             {
+                Database = new(),
+                MasterCommunication = new(),
                 ClientVersion = new ClientVersionSubPacket { Major = 1 },
                 Md5String = "testmd5"
             });

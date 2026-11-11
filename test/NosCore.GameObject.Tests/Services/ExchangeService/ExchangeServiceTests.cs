@@ -46,6 +46,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         {
             WorldConfiguration = Options.Create(new WorldConfiguration
             {
+                Database = new(),
+                MasterCommunication = new(),
                 MaxItemAmount = 999,
                 BackpackSize = 48,
                 MaxGoldAmount = 1000000000,

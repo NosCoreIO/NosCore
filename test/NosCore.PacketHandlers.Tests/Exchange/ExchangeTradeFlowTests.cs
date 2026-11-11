@@ -81,6 +81,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Exchange = new ExchangeService(
                 Options.Create(new WorldConfiguration
                 {
+                    Database = new(),
+                    MasterCommunication = new(),
                     BackpackSize = 48,
                     MaxItemAmount = 999,
                     MaxGoldAmount = 1_000_000_000,
@@ -112,6 +114,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             return new TransferService(
                 Options.Create(new WorldConfiguration
                 {
+                    Database = new(),
+                    MasterCommunication = new(),
                     BackpackSize = 48,
                     MaxItemAmount = 999,
                     MaxGoldAmount = 1_000_000_000,

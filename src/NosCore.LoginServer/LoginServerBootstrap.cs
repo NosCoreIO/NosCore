@@ -68,9 +68,9 @@ namespace NosCore.LoginServer
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
-            var loginConfiguration = new LoginConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
-            conf.Bind(loginConfiguration);
+            var loginConfiguration = conf.Get<LoginConfiguration>()
+                ?? throw new InvalidOperationException("The LoginConfiguration section could not be read.");
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();

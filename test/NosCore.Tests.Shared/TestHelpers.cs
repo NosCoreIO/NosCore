@@ -154,6 +154,8 @@ namespace NosCore.Tests.Shared
 
         public IOptions<WorldConfiguration> WorldConfiguration { get; } = Options.Create(new WorldConfiguration
         {
+            Database = new(),
+            MasterCommunication = new(),
             BackpackSize = 2,
             MaxItemAmount = 999,
             MaxSpPoints = 10_000,

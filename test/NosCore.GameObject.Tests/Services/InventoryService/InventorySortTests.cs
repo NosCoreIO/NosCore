@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(Items,
                 NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
             Inventory = new GameObject.Services.InventoryService.InventoryService(Items,
-                Options.Create(new WorldConfiguration { BackpackSize = 48, MaxItemAmount = 999 }),
+                Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 48, MaxItemAmount = 999 }),
                 NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance);
         }
 

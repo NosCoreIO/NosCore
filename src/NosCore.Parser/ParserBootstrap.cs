@@ -52,9 +52,9 @@ namespace NosCore.Parser
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
-            var parserConfiguration = new ParserConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "parser.yml" });
-            conf.Bind(parserConfiguration);
+            var parserConfiguration = conf.Get<ParserConfiguration>()
+                ?? throw new InvalidOperationException("The ParserConfiguration section could not be read.");
             services.AddDbContext<NosCoreContext>(
                 builder => builder.UseNpgsql(parserConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<ParserConfiguration>().Bind(conf).ValidateDataAnnotations();

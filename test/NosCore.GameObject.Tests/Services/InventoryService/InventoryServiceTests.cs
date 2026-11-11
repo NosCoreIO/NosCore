@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item {Type = NoscorePocketType.Equipment, VNum = 4500, ItemType = ItemType.Box, ItemSubType = 2}
             };
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
-            Inventory = new GameObject.Services.InventoryService.InventoryService(items, Options.Create(new WorldConfiguration { BackpackSize = 3, MaxItemAmount = 999 }),
+            Inventory = new GameObject.Services.InventoryService.InventoryService(items, Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 3, MaxItemAmount = 999 }),
                 NullLogger<NosCore.GameObject.Services.InventoryService.InventoryService>.Instance);
         }
 

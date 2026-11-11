@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             SessionRegistry = new Mock<ISessionRegistry>();
             Logger = new Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>>();
             LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            WorldConfig = Options.Create(new WorldConfiguration { MaxGoldAmount = 999999999 });
+            WorldConfig = Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), MaxGoldAmount = 999999999 });
             ExperienceService = new Mock<IExperienceService>();
             JobExperienceService = new Mock<IJobExperienceService>();
             HeroExperienceService = new Mock<IHeroExperienceService>();

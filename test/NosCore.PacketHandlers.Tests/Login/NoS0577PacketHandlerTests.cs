@@ -44,6 +44,7 @@ namespace NosCore.PacketHandlers.Tests.Login
         private readonly Mock<IPubSubHub> PubSubHub = TestHelpers.Instance.PubSubHub;
         private readonly IOptions<LoginConfiguration> LoginConfiguration = Options.Create(new LoginConfiguration
         {
+            Database = new(),
             MasterCommunication = new WebApiConfiguration()
         });
 

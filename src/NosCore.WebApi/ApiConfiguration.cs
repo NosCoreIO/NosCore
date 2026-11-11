@@ -12,9 +12,9 @@ namespace NosCore.WebApi
     public class ApiConfiguration : ServerConfiguration
     {
         [Required]
-        public WebApiConfiguration MasterCommunication { get; set; } = new();
+        public required WebApiConfiguration MasterCommunication { get; set; }
 
         [Required]
-        public SqlConnectionConfiguration Database { get; set; } = new();
+        public required SqlConnectionConfiguration Database { get; set; }
     }
 }

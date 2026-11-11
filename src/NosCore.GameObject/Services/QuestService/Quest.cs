@@ -113,6 +113,6 @@ namespace NosCore.GameObject.Services.QuestService
             };
         }
 
-        public List<QuestObjectiveDto> QuestObjectives { get; set; } = new();
+        public required List<QuestObjectiveDto> QuestObjectives { get; set; }
     }
 }

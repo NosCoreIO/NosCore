@@ -47,6 +47,8 @@ namespace NosCore.GameObject.Tests.Services.TransferService
 
         private readonly IOptions<WorldConfiguration> _configuration = Options.Create(new WorldConfiguration
         {
+            Database = new(),
+            MasterCommunication = new(),
             BackpackSize = 2,
             MaxItemAmount = 999,
             MaxGoldAmount = 1_000_000_000,

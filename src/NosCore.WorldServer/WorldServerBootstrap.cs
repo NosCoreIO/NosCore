@@ -90,9 +90,9 @@ namespace NosCore.WorldServer
 
         private static void InitializeConfiguration(string[] args, IServiceCollection services)
         {
-            var worldConfiguration = new WorldConfiguration();
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" });
-            conf.Bind(worldConfiguration);
+            var worldConfiguration = conf.Get<WorldConfiguration>()
+                ?? throw new InvalidOperationException("The WorldConfiguration section could not be read.");
             services.AddDbContext<NosCoreContext>(
                 conf => conf.UseNpgsql(worldConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
             services.AddOptions<WorldConfiguration>().Bind(conf).ValidateDataAnnotations();
