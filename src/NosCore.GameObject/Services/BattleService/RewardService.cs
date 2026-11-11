@@ -17,6 +17,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.ExperienceService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -45,6 +46,7 @@ public sealed class RewardService(
     ILevelPenaltyService levelPenaltyService,
     ILowLevelBoostService lowLevelBoostService,
     IGroupLootService groupLootService,
+    IMateProgressionService mateProgression,
     ILogger<RewardService> logger) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
@@ -179,6 +181,7 @@ public sealed class RewardService(
         }
 
         await experienceProgression.AddExperienceAsync(player, levelXp, jobXp, heroXp, spXp, fairyXp);
+        await mateProgression.AddExperienceAsync(player, levelXp);
 
         await AwardReputationAsync(player, mob).ConfigureAwait(false);
         await AwardDignityAsync(player, mob).ConfigureAwait(false);

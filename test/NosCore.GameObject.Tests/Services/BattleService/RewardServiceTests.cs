@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.MateExperienceService;
+using NosCore.GameObject.Services.MateService;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -60,6 +62,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new ExperienceShareService(),
                 new LevelPenaltyService(),
                 new LowLevelBoostService(), TestHelpers.Instance.GroupLootService,
+                new MateProgressionService(new MateExperienceService()),
                 NullLogger<RewardService>.Instance);
 
             var template = new NpcMonsterDto

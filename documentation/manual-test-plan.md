@@ -635,6 +635,13 @@ partner out plus one of each at home, one of them above your level.
       a three-second bar, then the NosMate disappears with "<name> has been sent back to the
       Miniland." in the centre and in chat, and it is standing in the Miniland next time
 - [ ] Target a NosMate: its level shows on the target bar instead of 0
+- [ ] With a pet in the team, kill a monster that gives experience, then reopen the pet's page
+      in the character window: its experience went up. A kill that fills the bar plays the
+      level-up effect on the pet, and the page shows the next level with HP and MP refilled
+- [ ] A pet one level below you keeps a full bar instead of levelling; level up yourself and the
+      next kill levels it
+- [ ] A pet left in the Miniland gains nothing from your kills
+- [ ] Relog: the pet's level and experience are kept
 
 #### Partner equipment
 

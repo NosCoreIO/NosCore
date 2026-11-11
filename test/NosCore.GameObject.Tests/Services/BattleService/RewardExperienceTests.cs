@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.MateExperienceService;
+using NosCore.GameObject.Services.MateService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Arch.Core;
@@ -61,7 +63,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _service = new RewardService(new Mock<IItemGenerationService>().Object,
                 new Mock<IMapItemGenerationService>().Object, catalog.Object,
                 progression.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, NullLogger<RewardService>.Instance);
+                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
         }
 
         [TestMethod]
