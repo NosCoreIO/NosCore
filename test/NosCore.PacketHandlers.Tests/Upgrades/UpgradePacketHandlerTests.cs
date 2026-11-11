@@ -41,10 +41,12 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
             _session.WithWindowOpenedAt(100, NpcDialogWindow.Upgrade);
             _matchingOperation = new Mock<IUpgradeOperation>();
             _matchingOperation.Setup(o => o.Kind).Returns(UpgradePacketType.SumResistance);
+            _matchingOperation.Setup(o => o.Window).Returns(NpcDialogWindow.Upgrade);
             _matchingOperation.Setup(o => o.ExecuteAsync(It.IsAny<ClientSession>(), It.IsAny<UpgradePacket>()))
                 .ReturnsAsync((IReadOnlyList<IPacket>)new IPacket[0]);
             _otherOperation = new Mock<IUpgradeOperation>();
             _otherOperation.Setup(o => o.Kind).Returns(UpgradePacketType.RarifyItem);
+            _otherOperation.Setup(o => o.Window).Returns(NpcDialogWindow.Upgrade);
             _logger = new Mock<ILogger<UpgradePacketHandler>>();
             _handler = new UpgradePacketHandler(
                 new[] { _otherOperation.Object, _matchingOperation.Object },
@@ -69,6 +71,17 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                 .WhenAsync(UnknownUpgradeTypePacketIsHandled)
                 .Then(NoOperationShouldHaveExecuted)
                 .And(WarningShouldHaveBeenLogged)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task UnknownUpgradeTypeWithoutAWindowIsNotLogged()
+        {
+            await new Spec("An unknown UpgradeType sent with no upgrade window open logs nothing")
+                .Given(NoWindowIsOpen)
+                .WhenAsync(UnknownUpgradeTypePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .And(NoWarningShouldHaveBeenLogged)
                 .ExecuteAsync();
         }
 
@@ -102,11 +115,24 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AScrollWindowRunsNoNpcUpgrade()
+        {
+            await new Spec("An upgrade window opened by a scroll does not run an upgrade an NPC offers")
+                .Given(AScrollWindowIsOpenInstead)
+                .WhenAsync(SumResistancePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .ExecuteAsync();
+        }
+
         // --- Givens ---
 
         private void NoWindowIsOpen() => _session.Character.NpcDialog = null;
 
         private void CharacterWalksTo_(short x, short y) => _session.WalkTo(x, y);
+
+        private void AScrollWindowIsOpenInstead() =>
+            TestHelpers.Instance.NpcDialogService.OpenRemotely(_session.Character, NpcDialogWindow.UpgradeScroll);
 
         private void TheBankIsOpenAtTheNpcInstead() => _session.WithWindowOpenedAt(100, NpcDialogWindow.Bank);
 
@@ -150,5 +176,14 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                     It.IsAny<System.Exception?>(),
                     It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
                 Times.AtLeastOnce);
+
+        private void NoWarningShouldHaveBeenLogged() =>
+            _logger.Verify(l => l.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => true),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Never);
     }
 }

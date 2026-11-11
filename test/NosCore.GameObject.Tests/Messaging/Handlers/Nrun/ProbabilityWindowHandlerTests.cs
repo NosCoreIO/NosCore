@@ -11,6 +11,7 @@ using Moq;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Messaging.Handlers.Nrun;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.UpgradeService;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
@@ -33,6 +34,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session = await TestHelpers.Instance.GenerateSessionAsync();
             var spUpgrade = new Mock<IUpgradeOperation>();
             spUpgrade.SetupGet(o => o.Kind).Returns(UpgradePacketType.UpgradeSpNoProtection);
+            spUpgrade.SetupGet(o => o.Window).Returns(NpcDialogWindow.Upgrade);
             _handler = new ProbabilityWindowHandler(new[] { spUpgrade.Object }, TestHelpers.Instance.NpcDialogService);
         }
 

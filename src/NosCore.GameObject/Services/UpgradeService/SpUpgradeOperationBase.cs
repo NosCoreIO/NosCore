@@ -93,11 +93,25 @@ public abstract class SpUpgradeOperationBase(
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
         var source = LoadCard(session, packet);
-        if (source?.ItemInstance is not SpecialistInstance card)
+        if (source?.ItemInstance is not SpecialistInstance card || !Accepts(card))
         {
             return null;
         }
 
+        return new UpgradeContext(
+            Source: source,
+            Target: null,
+            GoldCost: GoldCost(card),
+            MaterialCosts: MaterialCosts(card));
+    }
+
+    // Whether this window takes the card at all.
+    protected virtual bool Accepts(SpecialistInstance card) => true;
+
+    protected virtual long GoldCost(SpecialistInstance card) => spUpgradeService.GetGoldCost(card.Upgrade);
+
+    protected virtual IReadOnlyList<MaterialCost> MaterialCosts(SpecialistInstance card)
+    {
         var upgrade = card.Upgrade;
         var materials = new List<MaterialCost>
         {
@@ -115,11 +129,7 @@ public abstract class SpUpgradeOperationBase(
             materials.Add(new MaterialCost(ScrollVNum(upgrade), 1));
         }
 
-        return new UpgradeContext(
-            Source: source,
-            Target: null,
-            GoldCost: spUpgradeService.GetGoldCost(upgrade),
-            MaterialCosts: materials);
+        return materials;
     }
 
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
@@ -182,6 +192,11 @@ public abstract class SpUpgradeOperationBase(
             return Game18NConstString.CantUseBecauseSoulDestroyed;
         }
 
+        if (!Accepts(card))
+        {
+            return Game18NConstString.CardCannotBeUpgraded;
+        }
+
         var upgrade = card.Upgrade;
         if (upgrade >= spUpgradeService.MaxUpgrade)
         {
@@ -198,6 +213,12 @@ public abstract class SpUpgradeOperationBase(
             };
         }
 
+        return MissingMaterial(session, card);
+    }
+
+    protected virtual Game18NConstString? MissingMaterial(ClientSession session, SpecialistInstance card)
+    {
+        var upgrade = card.Upgrade;
         var inventory = session.Character.InventoryService;
         if (inventory.CountItem(FeatherVNum) < spUpgradeService.GetFeatherCost(upgrade))
         {

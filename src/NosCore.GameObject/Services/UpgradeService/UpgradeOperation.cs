@@ -13,6 +13,7 @@ using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -42,6 +43,8 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     : IUpgradeOperation
 {
     public abstract UpgradePacketType Kind { get; }
+
+    public virtual NpcDialogWindow Window => NpcDialogWindow.Upgrade;
 
     public async Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet)
     {

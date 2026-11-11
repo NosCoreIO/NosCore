@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -16,6 +17,9 @@ namespace NosCore.GameObject.Services.UpgradeService;
 public interface IUpgradeOperation
 {
     UpgradePacketType Kind { get; }
+
+    // The dialog that has to be open for the window to be used.
+    NpcDialogWindow Window { get; }
 
     Task<IReadOnlyList<IPacket>> ExecuteAsync(ClientSession session, UpgradePacket packet);
 }
