@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
@@ -69,7 +70,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 {
                     Delay = 5000,
                     Type = DelayPacketType.ItemInUse,
-                    Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
+                    Packet = character.GenerateUseItem(itemInstance.Type.ToPocketType(), itemInstance.Slot, 2, 0)
                 }, itemInstance.ItemInstanceId, clock.GetCurrentInstant());
                 return;
             }
@@ -82,7 +83,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             var characterId = character.CharacterId;
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
             var miniland = minilandProvider.GetMiniland(characterId);
             await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8);
         }

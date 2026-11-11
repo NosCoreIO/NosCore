@@ -35,7 +35,7 @@ namespace NosCore.PacketHandlers.Inventory
                 inventory.SortPocket(pocket, clientSession.Account.Language);
                 await clientSession.SendPacketAsync(new InvPacket
                 {
-                    Type = (PocketType)pocket,
+                    Type = pocket.ToPocketType(),
                     IvnSubPackets = inventory.Select(s => s.Value)
                         .Where(i => i.Type == pocket)
                         .OrderBy(i => i.Slot)

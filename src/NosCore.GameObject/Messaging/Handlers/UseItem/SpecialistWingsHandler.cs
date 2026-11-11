@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 await session.SendPacketAsync(new QnaiPacket
                 {
-                    YesPacket = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 1, 0),
+                    YesPacket = character.GenerateUseItem(itemInstance.Type.ToPocketType(), itemInstance.Slot, 1, 0),
                     Question = Game18NConstString.AskChangeWings
                 });
                 return;
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             sp.ItemInstance.Design = (short)item.EffectValue;
             character.MorphDesign = (short)item.EffectValue;
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
             await character.MapInstance.SendPacketAsync(character.GenerateCMode());
             await session.SendPacketAsync(character.GenerateStat());
             await session.SendPacketAsync(new MsgiPacket

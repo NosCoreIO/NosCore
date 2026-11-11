@@ -78,7 +78,7 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
                 return false;
             }
 
-            await character.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
+            await character.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
             await character.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,

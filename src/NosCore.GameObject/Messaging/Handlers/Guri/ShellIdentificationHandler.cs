@@ -80,7 +80,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 var taken = (short)Math.Min(cost, pearl.ItemInstance.Amount);
                 inventory.RemoveItemAmountFromInventory(taken, pearl.ItemInstanceId);
                 cost -= taken;
-                packets.Add((pearl.ItemInstance.Amount > 0 ? pearl : null).GeneratePocketChange((PocketType)pearl.Type, pearl.Slot));
+                packets.Add((pearl.ItemInstance.Amount > 0 ? pearl : null).GeneratePocketChange(pearl.Type.ToPocketType(), pearl.Slot));
             }
 
             packets.Add(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.OptionsIdentified });

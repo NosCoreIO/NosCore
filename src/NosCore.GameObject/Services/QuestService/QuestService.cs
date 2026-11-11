@@ -279,7 +279,7 @@ namespace NosCore.GameObject.Services.QuestService
                     }
                     foreach (var inv in added)
                     {
-                        await character.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+                        await character.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
                     }
                     break;
                 default:

@@ -7,6 +7,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 await session.SendPacketAsync(new QnaiPacket
                 {
-                    YesPacket = character.GenerateUseItem((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot, 1, 0),
+                    YesPacket = character.GenerateUseItem(evt.InventoryItem.Type.ToPocketType(), evt.InventoryItem.Slot, 1, 0),
                     Question = Game18NConstString.AskChangeGender
                 });
                 return;
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.MapInstance.SendPacketAsync(character.GenerateEff(196));
 
             character.InventoryService.RemoveItemAmountFromInventory(1, evt.InventoryItem.ItemInstanceId);
-            await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
+            await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange(evt.InventoryItem.Type.ToPocketType(), evt.InventoryItem.Slot));
             await session.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,

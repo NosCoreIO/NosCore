@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Options;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -86,7 +87,7 @@ namespace NosCore.PacketHandlers.Shops
             var remaining = clientSession.Character.InventoryService.RemoveItemAmountFromInventory(sellPacket.Amount,
                 inv.ItemInstanceId);
             await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
-            await clientSession.SendPacketAsync(remaining.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            await clientSession.SendPacketAsync(remaining.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
         }
     }
 }

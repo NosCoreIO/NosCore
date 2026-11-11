@@ -7,6 +7,7 @@
 using System;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var gained = (short)Math.Min(item.EffectValue, maximum - character.Dignity);
             var itemInstance = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
 
             character.Dignity += gained;
             await session.SendPacketAsync(character.GenerateFd());

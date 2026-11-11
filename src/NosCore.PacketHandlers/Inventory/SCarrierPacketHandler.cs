@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -43,8 +44,8 @@ namespace NosCore.PacketHandlers.Inventory
                 case SpecialistStoreOutcome.Stored:
                     var card = result.Card!;
                     var holder = result.Holder!;
-                    await clientSession.SendPacketAsync(result.Remaining.GeneratePocketChange((PocketType)card.Type, card.Slot));
-                    await clientSession.SendPacketAsync(holder.GeneratePocketChange((PocketType)holder.Type, holder.Slot));
+                    await clientSession.SendPacketAsync(result.Remaining.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
+                    await clientSession.SendPacketAsync(holder.GeneratePocketChange(holder.Type.ToPocketType(), holder.Slot));
                     await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.CloseSubWindow });
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {

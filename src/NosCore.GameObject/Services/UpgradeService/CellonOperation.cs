@@ -131,8 +131,8 @@ public sealed class CellonOperation(
     {
         var cellon = ctx.Target!;
         yield return (cellon.ItemInstance!.Amount > 0 ? cellon : null)
-            .GeneratePocketChange((PocketType)cellon.Type, cellon.Slot);
-        yield return ctx.Source.GeneratePocketChange((PocketType)ctx.Source.Type, ctx.Source.Slot);
+            .GeneratePocketChange(cellon.Type.ToPocketType(), cellon.Slot);
+        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
     }
 
     // Only an upgrade material carries a tier in EffectValue, and only a cellon among them.

@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -31,7 +32,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
 
             var inventory = clientSession.Character.InventoryService;
-            var slots = inventory.SortPocket((NoscorePocketType)packet.PocketType, clientSession.Account.Language);
+            var slots = inventory.SortPocket(packet.PocketType.ToNoscorePocketType(), clientSession.Account.Language);
             if (slots.Count == 0)
             {
                 return Task.CompletedTask;
@@ -41,7 +42,7 @@ namespace NosCore.PacketHandlers.Inventory
             {
                 Type = packet.PocketType,
                 IvnSubPackets = slots.Select(slot =>
-                    inventory.LoadBySlotAndType(slot, (NoscorePocketType)packet.PocketType)?.ItemInstance
+                    inventory.LoadBySlotAndType(slot, packet.PocketType.ToNoscorePocketType())?.ItemInstance
                         .GenerateIvnSubPacket(packet.PocketType, slot)
                     ?? ((IItemInstance?)null).GenerateIvnSubPacket(packet.PocketType, slot)).ToList()
             });

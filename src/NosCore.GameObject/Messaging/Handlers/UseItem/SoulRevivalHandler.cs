@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.GameObject.Ecs.Extensions;
@@ -54,7 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     {
                         VisualType = VisualType.Player,
                         VisualId = character.CharacterId,
-                        Type = (PocketType)stone.Type,
+                        Type = stone.Type.ToPocketType(),
                         Slot = stone.Slot,
                         Mode = 1,
                         Parameter = 0,
@@ -70,8 +71,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             specialist.Rare = 0;
             character.InventoryService.RemoveItemAmountFromInventory(1, stone.ItemInstanceId);
-            await session.SendPacketAsync(stone.GeneratePocketChange((PocketType)stone.Type, stone.Slot));
-            await session.SendPacketAsync(card.GeneratePocketChange((PocketType)card.Type, card.Slot));
+            await session.SendPacketAsync(stone.GeneratePocketChange(stone.Type.ToPocketType(), stone.Slot));
+            await session.SendPacketAsync(card.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
 
             character.AddSpPoints(SpPointsRestored, worldConfiguration);
             await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));

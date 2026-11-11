@@ -6,6 +6,7 @@
 
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
@@ -31,7 +32,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var character = session.Character;
             var itemInstance = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
 
             character.Reputation += item.EffectValue;
             await session.SendPacketAsync(character.GenerateFd());

@@ -106,7 +106,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             foreach (var inv in added)
             {
-                await session.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+                await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
             }
             await session.SendPacketAsync(new RdiPacket
             {
@@ -124,7 +124,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             });
 
             await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
-                .GeneratePocketChange((PocketType)source.Type, source.Slot));
+                .GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
         }
 
         private static Task SendNotEnoughSpaceAsync(ItemUsedEvent evt) =>

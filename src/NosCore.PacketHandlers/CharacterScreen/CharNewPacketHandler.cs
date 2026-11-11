@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                         (s.Name == characterName) && (s.State == CharacterState.Active) && (s.ServerId == _worldConfiguration.ServerId));
                 if (character == null)
                 {
-                    var @class = (CharacterClassType)(packet.TargetClass ?? (byte)CharacterClassType.Adventurer);
+                    var @class = packet.TargetClass ?? CharacterClassType.Adventurer;
                     var level = ResolveCreationLevel(@class, _worldConfiguration.AllClassAvailableOnCreate);
                     var jobLevel = (byte)(@class == CharacterClassType.Adventurer ? 1 : 50);
                     var chara = new CharacterDto

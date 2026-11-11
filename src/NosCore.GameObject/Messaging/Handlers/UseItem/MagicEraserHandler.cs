@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             equipment.ShellRarity = null;
             var eraser = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, eraser.ItemInstanceId);
-            await session.SendPacketAsync((eraser.ItemInstance.Amount > 0 ? eraser : null).GeneratePocketChange((PocketType)eraser.Type, eraser.Slot));
+            await session.SendPacketAsync((eraser.ItemInstance.Amount > 0 ? eraser : null).GeneratePocketChange(eraser.Type.ToPocketType(), eraser.Slot));
             await SendAsync(evt, Game18NConstString.AllOptionsRemoved);
         }
 

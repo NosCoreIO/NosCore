@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
@@ -60,7 +61,7 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
             var taken = (short)Math.Min(amount, stack.ItemInstance.Amount);
             var left = character.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
             amount -= taken;
-            packets.Add(left.GeneratePocketChange((PocketType)stack.Type, stack.Slot));
+            packets.Add(left.GeneratePocketChange(stack.Type.ToPocketType(), stack.Slot));
         }
 
         return packets;

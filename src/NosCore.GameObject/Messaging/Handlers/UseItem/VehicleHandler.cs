@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 {
                     Type = DelayPacketType.Locomotion,
                     Delay = 3000,
-                    Packet = character.GenerateUseItem((PocketType)itemInstance.Type, itemInstance.Slot, 2, 0)
+                    Packet = character.GenerateUseItem(itemInstance.Type.ToPocketType(), itemInstance.Slot, 2, 0)
                 }, itemInstance.ItemInstanceId, clock.GetCurrentInstant());
                 return;
             }

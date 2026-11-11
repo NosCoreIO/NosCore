@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
@@ -50,7 +51,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitle());
             await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.TitleChangedOrHidden });
             session.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await session.SendPacketAsync(inv.GeneratePocketChange((PocketType)inv.Type, inv.Slot));
+            await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
         }
     }
 }

@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -37,7 +38,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             {
                 var itemInstance = evt.InventoryItem;
                 character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-                await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+                await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
 
                 character = session.Character;
                 character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue, worldConfiguration);

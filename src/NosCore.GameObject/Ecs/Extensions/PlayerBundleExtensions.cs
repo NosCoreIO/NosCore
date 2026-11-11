@@ -1110,7 +1110,7 @@ public static class ClientSessionMailExtensions
             if (inv != null)
             {
                 await session.SendPacketsAsync(
-                    inv.Select(invItem => invItem.GeneratePocketChange((PocketType)invItem.Type, invItem.Slot)));
+                    inv.Select(invItem => invItem.GeneratePocketChange(invItem.Type.ToPocketType(), invItem.Slot)));
             }
         }
 

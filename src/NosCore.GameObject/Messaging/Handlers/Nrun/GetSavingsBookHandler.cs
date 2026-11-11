@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 return;
             }
 
-            await session.SendPacketAsync(added.GeneratePocketChange((PocketType)added.Type, added.Slot));
+            await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,

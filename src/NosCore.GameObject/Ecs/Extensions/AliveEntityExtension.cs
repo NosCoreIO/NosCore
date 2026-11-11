@@ -381,7 +381,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 {
                     shopItemList.Add(new NInvItemSubPacket
                     {
-                        Type = (PocketType)item.ItemInstance!.Item.Type,
+                        Type = item.ItemInstance!.Item.Type.ToPocketType(),
                         Slot = item.Slot,
                         Price = (int)(item.Price ?? (item.ItemInstance.Item.ReputPrice > 0
                             ? item.ItemInstance.Item.ReputPrice : item.ItemInstance.Item.Price * percent)),
