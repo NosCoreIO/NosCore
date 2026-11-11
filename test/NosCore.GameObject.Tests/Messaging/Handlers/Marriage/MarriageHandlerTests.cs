@@ -130,7 +130,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Marriage
             await AnswerAsync(1);
 
             _friendHub.Verify(s => s.MarryAsync(_proposerId, _belovedId), Times.Once);
-            Assert.IsTrue(_proposer.LastPackets.OfType<Msgi2Packet>().Any(p => p.Message == Game18NConstString.PlayersMarried));
+            var announcement = _proposer.LastPackets.OfType<Msgi2Packet>().Single(p => p.Message == Game18NConstString.PlayersMarried);
+            CollectionAssert.AreEqual(new object[] { _proposer.Character.Name, _beloved.Character.Name }, announcement.Game18NArguments.ToList());
         }
 
         [TestMethod]

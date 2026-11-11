@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.ProposalDeclined,
-                    ArgumentType = 1,
+                    ArgumentType = 2,
                     Game18NArguments = { character.Name, proposer.Name }
                 });
                 return;
@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             {
                 Type = MessageType.Default,
                 Message = Game18NConstString.PlayersMarried,
-                ArgumentType = 1,
+                ArgumentType = 2,
                 Game18NArguments = { proposer.Name, character.Name }
             });
             await session.SendPacketAsync(await character.GenerateFinitAsync(friendHub, channelHub, pubSubHub));
