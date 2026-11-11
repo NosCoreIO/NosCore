@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Services.BazaarService
             var billist = bazaarItemDao.LoadAll().ToList();
             var bzItemInstanceIds = billist.Select(o => o.ItemInstanceId).ToList();
             var bzCharacterIds = billist.Select(o => o.SellerId).ToList();
-            var itemInstancelist = itemInstanceDao.Where(s => bzItemInstanceIds.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+            var itemInstancelist = itemInstanceDao.Where(s => bzItemInstanceIds.Contains(s.Id))?.ToList() ?? new List<IItemInstanceDto?>();
             var characterList = characterDao.Where(s => bzCharacterIds.Contains(s.CharacterId))?.ToList() ?? new List<CharacterDto>();
 
             _bazaarItems = new ConcurrentDictionary<long, BazaarLink>(billist.ToDictionary(x => x.BazaarItemId,

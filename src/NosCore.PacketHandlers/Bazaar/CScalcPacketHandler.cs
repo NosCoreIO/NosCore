@@ -112,7 +112,7 @@ namespace NosCore.PacketHandlers.Bazaar
             {
                 // Read back from the database: the claim crossed the bus as the base item type.
                 var listedId = claim.Item.Id;
-                var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == listedId);
+                var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == listedId);
                 var item = itemProvider.Convert(listed ?? claim.Item);
                 item.Id = Guid.NewGuid();
                 item.Amount = claim.ReturnedAmount;

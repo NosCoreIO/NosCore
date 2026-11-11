@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Services.MailService
             var characterNames = (characterDao.Where(s => characterIds.Contains(s.CharacterId)) ?? Enumerable.Empty<CharacterDto>())
                 .ToDictionary(s => s.CharacterId, s => s.Name);
             var itemInstanceIds = mails.Where(s => s.ItemInstanceId != null).Select(s => (Guid)s.ItemInstanceId!).ToList();
-            var itemInstances = (itemInstanceDao.Where(s => itemInstanceIds.Contains(s!.Id)) ?? Enumerable.Empty<IItemInstanceDto?>())
+            var itemInstances = (itemInstanceDao.Where(s => itemInstanceIds.Contains(s.Id)) ?? Enumerable.Empty<IItemInstanceDto?>())
                 .OfType<IItemInstanceDto>()
                 .ToDictionary(s => s.Id);
 

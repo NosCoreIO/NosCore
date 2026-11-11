@@ -123,7 +123,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)
                     ?.ToList() ?? new List<InventoryItemInstanceDto>();
                 var ids = inventories.Select(o => o.ItemInstanceId).ToList();
-                var itemInstances = itemInstanceDao.Where(s => ids.Contains(s!.Id))?.ToList() ?? new List<IItemInstanceDto?>();
+                var itemInstances = itemInstanceDao.Where(s => ids.Contains(s.Id))?.ToList() ?? new List<IItemInstanceDto?>();
 
                 var inventoryService = new InventoryService(items, configuration, loggerFactory.CreateLogger<InventoryService>());
                 inventories.ForEach(k => inventoryService[k.ItemInstanceId] =
