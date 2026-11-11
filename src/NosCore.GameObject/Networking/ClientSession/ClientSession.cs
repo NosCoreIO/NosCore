@@ -131,6 +131,11 @@ namespace NosCore.GameObject.Networking.ClientSession
             return packetHandlerRegistry.GetPacketAttribute(packetType);
         }
 
+        public IReadOnlyList<RefusedWhileAttribute> GetRefusals(Type packetType)
+        {
+            return packetHandlerRegistry.GetRefusals(packetType);
+        }
+
         // Not async on purpose: the hold has to be recorded in the caller's flow, which an
         // async method's own changes to an AsyncLocal never reach.
         public ValueTask<PacketLockScope> AcquirePacketLockAsync(CancellationToken ct = default)

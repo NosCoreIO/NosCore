@@ -7,6 +7,7 @@
 using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Attributes;
 using System;
+using System.Collections.Generic;
 
 namespace NosCore.GameObject.Services.PacketHandlerService
 {
@@ -14,5 +15,6 @@ namespace NosCore.GameObject.Services.PacketHandlerService
     {
         IPacketHandler? GetHandler(Type packetType);
         PacketHeaderAttribute? GetPacketAttribute(Type packetType);
+        IReadOnlyList<RefusedWhileAttribute> GetRefusals(Type packetType);
     }
 }

@@ -25,14 +25,6 @@ namespace NosCore.PacketHandlers.Inventory
             var result = specialistHolderService.StoreFromEquipment(clientSession.Character, packet.Slot, packet.HolderSlot);
             switch (result.Outcome)
             {
-                case SpecialistStoreOutcome.Transformed:
-                    await clientSession.SendPacketAsync(new MsgiPacket
-                    {
-                        Type = MessageType.Default,
-                        Message = Game18NConstString.CantPutSpecialistInHolderWhileTransformed
-                    });
-                    return;
-
                 case SpecialistStoreOutcome.CannotStore:
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {

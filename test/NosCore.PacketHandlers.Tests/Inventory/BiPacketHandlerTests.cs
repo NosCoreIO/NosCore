@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            BiPacketHandler = new BiPacketHandler(NullLogger<BiPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            BiPacketHandler = new BiPacketHandler();
         }
 
         [TestMethod]

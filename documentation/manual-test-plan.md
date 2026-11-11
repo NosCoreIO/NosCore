@@ -904,6 +904,25 @@ own message, in the client's language.
       in the state it was left in, and the blocks above still apply
 - [ ] Change map with options set: nothing resets
 
+### Sending rules
+
+Packets now declare the sender states they are refused in, and the server enforces them in one
+place. A refused packet does nothing; only the specialist holder answers with a message.
+
+- [ ] Die to a monster. On the death screen, press a potion, food and snack shortcut: nothing
+      is drunk or eaten and the items stay in the bag
+- [ ] Still dead: chat, whisper, use the family and group chat, open the friend list and invite a
+      friend to a group: all of them work
+- [ ] Still dead, as a game master: `$` commands still run
+- [ ] Revive with each of the death screen's buttons: the revival goes through as before
+- [ ] Alive, send `revival 1` from the packet sender if one is available: nothing happens
+- [ ] On a vehicle, press a skill key: no skill is cast, and the skill bar still responds once
+      you dismount (the server no longer sends a cancel in that case)
+- [ ] Transformed, drop a card on the card holder's window: the "while the transformation is in
+      progress" message appears and both items stay where they were
+- [ ] During a trade: depositing gold in the bank, opening the bank at its NPC, sorting the bag,
+      deleting an item, taking off equipment, wearing equipment and using an item all do nothing
+
 ### Trading
 
 Two characters, A and B, on the same map, both with exchange allowed in the options window.
@@ -1485,6 +1504,9 @@ Give yourself the quest through its script, or by walking the quest line that le
 
 Recorded so nobody spends time hunting for them:
 
+- **Sending rules while a private shop is open** — no code sets the shop flag yet, so the
+  refusals that apply in a shop never fire; a character with an open private shop is treated
+  like any other until it is wired.
 - **Bank gold in a trade** — the trade window's bank field accepts no input, so the client never
   offers bank gold and the bank-cap check of a trade ("You cannot deposit any more.") cannot be
   reached. Once the field opens, offer bank gold that would push the other player's custody past

@@ -453,12 +453,6 @@
   <data name="CANNOT_TRADE_NOT_TRADABLE_ITEM" xml:space="preserve">
     <value>Vous ne pouvez pas échanger des objets liés a votre compte.</value>
   </data>
-  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Impossible de mettre l'objet dans le magasin car il est non échangeable</value>
-  </data>
-  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Tu ne peux pas utiliser d'objet dans la boutique.</value>
-  </data>
   <data name="INVALID_EXCHANGE" xml:space="preserve">
     <value>Impossible de conclure l'échange, il esciste des objets invendable dans l'échange.</value>
   </data>

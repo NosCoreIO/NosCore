@@ -5,20 +5,17 @@
 //
 
 using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.I18N;
-using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Inventory
 {
-    public class BiPacketHandler(ILogger<BiPacketHandler> logger, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+    public class BiPacketHandler
         : PacketHandler<BiPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(BiPacket bIPacket, ClientSession clientSession)
@@ -66,12 +63,6 @@ namespace NosCore.PacketHandlers.Inventory
                     break;
 
                 case RequestDeletionType.Confirmed:
-                    if (clientSession.Character.InExchangeOrShop)
-                    {
-                        logger.LogError(logLanguage[LogLanguageKey.CANT_MOVE_ITEM_IN_SHOP]);
-                        return;
-                    }
-
                     var item = clientSession.Character.InventoryService.DeleteFromTypeAndSlot(
                         (NoscorePocketType)bIPacket.PocketType, bIPacket.Slot);
                     await clientSession.SendPacketAsync(item.GeneratePocketChange(bIPacket.PocketType, bIPacket.Slot));

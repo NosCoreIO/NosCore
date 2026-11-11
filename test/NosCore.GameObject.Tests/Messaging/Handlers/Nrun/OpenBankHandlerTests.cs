@@ -68,17 +68,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         [TestMethod]
-        public async Task BankIsClosedWhileTrading()
-        {
-            await new Spec("The banker refuses to open the bank while the character is trading")
-                .Given(CharacterIsTrading)
-                .WhenAsync(NrunIsHandledWithAnNpc)
-                .Then(NoBankWindowShouldOpen)
-                .And(BankErrorShouldBe_, Game18NConstString.NoBankExchange)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task NullTargetIsIgnored()
         {
             await new Spec("A null target opens nothing")
@@ -94,8 +83,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session.Character.Gold = gold;
             _session.Character.BankGold = bankGold;
         }
-
-        private void CharacterIsTrading() => _session.Character.InExchange = true;
 
         private static NrunPacket Packet => new()
         {
@@ -126,12 +113,5 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 
         private void NoBankWindowShouldOpen() =>
             Assert.IsFalse(_session.LastPackets.OfType<GbPacket>().Any());
-
-        private void BankErrorShouldBe_(Game18NConstString expected)
-        {
-            var error = _session.LastPackets.OfType<SMemoiPacket>().Single();
-            Assert.AreEqual(SMemoType.BankError, error.Type);
-            Assert.AreEqual(expected, error.Message);
-        }
     }
 }

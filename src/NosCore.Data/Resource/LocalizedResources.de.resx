@@ -166,12 +166,6 @@
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Kann den Charakter nicht finden!</value>
   </data>
-  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Du kannst ein Item im Shop nicht bewegen!</value>
-  </data>
-  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Du kannst ein Item nicht im Shop benutzen!</value>
-  </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>{0} Karten geladen!</value>
   </data>

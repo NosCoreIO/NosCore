@@ -38,13 +38,6 @@ namespace NosCore.PacketHandlers.Bank
                 return;
             }
 
-            if (character.InShop || character.InExchange)
-            {
-                await SendErrorAsync(clientSession,
-                    character.InShop ? Game18NConstString.NoBankInShop : Game18NConstString.NoBankExchange);
-                return;
-            }
-
             if (packet.Amount > worldConfiguration.Value.MaxBankGoldAmount / BankUnits.GoldPerUnit)
             {
                 return;

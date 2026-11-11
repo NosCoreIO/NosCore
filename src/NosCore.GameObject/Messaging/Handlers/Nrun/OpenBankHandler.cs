@@ -33,16 +33,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             var character = session.Character;
-            if (character.InShop || character.InExchange)
-            {
-                await session.SendPacketAsync(new SMemoiPacket
-                {
-                    Type = SMemoType.BankError,
-                    Message = character.InShop ? Game18NConstString.NoBankInShop : Game18NConstString.NoBankExchange
-                });
-                return;
-            }
-
             npcDialogService.Open(character, npc, NpcDialogWindow.Bank);
             await session.SendPacketAsync(character.GenerateGb(BankActionType.OpenBank, bankService));
         }

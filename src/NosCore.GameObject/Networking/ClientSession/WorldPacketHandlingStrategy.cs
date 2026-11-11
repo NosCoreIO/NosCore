@@ -6,6 +6,7 @@
 
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Infastructure;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.Attributes;
@@ -13,6 +14,7 @@ using NosCore.Packets.ClientPackets.Infrastructure;
 using NosCore.Packets.ClientPackets.UI;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
+using MsgiPacket = NosCore.Packets.ServerPackets.UI.MsgiPacket;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System.Threading.Tasks;
@@ -74,7 +76,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
             return;
         }
 
-        await ExecuteHandlerAsync(handler, processedPacket, session, isFromNetwork);
+        await ExecuteHandlerAsync(handler, processedPacket, session, isFromNetwork, attr);
     }
 
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
@@ -193,7 +195,64 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
         return true;
     }
 
-    private async Task ExecuteHandlerAsync(IPacketHandler handler, IPacket packet, ClientSession session, bool isFromNetwork)
+    // Runs under the packet lock, so two packets of one batch cannot both pass on a state the
+    // first one changes.
+    private async Task<bool> ValidateSenderStateAsync(IPacket packet, ClientSession session, PacketHeaderAttribute? attr)
+    {
+        if (attr == null || !session.HasPlayerEntity)
+        {
+            return true;
+        }
+
+        var character = session.Character;
+        if (!character.IsAlive && (attr.Scopes & Scope.WhileDead) == 0 && attr is not CommandPacketHeaderAttribute)
+        {
+            logger.LogDebug("Packet {Header} refused while dead", packet.Header);
+            return false;
+        }
+
+        var state = SenderStateOf(character);
+        foreach (var refusal in session.GetRefusals(packet.GetType()))
+        {
+            if ((refusal.States & state) == 0)
+            {
+                continue;
+            }
+
+            logger.LogDebug("Packet {Header} refused while {State}", packet.Header, refusal.States & state);
+            if (refusal.Message is { } message)
+            {
+                await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = message });
+            }
+
+            return false;
+        }
+
+        return true;
+    }
+
+    private static SenderState SenderStateOf(PlayerComponentBundle character)
+    {
+        var state = SenderState.None;
+        if (character.IsAlive)
+        {
+            state |= SenderState.Alive;
+        }
+
+        if (character.IsVehicled)
+        {
+            state |= SenderState.Vehicled;
+        }
+
+        if (character.UseSp)
+        {
+            state |= SenderState.Transformed;
+        }
+
+        return state;
+    }
+
+    private async Task ExecuteHandlerAsync(IPacketHandler handler, IPacket packet, ClientSession session, bool isFromNetwork, PacketHeaderAttribute? attr)
     {
         if (isFromNetwork)
         {
@@ -204,12 +263,22 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
                     return;
                 }
 
+                if (!await ValidateSenderStateAsync(packet, session, attr))
+                {
+                    return;
+                }
+
                 await handler.ExecuteAsync(packet, session);
             }
         }
         else
         {
-            await handler.ExecuteAsync(packet, session).ConfigureAwait(false);
+            if (!await ValidateSenderStateAsync(packet, session, attr))
+            {
+                return;
+            }
+
+            await handler.ExecuteAsync(packet, session);
         }
     }
 }

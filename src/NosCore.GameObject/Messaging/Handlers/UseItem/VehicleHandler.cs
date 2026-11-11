@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
@@ -16,15 +15,11 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Shared.I18N;
-using Microsoft.Extensions.Logging;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class VehicleHandler(
-        ILogger<VehicleHandler> logger,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         ITransformationService transformationService,
         IClock clock)
     {
@@ -44,13 +39,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var packet = evt.Packet;
 
             var character = session.Character;
-            if (character.InExchangeOrShop)
-            {
-                logger.LogError(logLanguage[LogLanguageKey.CANT_USE_ITEM_IN_SHOP]);
-                return;
-            }
-
-            character = session.Character;
             if (packet.Mode is 0 or 1 && !character.IsVehicled)
             {
                 await character.StartDelayAsync(new DelayPacket

@@ -8,6 +8,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.Packets.Attributes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 
 namespace NosCore.GameObject.Services.PacketHandlerService
@@ -16,6 +17,7 @@ namespace NosCore.GameObject.Services.PacketHandlerService
     {
         private readonly Dictionary<Type, PacketHeaderAttribute> _attributeDic = new();
         private readonly Dictionary<Type, IPacketHandler> _handlersByPacketType = new();
+        private readonly Dictionary<Type, RefusedWhileAttribute[]> _refusals = new();
 
         public PacketHandlerRegistry(IEnumerable<IPacketHandler> packetsHandlers)
         {
@@ -30,6 +32,8 @@ namespace NosCore.GameObject.Services.PacketHandlerService
                     {
                         _attributeDic.Add(type, attr);
                     }
+
+                    _refusals.Add(type, type.GetCustomAttributes<RefusedWhileAttribute>(true).ToArray());
                 }
 
                 // NOSDI003 fails the build on a duplicate, so reaching this means a handler was
@@ -54,6 +58,11 @@ namespace NosCore.GameObject.Services.PacketHandlerService
         {
             _attributeDic.TryGetValue(packetType, out var attr);
             return attr;
+        }
+
+        public IReadOnlyList<RefusedWhileAttribute> GetRefusals(Type packetType)
+        {
+            return _refusals.TryGetValue(packetType, out var refusals) ? refusals : [];
         }
     }
 }

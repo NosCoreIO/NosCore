@@ -125,20 +125,6 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
         }
 
         [TestMethod]
-        public async Task ACardCannotBeStoredWhileTransformed()
-        {
-            await new Spec("While transformed the holder refuses cards")
-                .Given(ACardInTheBag)
-                .And(AnEmptyHolder)
-                .And(TheCharacterIsTransformed)
-                .When(TheCardIsDroppedOnTheHolder)
-                .Then(TheCardStaysInTheBag)
-                .And(TheHolderIsStillEmpty)
-                .And(TheOutcomeShouldBe_, SpecialistStoreOutcome.Transformed)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task ACardWithADestroyedSoulIsRefused()
         {
             await new Spec("A card whose soul was destroyed cannot be stored")
@@ -198,8 +184,6 @@ namespace NosCore.GameObject.Tests.Services.SpecialistHolderService
             Holder.HoldingVNum = 901;
             Holder.Upgrade = 3;
         }
-
-        private void TheCharacterIsTransformed() => Session.Character.UseSp = true;
 
         private BoxInstance Holder => (BoxInstance)_holder.ItemInstance;
 

@@ -56,12 +56,6 @@ namespace NosCore.PacketHandlers.Battle
                 await clientSession.Character.RestAsync().ConfigureAwait(false);
             }
 
-            if (clientSession.Character.IsVehicled)
-            {
-                await clientSession.SendPacketAsync(new CancelPacket { Type = CancelPacketType.CancelAutoAttack }).ConfigureAwait(false);
-                return;
-            }
-
             clientSession.Character.CancelDelay();
 
             var target = ResolveTarget(packet, clientSession);

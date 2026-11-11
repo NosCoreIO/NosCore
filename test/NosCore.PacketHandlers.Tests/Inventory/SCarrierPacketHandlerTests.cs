@@ -81,20 +81,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         }
 
         [TestMethod]
-        public async Task ACardCannotBeStoredWhileTransformed()
-        {
-            await new Spec("While transformed the holder refuses cards with the client's message")
-                .Given(ACardInTheBag)
-                .And(AnEmptyHolder)
-                .And(TheCharacterIsTransformed)
-                .WhenAsync(TheCardIsDroppedOnTheHolder)
-                .Then(TheCardStaysInTheBag)
-                .And(TheHolderIsStillEmpty)
-                .And(ShouldReceiveMessage, Game18NConstString.CantPutSpecialistInHolderWhileTransformed)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task ACardWithADestroyedSoulIsRefused()
         {
             await new Spec("A card whose soul was destroyed cannot be stored")
@@ -145,8 +131,6 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private void AnEmptyHolder() => PlaceHolder(HolderVNum);
 
         private void APetBead() => PlaceHolder(PetBeadVNum);
-
-        private void TheCharacterIsTransformed() => Session.Character.UseSp = true;
 
         private BoxInstance Holder => (BoxInstance)_holder.ItemInstance;
 

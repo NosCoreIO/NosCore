@@ -89,17 +89,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task ADeadCharacterCannotEat()
-        {
-            await new Spec("A dead character's snack is kept")
-                .Given(A_Restoring_Hp_Mp, ItemType.Snack, 250, 250)
-                .And(TheCharacterIsDead)
-                .WhenAsync(EatingIt)
-                .Then(ItemCountShouldBe_, 1)
-                .ExecuteAsync();
-        }
-
-        [TestMethod]
         public async Task ASnackWithABuffIsLeftToItsOwnHandler()
         {
             await new Spec("Items declaring buff cards are not flat snacks")
@@ -155,8 +144,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 _session.Character.Digestion.Snack.Add(perTick, perTick);
             }
         }
-
-        private void TheCharacterIsDead() => _session.Character.IsAlive = false;
 
         private void TheItemDeclaresABuff() =>
             _cards.Setup(c => c.GetItemBCards(SnackVNum)).Returns(new List<BCardDto> { new() { ItemVNum = SnackVNum } });

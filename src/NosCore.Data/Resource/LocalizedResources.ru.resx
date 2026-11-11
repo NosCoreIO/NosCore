@@ -169,13 +169,6 @@
   <data name="CANT_FIND_CHARACTER" xml:space="preserve">
     <value>Невозможно найти этого персонажа!</value>
   </data>
-  <data name="CANT_MOVE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Ты не можешь перемещать предмет который выставлен на продажу!</value>
-    <comment>Нужно уточнение</comment>
-  </data>
-  <data name="CANT_USE_ITEM_IN_SHOP" xml:space="preserve">
-    <value>Ты не можешь воспользоваться предметом который выставлен на продажу!</value>
-  </data>
   <data name="CARDS_PARSED" xml:space="preserve">
     <value>Импортировано {0} карт специалиста!</value>
   </data>
