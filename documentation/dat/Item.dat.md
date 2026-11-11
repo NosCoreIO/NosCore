@@ -85,7 +85,7 @@
 | Height | Byte | DATA[4] (miniland only) | Miniland object footprint height |
 | HitRate | Int16 | DATA[varies] | Hit rate |
 | Hp | Int16 | DATA[varies] | Hp bonus on equip |
-| ItemType | ItemType | INDEX[0,1] | ItemType composite enum |
+| ItemType | ItemType | INDEX[0,1] | ItemType composite enum, built from the INDEX pocket even for Raid and Mount items |
 | ItemValidTime | Int64 | DATA[varies] | Expiration duration in seconds |
 | LevelJobMinimum | Byte | DATA[varies] | Minimum job level to use/equip |
 | LevelMinimum | Byte | DATA[varies] | Minimum level to equip/use, per-ItemType |
