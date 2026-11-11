@@ -997,6 +997,16 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] Try the same from inside a time-space or an arena: the client's "cannot be used here"
       line appears and you stay where you are
 
+### Miniland minigames
+
+`/mnt/project-files/pr-merge-run/scripts/reset-minigame.sh` with `MGX=6 MGY=8` places a Basic
+Quarry next to where the Bell of Sweet Home puts you, with 0 production points.
+
+- [ ] Enter the miniland with the bell: a blue arrow next to your character points at the
+      quarry; click it, then Open, and the quarry window shows
+- [ ] Start Game with 0 production points: the client asks whether to start without a reward;
+      Confirm opens the minigame, Cancel leaves the quarry window as it was
+
 ### Invite cooldown and blacklist
 
 Three characters, A, B and C, on the same map and channel. A is a family head (for the

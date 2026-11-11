@@ -120,6 +120,17 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         }
 
         [TestMethod]
+        public async Task ConfirmingPlayWithZeroMinilandPointsShouldStartTheGame()
+        {
+            await new Spec("Confirming play with zero miniland points should start the game")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasZeroPoints)
+                .WhenAsync(ConfirmingPlay)
+                .Then(TheGameShouldStart)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ShowManagementShouldSucceed()
         {
             await new Spec("Show management should succeed")
@@ -234,6 +245,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             await _mgPacketHandler.ExecuteAsync(minigamePacket, _session);
         }
 
+        private async Task ConfirmingPlay()
+        {
+            var minigamePacket = new MinigamePacket
+            {
+                Type = 1,
+                Id = 0,
+                MinigameVNum = 3000,
+                Point = 1,
+                Unknown = 1
+            };
+            await _mgPacketHandler.ExecuteAsync(minigamePacket, _session);
+        }
+
         private async Task ShowingManagement()
         {
             var minigamePacket = new MinigamePacket
@@ -273,6 +297,17 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             var lastPacket = (QnaiPacket?)_session.LastPackets.FirstOrDefault(s => s is QnaiPacket);
             Assert.IsNotNull(lastPacket);
             Assert.AreEqual(Game18NConstString.NotEnoughProductionPointsAskStart, lastPacket.Question);
+            var yesPacket = (MinigamePacket)lastPacket.YesPacket!;
+            Assert.AreEqual(0, yesPacket.Id);
+            Assert.AreEqual(3000, yesPacket.MinigameVNum);
+            Assert.IsNotNull(yesPacket.Point);
+            Assert.IsNull(_session.LastPackets.FirstOrDefault(s => s is MloStPacket));
+        }
+
+        private void TheGameShouldStart()
+        {
+            Assert.IsNull(_session.LastPackets.FirstOrDefault(s => s is QnaiPacket));
+            Assert.IsNotNull(_session.LastPackets.FirstOrDefault(s => s is MloStPacket));
         }
 
         private void ShouldReceiveManagementPacket()

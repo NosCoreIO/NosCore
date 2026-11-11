@@ -376,15 +376,16 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            if (_miniland == null || _miniland.MinilandPoint <= 0)
+            // The confirmation echoes the play packet with a point set, so a set point means the player accepted.
+            if (_miniland!.MinilandPoint <= 0 && _minigamePacket!.Point == null)
             {
                 await _clientSession!.SendPacketAsync(new QnaiPacket
                 {
                     YesPacket = new MinigamePacket
                     {
                         Type = 1,
-                        Id = 7,
-                        MinigameVNum = 3125,
+                        Id = _minigamePacket.Id,
+                        MinigameVNum = _minigamePacket.MinigameVNum,
                         Point = 1,
                         Unknown = 1
                     },
