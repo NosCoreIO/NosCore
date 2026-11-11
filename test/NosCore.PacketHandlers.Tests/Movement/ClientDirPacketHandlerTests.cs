@@ -31,9 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new ClientDirPacketHandler(
-                Logger,
-                World.LogLanguageLocalizer);
+            Handler = World.Create<ClientDirPacketHandler>();
         }
 
         [TestMethod]

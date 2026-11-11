@@ -43,24 +43,16 @@ namespace NosCore.GameObject.Tests.Services.MailService
         {
             World = await TestWorld.CreateAsync();
 
-            MailDao = new Mock<IDao<MailDto, long>>();
-            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-            PubSubHub = new Mock<IPubSubHub>();
-            ChannelHub = new Mock<IChannelHub>();
-            ItemProvider = new Mock<IItemGenerationService>();
-            ParcelRegistry = new Mock<IParcelRegistry>();
-            CharacterDao = new Mock<IDao<CharacterDto, long>>();
+            MailDao = World.Freeze<Mock<IDao<MailDto, long>>>();
+            ItemInstanceDao = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            ItemProvider = World.Freeze<Mock<IItemGenerationService>>();
+            ParcelRegistry = World.Freeze<Mock<IParcelRegistry>>();
+            CharacterDao = World.Freeze<Mock<IDao<CharacterDto, long>>>();
             Items = new List<ItemDto>();
 
-            Service = new GameObject.Services.MailService.MailService(
-                MailDao.Object,
-                ItemInstanceDao.Object,
-                PubSubHub.Object,
-                ChannelHub.Object,
-                Items,
-                ItemProvider.Object,
-                ParcelRegistry.Object,
-                CharacterDao.Object);
+            Service = World.Create<GameObject.Services.MailService.MailService>();
         }
 
         [TestMethod]

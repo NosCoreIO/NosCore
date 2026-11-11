@@ -40,9 +40,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _session.Character.Level = 30;
-            _miniland = new Mock<IMinilandService>();
-            _handler = new PetManagementHandler(_miniland.Object, World.Clock,
-                World.Create<PartnerSpecialistService>());
+            _miniland = World.Freeze<Mock<IMinilandService>>();
+            _handler = World.UseReal<IPartnerSpecialistService, PartnerSpecialistService>().Create<PetManagementHandler>();
         }
 
         private GameObject.Services.MateService.Mate Add(GameObject.Services.MateService.Mate mate)

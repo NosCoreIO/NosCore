@@ -44,7 +44,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _itemProvider = World.GenerateItemProvider();
-            _handler = new SealedTarotCardHandler(_itemProvider);
+            _handler = World.Create<SealedTarotCardHandler>();
         }
 
         [TestMethod]

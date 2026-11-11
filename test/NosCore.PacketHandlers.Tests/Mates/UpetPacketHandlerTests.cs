@@ -47,11 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
             _battleService = World.Freeze<Mock<IBattleService>>();
             _battleService.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
                 .ReturnsAsync(true);
-            _handler = new UpetPacketHandler(
-                World.Create<MateAttackService>(),
-                World.SessionRegistry,
-                new Mock<ILogger<UpetPacketHandler>>().Object,
-                World.LogLanguageLocalizer);
+            _handler = World.UseReal<IMateAttackService, MateAttackService>().Create<UpetPacketHandler>();
 
             _pet = TestMates.Pet(_session.Character.CharacterId);
             _pet.NpcMonster.BasicRange = 1;

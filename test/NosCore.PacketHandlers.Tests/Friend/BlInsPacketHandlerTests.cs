@@ -47,8 +47,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                       Id = 1
                     }
                 });
-            BlacklistCache = new Mock<IBlacklistCacheService>();
-            BlInsPacketHandler = new BlInsPackettHandler(World.BlacklistHub.Object, BlacklistCache.Object, Logger, World.LogLanguageLocalizer);
+            BlacklistCache = World.Freeze<Mock<IBlacklistCacheService>>();
+            BlInsPacketHandler = World.Create<BlInsPackettHandler>();
             World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber

@@ -37,11 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             OtherSession = await World.GenerateSessionAsync();
-            Handler = new SitPacketHandler(
-                Logger,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry,
-                World.Clock);
+            Handler = World.Create<SitPacketHandler>();
         }
 
         [TestMethod]

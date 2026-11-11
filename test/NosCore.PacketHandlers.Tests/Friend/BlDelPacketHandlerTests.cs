@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             CharacterRelationDao = World.CharacterRelationDao;
             Session = await World.GenerateSessionAsync();
             ConnectedAccountHttpClient = World.PubSubHub;
-            ChannelHub = new Mock<IChannelHub>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo> { new() { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 } });
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
@@ -68,9 +68,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
             BlackListHttpClient = World.BlacklistHub;
             BlacklistCache = World.Freeze<Mock<IBlacklistCacheService>>();
             BlDelPacketHandler = World.Create<BlDelPacketHandler>();
-            CharacterDao = new Mock<IDao<CharacterDto, long>>();
-            BlackListController = new BlacklistService(ConnectedAccountHttpClient.Object, ChannelHub.Object, CharacterRelationDao,
-                CharacterDao.Object);
+            CharacterDao = World.Freeze<Mock<IDao<CharacterDto, long>>>();
+            BlackListController = World.Create<BlacklistService>();
             BlackListHttpClient.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns((long id) => BlackListController.GetBlacklistedListAsync(id));
             BlackListHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))

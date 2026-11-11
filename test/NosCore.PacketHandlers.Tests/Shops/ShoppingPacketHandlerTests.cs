@@ -38,14 +38,10 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            DignityService = new Mock<IDignityService>();
+            DignityService = World.Freeze<Mock<IDignityService>>();
             DignityService.Setup(x => x.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
 
-            Handler = new ShoppingPacketHandler(
-                Logger,
-                DignityService.Object,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry, World.NpcDialogService, new Mock<IFamilyShopService>().Object);
+            Handler = World.Create<ShoppingPacketHandler>();
         }
 
         [TestMethod]

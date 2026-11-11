@@ -41,9 +41,9 @@ namespace NosCore.GameObject.Tests.Services.MovementService
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            DistanceCalculator = new Mock<IHeuristic>();
-            MinilandService = new Mock<IMinilandService>();
-            MapChangeService = new Mock<IMapChangeService>();
+            DistanceCalculator = World.Freeze<Mock<IHeuristic>>();
+            MinilandService = World.Freeze<Mock<IMinilandService>>();
+            MapChangeService = World.Freeze<Mock<IMapChangeService>>();
 
             DistanceCalculator.Setup(x => x.GetDistance(It.IsAny<(short, short)>(), It.IsAny<(short, short)>()))
                 .Returns<(short X, short Y), (short X, short Y)>((from, to) =>
@@ -52,16 +52,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             MinilandService.Setup(x => x.GetMinilandPortals(It.IsAny<long>()))
                 .Returns(new List<NosCore.GameObject.Map.Portal>());
 
-            Service = new GameObject.Services.MovementService.MovementService(
-                DistanceCalculator.Object,
-                new Mock<ILogger<GameObject.Services.MovementService.MovementService>>().Object,
-                World.LogLanguageLocalizer,
-                new Mock<Wolverine.IMessageBus>().Object,
-                World.Create<WalkService>(),
-                World.MapInstanceAccessorService,
-                MinilandService.Object,
-                World.Clock,
-                MapChangeService.Object);
+            Service = World.UseReal<IWalkService, WalkService>().Create<GameObject.Services.MovementService.MovementService>();
         }
 
         [TestMethod]

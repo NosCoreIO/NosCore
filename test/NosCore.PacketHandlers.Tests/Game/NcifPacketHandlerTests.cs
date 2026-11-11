@@ -39,10 +39,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             Session = await World.GenerateSessionAsync();
 
             var logger = new Mock<ILogger<NcifPacketHandler>>().Object;
-            Handler = new NcifPacketHandler(
-                logger,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry);
+            Handler = World.Create<NcifPacketHandler>();
         }
 
         [TestMethod]

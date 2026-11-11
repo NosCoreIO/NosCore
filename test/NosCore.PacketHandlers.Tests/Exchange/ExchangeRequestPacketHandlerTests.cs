@@ -44,18 +44,12 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             TargetSession = await World.GenerateSessionAsync();
-            ExchangeService = new Mock<IExchangeService>();
-            BlacklistHub = new Mock<IBlacklistHub>();
+            ExchangeService = World.Freeze<Mock<IExchangeService>>();
+            BlacklistHub = World.Freeze<Mock<IBlacklistHub>>();
             BlacklistHub.Setup(x => x.GetBlacklistedAsync(It.IsAny<long>()))
                 .Returns(Task.FromResult(new List<CharacterRelationStatus>()));
 
-            Handler = new ExchangeRequestPackettHandler(
-                ExchangeService.Object,
-                Logger,
-                BlacklistHub.Object,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry,
-                new Mock<ITransferService>().Object);
+            Handler = World.Create<ExchangeRequestPackettHandler>();
         }
 
         [TestMethod]

@@ -83,7 +83,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 FriendHttpClient.Object,
                 ChannelHttpClient.Object,
                 ConnectedAccountHttpClient.Object,
-                new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger),
+                World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>(),
                 World.Clock);
         }
 

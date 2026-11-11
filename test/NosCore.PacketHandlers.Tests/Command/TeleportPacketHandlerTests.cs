@@ -34,13 +34,9 @@ namespace NosCore.PacketHandlers.Tests.Command
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             TargetSession = await World.GenerateSessionAsync();
-            MapChangeService = new Mock<IMapChangeService>();
+            MapChangeService = World.Freeze<Mock<IMapChangeService>>();
 
-            Handler = new TeleportPacketHandler(
-                Logger,
-                MapChangeService.Object,
-                World.GameLanguageLocalizer,
-                World.SessionRegistry);
+            Handler = World.Create<TeleportPacketHandler>();
         }
 
         [TestMethod]

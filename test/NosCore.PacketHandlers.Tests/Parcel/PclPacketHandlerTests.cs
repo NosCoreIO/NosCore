@@ -42,9 +42,9 @@ namespace NosCore.PacketHandlers.Tests.Parcel
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             Item = World.GenerateItemProvider();
-            MailHttpClient = new Mock<IMailHub>();
-            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
-            PclPacketHandler = new PclPacketHandler(MailHttpClient.Object, Item, ItemInstanceDao.Object);
+            MailHttpClient = World.Freeze<Mock<IMailHub>>();
+            ItemInstanceDao = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();
+            PclPacketHandler = World.Create<PclPacketHandler>();
         }
 
         [TestMethod]

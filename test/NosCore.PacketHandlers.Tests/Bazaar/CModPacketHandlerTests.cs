@@ -46,8 +46,8 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Session = await World.GenerateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
-            BazaarHttpClient = new Mock<IBazaarHub>();
-            CmodPacketHandler = new CModPacketHandler(BazaarHttpClient.Object, Logger, World.LogLanguageLocalizer, World.NpcDialogService);
+            BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
+            CmodPacketHandler = World.Create<CModPacketHandler>();
 
             BazaarHttpClient.Setup(b => b.GetBazaar(0, null, null, null, null, null, null, null, null)).ReturnsAsync(
                 new List<BazaarLink>() {new()
