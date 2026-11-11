@@ -75,6 +75,17 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
         }
 
         [TestMethod]
+        public async Task UnknownUpgradeTypeWithoutAWindowIsNotLogged()
+        {
+            await new Spec("An unknown UpgradeType sent with no upgrade window open logs nothing")
+                .Given(NoWindowIsOpen)
+                .WhenAsync(UnknownUpgradeTypePacketIsHandled)
+                .Then(NoOperationShouldHaveExecuted)
+                .And(NoWarningShouldHaveBeenLogged)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task UpgradeWithoutAnUpgradeWindowIsIgnored()
         {
             await new Spec("An upgrade with no upgrade window opened at an NPC runs nothing")
@@ -165,5 +176,14 @@ namespace NosCore.PacketHandlers.Tests.Upgrades
                     It.IsAny<System.Exception?>(),
                     It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
                 Times.AtLeastOnce);
+
+        private void NoWarningShouldHaveBeenLogged() =>
+            _logger.Verify(l => l.Log(
+                    LogLevel.Warning,
+                    It.IsAny<EventId>(),
+                    It.Is<It.IsAnyType>((v, _) => true),
+                    It.IsAny<System.Exception?>(),
+                    It.IsAny<System.Func<It.IsAnyType, System.Exception?, string>>()),
+                Times.Never);
     }
 }
