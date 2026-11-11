@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
@@ -16,6 +17,7 @@ using NosCore.PacketHandlers.Family;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.ClientPackets.Commands;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,19 +27,23 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyChatAndShoutPacketHandlerTests
     {
-        private ClientSession _session;
-        private Mock<IPubSubHub> _pubSubHub;
+        private ClientSession _session = null!;
+        private readonly NosCoreFixture _fixture = new();
         private readonly List<IMessage> _sent = new();
+
+        public FamilyChatAndShoutPacketHandlerTests()
+        {
+            _fixture.Freeze<Mock<IPubSubHub>>()
+                .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
+                .Callback<IMessage>(_sent.Add)
+                .ReturnsAsync(true);
+        }
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             await TestHelpers.ResetAsync();
             _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _pubSubHub = new Mock<IPubSubHub>();
-            _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
-                .Callback<IMessage>(_sent.Add)
-                .ReturnsAsync(true);
         }
 
         private void JoinFamily(FamilyAuthority authority, bool managerCanShout = true)
@@ -55,11 +61,11 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private Task ChatAsync(string message) =>
-            new FamilyChatPacketHandler(_pubSubHub.Object)
+            _fixture.Create<FamilyChatPacketHandler>()
                 .ExecuteAsync(new FamilyChatPacket { Message = message }, _session);
 
         private Task ShoutAsync(string message) =>
-            new FamilyShoutPacketHandler(_pubSubHub.Object)
+            _fixture.Create<FamilyShoutPacketHandler>()
                 .ExecuteAsync(new FamilyShoutPacket { Message = message }, _session);
 
         [TestMethod]

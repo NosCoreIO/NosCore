@@ -4,83 +4,42 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Packets.Enumerations;
 using AutoFixture;
 using AutoFixture.AutoMoq;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Options;
-using Moq;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NodaTime;
-using NodaTime.Testing;
-using NosCore.Core.Configuration;
-using NosCore.Core.I18N;
-using NosCore.Data.Dto;
-using NosCore.Data.Enumerations;
-using NosCore.Data.Enumerations.I18N;
-using NosCore.Data.StaticEntities;
-using NosCore.Data.WebApi;
-using NosCore.Packets.ClientPackets.Bazaar;
-using NosCore.Shared.Enumerations;
-using NosCore.Shared.I18N;
+using NosCore.GameObject.Services.BroadcastService;
 
 namespace NosCore.Tests.Shared.AutoFixture
 {
+    /// <summary>
+    /// Builds the class under test with every constructor dependency it does not care about mocked,
+    /// so a test only names the collaborators it sets up or verifies.
+    /// </summary>
+    /// <remarks>
+    /// <c>Freeze&lt;Mock&lt;IDep&gt;&gt;()</c> before <c>Create&lt;Sut&gt;()</c> to set up or verify a dependency.
+    /// Formula services from NosCore.Algorithm and the state shared with <see cref="TestHelpers"/>
+    /// sessions (clock, session registry, localizers, world configuration) are real, not mocked.
+    /// </remarks>
     public class NosCoreFixture : Fixture
     {
         public NosCoreFixture()
         {
-            Customize(new AutoMoqCustomization { ConfigureMembers = true });
+            Customize(new AutoMoqCustomization { GenerateDelegates = true });
+            Behaviors.Add(new EmptyMockDefaultsBehavior());
+            Customizations.Add(new AlgorithmServiceRelay());
 
-            this.Inject<IClock>(new FakeClock(Instant.FromUtc(2021, 01, 01, 01, 01, 01)));
-
-            var logLocalizer = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            logLocalizer.Setup(x => x[It.IsAny<LogLanguageKey>()])
-                .Returns((LogLanguageKey x) => new LocalizedString(x.ToString(), x.ToString(), false));
-            this.Inject(logLocalizer.Object);
-
-            var gameLocalizer = new Mock<IGameLanguageLocalizer>();
-            gameLocalizer.Setup(x => x[It.IsAny<LanguageKey>(), It.IsAny<RegionType>()])
-                .Returns((LanguageKey k, RegionType r) => new LocalizedString($"{k}{r}", $"{k}{r}", false));
-            this.Inject(gameLocalizer.Object);
-
-            this.Inject(Options.Create(new WorldConfiguration
-            {
-                Database = new(),
-                MasterCommunication = new(),
-                BackpackSize = 2,
-                MaxItemAmount = 999,
-                MaxSpPoints = 10_000,
-                MaxAdditionalSpPoints = 1_000_000,
-                MaxGoldAmount = 999_999_999
-            }));
-
-            Customize<ItemDto>(c => c
-                .With(x => x.VNum, () => (short)(this.Create<int>() % 1000 + 1000))
-                .With(x => x.Type, NoscorePocketType.Main)
-                .With(x => x.IsSoldable, () => true)
-                .With(x => x.IsDroppable, () => true));
-
-            Customize<BazaarRequest>(c => c
-                .With(x => x.Amount, 1)
-                .With(x => x.Price, 1000)
-                .With(x => x.Duration, 3600)
-                .With(x => x.HasMedal, () => false)
-                .With(x => x.IsPackage, () => false));
-
-            Customize<CRegPacket>(c => c
-                .With(x => x.Type, 0)
-                .With(x => x.Inventory, 1)
-                .With(x => x.Slot, (short)0)
-                .With(x => x.Amount, 1)
-                .With(x => x.Price, 1000)
-                .With(x => x.Durability, BazaarListingDuration.OneDay)
-                .With(x => x.IsPackage, () => false)
-                .With(x => x.Taxe, 0)
-                .With(x => x.MedalUsed, 0));
-
-            Customize<ItemInstanceDto>(c => c
-                .With(x => x.Amount, 1)
-                .With(x => x.ItemVNum, (short)1012));
+            this.Register<IClock>(() => TestHelpers.Instance.Clock);
+            this.Register(() => TestHelpers.Instance.Clock);
+            this.Register<ISessionRegistry>(() => TestHelpers.Instance.SessionRegistry);
+            this.Register(() => TestHelpers.Instance.SessionRegistry);
+            this.Register(() => TestHelpers.Instance.LogLanguageLocalizer);
+            this.Register(() => TestHelpers.Instance.GameLanguageLocalizer);
+            this.Register(() => TestHelpers.Instance.WorldConfiguration);
+            this.Register(() => TestHelpers.Instance.SessionGroupFactory);
+            this.Register(() => TestHelpers.Instance.DistanceCalculator);
+            this.Register<ILoggerFactory>(() => NullLoggerFactory.Instance);
         }
     }
 }

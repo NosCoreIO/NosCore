@@ -4,9 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
@@ -21,6 +21,7 @@ using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -38,12 +39,24 @@ namespace NosCore.PacketHandlers.Tests.Family
     {
         private const long FamilyId = 42;
         private readonly List<FamilyLogDto> _logs = new();
-        private ClientSession _head;
-        private ClientSession _other;
-        private Mock<IFamilyService> _familyService;
-        private Mock<IPubSubHub> _pubSubHub;
-        private Mock<ISessionRegistry> _sessionRegistry;
-        private FamilyLogService _familyLogService;
+        private ClientSession _head = null!;
+        private ClientSession _other = null!;
+        private readonly NosCoreFixture _fixture = new();
+        private readonly Mock<IDao<FamilyLogDto, long>> _logDao;
+        private readonly Mock<IFamilyService> _familyService;
+        private readonly Mock<IPubSubHub> _pubSubHub;
+        private readonly Mock<ISessionRegistry> _sessionRegistry;
+
+        public FamilyHistoryLogTests()
+        {
+            _fixture.UseReal<IFamilyManagementService, FamilyManagementService>();
+            _fixture.UseReal<IFamilyLogService, FamilyLogService>();
+            _logDao = _fixture.Freeze<Mock<IDao<FamilyLogDto, long>>>();
+            _familyService = _fixture.Freeze<Mock<IFamilyService>>();
+            _pubSubHub = _fixture.Freeze<Mock<IPubSubHub>>();
+            _sessionRegistry = _fixture.Freeze<Mock<ISessionRegistry>>();
+            _fixture.Inject(_sessionRegistry.Object);
+        }
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,14 +68,12 @@ namespace NosCore.PacketHandlers.Tests.Family
             _head.Character.Family = FamilyOf((_head.Character.CharacterId, FamilyAuthority.Head));
             _other.Character.Family = null;
 
-            var logDao = new Mock<IDao<FamilyLogDto, long>>();
-            logDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyLogDto>()))
+            _logDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyLogDto>()))
                 .Callback<FamilyLogDto>(_logs.Add)
                 .ReturnsAsync((FamilyLogDto log) => log);
-            logDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyLogDto, bool>>>()))
+            _logDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyLogDto, bool>>>()))
                 .Returns((Expression<Func<FamilyLogDto, bool>> p) => _logs.Where(p.Compile()));
 
-            _familyService = new Mock<IFamilyService>();
             _familyService.Setup(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(true);
             _familyService.Setup(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>())).ReturnsAsync(true);
             var otherName = _other.Character.Name;
@@ -70,11 +81,8 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync(new CharacterDto { CharacterId = _other.Character.CharacterId, Name = _other.Character.Name });
             _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>()))
                 .ReturnsAsync(new List<CharacterDto> { new() { CharacterId = _other.Character.CharacterId, Name = _other.Character.Name } });
-            _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).ReturnsAsync(true);
-            _familyLogService = new FamilyLogService(logDao.Object, TestHelpers.Instance.Clock, _pubSubHub.Object);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
-            _sessionRegistry = new Mock<ISessionRegistry>();
             var head = _head.Character;
             _sessionRegistry.Setup(s => s.TryGetCharacter(It.IsAny<Func<GameObject.Ecs.PlayerComponentBundle, bool>>(), out head))
                 .Returns(true);
@@ -93,10 +101,6 @@ namespace NosCore.PacketHandlers.Tests.Family
                 DailyMessage = string.Empty
             }).ToList()
         };
-
-        private FamilyManagementService Management() => new(_familyService.Object, _pubSubHub.Object, new FamilyExperienceService(),
-            new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry,
-            new Mock<IFamilyWarehouseService>().Object, _familyLogService);
 
         [TestMethod]
         public async Task JoiningAFamilyIsLogged()
@@ -253,35 +257,35 @@ namespace NosCore.PacketHandlers.Tests.Family
         private void _HoursPass(int hours) => TestHelpers.Instance.Clock.AdvanceHours(hours);
 
         private Task TheOtherPlayerAnswers_(FamilyInviteAnswerType type) =>
-            new JoinFamilyPacketHandler(_sessionRegistry.Object, _familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<JoinFamilyPacketHandler>()
                 .ExecuteAsync(new JoinFamilyPacket { Type = type, CharacterId = _head.Character.CharacterId }, _other);
 
         private Task TheOtherPlayerLeaves() =>
-            new FamilyLeavePacketHandler(_familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<FamilyLeavePacketHandler>()
                 .ExecuteAsync(new FamilyLeavePacket(), _other);
 
         private Task TheHeadTriesToLeave() =>
-            new FamilyLeavePacketHandler(_familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<FamilyLeavePacketHandler>()
                 .ExecuteAsync(new FamilyLeavePacket(), _head);
 
         private Task TheHeadDismissesTheOtherPlayer() =>
-            new FamilyDismissPacketHandler(_familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<FamilyDismissPacketHandler>()
                 .ExecuteAsync(new FamilyDismissPacket { CharacterName = _other.Character.Name }, _head);
 
         private Task TheOtherPlayerDismissesTheHead() =>
-            new FamilyDismissPacketHandler(_familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<FamilyDismissPacketHandler>()
                 .ExecuteAsync(new FamilyDismissPacket { CharacterName = _head.Character.Name }, _other);
 
         private Task TheHeadLetsKeepersReadTheHistory() =>
-            new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<FAuthPacketHandler>()
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 3, Value = 1 }, _head);
 
         private Task TheOtherPlayerTriesToChangeARight() =>
-            new FAuthPacketHandler(_familyService.Object, _pubSubHub.Object, _familyLogService)
+            _fixture.Create<FAuthPacketHandler>()
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 3, Value = 1 }, _other);
 
         private Task TheHeadAppointsTheOtherPlayerKeeper() =>
-            new FamilyManagementPacketHandler(Management())
+            _fixture.Create<FamilyManagementPacketHandler>()
                 .ExecuteAsync(new FamilyManagementPacket
                 {
                     TargetId = _other.Character.CharacterId,
@@ -289,7 +293,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 }, _head);
 
         private Task TheHeadWritesTheDailyMessage_(string message) =>
-            new FamilyTodayPacketHandler(Management()).ExecuteAsync(new FamilyTodayPacket { Message = message }, _head);
+            _fixture.Create<FamilyTodayPacketHandler>().ExecuteAsync(new FamilyTodayPacket { Message = message }, _head);
 
         private string Expand(string data) => data
             .Replace("{head}", _head.Character.Name)
@@ -308,7 +312,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private void TheHistoryShouldBeEmpty() => Assert.IsEmpty(_logs);
 
         private void TheHeadsDailyMessageShouldBe_(string message) =>
-            Assert.AreEqual(message, _head.Character.Family.NotNull().Members.Single(s => s.CharacterId == _head.Character.CharacterId).DailyMessage);
+            Assert.AreEqual(message, _head.Character.Family!.Members.Single(s => s.CharacterId == _head.Character.CharacterId).DailyMessage);
 
         private void TheHeadShouldBeTold_(Game18NConstString message) =>
             Assert.AreEqual(message, _head.LastPackets.OfType<InfoiPacket>().LastOrDefault()?.Message);

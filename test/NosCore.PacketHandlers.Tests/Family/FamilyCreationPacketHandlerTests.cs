@@ -3,10 +3,9 @@
 // | | ' | \/ |`._`.| \_| \/ | v / _|
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
+using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Algorithm.FamilyExperienceService;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -24,6 +23,7 @@ using NosCore.Data.Dto;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,12 +33,22 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyCreationPacketHandlerTests
     {
-        private ClientSession _head;
-        private ClientSession _second;
-        private ClientSession _third;
-        private Mock<IFamilyService> _familyService;
-        private readonly Mock<IFamilyWarehouseService> _warehouse = new();
+        private ClientSession _head = null!;
+        private ClientSession _second = null!;
+        private ClientSession _third = null!;
+        private readonly NosCoreFixture _fixture = new();
+        private readonly Mock<IFamilyService> _familyService;
+        private readonly Mock<IFamilyWarehouseService> _warehouse;
         private readonly List<IMessage> _published = new();
+
+        public FamilyCreationPacketHandlerTests()
+        {
+            _fixture.UseReal<IFamilyManagementService, FamilyManagementService>();
+            _familyService = _fixture.Freeze<Mock<IFamilyService>>();
+            _warehouse = _fixture.Freeze<Mock<IFamilyWarehouseService>>();
+            _fixture.Freeze<Mock<IPubSubHub>>()
+                .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
+        }
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -52,7 +62,6 @@ namespace NosCore.PacketHandlers.Tests.Family
             {
                 session.Character.Class = CharacterClassType.Swordsman;
             }
-            _familyService = new Mock<IFamilyService>();
             _familyService.Setup(s => s.CreateAsync(It.IsAny<string>(), It.IsAny<byte>(), It.IsAny<long>(), It.IsAny<IEnumerable<long>>()))
                 .ReturnsAsync(42);
         }
@@ -66,28 +75,19 @@ namespace NosCore.PacketHandlers.Tests.Family
             }
         }
 
-        private FamilyManagementService Management()
-        {
-            var pubSubHub = new Mock<IPubSubHub>();
-            pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
-            return new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
-                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, TestHelpers.Instance.SessionRegistry,
-                _warehouse.Object, new Mock<IFamilyLogService>().Object);
-        }
-
         private static Game18NConstString? LastInfo(ClientSession session) =>
             session.LastPackets.OfType<InfoiPacket>().LastOrDefault()?.Message
             ?? session.LastPackets.OfType<Infoi2Packet>().LastOrDefault()?.Message;
 
         private Task CreateAsync(string name) =>
-            new CreateFamilyPacketHandler(Management()).ExecuteAsync(new CreateFamilyPacket { FamilyName = name }, _head);
+            _fixture.Create<CreateFamilyPacketHandler>().ExecuteAsync(new CreateFamilyPacket { FamilyName = name }, _head);
 
         [TestMethod]
         public async Task TheNpcAsksAFullGroupForAFamilyName()
         {
             FormGroup(_head, _second, _third);
 
-            await new FamilyStartOrDisbandHandler(Management())
+            await _fixture.Create<FamilyStartOrDisbandHandler>()
                 .HandleAsync(_head, null, new NrunPacket { Runner = NrunRunnerType.FamilyStartOrDisband, Type = 0 });
 
             var inbox = _head.LastPackets.OfType<InboxPacket>().Single();
@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             FormGroup(_head, _second);
 
-            await new FamilyStartOrDisbandHandler(Management())
+            await _fixture.Create<FamilyStartOrDisbandHandler>()
                 .HandleAsync(_head, null, new NrunPacket { Runner = NrunRunnerType.FamilyStartOrDisband, Type = 0 });
 
             Assert.IsFalse(_head.LastPackets.OfType<InboxPacket>().Any());
@@ -221,7 +221,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             JoinFamily(FamilyAuthority.Head);
 
-            await new FamilyStartOrDisbandHandler(Management())
+            await _fixture.Create<FamilyStartOrDisbandHandler>()
                 .HandleAsync(_head, null, new NrunPacket { Runner = NrunRunnerType.FamilyStartOrDisband, Type = 1 });
 
             var question = _head.LastPackets.OfType<QnaiPacket>().Single();
@@ -234,7 +234,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             JoinFamily(FamilyAuthority.Assistant);
 
-            await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
+            await _fixture.Create<FamilyDisbandPacketHandler>().ExecuteAsync(new FamilyDismissPacket(), _head);
 
             Assert.AreEqual(Game18NConstString.OnlyHeadCanDisbandFamily, LastInfo(_head));
             _familyService.Verify(s => s.DisbandAsync(It.IsAny<GameObject.Services.FamilyService.Family>()), Times.Never);
@@ -244,10 +244,10 @@ namespace NosCore.PacketHandlers.Tests.Family
         public async Task DisbandingRemovesEveryMember()
         {
             JoinFamily(FamilyAuthority.Head);
-            var family = _head.Character.Family.NotNull();
+            var family = _head.Character.Family!;
             _familyService.Setup(s => s.DisbandAsync(family)).ReturnsAsync(true);
 
-            await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
+            await _fixture.Create<FamilyDisbandPacketHandler>().ExecuteAsync(new FamilyDismissPacket(), _head);
 
             Assert.AreEqual(Game18NConstString.FamilyDisbanded, LastInfo(_head));
             _warehouse.Verify(s => s.EmptyAsync(7), Times.Once);
@@ -260,7 +260,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             JoinFamily(FamilyAuthority.Head);
 
-            await new FamilyDisbandPacketHandler(Management()).ExecuteAsync(new FamilyDismissPacket(), _head);
+            await _fixture.Create<FamilyDisbandPacketHandler>().ExecuteAsync(new FamilyDismissPacket(), _head);
 
             Assert.AreEqual(Game18NConstString.FailedToDisbandFamily, LastInfo(_head));
             Assert.IsFalse(_published.Any());

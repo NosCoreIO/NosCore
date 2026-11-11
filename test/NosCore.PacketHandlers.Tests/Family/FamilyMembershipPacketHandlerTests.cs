@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using AutoFixture;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
@@ -22,6 +23,7 @@ using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
+using NosCore.Tests.Shared.AutoFixture;
 using SpecLight;
 using System;
 using System.Collections.Generic;
@@ -38,15 +40,25 @@ namespace NosCore.PacketHandlers.Tests.Family
         private delegate bool TryGetCharacter(Func<PlayerComponentBundle, bool> predicate, out PlayerComponentBundle character);
 
         private const long FamilyId = 42;
-        private ClientSession _head;
-        private ClientSession _other;
-        private Mock<ISessionRegistry> _sessionRegistry;
-        private Mock<IFamilyService> _familyService;
-        private Mock<IPubSubHub> _pubSubHub;
-        private Mock<IBlacklistHub> _blacklistHub;
+        private ClientSession _head = null!;
+        private ClientSession _other = null!;
+        private readonly NosCoreFixture _fixture = new();
+        private readonly Mock<ISessionRegistry> _sessionRegistry;
+        private readonly Mock<IFamilyService> _familyService;
+        private readonly Mock<IPubSubHub> _pubSubHub;
+        private readonly Mock<IBlacklistHub> _blacklistHub;
         private readonly List<IMessage> _published = new();
         private long _otherId;
-        private string _otherName;
+        private string _otherName = null!;
+
+        public FamilyMembershipPacketHandlerTests()
+        {
+            _sessionRegistry = _fixture.Freeze<Mock<ISessionRegistry>>();
+            _fixture.Inject(_sessionRegistry.Object);
+            _familyService = _fixture.Freeze<Mock<IFamilyService>>();
+            _pubSubHub = _fixture.Freeze<Mock<IPubSubHub>>();
+            _blacklistHub = _fixture.Freeze<Mock<IBlacklistHub>>();
+        }
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -58,7 +70,6 @@ namespace NosCore.PacketHandlers.Tests.Family
             _otherId = _other.Character.CharacterId;
             _otherName = _other.Character.Name;
             var characters = new[] { _head.Character, _other.Character };
-            _sessionRegistry = new Mock<ISessionRegistry>();
             _sessionRegistry.Setup(s => s.TryGetCharacter(It.IsAny<Func<PlayerComponentBundle, bool>>(), out It.Ref<PlayerComponentBundle>.IsAny))
                 .Returns(new TryGetCharacter((Func<PlayerComponentBundle, bool> predicate, out PlayerComponentBundle character) =>
                 {
@@ -66,10 +77,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                     character = found.FirstOrDefault();
                     return found.Count > 0;
                 }));
-            _familyService = new Mock<IFamilyService>();
-            _pubSubHub = new Mock<IPubSubHub>();
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
-            _blacklistHub = new Mock<IBlacklistHub>();
             _blacklistHub.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
             _head.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Head));
         }
@@ -83,11 +91,11 @@ namespace NosCore.PacketHandlers.Tests.Family
         };
 
         private Task InviteAsync(ClientSession inviter, string name) =>
-            new FamilyInvitePacketHandler(_sessionRegistry.Object, _blacklistHub.Object, TestHelpers.Instance.Clock)
+            _fixture.Create<FamilyInvitePacketHandler>()
                 .ExecuteAsync(new FamilyInvitePacket { CharacterName = name }, inviter);
 
         private Task AnswerAsync(FamilyInviteAnswerType type) =>
-            new JoinFamilyPacketHandler(_sessionRegistry.Object, _familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
+            _fixture.Create<JoinFamilyPacketHandler>()
                 .ExecuteAsync(new JoinFamilyPacket { Type = type, CharacterId = _head.Character.CharacterId }, _other);
 
         private static Game18NConstString? LastInfo(ClientSession session) =>
@@ -101,8 +109,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var question = _other.LastPackets.OfType<Dlgi2Packet>().Single();
             Assert.AreEqual(Game18NConstString.AskMemberFamily, question.Question);
-            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket.NotNull()).Type);
-            Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket.NotNull()).CharacterId);
+            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket!).Type);
+            Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket!).CharacterId);
             Assert.IsTrue(_head.Character.FamilyRequestCharacterIds.ContainsKey(_other.Character.CharacterId));
         }
 
@@ -162,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task AFullFamilyCannotInvite()
         {
-            _head.Character.Family.NotNull().MaxSize = 1;
+            _head.Character.Family!.MaxSize = 1;
 
             await InviteAsync(_head, _other.Character.Name);
 
@@ -283,7 +291,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task TheHeadCannotLeave()
         {
-            await new FamilyLeavePacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object).ExecuteAsync(new FamilyLeavePacket(), _head);
+            await _fixture.Create<FamilyLeavePacketHandler>().ExecuteAsync(new FamilyLeavePacket(), _head);
 
             Assert.AreEqual(Game18NConstString.FamilyHeadCanNotLeave, LastInfo(_head));
             _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>()), Times.Never);
@@ -294,7 +302,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             _other.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Head), (_other.Character.CharacterId, FamilyAuthority.Member));
 
-            await new FamilyLeavePacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object).ExecuteAsync(new FamilyLeavePacket(), _other);
+            await _fixture.Create<FamilyLeavePacketHandler>().ExecuteAsync(new FamilyLeavePacket(), _other);
 
             _familyService.Verify(s => s.RemoveMemberAsync(_otherId), Times.Once);
             Assert.AreEqual(Game18NConstString.LeftFamily, LastInfo(_other));
@@ -306,7 +314,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _head.Character.Family = Family((_head.Character.CharacterId, actor), (_other.Character.CharacterId, target));
             _familyService.Setup(s => s.FindCharacterAsync(_otherName))
                 .ReturnsAsync(new CharacterDto { CharacterId = _other.Character.CharacterId, Name = _other.Character.Name });
-            return new FamilyDismissPacketHandler(_familyService.Object, _pubSubHub.Object, new Mock<IFamilyLogService>().Object)
+            return _fixture.Create<FamilyDismissPacketHandler>()
                 .ExecuteAsync(new FamilyDismissPacket { CharacterName = _other.Character.Name }, _head);
         }
 
