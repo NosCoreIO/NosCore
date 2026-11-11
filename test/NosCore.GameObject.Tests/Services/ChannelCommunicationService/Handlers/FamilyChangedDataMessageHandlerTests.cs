@@ -93,6 +93,17 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         }
 
         [TestMethod]
+        public async Task EveryMemberHearsTheFamilyLevelledUp()
+        {
+            await _handler.Handle(new FamilyChangedData { FamilyId = 42, ReachedFamilyLevel = 2 });
+
+            var announced = _member.LastPackets.OfType<MsgiPacket>().Single();
+            Assert.AreEqual(Game18NConstString.FamilyLevelIncreased, announced.Message);
+            Assert.AreEqual(2L, announced.Game18NArguments[0]);
+            Assert.AreEqual(0, _bystander.LastPackets.OfType<MsgiPacket>().Count());
+        }
+
+        [TestMethod]
         public async Task EveryMemberHearsWhoJoined()
         {
             await _handler.Handle(new FamilyChangedData { FamilyId = 42, CharacterIds = { _joiner.Character.CharacterId }, JoinedCharacterName = "Bob" });

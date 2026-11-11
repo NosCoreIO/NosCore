@@ -43,6 +43,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
+using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Algorithm.FamilyUpgradeService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -191,6 +192,7 @@ namespace NosCore.MasterServer
             // scan.
             containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
             containerBuilder.RegisterType<FamilyUpgradeService>().As<IFamilyUpgradeService>().SingleInstance();
+            containerBuilder.RegisterType<FamilyExperienceService>().As<IFamilyExperienceService>().SingleInstance();
 
             RegisterDto(containerBuilder);
         }

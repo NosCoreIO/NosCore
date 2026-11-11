@@ -7,3 +7,5 @@
 namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 
 public record PurchaseFamilyExtensionRequest(long FamilyId, long CharacterId, short ItemVNum) : IMasterRequest;
+
+public record AddFamilyExperienceRequest(long FamilyId, long CharacterId, int Experience) : IMasterRequest;

@@ -14,5 +14,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
     {
         public Task<FamilyExtensionPurchase> PurchaseExtensionAsync(long familyId, long characterId, short itemVNum) =>
             bus.RequestAsync<FamilyExtensionPurchase>(new PurchaseFamilyExtensionRequest(familyId, characterId, itemVNum));
+
+        public Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience) =>
+            bus.RequestAsync<FamilyExperienceGain?>(new AddFamilyExperienceRequest(familyId, characterId, experience));
     }
 }
