@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class SumUpgradeOperationTests
     {
+        private TestWorld World;
         private const short ArmorVNum = 1;
         private const short SandVNum = 1027;
 
@@ -42,10 +43,10 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
-            _operation = new SumUpgradeOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer);
+            _operation = new SumUpgradeOperation(_random.Object, World.GameLanguageLocalizer);
         }
 
         [TestMethod]
@@ -281,7 +282,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 EquipmentSlot = equipmentSlot,
             };
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer)
+                World.LogLanguageLocalizer)
             {
                 Upgrade = upgrade,
             };

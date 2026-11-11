@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class SpUpgradeOperationTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IRandomNumberSource> _random;
         private SpUpgradeOperation _unprotected;
@@ -39,12 +40,12 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
-            _unprotected = new SpUpgradeOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
+            _unprotected = new SpUpgradeOperation(_random.Object, World.GameLanguageLocalizer,
                 new SpUpgradeService());
-            _protected = new SpUpgradeProtectedOperation(_random.Object, TestHelpers.Instance.GameLanguageLocalizer,
+            _protected = new SpUpgradeProtectedOperation(_random.Object, World.GameLanguageLocalizer,
                 new SpUpgradeService());
             _session.Character.Gold = 10_000_000;
         }

@@ -27,23 +27,19 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyChatAndShoutPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
-        private readonly NosCoreFixture _fixture = new();
         private readonly List<IMessage> _sent = new();
-
-        public FamilyChatAndShoutPacketHandlerTests()
-        {
-            _fixture.Freeze<Mock<IPubSubHub>>()
-                .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
-                .Callback<IMessage>(_sent.Add)
-                .ReturnsAsync(true);
-        }
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            World.PubSubHub
+                .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>()))
+                .Callback<IMessage>(_sent.Add)
+                .ReturnsAsync(true);
+            _session = await World.GenerateSessionAsync();
         }
 
         private void JoinFamily(FamilyAuthority authority, bool managerCanShout = true)
@@ -61,11 +57,11 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private Task ChatAsync(string message) =>
-            _fixture.Create<FamilyChatPacketHandler>()
+            World.Create<FamilyChatPacketHandler>()
                 .ExecuteAsync(new FamilyChatPacket { Message = message }, _session);
 
         private Task ShoutAsync(string message) =>
-            _fixture.Create<FamilyShoutPacketHandler>()
+            World.Create<FamilyShoutPacketHandler>()
                 .ExecuteAsync(new FamilyShoutPacket { Message = message }, _session);
 
         [TestMethod]

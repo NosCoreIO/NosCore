@@ -20,14 +20,15 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class QsetPacketHandlerTests
     {
+        private TestWorld World;
         private QSetPacketHandler QsetPacketHandler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             QsetPacketHandler = new QSetPacketHandler();
         }
 

@@ -44,10 +44,10 @@ namespace NosCore.Tests.Shared.BDD.Steps
             session.Character.MapInstance.GetNpcById(mapNpcId).NotNull();
 
         public static void WithWindowOpenedAt(this ClientSession session, int mapNpcId, NpcDialogWindow window) =>
-            TestHelpers.Instance.NpcDialogService.Open(session.Character, session.Npc(mapNpcId), window);
+            session.World().NpcDialogService.Open(session.Character, session.Npc(mapNpcId), window);
 
         public static void WithWindowOpenedRemotely(this ClientSession session, NpcDialogWindow window) =>
-            TestHelpers.Instance.NpcDialogService.OpenRemotely(session.Character, window);
+            session.World().NpcDialogService.OpenRemotely(session.Character, window);
 
         public static void WalkTo(this ClientSession session, short x, short y)
         {
@@ -56,7 +56,7 @@ namespace NosCore.Tests.Shared.BDD.Steps
         }
 
         public static void IsRegistered(this ClientSession session) =>
-            TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
+            session.World().SessionRegistry.Register(new SessionInfo
             {
                 ChannelId = session.Channel.NotNull().Id,
                 SessionId = session.SessionId,

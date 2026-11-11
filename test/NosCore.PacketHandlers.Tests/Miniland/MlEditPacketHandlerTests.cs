@@ -32,6 +32,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
     [TestClass]
     public class MlEditPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<MlEditPacketHandlerTests> Logger = new Mock<ILogger<MlEditPacketHandlerTests>>().Object;
         private MlEditPacketHandler MlEditPacketHandler;
         private ClientSession Session;
@@ -41,11 +42,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session2 = await TestHelpers.Instance.GenerateSessionAsync();
-            var session3 = await TestHelpers.Instance.GenerateSessionAsync();
-            TestHelpers.Instance.FriendHttpClient
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            Session2 = await World.GenerateSessionAsync();
+            var session3 = await World.GenerateSessionAsync();
+            World.FriendHub
                 .Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .ReturnsAsync(new List<CharacterRelationStatus>
                 {
@@ -58,25 +59,25 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                         CharacterRelationId = Guid.NewGuid()
                     }
                 });
-            await TestHelpers.Instance.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
+            await World.MinilandDao.TryInsertOrUpdateAsync(new MinilandDto()
             {
                 OwnerId = Session.Character.CharacterId,
             });
-            MinilandProvider = new MinilandService(TestHelpers.Instance.MapInstanceAccessorService,
-                TestHelpers.Instance.FriendHttpClient.Object,
+            MinilandProvider = new MinilandService(World.MapInstanceAccessorService,
+                World.FriendHub.Object,
                 new List<MapDto> {new Map
                 {
                     MapId = 20001,
                     NameI18NKey = "miniland",
                     Data = new byte[] {}
                 }},
-                TestHelpers.Instance.MinilandDao,
-                TestHelpers.Instance.MinilandObjectDao, new MinilandRegistry());
-            await MinilandProvider.InitializeAsync(Session.Character, TestHelpers.Instance.MapInstanceGeneratorService);
+                World.MinilandDao,
+                World.MinilandObjectDao, new MinilandRegistry());
+            await MinilandProvider.InitializeAsync(Session.Character, World.MapInstanceGeneratorService);
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
-            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(Session, miniland.MapInstanceId);
-            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(Session2, miniland.MapInstanceId);
-            await TestHelpers.Instance.MapChangeService.ChangeMapInstanceAsync(session3, miniland.MapInstanceId);
+            await World.MapChangeService.ChangeMapInstanceAsync(Session, miniland.MapInstanceId);
+            await World.MapChangeService.ChangeMapInstanceAsync(Session2, miniland.MapInstanceId);
+            await World.MapChangeService.ChangeMapInstanceAsync(session3, miniland.MapInstanceId);
             MlEditPacketHandler = new MlEditPacketHandler(MinilandProvider);
         }
 
@@ -245,20 +246,20 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         private void OnlyOwnerAndFriendShouldRemain()
         {
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
-            Assert.IsFalse(TestHelpers.Instance.SessionRegistry.GetCharacters()
+            Assert.IsFalse(World.SessionRegistry.GetCharacters()
                 .Where(s => s.MapInstanceId == miniland.MapInstanceId)
                 .Any(s => s.VisualId != Session.Character.CharacterId && s.VisualId != Session2.Character.VisualId));
-            Assert.AreEqual(2, TestHelpers.Instance.SessionRegistry
+            Assert.AreEqual(2, World.SessionRegistry
                 .GetCharacters().Count(s => s.MapInstanceId == miniland.MapInstanceId));
         }
 
         private void OnlyOwnerShouldRemain()
         {
             var miniland = MinilandProvider.GetMiniland(Session.Character.CharacterId);
-            Assert.IsFalse(TestHelpers.Instance.SessionRegistry.GetCharacters()
+            Assert.IsFalse(World.SessionRegistry.GetCharacters()
                 .Where(s => s.MapInstanceId == miniland.MapInstanceId)
                 .Any(s => s.VisualId != Session.Character.CharacterId));
-            Assert.AreEqual(1, TestHelpers.Instance.SessionRegistry
+            Assert.AreEqual(1, World.SessionRegistry
                 .GetCharacters().Count(s => s.MapInstanceId == miniland.MapInstanceId));
         }
     }

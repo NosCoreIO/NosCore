@@ -16,13 +16,14 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceAccessService
     [TestClass]
     public class MapInstanceAccessServiceTests
     {
+        private TestWorld World;
         private IMapInstanceAccessorService Service;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Service = TestHelpers.Instance.MapInstanceAccessorService;
+            World = await TestWorld.CreateAsync();
+            Service = World.MapInstanceAccessorService;
         }
 
         [TestMethod]

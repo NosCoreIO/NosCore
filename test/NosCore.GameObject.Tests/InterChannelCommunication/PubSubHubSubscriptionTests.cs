@@ -141,7 +141,7 @@ namespace NosCore.GameObject.Tests.InterChannelCommunication
         private void Session_IsUnsubscribedFromChannel_(long sessionId, string channel) => Hub.Unsubscribe(channel, sessionId);
 
         private void Channel_IsRemoved(string channel) =>
-            new ChannelHub(NullLogger<ChannelHub>.Instance, Clients, TestHelpers.Instance.LogLanguageLocalizer,
+            new ChannelHub(NullLogger<ChannelHub>.Instance, Clients, TestLocalizers.Log,
                 new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0))).RemoveChannel(channel);
 
         private async Task TwoSessionsOfTheSameAccountSubscribeAtOnce()

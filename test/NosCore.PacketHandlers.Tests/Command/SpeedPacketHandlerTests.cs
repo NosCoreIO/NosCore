@@ -20,14 +20,15 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SpeedPacketHandlerTests
     {
+        private TestWorld World;
         private SpeedPacketHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Handler = new SpeedPacketHandler();
         }
 

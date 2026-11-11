@@ -37,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class RevivalPacketHandlerTests
     {
+        private TestWorld World;
         private const short SeedOfPowerVNum = 1012;
         private RevivalPacketHandler _handler;
         private ClientSession _session;
@@ -48,9 +49,9 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService = new Mock<IRespawnService>();
             _respawnService.Setup(r => r.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns((long?)1);
@@ -60,7 +61,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
-            _buffs = new BuffService(TestHelpers.Instance.Clock, catalog.Object, new Mock<IRandomProvider>().Object);
+            _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object);
 
             _handler = new RevivalPacketHandler(
                 new Mock<ILogger<RevivalPacketHandler>>().Object,

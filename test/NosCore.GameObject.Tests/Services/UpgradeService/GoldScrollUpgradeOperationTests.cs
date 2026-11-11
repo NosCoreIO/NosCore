@@ -31,6 +31,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class GoldScrollUpgradeOperationTests
     {
+        private TestWorld World;
         private const short ArmorVNum = 1;
         private const short CellonVNum = 1014;
         private const short SmallGemVNum = 1015;
@@ -46,11 +47,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _operation = new UpgradeItemGoldScrollOperation(_random.Object,
-                TestHelpers.Instance.GameLanguageLocalizer, new EquipmentUpgradeService());
+                World.GameLanguageLocalizer, new EquipmentUpgradeService());
         }
 
         [TestMethod]
@@ -122,7 +123,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             var item = new Item { VNum = ArmorVNum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Armor };
             var wearable = new WearableInstance(item, new Mock<ILogger<WearableInstance>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer)
+                World.LogLanguageLocalizer)
             {
                 Upgrade = upgrade,
             };

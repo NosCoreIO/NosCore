@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     [TestClass]
     public class PJoinPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> Sessions = new();
         private PjoinPacketHandler PJoinPacketHandler;
@@ -39,11 +40,11 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = await TestHelpers.Instance.GenerateSessionAsync();
+                var session = await World.GenerateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);
@@ -55,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             }
 
             BlacklistHub = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry);
         }
 
         [TestMethod]
@@ -280,7 +281,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                     RequestType = GroupRequestType.Invited,
                     CharacterId = Sessions[i].Character.CharacterId
                 };
-                TestHelpers.Instance.Clock.AdvanceSeconds(1);
+                World.Clock.AdvanceSeconds(1);
                 await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
         }
@@ -297,7 +298,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
                 if (i == 2)
                 {
-                    TestHelpers.Instance.Clock.AdvanceMinutes(6);
+                    World.Clock.AdvanceMinutes(6);
                 }
 
                 await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);

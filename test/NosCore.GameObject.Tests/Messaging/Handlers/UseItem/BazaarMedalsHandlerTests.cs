@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class BazaarMedalsHandlerTests
     {
+        private TestWorld World;
         private const short MedalVNum = 5108;
         private ClientSession _session;
         private BazaarMedalsHandler _handler;
@@ -38,9 +39,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new BazaarMedalsHandler(TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _handler = new BazaarMedalsHandler(World.Clock);
         }
 
         [TestMethod]

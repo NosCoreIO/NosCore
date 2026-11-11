@@ -19,13 +19,14 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class InPacketAppearanceTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
         }
 
         [TestMethod]
@@ -61,7 +62,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         public void AWornFairyIsShown()
         {
             var fairy = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(TestHelpers.Instance.GenerateItemProvider().Create(2, 1), _session.Character.CharacterId)).NotNull()
+                .AddItemToPocket(InventoryItemInstance.Create(World.GenerateItemProvider().Create(2, 1), _session.Character.CharacterId)).NotNull()
                 .First();
             fairy.Type = NoscorePocketType.Wear;
             fairy.Slot = (byte)EquipmentType.Fairy;

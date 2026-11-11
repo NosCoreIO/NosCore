@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class DisconnectDataMessageHandlerTests
     {
+        private TestWorld World;
         private DisconnectDataMessageChannelCommunicationMessageHandler Handler;
         private ClientSession Session;
         private Mock<ISessionRegistry> SessionRegistry;
@@ -28,8 +29,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
             Handler = new DisconnectDataMessageChannelCommunicationMessageHandler(SessionRegistry.Object);
         }

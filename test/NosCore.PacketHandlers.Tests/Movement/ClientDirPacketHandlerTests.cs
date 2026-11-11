@@ -21,6 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class ClientDirPacketHandlerTests
     {
+        private TestWorld World;
         private ClientDirPacketHandler Handler;
         private ClientSession Session;
         private readonly ILogger<ClientDirPacketHandler> Logger = new Mock<ILogger<ClientDirPacketHandler>>().Object;
@@ -28,11 +29,11 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Handler = new ClientDirPacketHandler(
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -57,7 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task ChangingDirectionForPlayer()

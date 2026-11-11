@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem;
 [TestClass]
 public class FactionEggHandlerTests
 {
+    private TestWorld World;
     private ClientSession _session;
     private InventoryItemInstance _item;
     private readonly FactionEggHandler _handler = new();
@@ -35,9 +36,9 @@ public class FactionEggHandlerTests
     [TestInitialize]
     public async Task SetupAsync()
     {
-        await TestHelpers.ResetAsync();
-        _session = await TestHelpers.Instance.GenerateSessionAsync();
-        _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+        World = await TestWorld.CreateAsync();
+        _session = await World.GenerateSessionAsync();
+        _session.Character.MapInstance = World.GetBaseMap(1);
         _session.Character.Hp = 100;
         _session.Character.CharacterDto.Faction = FactionType.Neutral;
         _session.Character.CharacterDto.Act4Points = 123;
@@ -189,7 +190,7 @@ public class FactionEggHandlerTests
     [TestMethod]
     public async Task SuccessfulChangeBroadcastsFactionToMap()
     {
-        var observer = await TestHelpers.Instance.GenerateSessionAsync();
+        var observer = await World.GenerateSessionAsync();
         observer.Character.MapInstance = _session.Character.MapInstance;
         var sessions = new Mock<ISessionGroup>();
         sessions.Setup(group => group.Broadcast(It.IsAny<IPacket[]>()))
@@ -211,9 +212,9 @@ public class FactionEggHandlerTests
     public async Task ChangedFactionAndPointsSurvivePersistence()
     {
         await UseAsync(1);
-        await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(_session.Character.CharacterDto);
+        await World.CharacterDao.TryInsertOrUpdateAsync(_session.Character.CharacterDto);
         var characterId = _session.Character.CharacterId;
-        var saved = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(character =>
+        var saved = await World.CharacterDao.FirstOrDefaultAsync(character =>
             character.CharacterId == characterId);
         Assert.IsNotNull(saved);
         Assert.AreEqual(FactionType.Angel, saved.Faction);

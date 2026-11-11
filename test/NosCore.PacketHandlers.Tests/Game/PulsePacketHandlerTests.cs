@@ -18,6 +18,7 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class PulsePacketHandlerTests
     {
+        private TestWorld World;
         private PulsePacketHandler PulsePacketHandler;
         private ClientSession Session;
         private PulsePacket LastPulsePacket;
@@ -25,9 +26,9 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestInitialize]
         public async Task SetupAsync()
         {
+            World = await TestWorld.CreateAsync();
             PulsePacketHandler = new PulsePacketHandler();
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session = await World.GenerateSessionAsync();
         }
 
         [TestMethod]

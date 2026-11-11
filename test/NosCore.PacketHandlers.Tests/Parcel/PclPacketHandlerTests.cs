@@ -28,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
     [TestClass]
     public class PclPacketHandlerTests
     {
+        private TestWorld World;
         private Mock<IMailHub> MailHttpClient;
         private PclPacketHandler PclPacketHandler;
         private IItemGenerationService Item;
@@ -38,9 +39,9 @@ namespace NosCore.PacketHandlers.Tests.Parcel
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Item = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            Item = World.GenerateItemProvider();
             MailHttpClient = new Mock<IMailHub>();
             ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
             PclPacketHandler = new PclPacketHandler(MailHttpClient.Object, Item, ItemInstanceDao.Object);
@@ -162,7 +163,7 @@ namespace NosCore.PacketHandlers.Tests.Parcel
 
         private void InventoryIsFull()
         {
-            TestHelpers.Instance.WorldConfiguration.Value.BackpackSize = 0;
+            World.WorldConfiguration.Value.BackpackSize = 0;
         }
 
         private async Task DeletingGift()

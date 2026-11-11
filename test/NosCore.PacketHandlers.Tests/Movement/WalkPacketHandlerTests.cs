@@ -21,6 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class WalkPacketHandlerTests
     {
+        private TestWorld World;
         private WalkPacketHandler Handler;
         private ClientSession Session;
         private Mock<IMovementService> MovementService;
@@ -28,8 +29,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Session.Character.PositionX = 4;
             Session.Character.PositionY = 7;
             MovementService = new Mock<IMovementService>();

@@ -114,7 +114,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void TheBagIsFull()
         {
-            for (short slot = 0; slot < TestHelpers.Instance.WorldConfiguration.Value.BackpackSize; slot++)
+            for (short slot = 0; slot < World.WorldConfiguration.Value.BackpackSize; slot++)
             {
                 if (slot == HolderSlot)
                 {

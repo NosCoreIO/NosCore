@@ -29,6 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     [TestClass]
     public class PleavePacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<PjoinPacketHandler> Logger = new Mock<ILogger<PjoinPacketHandler>>().Object;
         private readonly Dictionary<int, ClientSession> Sessions = new();
         private PjoinPacketHandler PJoinPacketHandler;
@@ -37,11 +38,11 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             var idServer = new IdService<NosCore.GameObject.Services.GroupService.Group>(1);
             for (byte i = 0; i < (byte)(GroupType.Group + 1); i++)
             {
-                var session = await TestHelpers.Instance.GenerateSessionAsync();
+                var session = await World.GenerateSessionAsync();
                 var mockChannel = new Mock<IChannel>();
                 mockChannel.Setup(s => s.Id).Returns(Guid.NewGuid().ToString());
                 session.RegisterChannel(mockChannel.Object);
@@ -54,10 +55,10 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             var sessionGroupFactoryForHandler = new Mock<ISessionGroupFactory>();
             sessionGroupFactoryForHandler.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
-            PLeavePacketHandler = new PleavePacketHandler(idServer, TestHelpers.Instance.SessionRegistry, sessionGroupFactoryForHandler.Object);
+            PLeavePacketHandler = new PleavePacketHandler(idServer, World.SessionRegistry, sessionGroupFactoryForHandler.Object);
 
             var mock = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, TestHelpers.Instance.Clock, idServer, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry);
         }
 
         [TestMethod]

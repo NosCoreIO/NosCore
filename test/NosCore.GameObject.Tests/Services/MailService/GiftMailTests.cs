@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
     [TestClass]
     public class GiftMailTests
     {
+        private TestWorld World;
         private const long SenderId = 1;
         private const long ReceiverId = 2;
         private const long WorldChannelId = 7;
@@ -56,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
 
             var characters = new Mock<IDao<CharacterDto, long>>();
             characters.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<CharacterDto, bool>>>()))
@@ -94,7 +95,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             _parcelRegistry.Setup(s => s.TryAddMail(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<MailData>())).Returns(true);
 
             _service = new GameObject.Services.MailService.MailService(mails.Object, itemInstances.Object, _pubSubHub.Object,
-                channels.Object, _items, new ItemGenerationService(_items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer),
+                channels.Object, _items, new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer),
                 _parcelRegistry.Object, characters.Object);
         }
 

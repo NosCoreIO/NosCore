@@ -20,6 +20,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class ChangeChannelPacketHandlerTests
     {
+        private TestWorld World;
         private ChangeChannelPacketHandler Handler;
         private ClientSession Session;
         private Mock<IChannelService> ChannelService;
@@ -27,8 +28,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             ChannelService = new Mock<IChannelService>();
             Handler = new ChangeChannelPacketHandler(ChannelService.Object);
         }

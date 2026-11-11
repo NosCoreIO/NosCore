@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
     [TestClass]
     public class SessionStateJobsTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private Mock<ISaveService> SaveService;
         private Mock<ISessionRegistry> SessionRegistry;
@@ -40,8 +41,8 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
             SaveService = new Mock<ISaveService>();
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
@@ -106,7 +107,7 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
         private void ThePeriodicSaveRuns()
         {
             var handler = new SaveAllSessionsHandler(NullLogger<SaveAllSessionsHandler>.Instance, SaveService.Object,
-                TestHelpers.Instance.LogLanguageLocalizer, SessionRegistry.Object);
+                World.LogLanguageLocalizer, SessionRegistry.Object);
             Job = handler.Handle(new SaveAllSessionsMessage());
         }
 

@@ -25,17 +25,18 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class StartupInventoryTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
         }
 
         private InvPacket Pocket(PocketType type) =>
-            _session.Character.GenerateInv(NullLogger.Instance, TestHelpers.Instance.LogLanguageLocalizer)
+            _session.Character.GenerateInv(NullLogger.Instance, World.LogLanguageLocalizer)
                 .OfType<InvPacket>().Single(p => p.Type == type);
 
         [TestMethod]

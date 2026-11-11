@@ -18,14 +18,15 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class ReposPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private ReposPacketHandler Handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Handler = new ReposPacketHandler();
         }
 
@@ -81,7 +82,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task RearrangingWarehouseItems()

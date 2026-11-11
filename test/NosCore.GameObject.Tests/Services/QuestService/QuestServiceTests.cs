@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
     [TestClass]
     public class QuestServiceTests
     {
+        private TestWorld World;
         private GameObject.Services.QuestService.QuestService Service;
         private ClientSession Session;
         private List<ScriptDto> Scripts;
@@ -34,9 +35,9 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(0);
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
             Session.Character.Level = 50;
 
@@ -104,12 +105,12 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             Service = new GameObject.Services.QuestService.QuestService(
                 Scripts,
-                TestHelpers.Instance.WorldConfiguration,
+                World.WorldConfiguration,
                 Quests,
                 QuestObjectives,
                 NullLogger<NosCore.GameObject.Services.QuestService.QuestService>.Instance,
-                TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer,
+                World.Clock,
+                World.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
                     new HuntQuestHandler(NullLogger<HuntQuestHandler>.Instance),
@@ -336,7 +337,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             {
                 QuestId = 1,
                 Quest = quest,
-                CompletedOn = TestHelpers.Instance.Clock.GetCurrentInstant()
+                CompletedOn = World.Clock.GetCurrentInstant()
             });
         }
 
@@ -358,7 +359,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             {
                 QuestId = 2,
                 Quest = quest,
-                CompletedOn = TestHelpers.Instance.Clock.GetCurrentInstant().Minus(NodaTime.Duration.FromDays(2))
+                CompletedOn = World.Clock.GetCurrentInstant().Minus(NodaTime.Duration.FromDays(2))
             });
         }
 

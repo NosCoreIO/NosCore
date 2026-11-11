@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class RewardServiceTests
     {
+        private TestWorld World;
         private const short GoldVNum = 1046;
         private const short DroppableVNum = 1012;
 
@@ -46,22 +47,22 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            TestHelpers.Instance.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
-            _first = await TestHelpers.Instance.GenerateSessionAsync();
-            _second = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
+            _first = await World.GenerateSessionAsync();
+            _second = await World.GenerateSessionAsync();
+            _map = World.GetBaseMap(0);
             _experience = new Mock<IExperienceProgressionService>();
             _catalog = new Mock<INpcCombatCatalog>();
             _catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
             _service = new RewardService(
-                TestHelpers.Instance.GenerateItemProvider(),
-                TestHelpers.Instance.MapItemProvider.NotNull(),
+                World.GenerateItemProvider(),
+                World.MapItemProvider.NotNull(),
                 _catalog.Object,
                 _experience.Object,
                 new ExperienceShareService(),
                 new LevelPenaltyService(),
-                new LowLevelBoostService(), TestHelpers.Instance.GroupLootService,
+                new LowLevelBoostService(), World.GroupLootService,
                 new MateProgressionService(new MateExperienceService()),
                 NullLogger<RewardService>.Instance);
 

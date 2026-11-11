@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
     [TestClass]
     public class ParcelRegistryTests
     {
+        private TestWorld World;
         private const long SenderId = 1;
         private const long ReceiverId = 2;
         private const short Seed = 1012;
@@ -53,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
 
             var characters = new[]
             {
@@ -131,7 +132,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var service = new GameObject.Services.MailService.MailService(_mails.Object, _itemInstances.Object,
                 pubSubHub.Object, channels.Object, _items,
-                new ItemGenerationService(_items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer),
+                new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer),
                 _registry, _characters.Object);
 
             var results = await Task.WhenAll(Enumerable.Range(0, MailCount).Select(_ => Task.Run(() =>

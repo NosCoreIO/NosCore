@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
     [TestClass]
     public class MailServiceTests
     {
+        private TestWorld World;
         private IMailService Service;
         private Mock<IDao<MailDto, long>> MailDao;
         private Mock<IDao<IItemInstanceDto?, Guid>> ItemInstanceDao;
@@ -40,7 +41,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
 
             MailDao = new Mock<IDao<MailDto, long>>();
             ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();

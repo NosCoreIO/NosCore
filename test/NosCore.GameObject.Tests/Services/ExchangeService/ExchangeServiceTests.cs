@@ -37,13 +37,15 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
     [TestClass]
     public class ExchangeServiceTests
     {
+        private TestWorld World;
         private GameObject.Services.ExchangeService.ExchangeService ExchangeProvider;
         private GameObject.Services.ItemGenerationService.ItemGenerationService ItemProvider;
         private IOptions<WorldConfiguration> WorldConfiguration;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
+            World = await TestWorld.CreateAsync();
             WorldConfiguration = Options.Create(new WorldConfiguration
             {
                 Database = new(),
@@ -60,14 +62,14 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
                 new Item {Type = NoscorePocketType.Main, VNum = 1013}
             };
 
-            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
             ExchangeProvider = CreateExchangeService();
         }
 
         private GameObject.Services.ExchangeService.ExchangeService CreateExchangeService() =>
             new(WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance,
-                new ExchangeRequestRegistry(), TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.Clock);
+                new ExchangeRequestRegistry(), World.LogLanguageLocalizer, World.SessionRegistry,
+                World.Clock);
 
         private static Dictionary<InventoryItemInstance, short> NoItems => new();
 
@@ -238,9 +240,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private async Task SessionAndTargetAreSetUp()
         {
-            await TestHelpers.ResetAsync();
-            _sessionA = await TestHelpers.Instance.GenerateSessionAsync();
-            _sessionB = await TestHelpers.Instance.GenerateSessionAsync();
+            _sessionA = await World.GenerateSessionAsync();
+            _sessionB = await World.GenerateSessionAsync();
             _realExchange = CreateExchangeService();
             _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
         }

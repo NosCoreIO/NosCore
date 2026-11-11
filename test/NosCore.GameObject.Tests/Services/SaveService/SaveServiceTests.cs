@@ -35,6 +35,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
     [TestClass]
     public class SaveServiceTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private ISaveService Service;
         private IItemGenerationService ItemProvider;
@@ -45,13 +46,13 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ItemProvider = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            ItemProvider = World.GenerateItemProvider();
 
             // Every DAO has to share one database: inside the transaction scope they all
             // write through the scope's context.
-            var contextBuilder = TestHelpers.Instance.DbContextBuilder;
+            var contextBuilder = World.DbContextBuilder;
 
             var itemInstanceDao = new Dao<ItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<ItemInstance, IItemInstanceDto?, Guid>>.Instance, contextBuilder);
             var inventoryItemInstanceDao = new Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>(NullLogger<Dao<Database.Entities.InventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, contextBuilder);
@@ -70,21 +71,21 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .Returns(new NosCore.GameObject.Services.MinilandService.Miniland { MinilandMessage = "Test" });
 
             Service = new GameObject.Services.SaveService.SaveService(
-                TestHelpers.Instance.CharacterDao,
+                World.CharacterDao,
                 itemInstanceDao,
                 inventoryItemInstanceDao,
-                TestHelpers.Instance.AccountDao,
+                World.AccountDao,
                 staticBonusDao,
                 quicklistEntriesDao,
-                TestHelpers.Instance.MinilandDao,
+                World.MinilandDao,
                 minilandService.Object,
                 titleDao,
                 characterQuestDao,
                 characterQuestObjectiveDao,
                 respawnDao,
                 NullLogger<NosCore.GameObject.Services.SaveService.SaveService>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                new NosCore.GameObject.Services.MateService.MateService(TestHelpers.Instance.MateDao,
+                World.LogLanguageLocalizer,
+                new NosCore.GameObject.Services.MateService.MateService(World.MateDao,
                     new List<NpcMonsterDto>(),
                     new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
                     new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
@@ -101,7 +102,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
 
             await Service.SaveAsync(Session);
 
-            var row = (await TestHelpers.Instance.MateDao.FirstOrDefaultAsync(s => s.MateId == pet.MateId)).NotNull();
+            var row = (await World.MateDao.FirstOrDefaultAsync(s => s.MateId == pet.MateId)).NotNull();
             Assert.AreEqual(2500, row.Loyalty);
             Assert.AreEqual(9, row.Experience);
         }
@@ -115,13 +116,13 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             await Service.SaveAsync(Session);
 
             var characterId = Session.Character.CharacterId;
-            Assert.AreEqual(1, TestHelpers.Instance.MateDao.Where(s => s.CharacterId == characterId).NotNull().Count());
+            Assert.AreEqual(1, World.MateDao.Where(s => s.CharacterId == characterId).NotNull().Count());
         }
 
         private async Task<NosCore.GameObject.Services.MateService.Mate> OwnedPetAsync()
         {
             var pet = TestMates.Pet(Session.Character.CharacterId);
-            var row = await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(pet.Adapt<MateDto>());
+            var row = await World.MateDao.TryInsertOrUpdateAsync(pet.Adapt<MateDto>());
             pet.MateId = row.MateId;
             Session.Character.Mates[pet.MateTransportId] = pet;
             return pet;
@@ -240,7 +241,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         {
             var held = Session.Character.InventoryService.Values.Single();
             _sharedInstanceId = held.ItemInstanceId;
-            var other = await TestHelpers.Instance.GenerateSessionAsync();
+            var other = await World.GenerateSessionAsync();
             await InventoryItemInstanceDao.TryInsertOrUpdateAsync(new InventoryItemInstanceDto
             {
                 Id = Guid.NewGuid(),
@@ -322,7 +323,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task PersistedMapXYShouldBe_(short expectedX, short expectedY)
         {
             var characterId = Session.Character.CharacterId;
-            var persisted = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c =>
+            var persisted = await World.CharacterDao.FirstOrDefaultAsync(c =>
                 c.CharacterId == characterId);
             Assert.IsNotNull(persisted);
             Assert.AreEqual(expectedX, persisted.MapX);
@@ -358,7 +359,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task GoldShouldBePersisted()
         {
             var characterId = Session.Character.CharacterId;
-            var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c =>
+            var character = await World.CharacterDao.FirstOrDefaultAsync(c =>
                 c.CharacterId == characterId);
             Assert.IsNotNull(character);
             Assert.AreEqual(999999, character.Gold);
@@ -367,7 +368,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task InventoryShouldBePersisted()
         {
             var characterId = Session.Character.CharacterId;
-            var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(c =>
+            var character = await World.CharacterDao.FirstOrDefaultAsync(c =>
                 c.CharacterId == characterId);
             Assert.IsNotNull(character);
         }
@@ -388,7 +389,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task OptionsShouldBePersisted()
         {
             var characterId = Session.Character.CharacterId;
-            var row = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId)).NotNull();
+            var row = (await World.CharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId)).NotNull();
             Assert.IsTrue(row.ExchangeBlocked);
             Assert.IsTrue(row.FriendRequestBlocked);
             Assert.IsTrue(row.FamilyRequestBlocked);

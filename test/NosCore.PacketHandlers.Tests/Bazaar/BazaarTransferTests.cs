@@ -40,6 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class BazaarTransferTests
     {
+        private TestWorld World;
         private const short ItemVNum = 1012;
 
         private BazaarTestMaster _master;
@@ -55,20 +56,20 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _seller = await TestHelpers.Instance.GenerateSessionAsync();
-            _buyer = await TestHelpers.Instance.GenerateSessionAsync();
-            _third = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _seller = await World.GenerateSessionAsync();
+            _buyer = await World.GenerateSessionAsync();
+            _third = await World.GenerateSessionAsync();
             foreach (var session in new[] { _seller, _buyer, _third })
             {
                 session.WithWindowOpenedRemotely(NpcDialogWindow.Bazaar);
             }
 
-            _master = new BazaarTestMaster();
+            _master = World.Create<BazaarTestMaster>();
             _hub = new InterceptingHub(_master.Hub);
             _saveService = new Mock<ISaveService>();
             _optionDao = new Dao<EquipmentOption, EquipmentOptionDto, Guid>(
-                NullLogger<Dao<EquipmentOption, EquipmentOptionDto, Guid>>.Instance, TestHelpers.Instance.DbContextBuilder);
+                NullLogger<Dao<EquipmentOption, EquipmentOptionDto, Guid>>.Instance, World.DbContextBuilder);
             _options = new ShellOptionService(new ShellService(), new Mock<IRandomNumberSource>().Object, _optionDao);
         }
 
@@ -321,14 +322,14 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Assert.IsFalse(_buyer.Character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == 1));
 
         private CBuyPacketHandler NewCBuy() =>
-            new(_hub, TestHelpers.Instance.GenerateItemProvider(), NullLogger<CBuyPacketHandler>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer, _saveService.Object, _master.ItemInstanceDao,
-                TestHelpers.Instance.NpcDialogService, _failingOptions ?? _options);
+            new(_hub, World.GenerateItemProvider(), NullLogger<CBuyPacketHandler>.Instance,
+                World.LogLanguageLocalizer, _saveService.Object, _master.ItemInstanceDao,
+                World.NpcDialogService, _failingOptions ?? _options);
 
         private CScalcPacketHandler NewCScalc() =>
-            new(TestHelpers.Instance.WorldConfiguration, _hub, TestHelpers.Instance.GenerateItemProvider(),
-                NullLogger<CScalcPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer, _saveService.Object,
-                _master.ItemInstanceDao, TestHelpers.Instance.NpcDialogService, _options);
+            new(World.WorldConfiguration, _hub, World.GenerateItemProvider(),
+                NullLogger<CScalcPacketHandler>.Instance, World.LogLanguageLocalizer, _saveService.Object,
+                _master.ItemInstanceDao, World.NpcDialogService, _options);
 
         private async Task AListingOf_At_(short amount, long price) =>
             _listingId = await _master.ListAsync(_seller.Character.CharacterId, _seller.Character.Name, ItemVNum,
@@ -367,7 +368,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private async Task TheSellerHoldsAWeaponWithAnOptionOfValue_(int value)
         {
-            var weapon = TestHelpers.Instance.GenerateItemProvider().Create(1, 1);
+            var weapon = World.GenerateItemProvider().Create(1, 1);
             weapon.Id = Guid.NewGuid();
             weapon.Item.IsSoldable = true;
             _seller.Character.InventoryService.AddItemToPocket(
@@ -379,9 +380,9 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         }
 
         private Task TheSellerListsTheWeapon() =>
-            new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration, _hub, _master.ItemInstanceDao,
-                    _saveService.Object, NullLogger<CRegPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                    TestHelpers.Instance.NpcDialogService, _options)
+            new CRegPacketHandler(World.WorldConfiguration, _hub, _master.ItemInstanceDao,
+                    _saveService.Object, NullLogger<CRegPacketHandler>.Instance, World.LogLanguageLocalizer,
+                    World.NpcDialogService, _options)
                 .ExecuteAsync(new CRegPacket
                 {
                     Type = 0, Inventory = (byte)PocketType.Equipment, Slot = 0, Amount = 1, Price = 10,
@@ -423,7 +424,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void TheSellerHolds_Items(short amount)
         {
-            var item = TestHelpers.Instance.GenerateItemProvider().Create(ItemVNum, amount);
+            var item = World.GenerateItemProvider().Create(ItemVNum, amount);
             item.Id = Guid.NewGuid();
             item.Item.IsSoldable = true;
             _seller.Character.InventoryService.AddItemToPocket(
@@ -450,15 +451,15 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             NewCScalc().ExecuteAsync(new CScalcPacket { BazaarId = _listingId, VNum = ItemVNum }, _buyer);
 
         private Task TheBuyerChangesThePriceTo_(long price) =>
-            new CModPacketHandler(_hub, NullLogger<CModPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                    TestHelpers.Instance.NpcDialogService)
+            new CModPacketHandler(_hub, NullLogger<CModPacketHandler>.Instance, World.LogLanguageLocalizer,
+                    World.NpcDialogService)
                 .ExecuteAsync(new CModPacket { BazaarId = _listingId, Amount = 10, NewPrice = price, VNum = ItemVNum },
                     _buyer);
 
         private Task TheSellerLists_(short amount) =>
-            new CRegPacketHandler(TestHelpers.Instance.WorldConfiguration, _hub, _master.ItemInstanceDao,
-                    _saveService.Object, NullLogger<CRegPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                    TestHelpers.Instance.NpcDialogService, _options)
+            new CRegPacketHandler(World.WorldConfiguration, _hub, _master.ItemInstanceDao,
+                    _saveService.Object, NullLogger<CRegPacketHandler>.Instance, World.LogLanguageLocalizer,
+                    World.NpcDialogService, _options)
                 .ExecuteAsync(new CRegPacket
                 {
                     Type = 0, Inventory = (byte)PocketType.Main, Slot = 0, Amount = amount, Price = 10,
@@ -486,7 +487,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             _hub.Buy = async (operation, id, count, price, buyer) =>
             {
                 var result = await _master.Hub.BuyBazaarAsync(operation, id, count, price, buyer);
-                var provider = TestHelpers.Instance.GenerateItemProvider();
+                var provider = World.GenerateItemProvider();
                 for (short slot = 0; slot < 2; slot++)
                 {
                     var filler = provider.Create(1013, 1);

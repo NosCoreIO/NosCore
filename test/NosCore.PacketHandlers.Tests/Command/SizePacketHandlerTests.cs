@@ -23,6 +23,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class SizePacketHandlerTests
     {
+        private TestWorld World;
         private SizePacketHandler Handler;
         private ClientSession Session;
         private Mock<ILogger<SizePacketHandler>> Logger;
@@ -31,8 +32,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Logger = new Mock<ILogger<SizePacketHandler>>();
             LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
             Handler = new SizePacketHandler(Logger.Object, LogLanguage.Object);
@@ -70,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.LastPackets.Clear();
         }
 

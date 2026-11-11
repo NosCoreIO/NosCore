@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class TitleHandlerTests
     {
+        private TestWorld World;
         private const short TitleVNum = 9054;
         private ClientSession _session;
         private TitleHandler _handler;
@@ -37,8 +38,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _handler = new TitleHandler();
         }
 

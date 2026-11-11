@@ -32,6 +32,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class BtkPacketHandlerTests
     {
+        private TestWorld World;
         private BtkPacketHandler Handler;
         private ClientSession Session;
         private ClientSession FriendSession;
@@ -46,9 +47,9 @@ namespace NosCore.PacketHandlers.Tests.Chat
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            FriendSession = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            FriendSession = await World.GenerateSessionAsync();
             FriendHub = new Mock<IFriendHub>();
             PubSubHub = new Mock<IPubSubHub>();
             Serializer = new Mock<ISerializer>();
@@ -70,9 +71,9 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 Serializer.Object,
                 FriendHub.Object,
                 PubSubHub.Object,
-                new SubscriberCacheService(PubSubHub.Object, TestHelpers.Instance.Clock),
+                new SubscriberCacheService(PubSubHub.Object, World.Clock),
                 channel,
-                TestHelpers.Instance.GameLanguageLocalizer,
+                World.GameLanguageLocalizer,
                 SessionRegistry.Object);
         }
 
@@ -135,7 +136,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void TargetIsFriend()

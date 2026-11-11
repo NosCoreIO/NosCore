@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
     [TestClass]
     public class FriendServiceTests
     {
+        private TestWorld World;
         private static readonly ILogger<NosCore.GameObject.Services.FriendService.FriendService> Logger = new Mock<ILogger<NosCore.GameObject.Services.FriendService.FriendService>>().Object;
         private IFriendService Service;
         private IFriendRequestRegistry FriendRequestHolder;
@@ -39,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             PubSubHub = new Mock<IPubSubHub>();
             ChannelHub = new Mock<IChannelHub>();
             FriendRequestHolder = new FriendRequestRegistry();
@@ -55,12 +56,12 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
             Service = new GameObject.Services.FriendService.FriendService(
                 Logger,
-                TestHelpers.Instance.CharacterRelationDao,
-                TestHelpers.Instance.CharacterDao,
+                World.CharacterRelationDao,
+                World.CharacterDao,
                 FriendRequestHolder,
                 PubSubHub.Object,
                 ChannelHub.Object,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -178,12 +179,12 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task ThreeFriendsOfWhichOneIsOnline()
         {
-            CharacterId = (await TestHelpers.Instance.GenerateSessionAsync()).Character.CharacterId;
+            CharacterId = (await World.GenerateSessionAsync()).Character.CharacterId;
             for (var i = 0; i < 3; i++)
             {
-                var friend = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
+                var friend = (await World.GenerateSessionAsync()).Character;
                 ExpectedFriends[friend.CharacterId] = (friend.Name, i == 0);
-                await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
+                await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
                 {
                     CharacterId = CharacterId,
                     RelatedCharacterId = friend.CharacterId,
@@ -220,8 +221,8 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task BothPlayersAreOnlineSameChannel()
         {
-            var session1 = await TestHelpers.Instance.GenerateSessionAsync();
-            var session2 = await TestHelpers.Instance.GenerateSessionAsync();
+            var session1 = await World.GenerateSessionAsync();
+            var session2 = await World.GenerateSessionAsync();
             CharacterId = session1.Character.CharacterId;
             TargetCharacterId = session2.Character.CharacterId;
 
@@ -256,7 +257,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 RelatedCharacterId = TargetCharacterId,
                 RelationType = CharacterRelationType.Friend
             };
-            var inserted = await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(relation1);
+            var inserted = await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation1);
             FriendRelationId = inserted.CharacterRelationId;
 
             var relation2 = new CharacterRelationDto
@@ -265,7 +266,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 RelatedCharacterId = CharacterId,
                 RelationType = CharacterRelationType.Friend
             };
-            await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(relation2);
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation2);
         }
 
         private async Task TargetIsBlocked()
@@ -276,7 +277,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
                 RelatedCharacterId = TargetCharacterId,
                 RelationType = CharacterRelationType.Blocked
             };
-            await TestHelpers.Instance.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(relation);
         }
 
         private async Task AddingFriendWithoutExistingRequest()
@@ -316,7 +317,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task TwoFriendRelationsShouldExist()
         {
-            var relations = TestHelpers.Instance.CharacterRelationDao
+            var relations = World.CharacterRelationDao
                 .Where(s => s.RelationType == CharacterRelationType.Friend)?.ToList();
             Assert.IsNotNull(relations);
             Assert.AreEqual(2, relations.Count);
@@ -324,7 +325,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
 
         private async Task NoFriendRelationShouldExist()
         {
-            var relations = TestHelpers.Instance.CharacterRelationDao
+            var relations = World.CharacterRelationDao
                 .Where(s => s.RelationType == CharacterRelationType.Friend)?.ToList();
             Assert.IsTrue(relations == null || relations.Count == 0);
         }

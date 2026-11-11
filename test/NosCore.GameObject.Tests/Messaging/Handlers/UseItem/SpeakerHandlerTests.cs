@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SpeakerHandlerTests
     {
+        private TestWorld World;
         private const short SpeakerVNum = 5792;
         private ClientSession _session;
         private SpeakerHandler _handler;
@@ -37,8 +38,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _handler = new SpeakerHandler();
         }
 

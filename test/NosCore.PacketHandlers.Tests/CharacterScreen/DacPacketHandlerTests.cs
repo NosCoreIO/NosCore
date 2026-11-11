@@ -28,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class DacPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly Mock<ILogger<DacPacketHandler>> Logger = new();
         private DacPacketHandler DacPacketHandler;
         private ClientSession Session;
@@ -39,21 +40,21 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
+            World = await TestWorld.CreateAsync();
             Logger.Invocations.Clear();
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session = await World.GenerateSessionAsync();
             AccountName = Session.Account.Name;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
+            await World.CharacterDao.TryInsertOrUpdateAsync(Session.Character.CharacterDto);
             Session.ClearPlayerEntity();
             Session.Account = null;
             AuthHttpClient = new Mock<IAuthHub>();
-            PubSubHub = TestHelpers.Instance.PubSubHub;
-            ChannelHub = TestHelpers.Instance.ChannelHub;
+            PubSubHub = World.PubSubHub;
+            ChannelHub = World.ChannelHub;
             ChannelHub.Setup(o => o.GetCommunicationChannels()).ReturnsAsync(new List<ChannelInfo>());
             PubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             PubSubHub.Setup(o => o.SubscribeAsync(It.IsAny<Subscriber>())).ReturnsAsync(true);
             DacPacketHandler =
-                new DacPacketHandler(TestHelpers.Instance.AccountDao, Logger.Object, AuthHttpClient.Object, ChannelHub.Object, new SessionRefHolder(), TestHelpers.Instance.LogLanguageLocalizer);
+                new DacPacketHandler(World.AccountDao, Logger.Object, AuthHttpClient.Object, ChannelHub.Object, new SessionRefHolder(), World.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -149,7 +150,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void AlreadyConnectedErrorShouldBeLogged()
         {
-            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED];
+            var expected = (string)World.LogLanguageLocalizer[LogLanguageKey.ALREADY_CONNECTED];
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -161,7 +162,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void InvalidAccountErrorShouldBeLogged()
         {
-            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT];
+            var expected = (string)World.LogLanguageLocalizer[LogLanguageKey.INVALID_ACCOUNT];
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),
@@ -173,7 +174,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private void InvalidPasswordErrorShouldBeLogged()
         {
-            var expected = (string)TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD];
+            var expected = (string)World.LogLanguageLocalizer[LogLanguageKey.INVALID_PASSWORD];
             Logger.Verify(o => o.Log(
                     LogLevel.Error,
                     It.IsAny<EventId>(),

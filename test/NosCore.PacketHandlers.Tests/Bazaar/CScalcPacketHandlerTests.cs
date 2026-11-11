@@ -37,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CScalcPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<CScalcPacketHandler> Logger = new Mock<ILogger<CScalcPacketHandler>>().Object;
         private Mock<IBazaarHub> BazaarHttpClient;
         private CScalcPacketHandler CScalcPacketHandler;
@@ -46,16 +47,16 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
             BazaarHttpClient = new Mock<IBazaarHub>();
             ItemProvider = new Mock<IItemGenerationService>();
-            CScalcPacketHandler = new CScalcPacketHandler(TestHelpers.Instance.WorldConfiguration,
-                BazaarHttpClient.Object, ItemProvider.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer,
+            CScalcPacketHandler = new CScalcPacketHandler(World.WorldConfiguration,
+                BazaarHttpClient.Object, ItemProvider.Object, Logger, World.LogLanguageLocalizer,
                 new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, TestHelpers.Instance.NpcDialogService,
+                new Mock<IDao<IItemInstanceDto?, Guid>>().Object, World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
 
             var ownListing = new BazaarLink
@@ -217,7 +218,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
 
         private void CharacterHasMaxGold()
         {
-            Session.Character.Gold = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount;
+            Session.Character.Gold = World.WorldConfiguration.Value.MaxGoldAmount;
         }
 
         private void ShouldReceiveMaxGoldMessage()

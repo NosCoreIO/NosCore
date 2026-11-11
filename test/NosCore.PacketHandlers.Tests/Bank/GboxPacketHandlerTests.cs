@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Bank
                 MasterCommunication = new(),
                 MaxGoldAmount = 1_000_000_000,
                 MaxBankGoldAmount = 100_000_000_000
-            }), TestHelpers.Instance.NpcDialogService);
+            }), World.NpcDialogService);
         }
 
         [TestMethod]

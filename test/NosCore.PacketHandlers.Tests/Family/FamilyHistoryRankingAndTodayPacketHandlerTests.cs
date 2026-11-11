@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyHistoryRankingAndTodayPacketHandlerTests
     {
+        private TestWorld World;
         private const long FamilyId = 42;
         private const long OtherId = 900;
         private readonly List<FamilyLogDto> _logs = new();
@@ -45,12 +46,12 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             _logs.Clear();
             _families.Clear();
             _memberships.Clear();
             _characters.Clear();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _session = await World.GenerateSessionAsync();
             _family = new GameObject.Services.FamilyService.Family
             {
                 FamilyId = FamilyId,
@@ -64,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var pubSubHub = new Mock<IPubSubHub>();
             pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).ReturnsAsync(true);
-            _familyLogService = new FamilyLogService(ListDao(_logs), TestHelpers.Instance.Clock, pubSubHub.Object);
+            _familyLogService = new FamilyLogService(ListDao(_logs), World.Clock, pubSubHub.Object);
             var familyDao = ListDao(_families);
             Mock.Get(familyDao).Setup(s => s.LoadAll()).Returns(() => _families);
             _familyRankingService = new FamilyRankingService(familyDao, ListDao(_memberships), ListDao(_characters));
@@ -207,7 +208,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 FamilyLogType = type,
                 FirstArgument = first,
                 SecondArgument = second,
-                Timestamp = TestHelpers.Instance.Clock.GetCurrentInstant() - Duration.FromHours(hours)
+                Timestamp = World.Clock.GetCurrentInstant() - Duration.FromHours(hours)
             });
 
         private void TheCharacterIsA_(FamilyAuthority authority) => _family.Members = new List<FamilyCharacterDto>
@@ -240,7 +241,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         }
 
         private Task AskingForTheHistory() =>
-            new FhistCtsPacketHandler(_familyLogService, TestHelpers.Instance.Clock).ExecuteAsync(new FhistCtsPacket(), _session);
+            new FhistCtsPacketHandler(_familyLogService, World.Clock).ExecuteAsync(new FhistCtsPacket(), _session);
 
         private Task AskingForTheRanking_(FamilyRankingType type) =>
             new FrankCtsPacketHandler(_familyRankingService).ExecuteAsync(new FrankCtsPacket { Type = type }, _session);

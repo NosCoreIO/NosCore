@@ -22,6 +22,7 @@ namespace NosCore.PacketHandlers.Tests.Movement
     [TestClass]
     public class PreqPacketHandlerTests
     {
+        private TestWorld World;
         private PreqPacketHandler Handler;
         private ClientSession Session;
         private Mock<IMovementService> MovementService;
@@ -29,8 +30,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             MovementService = new Mock<IMovementService>();
             Handler = new PreqPacketHandler(MovementService.Object);
         }

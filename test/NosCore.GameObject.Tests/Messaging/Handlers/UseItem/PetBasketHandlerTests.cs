@@ -31,6 +31,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class PetBasketHandlerTests
     {
+        private TestWorld World;
         private const short PetBasketVNum = 1907;
         private ClientSession _session;
         private PetBasketHandler _handler;
@@ -39,9 +40,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _handler = new PetBasketHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.Clock);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _handler = new PetBasketHandler(World.WorldConfiguration, World.Clock);
         }
 
         [TestMethod]

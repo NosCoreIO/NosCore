@@ -33,6 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class GetPacketHandlerTests
     {
+        private TestWorld World;
         private const short ItemVNum = 1012;
         private ClientSession Session;
         private IItemGenerationService ItemProvider;
@@ -47,20 +48,20 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            ItemProvider = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            ItemProvider = World.GenerateItemProvider();
             var dropHandler = new DropHandler(new Mock<Wolverine.IMessageBus>().Object);
-            var goldHandler = new GoldDropHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.ItemList);
-            var spChargerHandler = new SpChargerHandler(TestHelpers.Instance.WorldConfiguration);
+            var goldHandler = new GoldDropHandler(World.WorldConfiguration, World.ItemList);
+            var spChargerHandler = new SpChargerHandler(World.WorldConfiguration);
             Bus = new InlineOrDeferredMessageBus<MapItemPickedUpEvent>(async evt =>
             {
                 await dropHandler.Handle(evt);
                 await goldHandler.Handle(evt);
                 await spChargerHandler.Handle(evt);
             });
-            Handler = new GetPacketHandler(NullLogger<GetPacketHandler>.Instance, TestHelpers.Instance.DistanceCalculator,
-                TestHelpers.Instance.GroupLootService, TestHelpers.Instance.LogLanguageLocalizer, Bus.Object);
+            Handler = new GetPacketHandler(NullLogger<GetPacketHandler>.Instance, World.DistanceCalculator,
+                World.GroupLootService, World.LogLanguageLocalizer, Bus.Object);
         }
 
         [TestMethod]
@@ -146,12 +147,12 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
-        private async Task AnotherCharacterOwnsTheDrop() => Owner = await TestHelpers.Instance.GenerateSessionAsync();
+        private async Task AnotherCharacterOwnsTheDrop() => Owner = await World.GenerateSessionAsync();
 
         private async Task TheCharacterIsInAPartyWithTheOwner()
         {
             await AnotherCharacterOwnsTheDrop();
-            var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             Owner.Character.JoinGroup(group);
             Session.Character.JoinGroup(group);
         }
@@ -159,8 +160,8 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private async Task TheOwnerIsInAPartyThatSharesLootWithoutTheCharacter()
         {
             await AnotherCharacterOwnsTheDrop();
-            var third = await TestHelpers.Instance.GenerateSessionAsync();
-            var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var third = await World.GenerateSessionAsync();
+            var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, World.SessionGroupFactory);
             Owner.Character.JoinGroup(group);
             third.Character.JoinGroup(group);
             TheMasterSharesLootAsAGroup();
@@ -169,24 +170,24 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         private void TheMasterSharesLootAsAGroup() => Owner.Character.GroupSharing = true;
 
         private void AnItemOwnedByTheOtherMemberLiesNextToTheCharacter() =>
-            MapItemVisualId = TestHelpers.Instance.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
+            MapItemVisualId = World.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
                 ItemProvider.Create(ItemVNum, 1), Session.Character.PositionX, Session.Character.PositionY,
                 Owner.Character.CharacterId).VisualId;
 
         private void GoldOwnedByTheOtherMemberLiesNextToTheCharacter()
         {
-            TestHelpers.Instance.ItemList.Add(new ItemDto
+            World.ItemList.Add(new ItemDto
             {
                 VNum = GoldVNum, Type = NoscorePocketType.Main, Name = new I18NString { [RegionType.EN] = "Gold" }
             });
             Session.Character.Gold = 0;
             Owner.Character.Gold = 0;
-            MapItemVisualId = TestHelpers.Instance.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
+            MapItemVisualId = World.MapItemProvider.NotNull().Create(Session.Character.MapInstance,
                 ItemProvider.Create(GoldVNum, GoldAmount), Session.Character.PositionX, Session.Character.PositionY,
                 Owner.Character.CharacterId).VisualId;
         }
 
-        private void _SecondsPass(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+        private void _SecondsPass(int seconds) => World.Clock.AdvanceSeconds(seconds);
 
         private async Task TheCharacterPicksItUp()
         {

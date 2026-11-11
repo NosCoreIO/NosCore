@@ -20,14 +20,15 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class WarehousePacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession Session;
         private Mock<IWarehouseHub> WarehouseHub;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             WarehouseHub = new Mock<IWarehouseHub>();
         }
 
@@ -83,7 +84,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task DepositingItemToWarehouse()

@@ -34,6 +34,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class StarterGearTests
     {
+        private TestWorld World;
         private const short Weapon = 1;
         private const short Fairy = 2;
         private const short Seed = 1012;
@@ -47,8 +48,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            var configuration = TestHelpers.Instance.WorldConfiguration.Value;
+            World = await TestWorld.CreateAsync();
+            var configuration = World.WorldConfiguration.Value;
             configuration.BackpackSize = 48;
             configuration.BasicEquipments = new Dictionary<string, Dictionary<StarterOrigin, List<BasicEquipment>>>
             {
@@ -67,8 +68,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                     [StarterOrigin.CreateAndUpgrade] = new() { new BasicEquipment { VNum = Fairy, Amount = 1, NoscorePocketType = NoscorePocketType.Equipment } }
                 }
             };
-            _configuration = TestHelpers.Instance.WorldConfiguration;
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            _configuration = World.WorldConfiguration;
+            _session = await World.GenerateSessionAsync();
         }
 
         private async Task CreateAsync(CharacterClassType @class, bool allClassAvailable = false)
@@ -83,9 +84,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .Callback<IEnumerable<InventoryItemInstanceDto>>(items => _savedSlots.AddRange(items))
                 .ReturnsAsync(true);
 
-            var handler = new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.GenerateItemProvider(),
+            var handler = new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(),
                 new Mock<IDao<QuicklistEntryDto, Guid>>().Object, itemInstances.Object, slots.Object, new HpService(), new MpService(),
-                _configuration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, TestHelpers.Instance.ItemList, NullLoggerFactory.Instance);
+                _configuration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, World.ItemList, NullLoggerFactory.Instance);
             _session.ClearPlayerEntity();
             await handler.ExecuteAsync(new CharNewPacket { Name = "Starter", Slot = 2, TargetClass = @class }, _session);
         }
@@ -132,10 +133,10 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ChangingClassAddsTheNewClassPack()
         {
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            _session.Character.MapInstance = World.GetBaseMap(1);
 
             await _session.ChangeClassAsync(CharacterClassType.Swordsman, _configuration, new ExperienceService(),
-                new JobExperienceService(), new HeroExperienceService(), TestHelpers.Instance.GenerateItemProvider(),
+                new JobExperienceService(), new HeroExperienceService(), World.GenerateItemProvider(),
                 new Mock<ISkillService>().Object);
 
             Assert.AreEqual(CharacterClassType.Swordsman, _session.Character.Class);
@@ -145,14 +146,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestMethod]
         public async Task ChangingClassWithEquipmentWornAddsNothing()
         {
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            _session.Character.MapInstance = World.GetBaseMap(1);
             var worn = _session.Character.InventoryService.AddItemToPocket(
-                GameObject.Services.InventoryService.InventoryItemInstance.Create(TestHelpers.Instance.GenerateItemProvider().Create(Weapon, 1), _session.Character.CharacterId),
+                GameObject.Services.InventoryService.InventoryItemInstance.Create(World.GenerateItemProvider().Create(Weapon, 1), _session.Character.CharacterId),
                 NoscorePocketType.Equipment).NotNull().First();
             Assert.IsNotNull(_session.Character.InventoryService.MoveInPocket(worn.Slot, worn.Type, NoscorePocketType.Wear, 0, false));
 
             await _session.ChangeClassAsync(CharacterClassType.Swordsman, _configuration, new ExperienceService(),
-                new JobExperienceService(), new HeroExperienceService(), TestHelpers.Instance.GenerateItemProvider(),
+                new JobExperienceService(), new HeroExperienceService(), World.GenerateItemProvider(),
                 new Mock<ISkillService>().Object);
 
             Assert.AreNotEqual(CharacterClassType.Swordsman, _session.Character.Class);

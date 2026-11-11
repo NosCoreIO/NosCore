@@ -21,16 +21,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharacterDeletePacketHandlerTests
     {
+        private TestWorld World;
         private CharacterDeletePacketHandler CharacterDeletePacketHandler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             CharacterDeletePacketHandler =
-                new CharacterDeletePacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao, new Sha512Hasher(), TestHelpers.Instance.WorldConfiguration);
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>
+                new CharacterDeletePacketHandler(World.CharacterDao, World.AccountDao, new Sha512Hasher(), World.WorldConfiguration);
+            Session = await World.GenerateSessionAsync(new List<IPacketHandler>
             {
                 CharacterDeletePacketHandler
             });
@@ -142,7 +143,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterShouldStillExist()
         {
             Assert.IsNotNull(
-                await TestHelpers.Instance.CharacterDao
+                await World.CharacterDao
                     .FirstOrDefaultAsync(s =>
                         (s.AccountId == Session.Account.AccountId) && (s.State == CharacterState.Active)));
         }
@@ -150,7 +151,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterShouldBeDeleted()
         {
             Assert.IsNull(
-                await TestHelpers.Instance.CharacterDao
+                await World.CharacterDao
                     .FirstOrDefaultAsync(s =>
                         (s.AccountId == Session.Account.AccountId) && (s.State == CharacterState.Active)));
         }

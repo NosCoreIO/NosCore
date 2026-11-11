@@ -37,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewPacketHandlerTests
     {
+        private TestWorld World;
         private CharNewPacketHandler CharNewPacketHandler;
         private ClientSession Session;
         private Mock<IMapChangeService> MapChangeService;
@@ -45,11 +46,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             CharNewPacketHandler =
-                new CharNewPacketHandler(TestHelpers.Instance.CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), TestHelpers.Instance.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, TestHelpers.Instance.ItemList, NullLoggerFactory.Instance);
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
+                new CharNewPacketHandler(World.CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
+                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), World.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, World.ItemList, NullLoggerFactory.Instance);
+            Session = await World.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
             MapChangeService = new Mock<IMapChangeService>();
             Session.ClearPlayerEntity();
         }
@@ -102,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsInGame()
         {
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
+            Session = await World.GenerateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
         }
 
         private async Task CreatingCharacterViaPacket()
@@ -151,27 +152,27 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterShouldNotExist()
         {
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
+            Assert.IsNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
         }
 
         private async Task CharacterShouldExist()
         {
-            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
+            Assert.IsNotNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
         }
 
         private async Task CharacterWithInvalidNameShouldNotExist()
         {
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == "Test Character"));
+            Assert.IsNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == "Test Character"));
         }
 
         private void OnlyOneCharacterWithNameShouldExist()
         {
-            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Name == "TestExistingCharacter").NotNull().Skip(1).Any());
+            Assert.IsFalse(World.CharacterDao.Where(s => s.Name == "TestExistingCharacter").NotNull().Skip(1).Any());
         }
 
         private void OnlyOneCharacterInSlot_ShouldExist(int value)
         {
-            Assert.IsFalse(TestHelpers.Instance.CharacterDao.Where(s => s.Slot == value).NotNull().Skip(1).Any());
+            Assert.IsFalse(World.CharacterDao.Where(s => s.Slot == value).NotNull().Skip(1).Any());
         }
     }
 }

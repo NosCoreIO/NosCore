@@ -22,6 +22,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class KickPacketHandlerTests
     {
+        private TestWorld World;
         private KickPacketHandler Handler;
         private ClientSession Session;
         private Mock<IRemoteCharacterService> RemoteCharacters;
@@ -29,8 +30,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             RemoteCharacters = new Mock<IRemoteCharacterService>();
             Handler = new KickPacketHandler(RemoteCharacters.Object);
         }

@@ -24,6 +24,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class GiftPacketHandlerTests
     {
+        private TestWorld World;
         private GiftPacketHandler Handler;
         private ClientSession Session;
         private Mock<IRemoteCharacterService> RemoteCharacters;
@@ -31,8 +32,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             RemoteCharacters = new Mock<IRemoteCharacterService>();
             Handler = new GiftPacketHandler(RemoteCharacters.Object);
         }

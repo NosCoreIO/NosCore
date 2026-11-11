@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class FamilyHistoryChangedDataMessageHandlerTests
     {
+        private TestWorld World;
         private const long FamilyId = 42;
         private ClientSession _member;
         private ClientSession _outsider;
@@ -29,9 +30,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _member = await TestHelpers.Instance.GenerateSessionAsync();
-            _outsider = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _member = await World.GenerateSessionAsync();
+            _outsider = await World.GenerateSessionAsync();
             _member.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId, Name = "Testers" };
             _outsider.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId + 1, Name = "Others" };
             var sessions = new[] { _member, _outsider };

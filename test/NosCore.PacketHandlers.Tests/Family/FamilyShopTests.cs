@@ -49,6 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyShopTests
     {
+        private TestWorld World;
         private const int ManagerId = 100;
         private const short Warehouse = 9694;
         private const short WarehouseExpansion = 9695;
@@ -86,12 +87,12 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _head = await TestHelpers.Instance.GenerateSessionAsync();
-            _member = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _head = await World.GenerateSessionAsync();
+            _member = await World.GenerateSessionAsync();
             _published.Clear();
 
-            var context = TestHelpers.Instance.DbContextBuilder;
+            var context = World.DbContextBuilder;
             _familyDao = new Dao<FamilyEntity, FamilyDto, long>(NullLogger<Dao<FamilyEntity, FamilyDto, long>>.Instance, context);
             _familyCharacterDao = new Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>(
                 NullLogger<Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>>.Instance, context);
@@ -114,7 +115,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 Membership(_member, FamilyAuthority.Member)
             });
 
-            _familyService = new FamilyService(_familyDao, _familyCharacterDao, familyLogDao, TestHelpers.Instance.CharacterDao);
+            _familyService = new FamilyService(_familyDao, _familyCharacterDao, familyLogDao, World.CharacterDao);
             var master = new FamilyExtensionService(_familyDao, _familyCharacterDao, familyUpgradeDao, new FamilyUpgradeService());
             var familyHub = new Mock<IFamilyHub>();
             familyHub.Setup(s => s.PurchaseExtensionAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<short>()))
@@ -135,10 +136,10 @@ namespace NosCore.PacketHandlers.Tests.Family
             var dignity = new Mock<IDignityService>();
             dignity.Setup(s => s.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
             _shopping = new ShoppingPacketHandler(NullLogger<ShoppingPacketHandler>.Instance, dignity.Object,
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService, shop);
-            _buy = new BuyPacketHandler(NullLogger<BuyPacketHandler>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.WorldConfiguration,
-                TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.NpcDialogService,
+                World.LogLanguageLocalizer, World.SessionRegistry, World.NpcDialogService, shop);
+            _buy = new BuyPacketHandler(NullLogger<BuyPacketHandler>.Instance, World.LogLanguageLocalizer,
+                World.SessionRegistry, World.WorldConfiguration,
+                World.GenerateItemProvider(), World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
                 new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, Guid>>().Object, shop);
 
@@ -150,7 +151,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, registry.Object,
                 new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
             _familyChanged = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService,
-                TestHelpers.Instance.GameLanguageLocalizer, management);
+                World.GameLanguageLocalizer, management);
 
             _head.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto>

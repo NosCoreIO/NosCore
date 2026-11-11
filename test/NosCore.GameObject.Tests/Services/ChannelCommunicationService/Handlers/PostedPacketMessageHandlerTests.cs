@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class PostedPacketMessageHandlerTests
     {
+        private TestWorld World;
         private PostedPacketMessageChannelCommunicationMessageHandler Handler;
         private ClientSession Session;
         private Mock<ISessionRegistry> SessionRegistry;
@@ -39,8 +40,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
             Deserializer = new Mock<IDeserializer>();
             Logger = new Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>();
@@ -139,7 +140,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
 
         private async Task TwoPlayersAreOnline()
         {
-            Listener = await TestHelpers.Instance.GenerateSessionAsync();
+            Listener = await World.GenerateSessionAsync();
             var characters = new[] { Session.Character, Listener.Character };
             SessionRegistry.Setup(x => x.GetCharacters(It.IsAny<System.Func<PlayerComponentBundle, bool>?>()))
                 .Returns((System.Func<PlayerComponentBundle, bool>? predicate) =>

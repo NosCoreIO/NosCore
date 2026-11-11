@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class DeleteMailDataMessageHandlerTests
     {
+        private TestWorld World;
         private DeleteMailDataMessageChannelCommunicationMessageHandler Handler;
         private ClientSession Session;
         private Mock<ISessionRegistry> SessionRegistry;
@@ -30,8 +31,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             SessionRegistry = new Mock<ISessionRegistry>();
             Handler = new DeleteMailDataMessageChannelCommunicationMessageHandler(SessionRegistry.Object);
         }

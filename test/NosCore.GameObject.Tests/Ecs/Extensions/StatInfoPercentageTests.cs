@@ -21,13 +21,14 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class StatInfoPercentageTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
         }
 
         [TestMethod]

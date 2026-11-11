@@ -37,34 +37,30 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyHistoryLogTests
     {
+        private TestWorld World;
         private const long FamilyId = 42;
         private readonly List<FamilyLogDto> _logs = new();
         private ClientSession _head;
         private ClientSession _other;
-        private readonly NosCoreFixture _fixture = new();
-        private readonly Mock<IDao<FamilyLogDto, long>> _logDao;
-        private readonly Mock<IFamilyService> _familyService;
-        private readonly Mock<IPubSubHub> _pubSubHub;
-        private readonly Mock<ISessionRegistry> _sessionRegistry;
-
-        public FamilyHistoryLogTests()
-        {
-            _fixture.UseReal<IFamilyManagementService, FamilyManagementService>();
-            _fixture.UseReal<IFamilyLogService, FamilyLogService>();
-            _logDao = _fixture.Freeze<Mock<IDao<FamilyLogDto, long>>>();
-            _familyService = _fixture.Freeze<Mock<IFamilyService>>();
-            _pubSubHub = _fixture.Freeze<Mock<IPubSubHub>>();
-            _sessionRegistry = _fixture.Freeze<Mock<ISessionRegistry>>();
-            _fixture.Inject(_sessionRegistry.Object);
-        }
+        private Mock<IDao<FamilyLogDto, long>> _logDao;
+        private Mock<IFamilyService> _familyService;
+        private Mock<IPubSubHub> _pubSubHub;
+        private Mock<ISessionRegistry> _sessionRegistry;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
+            World.UseReal<IFamilyManagementService, FamilyManagementService>();
+            World.UseReal<IFamilyLogService, FamilyLogService>();
+            _logDao = World.Freeze<Mock<IDao<FamilyLogDto, long>>>();
+            _familyService = World.Freeze<Mock<IFamilyService>>();
+            _pubSubHub = World.PubSubHub;
+            _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            World.Inject(_sessionRegistry.Object);
             _logs.Clear();
-            _head = await TestHelpers.Instance.GenerateSessionAsync();
-            _other = await TestHelpers.Instance.GenerateSessionAsync();
+            _head = await World.GenerateSessionAsync();
+            _other = await World.GenerateSessionAsync();
             _head.Character.Family = FamilyOf((_head.Character.CharacterId, FamilyAuthority.Head));
             _other.Character.Family = null;
 
@@ -254,38 +250,38 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync(result);
         }
 
-        private void _HoursPass(int hours) => TestHelpers.Instance.Clock.AdvanceHours(hours);
+        private void _HoursPass(int hours) => World.Clock.AdvanceHours(hours);
 
         private Task TheOtherPlayerAnswers_(FamilyInviteAnswerType type) =>
-            _fixture.Create<JoinFamilyPacketHandler>()
+            World.Create<JoinFamilyPacketHandler>()
                 .ExecuteAsync(new JoinFamilyPacket { Type = type, CharacterId = _head.Character.CharacterId }, _other);
 
         private Task TheOtherPlayerLeaves() =>
-            _fixture.Create<FamilyLeavePacketHandler>()
+            World.Create<FamilyLeavePacketHandler>()
                 .ExecuteAsync(new FamilyLeavePacket(), _other);
 
         private Task TheHeadTriesToLeave() =>
-            _fixture.Create<FamilyLeavePacketHandler>()
+            World.Create<FamilyLeavePacketHandler>()
                 .ExecuteAsync(new FamilyLeavePacket(), _head);
 
         private Task TheHeadDismissesTheOtherPlayer() =>
-            _fixture.Create<FamilyDismissPacketHandler>()
+            World.Create<FamilyDismissPacketHandler>()
                 .ExecuteAsync(new FamilyDismissPacket { CharacterName = _other.Character.Name }, _head);
 
         private Task TheOtherPlayerDismissesTheHead() =>
-            _fixture.Create<FamilyDismissPacketHandler>()
+            World.Create<FamilyDismissPacketHandler>()
                 .ExecuteAsync(new FamilyDismissPacket { CharacterName = _head.Character.Name }, _other);
 
         private Task TheHeadLetsKeepersReadTheHistory() =>
-            _fixture.Create<FAuthPacketHandler>()
+            World.Create<FAuthPacketHandler>()
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 3, Value = 1 }, _head);
 
         private Task TheOtherPlayerTriesToChangeARight() =>
-            _fixture.Create<FAuthPacketHandler>()
+            World.Create<FAuthPacketHandler>()
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 3, Value = 1 }, _other);
 
         private Task TheHeadAppointsTheOtherPlayerKeeper() =>
-            _fixture.Create<FamilyManagementPacketHandler>()
+            World.Create<FamilyManagementPacketHandler>()
                 .ExecuteAsync(new FamilyManagementPacket
                 {
                     TargetId = _other.Character.CharacterId,
@@ -293,7 +289,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 }, _head);
 
         private Task TheHeadWritesTheDailyMessage_(string message) =>
-            _fixture.Create<FamilyTodayPacketHandler>().ExecuteAsync(new FamilyTodayPacket { Message = message }, _head);
+            World.Create<FamilyTodayPacketHandler>().ExecuteAsync(new FamilyTodayPacket { Message = message }, _head);
 
         private string Expand(string data) => data
             .Replace("{head}", _head.Character.Name)

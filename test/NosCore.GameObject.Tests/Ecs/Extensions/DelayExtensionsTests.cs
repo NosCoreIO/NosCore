@@ -19,6 +19,7 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class DelayExtensionsTests
     {
+        private TestWorld World;
         private readonly Guid _vehicle = Guid.NewGuid();
         private readonly Guid _specialist = Guid.NewGuid();
         private ClientSession _session;
@@ -27,8 +28,8 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
         }
 
         [TestMethod]
@@ -71,17 +72,17 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
             {
                 Delay = 3000,
                 Type = DelayPacketType.Locomotion,
-            }, target, TestHelpers.Instance.Clock.GetCurrentInstant());
+            }, target, World.Clock.GetCurrentInstant());
         }
 
-        private void Milliseconds_Pass(int milliseconds) => TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
+        private void Milliseconds_Pass(int milliseconds) => World.Clock.AdvanceMilliseconds(milliseconds);
 
         private void TheBarIsCancelled() => _session.Character.CancelDelay();
 
         private void CompletingTheLocomotionBarFor_(Guid target)
         {
             _completed = _session.Character.TryCompleteDelay(DelayPacketType.Locomotion, target,
-                TestHelpers.Instance.Clock.GetCurrentInstant());
+                World.Clock.GetCurrentInstant());
         }
 
         private void TheBarShouldComplete() => Assert.IsTrue(_completed);

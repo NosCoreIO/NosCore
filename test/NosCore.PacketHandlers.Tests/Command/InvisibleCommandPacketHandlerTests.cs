@@ -18,15 +18,16 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class InvisibleCommandPacketHandlerTests
     {
+        private TestWorld World;
         private InvisibleCommandPacketHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Handler = new InvisibleCommandPacketHandler();
         }
 

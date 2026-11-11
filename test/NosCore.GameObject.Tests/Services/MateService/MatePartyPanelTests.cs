@@ -19,13 +19,14 @@ namespace NosCore.GameObject.Tests.Services.MateService
     [TestClass]
     public class MatePartyPanelTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
         }
 
         [TestMethod]
@@ -67,8 +68,8 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestMethod]
         public async Task InAGroupThePetComesAfterThePlayers()
         {
-            var other = await TestHelpers.Instance.GenerateSessionAsync();
-            var group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var other = await World.GenerateSessionAsync();
+            var group = new Group(GroupType.Group, World.SessionGroupFactory);
             _session.Character.JoinGroup(group);
             other.Character.JoinGroup(group);
             var pet = TestMates.Pet(_session.Character.CharacterId);

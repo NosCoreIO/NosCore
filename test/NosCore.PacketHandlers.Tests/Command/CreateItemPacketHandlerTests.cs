@@ -28,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class CreateItemPacketHandlerTests
     {
+        private TestWorld World;
         private CreateItemPackettHandler Handler;
         private ClientSession Session;
         private Mock<IItemGrantService> ItemGrantService;
@@ -35,8 +36,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             ItemGrantService = new Mock<IItemGrantService>();
             Handler = new CreateItemPackettHandler(ItemGrantService.Object);
         }

@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class HitQueueTests
     {
+        private TestWorld World;
         private static SkillInfo MakeSkill() => new(
             SkillVnum: 1, CastId: 1, Cooldown: 0, AttackAnimation: 0, CastEffect: 0, Effect: 0,
             Type: 0, HitType: TargetHitType.SingleTargetHit, Range: 0, TargetRange: 0, TargetType: 0,
@@ -209,14 +210,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         // the file says only "HP by %s%%". These pin it: read off current HP every number below
         // changes, and nothing would raise.
 
-        private static BCardDto PercentOfHp(short percent) => new()
+        private BCardDto PercentOfHp(short percent) => new()
         {
             Type = BCardEffect.RecoveryAndDamagePercentDecreaseEnemyHp.Type(),
             SubType = BCardEffect.RecoveryAndDamagePercentDecreaseEnemyHp.SubType(),
             FirstData = percent
         };
 
-        private static HitQueue QueueDealing(int ordinaryDamage)
+        private HitQueue QueueDealing(int ordinaryDamage)
         {
             var calc = new Mock<IDamageCalculator>();
             calc.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
@@ -238,11 +239,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(950, target.Hp);
         }
 
-        private static async Task<(PlayerComponentBundle Attacker, PlayerComponentBundle Target)> TwoPlayersAsync()
+        private async Task<(PlayerComponentBundle Attacker, PlayerComponentBundle Target)> TwoPlayersAsync()
         {
-            await TestHelpers.ResetAsync();
-            var attacker = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
-            var target = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
+            World = await TestWorld.CreateAsync();
+            var attacker = (await World.GenerateSessionAsync()).Character;
+            var target = (await World.GenerateSessionAsync()).Character;
             target.MaxHp = 1000;
             target.Hp = 1000;
             return (attacker, target);

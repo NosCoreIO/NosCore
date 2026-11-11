@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
     [TestClass]
     public class ScriptedInstanceEntryTests
     {
+        private TestWorld World;
         private const short SeedVnum = 1012;
 
         private ClientSession _session;
@@ -31,11 +32,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _items = new ItemGenerationService(
                 new List<ItemDto> { new() { VNum = SeedVnum, Type = NoscorePocketType.Etc } },
-                NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer);
         }
 
         private static ScriptedInstance Needing(short amount) => new()

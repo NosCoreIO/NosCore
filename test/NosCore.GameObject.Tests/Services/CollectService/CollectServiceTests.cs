@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
     [TestClass]
     public class CollectServiceTests
     {
+        private TestWorld World;
         private const int MapNpcId = 100;
         private const short ObjectVNum = 2004;
         private const short ItemVNum = 1012;
@@ -41,8 +42,8 @@ namespace NosCore.GameObject.Tests.Services.CollectService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(ObjectVNum)).Returns(new List<DropDto>
             {
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
             catalog.Setup(c => c.GetDrops(It.Is<short>(v => v != ObjectVNum))).Returns(new List<DropDto>());
             _messageBus = new Mock<Wolverine.IMessageBus>();
             _service = new GameObject.Services.CollectService.CollectService(catalog.Object,
-                TestHelpers.Instance.GenerateItemProvider(), TestHelpers.Instance.Clock, _messageBus.Object);
+                World.GenerateItemProvider(), World.Clock, _messageBus.Object);
         }
 
         [TestMethod]
@@ -157,7 +158,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
             new CollectItemHandler(_service).Handle(new GuriPacketReceivedEvent(_session,
                 new ClientGuriPacket { Type = GuriPacketType.CollectItem, Argument = MapNpcId }));
 
-        private void SecondsPass_(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+        private void SecondsPass_(int seconds) => World.Clock.AdvanceSeconds(seconds);
 
         private void TheCollectBarShouldBeSent()
         {
@@ -176,7 +177,7 @@ namespace NosCore.GameObject.Tests.Services.CollectService
 
         private void ThePlayerAlreadyHasOneOfTheItem() =>
             _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
-                TestHelpers.Instance.GenerateItemProvider().Create(ItemVNum, 1), _session.Character.CharacterId));
+                World.GenerateItemProvider().Create(ItemVNum, 1), _session.Character.CharacterId));
 
         private void TheReceivedMessageShouldSay_(int amount)
         {

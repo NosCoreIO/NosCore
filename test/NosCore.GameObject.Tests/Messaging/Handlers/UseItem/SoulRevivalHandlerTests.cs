@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SoulRevivalHandlerTests
     {
+        private TestWorld World;
         private const short CardSlot = 2;
         private ClientSession _session;
         private SoulRevivalHandler _handler;
@@ -35,10 +36,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            TestHelpers.Instance.WorldConfiguration.Value.MaxSpPoints = 10000;
-            _handler = new SoulRevivalHandler(TestHelpers.Instance.WorldConfiguration);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            World.WorldConfiguration.Value.MaxSpPoints = 10000;
+            _handler = new SoulRevivalHandler(World.WorldConfiguration);
         }
 
         [TestMethod]

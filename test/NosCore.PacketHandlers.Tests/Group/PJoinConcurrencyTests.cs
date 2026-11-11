@@ -28,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Group
     [TestClass]
     public class PJoinConcurrencyTests
     {
+        private TestWorld World;
         private const int Contenders = 6;
 
         private readonly List<ClientSession> _sessions = new();
@@ -37,18 +38,18 @@ namespace NosCore.PacketHandlers.Tests.Group
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             for (var i = 0; i < Contenders + 2; i++)
             {
-                _sessions.Add(await TestHelpers.Instance.GenerateSessionAsync());
+                _sessions.Add(await World.GenerateSessionAsync());
             }
 
             var groups = new Mock<ISessionGroupFactory>();
             groups.Setup(g => g.Create()).Returns(() => new Mock<ISessionGroup>().Object);
             _groups = groups.Object;
             _handler = new PjoinPacketHandler(NullLogger<PjoinPacketHandler>.Instance, new Mock<IBlacklistHub>().Object,
-                TestHelpers.Instance.Clock, new IdService<GroupOfPlayers>(1), TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.GameLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+                World.Clock, new IdService<GroupOfPlayers>(1), World.LogLanguageLocalizer,
+                World.GameLanguageLocalizer, World.SessionRegistry);
         }
 
         private void EveryoneAlone()

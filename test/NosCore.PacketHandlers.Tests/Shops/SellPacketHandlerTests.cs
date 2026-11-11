@@ -36,17 +36,18 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class SellPacketHandlerTests
     {
+        private TestWorld World;
         private SellPacketHandler SellPacketHandler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Shop);
-            SellPacketHandler = new SellPacketHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.NpcDialogService);
+            SellPacketHandler = new SellPacketHandler(World.WorldConfiguration, World.NpcDialogService);
         }
 
         [TestMethod]
@@ -176,7 +177,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, ItemType = ItemType.Sell, Price = long.MaxValue }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 5), 0),
                 NoscorePocketType.Etc, 0);
@@ -188,7 +189,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, IsSoldable = true, Price = 500 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Equipment, 0);
@@ -221,7 +222,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
             Session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(itemBuilder.Create(1, 3), 0),
                 NoscorePocketType.Etc, 0);
@@ -244,7 +245,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsAtMaxGold()
         {
-            Session.Character.Gold = TestHelpers.Instance.WorldConfiguration.Value.MaxGoldAmount;
+            Session.Character.Gold = World.WorldConfiguration.Value.MaxGoldAmount;
         }
 
         private void ShouldReceiveMaxGoldReachedMessage()
@@ -265,7 +266,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsTradable = true }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -282,7 +283,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = false }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);
@@ -299,7 +300,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = 1, IsSoldable = true, Price = 500000 }
             };
-            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            var itemBuilder = new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
             Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(itemBuilder.Create(1, 1), 0),
                 NoscorePocketType.Etc, 0);

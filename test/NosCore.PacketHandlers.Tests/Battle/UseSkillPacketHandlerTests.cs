@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
     [TestClass]
     public class UseSkillPacketHandlerTests
     {
+        private TestWorld World;
         private UseSkillPacketHandler Handler;
         private ClientSession Session;
         private ClientSession TargetSession;
@@ -39,9 +40,9 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            TargetSession = await World.GenerateSessionAsync();
             BattleService = new Mock<IBattleService>();
             Gear.Setup(g => g.Resolve(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>())).Returns(EquipmentStats.None);
             BattleService.Setup(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
@@ -49,12 +50,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
             Handler = new UseSkillPacketHandler(
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
+                World.LogLanguageLocalizer,
                 BattleService.Object,
-                TestHelpers.Instance.SessionRegistry,
-                new SkillCastService(TestHelpers.Instance.Clock, Gear.Object),
-                TestHelpers.Instance.DistanceCalculator,
-                new WalkService(TestHelpers.Instance.Clock));
+                World.SessionRegistry,
+                new SkillCastService(World.Clock, Gear.Object),
+                World.DistanceCalculator,
+                new WalkService(World.Clock));
         }
 
         private readonly Mock<IEquipmentStatsService> Gear = new();
@@ -314,7 +315,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private Task UsingSkillOnExistingPlayerReportingCell_After_Milliseconds(short x, int milliseconds)
         {
-            TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
+            World.Clock.AdvanceMilliseconds(milliseconds);
             return UsingSkillOnExistingPlayerReportingCell_(x);
         }
 
@@ -338,14 +339,14 @@ namespace NosCore.PacketHandlers.Tests.Battle
             {
                 Delay = 5000,
                 Type = NosCore.Packets.Enumerations.DelayPacketType.Locomotion,
-            }, BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant());
+            }, BarTarget, World.Clock.GetCurrentInstant());
         }
 
         private void TheBarShouldNotCompleteAfterFiveSeconds()
         {
-            TestHelpers.Instance.Clock.AdvanceSeconds(5);
+            World.Clock.AdvanceSeconds(5);
             Assert.IsFalse(Session.Character.TryCompleteDelay(NosCore.Packets.Enumerations.DelayPacketType.Locomotion,
-                BarTarget, TestHelpers.Instance.Clock.GetCurrentInstant()));
+                BarTarget, World.Clock.GetCurrentInstant()));
         }
 
         [TestMethod]
@@ -471,7 +472,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             };
         }
 
-        private void TimePasses_Seconds(int seconds) => TestHelpers.Instance.Clock.AdvanceSeconds(seconds);
+        private void TimePasses_Seconds(int seconds) => World.Clock.AdvanceSeconds(seconds);
 
         private async Task UsingSkill_OnExistingPlayer(short castId)
         {
@@ -528,12 +529,12 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void TargetIsOnSameMap()
         {
-            TargetSession.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            TargetSession.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void CharacterCannotFight()
@@ -573,13 +574,13 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void HitTakes_Seconds(int seconds)
         {
             BattleService.Setup(s => s.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), It.IsAny<HitArguments>()))
-                .Callback(() => TestHelpers.Instance.Clock.AdvanceSeconds(seconds))
+                .Callback(() => World.Clock.AdvanceSeconds(seconds))
                 .ReturnsAsync(true);
         }
 
         private void SkillWasUsedJustNow()
         {
-            _learnedSkill.LastUse = TestHelpers.Instance.Clock.GetCurrentInstant();
+            _learnedSkill.LastUse = World.Clock.GetCurrentInstant();
         }
 
         private async Task UsingSkillOnUnknownVisualType()
@@ -655,7 +656,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void LastUseShouldBeWhenHitFinished()
         {
-            Assert.AreEqual(TestHelpers.Instance.Clock.GetCurrentInstant(), _learnedSkill.LastUse);
+            Assert.AreEqual(World.Clock.GetCurrentInstant(), _learnedSkill.LastUse);
         }
 
         private void LastUseShouldNotHaveBeenStamped()

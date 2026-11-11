@@ -26,16 +26,17 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
     [TestClass]
     public class CSkillPacketHandlerTests
     {
+        private TestWorld World;
         private CSkillPacketHandler CskillPacketHandler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
-            CskillPacketHandler = new CSkillPacketHandler(TestHelpers.Instance.Clock, TestHelpers.Instance.NpcDialogService);
+            CskillPacketHandler = new CSkillPacketHandler(World.Clock, World.NpcDialogService);
         }
 
         [TestMethod]
@@ -90,7 +91,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private void CharacterWalksTo_(short x, short y) => Session.WalkTo(x, y);
 
         private void TheBazaarShouldBeUsable_(bool usable) =>
-            Assert.AreEqual(usable, TestHelpers.Instance.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.Bazaar));
+            Assert.AreEqual(usable, World.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.Bazaar));
 
         private void CharacterIsInShop()
         {

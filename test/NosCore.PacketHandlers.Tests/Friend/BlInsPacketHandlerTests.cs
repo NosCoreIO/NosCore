@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class BlInsPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<BlInsPackettHandler> Logger = new Mock<ILogger<BlInsPackettHandler>>().Object;
         private BlInsPackettHandler BlInsPacketHandler;
         private ClientSession Session;
@@ -34,10 +35,10 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
 
-            TestHelpers.Instance.ChannelHub.Setup(s => s.GetCommunicationChannels())
+            World.ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>(){
                     new ChannelInfo
                     {
@@ -47,8 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
                 });
             BlacklistCache = new Mock<IBlacklistCacheService>();
-            BlInsPacketHandler = new BlInsPackettHandler(TestHelpers.Instance.BlacklistHttpClient.Object, BlacklistCache.Object, Logger, TestHelpers.Instance.LogLanguageLocalizer);
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+            BlInsPacketHandler = new BlInsPackettHandler(World.BlacklistHub.Object, BlacklistCache.Object, Logger, World.LogLanguageLocalizer);
+            World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
@@ -88,8 +89,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TargetIsOnline()
         {
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            TestHelpers.Instance.PubSubHub.Setup(s => s.GetSubscribersAsync())
+            TargetSession = await World.GenerateSessionAsync();
+            World.PubSubHub.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>(){
                     new Subscriber
                     {
@@ -100,9 +101,9 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            var blacklist = new BlacklistService(TestHelpers.Instance.PubSubHub.Object, TestHelpers.Instance.ChannelHub.Object,
-                TestHelpers.Instance.CharacterRelationDao, TestHelpers.Instance.CharacterDao);
-            TestHelpers.Instance.BlacklistHttpClient.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
+            var blacklist = new BlacklistService(World.PubSubHub.Object, World.ChannelHub.Object,
+                World.CharacterRelationDao, World.CharacterDao);
+            World.BlacklistHub.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync(Session.Character.CharacterId, TargetSession.Character.VisualId));
         }
 
@@ -119,7 +120,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private async Task NoBlockedRelationShouldExist()
         {
             var characterId = Session.Character.CharacterId;
-            var result = await TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
+            var result = await World.CharacterRelationDao.FirstOrDefaultAsync(s =>
                 characterId == s.CharacterId &&
                 s.RelationType == CharacterRelationType.Blocked);
             Assert.IsNull(result);
@@ -129,7 +130,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         {
             var characterId = Session.Character.CharacterId;
             var targetCharacterId = TargetSession.Character.CharacterId;
-            var result = await TestHelpers.Instance.CharacterRelationDao.FirstOrDefaultAsync(s =>
+            var result = await World.CharacterRelationDao.FirstOrDefaultAsync(s =>
                 characterId == s.CharacterId &&
                 targetCharacterId == s.RelatedCharacterId &&
                 s.RelationType == CharacterRelationType.Blocked);

@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class ChangeGenderHandlerTests
     {
+        private TestWorld World;
         private const short GenderScrollVNum = 5105;
         private ClientSession _session;
         private ChangeGenderHandler _handler;
@@ -37,9 +38,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
             _handler = new ChangeGenderHandler();
         }
 

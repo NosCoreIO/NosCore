@@ -4,9 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NosCore.Data.Dto;
 using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests
@@ -17,9 +15,7 @@ namespace NosCore.PacketHandlers.Tests
         [AssemblyInitialize]
         public static void AssemblyInit(TestContext _)
         {
-            TestHelpers.Instance.InitDatabase();
-            TypeAdapterConfig.GlobalSettings.ForDestinationType<IStaticDto>()
-                .IgnoreMember((member, side) => typeof(I18NString).IsAssignableFrom(member.Type));
+            TestMapping.EnsureConfigured();
         }
     }
 }

@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharRenPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<CharRenPacketHandlerTests> Logger = new Mock<ILogger<CharRenPacketHandlerTests>>().Object;
         private CharRenPacketHandler CharRenPacketHandler;
         private ClientSession Session;
@@ -41,17 +42,17 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             MapChangeService = new Mock<IMapChangeService>();
             CharRenPacketHandler =
-                new CharRenPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler>
+                new CharRenPacketHandler(World.CharacterDao, World.WorldConfiguration);
+            Session = await World.GenerateSessionAsync(new List<IPacketHandler>
             {
                 CharRenPacketHandler
             });
             ExistingCharacter = Session.Character.CharacterDto;
             ExistingCharacter.ShouldRename = true;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
             Session.ClearPlayerEntity();
         }
 
@@ -96,13 +97,13 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterIsInGame()
         {
-            Session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { CharRenPacketHandler });
+            Session = await World.GenerateSessionAsync(new List<IPacketHandler> { CharRenPacketHandler });
         }
 
         private async Task CharacterIsNotFlaggedForRename()
         {
             ExistingCharacter.ShouldRename = false;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
         }
 
         private async Task RenamingCharacterViaPacket()
@@ -137,18 +138,18 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterShouldNotBeRenamed()
         {
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName));
+            Assert.IsNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName));
         }
 
         private async Task CharacterShouldBeRenamed()
         {
-            var character = await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName);
+            var character = await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName);
             Assert.IsNotNull(character);
         }
 
         private async Task ShouldRenameFlagShouldBeCleared()
         {
-            var character = (await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName)).NotNull();
+            var character = (await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == NewCharacterName)).NotNull();
             Assert.IsFalse(character.ShouldRename);
         }
     }

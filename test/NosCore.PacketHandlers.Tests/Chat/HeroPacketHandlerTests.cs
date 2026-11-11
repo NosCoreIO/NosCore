@@ -31,6 +31,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
     [TestClass]
     public class HeroPacketHandlerTests
     {
+        private TestWorld World;
         private HeroPacketHandler Handler;
         private ClientSession Session;
         private Mock<IPubSubHub> PubSubHub;
@@ -41,8 +42,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             PubSubHub = new Mock<IPubSubHub>();
             Ranking = new Mock<IReputationRankingService>();
             var serializer = new Mock<ISerializer>();

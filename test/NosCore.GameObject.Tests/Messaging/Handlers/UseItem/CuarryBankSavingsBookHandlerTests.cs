@@ -31,6 +31,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class CuarryBankSavingsBookHandlerTests
     {
+        private TestWorld World;
         private const short BookVNum = 5836;
         private ClientSession _session;
         private CuarryBankSavingsBookHandler _handler;
@@ -39,10 +40,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _session.Character.Reputation = 0;
-            _handler = new CuarryBankSavingsBookHandler(new BankService(), TestHelpers.Instance.NpcDialogService);
+            _handler = new CuarryBankSavingsBookHandler(new BankService(), World.NpcDialogService);
         }
 
         [TestMethod]
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private void TheBankShouldBeUsable() =>
-            Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(_session.Character, NpcDialogWindow.Bank));
+            Assert.IsTrue(World.NpcDialogService.IsOpen(_session.Character, NpcDialogWindow.Bank));
 
         private void BookInInventoryWithEffect_(ItemEffectType effect)
         {

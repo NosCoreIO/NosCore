@@ -27,16 +27,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class OpenBankHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private OpenBankHandler _handler;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _session.Character.Reputation = 0;
-            _handler = new OpenBankHandler(new BankService(), TestHelpers.Instance.NpcDialogService);
+            _handler = new OpenBankHandler(new BankService(), World.NpcDialogService);
         }
 
         [TestMethod]
@@ -97,7 +98,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private Task NrunIsHandledWithAPlayerAsTheNpc() => _handler.HandleAsync(_session, _session.Character, Packet);
 
         private void TheBankWindowShouldBeRecorded() =>
-            Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(_session.Character, NpcDialogWindow.Bank));
+            Assert.IsTrue(World.NpcDialogService.IsOpen(_session.Character, NpcDialogWindow.Bank));
 
         private Task NrunIsHandledWithoutTarget() => _handler.HandleAsync(_session, null, Packet);
 

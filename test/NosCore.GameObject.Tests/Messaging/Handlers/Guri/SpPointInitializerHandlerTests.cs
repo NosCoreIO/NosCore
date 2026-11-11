@@ -31,6 +31,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
     [TestClass]
     public class SpPointInitializerHandlerTests
     {
+        private TestWorld World;
         private const short PotionVNum = 1366;
         private ClientSession _session;
         private SpecialistInstance _card;
@@ -39,8 +40,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             var itemInfo = new Mock<IItemInfoService>();
             itemInfo.Setup(i => i.GenerateInfo(It.IsAny<IItemInstance>())).Returns(new SlInfoPacket());
             _handler = new SpPointInitializerHandler(new SpecialistCardService(new SpecialistPointService()),

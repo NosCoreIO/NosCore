@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
     [TestClass]
     public class PartnerEquipmentServiceTests
     {
+        private TestWorld World;
         private const short PartnerWeapon = 990;
         private const short PartnerArmor = 995;
         private const short Gloves = 3;
@@ -43,9 +44,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _service = new PartnerEquipmentService(new PartnerSpecialistService(TestHelpers.Instance.Clock));
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _service = new PartnerEquipmentService(new PartnerSpecialistService(World.Clock));
             _items = new ItemGenerationService(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Equipment, VNum = PlayerWeapon, ItemType = ItemType.Weapon },
@@ -69,7 +70,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     Type = NoscorePocketType.Equipment, VNum = HighLevelGloves, ItemType = ItemType.Fashion,
                     EquipmentSlot = EquipmentType.Gloves, LevelMinimum = 50
                 }
-            }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
             _partner = TestMates.Partner(_session.Character.CharacterId);
             _session.Character.Mates[_partner.MateTransportId] = _partner;
         }

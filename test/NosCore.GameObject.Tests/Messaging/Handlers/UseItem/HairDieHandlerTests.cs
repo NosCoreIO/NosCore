@@ -27,6 +27,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class HairDieHandlerTests
     {
+        private TestWorld World;
         private const short DieVNum = 2060;
         private ClientSession _session;
         private HairDieHandler _handler;
@@ -35,9 +36,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _session.Character.MapInstance = World.GetBaseMap(1);
             _handler = new HairDieHandler();
         }
 

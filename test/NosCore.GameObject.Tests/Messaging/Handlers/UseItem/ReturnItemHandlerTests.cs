@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class ReturnItemHandlerTests
     {
+        private TestWorld World;
         private const short ItemVNum = 2070;
         private ClientSession _session;
         private Mock<IRespawnService> _respawnService;
@@ -44,15 +45,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.BaseMapInstance;
             _respawnService = new Mock<IRespawnService>();
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService.Setup(x => x.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns(0);
             _respawnService.Setup(x => x.GetRespawnLocation(It.IsAny<ICharacterEntity>(), It.IsAny<long?>()))
                 .Returns(((short)1, (short)80, (short)116));
-            _handler = new ReturnItemHandler(_respawnService.Object, _mapChangeService.Object, TestHelpers.Instance.Clock);
+            _handler = new ReturnItemHandler(_respawnService.Object, _mapChangeService.Object, World.Clock);
         }
 
         [TestMethod]
@@ -240,7 +241,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void TheBarRuns_Milliseconds(int milliseconds)
         {
-            TestHelpers.Instance.Clock.AdvanceMilliseconds(milliseconds);
+            World.Clock.AdvanceMilliseconds(milliseconds);
         }
 
         private void ItemShouldBeKept() =>

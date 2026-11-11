@@ -28,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
     [TestClass]
     public class ShellHandlersTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private ShellTestBench _bench;
         private InventoryItemInstance _shell;
@@ -37,8 +38,8 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _bench = new ShellTestBench();
             _bench.Random.Setup(r => r.NextDouble()).Returns(0d);
         }

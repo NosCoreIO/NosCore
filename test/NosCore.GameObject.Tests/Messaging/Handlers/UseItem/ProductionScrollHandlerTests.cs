@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class ProductionScrollHandlerTests
     {
+        private TestWorld World;
         private const short Scroll = 1014;
         private ClientSession _session;
         private IItemGenerationService _itemProvider;
@@ -34,9 +35,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _itemProvider = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _itemProvider = World.GenerateItemProvider();
             _productionService = new Mock<IProductionService>();
         }
 

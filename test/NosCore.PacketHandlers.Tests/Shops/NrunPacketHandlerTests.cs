@@ -28,6 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class NrunPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<NrunPacketHandler> Logger = new Mock<ILogger<NrunPacketHandler>>().Object;
         private NrunPacketHandler _nrunPacketHandler;
         private ClientSession _session;
@@ -38,8 +39,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _fakeHandlerMock = new Mock<INrunEventHandler>();
             _fakeHandlerMock.SetupGet(h => h.Runner).Returns(NrunRunnerType.ChangeClass);
             _fakeHandlerMock
@@ -53,16 +54,16 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .Returns(Task.CompletedTask);
             _nrunPacketHandler = new NrunPacketHandler(
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.NpcDialogService,
+                World.LogLanguageLocalizer,
+                World.SessionRegistry,
+                World.NpcDialogService,
                 new[] { _fakeHandlerMock.Object, _npcHandlerMock.Object });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 new Mock<ILogger<RequestNpcPacketHandler>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
+                World.LogLanguageLocalizer,
+                World.SessionRegistry,
                 new Mock<Wolverine.IMessageBus>().Object,
-                TestHelpers.Instance.NpcDialogService);
+                World.NpcDialogService);
         }
 
         [TestMethod]
@@ -233,7 +234,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void PlayerIsRegistered()
         {
-            TestHelpers.Instance.SessionRegistry.Register(new SessionInfo
+            World.SessionRegistry.Register(new SessionInfo
             {
                 ChannelId = _session.Channel.NotNull().Id,
                 SessionId = _session.SessionId,

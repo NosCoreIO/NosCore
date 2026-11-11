@@ -27,6 +27,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
     [TestClass]
     public class PlayerRevivalHandlerTests
     {
+        private TestWorld World;
         private PlayerRevivalHandler _handler;
         private ClientSession _session;
         private ClientSession _killerSession;
@@ -34,9 +35,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _killerSession = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _killerSession = await World.GenerateSessionAsync();
             _handler = new PlayerRevivalHandler(new Mock<ILogger<PlayerRevivalHandler>>().Object);
         }
 

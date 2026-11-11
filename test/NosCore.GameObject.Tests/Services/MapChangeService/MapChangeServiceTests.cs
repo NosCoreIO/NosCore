@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
     [TestClass]
     public class MapChangeServiceTests
     {
+        private TestWorld World;
         private static readonly ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService> Logger = new Mock<ILogger<NosCore.GameObject.Services.MapChangeService.MapChangeService>>().Object;
         private IMapChangeService Service;
         private ClientSession Session;
@@ -40,9 +41,9 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            Session.Character.MapInstance = World.GetBaseMap(0);
 
             var minilandService = new Mock<IMinilandService>();
             MinilandService = minilandService;
@@ -53,21 +54,21 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 new Mock<IExperienceService>().Object,
                 new Mock<IJobExperienceService>().Object,
                 new Mock<IHeroExperienceService>().Object,
-                TestHelpers.Instance.MapInstanceAccessorService,
-                TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer,
+                World.MapInstanceAccessorService,
+                World.Clock,
+                World.LogLanguageLocalizer,
                 minilandService.Object,
                 Logger,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.GameLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
+                World.LogLanguageLocalizer,
+                World.GameLanguageLocalizer,
+                World.SessionRegistry,
                 new Mock<Wolverine.IMessageBus>().Object,
                 new GameObject.Services.ScriptedInstanceService.ScriptedInstanceService(
                     new System.Collections.Generic.List<NosCore.Data.StaticEntities.ScriptedInstanceDto>(),
                     new System.Collections.Generic.List<NosCore.Data.StaticEntities.MapDto>(),
                     new System.Lazy<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>(new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object),
                     new GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry(),
-                    TestHelpers.Instance.Clock,
+                    World.Clock,
                     NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance),
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
@@ -178,7 +179,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         public async Task NosMatesAtHomeStandInTheOwnersMiniland()
         {
             var ownerId = Session.Character.CharacterId;
-            MinilandService.Setup(s => s.GetMinilandFromMapInstanceId(TestHelpers.Instance.MinilandId))
+            MinilandService.Setup(s => s.GetMinilandFromMapInstanceId(World.MinilandId))
                 .Returns(new Miniland { OwnerId = ownerId });
             var home = TestMates.Pet(ownerId, false);
             home.MapX = 4;
@@ -207,8 +208,8 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         [TestMethod]
         public async Task InAGroupThePanelArrivesBeforeTheMembersBars()
         {
-            var other = await TestHelpers.Instance.GenerateSessionAsync();
-            var group = new Group(GroupType.Group, TestHelpers.Instance.SessionGroupFactory);
+            var other = await World.GenerateSessionAsync();
+            var group = new Group(GroupType.Group, World.SessionGroupFactory);
             Session.Character.JoinGroup(group);
             other.Character.JoinGroup(group);
             Session.LastPackets.Clear();
@@ -223,13 +224,13 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
 
         private async Task ChangingToBaseMap1()
         {
-            var map1 = TestHelpers.Instance.GetBaseMap(1);
+            var map1 = World.GetBaseMap(1);
             await Service.ChangeMapInstanceAsync(Session, map1.MapInstanceId, 10, 10);
         }
 
         private async Task ChangingToMinilandInstance()
         {
-            await Service.ChangeMapInstanceAsync(Session, TestHelpers.Instance.MinilandId, 5, 8);
+            await Service.ChangeMapInstanceAsync(Session, World.MinilandId, 5, 8);
         }
 
         private void CharacterMapIdShouldBe_(short expected)
@@ -274,13 +275,13 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
 
         private void Map0ShouldExist()
         {
-            var map0 = TestHelpers.Instance.GetBaseMap(0);
+            var map0 = World.GetBaseMap(0);
             Assert.IsNotNull(map0);
         }
 
         private void Map1ShouldExist()
         {
-            var map1 = TestHelpers.Instance.GetBaseMap(1);
+            var map1 = World.GetBaseMap(1);
             Assert.IsNotNull(map1);
         }
     }

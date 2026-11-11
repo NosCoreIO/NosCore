@@ -27,6 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class ShoppingPacketHandlerTests
     {
+        private TestWorld World;
         private ShoppingPacketHandler Handler;
         private ClientSession Session;
         private Mock<IDignityService> DignityService;
@@ -35,16 +36,16 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             DignityService = new Mock<IDignityService>();
             DignityService.Setup(x => x.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
 
             Handler = new ShoppingPacketHandler(
                 Logger,
                 DignityService.Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService, new Mock<IFamilyShopService>().Object);
+                World.LogLanguageLocalizer,
+                World.SessionRegistry, World.NpcDialogService, new Mock<IFamilyShopService>().Object);
         }
 
         [TestMethod]
@@ -102,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             var npc = Session.WithNpcAt(100, 1, 1);
             var shopItems = new System.Collections.Concurrent.ConcurrentDictionary<int, ShopItem>();
-            shopItems[0] = new ShopItem { Slot = 0, Price = 100, ItemInstance = TestHelpers.Instance.GenerateItemProvider().Create(1012, 1) };
+            shopItems[0] = new ShopItem { Slot = 0, Price = 100, ItemInstance = World.GenerateItemProvider().Create(1012, 1) };
             npc.Shop = new Shop { ShopItems = shopItems };
         }
 
@@ -116,7 +117,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task ShoppingFromUnknownVisualType()

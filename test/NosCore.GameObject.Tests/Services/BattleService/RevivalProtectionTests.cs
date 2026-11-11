@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class RevivalProtectionTests
     {
+        private TestWorld World;
         private PlayerComponentBundle _protected;
         private PlayerComponentBundle _other;
         private BuffService _buffs;
@@ -35,9 +36,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _protected = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
-            _other = (await TestHelpers.Instance.GenerateSessionAsync()).Character;
+            World = await TestWorld.CreateAsync();
+            _protected = (await World.GenerateSessionAsync()).Character;
+            _other = (await World.GenerateSessionAsync()).Character;
             foreach (var player in new[] { _protected, _other })
             {
                 player.MaxHp = 1000;
@@ -47,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var catalog = new Mock<ICardCatalog>();
             catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
-            _buffs = new BuffService(TestHelpers.Instance.Clock, catalog.Object, new Mock<IRandomProvider>().Object);
+            _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object);
 
             var calculator = new Mock<IDamageCalculator>();
             calculator.Setup(c => c.Calculate(It.IsAny<CombatStats>(), It.IsAny<CombatStats>(), It.IsAny<SkillInfo>()))
@@ -130,7 +131,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _buffs.ApplyAsync(_protected, RevivalProtectionCard.Card, RevivalProtectionCard.BCards, _protected);
 
         private void Seconds_Pass(int seconds) =>
-            TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(seconds));
+            World.Clock.Advance(Duration.FromSeconds(seconds));
 
         private async Task TheOtherPlayerHitsTheProtectedOne() =>
             _outcome = await _queue.EnqueueAsync(Request(_other, _protected));

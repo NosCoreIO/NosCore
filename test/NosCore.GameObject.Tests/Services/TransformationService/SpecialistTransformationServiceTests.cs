@@ -36,6 +36,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
     [TestClass]
     public class SpecialistTransformationServiceTests
     {
+        private TestWorld World;
         private IItemGenerationService Item;
         private ClientSession Session;
         private SpecialistTransformationService Service;
@@ -45,13 +46,13 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Item = TestHelpers.Instance.GenerateItemProvider();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            Service = new SpecialistTransformationService(TestHelpers.Instance.Clock,
-                new GameObject.Services.TransformationService.TransformationService(TestHelpers.Instance.Clock, new Mock<IExperienceService>().Object,
+            World = await TestWorld.CreateAsync();
+            Item = World.GenerateItemProvider();
+            Session = await World.GenerateSessionAsync();
+            Service = new SpecialistTransformationService(World.Clock,
+                new GameObject.Services.TransformationService.TransformationService(World.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
-                    new Mock<ILogger<GameObject.Services.TransformationService.TransformationService>>().Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.WorldConfiguration,
+                    new Mock<ILogger<GameObject.Services.TransformationService.TransformationService>>().Object, World.LogLanguageLocalizer, World.WorldConfiguration,
                     new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
                     new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
                     new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object),
@@ -335,13 +336,13 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
         private void CharacterHasSpCooldown()
         {
-            Session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
+            Session.Character.LastSp = World.Clock.GetCurrentInstant();
             Session.Character.SpCooldown = 30;
         }
 
         private void CharacterHasLastSpSet()
         {
-            Session.Character.LastSp = TestHelpers.Instance.Clock.GetCurrentInstant();
+            Session.Character.LastSp = World.Clock.GetCurrentInstant();
         }
 
         private async Task AttemptingToTransform()
@@ -352,7 +353,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private async Task TheTransformationBarHasRun()
         {
             await AttemptingToTransform();
-            TestHelpers.Instance.Clock.AdvanceSeconds(5);
+            World.Clock.AdvanceSeconds(5);
             Session.LastPackets.Clear();
         }
 

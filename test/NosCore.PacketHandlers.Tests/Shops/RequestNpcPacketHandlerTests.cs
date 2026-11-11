@@ -35,6 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
     [TestClass]
     public class RequestNpcPacketHandlerTests
     {
+        private TestWorld World;
         private RequestNpcPacketHandler _requestNpcPacketHandler;
         private ClientSession _session;
         private readonly Mock<Wolverine.IMessageBus> MessageBus = new();
@@ -42,20 +43,20 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
+            World = await TestWorld.CreateAsync();
             // Register ShoppingPacketHandler so the shop-no-dialog branch can dispatch
             // a ShoppingPacket through HandlePacketsAsync and we can observe the n_inv.
             var shoppingHandler = new ShoppingPacketHandler(
                 NullLogger<ShoppingPacketHandler>.Instance,
                 new Mock<IDignityService>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.NpcDialogService, new Mock<IFamilyShopService>().Object);
-            _session = await TestHelpers.Instance.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
+                World.LogLanguageLocalizer,
+                World.SessionRegistry, World.NpcDialogService, new Mock<IFamilyShopService>().Object);
+            _session = await World.GenerateSessionAsync(new List<IPacketHandler> { shoppingHandler });
             _requestNpcPacketHandler = new RequestNpcPacketHandler(
                 NullLogger<RequestNpcPacketHandler>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry,
-                MessageBus.Object, TestHelpers.Instance.NpcDialogService);
+                World.LogLanguageLocalizer,
+                World.SessionRegistry,
+                MessageBus.Object, World.NpcDialogService);
         }
 
         [TestMethod]
@@ -219,7 +220,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 {
                     new() { ShopItemId = 1, ShopId = 1, ItemVNum = 1012, Slot = 0, Type = 0 }
                 },
-                TestHelpers.Instance.GenerateItemProvider());
+                World.GenerateItemProvider());
         }
 
         private void NInvPacketShouldBeSent()

@@ -27,6 +27,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class TeleporterHandlerTests
     {
+        private TestWorld World;
         private const int TeleporterNpcId = 100;
         private const int OtherNpcId = 101;
 
@@ -38,8 +39,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _mapChangeService = new Mock<IMapChangeService>();
             _teleporters = new List<TeleporterDto>
             {

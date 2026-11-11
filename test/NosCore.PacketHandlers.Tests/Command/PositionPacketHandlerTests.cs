@@ -20,14 +20,15 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class PositionPacketHandlerTests
     {
+        private TestWorld World;
         private PositionPacketHandler Handler;
         private ClientSession Session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Handler = new PositionPacketHandler();
         }
 
@@ -53,7 +54,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
             Session.Character.PositionX = 0;
             Session.Character.PositionY = 0;
             Session.LastPackets.Clear();

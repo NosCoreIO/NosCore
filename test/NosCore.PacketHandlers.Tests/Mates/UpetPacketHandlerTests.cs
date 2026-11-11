@@ -30,6 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class UpetPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private MapInstance _map;
         private Mock<IBattleService> _battleService;
@@ -40,17 +41,17 @@ namespace NosCore.PacketHandlers.Tests.Mates
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _map = _session.Character.MapInstance;
             _battleService = new Mock<IBattleService>();
             _battleService.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
                 .ReturnsAsync(true);
             _handler = new UpetPacketHandler(
-                new MateAttackService(_battleService.Object, TestHelpers.Instance.DistanceCalculator, TestHelpers.Instance.Clock),
-                TestHelpers.Instance.SessionRegistry,
+                new MateAttackService(_battleService.Object, World.DistanceCalculator, World.Clock),
+                World.SessionRegistry,
                 new Mock<ILogger<UpetPacketHandler>>().Object,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
 
             _pet = TestMates.Pet(_session.Character.CharacterId);
             _pet.NpcMonster.BasicRange = 1;
@@ -116,7 +117,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private void TheMonsterStandsAt_(short x) => _monster.PositionX = x;
 
         private void TimePasses_Milliseconds(int ms) =>
-            TestHelpers.Instance.Clock.Advance(NodaTime.Duration.FromMilliseconds(ms));
+            World.Clock.Advance(NodaTime.Duration.FromMilliseconds(ms));
 
         private Task ThePetAttacks() => _handler.ExecuteAsync(new UpetPacket
         {
@@ -127,8 +128,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
         private async Task ThePetAttacksAPlayerOnAnotherMap()
         {
-            var other = await TestHelpers.Instance.GenerateSessionAsync();
-            other.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            var other = await World.GenerateSessionAsync();
+            other.Character.MapInstance = World.GetBaseMap(1);
             other.Character.PositionX = 5;
             other.Character.PositionY = 5;
             await _handler.ExecuteAsync(new UpetPacket

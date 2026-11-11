@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SnackHandlerTests
     {
+        private TestWorld World;
         private const short SnackVNum = 2027;
         private ClientSession _session;
         private Mock<ICardCatalog> _cards;
@@ -41,15 +42,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _session.Character.MaxHp = 5000;
             _session.Character.MaxMp = 5000;
             _session.Character.Hp = 1000;
             _session.Character.Mp = 1000;
             _cards = new Mock<ICardCatalog>();
             _cards.Setup(c => c.GetItemBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
-            _handler = new SnackHandler(TestHelpers.Instance.Clock, _cards.Object);
+            _handler = new SnackHandler(World.Clock, _cards.Object);
         }
 
         [TestMethod]

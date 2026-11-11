@@ -23,6 +23,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
     [TestClass]
     public class PutPacketHandlerTests
     {
+        private TestWorld World;
         private IItemGenerationService Item;
         private PutPacketHandler PutPacketHandler;
         private ClientSession Session;
@@ -30,10 +31,10 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Item = TestHelpers.Instance.GenerateItemProvider();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            PutPacketHandler = new PutPacketHandler(TestHelpers.Instance.WorldConfiguration, TestHelpers.Instance.GameLanguageLocalizer);
+            World = await TestWorld.CreateAsync();
+            Item = World.GenerateItemProvider();
+            Session = await World.GenerateSessionAsync();
+            PutPacketHandler = new PutPacketHandler(World.WorldConfiguration, World.GameLanguageLocalizer);
         }
 
         [TestMethod]

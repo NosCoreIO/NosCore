@@ -105,7 +105,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
 
         private void EquipmentInventoryIsFull()
         {
-            for (short i = 0; i < TestHelpers.Instance.WorldConfiguration.Value.BackpackSize; i++)
+            for (short i = 0; i < World.WorldConfiguration.Value.BackpackSize; i++)
             {
                 var item = ItemProvider.Create(1, 1);
                 Session.Character.InventoryService.AddItemToPocket(

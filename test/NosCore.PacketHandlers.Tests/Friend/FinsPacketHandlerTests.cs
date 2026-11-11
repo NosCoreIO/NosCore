@@ -26,7 +26,6 @@ using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
-using NosCore.Tests.Shared.AutoFixture;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
@@ -40,14 +39,14 @@ namespace NosCore.PacketHandlers.Tests.Friend
     [TestClass]
     public class FinsPacketHandlerTests
     {
+        private TestWorld World;
         private static readonly ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry> Logger = new Mock<ILogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>>().Object;
-        private NosCoreFixture Fixture;
-        private readonly Mock<IChannelHub> ChannelHttpClient = TestHelpers.Instance.ChannelHttpClient;
+        private Mock<IChannelHub> ChannelHttpClient => World.ChannelHub;
         private IDao<CharacterRelationDto, Guid> CharacterRelationDao;
-        private readonly Mock<IPubSubHub> ConnectedAccountHttpClient = TestHelpers.Instance.PubSubHub;
+        private Mock<IPubSubHub> ConnectedAccountHttpClient => World.PubSubHub;
         private Mock<IChannelHub> ChannelHub;
         private FinsPacketHandler FinsPacketHandler;
-        private readonly Mock<IFriendHub> FriendHttpClient = TestHelpers.Instance.FriendHttpClient;
+        private Mock<IFriendHub> FriendHttpClient => World.FriendHub;
         private FriendRequestRegistry FriendRequestHolder;
         private ClientSession Session;
         private ClientSession TargetSession;
@@ -55,11 +54,10 @@ namespace NosCore.PacketHandlers.Tests.Friend
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Fixture = new NosCoreFixture();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
-            CharacterRelationDao = TestHelpers.Instance.CharacterRelationDao;
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            TargetSession = await World.GenerateSessionAsync();
+            CharacterRelationDao = World.CharacterRelationDao;
             ChannelHub = new Mock<IChannelHub>();
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>
@@ -86,7 +84,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 ChannelHttpClient.Object,
                 ConnectedAccountHttpClient.Object,
                 new NosCore.GameObject.Services.BroadcastService.SessionRegistry(Logger),
-                TestHelpers.Instance.Clock);
+                World.Clock);
         }
 
         private FriendService CreateFriendService()
@@ -94,11 +92,11 @@ namespace NosCore.PacketHandlers.Tests.Friend
             return new FriendService(
                 new Mock<ILogger<FriendService>>().Object,
                 CharacterRelationDao,
-                TestHelpers.Instance.CharacterDao,
+                World.CharacterDao,
                 FriendRequestHolder,
                 ConnectedAccountHttpClient.Object,
                 ChannelHub.Object,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
         }
 
         [TestMethod]
@@ -195,7 +193,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
 
         private async Task TheTargetBlacklistedSomeoneElseAsync()
         {
-            var someoneElse = await TestHelpers.Instance.GenerateSessionAsync();
+            var someoneElse = await World.GenerateSessionAsync();
             await TheTargetBlacklistsAsync(someoneElse.Character.CharacterId);
         }
 
@@ -221,7 +219,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
             FriendHttpClient.Setup(s => s.AddFriendAsync(It.IsAny<FriendShipRequest>()))
                 .ReturnsAsync(LanguageKey.FRIEND_REQUEST_SENT);
             FinsPacketHandler = new FinsPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                ConnectedAccountHttpClient.Object, TestHelpers.Instance.SessionRegistry, TestHelpers.Instance.Clock);
+                ConnectedAccountHttpClient.Object, World.SessionRegistry, World.Clock);
         }
 
         private Task TheSenderSendsAFriendRequestAsync() =>
@@ -231,7 +229,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 Type = FinsPacketType.Accepted
             }, Session);
 
-        private static void TheCooldownPasses() => TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(6));
+        private void TheCooldownPasses() => World.Clock.Advance(Duration.FromSeconds(6));
 
         private void TheTargetShouldBeAsked_Times(int times) =>
             Assert.AreEqual(times, TargetSession.LastPackets.OfType<Dlgi2Packet>().Count());

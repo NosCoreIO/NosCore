@@ -50,6 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
     [TestClass]
     public class ExchangeTradeFlowTests
     {
+        private TestWorld World;
         private ClientSession Requester;
         private ClientSession Target;
         private readonly List<ISessionDisconnectHandler> TargetDisconnectHandlers = new();
@@ -63,10 +64,10 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Requester = await TestHelpers.Instance.GenerateSessionAsync();
-            Target = await TestHelpers.Instance.GenerateSessionAsync(disconnectHandlers: TargetDisconnectHandlers);
-            Requester.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            World = await TestWorld.CreateAsync();
+            Requester = await World.GenerateSessionAsync();
+            Target = await World.GenerateSessionAsync(disconnectHandlers: TargetDisconnectHandlers);
+            Requester.Character.MapInstance = World.GetBaseMap(1);
             Target.Character.MapInstance = Requester.Character.MapInstance;
             Requester.Character.Gold = 0;
             Target.Character.Gold = 0;
@@ -89,13 +90,13 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     MaxBankGoldAmount = 100_000_000_000
                 }),
                 NullLogger<ExchangeService>.Instance, new ExchangeRequestRegistry(),
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry, Clock);
+                World.LogLanguageLocalizer, World.SessionRegistry, Clock);
 
             RequestHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
-                Blacklist.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry,
+                Blacklist.Object, World.LogLanguageLocalizer, World.SessionRegistry,
                 CreateTransferService());
             ListHandler = new ExcListPacketHandler(Exchange, NullLogger<ExcListPacketHandler>.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry);
+                World.LogLanguageLocalizer, World.SessionRegistry);
 
             ItemProvider = new ItemGenerationService(new List<ItemDto>
             {
@@ -105,12 +106,12 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     Type = NoscorePocketType.Equipment, VNum = 1, IsTradable = true, ItemType = ItemType.Armor,
                     EquipmentSlot = EquipmentType.Armor
                 }
-            }, NullLoggerFactory.Instance, TestHelpers.Instance.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
         }
 
-        private static TransferService CreateTransferService()
+        private TransferService CreateTransferService()
         {
-            var context = TestHelpers.Instance.DbContextBuilder;
+            var context = World.DbContextBuilder;
             return new TransferService(
                 Options.Create(new WorldConfiguration
                 {
@@ -121,8 +122,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     MaxGoldAmount = 1_000_000_000,
                     MaxBankGoldAmount = 100_000_000_000
                 }),
-                NullLogger<TransferService>.Instance, TestHelpers.Instance.LogLanguageLocalizer,
-                new DaoTransactionScope(context), TestHelpers.Instance.CharacterDao, TestHelpers.Instance.AccountDao,
+                NullLogger<TransferService>.Instance, World.LogLanguageLocalizer,
+                new DaoTransactionScope(context), World.CharacterDao, World.AccountDao,
                 new Dao<DbItemInstance, IItemInstanceDto?, Guid>(NullLogger<Dao<DbItemInstance, IItemInstanceDto?, Guid>>.Instance, context),
                 new Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>(NullLogger<Dao<DbInventoryItemInstance, InventoryItemInstanceDto, Guid>>.Instance, context),
                 new Dao<DbEquipmentOption, EquipmentOptionDto, Guid>(NullLogger<Dao<DbEquipmentOption, EquipmentOptionDto, Guid>>.Instance, context));
@@ -447,7 +448,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void TargetSessionEnds()
         {
-            TargetDisconnectHandlers.Add(new ExchangeDisconnectHandler(Exchange, TestHelpers.Instance.SessionRegistry));
+            TargetDisconnectHandlers.Add(new ExchangeDisconnectHandler(Exchange, World.SessionRegistry));
             _disconnect = Target.OnDisconnectedAsync();
         }
 
@@ -458,7 +459,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     It.IsAny<PlayerComponentBundle>(), It.IsAny<TransferOffer>()))
                 .Returns(_heldTransfer.Task);
             _heldHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
-                Blacklist.Object, TestHelpers.Instance.LogLanguageLocalizer, TestHelpers.Instance.SessionRegistry,
+                Blacklist.Object, World.LogLanguageLocalizer, World.SessionRegistry,
                 transfer.Object);
         }
 
@@ -479,7 +480,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Assert.IsTrue(Requester.LastPackets.OfType<ExcClosePacket>().Any(p => p.Type == ExchangeResultType.Success));
 
         private void TargetDisconnects() =>
-            _disconnect = new ExchangeDisconnectHandler(Exchange, TestHelpers.Instance.SessionRegistry).HandleDisconnectAsync(Target);
+            _disconnect = new ExchangeDisconnectHandler(Exchange, World.SessionRegistry).HandleDisconnectAsync(Target);
 
         private void TheDisconnectIsStillWaiting()
         {

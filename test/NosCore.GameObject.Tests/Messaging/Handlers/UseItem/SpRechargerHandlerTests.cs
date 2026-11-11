@@ -32,6 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SpRechargerHandlerTests
     {
+        private TestWorld World;
         private const short RechargerVNum = 5500;
         private const int MaxAdditionalSp = 100_000;
         private ClientSession _session;
@@ -41,10 +42,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            TestHelpers.Instance.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
-            _handler = new SpRechargerHandler(TestHelpers.Instance.WorldConfiguration);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            World.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
+            _handler = new SpRechargerHandler(World.WorldConfiguration);
         }
 
         [TestMethod]

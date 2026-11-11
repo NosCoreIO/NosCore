@@ -24,6 +24,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
     [TestClass]
     public class FamilyMessageHandlerTests
     {
+        private TestWorld World;
         private ClientSession _member;
         private ClientSession _outsider;
         private Mock<ISessionRegistry> _sessionRegistry;
@@ -31,9 +32,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _member = await TestHelpers.Instance.GenerateSessionAsync();
-            _outsider = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _member = await World.GenerateSessionAsync();
+            _outsider = await World.GenerateSessionAsync();
             _member.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = 42, Name = "Testers" };
             _outsider.Character.Family = null;
             var sessions = new[] { _member, _outsider };
@@ -87,13 +88,13 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestMethod]
         public async Task FamilyShoutReachesOnlyTheFamilyInItsLanguage()
         {
-            await new FamilyShoutDataMessageChannelCommunicationMessageHandler(_sessionRegistry.Object, TestHelpers.Instance.GameLanguageLocalizer)
+            await new FamilyShoutDataMessageChannelCommunicationMessageHandler(_sessionRegistry.Object, World.GameLanguageLocalizer)
                 .Handle(new FamilyShoutData { FamilyId = 42, Message = "gather at the farm" });
 
 #pragma warning disable CS0618
             var shout = _member.LastPackets.OfType<MsgPacket>().Single();
 #pragma warning restore CS0618
-            var expected = string.Format(TestHelpers.Instance.GameLanguageLocalizer[LanguageKey.FAMILY_SHOUT, _member.Account.Language], "gather at the farm");
+            var expected = string.Format(World.GameLanguageLocalizer[LanguageKey.FAMILY_SHOUT, _member.Account.Language], "gather at the farm");
             Assert.AreEqual(expected, shout.Message);
             Assert.AreEqual(0, _outsider.LastPackets.Count);
         }

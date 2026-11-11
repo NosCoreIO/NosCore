@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class MonsterAiTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private MapInstance _map;
         private Mock<IBattleService> _battle;
@@ -43,24 +44,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _map = World.GetBaseMap(0);
             _session.Character.MapInstance = _map;
             _map.Map = TestMap();
 
             _battle = new Mock<IBattleService>();
             AcceptSwings(true);
-            _aggro = new AggroService(TestHelpers.Instance.Clock);
+            _aggro = new AggroService(World.Clock);
             _ai = new MonsterAi(
                 _battle.Object,
                 _aggro,
-                new GameObject.Services.PathfindingService.PathfindingService(TestHelpers.Instance.DistanceCalculator),
-                TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator,
+                new GameObject.Services.PathfindingService.PathfindingService(World.DistanceCalculator),
+                World.SessionRegistry,
+                World.DistanceCalculator,
                 new Mock<INpcCombatCatalog>().Object,
                 new Mock<IRandomProvider>().Object,
-                TestHelpers.Instance.Clock,
+                World.Clock,
                 new Dictionary<short, SkillDto>(),
                 NullLogger<MonsterAi>.Instance);
         }
@@ -147,7 +148,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _ai.TickAsync(monster);
             SwingsAtThePlayer(Times.Once());
 
-            TestHelpers.Instance.Clock.Advance(Duration.FromMilliseconds(1000));
+            World.Clock.Advance(Duration.FromMilliseconds(1000));
             await _ai.TickAsync(monster);
             SwingsAtThePlayer(Times.Exactly(2));
         }
@@ -223,9 +224,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 });
             var pathfinding = new Mock<IPathfindingService>();
             pathfinding.Setup(p => p.ForMap(It.IsAny<GameObject.Map.Map>())).Returns(pathfinder.Object);
-            var ai = new MonsterAi(_battle.Object, _aggro, pathfinding.Object, TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.DistanceCalculator, new Mock<INpcCombatCatalog>().Object,
-                new Mock<IRandomProvider>().Object, TestHelpers.Instance.Clock, new Dictionary<short, SkillDto>(),
+            var ai = new MonsterAi(_battle.Object, _aggro, pathfinding.Object, World.SessionRegistry,
+                World.DistanceCalculator, new Mock<INpcCombatCatalog>().Object,
+                new Mock<IRandomProvider>().Object, World.Clock, new Dictionary<short, SkillDto>(),
                 NullLogger<MonsterAi>.Instance);
             var monster = SpawnMonster(4, 1);
             PlacePlayer(4, 5);
@@ -237,7 +238,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(1, searches);
 
-            TestHelpers.Instance.Clock.Advance(Duration.FromSeconds(3));
+            World.Clock.Advance(Duration.FromSeconds(3));
             await ai.TickAsync(monster);
 
             Assert.AreEqual(2, searches);

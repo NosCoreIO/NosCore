@@ -25,13 +25,14 @@ namespace NosCore.PacketHandlers.Tests.Game
     [TestClass]
     public class PetWindowPacketHandlerTests
     {
+        private TestWorld World;
         private ClientSession _session;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _session.LastPackets.Clear();
         }
 

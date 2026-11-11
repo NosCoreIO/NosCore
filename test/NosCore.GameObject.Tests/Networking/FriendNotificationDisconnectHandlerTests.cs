@@ -24,11 +24,12 @@ namespace NosCore.GameObject.Tests.Networking
     [TestClass]
     public class FriendNotificationDisconnectHandlerTests
     {
+        private TestWorld World;
         [TestMethod]
         public async Task FriendsAreToldWhoWentOfflineByName()
         {
-            await TestHelpers.ResetAsync();
-            var session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            var session = await World.GenerateSessionAsync();
             var characterId = session.Character.CharacterId;
             var friendHub = new Mock<IFriendHub>();
             friendHub.Setup(s => s.GetFriendsAsync(characterId)).ReturnsAsync(new List<CharacterRelationStatus>

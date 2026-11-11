@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     [TestClass]
     public class SealedTarotCardHandlerTests
     {
+        private TestWorld World;
         private const short TarotVNum = 1810;
         private const short RewardVNum = 1013;
         private ClientSession _session;
@@ -40,9 +41,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
-            _itemProvider = TestHelpers.Instance.GenerateItemProvider();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
+            _itemProvider = World.GenerateItemProvider();
             _handler = new SealedTarotCardHandler(_itemProvider);
         }
 

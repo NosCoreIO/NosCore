@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await base.SetupAsync();
             _operation = new CostumeFusionOperation(new Mock<IRandomNumberSource>().Object,
-                TestHelpers.Instance.GameLanguageLocalizer);
+                World.GameLanguageLocalizer);
             CharacterHasGold(1_500_000);
         }
 
@@ -203,7 +203,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             var costume = new WearableInstance(new Item
             {
                 VNum = vnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion, EquipmentSlot = slot,
-            }, NullLogger<WearableInstance>.Instance, TestHelpers.Instance.LogLanguageLocalizer)
+            }, NullLogger<WearableInstance>.Instance, World.LogLanguageLocalizer)
             {
                 Amount = 1,
                 BoundCharacterId = Session.Character.CharacterId,
@@ -257,7 +257,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private Task UsingTheFusionItem()
         {
             var item = Session.Character.InventoryService.LoadBySlotAndType(FusionSlot, NoscorePocketType.Main).NotNull();
-            return new UpgradeWindowItemHandler(new IUpgradeOperation[] { _operation }, TestHelpers.Instance.NpcDialogService)
+            return new UpgradeWindowItemHandler(new IUpgradeOperation[] { _operation }, World.NpcDialogService)
                 .Handle(new ItemUsedEvent(Session, item, new UseItemPacket
                 {
                     VisualType = VisualType.Player,
@@ -295,6 +295,6 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             Assert.AreEqual(window, GetLastPacket<WopenPacket>().NotNull().Type);
 
         private void TheItemWindowShouldBeOpen() =>
-            Assert.IsTrue(TestHelpers.Instance.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.UpgradeScroll));
+            Assert.IsTrue(World.NpcDialogService.IsOpen(Session.Character, NpcDialogWindow.UpgradeScroll));
     }
 }

@@ -24,6 +24,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
     [TestClass]
     public class FamilyExtensionServiceTests
     {
+        private TestWorld World;
         private const long HeadId = 1;
         private const long DeputyId = 2;
         private const short Warehouse = 9694;
@@ -36,8 +37,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            var context = TestHelpers.Instance.DbContextBuilder;
+            World = await TestWorld.CreateAsync();
+            var context = World.DbContextBuilder;
             _familyDao = new Dao<FamilyEntity, FamilyDto, long>(NullLogger<Dao<FamilyEntity, FamilyDto, long>>.Instance, context);
             var familyCharacterDao = new Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>(
                 NullLogger<Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>>.Instance, context);

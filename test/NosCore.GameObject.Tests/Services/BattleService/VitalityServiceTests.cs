@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class VitalityServiceTests
     {
+        private TestWorld World;
         private const short PlainArmourVnum = 910;
         private const short HeavyArmourVnum = 911;
         private const short BlessedHatVnum = 912;
@@ -76,10 +77,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
-                TestHelpers.Instance.LogLanguageLocalizer);
+                World.LogLanguageLocalizer);
 
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());

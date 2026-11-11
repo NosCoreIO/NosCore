@@ -19,14 +19,15 @@ namespace NosCore.GameObject.Tests.Services.MateService
     [TestClass]
     public class MateSpawnTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private GameObject.Services.MateService.Mate _pet;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _pet = TestMates.Pet(_session.Character.CharacterId);
             _session.Character.Mates[_pet.MateTransportId] = _pet;
             _session.Character.MapInstance.LastPackets.Clear();

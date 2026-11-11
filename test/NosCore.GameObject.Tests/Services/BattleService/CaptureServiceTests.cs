@@ -39,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class CaptureServiceTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private MonsterComponentBundle _monster;
         private Mock<IRandomProvider> _random;
@@ -54,8 +55,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             var map = _session.Character.MapInstance;
             var name = new I18NString();
             name[RegionType.EN] = "Chicken";
@@ -68,11 +69,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _random = new Mock<IRandomProvider>();
             _random.Setup(r => r.Next(0, 100)).Returns(0);
-            _mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, new List<NpcMonsterDto> { creature },
+            _mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto> { creature },
                 new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
-            _service = new CaptureService(TestHelpers.Instance.MateDao, _mateService,
-                new Mock<Wolverine.IMessageBus>().Object, TestHelpers.Instance.Clock, _random.Object,
-                TestHelpers.Instance.DistanceCalculator);
+            _service = new CaptureService(World.MateDao, _mateService,
+                new Mock<Wolverine.IMessageBus>().Object, World.Clock, _random.Object,
+                World.DistanceCalculator);
 
             map.LastPackets.Clear();
             _session.LastPackets.Clear();
@@ -164,10 +165,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                         await service.NotNull().TryCaptureAsync(_session.Character, _monster, Capture);
                     }
 
-                    return await TestHelpers.Instance.MateDao.TryInsertOrUpdateAsync(row);
+                    return await World.MateDao.TryInsertOrUpdateAsync(row);
                 });
             service = new CaptureService(dao.Object, _mateService, new Mock<Wolverine.IMessageBus>().Object,
-                TestHelpers.Instance.Clock, _random.Object, TestHelpers.Instance.DistanceCalculator);
+                World.Clock, _random.Object, World.DistanceCalculator);
 
             await service.TryCaptureAsync(_session.Character, _monster, Capture);
 
@@ -226,7 +227,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task CapturingSomethingThatIsNotAMonsterReleasesTheClient()
         {
-            var other = await TestHelpers.Instance.GenerateSessionAsync();
+            var other = await World.GenerateSessionAsync();
 
             await _service.TryCaptureAsync(_session.Character, other.Character, Capture);
 

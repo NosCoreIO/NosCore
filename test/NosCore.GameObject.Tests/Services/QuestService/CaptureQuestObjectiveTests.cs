@@ -39,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
     [TestClass]
     public class CaptureQuestObjectiveTests
     {
+        private TestWorld World;
         private const short ChickenVNum = 333;
         private const short DanderVNum = 24;
 
@@ -62,18 +63,18 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             Session.Character.Quests = new ConcurrentDictionary<Guid, CharacterQuest>();
 
             var questService = new GameObject.Services.QuestService.QuestService(
                 new List<ScriptDto>(),
-                TestHelpers.Instance.WorldConfiguration,
+                World.WorldConfiguration,
                 new List<QuestDto>(),
                 new List<QuestObjectiveDto>(),
                 NullLogger<GameObject.Services.QuestService.QuestService>.Instance,
-                TestHelpers.Instance.Clock,
-                TestHelpers.Instance.LogLanguageLocalizer,
+                World.Clock,
+                World.LogLanguageLocalizer,
                 new IQuestTypeHandler[] { new CaptureQuestHandler(), new CaptureWithoutGettingTheMonsterQuestHandler() },
                 new Mock<Wolverine.IMessageBus>().Object,
                 new List<QuestRewardDto>(),
@@ -85,10 +86,10 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             var random = new Mock<IRandomProvider>();
             random.Setup(r => r.Next(0, 100)).Returns(0);
-            var mateService = new MateServiceImpl(TestHelpers.Instance.MateDao, Creatures.Values.ToList(),
+            var mateService = new MateServiceImpl(World.MateDao, Creatures.Values.ToList(),
                 new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
-            Captures = new CaptureService(TestHelpers.Instance.MateDao, mateService, Bus.Object,
-                TestHelpers.Instance.Clock, random.Object, TestHelpers.Instance.DistanceCalculator);
+            Captures = new CaptureService(World.MateDao, mateService, Bus.Object,
+                World.Clock, random.Object, World.DistanceCalculator);
         }
 
         [TestMethod]

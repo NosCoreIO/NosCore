@@ -32,6 +32,7 @@ namespace NosCore.WebApi.Tests.ApiTests
     [TestClass]
     public class AuthControllerTests
     {
+        private TestWorld World;
         private AuthController Controller;
         private ClientSession Session;
         private Mock<ILogger<AuthController>> Logger;
@@ -41,14 +42,14 @@ namespace NosCore.WebApi.Tests.ApiTests
         [TestInitialize]
         public async Task Setup()
         {
+            World = await TestWorld.CreateAsync();
             AuthCodeService = new AuthCodeService(NodaTime.SystemClock.Instance);
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            Session = await World.GenerateSessionAsync();
             Logger = new Mock<ILogger<AuthController>>();
             Controller = new AuthController(Options.Create(new WebApiConfiguration()
             {
                 Password = "123"
-            }), TestHelpers.Instance.AccountDao, Logger.Object, new Sha512Hasher(), TestHelpers.Instance.LogLanguageLocalizer,
+            }), World.AccountDao, Logger.Object, new Sha512Hasher(), World.LogLanguageLocalizer,
                new AuthHub(AuthCodeService, new NosCore.GameObject.InterChannelCommunication.MasterClientList()));
         }
 
@@ -78,7 +79,7 @@ namespace NosCore.WebApi.Tests.ApiTests
                 x => x.Log(
                     LogLevel.Information,
                     It.IsAny<EventId>(),
-                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.NotNull().ToString(), StringComparison.InvariantCultureIgnoreCase)),
+                    It.Is<It.IsAnyType>((o, t) => string.Equals(string.Format(World.LogLanguageLocalizer[LogLanguageKey.AUTH_API_SUCCESS], Session.Account.Name, It.IsAny<Guid>(), "en-GB"), o.NotNull().ToString(), StringComparison.InvariantCultureIgnoreCase)),
                     It.IsAny<Exception>(),
                     It.IsAny<Func<It.IsAnyType, Exception?, string>>()),
                 Times.Once);
@@ -106,7 +107,7 @@ namespace NosCore.WebApi.Tests.ApiTests
 
         private void ShouldReturnAuthIncorrectError()
         {
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(World.LogLanguageLocalizer[LogLanguageKey.AUTH_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result));
         }
 
         [TestMethod]
@@ -145,7 +146,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         {
             Tfa = new TwoFactorAuth();
             Session.Account.MfaSecret = Tfa.CreateSecret();
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account);
         }
 
         private async Task UserConnectsWithInvalidMfaCode()
@@ -162,7 +163,7 @@ namespace NosCore.WebApi.Tests.ApiTests
 
         private void ShouldReturnMfaIncorrectError()
         {
-            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(TestHelpers.Instance.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result));
+            Assert.AreEqual(JsonSerializer.Serialize(new BadRequestObjectResult(World.LogLanguageLocalizer[LogLanguageKey.MFA_INCORRECT])), JsonSerializer.Serialize((BadRequestObjectResult)Result));
         }
 
         [TestMethod]
@@ -319,7 +320,7 @@ namespace NosCore.WebApi.Tests.ApiTests
         private async Task UserHasMfaSecret()
         {
             Session.Account.MfaSecret = "12345";
-            await TestHelpers.Instance.AccountDao.TryInsertOrUpdateAsync(Session.Account);
+            await World.AccountDao.TryInsertOrUpdateAsync(Session.Account);
         }
 
         private async Task CheckingIfMfaEnabled()

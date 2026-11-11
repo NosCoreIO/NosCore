@@ -19,6 +19,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
     [TestClass]
     public class CharNewJobPacketHandlerTests
     {
+        private TestWorld World;
         private CharNewJobPacketHandler CharNewJobPacketHandler;
         private ClientSession Session;
         private CharacterDto ExistingCharacter;
@@ -27,11 +28,11 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
             ExistingCharacter = Session.Character.CharacterDto;
             Session.ClearPlayerEntity();
-            CharNewJobPacketHandler = new CharNewJobPacketHandler(TestHelpers.Instance.CharacterDao, TestHelpers.Instance.WorldConfiguration);
+            CharNewJobPacketHandler = new CharNewJobPacketHandler(World.CharacterDao, World.WorldConfiguration);
         }
 
         [TestMethod]
@@ -66,14 +67,14 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         private async Task CharacterIsLevel_Async(int level)
         {
             ExistingCharacter.Level = (byte)level;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
         }
 
         private async Task CharacterIsAlreadyMartialArtistAsync()
         {
             ExistingCharacter.Class = CharacterClassType.MartialArtist;
             ExistingCharacter.Level = 80;
-            await TestHelpers.Instance.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
+            await World.CharacterDao.TryInsertOrUpdateAsync(ExistingCharacter);
         }
 
         private async Task CreatingMartialArtistAsync()
@@ -87,12 +88,12 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
         private async Task CharacterShouldNotExistAsync()
         {
-            Assert.IsNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
+            Assert.IsNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
         }
 
         private async Task CharacterShouldExistAsync()
         {
-            Assert.IsNotNull(await TestHelpers.Instance.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
+            Assert.IsNotNull(await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName));
         }
     }
 }

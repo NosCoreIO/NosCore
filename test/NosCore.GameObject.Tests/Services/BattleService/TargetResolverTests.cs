@@ -25,6 +25,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     [TestClass]
     public class TargetResolverTests
     {
+        private TestWorld World;
         private ClientSession _caster;
         private ClientSession _bystander;
         private MapInstance _map;
@@ -33,17 +34,17 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _caster = await TestHelpers.Instance.GenerateSessionAsync();
-            _bystander = await TestHelpers.Instance.GenerateSessionAsync();
-            _map = TestHelpers.Instance.GetBaseMap(0);
+            World = await TestWorld.CreateAsync();
+            _caster = await World.GenerateSessionAsync();
+            _bystander = await World.GenerateSessionAsync();
+            _map = World.GetBaseMap(0);
             _caster.Character.MapInstance = _map;
             _bystander.Character.MapInstance = _map;
             _caster.Character.PositionX = 0;
             _caster.Character.PositionY = 0;
             _bystander.Character.PositionX = 5;
             _bystander.Character.PositionY = 5;
-            _resolver = new TargetResolver(TestHelpers.Instance.SessionRegistry);
+            _resolver = new TargetResolver(World.SessionRegistry);
         }
 
         private static SkillInfo AreaSkill() => new(

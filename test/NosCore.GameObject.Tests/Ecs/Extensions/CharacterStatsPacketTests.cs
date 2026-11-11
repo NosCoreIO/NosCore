@@ -21,14 +21,15 @@ namespace NosCore.GameObject.Tests.Ecs.Extensions
     [TestClass]
     public class CharacterStatsPacketTests
     {
+        private TestWorld World;
         private ClientSession _session;
         private Mock<IBattleStatsProvider> _stats;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            _session = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            _session = await World.GenerateSessionAsync();
             _stats = new Mock<IBattleStatsProvider>();
         }
 

@@ -21,6 +21,7 @@ namespace NosCore.PacketHandlers.Tests.Command
     [TestClass]
     public class TeleportPacketHandlerTests
     {
+        private TestWorld World;
         private TeleportPacketHandler Handler;
         private ClientSession Session;
         private ClientSession TargetSession;
@@ -30,16 +31,16 @@ namespace NosCore.PacketHandlers.Tests.Command
         [TestInitialize]
         public async Task SetupAsync()
         {
-            await TestHelpers.ResetAsync();
-            Session = await TestHelpers.Instance.GenerateSessionAsync();
-            TargetSession = await TestHelpers.Instance.GenerateSessionAsync();
+            World = await TestWorld.CreateAsync();
+            Session = await World.GenerateSessionAsync();
+            TargetSession = await World.GenerateSessionAsync();
             MapChangeService = new Mock<IMapChangeService>();
 
             Handler = new TeleportPacketHandler(
                 Logger,
                 MapChangeService.Object,
-                TestHelpers.Instance.GameLanguageLocalizer,
-                TestHelpers.Instance.SessionRegistry);
+                World.GameLanguageLocalizer,
+                World.SessionRegistry);
         }
 
         [TestMethod]
@@ -97,7 +98,7 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void TargetIsOnlineAtMapXY_(short x, short y)
         {
-            TargetSession.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            TargetSession.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapX = x;
             TargetSession.Character.MapY = y;
         }
@@ -138,12 +139,12 @@ namespace NosCore.PacketHandlers.Tests.Command
 
         private void CharacterIsOnMap()
         {
-            Session.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            Session.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private void TargetIsOnline()
         {
-            TargetSession.Character.MapInstance = TestHelpers.Instance.GetBaseMap(1);
+            TargetSession.Character.MapInstance = World.GetBaseMap(1);
         }
 
         private async Task TeleportingToPlayer()
