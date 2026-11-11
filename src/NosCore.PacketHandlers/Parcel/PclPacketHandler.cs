@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Parcel
 
             if ((getGiftPacket.Type == 4) && (mail.ItemInstance != null))
             {
-                var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == mail.ItemInstance.Id);
+                var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == mail.ItemInstance.Id);
                 if (itemInstance == null)
                 {
                     return;

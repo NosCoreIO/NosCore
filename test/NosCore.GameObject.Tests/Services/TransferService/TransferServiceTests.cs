@@ -272,13 +272,13 @@ namespace NosCore.GameObject.Tests.Services.TransferService
 
             var stackId = _firstStack!.ItemInstanceId;
             var armorId = _armor!.Id;
-            var remaining = await _itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == stackId);
+            var remaining = await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == stackId);
             Assert.AreEqual((short)6, remaining!.Amount);
 
-            Assert.IsNull(await _itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == armorId), "the given armor row is gone");
+            Assert.IsNull(await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == armorId), "the given armor row is gone");
             var receivedArmor = _first.Character.InventoryService.Values.Single(i => i.ItemInstance.ItemVNum == Armor.VNum);
             var receivedId = receivedArmor.ItemInstanceId;
-            Assert.IsNotNull(await _itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == receivedId));
+            Assert.IsNotNull(await _itemInstanceDao.FirstOrDefaultAsync(i => i.Id == receivedId));
             var options = _optionDao.Where(o => o.WearableInstanceId == receivedId)!.ToList();
             Assert.AreEqual(1, options.Count);
             Assert.AreEqual(3, options[0].Value);

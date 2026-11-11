@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                         continue;
                     }
 
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
                     if (itemInstance != null)
                     {
                         list.Add(new WarehouseLink
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 var warehouseItem = await warehouseItemDao.FirstOrDefaultAsync(wi => wi.Id == id.Value);
                 if (warehouseItem != null)
                 {
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
                     if (itemInstance != null)
                     {
                         list.Add(new WarehouseLink
@@ -128,7 +128,7 @@ namespace NosCore.GameObject.Services.WarehouseService
 
             foreach (var warehouseItem in warehouseItems)
             {
-                var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
+                var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
                 if (itemInstance != null)
                 {
                     result.Add(new WarehouseItem
@@ -221,7 +221,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            var item = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == itemInstance.Id);
+            var item = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == itemInstance.Id);
             if (item == null)
             {
                 item = itemInstance;
@@ -327,7 +327,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 return false;
             }
 
-            var instance = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == warehouseItem.ItemInstanceId);
+            var instance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
             if (instance == null || amount > instance.Amount)
             {
                 return false;
@@ -349,7 +349,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             var existing = await GetItemBySlotAsync(ownerId, warehouseType, slot);
             if (existing?.ItemInstance != null && existing.ItemInstance.ItemVNum == itemInstance.ItemVNum)
             {
-                var stored = await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == existing.ItemInstanceId);
+                var stored = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == existing.ItemInstanceId);
                 if (stored != null)
                 {
                     stored.Amount += itemInstance.Amount;
@@ -382,7 +382,7 @@ namespace NosCore.GameObject.Services.WarehouseService
             }
 
             var source = await GetItemBySlotAsync(ownerId, warehouseType, sourceSlot);
-            var instance = source == null ? null : await itemInstanceDao.FirstOrDefaultAsync(i => i!.Id == source.ItemInstanceId);
+            var instance = source == null ? null : await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == source.ItemInstanceId);
             if (instance == null || split.Amount <= 0 || split.Amount >= instance.Amount || split.ItemVNum != instance.ItemVNum)
             {
                 return false;

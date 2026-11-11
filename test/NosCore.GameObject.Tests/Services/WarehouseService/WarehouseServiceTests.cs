@@ -245,7 +245,7 @@ namespace NosCore.GameObject.Tests.Services.WarehouseService
                 return null;
             }
 
-            return (await ItemInstanceDao.FirstOrDefaultAsync(i => i!.Id == item.ItemInstanceId))?.Amount;
+            return (await ItemInstanceDao.FirstOrDefaultAsync(i => i.Id == item.ItemInstanceId))?.Amount;
         }
 
         private bool DepositResult;

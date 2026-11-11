@@ -221,7 +221,7 @@ namespace NosCore.GameObject.Services.FamilyService
             var items = new List<(Guid, short, IItemInstance)>();
             foreach (var link in await warehouseHub.GetWarehouseItems(null, familyId, WarehouseType.FamilyWareHouse, null))
             {
-                var instance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == link.ItemInstance!.Id);
+                var instance = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == link.ItemInstance.Id);
                 if (instance != null)
                 {
                     items.Add((link.WarehouseItemId, link.Slot, itemProvider.Convert(instance)));

@@ -127,7 +127,7 @@ namespace NosCore.GameObject.Services.BazaarService
                 return LanguageKey.LIMIT_EXCEEDED;
             }
 
-            var item = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == itemInstanceId);
+            var item = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == itemInstanceId);
             if ((item == null) || (item.Amount != amount) || (amount <= 0) || (price < 0))
             {
                 throw new ArgumentException();

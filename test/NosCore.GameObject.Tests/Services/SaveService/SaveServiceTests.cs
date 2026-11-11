@@ -259,7 +259,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private async Task TheSharedInstanceShouldStillExist()
         {
             var id = _sharedInstanceId;
-            Assert.IsNotNull(await ItemInstanceDao.FirstOrDefaultAsync(s => s!.Id == id));
+            Assert.IsNotNull(await ItemInstanceDao.FirstOrDefaultAsync(s => s.Id == id));
         }
 
         [TestMethod]

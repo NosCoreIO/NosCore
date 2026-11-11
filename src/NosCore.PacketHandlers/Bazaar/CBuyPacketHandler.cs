@@ -73,7 +73,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         // listing only holds what is left, or nothing at all. The copy is read from the
                         // database because the listing crossed the bus as the base item type.
                         var listedId = bz.ItemInstance.Id;
-                        var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == listedId);
+                        var listed = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == listedId);
                         if (listed == null)
                         {
                             await clientSession.SendPacketAsync(new ModaliPacket

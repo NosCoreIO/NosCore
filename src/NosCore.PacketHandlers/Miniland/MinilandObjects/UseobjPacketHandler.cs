@@ -92,7 +92,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 var warehouseItems = new List<(short Slot, IItemInstance Item)>();
                 foreach (var warehouselink in links)
                 {
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s!.Id == warehouselink.ItemInstance!.Id);
+                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == warehouselink.ItemInstance.Id);
                     if (itemInstance != null)
                     {
                         warehouseItems.Add((warehouselink.Slot, itemProvider.Convert(itemInstance)));

@@ -425,7 +425,7 @@ namespace NosCore.GameObject.Tests
         private async Task TheListedInstanceShouldBeGone()
         {
             var id = InstanceId;
-            Assert.IsNull(await Master.ItemInstanceDao.FirstOrDefaultAsync(s => s!.Id == id));
+            Assert.IsNull(await Master.ItemInstanceDao.FirstOrDefaultAsync(s => s.Id == id));
         }
 
         private void TheBuyShouldBeAccepted() => Assert.IsTrue(LastBuy);
