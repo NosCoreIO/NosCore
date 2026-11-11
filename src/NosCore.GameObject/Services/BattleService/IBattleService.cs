@@ -20,6 +20,10 @@ namespace NosCore.GameObject.Services.BattleService
         // nothing was dispatched, so callers only spend mana and cooldown on true.
         Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments);
 
+        // A skill cast at a map cell: hits everyone the origin may attack within the skill's
+        // target range of that cell. A cast that lands on nobody is still a cast.
+        Task<bool> HitArea(IAliveEntity origin, short mapX, short mapY, HitArguments arguments);
+
         // Drain the pending skill-cooldown-reset table for characters on this map
         // and emit SkillResetPacket for any whose ReadyAt has elapsed. Called once
         // per map per 400ms life tick from MapInstance.

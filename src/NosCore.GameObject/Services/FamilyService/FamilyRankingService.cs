@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Services.FamilyService
             return type switch
             {
                 FamilyRankingType.Experience => Rank(families, s => (s.FamilyLevel, s.FamilyExperience), s => s.FamilyExperience),
-                FamilyRankingType.Reputation => RankByReputation(families),
+                FamilyRankingType.CurrentDemons => RankByReputation(families),
                 _ => new List<FamilyRankingEntry>()
             };
         }

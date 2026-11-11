@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -17,4 +18,8 @@ namespace NosCore.GameObject.Services.BattleService;
 public interface ITargetResolver
 {
     IReadOnlyList<IAliveEntity> Resolve(IAliveEntity attacker, IAliveEntity primaryTarget, SkillInfo skill);
+
+    // Everyone the attacker may hit within the skill's target range of a map cell.
+    IReadOnlyList<IAliveEntity> ResolveArea(IAliveEntity attacker, MapInstance mapInstance, short x, short y,
+        SkillInfo skill);
 }

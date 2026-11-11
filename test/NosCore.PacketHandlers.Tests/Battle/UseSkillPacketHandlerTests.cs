@@ -52,8 +52,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 TestHelpers.Instance.LogLanguageLocalizer,
                 BattleService.Object,
                 TestHelpers.Instance.SessionRegistry,
-                TestHelpers.Instance.Clock,
-                Gear.Object,
+                new SkillCastService(TestHelpers.Instance.Clock, Gear.Object),
                 TestHelpers.Instance.DistanceCalculator,
                 new WalkService(TestHelpers.Instance.Clock));
         }

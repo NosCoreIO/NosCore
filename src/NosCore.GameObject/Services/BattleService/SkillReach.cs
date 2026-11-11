@@ -29,6 +29,13 @@ public static class SkillReach
         return distance <= reach + LatencyCells + targetArea;
     }
 
+    // For casts that name their targets or their cell whatever the skill's target type says:
+    // the cell of a ground skill, and each entity of a target list.
+    public static bool IsTargetInReach(byte range, int distance, byte targetArea = 0)
+    {
+        return distance <= Math.Max((int)range, MeleeRange) + LatencyCells + targetArea;
+    }
+
     // Same allowance the walk handler gives one step at the entity's speed.
     public static bool IsWithinOneStep(int distance, byte speed)
     {

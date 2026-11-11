@@ -34,4 +34,9 @@ public sealed record SkillInfo(
                          or TargetHitType.AoeTargetHit
                          or TargetHitType.ZoneHit
                          or TargetHitType.SpecialZoneHit;
+
+    // Whether a cast may land on more than one entity: a ground cell or a list of targets is
+    // only accepted for such a skill. A skill counts when either its hit type or a non-zero
+    // target range says so, since neither column alone is known to mark every one.
+    public bool HitsSeveral => IsAoe || TargetRange > 0;
 }

@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Type: 0, HitType: hitType, Range: range, TargetRange: 2, TargetType: targetType,
             Element: 0, Duration: 0, MpCost: 0, BCards: Array.Empty<BCardDto>());
 
-        private class FakeEntity : IAliveEntity
+        internal class FakeEntity : IAliveEntity
         {
             public Entity Handle { get; set; }
             public bool IsSitting { get; set; }
