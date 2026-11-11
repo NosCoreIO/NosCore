@@ -39,8 +39,8 @@ namespace NosCore.PacketHandlers.Tests.Family
     {
         private const long FamilyId = 42;
         private readonly List<FamilyLogDto> _logs = new();
-        private ClientSession _head = null!;
-        private ClientSession _other = null!;
+        private ClientSession _head;
+        private ClientSession _other;
         private readonly NosCoreFixture _fixture = new();
         private readonly Mock<IDao<FamilyLogDto, long>> _logDao;
         private readonly Mock<IFamilyService> _familyService;
@@ -312,7 +312,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private void TheHistoryShouldBeEmpty() => Assert.IsEmpty(_logs);
 
         private void TheHeadsDailyMessageShouldBe_(string message) =>
-            Assert.AreEqual(message, _head.Character.Family!.Members.Single(s => s.CharacterId == _head.Character.CharacterId).DailyMessage);
+            Assert.AreEqual(message, _head.Character.Family.NotNull().Members.Single(s => s.CharacterId == _head.Character.CharacterId).DailyMessage);
 
         private void TheHeadShouldBeTold_(Game18NConstString message) =>
             Assert.AreEqual(message, _head.LastPackets.OfType<InfoiPacket>().LastOrDefault()?.Message);

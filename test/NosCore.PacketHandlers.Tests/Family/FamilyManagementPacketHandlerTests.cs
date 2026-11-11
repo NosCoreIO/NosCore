@@ -32,12 +32,12 @@ namespace NosCore.PacketHandlers.Tests.Family
     {
         private const long FamilyId = 42;
         private readonly NosCoreFixture _fixture = new();
-        private ClientSession _head = null!;
+        private ClientSession _head;
         private long _headId;
         private readonly Mock<IFamilyService> _familyService;
         private readonly Mock<IPubSubHub> _pubSubHub;
         private readonly List<IMessage> _published = new();
-        private GameObject.Services.FamilyService.Family _family = null!;
+        private GameObject.Services.FamilyService.Family _family;
 
         public FamilyManagementPacketHandlerTests()
         {
@@ -95,15 +95,15 @@ namespace NosCore.PacketHandlers.Tests.Family
             await _fixture.Create<GListPacketHandler>()
                 .ExecuteAsync(new GListPacket { Type = 2 }, _head);
 
-            var members = _head.LastPackets.OfType<GmbrPacket>().Single().Members!;
+            var members = _head.LastPackets.OfType<GmbrPacket>().Single().Members.NotNull();
             Assert.AreEqual(2, members.Count);
-            Assert.IsTrue(members.Single(s => s!.CharacterId == _headId)!.IsConnected);
-            var buddy = members.Single(s => s!.CharacterId == 7)!;
+            Assert.IsTrue(members.Single(s => s.NotNull().CharacterId == _headId).NotNull().IsConnected);
+            var buddy = members.Single(s => s.NotNull().CharacterId == 7).NotNull();
             Assert.AreEqual("Buddy", buddy.Name);
             Assert.AreEqual(Packets.Enumerations.FamilyAuthority.Member, buddy.Authority);
             Assert.IsFalse(buddy.IsConnected);
-            Assert.AreEqual("hi", _head.LastPackets.OfType<GmsgPacket>().Single().Entries!.Single(s => s!.CharacterId == 7)!.Message);
-            Assert.AreEqual(30, _head.LastPackets.OfType<GexpPacket>().Single().Entries!.Single(s => s!.CharacterId == 7)!.Experience);
+            Assert.AreEqual("hi", _head.LastPackets.OfType<GmsgPacket>().Single().Entries.NotNull().Single(s => s.NotNull().CharacterId == 7).NotNull().Message);
+            Assert.AreEqual(30, _head.LastPackets.OfType<GexpPacket>().Single().Entries.NotNull().Single(s => s.NotNull().CharacterId == 7).NotNull().Experience);
         }
 
         [TestMethod]

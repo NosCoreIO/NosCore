@@ -33,9 +33,9 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyCreationPacketHandlerTests
     {
-        private ClientSession _head = null!;
-        private ClientSession _second = null!;
-        private ClientSession _third = null!;
+        private ClientSession _head;
+        private ClientSession _second;
+        private ClientSession _third;
         private readonly NosCoreFixture _fixture = new();
         private readonly Mock<IFamilyService> _familyService;
         private readonly Mock<IFamilyWarehouseService> _warehouse;
@@ -244,7 +244,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         public async Task DisbandingRemovesEveryMember()
         {
             JoinFamily(FamilyAuthority.Head);
-            var family = _head.Character.Family!;
+            var family = _head.Character.Family.NotNull();
             _familyService.Setup(s => s.DisbandAsync(family)).ReturnsAsync(true);
 
             await _fixture.Create<FamilyDisbandPacketHandler>().ExecuteAsync(new FamilyDismissPacket(), _head);

@@ -40,8 +40,8 @@ namespace NosCore.PacketHandlers.Tests.Family
         private delegate bool TryGetCharacter(Func<PlayerComponentBundle, bool> predicate, out PlayerComponentBundle character);
 
         private const long FamilyId = 42;
-        private ClientSession _head = null!;
-        private ClientSession _other = null!;
+        private ClientSession _head;
+        private ClientSession _other;
         private readonly NosCoreFixture _fixture = new();
         private readonly Mock<ISessionRegistry> _sessionRegistry;
         private readonly Mock<IFamilyService> _familyService;
@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private readonly Mock<IBlacklistHub> _blacklistHub;
         private readonly List<IMessage> _published = new();
         private long _otherId;
-        private string _otherName = null!;
+        private string _otherName;
 
         public FamilyMembershipPacketHandlerTests()
         {
@@ -109,8 +109,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var question = _other.LastPackets.OfType<Dlgi2Packet>().Single();
             Assert.AreEqual(Game18NConstString.AskMemberFamily, question.Question);
-            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket!).Type);
-            Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket!).CharacterId);
+            Assert.AreEqual(FamilyInviteAnswerType.Accept, ((JoinFamilyPacket)question.YesPacket.NotNull()).Type);
+            Assert.AreEqual(_head.Character.CharacterId, ((JoinFamilyPacket)question.YesPacket.NotNull()).CharacterId);
             Assert.IsTrue(_head.Character.FamilyRequestCharacterIds.ContainsKey(_other.Character.CharacterId));
         }
 
@@ -170,7 +170,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task AFullFamilyCannotInvite()
         {
-            _head.Character.Family!.MaxSize = 1;
+            _head.Character.Family.NotNull().MaxSize = 1;
 
             await InviteAsync(_head, _other.Character.Name);
 

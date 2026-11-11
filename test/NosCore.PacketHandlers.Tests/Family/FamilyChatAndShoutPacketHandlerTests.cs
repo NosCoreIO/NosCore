@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyChatAndShoutPacketHandlerTests
     {
-        private ClientSession _session = null!;
+        private ClientSession _session;
         private readonly NosCoreFixture _fixture = new();
         private readonly List<IMessage> _sent = new();
 
