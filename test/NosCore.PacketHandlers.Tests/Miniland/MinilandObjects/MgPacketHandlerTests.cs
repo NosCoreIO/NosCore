@@ -247,15 +247,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private async Task ConfirmingPlay()
         {
-            var minigamePacket = new MinigamePacket
-            {
-                Type = 1,
-                Id = 0,
-                MinigameVNum = 3000,
-                Point = 1,
-                Unknown = 1
-            };
-            await _mgPacketHandler.ExecuteAsync(minigamePacket, _session);
+            await PlayingMinigame();
+            var question = _session.LastPackets.OfType<QnaiPacket>().First();
+            _session.LastPackets.Clear();
+            await _mgPacketHandler.ExecuteAsync((MinigamePacket)question.YesPacket!, _session);
         }
 
         private async Task ShowingManagement()
