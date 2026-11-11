@@ -138,6 +138,22 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_PartnerSkinTakesItsLookFromData()
+        {
+            CreateTestFile(CreateItemData(vnum: 1103, indexType: 1, indexSubType: 4, equipmentSlot: 0, morph: 1103,
+                data: "305\t0\t1100\t317\t0\t1\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var skin = _savedItems.Single();
+            Assert.AreEqual(ItemType.Special, skin.ItemType);
+            Assert.AreEqual(ItemEffectType.ApplySkinPartner, skin.Effect);
+            Assert.AreEqual(317, skin.EffectValue);
+            Assert.AreEqual((short)1100, skin.Morph);
+        }
+
+        [TestMethod]
         public async Task ItemParser_ParsesSingleItem()
         {
             var content = CreateItemData(vnum: 1, price: 500, name: "Sword");

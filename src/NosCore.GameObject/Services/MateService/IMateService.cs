@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.MateService
@@ -18,5 +19,7 @@ namespace NosCore.GameObject.Services.MateService
         Task<bool> SaveAsync(IEnumerable<Mate> mates);
 
         Mate Adopt(MateDto row, NpcMonsterDto npcMonster, IEnumerable<Mate> existing);
+
+        Task<bool> ReleaseAsync(PlayerComponentBundle owner, Mate mate);
     }
 }

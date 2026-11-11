@@ -91,6 +91,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task PetFoodSharingTheEffectNumberLeavesTheHairAlone()
+        {
+            await new Spec("A pet item whose effect number matches the hair style keeps the hair and the item")
+                .Given(ItemOfType_InInventoryWithEffect_Value_, ItemType.Teacher, ItemEffectType.ApplyHairStyle, 0)
+                .And(CharacterHairStyleIs_, HairStyleType.HairStyleB)
+                .WhenAsync(UsingTheItem)
+                .Then(HairStyleShouldBe_, HairStyleType.HairStyleB)
+                .And(ItemStackCountShouldBe_, (short)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task UndefinedColorFallsBackToDarkPurple()
         {
             await new Spec("EffectValue outside defined HairColorType falls back to DarkPurple")
@@ -102,12 +114,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 .ExecuteAsync();
         }
 
-        private void ItemInInventoryWithEffect_Value_(ItemEffectType effect, int value)
+        private void ItemInInventoryWithEffect_Value_(ItemEffectType effect, int value) =>
+            ItemOfType_InInventoryWithEffect_Value_(ItemType.Magical, effect, value);
+
+        private void ItemOfType_InInventoryWithEffect_Value_(ItemType type, ItemEffectType effect, int value)
         {
             var item = new Item
             {
                 VNum = DieVNum,
                 Type = NoscorePocketType.Main,
+                ItemType = type,
                 Effect = effect,
                 EffectValue = value,
             };

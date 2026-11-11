@@ -95,7 +95,7 @@
 | MaxCellonLvl | Byte | DATA[varies] | Max cellon level |
 | MaximumAmmo | Byte | DATA[varies] | Max ammo |
 | MinilandObjectPoint | Int32 | DATA[2] (miniland only) | Miniland point value |
-| Morph | Int16 | INDEX[3] + INDEX[5] | Morph id (partner skin) or effect value |
+| Morph | Int16 | DATA[4] (partner skin) or INDEX[7] | Morph id: the partner skin's look, else the item's own |
 | Mp | Int16 | DATA[varies] | Mp bonus on equip |
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
 | ReputPrice | Int64 | FLAG[20] + VNUM[1] | Reputation price when FLAG[20] is set |

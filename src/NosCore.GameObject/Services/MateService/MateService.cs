@@ -13,6 +13,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -79,6 +80,39 @@ namespace NosCore.GameObject.Services.MateService
                 ? mateExperienceService.GetPetExperience(mate.Level)
                 : mateExperienceService.GetPartnerExperience(mate.Level);
             return mate;
+        }
+
+        public async Task<bool> ReleaseAsync(PlayerComponentBundle owner, Mate mate)
+        {
+            if (!owner.Mates.ContainsKey(mate.MateTransportId) || await mateDao.TryDeleteAsync(mate.MateId) == null)
+            {
+                return false;
+            }
+
+            owner.Mates.TryRemove(mate.MateTransportId, out _);
+            await mate.DespawnAsync(owner.MapInstance);
+
+            // Slots follow the order mates are loaded in, so the ones after it move up now rather than
+            // on the next login, and a partner's equipment pocket moves with its slot.
+            foreach (var next in owner.Mates.Values
+                         .Where(s => s.MateType == mate.MateType && s.PetSlot > mate.PetSlot)
+                         .OrderBy(s => s.PetSlot))
+            {
+                var from = next.EquipmentPocket();
+                next.PetSlot--;
+                var to = next.EquipmentPocket();
+                if (from is not { } source || to is not { } target)
+                {
+                    continue;
+                }
+
+                foreach (var item in owner.InventoryService.Values.Where(s => s.Type == source))
+                {
+                    item.Type = target;
+                }
+            }
+
+            return true;
         }
 
         public async Task<bool> SaveAsync(IEnumerable<Mate> mates)

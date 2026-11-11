@@ -25,6 +25,11 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
+            if (item.ItemType != ItemType.Magical)
+            {
+                return;
+            }
+
             var isColor = item.Effect == ItemEffectType.ApplyHairDie;
             var isStyle = item.Effect == ItemEffectType.ApplyHairStyle;
             if (!isColor && !isStyle)
