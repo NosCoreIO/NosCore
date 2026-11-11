@@ -101,8 +101,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                         ChannelId = 1, ConnectedCharacter = new Character { Id = Session.Character.CharacterId }
                     }
                 });
-            var blacklist = new BlacklistService(World.PubSubHub.Object, World.ChannelHub.Object,
-                World.CharacterRelationDao, World.CharacterDao);
+            var blacklist = World.Create<BlacklistService>();
             World.BlacklistHub.Setup(s => s.AddBlacklistAsync(It.IsAny<BlacklistRequest>()))
                 .Returns(blacklist.BlacklistPlayerAsync(Session.Character.CharacterId, TargetSession.Character.VisualId));
         }

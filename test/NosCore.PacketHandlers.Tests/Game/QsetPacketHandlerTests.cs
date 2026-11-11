@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            QsetPacketHandler = new QSetPacketHandler();
+            QsetPacketHandler = World.Create<QSetPacketHandler>();
         }
 
         [TestMethod]

@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             World.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
-            _handler = new SpRechargerHandler(World.WorldConfiguration);
+            _handler = World.Create<SpRechargerHandler>();
         }
 
         [TestMethod]

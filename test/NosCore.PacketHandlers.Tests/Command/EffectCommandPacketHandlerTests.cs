@@ -28,7 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new EffectCommandPackettHandler();
+            Handler = World.Create<EffectCommandPackettHandler>();
         }
 
         [TestMethod]

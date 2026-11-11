@@ -28,7 +28,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            Handler = new SortOpenPacketHandler();
+            Handler = World.Create<SortOpenPacketHandler>();
         }
 
         [TestMethod]

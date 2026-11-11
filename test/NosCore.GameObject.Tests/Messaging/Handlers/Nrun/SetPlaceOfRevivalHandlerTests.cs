@@ -38,8 +38,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _respawnService = new Mock<IRespawnService>();
-            _handler = new SetPlaceOfRevivalHandler(_respawnService.Object, World.NpcDialogService);
+            _respawnService = World.Freeze<Mock<IRespawnService>>();
+            _handler = World.Create<SetPlaceOfRevivalHandler>();
         }
 
         [TestMethod]

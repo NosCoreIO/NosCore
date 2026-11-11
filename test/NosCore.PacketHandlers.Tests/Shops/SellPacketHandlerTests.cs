@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session = await World.GenerateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Shop);
-            SellPacketHandler = new SellPacketHandler(World.WorldConfiguration, World.NpcDialogService);
+            SellPacketHandler = World.Create<SellPacketHandler>();
         }
 
         [TestMethod]

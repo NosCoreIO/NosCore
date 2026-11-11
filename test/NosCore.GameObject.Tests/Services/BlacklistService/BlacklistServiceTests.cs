@@ -38,8 +38,8 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            ChannelHub = new Mock<IChannelHub>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
 
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>
@@ -50,11 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BlacklistService
             CharacterId = 1;
             TargetCharacterId = 2;
 
-            Service = new GameObject.Services.BlackListService.BlacklistService(
-                PubSubHub.Object,
-                ChannelHub.Object,
-                World.CharacterRelationDao,
-                World.CharacterDao);
+            Service = World.Create<GameObject.Services.BlackListService.BlacklistService>();
         }
 
         [TestMethod]

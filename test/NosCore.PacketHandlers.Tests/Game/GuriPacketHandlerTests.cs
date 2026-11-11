@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Game
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
 
-            MessageBus = new Mock<IMessageBus>();
-            Handler = new GuriPacketHandler(MessageBus.Object);
+            MessageBus = World.Freeze<Mock<IMessageBus>>();
+            Handler = World.Create<GuriPacketHandler>();
         }
 
         [TestMethod]

@@ -45,9 +45,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
-            _unprotected = new RarifyOperation(_random.Object, World.GameLanguageLocalizer);
-            _protected = new RarifyProtectedOperation(_random.Object, World.GameLanguageLocalizer);
+            _random = World.Freeze<Mock<IRandomNumberSource>>();
+            _unprotected = World.Create<RarifyOperation>();
+            _protected = World.Create<RarifyProtectedOperation>();
         }
 
         [TestMethod]

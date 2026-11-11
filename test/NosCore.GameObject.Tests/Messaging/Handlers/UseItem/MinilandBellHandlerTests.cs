@@ -48,13 +48,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _minilandService = new Mock<IMinilandService>();
-            _mapChangeService = new Mock<IMapChangeService>();
+            _minilandService = World.Freeze<Mock<IMinilandService>>();
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
 
             _minilandService.Setup(x => x.GetMiniland(It.IsAny<long>()))
                 .Returns(new Miniland { MapInstanceId = _minilandInstanceId, MinilandMessage = "Test" });
 
-            _handler = new MinilandBellHandler(_minilandService.Object, _mapChangeService.Object, World.Clock);
+            _handler = World.Create<MinilandBellHandler>();
         }
 
         [TestMethod]

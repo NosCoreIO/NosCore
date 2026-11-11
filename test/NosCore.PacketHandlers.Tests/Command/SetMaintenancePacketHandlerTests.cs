@@ -30,8 +30,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            ChannelHub = new Mock<IChannelHub>();
-            Handler = new SetMaintenancePacketHandler(ChannelHub.Object);
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            Handler = World.Create<SetMaintenancePacketHandler>();
         }
 
         [TestMethod]

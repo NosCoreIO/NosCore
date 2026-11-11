@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            WarehouseHub = new Mock<IWarehouseHub>();
-            Handler = new DepositPacketHandler(WarehouseHub.Object);
+            WarehouseHub = World.Freeze<Mock<IWarehouseHub>>();
+            Handler = World.Create<DepositPacketHandler>();
             ItemProvider = World.GenerateItemProvider();
         }
 

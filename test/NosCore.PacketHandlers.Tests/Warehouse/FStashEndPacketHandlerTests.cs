@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new FStashEndPackettHandler();
+            Handler = World.Create<FStashEndPackettHandler>();
         }
 
         [TestMethod]

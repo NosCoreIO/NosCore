@@ -40,8 +40,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _minilandService = new Mock<IMinilandService>();
-            _handler = new MinilandEntranceHandler(_minilandService.Object);
+            _minilandService = World.Freeze<Mock<IMinilandService>>();
+            _handler = World.Create<MinilandEntranceHandler>();
         }
 
         [TestMethod]

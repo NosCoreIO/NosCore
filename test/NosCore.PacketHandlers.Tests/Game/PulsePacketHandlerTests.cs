@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            PulsePacketHandler = new PulsePacketHandler();
+            PulsePacketHandler = World.Create<PulsePacketHandler>();
             Session = await World.GenerateSessionAsync();
         }
 

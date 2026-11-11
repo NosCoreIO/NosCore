@@ -75,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 NullLogger<GameObject.Services.QuestService.QuestService>.Instance,
                 World.Clock,
                 World.LogLanguageLocalizer,
-                new IQuestTypeHandler[] { new CaptureQuestHandler(), new CaptureWithoutGettingTheMonsterQuestHandler() },
+                new IQuestTypeHandler[] { World.Create<CaptureQuestHandler>(), World.Create<CaptureWithoutGettingTheMonsterQuestHandler>() },
                 new Mock<Wolverine.IMessageBus>().Object,
                 new List<QuestRewardDto>(),
                 new List<QuestQuestRewardDto>(),

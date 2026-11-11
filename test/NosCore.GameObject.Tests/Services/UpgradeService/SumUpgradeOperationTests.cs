@@ -45,8 +45,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _random = new Mock<IRandomNumberSource>();
-            _operation = new SumUpgradeOperation(_random.Object, World.GameLanguageLocalizer);
+            _random = World.Freeze<Mock<IRandomNumberSource>>();
+            _operation = World.Create<SumUpgradeOperation>();
         }
 
         [TestMethod]

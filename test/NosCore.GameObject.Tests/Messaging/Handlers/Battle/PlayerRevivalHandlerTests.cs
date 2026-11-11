@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _killerSession = await World.GenerateSessionAsync();
-            _handler = new PlayerRevivalHandler(new Mock<ILogger<PlayerRevivalHandler>>().Object);
+            _handler = World.Create<PlayerRevivalHandler>();
         }
 
         [TestMethod]

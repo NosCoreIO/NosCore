@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new ClientSayPacketHandler();
+            Handler = World.Create<ClientSayPacketHandler>();
         }
 
         [TestMethod]

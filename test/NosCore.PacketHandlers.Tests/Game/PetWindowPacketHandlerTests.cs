@@ -44,7 +44,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             _session.Character.Mates[pet.MateTransportId] = pet;
             _session.Character.Mates[partner.MateTransportId] = partner;
 
-            await new NpinfoPacketHandler().ExecuteAsync(new NpInfoPacket { Page = 0 }, _session);
+            await World.Create<NpinfoPacketHandler>().ExecuteAsync(new NpInfoPacket { Page = 0 }, _session);
 
             var sent = _session.LastPackets.ToList();
             Assert.IsInstanceOfType(sent[0], typeof(PclearPacket), "the list follows a p_clear");
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task OpeningThePetWindowWithoutPetsOnlyClears()
         {
-            await new NpinfoPacketHandler().ExecuteAsync(new NpInfoPacket { Page = 0 }, _session);
+            await World.Create<NpinfoPacketHandler>().ExecuteAsync(new NpInfoPacket { Page = 0 }, _session);
 
             Assert.AreEqual(1, _session.LastPackets.Count);
             Assert.IsInstanceOfType(_session.LastPackets.Single(), typeof(PclearPacket));
@@ -80,7 +80,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         [TestMethod]
         public async Task RefreshingThePetWindowGetsNoReply()
         {
-            await new ScpCtsPacketHandler().ExecuteAsync(new ScpCtsPacket(), _session);
+            await World.Create<ScpCtsPacketHandler>().ExecuteAsync(new ScpCtsPacket(), _session);
 
             Assert.AreEqual(0, _session.LastPackets.Count, "the recording shows no answer to sc_p_cts");
         }

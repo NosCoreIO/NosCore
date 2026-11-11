@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Logger,
                 World.LogLanguageLocalizer,
                 World.WorldConfiguration,
-                new GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
+                World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                 new Mock<GameObject.Services.SkillService.ISkillService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }

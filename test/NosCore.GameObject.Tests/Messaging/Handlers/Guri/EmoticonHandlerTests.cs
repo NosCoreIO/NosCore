@@ -56,7 +56,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .Callback<IPacket[], ISessionMatcher>((_, matcher) => _broadcastMatcher = matcher)
                 .Returns(Task.CompletedTask);
             map.Sessions = mapSessions.Object;
-            _handler = new EmoticonHandler(World.SessionRegistry);
+            _handler = World.Create<EmoticonHandler>();
         }
 
         [TestMethod]

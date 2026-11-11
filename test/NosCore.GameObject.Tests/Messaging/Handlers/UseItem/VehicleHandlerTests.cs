@@ -42,8 +42,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _transformationService = new Mock<ITransformationService>();
-            _handler = new VehicleHandler(_transformationService.Object, World.Clock);
+            _transformationService = World.Freeze<Mock<ITransformationService>>();
+            _handler = World.Create<VehicleHandler>();
 
             var item = new Item
             {

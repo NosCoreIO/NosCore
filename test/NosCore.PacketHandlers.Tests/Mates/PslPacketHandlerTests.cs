@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 0, Morph = 1
                 }
             }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
-            _specialists = new PartnerSpecialistService(World.Clock);
+            _specialists = World.Create<PartnerSpecialistService>();
             _equipment = new PartnerEquipmentService(_specialists);
             _handler = new PslPacketHandler(_specialists);
         }

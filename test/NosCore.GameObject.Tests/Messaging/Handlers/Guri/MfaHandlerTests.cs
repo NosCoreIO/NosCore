@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _handler = new MfaHandler();
+            _handler = World.Create<MfaHandler>();
         }
 
         [TestMethod]

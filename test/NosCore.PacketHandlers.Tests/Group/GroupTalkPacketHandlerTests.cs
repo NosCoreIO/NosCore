@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Group
                 session.Character.Group.JoinGroup(session.Character);
             }
 
-            _groupTalkPacketHandler = new GroupTalkPacketHandler();
+            _groupTalkPacketHandler = World.Create<GroupTalkPacketHandler>();
 
             var mock = new Mock<IBlacklistHub>();
             _pJoinPacketHandler = new PjoinPacketHandler(

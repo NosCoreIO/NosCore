@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _itemProvider = World.GenerateItemProvider();
-            _productionService = new Mock<IProductionService>();
+            _productionService = World.Freeze<Mock<IProductionService>>();
         }
 
         [TestMethod]
@@ -66,7 +66,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
                 InventoryItemInstance.Create(_itemProvider.Create(vnum, 1), _session.Character.CharacterId)).NotNull()[0];
 
         private Task UsingTheItem() =>
-            new ProductionScrollHandler(_productionService.Object).Handle(new ItemUsedEvent(_session, _item,
+            World.Create<ProductionScrollHandler>().Handle(new ItemUsedEvent(_session, _item,
                 new UseItemPacket
                 {
                     VisualType = VisualType.Player,

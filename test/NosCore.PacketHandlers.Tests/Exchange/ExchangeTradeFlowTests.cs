@@ -89,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     MaxGoldAmount = 1_000_000_000,
                     MaxBankGoldAmount = 100_000_000_000
                 }),
-                NullLogger<ExchangeService>.Instance, new ExchangeRequestRegistry(),
+                NullLogger<ExchangeService>.Instance, World.Create<ExchangeRequestRegistry>(),
                 World.LogLanguageLocalizer, World.SessionRegistry, Clock);
 
             RequestHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,

@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                     Data = new byte[] {}
                 }},
                 World.MinilandDao,
-                World.MinilandObjectDao, new MinilandRegistry());
+                World.MinilandObjectDao, World.Create<MinilandRegistry>());
             await _minilandProvider.InitializeAsync(_session.Character, World.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
             var mapInstance = World.GetMap(miniland.MapInstanceId);

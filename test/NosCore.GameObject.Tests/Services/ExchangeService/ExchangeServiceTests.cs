@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private GameObject.Services.ExchangeService.ExchangeService CreateExchangeService() =>
             new(WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance,
-                new ExchangeRequestRegistry(), World.LogLanguageLocalizer, World.SessionRegistry,
+                World.Create<ExchangeRequestRegistry>(), World.LogLanguageLocalizer, World.SessionRegistry,
                 World.Clock);
 
         private static Dictionary<InventoryItemInstance, short> NoItems => new();

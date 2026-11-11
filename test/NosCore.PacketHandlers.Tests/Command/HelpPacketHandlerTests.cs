@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new HelpPacketHandler();
+            Handler = World.Create<HelpPacketHandler>();
         }
 
         [TestMethod]

@@ -51,7 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
             Session = await World.GenerateSessionAsync();
             FriendSession = await World.GenerateSessionAsync();
             FriendHub = new Mock<IFriendHub>();
-            PubSubHub = new Mock<IPubSubHub>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             Serializer = new Mock<ISerializer>();
             SessionRegistry = new Mock<ISessionRegistry>();
 
@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 Serializer.Object,
                 FriendHub.Object,
                 PubSubHub.Object,
-                new SubscriberCacheService(PubSubHub.Object, World.Clock),
+                World.Create<SubscriberCacheService>(),
                 channel,
                 World.GameLanguageLocalizer,
                 SessionRegistry.Object);

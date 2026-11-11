@@ -60,7 +60,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
                 },
                 World.MinilandDao,
                 World.MinilandObjectDao,
-                new MinilandRegistry());
+                World.Create<MinilandRegistry>());
 
             Service = new CharacterInitializationService(MinilandService, World.MapInstanceGeneratorService);
         }
@@ -127,7 +127,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private void ServiceWithNullDependencies()
         {
-            NullService = new CharacterInitializationService();
+            NullService = World.Create<CharacterInitializationService>();
         }
 
         private async Task InitializingCharacterWithNullServices()

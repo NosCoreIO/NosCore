@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             Session.Character.StaticBonusList = new List<StaticBonusDto>();
-            CskillPacketHandler = new CSkillPacketHandler(World.Clock, World.NpcDialogService);
+            CskillPacketHandler = World.Create<CSkillPacketHandler>();
         }
 
         [TestMethod]

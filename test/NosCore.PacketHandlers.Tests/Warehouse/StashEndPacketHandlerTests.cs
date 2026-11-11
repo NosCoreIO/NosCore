@@ -27,7 +27,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new StashEndPacketHandler();
+            Handler = World.Create<StashEndPacketHandler>();
         }
 
         [TestMethod]

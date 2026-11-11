@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true },
                 new Item { Type = NoscorePocketType.Equipment, VNum = WeaponVNum, ItemType = ItemType.Weapon, IsTradable = true }
             }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
-            _mShop = new MShopPacketHandler(World.DistanceCalculator);
+            _mShop = World.Create<MShopPacketHandler>();
 
             _owner.Character.MapInstance = World.GetBaseMap(1);
             _owner.Character.PositionX = 7;

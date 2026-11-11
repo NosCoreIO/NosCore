@@ -30,9 +30,7 @@ namespace NosCore.GameObject.Tests.Services.ReputationRankingService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            Service = new GameObject.Services.ReputationRankingService.ReputationRankingService(
-                World.CharacterDao, World.AccountDao,
-                World.WorldConfiguration, World.Clock);
+            Service = World.Create<GameObject.Services.ReputationRankingService.ReputationRankingService>();
         }
 
         [TestMethod]

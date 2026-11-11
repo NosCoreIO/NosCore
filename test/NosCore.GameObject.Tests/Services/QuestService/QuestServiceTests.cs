@@ -113,9 +113,9 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 World.LogLanguageLocalizer,
                 new IQuestTypeHandler[]
                 {
-                    new HuntQuestHandler(NullLogger<HuntQuestHandler>.Instance),
-                    new NumberOfKillQuestHandler(NullLogger<NumberOfKillQuestHandler>.Instance),
-                    new GoToQuestHandler(),
+                    World.Create<HuntQuestHandler>(),
+                    World.Create<NumberOfKillQuestHandler>(),
+                    World.Create<GoToQuestHandler>(),
                 },
                 new Mock<Wolverine.IMessageBus>().Object,
                 new List<QuestRewardDto>(),

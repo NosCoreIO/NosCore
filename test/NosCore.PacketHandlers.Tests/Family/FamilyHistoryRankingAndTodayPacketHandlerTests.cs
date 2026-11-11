@@ -246,7 +246,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private Task AskingForTheRanking_(FamilyRankingType type) =>
             new FrankCtsPacketHandler(_familyRankingService).ExecuteAsync(new FrankCtsPacket { Type = type }, _session);
 
-        private Task AskingToWriteTodaysMessage() => new TodayPacketHandler().ExecuteAsync(new TodayPacket(), _session);
+        private Task AskingToWriteTodaysMessage() => World.Create<TodayPacketHandler>().ExecuteAsync(new TodayPacket(), _session);
 
         private void TheHistoryShouldHoldOneEntry_With_And__HoursAgo(FamilyLogType type, string first, string second, int hours)
         {

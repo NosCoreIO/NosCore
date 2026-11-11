@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _handler = new CombatRestHandler(World.Clock);
+            _handler = World.Create<CombatRestHandler>();
         }
 
         [TestMethod]

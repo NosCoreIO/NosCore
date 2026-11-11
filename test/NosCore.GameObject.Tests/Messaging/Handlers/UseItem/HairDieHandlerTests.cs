@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(1);
-            _handler = new HairDieHandler();
+            _handler = World.Create<HairDieHandler>();
         }
 
         [TestMethod]

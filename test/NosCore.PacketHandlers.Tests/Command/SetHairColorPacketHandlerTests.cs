@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Command
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             Session.Character.MapInstance = World.GetBaseMap(1);
-            Handler = new SetHairColorPacketHandler();
+            Handler = World.Create<SetHairColorPacketHandler>();
         }
 
         [TestMethod]

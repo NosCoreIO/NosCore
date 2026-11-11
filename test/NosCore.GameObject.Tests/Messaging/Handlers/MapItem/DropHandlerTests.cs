@@ -35,7 +35,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _session.Character.MapInstance = World.GetBaseMap(0);
-            _messageBus = new Mock<IMessageBus>();
+            _messageBus = World.Freeze<Mock<IMessageBus>>();
         }
 
         [TestMethod]
@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
             var item = _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 World.GenerateItemProvider().Create(vNum, (short)amount), _session.Character.CharacterId)).NotNull().First().ItemInstance;
             var mapItem = _session.Character.MapInstance.PutItem((short)amount, item, _session).NotNull();
-            return new DropHandler(_messageBus.Object).Handle(new MapItemPickedUpEvent(
+            return World.Create<DropHandler>().Handle(new MapItemPickedUpEvent(
                 _session, mapItem.VisualId, vNum, (short)amount, mapItem.ItemInstance,
                 new GetPacket { PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = mapItem.VisualId }));
         }

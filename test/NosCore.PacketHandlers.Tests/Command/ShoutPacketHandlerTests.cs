@@ -34,16 +34,13 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            Serializer = new Mock<ISerializer>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            Serializer = World.Freeze<Mock<ISerializer>>();
 
             Serializer.Setup(x => x.Serialize(It.IsAny<IPacket[]>()))
                 .Returns("serialized_packet");
 
-            Handler = new ShoutPacketHandler(
-                Serializer.Object,
-                PubSubHub.Object,
-                World.GameLanguageLocalizer);
+            Handler = World.Create<ShoutPacketHandler>();
         }
 
         [TestMethod]

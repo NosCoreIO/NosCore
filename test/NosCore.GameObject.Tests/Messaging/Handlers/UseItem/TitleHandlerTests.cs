@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _handler = new TitleHandler();
+            _handler = World.Create<TitleHandler>();
         }
 
         [TestMethod]

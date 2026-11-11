@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _session.Character.Level = 30;
             _miniland = new Mock<IMinilandService>();
             _handler = new PetManagementHandler(_miniland.Object, World.Clock,
-                new PartnerSpecialistService(World.Clock));
+                World.Create<PartnerSpecialistService>());
         }
 
         private GameObject.Services.MateService.Mate Add(GameObject.Services.MateService.Mate mate)

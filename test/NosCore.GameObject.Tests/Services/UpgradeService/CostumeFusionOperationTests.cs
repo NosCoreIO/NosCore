@@ -50,8 +50,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public override async Task SetupAsync()
         {
             await base.SetupAsync();
-            _operation = new CostumeFusionOperation(new Mock<IRandomNumberSource>().Object,
-                World.GameLanguageLocalizer);
+            _operation = World.Create<CostumeFusionOperation>();
             CharacterHasGold(1_500_000);
         }
 

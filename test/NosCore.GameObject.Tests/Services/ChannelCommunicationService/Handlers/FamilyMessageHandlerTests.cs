@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             _member.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = 42, Name = "Testers" };
             _outsider.Character.Family = null;
             var sessions = new[] { _member, _outsider };
-            _sessionRegistry = new Mock<ISessionRegistry>();
+            _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             _sessionRegistry.Setup(s => s.GetSessions(It.IsAny<Func<ClientSession, bool>?>()))
                 .Returns((Func<ClientSession, bool>? predicate) => predicate == null ? sessions : sessions.Where(predicate));
             _member.LastPackets.Clear();
@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         }
 
         private Task ChatAsync(Guid senderMapInstanceId) =>
-            new FamilyChatDataMessageChannelCommunicationMessageHandler(_sessionRegistry.Object).Handle(new FamilyChatData
+            World.Create<FamilyChatDataMessageChannelCommunicationMessageHandler>().Handle(new FamilyChatData
             {
                 FamilyId = 42,
                 SenderId = 7,
@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         [TestMethod]
         public async Task FamilyShoutReachesOnlyTheFamilyInItsLanguage()
         {
-            await new FamilyShoutDataMessageChannelCommunicationMessageHandler(_sessionRegistry.Object, World.GameLanguageLocalizer)
+            await World.Create<FamilyShoutDataMessageChannelCommunicationMessageHandler>()
                 .Handle(new FamilyShoutData { FamilyId = 42, Message = "gather at the farm" });
 
 #pragma warning disable CS0618

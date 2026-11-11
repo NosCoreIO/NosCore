@@ -30,7 +30,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new WithdrawPacketHandler();
+            Handler = World.Create<WithdrawPacketHandler>();
             ItemProvider = World.GenerateItemProvider();
         }
 

@@ -43,7 +43,7 @@ namespace NosCore.GameObject.Tests.Services.FriendService
             World = await TestWorld.CreateAsync();
             PubSubHub = new Mock<IPubSubHub>();
             ChannelHub = new Mock<IChannelHub>();
-            FriendRequestHolder = new FriendRequestRegistry();
+            FriendRequestHolder = World.Create<FriendRequestRegistry>();
 
             ChannelHub.Setup(s => s.GetCommunicationChannels())
                 .ReturnsAsync(new List<ChannelInfo>

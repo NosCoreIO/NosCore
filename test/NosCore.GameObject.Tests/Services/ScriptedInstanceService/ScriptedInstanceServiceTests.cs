@@ -33,7 +33,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private ServiceUnderTest Build(params ScriptedInstanceDto[] entrances)
         {
-            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), new MapInstanceRegistry(), World.Clock, NullLogger<ServiceUnderTest>.Instance);
+            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), World.Create<MapInstanceRegistry>(), World.Clock, NullLogger<ServiceUnderTest>.Instance);
         }
 
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,

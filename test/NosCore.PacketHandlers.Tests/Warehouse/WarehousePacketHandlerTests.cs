@@ -29,7 +29,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            WarehouseHub = new Mock<IWarehouseHub>();
+            WarehouseHub = World.Freeze<Mock<IWarehouseHub>>();
         }
 
         [TestMethod]
@@ -89,31 +89,31 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
         private async Task DepositingItemToWarehouse()
         {
-            var handler = new DepositPacketHandler(WarehouseHub.Object);
+            var handler = World.Create<DepositPacketHandler>();
             await handler.ExecuteAsync(new DepositPacket(), Session);
         }
 
         private async Task WithdrawingItemFromWarehouse()
         {
-            var handler = new WithdrawPacketHandler();
+            var handler = World.Create<WithdrawPacketHandler>();
             await handler.ExecuteAsync(new WithdrawPacket(), Session);
         }
 
         private async Task ClosingWarehouse()
         {
-            var handler = new StashEndPacketHandler();
+            var handler = World.Create<StashEndPacketHandler>();
             await handler.ExecuteAsync(new StashEndPacket(), Session);
         }
 
         private async Task RearrangingWarehouseItems()
         {
-            var handler = new ReposPacketHandler();
+            var handler = World.Create<ReposPacketHandler>();
             await handler.ExecuteAsync(new ReposPacket(), Session);
         }
 
         private async Task ClosingFamilyWarehouse()
         {
-            var handler = new FStashEndPackettHandler();
+            var handler = World.Create<FStashEndPackettHandler>();
             await handler.ExecuteAsync(new FStashEndPacket(), Session);
         }
 

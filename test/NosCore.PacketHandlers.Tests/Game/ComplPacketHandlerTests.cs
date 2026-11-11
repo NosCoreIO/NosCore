@@ -35,8 +35,8 @@ namespace NosCore.PacketHandlers.Tests.Game
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             Target = await World.GenerateSessionAsync();
-            ComplimentService = new Mock<IComplimentService>();
-            Handler = new ComplPacketHandler(ComplimentService.Object);
+            ComplimentService = World.Freeze<Mock<IComplimentService>>();
+            Handler = World.Create<ComplPacketHandler>();
         }
 
         [TestMethod]

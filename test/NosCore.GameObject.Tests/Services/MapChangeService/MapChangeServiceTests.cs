@@ -67,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                     new System.Collections.Generic.List<NosCore.Data.StaticEntities.ScriptedInstanceDto>(),
                     new System.Collections.Generic.List<NosCore.Data.StaticEntities.MapDto>(),
                     new System.Lazy<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>(new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object),
-                    new GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry(),
+                    World.Create<GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry>(),
                     World.Clock,
                     NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance),
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);

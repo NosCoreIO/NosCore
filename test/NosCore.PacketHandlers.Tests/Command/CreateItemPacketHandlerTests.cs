@@ -38,8 +38,8 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            ItemGrantService = new Mock<IItemGrantService>();
-            Handler = new CreateItemPackettHandler(ItemGrantService.Object);
+            ItemGrantService = World.Freeze<Mock<IItemGrantService>>();
+            Handler = World.Create<CreateItemPackettHandler>();
         }
 
         [TestMethod]

@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                     SourceY = 0
                 }
             };
-            MShopPacketHandler = new MShopPacketHandler(World.DistanceCalculator);
+            MShopPacketHandler = World.Create<MShopPacketHandler>();
         }
 
         [TestMethod]

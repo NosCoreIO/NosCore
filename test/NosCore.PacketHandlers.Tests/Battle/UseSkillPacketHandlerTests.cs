@@ -55,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 World.SessionRegistry,
                 new SkillCastService(World.Clock, Gear.Object),
                 World.DistanceCalculator,
-                new WalkService(World.Clock));
+                World.Create<WalkService>());
         }
 
         private readonly Mock<IEquipmentStatsService> Gear = new();

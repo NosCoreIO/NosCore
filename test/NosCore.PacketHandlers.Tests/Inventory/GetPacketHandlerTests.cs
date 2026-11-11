@@ -51,9 +51,9 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             ItemProvider = World.GenerateItemProvider();
-            var dropHandler = new DropHandler(new Mock<Wolverine.IMessageBus>().Object);
-            var goldHandler = new GoldDropHandler(World.WorldConfiguration, World.ItemList);
-            var spChargerHandler = new SpChargerHandler(World.WorldConfiguration);
+            var dropHandler = World.Create<DropHandler>();
+            var goldHandler = World.Create<GoldDropHandler>();
+            var spChargerHandler = World.Create<SpChargerHandler>();
             Bus = new InlineOrDeferredMessageBus<MapItemPickedUpEvent>(async evt =>
             {
                 await dropHandler.Handle(evt);

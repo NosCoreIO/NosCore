@@ -46,7 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             TargetSession = await World.GenerateSessionAsync();
-            ExchangeService = new Mock<IExchangeService>();
+            ExchangeService = World.Freeze<Mock<IExchangeService>>();
 
             var items = new List<ItemDto>
             {
@@ -56,11 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             ItemProvider = new ItemGenerationService(items,
                 NullLoggerFactory.Instance, World.LogLanguageLocalizer);
 
-            Handler = new ExcListPacketHandler(
-                ExchangeService.Object,
-                NullLogger<ExcListPacketHandler>.Instance,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry);
+            Handler = World.Create<ExcListPacketHandler>();
         }
 
         [TestMethod]

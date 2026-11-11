@@ -45,9 +45,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             _arena = World.GetBaseMap(0);
             _arena.Map = ArenaTestMap.Create();
             _arena.MapInstanceType = MapInstanceType.ArenaInstance;
-            _mapChangeService = new Mock<IMapChangeService>();
-            _handler = new GoToArenaHandler(_mapChangeService.Object, World.MapInstanceRegistry,
-                World.Clock);
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
+            _handler = World.Create<GoToArenaHandler>();
             _session.Character.MapInstance.LoadNpcs(
                 new List<MapNpcDto> { new() { MapNpcId = 100, MapId = _session.Character.MapInstance.Map.MapId, VNum = 1 } },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1 } });

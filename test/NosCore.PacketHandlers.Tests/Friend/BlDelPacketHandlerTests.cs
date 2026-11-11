@@ -66,8 +66,8 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
                 });
             BlackListHttpClient = World.BlacklistHub;
-            BlacklistCache = new Mock<IBlacklistCacheService>();
-            BlDelPacketHandler = new BlDelPacketHandler(BlackListHttpClient.Object, BlacklistCache.Object, World.GameLanguageLocalizer);
+            BlacklistCache = World.Freeze<Mock<IBlacklistCacheService>>();
+            BlDelPacketHandler = World.Create<BlDelPacketHandler>();
             CharacterDao = new Mock<IDao<CharacterDto, long>>();
             BlackListController = new BlacklistService(ConnectedAccountHttpClient.Object, ChannelHub.Object, CharacterRelationDao,
                 CharacterDao.Object);

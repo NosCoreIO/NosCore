@@ -46,7 +46,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _service = new PartnerEquipmentService(new PartnerSpecialistService(World.Clock));
+            _service = new PartnerEquipmentService(World.Create<PartnerSpecialistService>());
             _items = new ItemGenerationService(new List<ItemDto>
             {
                 new Item { Type = NoscorePocketType.Equipment, VNum = PlayerWeapon, ItemType = ItemType.Weapon },

@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 new GameObject.Services.TransformationService.TransformationService(World.Clock, new Mock<IExperienceService>().Object,
                     new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
                     new Mock<ILogger<GameObject.Services.TransformationService.TransformationService>>().Object, World.LogLanguageLocalizer, World.WorldConfiguration,
-                    new NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService(new SpeedService()),
+                    World.Create<NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                     new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
                     new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object),
                 new SpecialistCardService(new SpecialistPointService()),

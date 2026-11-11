@@ -41,11 +41,11 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             Session = await World.GenerateSessionAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
-            BazaarHttpClient = new Mock<IBazaarHub>();
+            BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
             BazaarHttpClient.Setup(b => b.SearchBazaarAsync(It.IsAny<BazaarSearch>()))
                 .Callback((BazaarSearch search) => Search = search)
                 .ReturnsAsync(new List<BazaarLink>());
-            CblistPacketHandler = new CBListPacketHandler(BazaarHttpClient.Object, World.Clock, World.NpcDialogService);
+            CblistPacketHandler = World.Create<CBListPacketHandler>();
         }
 
         [TestMethod]

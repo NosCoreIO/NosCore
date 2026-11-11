@@ -52,11 +52,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _battle = new Mock<IBattleService>();
             AcceptSwings(true);
-            _aggro = new AggroService(World.Clock);
+            _aggro = World.Create<AggroService>();
             _ai = new MonsterAi(
                 _battle.Object,
                 _aggro,
-                new GameObject.Services.PathfindingService.PathfindingService(World.DistanceCalculator),
+                World.Create<GameObject.Services.PathfindingService.PathfindingService>(),
                 World.SessionRegistry,
                 World.DistanceCalculator,
                 new Mock<INpcCombatCatalog>().Object,

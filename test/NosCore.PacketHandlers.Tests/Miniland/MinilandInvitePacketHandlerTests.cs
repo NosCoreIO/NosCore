@@ -52,9 +52,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 MapInstanceId = _owner.Character.MapInstanceId,
                 State = MinilandState.Open
             };
-            _minilandService = new Mock<IMinilandService>();
+            _minilandService = World.Freeze<Mock<IMinilandService>>();
             _minilandService.Setup(s => s.GetMiniland(It.IsAny<long>())).Returns(_miniland);
-            _mapChangeService = new Mock<IMapChangeService>();
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
             GiveSeeds(1);
         }
 
@@ -63,11 +63,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland
                 World.GenerateItemProvider().Create(SeedOfPower, amount), _owner.Character.CharacterId));
 
         private Task InviteAsync(string name) =>
-            new MinilandInvitePacketHandler(World.SessionRegistry, _minilandService.Object, World.Clock)
+            World.Create<MinilandInvitePacketHandler>()
                 .ExecuteAsync(new MinilandInvitePacket { CharacterName = name }, _owner);
 
         private Task AnswerAsync(VisualType type) =>
-            new MJoinPacketHandler(World.FriendHub.Object, _minilandService.Object, _mapChangeService.Object, World.SessionRegistry)
+            World.Create<MJoinPacketHandler>()
                 .ExecuteAsync(new MJoinPacket { Type = type, VisualId = _owner.Character.CharacterId }, _guest);
 
         private Task AcceptAsync() => AnswerAsync(VisualType.Player);

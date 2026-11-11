@@ -39,12 +39,9 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            RemoteCharacters = new Mock<IRemoteCharacterService>();
+            RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
 
-            Handler = new ChangeClassPacketHandler(RemoteCharacters.Object,
-                World.WorldConfiguration, new ExperienceService(), new JobExperienceService(), new HeroExperienceService(),
-                World.GenerateItemProvider(),
-                new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object);
+            Handler = World.Create<ChangeClassPacketHandler>();
         }
 
         [TestMethod]

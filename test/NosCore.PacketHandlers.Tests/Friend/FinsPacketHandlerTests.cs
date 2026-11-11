@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 {
                     new ChannelInfo { Host = "127.0.0.1", Type = ServerType.WorldServer, Id = 1 }
                 });
-            FriendRequestHolder = new FriendRequestRegistry();
+            FriendRequestHolder = World.Create<FriendRequestRegistry>();
             ConnectedAccountHttpClient.Setup(s => s.GetSubscribersAsync())
                 .ReturnsAsync(new List<Subscriber>
                 {

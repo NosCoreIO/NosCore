@@ -48,9 +48,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session.Character.MaxMp = 5000;
             _session.Character.Hp = 1000;
             _session.Character.Mp = 1000;
-            _cards = new Mock<ICardCatalog>();
+            _cards = World.Freeze<Mock<ICardCatalog>>();
             _cards.Setup(c => c.GetItemBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
-            _handler = new FoodHandler(World.Clock, _cards.Object);
+            _handler = World.Create<FoodHandler>();
         }
 
         [TestMethod]

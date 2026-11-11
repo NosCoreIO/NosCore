@@ -33,7 +33,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Handler = new TitEqPacketHandler();
+            Handler = World.Create<TitEqPacketHandler>();
         }
 
         [TestMethod]

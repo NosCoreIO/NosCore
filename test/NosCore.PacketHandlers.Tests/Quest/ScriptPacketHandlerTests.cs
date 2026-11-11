@@ -31,9 +31,9 @@ namespace NosCore.PacketHandlers.Tests.Quest
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            QuestService = new Mock<IQuestService>();
+            QuestService = World.Freeze<Mock<IQuestService>>();
 
-            Handler = new ScriptPacketHandler(QuestService.Object);
+            Handler = World.Create<ScriptPacketHandler>();
         }
 
         [TestMethod]

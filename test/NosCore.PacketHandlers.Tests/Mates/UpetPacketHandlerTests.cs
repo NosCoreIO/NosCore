@@ -44,11 +44,11 @@ namespace NosCore.PacketHandlers.Tests.Mates
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             _map = _session.Character.MapInstance;
-            _battleService = new Mock<IBattleService>();
+            _battleService = World.Freeze<Mock<IBattleService>>();
             _battleService.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()))
                 .ReturnsAsync(true);
             _handler = new UpetPacketHandler(
-                new MateAttackService(_battleService.Object, World.DistanceCalculator, World.Clock),
+                World.Create<MateAttackService>(),
                 World.SessionRegistry,
                 new Mock<ILogger<UpetPacketHandler>>().Object,
                 World.LogLanguageLocalizer);

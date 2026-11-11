@@ -32,7 +32,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         {
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
-            _handler = new UpgradeItemHandler(World.NpcDialogService);
+            _handler = World.Create<UpgradeItemHandler>();
         }
 
         [TestMethod]

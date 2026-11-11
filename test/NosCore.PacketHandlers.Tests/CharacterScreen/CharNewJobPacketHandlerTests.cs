@@ -32,7 +32,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Session = await World.GenerateSessionAsync();
             ExistingCharacter = Session.Character.CharacterDto;
             Session.ClearPlayerEntity();
-            CharNewJobPacketHandler = new CharNewJobPacketHandler(World.CharacterDao, World.WorldConfiguration);
+            CharNewJobPacketHandler = World.Create<CharNewJobPacketHandler>();
         }
 
         [TestMethod]

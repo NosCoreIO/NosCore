@@ -44,8 +44,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             Register(_speaker);
             Register(_listener);
             GiveSpeakerItem();
-            _handler = new SpeakerHandler(NullLogger<SpeakerHandler>.Instance, World.LogLanguageLocalizer,
-                World.GameLanguageLocalizer, World.SessionRegistry);
+            _handler = World.Create<SpeakerHandler>();
         }
 
         [TestMethod]

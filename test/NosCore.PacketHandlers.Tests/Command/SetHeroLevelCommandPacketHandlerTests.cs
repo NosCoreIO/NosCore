@@ -42,13 +42,12 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            RemoteCharacters = new Mock<IRemoteCharacterService>();
-            ExperienceService = new Mock<IExperienceService>();
-            JobExperienceService = new Mock<IJobExperienceService>();
-            HeroExperienceService = new Mock<IHeroExperienceService>();
+            RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
+            ExperienceService = World.Freeze<Mock<IExperienceService>>();
+            JobExperienceService = World.Freeze<Mock<IJobExperienceService>>();
+            HeroExperienceService = World.Freeze<Mock<IHeroExperienceService>>();
 
-            Handler = new SetHeroLevelCommandPacketHandler(RemoteCharacters.Object,
-                ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object);
+            Handler = World.Create<SetHeroLevelCommandPacketHandler>();
         }
 
         [TestMethod]

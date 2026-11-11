@@ -68,10 +68,10 @@ namespace NosCore.PacketHandlers.Tests.Friend
                 });
             FriendHttpClient = World.FriendHub;
             FDelPacketHandler = new FdelPacketHandler(FriendHttpClient.Object, ChannelHttpClient.Object,
-                World.PubSubHub.Object, World.GameLanguageLocalizer, new NosCore.GameObject.Services.BroadcastService.SessionRegistry(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance));
+                World.PubSubHub.Object, World.GameLanguageLocalizer, World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>());
             CharacterDao = new Mock<IDao<CharacterDto, long>>();
             FriendController = new FriendService(NullLogger<FriendService>.Instance, CharacterRelationDao, CharacterDao.Object,
-                new FriendRequestRegistry(), ConnectedAccountHttpClient.Object, ChannelHub.Object, World.LogLanguageLocalizer);
+                World.Create<FriendRequestRegistry>(), ConnectedAccountHttpClient.Object, ChannelHub.Object, World.LogLanguageLocalizer);
             FriendHttpClient.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
                 .Returns((long id) => FriendController.GetFriendsAsync(id));
             FriendHttpClient.Setup(s => s.DeleteAsync(It.IsAny<Guid>()))

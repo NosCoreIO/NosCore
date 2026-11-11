@@ -33,8 +33,8 @@ namespace NosCore.PacketHandlers.Tests.Movement
             Session = await World.GenerateSessionAsync();
             Session.Character.PositionX = 4;
             Session.Character.PositionY = 7;
-            MovementService = new Mock<IMovementService>();
-            Handler = new WalkPacketHandler(MovementService.Object);
+            MovementService = World.Freeze<Mock<IMovementService>>();
+            Handler = World.Create<WalkPacketHandler>();
         }
 
         [TestMethod]

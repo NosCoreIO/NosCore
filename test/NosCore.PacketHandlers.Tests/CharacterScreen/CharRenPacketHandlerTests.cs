@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             World = await TestWorld.CreateAsync();
             MapChangeService = new Mock<IMapChangeService>();
             CharRenPacketHandler =
-                new CharRenPacketHandler(World.CharacterDao, World.WorldConfiguration);
+                World.Create<CharRenPacketHandler>();
             Session = await World.GenerateSessionAsync(new List<IPacketHandler>
             {
                 CharRenPacketHandler

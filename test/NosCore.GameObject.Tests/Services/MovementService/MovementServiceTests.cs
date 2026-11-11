@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.MovementService
                 new Mock<ILogger<GameObject.Services.MovementService.MovementService>>().Object,
                 World.LogLanguageLocalizer,
                 new Mock<Wolverine.IMessageBus>().Object,
-                new WalkService(World.Clock),
+                World.Create<WalkService>(),
                 World.MapInstanceAccessorService,
                 MinilandService.Object,
                 World.Clock,

@@ -177,7 +177,25 @@ namespace NosCore.Tests.Shared
 
         public T Create<T>() => Fixture.Create<T>();
 
-        public T Freeze<T>() => Fixture.Freeze<T>();
+        /// <summary>
+        /// Freezes <typeparamref name="T"/>. A frozen <c>Mock&lt;IDep&gt;</c> also replaces whatever the world
+        /// had registered for <c>IDep</c>, such as its clock or session registry.
+        /// </summary>
+        public T Freeze<T>()
+        {
+            var frozen = Fixture.Freeze<T>();
+            if (frozen is Mock mock)
+            {
+                InjectMethod.MakeGenericMethod(mock.GetType().GetGenericArguments()[0])
+                    .Invoke(null, new object[] { Fixture, mock.Object });
+            }
+
+            return frozen;
+        }
+
+        private static readonly System.Reflection.MethodInfo InjectMethod =
+            typeof(FixtureRegistrar).GetMethod(nameof(FixtureRegistrar.Inject))
+            ?? throw new InvalidOperationException("FixtureRegistrar.Inject is missing.");
 
         public void Inject<T>(T instance) where T : class => Fixture.Inject(instance);
 

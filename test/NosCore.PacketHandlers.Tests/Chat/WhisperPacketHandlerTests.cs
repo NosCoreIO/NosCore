@@ -46,8 +46,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             TargetSession = await World.GenerateSessionAsync();
-            BlacklistHub = new Mock<IBlacklistHub>();
-            PubSubHub = new Mock<IPubSubHub>();
+            BlacklistHub = World.Freeze<Mock<IBlacklistHub>>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
             Serializer = new Mock<ISerializer>();
 
             BlacklistHub.Setup(x => x.GetBlacklistedAsync(It.IsAny<long>()))
@@ -64,8 +64,8 @@ namespace NosCore.PacketHandlers.Tests.Chat
             Handler = new WhisperPacketHandler(
                 Logger,
                 Serializer.Object,
-                new BlacklistCacheService(BlacklistHub.Object, World.Clock),
-                new SubscriberCacheService(PubSubHub.Object, World.Clock),
+                World.Create<BlacklistCacheService>(),
+                World.Create<SubscriberCacheService>(),
                 PubSubHub.Object,
                 channel,
                 World.GameLanguageLocalizer,

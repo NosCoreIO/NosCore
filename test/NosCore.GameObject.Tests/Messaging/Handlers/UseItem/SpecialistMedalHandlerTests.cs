@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _session = await World.GenerateSessionAsync();
             World.WorldConfiguration.Value.MaxAdditionalSpPoints = MaxAdditionalSp;
             World.WorldConfiguration.Value.MaxSpPoints = MaxSp;
-            _handler = new SpecialistMedalHandler(World.WorldConfiguration);
+            _handler = World.Create<SpecialistMedalHandler>();
         }
 
         [TestMethod]

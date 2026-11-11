@@ -58,11 +58,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             _friend.Character.MapId = 1;
             _friend.Character.PositionX = 7;
             _friend.Character.PositionY = 9;
-            _friendHub = new Mock<IFriendHub>();
+            _friendHub = World.Freeze<Mock<IFriendHub>>();
             _friendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
-            _sessionRegistry = new Mock<ISessionRegistry>();
-            _mapChangeService = new Mock<IMapChangeService>();
-            _handler = new FriendshipWingsHandler(_friendHub.Object, _sessionRegistry.Object, _mapChangeService.Object, World.Clock);
+            _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
+            _handler = World.Create<FriendshipWingsHandler>();
         }
 
         [TestMethod]
@@ -214,7 +214,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
 
         private Task ThePlayerIsHit()
         {
-            return new DelayInterruptionHandler().Handle(
+            return World.Create<DelayInterruptionHandler>().Handle(
                 new EntityDamagedEvent(_friend.Character, _session.Character, 10, false));
         }
 

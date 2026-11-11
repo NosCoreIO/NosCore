@@ -58,12 +58,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 World.SessionRegistry,
                 World.NpcDialogService,
                 new[] { _fakeHandlerMock.Object, _npcHandlerMock.Object });
-            _requestNpcPacketHandler = new RequestNpcPacketHandler(
-                new Mock<ILogger<RequestNpcPacketHandler>>().Object,
-                World.LogLanguageLocalizer,
-                World.SessionRegistry,
-                new Mock<Wolverine.IMessageBus>().Object,
-                World.NpcDialogService);
+            _requestNpcPacketHandler = World.Create<RequestNpcPacketHandler>();
         }
 
         [TestMethod]

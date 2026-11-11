@@ -50,7 +50,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
                     }
                 });
             Session = await World.GenerateSessionAsync();
-            FlPacketHandler = new FlCommandPacketHandler(new NosCore.GameObject.Services.BroadcastService.SessionRegistry(NullLogger<NosCore.GameObject.Services.BroadcastService.SessionRegistry>.Instance));
+            FlPacketHandler = new FlCommandPacketHandler(World.Create<NosCore.GameObject.Services.BroadcastService.SessionRegistry>());
         }
 
         [TestMethod]
@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Friend
         private async Task TargetPlayerIsOnlineAndFriendRequestExists()
         {
             TargetSession = await World.GenerateSessionAsync();
-            var friendRequestHolder = new FriendRequestRegistry();
+            var friendRequestHolder = World.Create<FriendRequestRegistry>();
             friendRequestHolder.RegisterRequest(Guid.NewGuid(),
                 TargetSession.Character.CharacterId, Session.Character.CharacterId);
             World.PubSubHub.Setup(s => s.GetSubscribersAsync())

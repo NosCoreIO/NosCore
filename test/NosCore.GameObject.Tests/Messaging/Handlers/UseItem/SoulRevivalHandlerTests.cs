@@ -39,7 +39,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.GenerateSessionAsync();
             World.WorldConfiguration.Value.MaxSpPoints = 10000;
-            _handler = new SoulRevivalHandler(World.WorldConfiguration);
+            _handler = World.Create<SoulRevivalHandler>();
         }
 
         [TestMethod]

@@ -34,8 +34,8 @@ namespace NosCore.PacketHandlers.Tests.Quest
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             CharacterId = Session.Character.VisualId;
-            QuestService = new Mock<IQuestService>();
-            Handler = new QtPacketHandler(QuestService.Object);
+            QuestService = World.Freeze<Mock<IQuestService>>();
+            Handler = World.Create<QtPacketHandler>();
         }
 
         [TestMethod]

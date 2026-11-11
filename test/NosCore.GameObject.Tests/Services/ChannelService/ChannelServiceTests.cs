@@ -39,17 +39,14 @@ namespace NosCore.GameObject.Tests.Services.ChannelService
             Session = await World.GenerateSessionAsync();
             Session.Character.MapInstance = World.GetBaseMap(1);
 
-            AuthHub = new Mock<IAuthHub>();
-            ChannelHub = new Mock<IChannelHub>();
-            SaveService = new Mock<ISaveService>();
+            AuthHub = World.Freeze<Mock<IAuthHub>>();
+            ChannelHub = World.Freeze<Mock<IChannelHub>>();
+            SaveService = World.Freeze<Mock<ISaveService>>();
 
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
                 .Returns(Task.CompletedTask);
 
-            Service = new GameObject.Services.ChannelService.ChannelService(
-                AuthHub.Object,
-                ChannelHub.Object,
-                SaveService.Object);
+            Service = World.Create<GameObject.Services.ChannelService.ChannelService>();
         }
 
         [TestMethod]

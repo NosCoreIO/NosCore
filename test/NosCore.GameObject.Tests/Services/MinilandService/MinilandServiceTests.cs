@@ -62,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 },
                 World.MinilandDao,
                 World.MinilandObjectDao,
-                new MinilandRegistry());
+                World.Create<MinilandRegistry>());
         }
 
         [TestMethod]
@@ -191,7 +191,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
             _isolatedAccessor.Setup(a => a.GetBaseMapById(145)).Returns(_oldNosvilleInstance);
             _isolatedAccessor.Setup(a => a.GetMapInstance(_minilandInstance.MapInstanceId)).Returns(_minilandInstance);
 
-            var registry = new MinilandRegistry();
+            var registry = World.Create<MinilandRegistry>();
             registry.Register(Session.Character.CharacterId, new Miniland
             {
                 MinilandId = Guid.NewGuid(),

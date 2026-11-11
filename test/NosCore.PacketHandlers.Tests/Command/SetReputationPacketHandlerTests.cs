@@ -36,9 +36,9 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            RemoteCharacters = new Mock<IRemoteCharacterService>();
+            RemoteCharacters = World.Freeze<Mock<IRemoteCharacterService>>();
 
-            Handler = new SetReputationPacketHandler(RemoteCharacters.Object);
+            Handler = World.Create<SetReputationPacketHandler>();
         }
 
         [TestMethod]

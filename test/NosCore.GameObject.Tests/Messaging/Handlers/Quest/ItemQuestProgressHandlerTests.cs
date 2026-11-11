@@ -58,14 +58,14 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
             _handler = new ItemQuestProgressHandler(_questService.Object,
                 new IQuestTypeHandler[]
                 {
-                    new GoToQuestHandler(),
-                    new CollectQuestHandler(),
-                    new NeededQuestHandler(),
-                    new BringsQuestHandler(),
-                    new RequiredQuestHandler(),
-                    new ProductQuestHandler(),
-                    new UseQuestHandler(),
-                    new WearQuestHandler()
+                    World.Create<GoToQuestHandler>(),
+                    World.Create<CollectQuestHandler>(),
+                    World.Create<NeededQuestHandler>(),
+                    World.Create<BringsQuestHandler>(),
+                    World.Create<RequiredQuestHandler>(),
+                    World.Create<ProductQuestHandler>(),
+                    World.Create<UseQuestHandler>(),
+                    World.Create<WearQuestHandler>()
                 },
                 NullLogger<ItemQuestProgressHandler>.Instance);
         }

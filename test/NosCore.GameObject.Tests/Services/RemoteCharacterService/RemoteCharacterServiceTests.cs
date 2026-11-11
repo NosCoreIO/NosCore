@@ -38,14 +38,13 @@ namespace NosCore.GameObject.Tests.Services.RemoteCharacterService
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            PubSubHub = new Mock<IPubSubHub>();
-            MailHub = new Mock<IMailHub>();
+            PubSubHub = World.Freeze<Mock<IPubSubHub>>();
+            MailHub = World.Freeze<Mock<IMailHub>>();
             PubSubHub.Setup(x => x.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             MailHub.Setup(x => x.SendMailAsync(It.IsAny<MailRequest>()))
                 .Callback<MailRequest>(request => SentMail = request)
                 .ReturnsAsync(true);
-            Service = new GameObject.Services.RemoteCharacterService.RemoteCharacterService(PubSubHub.Object,
-                MailHub.Object, World.Clock);
+            Service = World.Create<GameObject.Services.RemoteCharacterService.RemoteCharacterService>();
         }
 
         [TestMethod]

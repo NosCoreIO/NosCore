@@ -39,19 +39,12 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
             await base.SetupAsync();
             Session.WithNpcAt(100, 1, 1);
             Session.WithWindowOpenedAt(100, NpcDialogWindow.Bazaar);
-            BazaarHttpClient = new Mock<IBazaarHub>();
+            BazaarHttpClient = World.Freeze<Mock<IBazaarHub>>();
             InventoryItemInstanceDao = new Mock<IDao<InventoryItemInstanceDto, Guid>>();
-            ItemInstanceDao = new Mock<IDao<IItemInstanceDto?, Guid>>();
+            ItemInstanceDao = World.Freeze<Mock<IDao<IItemInstanceDto?, Guid>>>();
             BazaarHttpClient.Setup(s => s.AddBazaarAsync(It.IsAny<BazaarRequest>()))
                 .ReturnsAsync(LanguageKey.OBJECT_IN_BAZAAR);
-            CregPacketHandler = new CRegPacketHandler(
-                World.WorldConfiguration,
-                BazaarHttpClient.Object,
-                ItemInstanceDao.Object,
-                new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object,
-                Microsoft.Extensions.Logging.Abstractions.NullLogger<CRegPacketHandler>.Instance,
-                World.LogLanguageLocalizer, World.NpcDialogService,
-                new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object);
+            CregPacketHandler = World.Create<CRegPacketHandler>();
             ItemInstanceDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<IItemInstanceDto?>()))
                 .Returns<IItemInstanceDto?>(Task.FromResult);
         }

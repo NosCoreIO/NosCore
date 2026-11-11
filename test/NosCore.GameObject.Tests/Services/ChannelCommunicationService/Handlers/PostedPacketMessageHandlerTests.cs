@@ -42,11 +42,11 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            SessionRegistry = new Mock<ISessionRegistry>();
-            Deserializer = new Mock<IDeserializer>();
-            Logger = new Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>();
-            LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            Handler = new PostedPacketMessageChannelCommunicationMessageHandler(Logger.Object, Deserializer.Object, LogLanguage.Object, SessionRegistry.Object);
+            SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            Deserializer = World.Freeze<Mock<IDeserializer>>();
+            Logger = World.Freeze<Mock<ILogger<PostedPacketMessageChannelCommunicationMessageHandler>>>();
+            LogLanguage = World.Freeze<Mock<ILogLanguageLocalizer<LogLanguageKey>>>();
+            Handler = World.Create<PostedPacketMessageChannelCommunicationMessageHandler>();
         }
 
         [TestMethod]

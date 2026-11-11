@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             _member.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId, Name = "Testers" };
             _outsider.Character.Family = new NosCore.GameObject.Services.FamilyService.Family { FamilyId = FamilyId + 1, Name = "Others" };
             var sessions = new[] { _member, _outsider };
-            _sessionRegistry = new Mock<ISessionRegistry>();
+            _sessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             _sessionRegistry.Setup(s => s.GetSessions(It.IsAny<Func<ClientSession, bool>?>()))
                 .Returns((Func<ClientSession, bool>? predicate) => predicate == null ? sessions : sessions.Where(predicate));
             _member.LastPackets.Clear();
@@ -54,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         }
 
         private Task TheFamilysHistoryChanges() =>
-            new FamilyHistoryChangedDataMessageChannelCommunicationMessageHandler(_sessionRegistry.Object)
+            World.Create<FamilyHistoryChangedDataMessageChannelCommunicationMessageHandler>()
                 .Handle(new FamilyHistoryChangedData { FamilyId = FamilyId });
 
         private void TheMemberShouldBeToldToRefresh() =>

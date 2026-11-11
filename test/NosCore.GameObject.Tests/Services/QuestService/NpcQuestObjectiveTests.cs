@@ -55,11 +55,11 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             var handlers = new IQuestTypeHandler[]
             {
-                new Dialog1QuestHandler(),
-                new Dialog2QuestHandler(),
-                new InspectQuestHandler(),
-                new CollectMapEntityQuestHandler(),
-                new TransmitGoldQuestHandler(World.GameLanguageLocalizer),
+                World.Create<Dialog1QuestHandler>(),
+                World.Create<Dialog2QuestHandler>(),
+                World.Create<InspectQuestHandler>(),
+                World.Create<CollectMapEntityQuestHandler>(),
+                World.Create<TransmitGoldQuestHandler>(),
             };
             var questService = new GameObject.Services.QuestService.QuestService(
                 new List<ScriptDto>(),

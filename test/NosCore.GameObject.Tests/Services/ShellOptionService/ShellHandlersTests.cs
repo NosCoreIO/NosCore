@@ -247,7 +247,7 @@ namespace NosCore.GameObject.Tests.Services.ShellOptionService
         private void EveryRollIs_(double roll) => _bench.Random.Setup(r => r.NextDouble()).Returns(roll);
 
         private Task UsingThePearl() =>
-            new RainbowPearlHandler().Handle(new ItemUsedEvent(_session, _consumable, Use(PocketType.Main, _consumable.Slot, 0)));
+            World.Create<RainbowPearlHandler>().Handle(new ItemUsedEvent(_session, _consumable, Use(PocketType.Main, _consumable.Slot, 0)));
 
         private Task PickingTheShellToIdentify() =>
             new ShellIdentificationHandler(_bench.Service, new Algorithm.ShellService.ShellService())

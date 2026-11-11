@@ -34,7 +34,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
             World = await TestWorld.CreateAsync();
             Item = World.GenerateItemProvider();
             Session = await World.GenerateSessionAsync();
-            PutPacketHandler = new PutPacketHandler(World.WorldConfiguration, World.GameLanguageLocalizer);
+            PutPacketHandler = World.Create<PutPacketHandler>();
         }
 
         [TestMethod]

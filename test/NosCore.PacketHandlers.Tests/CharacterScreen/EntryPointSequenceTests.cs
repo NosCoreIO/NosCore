@@ -42,7 +42,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            AuthHub = new AuthHub(new AuthCodeService(World.Clock), new MasterClientList());
+            AuthHub = new AuthHub(World.Create<AuthCodeService>(), new MasterClientList());
             var sessionRefHolder = new SessionRefHolder();
             var pubSubHub = World.PubSubHub;
             pubSubHub.Setup(o => o.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());

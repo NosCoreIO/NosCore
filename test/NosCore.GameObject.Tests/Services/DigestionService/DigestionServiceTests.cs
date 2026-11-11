@@ -36,9 +36,7 @@ namespace NosCore.GameObject.Tests.Services.DigestionService
             _session.Character.IsSitting = true;
             _digestion = _session.Character.Digestion;
             _digestion.LastTick = World.Clock.GetCurrentInstant();
-            _service = new GameObject.Services.DigestionService.DigestionService(
-                World.SessionRegistry, World.Clock,
-                NullLogger<GameObject.Services.DigestionService.DigestionService>.Instance);
+            _service = World.Create<GameObject.Services.DigestionService.DigestionService>();
         }
 
         [TestMethod]

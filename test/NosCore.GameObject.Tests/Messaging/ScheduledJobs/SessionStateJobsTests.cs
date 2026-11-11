@@ -44,11 +44,11 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
             Clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
-            SaveService = new Mock<ISaveService>();
+            SaveService = World.Freeze<Mock<ISaveService>>();
             SaveService.Setup(s => s.SaveAsync(It.IsAny<ClientSession>()))
                 .Callback(() => Saves++)
                 .Returns(Task.CompletedTask);
-            SessionRegistry = new Mock<ISessionRegistry>();
+            SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
             SessionRegistry.Setup(s => s.GetSessions(It.IsAny<Func<ClientSession, bool>?>()))
                 .Returns(() => new[] { Session });
             SessionRegistry.Setup(s => s.GetCharacters(It.IsAny<Func<PlayerComponentBundle, bool>?>()))
@@ -106,14 +106,13 @@ namespace NosCore.GameObject.Tests.Messaging.ScheduledJobs
 
         private void ThePeriodicSaveRuns()
         {
-            var handler = new SaveAllSessionsHandler(NullLogger<SaveAllSessionsHandler>.Instance, SaveService.Object,
-                World.LogLanguageLocalizer, SessionRegistry.Object);
+            var handler = World.Create<SaveAllSessionsHandler>();
             Job = handler.Handle(new SaveAllSessionsMessage());
         }
 
         private void TheSessionDisconnects()
         {
-            Job = new SaveDisconnectHandler(SaveService.Object).HandleDisconnectAsync(Session);
+            Job = World.Create<SaveDisconnectHandler>().HandleDisconnectAsync(Session);
         }
 
         private void TheCharacterHasAnExpiredBonus()

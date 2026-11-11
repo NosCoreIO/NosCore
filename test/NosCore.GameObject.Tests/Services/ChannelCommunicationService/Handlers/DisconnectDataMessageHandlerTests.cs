@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            SessionRegistry = new Mock<ISessionRegistry>();
-            Handler = new DisconnectDataMessageChannelCommunicationMessageHandler(SessionRegistry.Object);
+            SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            Handler = World.Create<DisconnectDataMessageChannelCommunicationMessageHandler>();
         }
 
         [TestMethod]

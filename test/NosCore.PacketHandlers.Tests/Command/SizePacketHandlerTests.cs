@@ -34,9 +34,9 @@ namespace NosCore.PacketHandlers.Tests.Command
         {
             World = await TestWorld.CreateAsync();
             Session = await World.GenerateSessionAsync();
-            Logger = new Mock<ILogger<SizePacketHandler>>();
-            LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
-            Handler = new SizePacketHandler(Logger.Object, LogLanguage.Object);
+            Logger = World.Freeze<Mock<ILogger<SizePacketHandler>>>();
+            LogLanguage = World.Freeze<Mock<ILogLanguageLocalizer<LogLanguageKey>>>();
+            Handler = World.Create<SizePacketHandler>();
         }
 
         [TestMethod]
