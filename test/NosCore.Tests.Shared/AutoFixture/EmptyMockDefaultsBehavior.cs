@@ -39,7 +39,7 @@ namespace NosCore.Tests.Shared.AutoFixture
             {
                 if (type.GetElementType() is { } arrayElement)
                 {
-                    return Array.CreateInstance(arrayElement, 0);
+                    return Array.CreateInstance(arrayElement, new int[type.GetArrayRank()]);
                 }
 
                 if (type.IsInterface && type.IsGenericType && type.GetGenericArguments() is [var element]
