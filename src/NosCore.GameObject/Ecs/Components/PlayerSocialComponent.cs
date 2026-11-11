@@ -19,4 +19,5 @@ public record struct PlayerSocialComponent(
     ConcurrentDictionary<long, long> MinilandInviteCharacterIds,
     ConcurrentDictionary<long, Instant> ExchangeRequestCharacterIds,
     Instant? LastExchangeRequest,
-    ConcurrentDictionary<(InviteType Type, long TargetId), Instant> LastInvites);
+    ConcurrentDictionary<(InviteType Type, long TargetId), Instant> LastInvites,
+    ConcurrentDictionary<long, long> MarriageProposalCharacterIds);

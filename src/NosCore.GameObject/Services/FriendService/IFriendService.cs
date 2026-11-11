@@ -20,5 +20,9 @@ namespace NosCore.GameObject.Services.FriendService
         Task<List<CharacterRelationStatus>> GetFriendsAsync(long id);
 
         Task<bool> DeleteAsync(Guid id);
+
+        Task<bool> MarryAsync(long characterId, long spouseId);
+
+        Task<long?> SeparateAsync(long characterId);
     }
 }

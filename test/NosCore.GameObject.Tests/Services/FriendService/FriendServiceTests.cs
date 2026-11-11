@@ -219,6 +219,59 @@ namespace NosCore.GameObject.Tests.Services.FriendService
         private bool DeleteResult;
         private Guid? FriendRelationId;
 
+        [TestMethod]
+        public async Task TwoFriendsMarry()
+        {
+            await RelateAsync(CharacterId, TargetCharacterId, CharacterRelationType.Friend);
+
+            Assert.IsTrue(await Service.MarryAsync(CharacterId, TargetCharacterId));
+            Assert.AreEqual(2, World.CharacterRelationDao.Where(s => s.RelationType == CharacterRelationType.Spouse)?.Count());
+            Assert.AreEqual(0, World.CharacterRelationDao.Where(s => s.RelationType == CharacterRelationType.Friend)?.Count());
+        }
+
+        [TestMethod]
+        public async Task StrangersCannotMarry()
+        {
+            Assert.IsFalse(await Service.MarryAsync(CharacterId, TargetCharacterId));
+        }
+
+        [TestMethod]
+        public async Task AMarriedCharacterCannotMarryAgain()
+        {
+            await RelateAsync(CharacterId, TargetCharacterId, CharacterRelationType.Friend);
+            await RelateAsync(CharacterId, 3, CharacterRelationType.Spouse);
+
+            Assert.IsFalse(await Service.MarryAsync(CharacterId, TargetCharacterId));
+            Assert.AreEqual(2, World.CharacterRelationDao.Where(s => s.RelationType == CharacterRelationType.Friend)?.Count());
+        }
+
+        [TestMethod]
+        public async Task SeparatingRemovesBothSidesAndNamesTheSpouse()
+        {
+            await RelateAsync(CharacterId, TargetCharacterId, CharacterRelationType.Spouse);
+
+            Assert.AreEqual(TargetCharacterId, await Service.SeparateAsync(CharacterId));
+            Assert.AreEqual(0, World.CharacterRelationDao.Where(s => s.RelationType == CharacterRelationType.Spouse)?.Count() ?? 0);
+        }
+
+        [TestMethod]
+        public async Task SeparatingWithoutASpouseDoesNothing()
+        {
+            Assert.IsNull(await Service.SeparateAsync(CharacterId));
+        }
+
+        private async Task RelateAsync(long first, long second, CharacterRelationType type)
+        {
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
+            {
+                CharacterRelationId = Guid.NewGuid(), CharacterId = first, RelatedCharacterId = second, RelationType = type
+            });
+            await World.CharacterRelationDao.TryInsertOrUpdateAsync(new CharacterRelationDto
+            {
+                CharacterRelationId = Guid.NewGuid(), CharacterId = second, RelatedCharacterId = first, RelationType = type
+            });
+        }
+
         private async Task BothPlayersAreOnlineSameChannel()
         {
             var session1 = await World.CreateSessionAsync();
