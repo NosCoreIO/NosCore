@@ -18,7 +18,7 @@ namespace NosCore.Database
             var databaseConfiguration = new SqlConnectionConfiguration();
             ConfiguratorBuilder.InitializeConfiguration(args, new[] { "database.yml" }).Bind(databaseConfiguration);
             var optionsBuilder = new DbContextOptionsBuilder<NosCoreContext>();
-            optionsBuilder.UseNpgsql(databaseConfiguration.ConnectionString, options => { options.UseNodaTime(); });
+            optionsBuilder.UseNosCoreDatabase(databaseConfiguration.ConnectionString);
             return new NosCoreContext(optionsBuilder.Options);
         }
     }

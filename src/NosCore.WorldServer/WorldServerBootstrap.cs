@@ -8,7 +8,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using FastExpressionCompiler;
 using Mapster;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -28,7 +27,6 @@ using NosCore.Core.Services.IdService;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data;
-using NosCore.Data.CommandPackets;
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -37,6 +35,7 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.Database.Entities.Base;
 using NosCore.Database.Hosting;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Hosting.Modules;
 using NosCore.GameObject.Infastructure;
@@ -62,8 +61,6 @@ using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Generated;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
-using NosCore.Packets.Attributes;
-using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Heuristic;
 using NosCore.PathFinder.Interfaces;
@@ -93,8 +90,7 @@ namespace NosCore.WorldServer
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "world.yml" });
             var worldConfiguration = conf.Get<WorldConfiguration>()
                 ?? throw new InvalidOperationException("The WorldConfiguration section could not be read.");
-            services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(worldConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
+            services.AddNosCoreContext(worldConfiguration.Database.ConnectionString);
             services.AddOptions<WorldConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
@@ -121,17 +117,7 @@ namespace NosCore.WorldServer
                 }
             }));
             containerBuilder.RegisterType<MapsterMapper.Mapper>().AsImplementedInterfaces();
-            var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() is not { } header
-                    || (header.Scopes & Scope.OnLoginScreen) == 0) && p.IsClass && !p.IsAbstract).ToList();
-            listofpacket.AddRange(typeof(HelpPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && p.IsClass && !p.IsAbstract).ToList());
-            containerBuilder.Register(c => new Deserializer(listofpacket))
-                .AsImplementedInterfaces()
-                .SingleInstance();
-            containerBuilder.Register(c => new Serializer(listofpacket))
-                .AsImplementedInterfaces()
-                .SingleInstance();
+            containerBuilder.RegisterPacketSerializers(PacketTypes.World());
 
             //NosCore.Configuration
             containerBuilder.RegisterAssemblyTypes(typeof(ChannelHubClient).Assembly)
@@ -157,12 +143,7 @@ namespace NosCore.WorldServer
                     Host = configuration.Value.Host ?? throw new InvalidOperationException("Host is not configured."),
                 };
             });
-            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
-            {
-                HashingType.BCrypt => new BcryptHasher(),
-                HashingType.Pbkdf2 => new Pbkdf2Hasher(),
-                _ => new Sha512Hasher()
-            });
+            containerBuilder.RegisterHasher();
 
             //NosCore.Controllers
             containerBuilder.RegisterTypes(GeneratedPacketHandlers.WorldHandlerTypes)

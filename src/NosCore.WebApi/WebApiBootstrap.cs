@@ -28,7 +28,6 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.Messaging;
 using NosCore.Shared.Authentication;
 using NosCore.Shared.Configuration;
-using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using System;
 
@@ -47,8 +46,7 @@ namespace NosCore.WebApi
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "api.yml" });
             var loginConfiguration = conf.Get<ApiConfiguration>()
                 ?? throw new InvalidOperationException("The ApiConfiguration section could not be read.");
-            builder.Services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
+            builder.Services.AddNosCoreContext(loginConfiguration.Database.ConnectionString);
             builder.Services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             builder.Services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             builder.Services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(ApiConfiguration.MasterCommunication))).ValidateDataAnnotations();
@@ -73,12 +71,7 @@ namespace NosCore.WebApi
                     containerBuilder.RegisterType<NosCoreContext>().As<DbContext>();
                     containerBuilder.RegisterType<Dao<Account, AccountDto, long>>().As<IDao<AccountDto, long>>().SingleInstance();
 
-                    containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
-                    {
-                        HashingType.BCrypt => new BcryptHasher(),
-                        HashingType.Pbkdf2 => new Pbkdf2Hasher(),
-                        _ => new Sha512Hasher()
-                    });
+                    containerBuilder.RegisterHasher();
                 });
 
             var app = builder.Build();
