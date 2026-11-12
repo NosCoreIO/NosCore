@@ -5,10 +5,12 @@
 //
 
 using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -27,15 +29,13 @@ namespace NosCore.GameObject.Services.UpgradeService;
 public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
     : UpgradeOperation(random, localizer), IItemOpenedUpgradeOperation
 {
-    public const short CostumeFusionVNum = 5874;
-    public const short BoundCostumeFusionVNum = 9112;
     public const long GoldCost = 1_000_000;
 
     public override UpgradePacketType Kind => UpgradePacketType.FusionItem;
 
     public override NpcDialogWindow Window => NpcDialogWindow.UpgradeScroll;
 
-    public IReadOnlyCollection<short> OpeningItemVNums { get; } = new[] { CostumeFusionVNum, BoundCostumeFusionVNum };
+    public bool IsOpenedBy(ItemDto item) => item.Effect == ItemEffectType.CostumeFusion;
 
     protected override bool AnnouncesResult => false;
 
@@ -75,7 +75,9 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
             return null;
         }
 
-        var fusionVNum = inventory.CountItem(CostumeFusionVNum) > 0 ? CostumeFusionVNum : BoundCostumeFusionVNum;
+        var fusionVNum = inventory.Values.Select(i => i.ItemInstance.Item)
+            .Where(i => i.Effect == ItemEffectType.CostumeFusion)
+            .MinBy(i => i.VNum)?.VNum ?? 0;
         return new UpgradeContext(
             Source: source,
             Target: inventory.LoadBySlotAndType(slot2, (NoscorePocketType)type2),

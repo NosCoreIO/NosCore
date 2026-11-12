@@ -205,7 +205,9 @@ public abstract class SpUpgradeOperationBase(
         return null;
     }
 
-    private short VNum(MaterialType material) => itemCatalog.GetMaterialVNum(material);
+    private short VNum(MaterialType material) => ItemCatalog.GetMaterialVNum(material);
+
+    protected IItemCatalog ItemCatalog { get; } = itemCatalog;
 
     private static MaterialType Soul(SpecialistInstance card)
     {

@@ -63,6 +63,13 @@ namespace NosCore.Data.Enumerations.Items
         ShellIdentification = 1012,
         ShellOptionRemoval = 1013,
         SoulRevival = 1014,
+
+        // The effect value of both is the upgrade window, as the client numbers it, that the scroll
+        // opens and the card is upgraded in.
+        EventSpUpgradeScroll = 1015,
+        EventSpecialist = 1017,
+
+        CostumeFusion = 1016,
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

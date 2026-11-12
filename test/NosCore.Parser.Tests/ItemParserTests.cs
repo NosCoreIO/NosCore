@@ -164,6 +164,38 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)5107, ItemEffectType.EventSpUpgradeScroll, UpgradePacketType.UpgradeSpChiken)]
+        [DataRow((short)907, ItemEffectType.EventSpecialist, UpgradePacketType.UpgradeSpChiken)]
+        [DataRow((short)5207, ItemEffectType.EventSpUpgradeScroll, UpgradePacketType.UpgradeSpPyjama)]
+        [DataRow((short)900, ItemEffectType.EventSpecialist, UpgradePacketType.UpgradeSpPyjama)]
+        [DataRow((short)5519, ItemEffectType.EventSpUpgradeScroll, UpgradePacketType.UpgradeSpPirate)]
+        [DataRow((short)4100, ItemEffectType.EventSpecialist, UpgradePacketType.UpgradeSpPirate)]
+        public async Task ItemParser_LinksTheEventCardsToTheirScrollWindow(short vnum, ItemEffectType effect,
+            UpgradePacketType window)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(effect, _savedItems.Single().Effect);
+            Assert.AreEqual((int)window, _savedItems.Single().EffectValue);
+        }
+
+        [TestMethod]
+        [DataRow((short)5874)]
+        [DataRow((short)9112)]
+        public async Task ItemParser_MarksTheCostumeFusionItems(short vnum)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemEffectType.CostumeFusion, _savedItems.Single().Effect);
+        }
+
+        [TestMethod]
         [DataRow((short)1014, MaterialType.CellaPowder)]
         [DataRow((short)2748, MaterialType.DimensiolithShard)]
         [DataRow((short)1364, MaterialType.HigherSpProtectionScroll)]

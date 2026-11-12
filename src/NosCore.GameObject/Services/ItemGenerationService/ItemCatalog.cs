@@ -15,7 +15,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
     public sealed class ItemCatalog : IItemCatalog, ISingletonService
     {
         private readonly IReadOnlyDictionary<short, ItemDto> _items;
-        private readonly IReadOnlyDictionary<ItemEffectType, ItemDto> _byEffect;
+        private readonly IReadOnlyDictionary<ItemEffectType, IReadOnlyList<ItemDto>> _byEffect;
         private readonly IReadOnlyDictionary<MaterialType, short> _materials;
 
         public ItemCatalog(List<ItemDto> items)
@@ -24,7 +24,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
             _byEffect = _items.Values
                 .Where(i => i.Effect != ItemEffectType.NoEffect)
                 .GroupBy(i => i.Effect)
-                .ToDictionary(g => g.Key, g => g.OrderBy(i => i.VNum).First());
+                .ToDictionary(g => g.Key, g => (IReadOnlyList<ItemDto>)g.OrderBy(i => i.VNum).ToArray());
             _materials = _items.Values
                 .Where(i => i.Material != MaterialType.None)
                 .GroupBy(i => i.Material)
@@ -33,7 +33,10 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 
         public ItemDto? GetItem(short vnum) => _items.GetValueOrDefault(vnum);
 
-        public ItemDto? GetItemWithEffect(ItemEffectType effect) => _byEffect.GetValueOrDefault(effect);
+        public ItemDto? GetItemWithEffect(ItemEffectType effect) => GetItemsWithEffect(effect).FirstOrDefault();
+
+        public IReadOnlyList<ItemDto> GetItemsWithEffect(ItemEffectType effect) =>
+            _byEffect.TryGetValue(effect, out var items) ? items : [];
 
         public short GetMaterialVNum(MaterialType material) => _materials.GetValueOrDefault(material);
     }

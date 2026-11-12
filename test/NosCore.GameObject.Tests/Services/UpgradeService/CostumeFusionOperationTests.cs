@@ -35,6 +35,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     [TestClass]
     public class CostumeFusionOperationTests : SpecBase
     {
+        private const short CostumeFusionVNumValue = 5874;
+        private const short BoundCostumeFusionVNum = 9112;
+
         private const short EffectsVNum = 189;
         private const short DesignVNum = 4795;
         private const short EffectsSlot = 0;
@@ -59,7 +62,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await new Spec("The first costume takes the second's look, the second is destroyed, and the gold and one fusion item are spent")
                 .Given(TwoBoundPermanentSuits)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)2)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)2)
                 .WhenAsync(Fusing)
                 .Then(TheEffectsCostumeShouldLookLike_, DesignVNum)
                 .And(TheDesignCostumeShouldBeGone)
@@ -73,10 +76,10 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await new Spec("The bound Costume Fusion item pays for the fusion when it is the only one")
                 .Given(TwoBoundPermanentSuits)
-                .And(FusionItems_, CostumeFusionOperation.BoundCostumeFusionVNum, (short)1)
+                .And(FusionItems_, BoundCostumeFusionVNum, (short)1)
                 .WhenAsync(Fusing)
                 .Then(TheEffectsCostumeShouldLookLike_, DesignVNum)
-                .And(FusionItemsLeftShouldBe_, CostumeFusionOperation.BoundCostumeFusionVNum, 0)
+                .And(FusionItemsLeftShouldBe_, BoundCostumeFusionVNum, 0)
                 .ExecuteAsync();
         }
 
@@ -85,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await new Spec("Without a million gold the fusion is refused and both costumes stay as they are")
                 .Given(TwoBoundPermanentSuits)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .And(CharacterHasGold, 999_999L)
                 .WhenAsync(Fusing)
                 .Then(TheRefusalShouldBe_, Game18NConstString.NotEnoughGold)
@@ -113,7 +116,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("A costume that expires cannot be fused")
                 .Given(TwoBoundPermanentSuits)
                 .And(TheDesignCostumeExpires)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .WhenAsync(Fusing)
                 .Then(TheMessageShouldBe_, Game18NConstString.BothMaterialsMustBePermanent)
                 .And(TheDesignCostumeShouldStillBeThere)
@@ -127,7 +130,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("A costume that is not bound to a character cannot be fused")
                 .Given(TwoBoundPermanentSuits)
                 .And(TheDesignCostumeIsNotBound)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .WhenAsync(Fusing)
                 .Then(TheMessageShouldBe_, Game18NConstString.BothMaterialsMustBeBound)
                 .And(TheDesignCostumeShouldStillBeThere)
@@ -140,7 +143,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await new Spec("A costume whose look was already changed cannot be fused again")
                 .Given(TwoBoundPermanentSuits)
                 .And(TheEffectsCostumeWasAlreadyFused)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .WhenAsync(Fusing)
                 .Then(TheMessageShouldBe_, Game18NConstString.CannotUseItemWithChangedAppearance)
                 .And(TheDesignCostumeShouldStillBeThere)
@@ -152,7 +155,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await new Spec("A suit cannot take the look of a hat, and nothing is spent")
                 .Given(ASuitAndAHat)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .WhenAsync(Fusing)
                 .Then(NothingShouldBeSent)
                 .And(TheEffectsCostumeShouldKeepItsLook)
@@ -165,7 +168,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         {
             await new Spec("Worn, a fused costume is shown to everyone with the look it took")
                 .Given(TwoBoundPermanentSuits)
-                .And(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .And(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .WhenAsync(FusingThenWearingTheCostume)
                 .Then(TheWornSuitShouldShow_, DesignVNum)
                 .ExecuteAsync();
@@ -175,15 +178,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task UsingTheFusionItemOpensTheWindow()
         {
             await new Spec("Using a Costume Fusion item opens the fusion window and keeps the item")
-                .Given(FusionItems_, CostumeFusionOperation.CostumeFusionVNum, (short)1)
+                .Given(FusionItems_, CostumeFusionVNumValue, (short)1)
                 .WhenAsync(UsingTheFusionItem)
                 .Then(TheWindowShouldBe_, WindowType.FusionItem)
                 .And(TheItemWindowShouldBeOpen)
-                .And(FusionItemsLeftShouldBe_, CostumeFusionOperation.CostumeFusionVNum, 1)
+                .And(FusionItemsLeftShouldBe_, CostumeFusionVNumValue, 1)
                 .ExecuteAsync();
         }
 
-        private static short CostumeFusionVNum() => CostumeFusionOperation.CostumeFusionVNum;
+        private static short CostumeFusionVNum() => CostumeFusionVNumValue;
 
         private void TwoBoundPermanentSuits()
         {
@@ -217,7 +220,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void FusionItems_(short vnum, short amount)
         {
             var inst = InventoryItemInstance.Create(
-                new ItemInstance(new Item { VNum = vnum, Type = NoscorePocketType.Main }) { Amount = amount },
+                new ItemInstance(new Item { VNum = vnum, Type = NoscorePocketType.Main, Effect = ItemEffectType.CostumeFusion }) { Amount = amount },
                 Session.Character.CharacterId);
             inst.Slot = FusionSlot;
             inst.Type = NoscorePocketType.Main;
