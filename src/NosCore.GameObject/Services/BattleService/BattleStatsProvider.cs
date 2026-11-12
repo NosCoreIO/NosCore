@@ -75,6 +75,7 @@ public sealed class BattleStatsProvider(
 
     private static CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch
     {
+        MateComponentBundle mate => FromMate(mate.Mate, entity.Level, entity.HeroLevel),
         INonPlayableEntity npc => FromMonster(npc.NpcMonster, entity.Level, entity.HeroLevel),
         ICharacterEntity character => FromCharacter(character),
         _ => default,
@@ -112,6 +113,24 @@ public sealed class BattleStatsProvider(
         WaterResistance: mob.WaterResistance,
         LightResistance: mob.LightResistance,
         DarkResistance: mob.DarkResistance);
+
+    private static CombatStats FromMate(MateService.Mate mate, byte level, byte heroLevel) =>
+        FromMonster(mate.NpcMonster, level, heroLevel) with
+        {
+            MinHit = mate.DamageMinimum,
+            MaxHit = mate.DamageMaximum,
+            HitRate = mate.Concentrate,
+            MinDistance = mate.DamageMinimum,
+            MaxDistance = mate.DamageMaximum,
+            DistanceRate = mate.Concentrate,
+            Defence = mate.CloseDefence,
+            DefenceRate = mate.Dodge,
+            DistanceDefence = mate.DistanceDefence,
+            DistanceDefenceRate = mate.Dodge,
+            MagicDefence = mate.MagicDefence,
+            DefenceDodge = mate.Dodge,
+            DistanceDefenceDodge = mate.Dodge,
+        };
 
     private static CombatStats FromCharacter(ICharacterEntity character)
     {

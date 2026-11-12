@@ -142,6 +142,20 @@ namespace NosCore.Database.Entities
 
         public int MpBonus { get; set; }
 
+        public short CloseDefenceBonus { get; set; }
+
+        public short DistanceDefenceBonus { get; set; }
+
+        public short MagicDefenceBonus { get; set; }
+
+        public short DodgeBonus { get; set; }
+
+        public short DamageMinimumBonus { get; set; }
+
+        public short DamageMaximumBonus { get; set; }
+
+        public short ConcentrateBonus { get; set; }
+
         public MonsterType MonsterType { get; set; }
 
         [Required]

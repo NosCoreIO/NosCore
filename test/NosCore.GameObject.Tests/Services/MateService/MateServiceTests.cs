@@ -11,6 +11,7 @@ using Moq;
 using NosCore.Algorithm.MateExperienceService;
 using NosCore.Algorithm.MateHpService;
 using NosCore.Algorithm.MateMpService;
+using NosCore.Algorithm.MateStatService;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
@@ -66,7 +67,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     rows.Where(predicate.Compile()));
 
             return new MateServiceImpl(dao.Object, creatures.ToList(),
-                new IdService<Mate>(2000000), new MateStatsService(new MateExperienceService(), new MateHpService(), new MateMpService()), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(2000000), new MateStatsService(new MateExperienceService(), new MateHpService(), new MateMpService(), new MateStatService()), NullLogger<MateServiceImpl>.Instance);
         }
 
         [TestMethod]
