@@ -87,13 +87,13 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestMethod]
         public async Task RevivePastTwentyWithEnoughSeedsConsumesThemAndRestoresHalfHp()
         {
-            await new Spec("Level>20 revive-in-place consumes 5 seeds and restores HP/MP to 50%")
+            await new Spec("Level>20 revive-in-place consumes 10 seeds and restores HP/MP to 50%")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
-                .And(CharacterHasSeedsInInventory_, (short)10)
+                .And(CharacterHasSeedsInInventory_, (short)15)
                 .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(HpShouldBeRestoredToPercent_, 50)
                 .And(SeedStackShouldStillBe_, (short)5)
-                .And(FivePowerSeedUsedMessageShouldBeSent)
+                .And(SeedsUsedMessageShouldBeSent)
                 .And(MapChangeShouldNotBeCalled)
                 .ExecuteAsync();
         }
@@ -103,7 +103,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             await new Spec("Level>20 without enough seeds emits NotEnoughPowerSeed and warps to the save point")
                 .Given(CharacterIsDeadAtLevel_, (byte)30)
-                .And(CharacterHasSeedsInInventory_, (short)2)
+                .And(CharacterHasSeedsInInventory_, (short)9)
                 .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
                 .Then(NotEnoughPowerSeedMessageShouldBeSent)
                 .And(MapChangeShouldHaveBeenCalledWith_, (short)1, (short)50, (short)60)
@@ -368,9 +368,11 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private void CharacterShouldStillBeDead() =>
             Assert.IsFalse(_session.Character.IsAlive);
 
-        private void FivePowerSeedUsedMessageShouldBeSent() =>
+        private void SeedsUsedMessageShouldBeSent() =>
             Assert.IsTrue(_session.LastPackets.OfType<MsgiPacket>()
-                .Any(p => p.Message == Game18NConstString.FivePowerSeedUsed));
+                .Any(p => p.Message == Game18NConstString.YouHaveUsed && p.ArgumentType == 2
+                    && Convert.ToInt32(p.Game18NArguments[0]) == SeedOfPowerVNum
+                    && Convert.ToInt32(p.Game18NArguments[1]) == 10));
 
         private void NotEnoughPowerSeedMessageShouldBeSent() =>
             Assert.IsTrue(_session.LastPackets.OfType<MsgiPacket>()
