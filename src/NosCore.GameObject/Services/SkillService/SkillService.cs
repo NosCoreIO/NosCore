@@ -4,6 +4,9 @@ using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Networking;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Shared.Enumerations;
@@ -79,7 +82,8 @@ namespace NosCore.GameObject.Services.SkillService
         {
             var ordered = character.Skills.Values
                 .Where(s => s.Skill != null && (s.Skill.Class >= PyjamaSpecialistClass) == useSpecialist)
-                .OrderBy(s => s.Skill.CastId)
+                .OrderBy(s => s.Skill.IsPassive())
+                .ThenBy(s => s.Skill.CastId)
                 .Select(s => s.SkillVNum)
                 .ToList();
 
@@ -207,6 +211,96 @@ namespace NosCore.GameObject.Services.SkillService
 
             await SendSkillListAsync(character, useSpecialist: false);
             return true;
+        }
+
+        public async Task BuyAsync(ICharacterEntity character, SkillDto skill)
+        {
+            var refusal = PurchaseRefusal(character, skill);
+            if (refusal != null)
+            {
+                await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = refusal.Value });
+                return;
+            }
+
+            if (skill.IsPassive())
+            {
+                foreach (var weaker in character.Skills.Values
+                             .Where(s => s.Skill.IsPassive() && s.Skill.CastId == skill.CastId).ToList())
+                {
+                    await characterSkillDao.TryDeleteAsync(weaker.Id);
+                    character.Skills.TryRemove(weaker.SkillVNum, out _);
+                }
+            }
+
+            var entry = new CharacterSkill
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = character.VisualId,
+                SkillVNum = skill.SkillVNum,
+                Skill = skill,
+            };
+            character.Skills[skill.SkillVNum] = entry;
+            await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>());
+            character.Gold -= skill.Price;
+
+            await character.AddGoldAsync();
+            await SendSkillListAsync(character, useSpecialist: false);
+            await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
+        }
+
+        private Game18NConstString? PurchaseRefusal(ICharacterEntity character, SkillDto skill)
+        {
+            if (character.Skills.ContainsKey(skill.SkillVNum))
+            {
+                return Game18NConstString.YouAlreadyKnowThisSkill;
+            }
+
+            if (skill.IsPassive())
+            {
+                var level = PassiveLevel(skill, character.Class);
+                if (level == 0 || character.Level < level)
+                {
+                    return Game18NConstString.YouCanNotLearnThat;
+                }
+
+                if (character.Skills.Values.Any(s => s.Skill.IsPassive() && s.Skill.CastId == skill.CastId
+                                                     && PassiveLevel(s.Skill, character.Class) > level))
+                {
+                    return Game18NConstString.YouAlreadyKnowABetterSkill;
+                }
+            }
+            else
+            {
+                if (!Learnable(character).Any(s => s.SkillVNum == skill.SkillVNum)
+                    || character.JobLevel < skill.LevelMinimum)
+                {
+                    return Game18NConstString.YouCanNotLearnThat;
+                }
+
+                if (skill.IsUpgrade() && !character.Skills.ContainsKey(skill.UpgradeSkill))
+                {
+                    return Game18NConstString.YouNeedBaseSkill;
+                }
+            }
+
+            return character.Gold < skill.Price ? Game18NConstString.NotEnoughGold : null;
+        }
+
+        // A passive open to every class only fills the Adventurer column.
+        private static byte PassiveLevel(SkillDto skill, CharacterClassType characterClass)
+        {
+            if (skill is { MinimumSwordmanLevel: 0, MinimumArcherLevel: 0, MinimumMagicianLevel: 0 })
+            {
+                return skill.MinimumAdventurerLevel;
+            }
+
+            return characterClass switch
+            {
+                CharacterClassType.Swordsman => skill.MinimumSwordmanLevel,
+                CharacterClassType.Archer => skill.MinimumArcherLevel,
+                CharacterClassType.Mage => skill.MinimumMagicianLevel,
+                _ => skill.MinimumAdventurerLevel,
+            };
         }
     }
 }

@@ -26,7 +26,7 @@ namespace NosCore.Parser
         MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
         MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-        ShopItemParser shopItemParser, FamilyUpgradeParser familyUpgradeParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
+        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
         ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser,
         IDao<AccountDto, long> accountDao, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
@@ -97,6 +97,11 @@ namespace NosCore.Parser
         {
             await shopItemParser.InsertShopItemsAsync(_packetList);
             await familyUpgradeParser.InsertFamilyUpgradesAsync(_folder, _packetList);
+        }
+
+        public Task ImportShopSkillsAsync()
+        {
+            return shopSkillParser.InsertShopSkillsAsync(_packetList);
         }
 
         public Task ImportRecipesAsync()

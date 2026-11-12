@@ -282,6 +282,18 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] **Relog** and confirm the old skills have not come back — the rows behind the list
       have to be gone, not just the in-memory list
 
+### Skill teachers
+
+- [ ] Talk to a skill teacher (NosVille Training) and pick Learn Skill: the Academy window
+      lists the 18 training courses, with their prices and levels on hover
+- [ ] The second tab lists only your own class's skills
+- [ ] Double-click a course you have the level and gold for and confirm: "You've learned a new
+      skill", the gold drops by its price and the course appears under Skill Info > Training
+- [ ] Buy the stronger course of the same kind: the weaker one disappears from Training
+- [ ] Try the weaker one again: "You've already learned a higher level"
+- [ ] Try a course above your level: "You cannot learn that yet", no gold taken
+- [ ] **Relog**: the bought course is still there
+
 ### Equipment gates
 
 - [ ] Try to wear an item above your job level: the message says the **job level** is too

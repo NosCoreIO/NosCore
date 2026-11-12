@@ -22,6 +22,7 @@ using NosCore.Packets.ServerPackets.Movement;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Shop;
 using NosCore.PathFinder.Interfaces;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 using System;
@@ -379,6 +380,21 @@ namespace NosCore.GameObject.Ecs.Extensions
             experiencedEntity.LevelXp = 0;
             experiencedEntity.Hp = experiencedEntity.MaxHp;
             experiencedEntity.Mp = experiencedEntity.MaxMp;
+        }
+
+        public static NInvPacket GenerateSkillNInv(this IAliveEntity aliveEntity, Services.ShopService.Shop shop, short tab,
+            CharacterClassType viewerClass)
+        {
+            return new NInvPacket
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Unknown = 0,
+                ShopKind = (byte)tab,
+                Skills = shop.ShopSkills
+                    .Where(s => s.Type == tab && (s.Skill.IsPassive() || s.Skill.Class == (byte)viewerClass))
+                    .OrderBy(s => s.Slot).Select(s => s.SkillVNum).ToList()
+            };
         }
 
         public static NInvPacket GenerateNInv(this IAliveEntity aliveEntity, Services.ShopService.Shop shop, double percent, short typeshop)

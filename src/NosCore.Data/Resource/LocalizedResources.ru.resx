@@ -475,6 +475,9 @@
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>Импортировано {0} товаров!</value>
   </data>
+  <data name="SHOPSKILLS_PARSED" xml:space="preserve">
+    <value>Импортировано {0} навыков магазина!</value>
+  </data>
   <data name="SHOPSKILLS_LOADED" xml:space="preserve">
     <value>Загружено {0} ShopSkills!</value>
   </data>

@@ -1,4 +1,5 @@
-﻿using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.Data.StaticEntities;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.SkillService
@@ -23,5 +24,8 @@ namespace NosCore.GameObject.Services.SkillService
         /// came back on the next login. See the implementation for what that did.
         /// </remarks>
         Task ForgetUnlearnableSkillsAsync(ICharacterEntity character);
+
+        /// <summary>Teaches a skill bought from a skill shop, charging its price.</summary>
+        Task BuyAsync(ICharacterEntity character, SkillDto skill);
     }
 }

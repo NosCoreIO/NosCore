@@ -17,6 +17,7 @@ using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
@@ -64,6 +65,13 @@ namespace NosCore.PacketHandlers.Shops
             {
                 npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
                 await familyShopService.OpenAsync(clientSession, aliveEntity);
+                return;
+            }
+
+            if (aliveEntity.Shop is { } skillShop && skillShop.ShopSkills.Any(s => s.Type == shoppingPacket.ShopType))
+            {
+                npcDialogService.Open(clientSession.Character, aliveEntity, NpcDialogWindow.Shop);
+                await clientSession.SendPacketAsync(aliveEntity.GenerateSkillNInv(skillShop, shoppingPacket.ShopType, clientSession.Character.Class));
                 return;
             }
 

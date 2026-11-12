@@ -45,6 +45,7 @@ using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Packets.ServerPackets.Relations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Visibility;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.Shared.Enumerations;
 using NosCore.Core.I18N;
 using NosCore.Shared.I18N;
@@ -222,7 +223,9 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static SkiPacket GenerateSki(this ICharacterEntity characterEntity)
         {
-            List<CharacterSkill> characterSkills = characterEntity.Skills.Values.OrderBy(s => s.Skill?.CastId).ToList();
+            // The client takes the first listed skill for the basic attack, so passives go last.
+            List<CharacterSkill> characterSkills = characterEntity.Skills.Values
+                .OrderBy(s => s.Skill?.IsPassive() == true).ThenBy(s => s.Skill?.CastId).ToList();
             var spStarter = characterSkills.FirstOrDefault()?.SkillVNum ?? 0;
             return new SkiPacket
             {

@@ -111,6 +111,7 @@ namespace NosCore.Data.Enumerations.I18N
         SHOPS_PARSED,
         TELEPORTERS_PARSED,
         SHOPITEMS_PARSED,
+        SHOPSKILLS_PARSED,
         RECIPES_PARSED,
         RECIPES_LOADED,
         RECIPEITEMS_LOADED,

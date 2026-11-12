@@ -405,6 +405,9 @@
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>{0} Market eşyaları işlendi!</value>
   </data>
+  <data name="SHOPSKILLS_PARSED" xml:space="preserve">
+    <value>{0} Market yetenekleri işlendi!</value>
+  </data>
   <data name="SHOPS_LOADED" xml:space="preserve">
     <value>{0} Market yüklendi!</value>
   </data>
