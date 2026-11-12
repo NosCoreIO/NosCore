@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Core.Configuration;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
@@ -29,7 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
         [UsedImplicitly]
         public async Task Handle(MapItemPickedUpEvent evt)
         {
-            if (evt.VNum != 1046)
+            if (evt.ItemInstance?.Item.Effect != ItemEffectType.Gold)
             {
                 return;
             }

@@ -5,6 +5,7 @@
 //
 
 using NosCore.Algorithm.MateExperienceService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MateService;
 using System.Collections.Generic;
 using System.Linq;
@@ -52,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
+            World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum, Effect = ItemEffectType.Gold });
             _first = await World.CreateSessionAsync();
             _second = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
@@ -62,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World.Inject(_catalog.Object);
             World.Inject(_experience.Object);
             World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IItemCatalog, ItemCatalog>();
             World.UseReal<IMateProgressionService, MateProgressionService>();
             World.UseReal<IBuffService, BuffService>();
             _equipment = World.Freeze<Mock<IEquipmentStatsService>>();

@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
         public async Task Handle(MapItemPickedUpEvent evt)
         {
             var item = evt.ItemInstance;
-            if (item == null || item.Item.ItemType == ItemType.Map || evt.VNum == 1046)
+            if (item == null || item.Item.ItemType == ItemType.Map)
             {
                 return;
             }

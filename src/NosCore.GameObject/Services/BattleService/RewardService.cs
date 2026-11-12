@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Services.BattleService;
 // mode hands them to.
 public sealed class RewardService(
     IItemGenerationService itemGenerationService,
+    IItemCatalog itemCatalog,
     IMapItemGenerationService mapItemGenerationService,
     INpcCombatCatalog catalog,
     IExperienceProgressionService experienceProgression,
@@ -56,9 +57,6 @@ public sealed class RewardService(
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
     // on ServerManager; we keep it constant until there's a gameplay reason to tune it.
     private const int FairyXpRate = 1;
-    // Gold item vnum. The GoldDropHandler already treats vnum 1046 as the "gold"
-    // map item — we keep the same number so both systems stay in sync.
-    private const short GoldVNum = 1046;
 
     public async Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer, IReadOnlyDictionary<Entity, int> hitSnapshot)
     {
@@ -319,11 +317,11 @@ public sealed class RewardService(
             goldAmount = (int)(goldAmount * (1 + GoldBonusPercent(owner) / 100d));
         }
 
-        if (goldAmount <= 0) return;
+        if (goldAmount <= 0 || itemCatalog.GetItemWithEffect(ItemEffectType.Gold) is not { } gold) return;
 
         try
         {
-            var goldItem = itemGenerationService.Create(GoldVNum, (short)System.Math.Min(goldAmount, short.MaxValue));
+            var goldItem = itemGenerationService.Create(gold.VNum, (short)System.Math.Min(goldAmount, short.MaxValue));
             var dropped = mapItemGenerationService.Create(mapInstance, goldItem, victim.PositionX, victim.PositionY,
                 NextOwner(victim, topDamageDealer));
             await mapInstance.SendPacketAsync(dropped.GenerateDrop());

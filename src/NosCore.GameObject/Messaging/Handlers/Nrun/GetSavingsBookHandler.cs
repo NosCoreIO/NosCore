@@ -22,10 +22,8 @@ using NosCore.GameObject.Ecs;
 namespace NosCore.GameObject.Messaging.Handlers.Nrun
 {
     [UsedImplicitly]
-    public sealed class GetSavingsBookHandler(IItemGenerationService itemProvider) : INrunEventHandler
+    public sealed class GetSavingsBookHandler(IItemGenerationService itemProvider, IItemCatalog itemCatalog) : INrunEventHandler
     {
-        public const short SavingsBookVNum = 5836;
-
         public NrunRunnerType Runner => NrunRunnerType.GetSavingsBook;
 
         public bool RequiresNpc => true;
@@ -33,12 +31,14 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         public async Task HandleAsync(ClientSession session, IAliveEntity? target, NrunPacket packet)
         {
             var character = session.Character;
-            if (target is not NpcComponentBundle || character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == SavingsBookVNum))
+            if (target is not NpcComponentBundle
+                || itemCatalog.GetItemWithEffect(ItemEffectType.CuarryBankSavingsBook) is not { } savingsBook
+                || character.InventoryService.Values.Any(i => i.ItemInstance.ItemVNum == savingsBook.VNum))
             {
                 return;
             }
 
-            var book = itemProvider.Create(SavingsBookVNum, 1);
+            var book = itemProvider.Create(savingsBook.VNum, 1);
             var added = character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(book, character.CharacterId))?.FirstOrDefault();
             if (added == null)
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
             await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
             await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
-                2, SavingsBookVNum.ToString(), 1));
+                2, savingsBook.VNum.ToString(), 1));
         }
     }
 }

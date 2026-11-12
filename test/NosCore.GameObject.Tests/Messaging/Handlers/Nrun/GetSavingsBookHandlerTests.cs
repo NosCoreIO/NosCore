@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -29,6 +30,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
     [TestClass]
     public class GetSavingsBookHandlerTests
     {
+        private const short SavingsBookVNum = 5836;
         private TestWorld World;
         private ClientSession _session;
         private GetSavingsBookHandler _handler;
@@ -38,8 +40,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         {
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
-            var items = new List<ItemDto> { new Item { VNum = GetSavingsBookHandler.SavingsBookVNum, Type = NoscorePocketType.Main } };
-            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer));
+            var items = new List<ItemDto>
+            {
+                new Item { VNum = SavingsBookVNum, Type = NoscorePocketType.Main, Effect = ItemEffectType.CuarryBankSavingsBook },
+            };
+            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer),
+                new ItemCatalog(items));
         }
 
         [TestMethod]
@@ -104,6 +110,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private Task NrunIsHandledWithoutTarget() => _handler.HandleAsync(_session, null, Packet);
 
         private void SavingsBookCountShouldBe_(int expected) =>
-            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(GetSavingsBookHandler.SavingsBookVNum));
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(SavingsBookVNum));
     }
 }

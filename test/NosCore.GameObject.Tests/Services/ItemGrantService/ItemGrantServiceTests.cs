@@ -44,6 +44,7 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
             var items = new List<ItemDto>
             {
                 new Item { VNum = PotionVNum, Type = NoscorePocketType.Main },
+                new Item { VNum = 1046, Type = NoscorePocketType.Main, ItemType = ItemType.Map, Effect = ItemEffectType.Gold },
                 new Item { VNum = WeaponVNum, Type = NoscorePocketType.Equipment, EquipmentSlot = EquipmentType.MainWeapon, ItemType = ItemType.Weapon },
                 new Item { VNum = SpecialistVNum, Type = NoscorePocketType.Equipment, EquipmentSlot = EquipmentType.Sp, ItemType = ItemType.Specialist }
             };

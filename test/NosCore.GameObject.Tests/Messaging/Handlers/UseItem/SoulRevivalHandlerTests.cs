@@ -45,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task DroppingTheStoneOnADestroyedCardAsksFirst()
         {
-            PlaceStone(SoulRevivalHandler.SoulRevivalStoneVNum);
+            PlaceStone();
             PlaceCard(SpUpgradeOperationBase.DestroyedSoulRare);
 
             await UseAsync(mode: 0, PocketType.Equipment, CardSlot);
@@ -63,7 +63,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task ConfirmingRevivesTheCardAndRestoresSpPoints()
         {
-            PlaceStone(SoulRevivalHandler.EventSoulRevivalStoneVNum);
+            PlaceStone();
             PlaceCard(SpUpgradeOperationBase.DestroyedSoulRare);
             _session.Character.SpPoint = 0;
 
@@ -78,7 +78,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task ACardWithItsSoulIsLeftAlone()
         {
-            PlaceStone(SoulRevivalHandler.SoulRevivalStoneVNum);
+            PlaceStone();
             PlaceCard(0);
 
             await UseAsync(mode: 1, PocketType.Equipment, CardSlot);
@@ -90,7 +90,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         [TestMethod]
         public async Task DoubleClickingTheStoneAloneDoesNothing()
         {
-            PlaceStone(SoulRevivalHandler.SoulRevivalStoneVNum);
+            PlaceStone();
             PlaceCard(SpUpgradeOperationBase.DestroyedSoulRare);
 
             await UseAsync(mode: 1, null, null);
@@ -99,9 +99,21 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(1, StonesLeft());
         }
 
-        private void PlaceStone(short vnum)
+        [TestMethod]
+        public async Task AnItemWithoutTheSoulRevivalEffectDoesNothing()
         {
-            var stone = new ItemInstance(new Item { VNum = vnum, Type = NoscorePocketType.Main, ItemType = ItemType.Upgrade })
+            PlaceStone(ItemEffectType.NoEffect);
+            PlaceCard(SpUpgradeOperationBase.DestroyedSoulRare);
+
+            await UseAsync(mode: 1, PocketType.Equipment, CardSlot);
+
+            Assert.AreEqual(SpUpgradeOperationBase.DestroyedSoulRare, _card.Rare);
+            Assert.AreEqual(1, StonesLeft());
+        }
+
+        private void PlaceStone(ItemEffectType effect = ItemEffectType.SoulRevival)
+        {
+            var stone = new ItemInstance(new Item { VNum = 1365, Type = NoscorePocketType.Main, ItemType = ItemType.Upgrade, Effect = effect })
             {
                 Amount = 1,
             };

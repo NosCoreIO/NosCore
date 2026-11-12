@@ -151,6 +151,19 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)1365)]
+        [DataRow((short)9039)]
+        public async Task ItemParser_MarksTheSoulRevivalStones(short vnum)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemEffectType.SoulRevival, _savedItems.Single().Effect);
+        }
+
+        [TestMethod]
         public async Task ItemParser_AnItemWithItsOwnBuffKeepsIt()
         {
             CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1340\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));

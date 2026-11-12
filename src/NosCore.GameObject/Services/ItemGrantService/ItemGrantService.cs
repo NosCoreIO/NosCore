@@ -33,23 +33,21 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
         ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     : IItemGrantService
 {
-    private const short GoldVNum = 1046;
-
     public ItemGrantResult Grant(PlayerComponentBundle character, short vnum, short? designOrAmount, byte? upgradeArgument)
     {
         sbyte rare = 0;
         byte upgrade = 0;
         byte design = 0;
         short amount = 1;
-        if (vnum == GoldVNum)
-        {
-            return ItemGrantOutcome.Refused;
-        }
-
         var iteminfo = items.Find(item => item.VNum == vnum);
         if (iteminfo == null)
         {
             return ItemGrantOutcome.UnknownItem;
+        }
+
+        if (iteminfo.Effect == ItemEffectType.Gold)
+        {
+            return ItemGrantOutcome.Refused;
         }
 
         if (iteminfo.IsColored || (iteminfo.Effect == ItemEffectType.BoxEffect))

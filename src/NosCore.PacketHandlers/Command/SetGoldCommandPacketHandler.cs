@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.CommandPackets;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -26,8 +27,6 @@ namespace NosCore.PacketHandlers.Command
     public class SetGoldCommandPacketHandler(IRemoteCharacterService remoteCharacterService, List<ItemDto> items)
         : PacketHandler<SetGoldCommandPacket>, IWorldPacketHandler
     {
-        private const short GoldVNum = 1046;
-
         public override async Task ExecuteAsync(SetGoldCommandPacket goldPacket, ClientSession session)
         {
             // Self-targeting short-circuit (mirrors SetLevel/SetHeroLevel/SetReputation): when no
@@ -39,7 +38,7 @@ namespace NosCore.PacketHandlers.Command
             {
                 session.Character.Gold = goldPacket.Gold;
                 await session.SendPacketAsync(session.Character.GenerateGold());
-                var goldName = items.First(i => i.VNum == GoldVNum).Name[session.Account.Language];
+                var goldName = items.First(i => i.Effect == ItemEffectType.Gold).Name[session.Account.Language];
 #pragma warning disable NosCoreAnalyzers
                 await session.SendPacketAsync(new Sayi2Packet
                 {
