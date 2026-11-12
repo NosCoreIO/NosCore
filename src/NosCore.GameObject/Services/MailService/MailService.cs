@@ -193,7 +193,7 @@ namespace NosCore.GameObject.Services.MailService
                 return true;
             }
 
-            senderItem.Id = new Guid();
+            senderItem.Id = Guid.NewGuid();
             var savedSenderItem = await itemInstanceDao.TryInsertOrUpdateAsync(senderItem);
             senderCopy.ItemInstanceId = savedSenderItem?.Id;
             senderCopy = await mailDao.TryInsertOrUpdateAsync(senderCopy);

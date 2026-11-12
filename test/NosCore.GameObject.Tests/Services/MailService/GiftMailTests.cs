@@ -148,7 +148,17 @@ namespace NosCore.GameObject.Tests.Services.MailService
             Assert.IsFalse(_savedMails[0].IsSenderCopy);
             Assert.IsTrue(_savedMails[1].IsSenderCopy);
             Assert.AreNotEqual(_savedMails[0].ItemInstanceId, _savedMails[1].ItemInstanceId);
+            Assert.AreNotEqual(Guid.Empty, _savedMails[1].ItemInstanceId);
             _parcelRegistry.Verify(s => s.TryAddMail(ReceiverId, It.IsAny<bool>(), It.IsAny<MailData>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public async Task EachSenderCopyGetsItsOwnItem()
+        {
+            await _service.SendMailAsync(Gift(), Seed, 1, 0, 0);
+            await _service.SendMailAsync(Gift(), Seed, 1, 0, 0);
+
+            Assert.AreEqual(4, _createdItems.Select(s => s.Id).Distinct().Count());
         }
 
         [TestMethod]
