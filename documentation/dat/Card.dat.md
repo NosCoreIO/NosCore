@@ -20,7 +20,7 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Parsed | GroupId | Int16 | Buff family: a new buff replaces an active one of the same family |
+| 2 | Parsed | GroupId | Int16 | Buff family: a new buff replaces an active one of the same family, except in family 0 |
 | 3 | Parsed | Level | Byte | Card level tier |
 
 ## LAST

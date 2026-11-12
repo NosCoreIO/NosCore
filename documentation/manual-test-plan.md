@@ -418,7 +418,7 @@ window uses other ones, so the percentages the window shows are the check.
 - [ ] Drink an EXP potion (1249), then use Ancelloan's Blessing (1286): "Ancelloan's Blessing
       effect activated" appears, the blessing icon shows and the potion's icon disappears, since
       both cards are in Card.dat GROUP 86
-- [ ] Two buffs of different families (for example the heat and Ice Flower Oil) both stay
+- [ ] Two buffs of different families (for example the EXP potion and a fairy booster) both stay
 
 ### Specialist card holder
 

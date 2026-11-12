@@ -45,7 +45,7 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Level, "GROUP", 0, 3, s => Convert.ToByte(s), "Card level tier")
                 .Field(x => x.EffectId, "EFFECT", 0, 2, s => Convert.ToInt32(s), "Visual effect id")
                 .Field(x => x.BuffType, "STYLE", 0, 3, s => (BuffType)Convert.ToByte(s), "Good, neutral or bad")
-                .Field(x => x.GroupId, "GROUP", 0, 2, s => Convert.ToInt16(s), "Buff family: a new buff replaces an active one of the same family")
+                .Field(x => x.GroupId, "GROUP", 0, 2, s => Convert.ToInt16(s), "Buff family: a new buff replaces an active one of the same family, except in family 0")
                 .Field(x => x.Duration, "TIME", 0, 2, s => Convert.ToInt32(s), "Duration in deciseconds")
                 .Field(x => x.Delay, "TIME", 0, 3, s => Convert.ToInt32(s), "Activation delay")
                 .Field(x => x.TimeoutBuff, "LAST", 0, 2, s => Convert.ToInt16(s), "Follow-up buff id when card expires")
