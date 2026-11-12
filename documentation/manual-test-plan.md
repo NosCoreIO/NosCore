@@ -1785,6 +1785,13 @@ Give yourself the quest through its script, or by walking the quest line that le
       met, and for Brings and Required only after the hand-in
 - [ ] Relog halfway through a Collect or Product quest: the counter comes back where it was
 
+## Miniland minigames
+
+- [ ] With 0 production points and some durability, open a minigame (e.g. Basic Quarry) and press
+      Start Game: "You cannot be rewarded because you don't have enough production points. Start
+      game anyway?" appears
+- [ ] Confirm: the minigame that was opened starts; Cancel: nothing happens
+
 ## Not verifiable yet
 
 Recorded so nobody spends time hunting for them:
