@@ -414,6 +414,8 @@ window uses other ones, so the percentages the window shows are the check.
 - [ ] On a failure "Perfecting the SP failed" appears and the gold and stone are still spent
 - [ ] With a card at perfection 20 the window asks 10 000 gold and 2 pieces
 - [ ] Without the card's own stone, "Not enough ingredients" appears and nothing is spent
+- [ ] A second-generation card takes the full-size stone each stone's description names (a
+      Death Reaper spends an Obsidian of Completion)
 
 ### Soul Revival Stone
 

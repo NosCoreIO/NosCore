@@ -29,5 +29,13 @@ namespace NosCore.Data.Enumerations.Items
         LowerSpProtectionScroll = 17,
         HigherSpProtectionScroll = 18,
         RiverSand = 19,
+        SmallRubyOfCompletion = 20,
+        SmallSapphireOfCompletion = 21,
+        SmallObsidianOfCompletion = 22,
+        SmallTopazOfCompletion = 23,
+        RubyOfCompletion = 24,
+        SapphireOfCompletion = 25,
+        ObsidianOfCompletion = 26,
+        TopazOfCompletion = 27,
     }
 }

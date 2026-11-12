@@ -792,6 +792,29 @@ namespace NosCore.Parser.Parsers
                 1363 => MaterialType.LowerSpProtectionScroll,
                 1364 => MaterialType.HigherSpProtectionScroll,
                 1027 => MaterialType.RiverSand,
+                2514 => MaterialType.SmallRubyOfCompletion,
+                2515 => MaterialType.SmallSapphireOfCompletion,
+                2516 => MaterialType.SmallObsidianOfCompletion,
+                2517 => MaterialType.SmallTopazOfCompletion,
+                2518 => MaterialType.RubyOfCompletion,
+                2519 => MaterialType.SapphireOfCompletion,
+                2520 => MaterialType.ObsidianOfCompletion,
+                2521 => MaterialType.TopazOfCompletion,
+                _ => MaterialType.None,
+            };
+
+            // Each stone's description names the cards it perfects. None names Jajamaru or Chicken,
+            // so their stones are unconfirmed.
+            item.PerfectionMaterial = item.ItemType != ItemType.Specialist ? MaterialType.None : item.Morph switch
+            {
+                2 or 6 or 9 or 12 => MaterialType.SmallRubyOfCompletion,
+                3 or 4 or 14 => MaterialType.SmallSapphireOfCompletion,
+                5 or 11 or 15 => MaterialType.SmallObsidianOfCompletion,
+                7 or 8 or 10 or 13 => MaterialType.SmallTopazOfCompletion,
+                17 or 18 or 19 => MaterialType.RubyOfCompletion,
+                20 or 21 or 22 => MaterialType.SapphireOfCompletion,
+                23 or 24 or 25 => MaterialType.ObsidianOfCompletion,
+                26 or 27 or 28 => MaterialType.TopazOfCompletion,
                 _ => MaterialType.None,
             };
 

@@ -80,6 +80,7 @@ namespace NosCore.Parser.Tests
             int indexItemType = 0,
             int equipmentSlot = -1,
             int morph = 0,
+            int look = 0,
             int typeValue = 0,
             int typeClass = 0,
             string flags = "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0",
@@ -89,7 +90,7 @@ namespace NosCore.Parser.Tests
             // Format: lines have a leading tab so keyword is at index 1 after splitting
             return $"\tVNUM\t{vnum}\t{price}\r\n" +
                    $"\tNAME\t{name}\r\n" +
-                   $"\tINDEX\t{indexType}\t{indexSubType}\t{indexItemType}\t{equipmentSlot}\t{morph}\t0\t0\r\n" +
+                   $"\tINDEX\t{indexType}\t{indexSubType}\t{indexItemType}\t{equipmentSlot}\t{morph}\t{look}\t0\r\n" +
                    $"\tTYPE\t{typeValue}\t{typeClass}\r\n" +
                    $"\tFLAG\t{flags}\r\n" +
                    $"\tDATA\t{data}\r\n" +
@@ -199,6 +200,8 @@ namespace NosCore.Parser.Tests
         [DataRow((short)1014, MaterialType.CellaPowder)]
         [DataRow((short)2748, MaterialType.DimensiolithShard)]
         [DataRow((short)1364, MaterialType.HigherSpProtectionScroll)]
+        [DataRow((short)2516, MaterialType.SmallObsidianOfCompletion)]
+        [DataRow((short)2521, MaterialType.TopazOfCompletion)]
         [DataRow((short)1, MaterialType.None)]
         public async Task ItemParser_MarksTheUpgradeMaterials(short vnum, MaterialType expected)
         {
@@ -208,6 +211,34 @@ namespace NosCore.Parser.Tests
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(expected, _savedItems.Single().Material);
+        }
+
+        [TestMethod]
+        [DataRow(2, MaterialType.SmallRubyOfCompletion)]
+        [DataRow(14, MaterialType.SmallSapphireOfCompletion)]
+        [DataRow(25, MaterialType.ObsidianOfCompletion)]
+        [DataRow(26, MaterialType.TopazOfCompletion)]
+        [DataRow(1, MaterialType.None)]
+        public async Task ItemParser_GivesEachSpecialistItsPerfectionStone(int look, MaterialType expected)
+        {
+            CreateTestFile(CreateItemData(vnum: 901, indexSubType: 4, equipmentSlot: 12, look: look));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemType.Specialist, _savedItems.Single().ItemType);
+            Assert.AreEqual(expected, _savedItems.Single().PerfectionMaterial);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_OnlySpecialistsHaveAPerfectionStone()
+        {
+            CreateTestFile(CreateItemData(vnum: 1, look: 2));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(MaterialType.None, _savedItems.Single().PerfectionMaterial);
         }
 
         [TestMethod]

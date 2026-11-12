@@ -79,6 +79,9 @@ namespace NosCore.Database.Entities
 
         public MaterialType Material { get; set; }
 
+        // The stone a specialist card is perfected with.
+        public MaterialType PerfectionMaterial { get; set; }
+
         public ElementType Element { get; set; }
 
         public short ElementRate { get; set; }

@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112151741_AddEventSpAndFusionEffects";
+    public override string LastMigrationId => "20261112154318_AddSpPerfectionMaterial";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -50,7 +50,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_effect_type", new[] { "no_effect", "teleport", "apply_hair_die", "apply_hair_style", "restore_dignity", "speaker", "marriage_proposal", "holder", "medal_of_honour", "undefined", "gold", "sp_charger", "mate_capture", "open_production", "dropped_sp_recharger", "premium_sp_recharger", "crafted_sp_recharger", "friendship_wings", "specialist_medal", "ancelloans_blessing", "fairy_booster", "apply_skin_partner", "change_faction", "change_specialist_wings", "change_gender", "point_initialisation", "sealed_tarot_card", "tarot_card", "red_amulet", "blue_amulet", "reinforcement_amulet", "heroic", "random_heroic", "attack_amulet", "defense_amulet", "heat_resistance", "play_effect", "speed_booster", "box_effect", "vehicle", "gold_nos_merchant_upgrade", "silver_nos_merchant_upgrade", "inventory_upgrade", "pet_space_upgrade", "pet_basket_upgrade", "pet_backpack_upgrade", "inventory_ticket_upgrade", "cuarry_bank_vip_medal", "cuarry_bank_savings_book", "shell_identification", "shell_option_removal", "soul_revival", "event_sp_upgrade_scroll", "costume_fusion", "event_specialist", "buff_potions", "marriage_separation" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_type", new[] { "weapon", "armor", "fashion", "jewelery", "specialist", "box", "shell", "main", "upgrade", "production", "map", "special", "potion", "event", "title", "quest1", "sell", "food", "snack", "magical", "part", "teacher", "ammo", "quest2", "house", "garden", "minigame", "terrace", "miniland_theme" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mate_type", new[] { "partner", "pet" });
-        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "material_type", new[] { "none", "cella_powder", "soul_gem", "complete_soul_gem", "dimensional_force", "dimensiolith_shard", "equipment_protection_scroll", "golden_equipment_protection_scroll", "angels_feather", "full_moon_crystal", "green_soul", "red_soul", "blue_soul", "dragon_skin", "dragon_blood", "dragon_heart", "dragon_gem", "lower_sp_protection_scroll", "higher_sp_protection_scroll", "river_sand" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "material_type", new[] { "none", "cella_powder", "soul_gem", "complete_soul_gem", "dimensional_force", "dimensiolith_shard", "equipment_protection_scroll", "golden_equipment_protection_scroll", "angels_feather", "full_moon_crystal", "green_soul", "red_soul", "blue_soul", "dragon_skin", "dragon_blood", "dragon_heart", "dragon_gem", "lower_sp_protection_scroll", "higher_sp_protection_scroll", "river_sand", "small_ruby_of_completion", "small_sapphire_of_completion", "small_obsidian_of_completion", "small_topaz_of_completion", "ruby_of_completion", "sapphire_of_completion", "obsidian_of_completion", "topaz_of_completion" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "miniland_state", new[] { "open", "private", "lock" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_type", new[] { "unknown", "partner", "npc", "well", "portal", "boss", "elite", "peapod", "special", "gem_space_time" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "noscore_pocket_type", new[] { "equipment", "main", "etc", "miniland", "specialist", "costume", "wear", "mount", "raid", "first_partner_inventory", "second_partner_inventory", "third_partner_inventory" });
@@ -1451,6 +1451,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnType("character varying(255)");
+
+                b.Property<byte>("PerfectionMaterial")
+                    .HasColumnType("smallint");
 
                 b.Property<long>("Price")
                     .HasColumnType("bigint");
