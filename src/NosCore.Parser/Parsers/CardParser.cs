@@ -60,6 +60,8 @@ namespace NosCore.Parser.Parsers
             var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var cards = (await parser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
             await cardDao.TryInsertOrUpdateAsync(cards);
+            var cardIds = cards.Select(s => (short?)s.CardId).ToHashSet();
+            await bcardDao.TryDeleteAsync(bcardDao.Where(s => cardIds.Contains(s.CardId))?.Select(s => s.BCardId).ToList() ?? []);
             await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
             _logger.LogInformation(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);

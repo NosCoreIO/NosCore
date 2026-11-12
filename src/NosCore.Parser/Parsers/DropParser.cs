@@ -8,6 +8,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
@@ -25,7 +26,7 @@ namespace NosCore.Parser.Parsers
             };
         }
 
-        public Task InsertDropAsync()
+        public async Task InsertDropAsync()
         {
             var drops = new List<DropDto> {
                 // Act 1 
@@ -533,8 +534,8 @@ namespace NosCore.Parser.Parsers
                 GenerateDropDto(1211, 1, null, 250, (short)MapTypeType.LandOfTheDead),
                 GenerateDropDto(5119, 1, null, 100, (short)MapTypeType.LandOfTheDead )
             };
-            IEnumerable<DropDto> dropDtos = drops;
-            return dropDao.TryInsertOrUpdateAsync(dropDtos);
+            await dropDao.TryDeleteAsync(dropDao.Where(s => s.MonsterVNum == null)?.Select(s => s.DropId).ToList() ?? []);
+            await dropDao.TryInsertOrUpdateAsync(drops);
         }
     }
 }

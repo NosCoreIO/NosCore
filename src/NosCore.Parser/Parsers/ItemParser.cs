@@ -194,6 +194,8 @@ namespace NosCore.Parser.Parsers
             });
 
             await itemDao.TryInsertOrUpdateAsync(items);
+            var itemVNums = items.Select(s => (short?)s.VNum).ToHashSet();
+            await bCardDao.TryDeleteAsync(bCardDao.Where(s => itemVNums.Contains(s.ItemVNum))?.Select(s => s.BCardId).ToList() ?? []);
             await bCardDao.TryInsertOrUpdateAsync(items.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
             _logger.LogInformation(logLanguage[LogLanguageKey.ITEMS_PARSED], items.Count);
