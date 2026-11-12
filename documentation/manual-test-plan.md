@@ -69,6 +69,18 @@ confirms it. The server log line `walk dropped` names every refused packet.
 Both the item model and the instance count. A +0 and a +10 of the same vnum giving the
 same damage means only one of the two is being read.
 
+### A player's hit on a monster
+
+- [ ] A level 30 swordsman wielding a +0 Short Sword (1), untransformed and with no buff, hits a
+      level 1 Baby Dander with the basic attack: every non-critical hit is between 108 and 116
+- [ ] A naked adventurer's hit is its stat window's attack plus 15, less the monster's defence,
+      plus the level gap: no further flat bonus on top
+- [ ] With skills imported by the current parser, a mage's basic attack (260, "magic attack +60")
+      hits 60 harder than the same mage's attack with a skill that carries no attack bonus
+- [ ] Upgrade the weapon from +0 to +5: the damage goes up by a share of the weapon's own attack,
+      not of the whole attack
+- [ ] A critical hit adds its bonus on top of a normal hit; the level gap is not multiplied
+
 ### Combo chains
 
 - [ ] With a class whose basic attack chains (skill 220 is the Swordsman's), attack the

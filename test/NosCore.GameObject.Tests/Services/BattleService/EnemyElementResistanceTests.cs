@@ -138,7 +138,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     })
             });
 
-            return new BattleStatsProvider(buffs.Object, NoEquipment()).GetStats(entity.Object);
+            return BattleStats.Provider(buffs.Object, NoEquipment()).GetStats(entity.Object);
         }
 
         private static IEquipmentStatsService NoEquipment()

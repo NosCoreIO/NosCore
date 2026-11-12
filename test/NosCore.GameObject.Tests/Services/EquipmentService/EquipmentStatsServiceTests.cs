@@ -24,6 +24,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Tests.Services.BattleService;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -264,7 +265,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
                 .Returns(new List<BuffInstance>());
-            var provider = new BattleStatsProvider(buffs.Object, _service);
+            var provider = BattleStats.Provider(buffs.Object, _service);
 
             Assert.AreEqual(0, provider.GetStats(_session.Character).Element);
             Wear(EquipmentType.Fairy, FairyVnum);
@@ -290,7 +291,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                         },
                     }),
             });
-            var provider = new BattleStatsProvider(buffs.Object, _service);
+            var provider = BattleStats.Provider(buffs.Object, _service);
 
             Assert.AreEqual(0, provider.GetStats(_session.Character).ElementRate);
             Wear(EquipmentType.Fairy, FairyVnum);
@@ -346,7 +347,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
                 .Returns(new List<BuffInstance>());
-            var provider = new BattleStatsProvider(buffs.Object, _service);
+            var provider = BattleStats.Provider(buffs.Object, _service);
 
             var bare = provider.GetStats(_session.Character).Defence;
             Wear(EquipmentType.Gloves, EnchantedGlovesVnum);
@@ -419,7 +420,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
                 .Returns(new List<BuffInstance>());
-            var provider = new BattleStatsProvider(buffs.Object, _service);
+            var provider = BattleStats.Provider(buffs.Object, _service);
             WearSpecialist();
             _session.Character.UseSp = true;
 
@@ -491,7 +492,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>()))
                 .Returns(new List<BuffInstance>());
-            var provider = new BattleStatsProvider(buffs.Object, _service);
+            var provider = BattleStats.Provider(buffs.Object, _service);
             var necklace = Wear(EquipmentType.Necklace, NecklaceVnum);
             AddOption(necklace, CellonType.CriticalDamageDecrease, 15);
 

@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Shared.Enumerations;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Packets.Enumerations;
@@ -80,6 +81,11 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             }
         }
 
+        if (attacker.IsPlayer)
+        {
+            return PlayerHit(attacker, defender, skill, context, morale);
+        }
+
         // Base damage roll from the selected (main) profile. + morale - defender level
         // gives a positive bias when attacker out-levels and damp when under-levelled.
         var baseDamage = RollBaseDamage(context.MainMinDmg, context.MainMaxDmg);
@@ -136,6 +142,77 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack);
     }
 
+    // A player's attack is the class table, the weapon scaled by its upgrade over the target's
+    // armour, a flat 15 and the skill's own attack bonus. The critical bonus scales that attack
+    // against the defence, and the level difference is added after it.
+    private DamageResult PlayerHit(CombatStats attacker, CombatStats defender, SkillInfo skill,
+        AttackContext context, int morale)
+    {
+        var weapon = RollBaseDamage(context.MainWeaponMin, context.MainWeaponMax);
+        // Signed: an attack debuff can take the rest below zero, and it must still count.
+        var attack = RollSigned(context.MainMinDmg - context.MainWeaponMin, context.MainMaxDmg - context.MainWeaponMax);
+
+        var defence = context.MonsterDefence;
+        var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
+        if (upgrade < 0)
+        {
+            defence += (int)(defence * NegativeUpgradeDefenceBonus(upgrade));
+        }
+        else if (upgrade > 0)
+        {
+            weapon += (int)(weapon * PositiveUpgradeDamageBonus(upgrade));
+        }
+
+        attack += weapon + PlayerFlatAttack + SkillAttackBonus(skill, context.Kind, attacker.Level);
+
+        var damage = attack - defence;
+        var levelDifference = morale - defender.Level;
+        var elementalDamage = ComputeElementalDamage(attacker, defender, skill, damage + levelDifference);
+
+        var isCritical = false;
+        if (skill.Type != 2 && random.NextDouble() * 100 <= context.MainCritChance)
+        {
+            var critHit = context.MainCritHit * (100 + defender.CriticalDamageReceived) / 100.0;
+            damage += (int)(Math.Max(0, damage) * (Math.Max(0, critHit) / 100.0));
+            isCritical = true;
+        }
+
+        var totalDamage = damage + levelDifference + elementalDamage;
+        if (totalDamage < 5)
+        {
+            totalDamage = random.Next(1, 6);
+        }
+
+        return new DamageResult(
+            Math.Max(1, totalDamage),
+            isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack);
+    }
+
+    private const int PlayerFlatAttack = 15;
+
+    private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level)
+    {
+        var bonus = 0;
+        foreach (var card in skill.BCards)
+        {
+            var value = BattleStatsProvider.ScaleByLevel(card, level);
+            bonus += (card.Effect(), kind) switch
+            {
+                (BCardEffect.AttackPowerAllAttacksIncreased, _) => value,
+                (BCardEffect.AttackPowerAllAttacksDecreased, _) => -value,
+                (BCardEffect.AttackPowerMeleeAttacksIncreased, AttackKind.Melee) => value,
+                (BCardEffect.AttackPowerMeleeAttacksDecreased, AttackKind.Melee) => -value,
+                (BCardEffect.AttackPowerRangedAttacksIncreased, AttackKind.Ranged) => value,
+                (BCardEffect.AttackPowerRangedAttacksDecreased, AttackKind.Ranged) => -value,
+                (BCardEffect.AttackPowerMagicalAttacksIncreased, AttackKind.Magical) => value,
+                (BCardEffect.AttackPowerMagicalAttacksDecreased, AttackKind.Magical) => -value,
+                _ => 0,
+            };
+        }
+
+        return bonus;
+    }
+
     // Selects which attacker profile (melee/ranged) and which defender stat applies,
     // mirroring OpenNos `switch (skill.Type)`. Returns all values by struct.
     private static AttackContext SelectAttackContext(CombatStats attacker, CombatStats defender, SkillInfo skill)
@@ -149,8 +226,11 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             MainCritChance = attacker.CriticalChance,
             MainCritHit = attacker.CriticalRate,
             MainUpgrade = attacker.MeleeUpgrade,
+            MainWeaponMin = attacker.WeaponMinHit,
+            MainWeaponMax = attacker.WeaponMaxHit,
             MonsterDefence = defender.Defence,
             MonsterDodge = defender.DefenceDodge,
+            Kind = AttackKind.Melee,
         };
 
         void UseRanged()
@@ -161,6 +241,8 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             ctx.MainCritChance = attacker.DistanceCriticalChance;
             ctx.MainCritHit = attacker.DistanceCriticalRate;
             ctx.MainUpgrade = attacker.RangedUpgrade;
+            ctx.MainWeaponMin = attacker.WeaponMinDistance;
+            ctx.MainWeaponMax = attacker.WeaponMaxDistance;
         }
 
         switch (skill.Type)
@@ -172,10 +254,12 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
                 break;
             case 1: // ranged
                 if (attacker.Class != CharacterClassType.Archer) UseRanged();
+                ctx.Kind = AttackKind.Ranged;
                 ctx.MonsterDefence = defender.DistanceDefence;
                 ctx.MonsterDodge = defender.DistanceDefenceDodge;
                 break;
             case 2: // magic — no dodge, no crit (handled in caller)
+                ctx.Kind = AttackKind.Magical;
                 ctx.MonsterDefence = defender.MagicDefence;
                 ctx.MonsterDodge = 0;
                 break;
@@ -185,10 +269,12 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
                 {
                     case CharacterClassType.Archer:
                         UseRanged();
+                        ctx.Kind = AttackKind.Ranged;
                         ctx.MonsterDefence = defender.DistanceDefence;
                         ctx.MonsterDodge = defender.DistanceDefenceDodge;
                         break;
                     case CharacterClassType.Mage:
+                        ctx.Kind = AttackKind.Magical;
                         ctx.MonsterDefence = defender.MagicDefence;
                         break;
                     default:
@@ -201,6 +287,9 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
 
         return ctx;
     }
+
+    private int RollSigned(int min, int max) =>
+        max <= min ? min : random.Next(min, max + 1);
 
     private int RollBaseDamage(int min, int max)
     {
@@ -290,5 +379,15 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         public int MainUpgrade;
         public int MonsterDefence;
         public int MonsterDodge;
+        public int MainWeaponMin;
+        public int MainWeaponMax;
+        public AttackKind Kind;
+    }
+
+    private enum AttackKind
+    {
+        Melee,
+        Ranged,
+        Magical,
     }
 }
