@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Battle
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedOfPowerVNum = 1012;
-        private const short SeedsRequired = 5;
+        private const short SeedsRequired = 10;
         private const long ArenaReviveCost = 100;
         private const short ArenaRevivalProtectionCardId = 169;
 
@@ -104,8 +104,10 @@ namespace NosCore.PacketHandlers.Battle
                 await session.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
-                    Message = Game18NConstString.FivePowerSeedUsed,
-                }).ConfigureAwait(false);
+                    Message = Game18NConstString.YouHaveUsed,
+                    ArgumentType = 2,
+                    Game18NArguments = { SeedOfPowerVNum, SeedsRequired },
+                });
             }
 
             RestoreLife(session, percent);
