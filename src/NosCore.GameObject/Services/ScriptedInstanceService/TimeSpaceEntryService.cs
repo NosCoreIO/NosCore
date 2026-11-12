@@ -37,15 +37,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             var missing = character.MissingRequiredItem(entrance);
             if (missing != null)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.FollowingItemRequired,
-                    ArgumentType = 2,
-                    Game18NArguments = { missing.VNum.ToString() }
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.FollowingItemRequired,
+                    2, missing.VNum.ToString()));
                 return;
             }
 

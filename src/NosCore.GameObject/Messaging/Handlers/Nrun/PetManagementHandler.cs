@@ -92,15 +92,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                     }
 
                     await StayAsync(character, mate, false);
-                    await character.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = character.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.SentBackToMiniland,
-                        ArgumentType = 8,
-                        Game18NArguments = { mate.VNum }
-                    });
+                    await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.SentBackToMiniland,
+                        8, mate.VNum));
                     await character.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,

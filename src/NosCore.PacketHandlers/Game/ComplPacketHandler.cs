@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ComplimentService;
@@ -45,15 +46,8 @@ namespace NosCore.PacketHandlers.Game
                     return;
 
                 case ComplimentTooSoon(var minutesToWait):
-                    await session.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = character.CharacterId,
-                        Type = SayColorType.Red,
-                        Message = Game18NConstString.CantCommendNow,
-                        ArgumentType = 4,
-                        Game18NArguments = { minutesToWait }
-                    });
+                    await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red, Game18NConstString.CantCommendNow,
+                        4, minutesToWait));
                     return;
 
                 case ComplimentOutcome.NoTarget:

@@ -168,7 +168,11 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     // the map and emit nothing to the player; Sum overrides to emit the `guri 19 ... 1324/1332`
     // sparkle animation to the player and broadcast a `guri 6` ground explosion. Default: nothing.
     protected virtual Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
-        UpgradeOutcome outcome, List<IPacket> playerPackets) => Task.CompletedTask;
+        UpgradeOutcome outcome, List<IPacket> playerPackets) =>
+        OutcomeEffect(outcome) is { } effectId ? BroadcastEffectAsync(session, effectId) : Task.CompletedTask;
+
+    // The effect broadcast to the map for an outcome, or null for none.
+    protected virtual int? OutcomeEffect(UpgradeOutcome outcome) => null;
 
     // -- Helpers ----------------------------------------------------------------
 

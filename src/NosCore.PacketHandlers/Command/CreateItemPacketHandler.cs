@@ -43,15 +43,8 @@ namespace NosCore.PacketHandlers.Command
 
                 case ItemGranted(var items, var amount):
                     await session.SendPacketAsync(items.GeneratePocketChange());
-                    await session.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = session.Character.CharacterId,
-                        Type = SayColorType.Green,
-                        Message = Game18NConstString.ReceivedThisItem,
-                        ArgumentType = 2,
-                        Game18NArguments = { createItemPacket.VNum.ToString(), amount }
-                    });
+                    await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                        2, createItemPacket.VNum.ToString(), amount));
                     return;
             }
         }

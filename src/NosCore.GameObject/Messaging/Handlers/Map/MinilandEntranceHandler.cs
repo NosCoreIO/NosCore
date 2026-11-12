@@ -48,25 +48,11 @@ namespace NosCore.GameObject.Messaging.Handlers.Map
                 await session.SendPacketAsync(session.Character.GenerateMlobjlst());
             }
 
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.TotalVisitors,
-                ArgumentType = 4,
-                Game18NArguments = { miniland.VisitCount }
-            });
+            await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.TotalVisitors,
+                4, miniland.VisitCount));
 
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.TodayVisitors,
-                ArgumentType = 4,
-                Game18NArguments = { miniland.DailyVisitCount }
-            });
+            await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.TodayVisitors,
+                4, miniland.DailyVisitCount));
         }
     }
 }

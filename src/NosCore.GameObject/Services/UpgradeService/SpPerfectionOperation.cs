@@ -136,14 +136,7 @@ public sealed class SpPerfectionOperation(
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx) { }
 
-    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
-        UpgradeOutcome outcome, List<IPacket> playerPackets)
-    {
-        if (outcome == UpgradeOutcome.Success)
-        {
-            await BroadcastEffectAsync(session, 3005);
-        }
-    }
+    protected override int? OutcomeEffect(UpgradeOutcome outcome) => outcome == UpgradeOutcome.Success ? 3005 : null;
 
     // The chat line cannot carry the stat's name, so a success is only shown in the centre.
     protected override SayiPacket? BuildSay(ClientSession session, UpgradeContext ctx, UpgradeOutcome outcome,

@@ -66,27 +66,14 @@ public sealed class ShellOptionService(
 
     public async Task SaveAsync(Guid wearableInstanceId, IEnumerable<EquipmentOptionDto> options)
     {
-        await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => new EquipmentOptionDto
-        {
-            Id = Guid.NewGuid(),
-            WearableInstanceId = wearableInstanceId,
-            Level = o.Level,
-            Type = o.Type,
-            Value = o.Value,
-        }).ToList());
+        await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => o.CopyFor(wearableInstanceId)).ToList());
     }
 
     public async Task<bool> CopyAsync(Guid fromWearableInstanceId, Guid toWearableInstanceId)
     {
         var options = Load(fromWearableInstanceId);
-        return options.Count == 0 || await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => new EquipmentOptionDto
-        {
-            Id = Guid.NewGuid(),
-            WearableInstanceId = toWearableInstanceId,
-            Level = o.Level,
-            Type = o.Type,
-            Value = o.Value,
-        }).ToList());
+        return options.Count == 0
+            || await equipmentOptionDao.TryInsertOrUpdateAsync(options.Select(o => o.CopyFor(toWearableInstanceId)).ToList());
     }
 
     public async Task ClearAsync(Guid wearableInstanceId)

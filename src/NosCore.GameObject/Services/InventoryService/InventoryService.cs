@@ -191,41 +191,22 @@ namespace NosCore.GameObject.Services.InventoryService
             return invlist;
         }
 
-        public InventoryItemInstance? DeleteById(Guid id)
-        {
-            var inv = this[id];
-            if (inv != null)
-            {
-                if (TryRemove(inv.ItemInstanceId, out var value))
-                {
-                    return null;
-                }
-
-                return value;
-            }
-
-            var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");
-            logger.LogError(e.Message, e);
-            return null;
-        }
+        public InventoryItemInstance? DeleteById(Guid id) => Delete(this[id]);
 
         public InventoryItemInstance LoadByItemInstanceId(Guid id)
         {
             return this[id];
         }
 
-        public InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot)
-        {
-            var inv = this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type));
+        public InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot) =>
+            Delete(this.Select(s => s.Value).FirstOrDefault(i => i.Slot.Equals(slot) && i.Type.Equals(type)));
 
+        // Returns what is left in the slot: null once the item is gone.
+        private InventoryItemInstance? Delete(InventoryItemInstance? inv)
+        {
             if (inv != null)
             {
-                if (TryRemove(inv.ItemInstanceId, out var value))
-                {
-                    return null;
-                }
-
-                return value;
+                return TryRemove(inv.ItemInstanceId, out var value) ? null : value;
             }
 
             var e = new InvalidOperationException("Expected item wasn't deleted, Type or Slot did not match!");

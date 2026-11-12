@@ -189,15 +189,8 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                         InventoryItemInstance.Create(item, mg.Session.Character.CharacterId));
                     if (inv != null && inv.Count != 0)
                     {
-                        await mg.Session.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = mg.Session.Character.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.ReceivedThisItem,
-                            ArgumentType = 2,
-                            Game18NArguments = { item.Item.VNum.ToString(), amount }
-                        });
+                        await mg.Session.SendPacketAsync(mg.Session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ReceivedThisItem,
+                            2, item.Item.VNum.ToString(), amount));
                     }
 
                     list.Add(new MloPmgSubPacket

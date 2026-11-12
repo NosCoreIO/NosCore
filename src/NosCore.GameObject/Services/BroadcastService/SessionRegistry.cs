@@ -154,9 +154,13 @@ namespace NosCore.GameObject.Services.BroadcastService
             return _sessionsByChannelId.Values;
         }
 
-        public async Task BroadcastPacketAsync(IPacket packet)
-        {
-            var tasks = _sessionsByChannelId.Values.Select(async s =>
+        public Task BroadcastPacketAsync(IPacket packet) => BroadcastAsync(_sessionsByChannelId.Values, packet);
+
+        public Task BroadcastPacketAsync(IPacket packet, string excludeChannelId) =>
+            BroadcastAsync(_sessionsByChannelId.Values.Where(s => s.ChannelId != excludeChannelId), packet);
+
+        private Task BroadcastAsync(IEnumerable<SessionInfo> sessions, IPacket packet) =>
+            Task.WhenAll(sessions.Select(async s =>
             {
                 try
                 {
@@ -166,27 +170,7 @@ namespace NosCore.GameObject.Services.BroadcastService
                 {
                     logger.LogWarning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
                 }
-            });
-            await Task.WhenAll(tasks);
-        }
-
-        public async Task BroadcastPacketAsync(IPacket packet, string excludeChannelId)
-        {
-            var tasks = _sessionsByChannelId.Values
-                .Where(s => s.ChannelId != excludeChannelId)
-                .Select(async s =>
-                {
-                    try
-                    {
-                        await s.Sender.SendPacketAsync(packet);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogWarning(ex, "Broadcast to {ChannelId} failed", s.ChannelId);
-                    }
-                });
-            await Task.WhenAll(tasks);
-        }
+            }));
 
         public async Task DisconnectByCharacterIdAsync(long characterId)
         {

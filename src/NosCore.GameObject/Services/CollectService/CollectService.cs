@@ -73,15 +73,8 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
             }
 
             await character.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
-            await character.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.CharacterId,
-                Type = SayColorType.Green,
-                Message = Game18NConstString.ReceivedThisItem,
-                ArgumentType = 2,
-                Game18NArguments = { drop.VNum.ToString(), amount }
-            });
+            await character.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                2, drop.VNum.ToString(), amount));
         }
 
         npc.IsAlive = false;

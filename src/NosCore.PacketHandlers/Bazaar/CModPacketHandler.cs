@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BazaarHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -68,15 +69,8 @@ namespace NosCore.PacketHandlers.Bazaar
                     if ((bzMod != null) && (bzMod.BazaarItem?.Price == packet.NewPrice))
                     {
                         await clientSession.HandlePacketsAsync(new[] { new CSListPacket { Index = 0, Filter = BazaarStatusType.Default } });
-                        await clientSession.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.NewSellingPrice,
-                            ArgumentType = 4,
-                            Game18NArguments = { bzMod.BazaarItem?.Price ?? 0 }
-                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NewSellingPrice,
+                            4, bzMod.BazaarItem?.Price ?? 0));
                         return;
                     }
                 }

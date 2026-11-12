@@ -135,14 +135,7 @@ namespace NosCore.GameObject.Services.TransferService
 
                     if (options.TryGetValue(item.ItemInstanceId, out var itemOptions))
                     {
-                        changes.Options.AddRange(itemOptions.Select(o => new EquipmentOptionDto
-                        {
-                            Id = Guid.NewGuid(),
-                            WearableInstanceId = clone.Id,
-                            Level = o.Level,
-                            Type = o.Type,
-                            Value = o.Value
-                        }));
+                        changes.Options.AddRange(itemOptions.Select(o => o.CopyFor(clone.Id)));
                     }
 
                     changes.Upserted.AddRange(touched);
@@ -199,14 +192,7 @@ namespace NosCore.GameObject.Services.TransferService
             clone.Amount = amount;
             if (clone is WearableInstance { EquipmentOptions: { } equipmentOptions } wearable)
             {
-                wearable.EquipmentOptions = equipmentOptions.Select(o => new EquipmentOptionDto
-                {
-                    Id = Guid.NewGuid(),
-                    WearableInstanceId = clone.Id,
-                    Level = o.Level,
-                    Type = o.Type,
-                    Value = o.Value
-                }).ToList();
+                wearable.EquipmentOptions = equipmentOptions.Select(o => o.CopyFor(clone.Id)).ToList();
             }
 
             return clone;
