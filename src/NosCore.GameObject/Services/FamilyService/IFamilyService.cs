@@ -30,6 +30,6 @@ namespace NosCore.GameObject.Services.FamilyService
         Task<IReadOnlyList<CharacterDto>> GetMemberCharactersAsync(Family family);
         Task<FamilyAuthorityChange> ChangeAuthorityAsync(Family family, long actorId, long targetId, FamilyAuthority authority);
         Task<bool> UpdateAsync(long familyId, Action<FamilyDto> change);
-        Task<bool> UpdateMemberAsync(long characterId, Action<FamilyCharacterDto> change);
+        Task<bool> UpdateMemberAsync(long familyId, long characterId, Action<FamilyCharacterDto> change);
     }
 }

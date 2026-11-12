@@ -48,8 +48,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             {
                 FamilyId = _familyId, CharacterId = MemberId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
             });
-            _service = new FamilyServiceImpl(_familyDao, _familyCharacterDao, new Mock<IDao<FamilyLogDto, long>>().Object,
-                World.CharacterDao);
+            World.Inject(_familyDao);
+            World.Inject(_familyCharacterDao);
+            _service = World.Create<FamilyServiceImpl>();
         }
 
         [TestMethod]
@@ -77,7 +78,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             membership.Experience = 500;
             await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
 
-            Assert.IsTrue(await _service.UpdateMemberAsync(MemberId, s => s.Rank = FamilyMemberRank.Uncle));
+            Assert.IsTrue(await _service.UpdateMemberAsync(_familyId, MemberId, s => s.Rank = FamilyMemberRank.Uncle));
 
             var stored = await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == MemberId);
             Assert.IsNotNull(stored);
@@ -90,6 +91,16 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         {
             Assert.IsFalse(await _service.UpdateAsync(_familyId + 1, s => s.FamilyMessage = "hello"));
             Assert.IsNull(await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId + 1));
+        }
+
+        [TestMethod]
+        public async Task AMemberWhoMovedToAnotherFamilyIsNotChanged()
+        {
+            Assert.IsFalse(await _service.UpdateMemberAsync(_familyId + 1, MemberId, s => s.Rank = FamilyMemberRank.Uncle));
+
+            var stored = await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == MemberId);
+            Assert.IsNotNull(stored);
+            Assert.AreNotEqual(FamilyMemberRank.Uncle, stored.Rank);
         }
 
         private async Task RaiseLevelAsync(byte level)

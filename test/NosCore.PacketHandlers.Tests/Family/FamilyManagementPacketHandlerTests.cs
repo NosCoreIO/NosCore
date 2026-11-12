@@ -64,7 +64,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<Action<FamilyDto>>())).ReturnsAsync(true);
-            _familyService.Setup(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>())).ReturnsAsync(true);
             _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
         }
 
@@ -231,7 +231,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var mine = _family.Members.First(s => s.CharacterId == _headId);
             Assert.AreEqual("good morning", mine.DailyMessage);
-            _familyService.Verify(s => s.UpdateMemberAsync(mine.CharacterId, It.IsAny<Action<FamilyCharacterDto>>()), Times.Once);
+            _familyService.Verify(s => s.UpdateMemberAsync(FamilyId, mine.CharacterId, It.IsAny<Action<FamilyCharacterDto>>()), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
@@ -248,7 +248,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.IsNull(_family.FamilyMessage);
             Assert.AreNotEqual(tooLong, _family.Members.First(s => s.CharacterId == _headId).DailyMessage);
             _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<Action<FamilyDto>>()), Times.Never);
-            _familyService.Verify(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>()), Times.Never);
+            _familyService.Verify(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>()), Times.Never);
         }
 
         [TestMethod]

@@ -68,7 +68,16 @@ namespace NosCore.GameObject.Services.FamilyService
                 return FamilyAuthorityChange.NotInFamily;
             }
 
-            var result = await familyService.ChangeAuthorityAsync(family, session.Character.CharacterId, targetId, authority);
+            FamilyAuthorityChange result;
+            await using (var transaction = daoTransactionScope.Begin())
+            {
+                result = await familyService.ChangeAuthorityAsync(family, session.Character.CharacterId, targetId, authority);
+                if (result == FamilyAuthorityChange.Changed)
+                {
+                    await transaction.CommitAsync();
+                }
+            }
+
             Game18NConstString? message = result switch
             {
                 FamilyAuthorityChange.NotAuthorized => Game18NConstString.NotAuthorized,
@@ -348,7 +357,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateMemberAsync(membership.CharacterId, s => s.DailyMessage = dailyMessage))
+            if (!await familyService.UpdateMemberAsync(family.FamilyId, membership.CharacterId, s => s.DailyMessage = dailyMessage))
             {
                 return;
             }
@@ -380,7 +389,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateMemberAsync(membership.CharacterId, s => s.Rank = rank))
+            if (!await familyService.UpdateMemberAsync(family.FamilyId, membership.CharacterId, s => s.Rank = rank))
             {
                 return;
             }
@@ -401,7 +410,7 @@ namespace NosCore.GameObject.Services.FamilyService
             {
                 foreach (var member in family.Members)
                 {
-                    if (!await familyService.UpdateMemberAsync(member.CharacterId, s => s.Rank = FamilyMemberRank.Nothing))
+                    if (!await familyService.UpdateMemberAsync(family.FamilyId, member.CharacterId, s => s.Rank = FamilyMemberRank.Nothing))
                     {
                         return;
                     }
