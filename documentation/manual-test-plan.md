@@ -537,6 +537,10 @@ success, on the assumption that the window says "Appearance changed" itself.
       shows and a buff icon with 10 minutes appears
 - [ ] Use another one: the time left goes up by 10 minutes, and never past two hours
 - [ ] Strong Ice Flower Oil (5916) fills the buff to two hours; at two hours a further oil is kept
+- [ ] With the character window (`p`) open, use an oil: melee, ranged and magic defence each
+      rise by 5% straight away, without changing map
+- [ ] Hit a monster with the oil on and off: the damage is about 5% higher with it
+- [ ] When the buff runs out, the window drops back to the old defence
 
 ### Magic Lamp
 

@@ -71,6 +71,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IVitalityService? _vitalityService;
         private readonly IDigestionService? _digestionService;
         private readonly ISpeedCalculationService? _speedCalculationService;
+        private readonly IBattleStatsProvider? _battleStatsProvider;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
         private readonly ConcurrentDictionary<long, (NpcComponentBundle Npc, Instant RespawnAt)> _pendingNpcRespawns = new();
 
@@ -83,7 +84,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
             IBattleService? battleService = null, IVitalityService? vitalityService = null,
-            IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null)
+            IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null,
+            IBattleStatsProvider? battleStatsProvider = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -112,6 +114,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _vitalityService = vitalityService;
             _digestionService = digestionService;
             _speedCalculationService = speedCalculationService;
+            _battleStatsProvider = battleStatsProvider;
             EcsWorld = new MapWorld();
         }
 
@@ -550,6 +553,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         if (expired.Count > 0 && _vitalityService != null)
                         {
                             await _vitalityService.RefreshAndNotifyAsync(session.Character);
+                        }
+
+                        if (_battleStatsProvider != null && expired.Count > 0)
+                        {
+                            await session.SendPacketAsync(session.Character.GenerateSc(_battleStatsProvider));
                         }
 
                         if (_speedCalculationService != null && expired.Any(b => b.CardId == SpeedBooster.CardId))

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService.Model;
@@ -67,4 +68,8 @@ public readonly record struct CombatStats(
     int WeaponMaxHit = 0,
     int WeaponMinDistance = 0,
     int WeaponMaxDistance = 0,
-    bool IsPlayer = false);
+    bool IsPlayer = false,
+    IReadOnlyList<ChanceDamage>? ChanceDamage = null);
+
+// Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
+public readonly record struct ChanceDamage(int Chance, int Percent);

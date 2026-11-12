@@ -129,7 +129,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             isCritical = true;
         }
 
-        var totalDamage = baseDamage + elementalDamage;
+        var totalDamage = RollChanceDamage(attacker, baseDamage + elementalDamage);
         if (totalDamage < 5)
         {
             // Floor: never fully no-op a hit that isn't a dodge. Matches OpenNos random
@@ -177,7 +177,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             isCritical = true;
         }
 
-        var totalDamage = damage + levelDifference + elementalDamage;
+        var totalDamage = RollChanceDamage(attacker, damage + levelDifference + elementalDamage);
         if (totalDamage < 5)
         {
             totalDamage = random.Next(1, 6);
@@ -189,6 +189,25 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
     }
 
     private const int PlayerFlatAttack = 15;
+
+    private int RollChanceDamage(CombatStats attacker, int damage)
+    {
+        if (attacker.ChanceDamage == null)
+        {
+            return damage;
+        }
+
+        var percent = 0;
+        foreach (var effect in attacker.ChanceDamage)
+        {
+            if (random.NextDouble() * 100 < effect.Chance)
+            {
+                percent += effect.Percent;
+            }
+        }
+
+        return damage * (100 + percent) / 100;
+    }
 
     private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level)
     {
