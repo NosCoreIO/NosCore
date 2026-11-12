@@ -54,8 +54,7 @@ public sealed class RewardService(
     IEquipmentStatsService equipmentStatsService,
     ILogger<RewardService> logger) : IRewardService
 {
-    // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
-    // on ServerManager; we keep it constant until there's a gameplay reason to tune it.
+    // Flat fairy XP granted per qualifying kill.
     private const int FairyXpRate = 1;
 
     public async Task DistributeAsync(IAliveEntity victim, IAliveEntity? killer, IReadOnlyDictionary<Entity, int> hitSnapshot)
@@ -176,7 +175,7 @@ public sealed class RewardService(
         }
 
         // Fairy XP is a flat per-kill grant gated on the mob being within ±15 levels
-        // of the player (OpenNos Character.cs:5242). Out-of-bracket kills grant nothing,
+        // of the player. Out-of-bracket kills grant nothing,
         // so early-game farming doesn't power-level fairies on low-level mobs.
         var fairyXp = 0;
         if (Math.Abs(player.Level - mob.Level) <= 15)

@@ -12,14 +12,13 @@ using NosCore.Packets.Enumerations;
 
 namespace NosCore.GameObject.Services.BattleService;
 
-// Faithful port of OpenNos Character.GenerateDamage / MapMonster.GenerateDamage. The
-// calculator is stateless apart from RNG — all inputs come from the resolved CombatStats
+// Player and monster damage. The calculator is stateless apart from RNG — all inputs come from the resolved CombatStats
 // of both sides plus the SkillInfo. Keeping this symmetrical lets the same function
 // service character→monster, monster→character and PvP damage.
 public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
 {
     // Element matchup boosts: attackerElement x defenderElement → multiplier. 0 means
-    // "no element". Matches the OpenNos elemental triangle.
+    // "no element".
     private static readonly double[,] ElementalBoost =
     {
         //            none  fire water light dark
@@ -38,7 +37,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         var context = SelectAttackContext(attacker, defender, skill);
 
         // Morale buff: Level diff + Morale buffs, used as a baseline addition to hit
-        // rate and base damage. Matches OpenNos `int morale = Level + GetBuff(...)`.
+        // rate and base damage.
         var morale = attacker.Morale;
 
         // Dodge phase: only melee/ranged skills can miss. Magicians never dodge.
@@ -97,8 +96,8 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         }
 
         // Weapon upgrade table: negative values pad defender's armour, positive values
-        // pad attacker's damage. Linear to ~+/-5 then accelerating. Exact constants
-        // lifted from OpenNos so a +10 weapon still doubles damage.
+        // pad attacker's damage. Linear to ~+/-5 then accelerating, so a +10 weapon
+        // doubles damage.
         var monsterDefence = context.MonsterDefence;
         var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
         if (upgrade < 0)
@@ -236,8 +235,8 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         return bonus;
     }
 
-    // Selects which attacker profile (melee/ranged) and which defender stat applies,
-    // mirroring OpenNos `switch (skill.Type)`. Returns all values by struct.
+    // Selects which attacker profile (melee/ranged) and which defender stat applies
+    // from the skill type. Returns all values by struct.
     private static AttackContext SelectAttackContext(CombatStats attacker, CombatStats defender, SkillInfo skill)
     {
         // Defaults point at the melee profile; overridden below per skill.Type.
@@ -330,7 +329,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         return int.MaxValue;
     }
 
-    // OpenNos upgrade ladders, lifted from Character.GenerateDamage. Negative upgrades
+    // Upgrade ladders. Negative upgrades
     // buff the defender's armour, positive buff attacker damage. The table stops at ±10.
     private static double NegativeUpgradeDefenceBonus(int upgrade) => upgrade switch
     {

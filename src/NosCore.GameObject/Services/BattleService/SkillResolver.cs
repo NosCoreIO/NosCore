@@ -89,8 +89,8 @@ public sealed class SkillResolver : ISkillResolver
         // No skill in the catalog and no BasicSkill vnum — but the monster still
         // needs to hit. The overwhelming majority of low-level mobs fall here
         // (melee wolf, rat, etc.) so we synthesise a minimal basic-attack SkillInfo
-        // from the monster's raw stats. Type/AttackClass match OpenNos Monster.AttackClass
-        // semantics (0 melee, 1 ranged, 2 magic), Range/Cooldown come from the
+        // from the monster's raw stats. Type/AttackClass follow the monster's attack class
+        // (0 melee, 1 ranged, 2 magic), Range/Cooldown come from the
         // NpcMonsterDto itself, and Damage comes from the min/max hit range via
         // CombatStats — not via skill BCards.
         return new SkillInfo(

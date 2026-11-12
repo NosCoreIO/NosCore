@@ -252,7 +252,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         [TestMethod]
         public async Task UnknownRevivalTypeLeavesCharacterDead()
         {
-            await new Spec("Unknown revival Type leaves IsAlive=false (matches OpenNos default-case behaviour)")
+            await new Spec("Unknown revival Type leaves IsAlive=false (default case)")
                 .Given(CharacterIsDeadAtLevel_, (byte)10)
                 .WhenAsync(SendingRevivalOfType_, (RevivalType)99)
                 .Then(CharacterShouldStillBeDead)

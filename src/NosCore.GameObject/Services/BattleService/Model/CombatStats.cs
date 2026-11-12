@@ -12,8 +12,8 @@ namespace NosCore.GameObject.Services.BattleService.Model;
 // Snapshot of combat-relevant stats resolved for a single hit. Pulling these into a
 // flat struct lets the damage calculator stay pure and easy to test.
 //
-// Matches OpenNos Character/Monster stat shape so the damage formula port can use these
-// fields directly without introspecting the underlying entity.
+// Characters and monsters share this shape so the damage formula can use these fields
+// directly without introspecting the underlying entity.
 public readonly record struct CombatStats(
     int Level,
     int HeroLevel,

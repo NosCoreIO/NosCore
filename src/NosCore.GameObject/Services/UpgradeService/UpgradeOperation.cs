@@ -33,8 +33,8 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // apply the outcome (success / failure / fixed), then emit the standard pocket refresh +
 // animation + result message. Subclasses fill in the variant-specific bits via the hooks below.
 //
-// Outcome model is 3-way (Success / Failure / Fixed) to match OpenNos's equipment upgrade
-// behavior where a "Fix" roll permanently locks the item without changing its upgrade level.
+// Outcome model is 3-way (Success / Failure / Fixed) to match equipment upgrade
+// behavior, where a "Fix" roll permanently locks the item without changing its upgrade level.
 // The default DetermineOutcome implementation reduces to a binary success/failure roll —
 // subclasses that need 3-way (EquipmentUpgrade) override it.
 //
@@ -115,7 +115,7 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
     // Pre-operation validation that needs to emit a player-visible rejection message. Returns
     // null to continue to TryPrepareContext, or a packet list that is returned directly.
-    // Equipment uses it for the "ItemIsFixed" path where OpenNos sends a say + shop_end.
+    // Equipment uses it for the "ItemIsFixed" path, which sends a say + shop_end.
     protected virtual IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet) => null;
 
     protected abstract UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet);
@@ -176,8 +176,8 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
 
     // -- Helpers ----------------------------------------------------------------
 
-    // OpenNos sends distinct say vs msg keys for the ProtectedSave case: say "SCROLL_PROTECT_USED"
-    // + msg "UPGRADE_FAILED_ITEM_SAVED". The hooks below are split so subclasses can diverge.
+    // The ProtectedSave case sends a different say and msg ("scroll used" and "item saved").
+    // The hooks below are split so subclasses can diverge.
     protected virtual Game18NConstString SayMessageFor(UpgradeOutcome outcome) => outcome switch
     {
         UpgradeOutcome.Success => SuccessMessage,

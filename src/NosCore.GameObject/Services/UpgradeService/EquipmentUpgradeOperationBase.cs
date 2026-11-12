@@ -47,12 +47,10 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
     protected override Game18NConstString FailureMessage => Game18NConstString.UpgradeFailed;
 
     // Fixed is the distinct upfix-band outcome (IsFixed=true, item preserved but locked).
-    // OpenNos uses "UPGRADE_FIXED"; NosCore's enum ships with `ItemFixedLevel` ("Level X locked").
     protected override Game18NConstString FixedMessage => Game18NConstString.ItemFixedLevel;
 
-    // ProtectedSave: scroll absorbed a failure roll. OpenNos sends different keys for say vs msg
-    // ("SCROLL_PROTECT_USED" + "UPGRADE_FAILED_ITEM_SAVED"); NosCore overrides SayMessageFor for
-    // that split. Default here returns the "item saved" copy used in the dialog.
+    // ProtectedSave: scroll absorbed a failure roll. The say and msg differ, so SayMessageFor is
+    // overridden below; this is the "item saved" copy used in the dialog.
     protected override Game18NConstString ProtectedSaveMessage => Game18NConstString.ItemSurvivedWithProtection;
 
     // Say vs Msg split for ProtectedSave: say = "scroll used", msg = "item saved".
@@ -61,8 +59,8 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
             ? Game18NConstString.ProtectionScrollUsed
             : base.SayMessageFor(outcome);
 
-    // OpenNos line 711: if IsFixed, emit ITEM_IS_FIXED say + shop_end 1 instead of silently
-    // rejecting. That lets the player see why the operation did nothing.
+    // A fixed item gets an "item is fixed" say + shop_end 1 instead of a silent
+    // rejection. That lets the player see why the operation did nothing.
     protected override IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet)
     {
         var source = LoadSource(session, packet);
@@ -159,7 +157,6 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx)
     {
-        // Unprotected failure destroys the item entirely (matches OpenNos line 875).
         session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Source.ItemInstanceId);
     }
 

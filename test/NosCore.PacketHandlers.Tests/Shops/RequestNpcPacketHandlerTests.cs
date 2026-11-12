@@ -86,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         [TestMethod]
         public async Task RequestNpcOnShopWithNoDialogOpensShopDirectly()
         {
-            // OpenNos parity: grocer/weapon NPCs have a Shop but Dialog=0 — clicking them
+            // Grocer/weapon NPCs have a Shop but Dialog=0 — clicking them
             // must open the shop tab directly instead of replying with npc_req ... 0 (a
             // no-op on the client). Regression from #271bad47 era.
             await new Spec("req_npc on a shop-only NPC opens the shop (n_inv) without a dialog round-trip")

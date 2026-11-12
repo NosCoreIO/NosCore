@@ -32,9 +32,8 @@ namespace NosCore.GameObject.Messaging.Events
                 : new Dictionary<Entity, int>();
     }
 
-    // Normal = in-session death → town warp after the death-pose delay (OpenNos
-    // default when the revive dialog's "return to town" option is picked / the
-    // dialog times out).
+    // Normal = in-session death → town warp after the death-pose delay (what happens
+    // when the revive dialog's "return to town" option is picked or the dialog times out).
     // ResumeInPlace = we detected a persisted-dead character on login: the player
     // already "declined" the dialog by disconnecting, so just refill and leave
     // them at the saved position instead of warping.

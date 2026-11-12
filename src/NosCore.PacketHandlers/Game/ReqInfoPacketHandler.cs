@@ -22,7 +22,7 @@ using Microsoft.Extensions.Logging;
 namespace NosCore.PacketHandlers.Game
 {
     // Handles the client `req_info` packet. Dispatch mirrors the official NosTale wire
-    // shape captured from a live session (OpenNos routed the same way):
+    // shape captured from a live session:
     //
     //   req_info 1 <characterId>                    -> tc_info for the targeted player
     //   req_info 5 <npcMonsterVNum>                 -> e_info for the NPC monster TEMPLATE
@@ -117,11 +117,9 @@ namespace NosCore.PacketHandlers.Game
         }
 
         // `req_info 6 <mateTransportId>` (single-arg form) — mate / partner info card.
-        // OpenNos BasicPacketHandler looks up Session.Character.Mates by MateTransportId and
-        // calls mate.GenerateEInfo. NosCore has no runtime Mates collection on the character
-        // yet (see Database/Entities/Mate.cs), so we log the miss and no-op — OpenNos also
-        // no-ops when the lookup returns null, so this keeps byte-for-byte parity until the
-        // mate subsystem lands.
+        // There is no runtime Mates collection on the character yet (see
+        // Database/Entities/Mate.cs), so we log the miss and no-op, which is also what an
+        // unknown mate id gets.
         private Task HandleMateInfoAsync(ReqInfoPacket packet, ClientSession session)
         {
             logger.LogDebug("req_info 6 <mateTransportId={TransportId}> received but mate subsystem is not wired",

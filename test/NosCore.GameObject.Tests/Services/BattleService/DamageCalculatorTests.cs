@@ -38,7 +38,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             return mock;
         }
 
-        // OpenNos dodge formula peaks around multiplier=5 with ~80% dodge chance. With
+        // The dodge formula peaks around multiplier=5 with ~80% dodge chance. With
         // attacker HitRate 0 and defender Dodge 100 → multiplier = 100 / 1 = 100 → clamp 5
         // → chance ≈ 79.6%. Forcing RNG to 0 (roll below chance) produces a miss.
         [TestMethod]
@@ -57,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void MageSkillsIgnoreDodge()
         {
-            // Type 2 (magic) skill skips dodge entirely per OpenNos. Even with insane
+            // Type 2 (magic) skill skips dodge entirely. Even with insane
             // defender dodge the hit lands.
             var calc = new DamageCalculator(Rng(doubles: new[] { 0.0, 1.0 }, ints: new[] { 100 }).Object);
             var attacker = StatsBuilder.Default() with { Class = CharacterClassType.Mage, MinHit = 100, MaxHit = 100 };
@@ -72,7 +72,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public void DamageFlooredWhenDefenceExceedsAttack()
         {
-            // Big armor, small hit — damage should floor (OpenNos randomises 1..5 when
+            // Big armor, small hit — damage should floor (it is randomised in 1..5 when
             // total < 5 so we can't assert exact, but it must be positive).
             var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 50, 3 }).Object);
             var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 50, MaxHit = 50 };
