@@ -55,7 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
             }
         }
 
-        private static bool TryFindCharacter(IAliveEntity victim, Entity handle, [NotNullWhen(true)] out ICharacterEntity? character)
+        private static bool TryFindCharacter(IAliveEntity victim, Entity handle, out PlayerComponentBundle character)
         {
             if (victim.MapInstance is not null)
             {
@@ -70,7 +70,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                     }
                 }
             }
-            character = null;
+            character = default;
             return false;
         }
     }

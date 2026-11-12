@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -12,8 +13,8 @@ namespace NosCore.GameObject.Services.BattleService;
 public interface IStaticBuffService
 {
     // Puts back the timed static buffs the character left the world with, each with the time it had left.
-    void Load(ICharacterEntity character);
+    void Load(PlayerComponentBundle character);
 
     // Stores the seconds left on each timed static buff. The time only runs while the character is in the world.
-    Task<bool> SaveAsync(ICharacterEntity character);
+    Task<bool> SaveAsync(PlayerComponentBundle character);
 }

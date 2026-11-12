@@ -5,9 +5,10 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Messaging.Events
 {
     // Published when items land in a character's inventory from the world (a picked-up drop).
-    public sealed record ItemsReceivedEvent(ICharacterEntity Character, short VNum, short Amount);
+    public sealed record ItemsReceivedEvent(PlayerComponentBundle Character, short VNum, short Amount);
 }

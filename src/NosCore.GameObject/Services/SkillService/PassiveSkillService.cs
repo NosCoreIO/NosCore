@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -16,12 +17,12 @@ namespace NosCore.GameObject.Services.SkillService
     public interface IPassiveSkillService
     {
         /// <summary>What the character's training courses and tomes add, for as long as they are known.</summary>
-        IReadOnlyList<BCardDto> GetBCards(ICharacterEntity character);
+        IReadOnlyList<BCardDto> GetBCards(PlayerComponentBundle character);
     }
 
     public sealed class PassiveSkillService(INpcCombatCatalog catalog) : IPassiveSkillService, ISingletonService
     {
-        public IReadOnlyList<BCardDto> GetBCards(ICharacterEntity character) =>
+        public IReadOnlyList<BCardDto> GetBCards(PlayerComponentBundle character) =>
             character.Skills.Values
                 .Where(s => s.Skill.IsPassive())
                 .SelectMany(s => catalog.GetSkillBCards(s.SkillVNum))

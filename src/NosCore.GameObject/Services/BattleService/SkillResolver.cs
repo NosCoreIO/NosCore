@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
@@ -40,13 +41,13 @@ public sealed class SkillResolver : ISkillResolver
     {
         return caster switch
         {
-            ICharacterEntity character => ResolveCharacter(character, castId),
+            PlayerComponentBundle character => ResolveCharacter(character, castId),
             INonPlayableEntity npc => ResolveNpc(npc, castId),
             _ => null,
         };
     }
 
-    private SkillInfo? ResolveCharacter(ICharacterEntity character, long castId)
+    private SkillInfo? ResolveCharacter(PlayerComponentBundle character, long castId)
     {
         // The same skill family can have multiple upgrades; client sends the base CastId
         // and the server picks the highest-tier version the character owns.
@@ -65,7 +66,7 @@ public sealed class SkillResolver : ISkillResolver
     // The packet guard spends cooldown and mana on this same skill, so both must pick it the same way.
     // Upgrades are type 2. A few active skills, every class's Capture among them, carry a
     // non-zero UpgradeSkill without being one, so they are only taken when no base skill is.
-    public static CharacterSkill? FindLearned(ICharacterEntity character, long castId)
+    public static CharacterSkill? FindLearned(PlayerComponentBundle character, long castId)
     {
         var owned = character.Skills?.Values
             .Where(s => s.Skill != null && !s.Skill.IsPassive() && s.Skill.CastId == castId)

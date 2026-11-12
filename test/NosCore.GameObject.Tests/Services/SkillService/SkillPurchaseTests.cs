@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -79,7 +80,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         {
             await _service.BuyAsync(_session.Character, Beginner);
 
-            Vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>()), Times.Once);
+            Vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>()), Times.Once);
         }
 
         [TestMethod]
@@ -89,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             await _service.BuyAsync(_session.Character, Beginner);
 
-            Vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>()), Times.Never);
+            Vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>()), Times.Never);
         }
 
         [TestMethod]

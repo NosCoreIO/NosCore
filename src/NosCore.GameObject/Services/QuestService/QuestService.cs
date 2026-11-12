@@ -5,6 +5,7 @@
 //
 
 using Mapster;
+using NosCore.GameObject.Ecs;
 using Microsoft.Extensions.Options;
 using NodaTime;
 using NosCore.Core.Configuration;
@@ -42,8 +43,8 @@ namespace NosCore.GameObject.Services.QuestService
             Services.ExperienceService.IExperienceProgressionService experienceProgression)
         : IQuestService
     {
-        public Task RunScriptAsync(ICharacterEntity character) => RunScriptAsync(character, null);
-        public async Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet)
+        public Task RunScriptAsync(PlayerComponentBundle character) => RunScriptAsync(character, null);
+        public async Task RunScriptAsync(PlayerComponentBundle character, ScriptClientPacket? packet)
         {
             if (character.CurrentScriptId == null && worldConfiguration.Value.SceneOnCreate)
             {
@@ -84,7 +85,7 @@ namespace NosCore.GameObject.Services.QuestService
             });
         }
 
-        public Task RunCurrentScriptStepAsync(ICharacterEntity character, QuestActionType type)
+        public Task RunCurrentScriptStepAsync(PlayerComponentBundle character, QuestActionType type)
         {
             var script = character.Script;
             if (script == null)
@@ -101,7 +102,7 @@ namespace NosCore.GameObject.Services.QuestService
             });
         }
 
-        public async Task GiveUpQuestAsync(ICharacterEntity character, int questId)
+        public async Task GiveUpQuestAsync(PlayerComponentBundle character, int questId)
         {
             var entry = character.Quests.FirstOrDefault(q => q.Value.QuestId == questId);
             if (entry.Value == null || !character.Quests.TryRemove(entry.Key, out var questToRemove))
@@ -112,7 +113,7 @@ namespace NosCore.GameObject.Services.QuestService
             await character.SendPacketAsync(questToRemove.GenerateQstiPacket(false));
         }
 
-        private async Task<bool> CheckScriptStateAsync(ScriptClientPacket packet, ICharacterEntity character)
+        private async Task<bool> CheckScriptStateAsync(ScriptClientPacket packet, PlayerComponentBundle character)
         {
             int? scriptId;
             int? scriptStepId;
@@ -145,7 +146,7 @@ namespace NosCore.GameObject.Services.QuestService
             return await IsValidScriptAsync(character, packet.Type, (int)scriptId, (int)scriptStepId);
         }
 
-        private async Task<bool> IsValidScriptAsync(ICharacterEntity character, QuestActionType type, int scriptId, int scriptStepId)
+        private async Task<bool> IsValidScriptAsync(PlayerComponentBundle character, QuestActionType type, int scriptId, int scriptStepId)
         {
             var script = scripts.FirstOrDefault(s => (s.ScriptId == scriptId) && (s.ScriptStepId == scriptStepId));
             if (script == null)
@@ -172,7 +173,7 @@ namespace NosCore.GameObject.Services.QuestService
             };
         }
 
-        private async Task<bool> QPayAsync(ICharacterEntity character, short questId)
+        private async Task<bool> QPayAsync(PlayerComponentBundle character, short questId)
         {
             var charQuest = character.Quests.Values.FirstOrDefault(q => q.QuestId == questId && q.CompletedOn == null);
             if (charQuest == null || !charQuest.AreObjectivesComplete())
@@ -226,7 +227,7 @@ namespace NosCore.GameObject.Services.QuestService
             return true;
         }
 
-        private async Task ApplyRewardAsync(ICharacterEntity character, QuestRewardDto reward)
+        private async Task ApplyRewardAsync(PlayerComponentBundle character, QuestRewardDto reward)
         {
             var amount = Math.Max(1, reward.Amount);
             switch ((Data.Enumerations.Quest.QuestRewardType)reward.RewardType)
@@ -288,7 +289,7 @@ namespace NosCore.GameObject.Services.QuestService
             return true;
         }
 
-        private async Task<bool> TargetOffPacketAsync(short questId, ICharacterEntity character)
+        private async Task<bool> TargetOffPacketAsync(short questId, PlayerComponentBundle character)
         {
             var questDto = quests.FirstOrDefault(s => s.QuestId == questId);
             if (questDto != null)
@@ -300,7 +301,7 @@ namespace NosCore.GameObject.Services.QuestService
             return false;
         }
 
-        public async Task<bool> AddQuestAsync(ICharacterEntity character, QuestActionType type, short questId)
+        public async Task<bool> AddQuestAsync(PlayerComponentBundle character, QuestActionType type, short questId)
         {
             var charQues = character.Quests.OrderByDescending(s => s.Value.CompletedOn).FirstOrDefault(s => s.Value.QuestId == questId);
             if (!charQues.Equals(new KeyValuePair<Guid, CharacterQuest>()) &&
@@ -394,7 +395,7 @@ namespace NosCore.GameObject.Services.QuestService
             return true;
         }
 
-        public Task<bool> ValidateQuestAsync(ICharacterEntity character, short questId)
+        public Task<bool> ValidateQuestAsync(PlayerComponentBundle character, short questId)
         {
             var characterQuest = character.Quests.Values.FirstOrDefault(s => s.QuestId == questId);
             if (characterQuest is null)
@@ -406,7 +407,7 @@ namespace NosCore.GameObject.Services.QuestService
             return handler?.ValidateAsync(character, characterQuest) ?? Task.FromResult(false);
         }
 
-        public async Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob)
+        public async Task OnMonsterKilledAsync(PlayerComponentBundle character, NpcMonsterDto mob)
         {
             foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())
             {
@@ -425,7 +426,7 @@ namespace NosCore.GameObject.Services.QuestService
             }
         }
 
-        public async Task OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob)
+        public async Task OnMonsterCapturedAsync(PlayerComponentBundle character, NpcMonsterDto mob)
         {
             foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())
             {
@@ -437,7 +438,7 @@ namespace NosCore.GameObject.Services.QuestService
             }
         }
 
-        public async Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest)
+        public async Task CompleteQuestAsync(PlayerComponentBundle character, CharacterQuest quest)
         {
             quest.ObjectivesCompletedOn ??= clock.GetCurrentInstant();
 

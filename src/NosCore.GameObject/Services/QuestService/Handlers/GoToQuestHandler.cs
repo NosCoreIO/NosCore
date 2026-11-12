@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
@@ -16,7 +17,7 @@ public sealed class GoToQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.GoTo;
 
-    public async Task<bool> ValidateAsync(ICharacterEntity character, CharacterQuest quest)
+    public async Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest)
     {
         var targetX = quest.Quest.TargetX ?? 0;
         var targetY = quest.Quest.TargetY ?? 0;

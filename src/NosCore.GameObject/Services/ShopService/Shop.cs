@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.Dto;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.StaticEntities;
 using NosCore.Core.Concurrency;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -23,7 +24,7 @@ namespace NosCore.GameObject.Services.ShopService
 
         public IReadOnlyList<ShopSkill> ShopSkills { get; set; } = [];
 
-        public ICharacterEntity? OwnerCharacter { get; set; }
+        public PlayerComponentBundle? OwnerCharacter { get; set; }
         public long Sell { get; internal set; }
 
         // Buyers and the owner closing the shop serialise on this, so a sale is checked and

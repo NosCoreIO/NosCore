@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -77,7 +78,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             }
         }
 
-        private Task RefreshAsync() => _service.RefreshAsync(Everyone.Select(s => (ICharacterEntity)s.Character));
+        private Task RefreshAsync() => _service.RefreshAsync(Everyone.Select(s => (PlayerComponentBundle)s.Character));
 
         private bool HasBuff(ClientSession session) => _buffs.HasBuff(session.Character, CoupleCardId);
 

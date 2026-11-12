@@ -175,7 +175,7 @@ namespace NosCore.GameObject.Services.BattleService
                         TargetVisualType = origin.VisualType,
                         TargetId = origin.VisualId,
                     };
-                    var victimCharacterId = target is ICharacterEntity victim ? victim.CharacterId : 0L;
+                    var victimCharacterId = target is PlayerComponentBundle victim ? victim.CharacterId : 0L;
                     foreach (var spectator in sessionRegistry
                         .GetClientSessionsByMapInstance(target.MapInstance.MapInstanceId)
                         .Where(s => s.HasSelectedCharacter && s.Character.CharacterId != victimCharacterId))
@@ -255,7 +255,7 @@ namespace NosCore.GameObject.Services.BattleService
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)
         {
-            if (origin is not ICharacterEntity character) return;
+            if (origin is not PlayerComponentBundle character) return;
 
             var readyAt = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(skill.Cooldown * 100));
             _pendingCooldownResets
@@ -298,7 +298,7 @@ namespace NosCore.GameObject.Services.BattleService
         {
             if (!CanCast(origin) || !target.IsAlive) return false;
             if (target.NoAttack) return false;
-            if (origin is ICharacterEntity attacker && target is ICharacterEntity defender)
+            if (origin is PlayerComponentBundle attacker && target is PlayerComponentBundle defender)
             {
                 return Arena.AreOpponents(attacker, defender);
             }
@@ -317,7 +317,7 @@ namespace NosCore.GameObject.Services.BattleService
 
         private static async Task CancelAsync(IAliveEntity origin, IAliveEntity? target)
         {
-            if (origin is ICharacterEntity character)
+            if (origin is PlayerComponentBundle character)
             {
                 await character.SendPacketAsync(new CancelPacket
                 {

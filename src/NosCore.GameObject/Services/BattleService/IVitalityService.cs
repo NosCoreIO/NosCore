@@ -5,13 +5,14 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.BattleService;
 
 public interface IVitalityService
 {
-    bool Refresh(ICharacterEntity character);
+    bool Refresh(PlayerComponentBundle character);
 
-    Task RefreshAndNotifyAsync(ICharacterEntity character);
+    Task RefreshAndNotifyAsync(PlayerComponentBundle character);
 }

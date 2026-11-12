@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using NodaTime;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -14,10 +15,10 @@ namespace NosCore.GameObject.Services.BattleService;
 
 public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipmentStatsService) : ISkillCastService
 {
-    public CharacterSkill? FindLearned(ICharacterEntity character, long castId) =>
+    public CharacterSkill? FindLearned(PlayerComponentBundle character, long castId) =>
         SkillResolver.FindLearned(character, castId);
 
-    public SkillCastRefusal Check(ICharacterEntity character, CharacterSkill skill, out int mpCost)
+    public SkillCastRefusal Check(PlayerComponentBundle character, CharacterSkill skill, out int mpCost)
     {
         mpCost = 0;
         if (skill.Skill == null || !skill.CanBeUsed(clock.GetCurrentInstant()))
@@ -30,7 +31,7 @@ public sealed class SkillCastService(IClock clock, IEquipmentStatsService equipm
         return character.Mp < mpCost ? SkillCastRefusal.NotEnoughMp : SkillCastRefusal.None;
     }
 
-    public void Spend(ICharacterEntity character, CharacterSkill skill, int mpCost)
+    public void Spend(PlayerComponentBundle character, CharacterSkill skill, int mpCost)
     {
         skill.LastUse = clock.GetCurrentInstant();
         character.Mp = Math.Max(0, character.Mp - mpCost);

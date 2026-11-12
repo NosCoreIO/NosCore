@@ -5,11 +5,12 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.GroupService;
 
 public interface IGroupLeaveService
 {
-    Task LeaveAsync(ICharacterEntity character);
+    Task LeaveAsync(PlayerComponentBundle character);
 }

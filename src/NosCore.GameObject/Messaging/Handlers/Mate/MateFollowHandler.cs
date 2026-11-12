@@ -24,11 +24,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Mate
         [UsedImplicitly]
         public async Task Handle(CharacterMovedEvent evt)
         {
-            if (evt.Character is not PlayerComponentBundle character)
-            {
-                return;
-            }
-
+            var character = evt.Character;
             var mates = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
             if (mates.Count == 0)
             {

@@ -1,4 +1,5 @@
 using Mapster;
+using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
@@ -26,7 +27,7 @@ namespace NosCore.GameObject.Services.SkillService
         IExperienceService experienceService, IJobExperienceService jobExperienceService,
         IHeroExperienceService heroExperienceService, ISkillPointService skillPointService) : ISkillService
     {
-        public async Task LoadSkill(ICharacterEntity character)
+        public async Task LoadSkill(PlayerComponentBundle character)
         {
             // Characters who changed class before the deletion below existed are still carrying
             // the old rows. Clearing them at login, and not only at the next class change, means
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Services.SkillService
             }
         }
 
-        public async Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel)
+        public async Task LoadSpecialistSkillsAsync(PlayerComponentBundle character, short morph, byte spLevel)
         {
             RemoveSpecialistSkills(character);
 
@@ -65,13 +66,13 @@ namespace NosCore.GameObject.Services.SkillService
             await SendSkillListAsync(character, useSpecialist: true);
         }
 
-        public async Task UnloadSpecialistSkillsAsync(ICharacterEntity character)
+        public async Task UnloadSpecialistSkillsAsync(PlayerComponentBundle character)
         {
             RemoveSpecialistSkills(character);
             await SendSkillListAsync(character, useSpecialist: false);
         }
 
-        private static void RemoveSpecialistSkills(ICharacterEntity character)
+        private static void RemoveSpecialistSkills(PlayerComponentBundle character)
         {
             foreach (var entry in character.Skills
                          .Where(s => s.Value.Skill?.IsSpecialist() == true)
@@ -81,7 +82,7 @@ namespace NosCore.GameObject.Services.SkillService
             }
         }
 
-        private static Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
+        private static Task SendSkillListAsync(PlayerComponentBundle character, bool useSpecialist)
             => character.SendPacketAsync(character.GenerateSki(useSpecialist));
 
         /// <summary>
@@ -110,7 +111,7 @@ namespace NosCore.GameObject.Services.SkillService
             { 200, 201, 202, 203, 204, 205, 206, 207, 208, 209, 210 };
 
         /// <summary>The skills this class can hold.</summary>
-        private IEnumerable<SkillDto> Learnable(ICharacterEntity character) =>
+        private IEnumerable<SkillDto> Learnable(PlayerComponentBundle character) =>
             character.Class == CharacterClassType.Adventurer
                 ? skills.Where(s => AdventurerSkills.Contains(s.SkillVNum))
                 : skills.Where(s => s.Class == (byte)character.Class);
@@ -133,7 +134,7 @@ namespace NosCore.GameObject.Services.SkillService
         /// job level back to 1, so a row for a skill of the <i>destination</i> class that needs
         /// job 20 is just as unusable as one belonging to the class left behind.
         /// </summary>
-        public async Task ForgetUnlearnableSkillsAsync(ICharacterEntity character)
+        public async Task ForgetUnlearnableSkillsAsync(PlayerComponentBundle character)
         {
             var keep = Learnable(character)
                 .Where(skill => skill.LevelMinimum <= character.JobLevel)
@@ -150,7 +151,7 @@ namespace NosCore.GameObject.Services.SkillService
             }
         }
 
-        public async Task<bool> LearnClassSkillsAsync(ICharacterEntity character)
+        public async Task<bool> LearnClassSkillsAsync(PlayerComponentBundle character)
         {
             var classByte = (byte)character.Class;
             var learned = false;
@@ -194,7 +195,7 @@ namespace NosCore.GameObject.Services.SkillService
             return true;
         }
 
-        public async Task BuyAsync(ICharacterEntity character, SkillDto skill)
+        public async Task BuyAsync(PlayerComponentBundle character, SkillDto skill)
         {
             var refusal = PurchaseRefusal(character, skill);
             if (refusal != null)
@@ -243,7 +244,7 @@ namespace NosCore.GameObject.Services.SkillService
             await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
         }
 
-        private Game18NConstString? PurchaseRefusal(ICharacterEntity character, SkillDto skill)
+        private Game18NConstString? PurchaseRefusal(PlayerComponentBundle character, SkillDto skill)
         {
             if (character.Skills.ContainsKey(skill.SkillVNum))
             {

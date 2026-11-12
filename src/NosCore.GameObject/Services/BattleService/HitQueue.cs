@@ -91,7 +91,7 @@ public sealed class HitQueue(
 
     private async Task RefreshVitalityAsync(IAliveEntity entity)
     {
-        if (entity is ICharacterEntity character)
+        if (entity is PlayerComponentBundle character)
         {
             await vitalityService.RefreshAndNotifyAsync(character);
         }
@@ -116,7 +116,7 @@ public sealed class HitQueue(
                 return;
             }
 
-            var isPvp = request.Origin is ICharacterEntity && target is ICharacterEntity;
+            var isPvp = request.Origin is PlayerComponentBundle && target is PlayerComponentBundle;
             if (buffService.HasEffect(request.Origin, BCardEffect.NoDefeatAndNoDamageNeverCauseDamage)
                 || buffService.HasEffect(target, BCardEffect.NoDefeatAndNoDamageNeverReceiveDamage))
             {
@@ -175,7 +175,7 @@ public sealed class HitQueue(
 
             // Players get no standing regen until 4s after being hit. Monster damage doesn't need tracking; they don't
             // regen.
-            if (target is ICharacterEntity hurtCharacter)
+            if (target is PlayerComponentBundle hurtCharacter)
             {
                 regenerationService.NotifyDamaged(hurtCharacter.CharacterId);
             }

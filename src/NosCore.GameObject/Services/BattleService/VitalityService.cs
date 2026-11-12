@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -26,13 +27,8 @@ public sealed class VitalityService(
     IBuffService buffService,
     SkillService.IPassiveSkillService passiveSkillService) : IVitalityService, ISingletonService
 {
-    public bool Refresh(ICharacterEntity character)
+    public bool Refresh(PlayerComponentBundle character)
     {
-        if (character is not Ecs.PlayerComponentBundle player)
-        {
-            return false;
-        }
-
         var gear = equipmentStatsService.Resolve(character);
         var cards = gear.BCards.Concat(buffService.GetActiveBuffs(character).SelectMany(b => b.BCards))
             .Concat(passiveSkillService.GetBCards(character));
@@ -91,20 +87,20 @@ public sealed class VitalityService(
         hp = Math.Max(1, hp);
         mp = Math.Max(1, mp);
 
-        if (player.MaxHp == hp && player.MaxMp == mp)
+        if (character.MaxHp == hp && character.MaxMp == mp)
         {
             return false;
         }
 
-        player.MaxHp = hp;
-        player.MaxMp = mp;
+        character.MaxHp = hp;
+        character.MaxMp = mp;
 
-        player.Hp = Math.Min(player.Hp, hp);
-        player.Mp = Math.Min(player.Mp, mp);
+        character.Hp = Math.Min(character.Hp, hp);
+        character.Mp = Math.Min(character.Mp, mp);
         return true;
     }
 
-    public async Task RefreshAndNotifyAsync(ICharacterEntity character)
+    public async Task RefreshAndNotifyAsync(PlayerComponentBundle character)
     {
         if (!Refresh(character))
         {

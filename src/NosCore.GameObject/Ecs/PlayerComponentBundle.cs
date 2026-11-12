@@ -41,7 +41,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(NpcDialogComponent),
     typeof(ListedTargetsComponent)
 )]
-public readonly partial struct PlayerComponentBundle : ICharacterEntity
+public readonly partial struct PlayerComponentBundle : INamedEntity
 {
     public Arch.Core.Entity Handle => Entity;
     public long CharacterId => PlayerCharacterId;
@@ -68,9 +68,6 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
     public short Race => (short)Class;
 
     // INamedEntity - LevelXp is generated
-
-    // ICharacterEntity
-    byte? ICharacterEntity.VehicleSpeed => VehicleSpeed;
 
     public short MapId
     {
@@ -102,8 +99,8 @@ public readonly partial struct PlayerComponentBundle : ICharacterEntity
 
     public string? Prefix => null;
 
-    ReputationType ICharacterEntity.ReputIcon => ReputationLevels.FromReputation(Reputation);
-    DignityType ICharacterEntity.DignityIcon => DignityLevels.FromDignity(Dignity);
+    public ReputationType ReputIcon => ReputationLevels.FromReputation(Reputation);
+    public DignityType DignityIcon => DignityLevels.FromDignity(Dignity);
 
     public int ReputIconValue => (int)ReputationLevels.FromReputation(Reputation);
 

@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using JetBrains.Annotations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -18,7 +19,7 @@ public sealed class Dialog2QuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.Dialog2;
 
-    public Task<bool> OnQuestDialogAnsweredAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) =>
+    public Task<bool> OnQuestDialogAnsweredAsync(PlayerComponentBundle character, NpcMonsterDto npc, CharacterQuest quest) =>
         Task.FromResult(NpcObjectiveProgress.Advance(quest, npc.NpcMonsterVNum, _ => 1)
             && NpcObjectiveProgress.AllReached(quest, _ => 1));
 }

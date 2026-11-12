@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Ecs;
 using Moq;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
@@ -73,18 +74,18 @@ namespace NosCore.PacketHandlers.Tests.Quest
 
         private void TheCurrentStepShouldRunAs_(QuestActionType type)
         {
-            QuestService.Verify(x => x.RunCurrentScriptStepAsync(It.Is<ICharacterEntity>(c => c.VisualId == CharacterId), type), Times.Once);
-            QuestService.Verify(x => x.GiveUpQuestAsync(It.IsAny<ICharacterEntity>(), It.IsAny<int>()), Times.Never);
+            QuestService.Verify(x => x.RunCurrentScriptStepAsync(It.Is<PlayerComponentBundle>(c => c.VisualId == CharacterId), type), Times.Once);
+            QuestService.Verify(x => x.GiveUpQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<int>()), Times.Never);
         }
 
         private void TheQuestShouldBeGivenUp()
         {
-            QuestService.Verify(x => x.GiveUpQuestAsync(It.Is<ICharacterEntity>(c => c.VisualId == CharacterId), QuestId), Times.Once);
+            QuestService.Verify(x => x.GiveUpQuestAsync(It.Is<PlayerComponentBundle>(c => c.VisualId == CharacterId), QuestId), Times.Once);
         }
 
         private void NoScriptStepShouldRun()
         {
-            QuestService.Verify(x => x.RunCurrentScriptStepAsync(It.IsAny<ICharacterEntity>(), It.IsAny<QuestActionType>()), Times.Never);
+            QuestService.Verify(x => x.RunCurrentScriptStepAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<QuestActionType>()), Times.Never);
         }
     }
 }

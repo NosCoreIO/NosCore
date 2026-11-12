@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.SpeedService;
@@ -37,15 +38,15 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         [DataRow((int)CharacterClassType.Swordsman)]
         [DataRow((int)CharacterClassType.MartialArtist)]
         [DataRow((int)CharacterClassType.Adventurer)]
-        public void DefaultSpeedIsClassSpeed(int characterClassInt)
+        public async Task DefaultSpeedIsClassSpeed(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
             SpeedService.Setup(x => x.GetSpeed(characterClass)).Returns((byte)characterClassInt);
 
-            var charMock = new Mock<ICharacterEntity>();
-            charMock.SetupGet(x => x.Class).Returns(characterClass);
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = characterClass;
 
-            var speed = SpeedCalculationService.CalculateSpeed(charMock.Object);
+            var speed = SpeedCalculationService.CalculateSpeed(character);
             Assert.AreEqual((byte)characterClassInt, speed);
         }
 
@@ -55,19 +56,19 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         [DataRow((int)CharacterClassType.Swordsman)]
         [DataRow((int)CharacterClassType.MartialArtist)]
         [DataRow((int)CharacterClassType.Adventurer)]
-        public void VehicleSpeedOverridesDefaultSpeed(int characterClassInt)
+        public async Task VehicleSpeedOverridesDefaultSpeed(int characterClassInt)
         {
             var characterClass = (CharacterClassType)characterClassInt;
             SpeedService.Setup(x => x.GetSpeed(characterClass)).Returns((byte)characterClassInt);
 
-            var charMock = new Mock<ICharacterEntity>();
-            charMock.SetupGet(x => x.Class).Returns(characterClass);
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = characterClass;
             // Both, because a mount sets both. Setting only VehicleSpeed described a state that
             // cannot happen, and the old null check happened to answer it correctly.
-            charMock.SetupGet(x => x.IsVehicled).Returns(true);
-            charMock.SetupGet(x => x.VehicleSpeed).Returns(50);
+            character.IsVehicled = true;
+            character.VehicleSpeed = 50;
 
-            var speed = SpeedCalculationService.CalculateSpeed(charMock.Object);
+            var speed = SpeedCalculationService.CalculateSpeed(character);
             Assert.AreEqual(50, speed);
         }
 
@@ -75,16 +76,16 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         // it whenever it "is not null" therefore answered 0 for everyone, and it went unnoticed
         // because nothing called this service.
         [TestMethod]
-        public void OnFootTheVehicleSpeedIsIgnoredRatherThanReturnedAsZero()
+        public async Task OnFootTheVehicleSpeedIsIgnoredRatherThanReturnedAsZero()
         {
             SpeedService.Setup(x => x.GetSpeed(CharacterClassType.Archer)).Returns((byte)12);
 
-            var charMock = new Mock<ICharacterEntity>();
-            charMock.SetupGet(x => x.Class).Returns(CharacterClassType.Archer);
-            charMock.SetupGet(x => x.IsVehicled).Returns(false);
-            charMock.SetupGet(x => x.VehicleSpeed).Returns((byte)0);
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = CharacterClassType.Archer;
+            character.IsVehicled = false;
+            character.VehicleSpeed = (byte)0;
 
-            Assert.AreEqual(12, SpeedCalculationService.CalculateSpeed(charMock.Object));
+            Assert.AreEqual(12, SpeedCalculationService.CalculateSpeed(character));
         }
 
         [TestMethod]

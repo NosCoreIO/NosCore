@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
@@ -28,16 +29,16 @@ public interface IBuffService
     Task ApplySkillBuffAsync(IAliveEntity target, short skillVnum, short skillDuration, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster);
 
     // Stays until removed, through death included, and shows in the static buff bar.
-    Task ApplyPermanentAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards);
+    Task ApplyPermanentAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards);
 
     // Shows in the static buff bar with its time left and survives death, until it runs out.
-    Task ApplyStaticAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
+    Task ApplyStaticAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
 
     // The same buff without telling the client, for a character that has not entered the world yet.
-    void RestoreStatic(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
+    void RestoreStatic(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
 
     // Fills the static buff bar with every timed static buff and the time each has left.
-    Task ShowStaticAsync(ICharacterEntity target);
+    Task ShowStaticAsync(PlayerComponentBundle target);
 
     Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
         IReadOnlyList<BCardDto> skillBCards);

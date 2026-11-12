@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
@@ -15,17 +16,17 @@ public interface IQuestTypeHandler
 {
     QuestType QuestType { get; }
 
-    Task<bool> ValidateAsync(ICharacterEntity character, CharacterQuest quest) => Task.FromResult(false);
+    Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest) => Task.FromResult(false);
 
-    Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) => Task.CompletedTask;
+    Task OnMonsterKilledAsync(PlayerComponentBundle character, NpcMonsterDto mob, CharacterQuest quest) => Task.CompletedTask;
 
     // The two NPC hooks below return true once every objective of the quest is met.
-    Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
+    Task<bool> OnNpcTalkedAsync(PlayerComponentBundle character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
 
-    Task<bool> OnQuestDialogAnsweredAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
+    Task<bool> OnQuestDialogAnsweredAsync(PlayerComponentBundle character, NpcMonsterDto npc, CharacterQuest quest) => Task.FromResult(false);
 
     // The capture and collect hooks return true once every objective of the quest is met.
-    Task<bool> OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) => Task.FromResult(false);
+    Task<bool> OnMonsterCapturedAsync(PlayerComponentBundle character, NpcMonsterDto mob, CharacterQuest quest) => Task.FromResult(false);
 
-    Task<bool> OnMapEntityCollectedAsync(ICharacterEntity character, NpcMonsterDto mapObject, CharacterQuest quest) => Task.FromResult(false);
+    Task<bool> OnMapEntityCollectedAsync(PlayerComponentBundle character, NpcMonsterDto mapObject, CharacterQuest quest) => Task.FromResult(false);
 }

@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Ecs;
 using Moq;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking;
@@ -486,7 +487,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void BattleServiceShouldBeCalled_Times(int times)
         {
-            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>(),
+            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(),
                 It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
                 It.IsAny<HitArguments>()), Times.Exactly(times));
         }
@@ -627,14 +628,14 @@ namespace NosCore.PacketHandlers.Tests.Battle
 
         private void BattleServiceShouldBeCalled()
         {
-            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>(),
+            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(),
                 It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
                 It.IsAny<HitArguments>()), Times.Once);
         }
 
         private void BattleServiceShouldNotBeCalled()
         {
-            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>(),
+            BattleService.Verify(x => x.Hit(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(),
                 It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(),
                 It.IsAny<HitArguments>()), Times.Never);
         }

@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
@@ -22,7 +23,7 @@ public abstract class KillQuestHandlerBase(ILogger logger) : IQuestTypeHandler
 {
     public abstract QuestType QuestType { get; }
 
-    public async Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest)
+    public async Task OnMonsterKilledAsync(PlayerComponentBundle character, NpcMonsterDto mob, CharacterQuest quest)
     {
         var progressSnapshots = new List<(short MobVNum, int Current, int Required)>();
         foreach (var objective in quest.Quest.QuestObjectives)

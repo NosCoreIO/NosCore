@@ -73,7 +73,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 GroupPosition = groupPosition,
                 Level = namedEntity.Level,
                 Name = namedEntity.Name,
-                Gender = (namedEntity as ICharacterEntity)?.Gender ?? GenderType.Male,
+                Gender = namedEntity is PlayerComponentBundle player ? player.Gender : GenderType.Male,
                 Race = namedEntity.Race,
                 Morph = namedEntity.Morph,
                 HeroLevel = namedEntity.HeroLevel

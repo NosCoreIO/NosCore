@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -46,7 +47,7 @@ namespace NosCore.GameObject.Services.ArenaService
         }
 
         // Players only ever fight each other inside an arena, and never a member of their own group.
-        public static bool AreOpponents(ICharacterEntity attacker, ICharacterEntity defender)
+        public static bool AreOpponents(PlayerComponentBundle attacker, PlayerComponentBundle defender)
         {
             if (attacker.CharacterId == defender.CharacterId) return false;
             var mapInstance = attacker.MapInstance;

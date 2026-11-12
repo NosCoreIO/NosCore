@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -428,10 +429,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Quest
         }
 
         private void TheQuestShouldBeCompleted() =>
-            _questService.Verify(s => s.CompleteQuestAsync(It.IsAny<ICharacterEntity>(), _quest), Times.Once);
+            _questService.Verify(s => s.CompleteQuestAsync(It.IsAny<PlayerComponentBundle>(), _quest), Times.Once);
 
         private void TheQuestShouldNotBeCompleted() =>
-            _questService.Verify(s => s.CompleteQuestAsync(It.IsAny<ICharacterEntity>(), It.IsAny<CharacterQuest>()), Times.Never);
+            _questService.Verify(s => s.CompleteQuestAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<CharacterQuest>()), Times.Never);
 
         private void TheCharacterShouldStillCarry_Of_(int expected, short vNum) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(vNum));

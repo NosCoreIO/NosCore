@@ -5,6 +5,7 @@
 //
 
 using System.Linq;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -17,7 +18,7 @@ public sealed class UseQuestHandler : ItemQuestHandlerBase
 {
     public override QuestType QuestType => QuestType.Use;
 
-    public override Task<ItemQuestProgress> OnItemUsedAsync(ICharacterEntity character, CharacterQuest quest, short vNum) =>
+    public override Task<ItemQuestProgress> OnItemUsedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum) =>
         Task.FromResult(quest.Quest.QuestObjectives.Any(o => o.ItemVNum(QuestType) == vNum)
             ? ItemQuestProgress.Completed
             : ItemQuestProgress.None);

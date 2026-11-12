@@ -5,12 +5,13 @@
 //
 
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
-    public sealed record MapEntityCollectedEvent(ICharacterEntity Character, INonPlayableEntity MapObject)
+    public sealed record MapEntityCollectedEvent(PlayerComponentBundle Character, INonPlayableEntity MapObject)
     {
-        public ICharacterEntity Character { get => field.Live(); init; } = Character;
+        public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
     }
 }

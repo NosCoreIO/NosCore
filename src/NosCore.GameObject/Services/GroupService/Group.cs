@@ -5,6 +5,7 @@
 //
 
 using NosCore.Core.Concurrency;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -74,7 +75,7 @@ namespace NosCore.GameObject.Services.GroupService
                 HpLoad = member.MaxHp,
                 MpLoad = member.MaxMp,
                 Race = member.Race,
-                Gender = (member as ICharacterEntity)?.Gender ?? GenderType.Male,
+                Gender = member is PlayerComponentBundle player ? player.Gender : GenderType.Male,
                 Morph = member.Morph,
                 BuffIds = null
             }).ToList();
@@ -92,7 +93,7 @@ namespace NosCore.GameObject.Services.GroupService
 
         public void JoinGroup(INamedEntity namedEntity)
         {
-            if (namedEntity is ICharacterEntity characterEntity && (characterEntity.Channel != null))
+            if (namedEntity is PlayerComponentBundle characterEntity && (characterEntity.Channel != null))
             {
                 Sessions.Add(characterEntity.Channel);
             }
@@ -103,7 +104,7 @@ namespace NosCore.GameObject.Services.GroupService
 
         public void LeaveGroup(INamedEntity namedEntity)
         {
-            if (namedEntity is ICharacterEntity characterEntity && (characterEntity.Channel != null))
+            if (namedEntity is PlayerComponentBundle characterEntity && (characterEntity.Channel != null))
             {
                 Sessions.Remove(characterEntity.Channel);
             }

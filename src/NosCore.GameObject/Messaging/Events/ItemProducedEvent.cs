@@ -5,9 +5,10 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Messaging.Events
 {
     // Published once a production (NPC or scroll) has put its result in the inventory.
-    public sealed record ItemProducedEvent(ICharacterEntity Character, short VNum, short Amount);
+    public sealed record ItemProducedEvent(PlayerComponentBundle Character, short VNum, short Amount);
 }

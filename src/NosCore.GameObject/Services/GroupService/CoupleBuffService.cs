@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Concurrency;
@@ -23,7 +24,7 @@ public sealed class CoupleBuffService(IFriendHub friendHub, IBuffService buffSer
     // A refresh that read the group before a leave must not apply the buff after the leave's own refresh.
     private readonly AsyncLock _lock = new();
 
-    public async Task RefreshAsync(IEnumerable<ICharacterEntity> characters)
+    public async Task RefreshAsync(IEnumerable<PlayerComponentBundle> characters)
     {
         using var _ = await _lock.AcquireAsync();
         if (cardCatalog.GetTriggeredCard(CardTrigger.SpouseInGroup) is not { } card)

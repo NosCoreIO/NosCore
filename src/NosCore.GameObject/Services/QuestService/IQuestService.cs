@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
@@ -14,25 +15,25 @@ namespace NosCore.GameObject.Services.QuestService
 {
     public interface IQuestService
     {
-        Task RunScriptAsync(ICharacterEntity character);
-        Task RunScriptAsync(ICharacterEntity character, ScriptClientPacket? packet);
-        Task OnMonsterKilledAsync(ICharacterEntity character, NpcMonsterDto mob);
+        Task RunScriptAsync(PlayerComponentBundle character);
+        Task RunScriptAsync(PlayerComponentBundle character, ScriptClientPacket? packet);
+        Task OnMonsterKilledAsync(PlayerComponentBundle character, NpcMonsterDto mob);
 
         // Kept apart from OnMonsterKilledAsync so a capture never credits a hunt or kill objective.
-        Task OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob);
+        Task OnMonsterCapturedAsync(PlayerComponentBundle character, NpcMonsterDto mob);
 
-        Task<bool> AddQuestAsync(ICharacterEntity character, QuestActionType type, short questId);
+        Task<bool> AddQuestAsync(PlayerComponentBundle character, QuestActionType type, short questId);
 
         // Flips CompletedOn (if not already), sends the client-side UI packet
         // trio in the exact order the client expects, and publishes
         // QuestCompletedEvent for decoupled subscribers (chain, rewards...).
         // Subscribers to other domain events (move, kill, item-used) should
         // call this once they have decided a quest is done.
-        Task CompleteQuestAsync(ICharacterEntity character, CharacterQuest quest);
+        Task CompleteQuestAsync(PlayerComponentBundle character, CharacterQuest quest);
 
         // Validates or achieves the script step the character is currently on.
-        Task RunCurrentScriptStepAsync(ICharacterEntity character, QuestActionType type);
+        Task RunCurrentScriptStepAsync(PlayerComponentBundle character, QuestActionType type);
 
-        Task GiveUpQuestAsync(ICharacterEntity character, int questId);
+        Task GiveUpQuestAsync(PlayerComponentBundle character, int questId);
     }
 }

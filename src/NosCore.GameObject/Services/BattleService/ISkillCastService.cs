@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -13,9 +14,9 @@ namespace NosCore.GameObject.Services.BattleService;
 public interface ISkillCastService
 {
     // The base skill of this cast id, or null when the character has not learned it.
-    CharacterSkill? FindLearned(ICharacterEntity character, long castId);
+    CharacterSkill? FindLearned(PlayerComponentBundle character, long castId);
 
-    SkillCastRefusal Check(ICharacterEntity character, CharacterSkill skill, out int mpCost);
+    SkillCastRefusal Check(PlayerComponentBundle character, CharacterSkill skill, out int mpCost);
 
-    void Spend(ICharacterEntity character, CharacterSkill skill, int mpCost);
+    void Spend(PlayerComponentBundle character, CharacterSkill skill, int mpCost);
 }

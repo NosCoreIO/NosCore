@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Ecs;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -16,7 +17,7 @@ namespace NosCore.GameObject.Services.BattleService;
 public sealed class StaticBuffService(IDao<StaticBuffDto, long> staticBuffDao, IBuffService buffService,
     ICardCatalog cardCatalog, IClock clock) : IStaticBuffService
 {
-    public void Load(ICharacterEntity character)
+    public void Load(PlayerComponentBundle character)
     {
         var characterId = character.CharacterId;
         foreach (var row in staticBuffDao.Where(s => s.CharacterId == characterId)?.ToList() ?? [])
@@ -29,7 +30,7 @@ public sealed class StaticBuffService(IDao<StaticBuffDto, long> staticBuffDao, I
         }
     }
 
-    public async Task<bool> SaveAsync(ICharacterEntity character)
+    public async Task<bool> SaveAsync(PlayerComponentBundle character)
     {
         var characterId = character.CharacterId;
         var now = clock.GetCurrentInstant();

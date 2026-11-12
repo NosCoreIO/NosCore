@@ -96,7 +96,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         }
 
         public Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
-            ICharacterEntity targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo)
+            PlayerComponentBundle targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo)
         {
             var dictionary = new Dictionary<long, IPacket>();
 

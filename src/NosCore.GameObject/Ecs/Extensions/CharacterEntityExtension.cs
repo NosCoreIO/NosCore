@@ -5,6 +5,7 @@
 //
 
 using NosCore.Algorithm.DignityService;
+using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.SkillPointService;
@@ -65,7 +66,7 @@ namespace NosCore.GameObject.Ecs.Extensions
         // a player about their own actions.
         [Obsolete(
            "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
-        public static IEnumerable<IPacket> GenerateInv(this ICharacterEntity characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
+        public static IEnumerable<IPacket> GenerateInv(this PlayerComponentBundle characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
         {
             var inv0 = new InvPacket { Type = PocketType.Equipment, IvnSubPackets = new List<IvnSubPacket>() };
             var inv1 = new InvPacket { Type = PocketType.Main, IvnSubPackets = new List<IvnSubPacket>() };
@@ -201,13 +202,13 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         // Passives and specialist card skills are free; only the class skills spend CP.
-        public static int RemainingSkillPoints(this ICharacterEntity characterEntity, ISkillPointService skillPointService)
+        public static int RemainingSkillPoints(this PlayerComponentBundle characterEntity, ISkillPointService skillPointService)
             => skillPointService.GetSkillPoints(characterEntity.Class, characterEntity.JobLevel)
                - characterEntity.Skills.Values
                    .Where(s => s.Skill != null && !s.Skill.IsPassive() && !s.Skill.IsSpecialist())
                    .Sum(s => s.Skill.CpCost);
 
-        public static SkiPacket GenerateSki(this ICharacterEntity characterEntity, bool useSpecialist)
+        public static SkiPacket GenerateSki(this PlayerComponentBundle characterEntity, bool useSpecialist)
         {
             // The client takes the first listed skill for the basic attack, so passives go last.
             var ordered = characterEntity.Skills.Values
@@ -227,7 +228,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static IEnumerable<QSlotPacket> GenerateQuicklist(this ICharacterEntity characterEntity)
+        public static IEnumerable<QSlotPacket> GenerateQuicklist(this PlayerComponentBundle characterEntity)
         {
             var pktQs = new QSlotPacket[2];
             for (var i = 0; i < pktQs.Length; i++)
@@ -256,7 +257,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             return pktQs;
         }
 
-        public static NosCore.Packets.ServerPackets.Player.RsfiPacket GenerateRsfi(this ICharacterEntity characterEntity)
+        public static NosCore.Packets.ServerPackets.Player.RsfiPacket GenerateRsfi(this PlayerComponentBundle characterEntity)
         {
             return new NosCore.Packets.ServerPackets.Player.RsfiPacket
             {
@@ -269,7 +270,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static ServerExcListPacket GenerateServerExcListPacket(this ICharacterEntity aliveEntity, long? gold,
+        public static ServerExcListPacket GenerateServerExcListPacket(this PlayerComponentBundle aliveEntity, long? gold,
             long? bankGold, List<ServerExcListSubPacket?>? subPackets)
         {
             return new ServerExcListPacket
@@ -282,7 +283,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static ClPacket GenerateInvisible(this ICharacterEntity visualEntity)
+        public static ClPacket GenerateInvisible(this PlayerComponentBundle visualEntity)
         {
             return new ClPacket
             {
@@ -292,7 +293,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static async Task SendFinfoAsync(this ICharacterEntity visualEntity, IFriendHub friendHttpClient,
+        public static async Task SendFinfoAsync(this PlayerComponentBundle visualEntity, IFriendHub friendHttpClient,
             IPubSubHub pubSubHub, ISerializer packetSerializer, bool isConnected)
         {
             var friendlist = await friendHttpClient.GetFriendsAsync(visualEntity.VisualId);
@@ -324,13 +325,13 @@ namespace NosCore.GameObject.Ecs.Extensions
                 })));
         }
 
-        public static QstlistPacket GenerateQuestPacket(this ICharacterEntity visualEntity, bool showDialog = false)
+        public static QstlistPacket GenerateQuestPacket(this PlayerComponentBundle visualEntity, bool showDialog = false)
         {
             return new QstlistPacket(visualEntity.Quests.Values
                 .Where(s => s.CompletedOn == null).Select(quest => quest.GenerateQuestSubPacket(showDialog)).ToList());
         }
 
-        public static InEquipmentSubPacket GetEquipmentSubPacket(this ICharacterEntity visualEntity) => new()
+        public static InEquipmentSubPacket GetEquipmentSubPacket(this PlayerComponentBundle visualEntity) => new()
         {
             Armor = visualEntity.InventoryService.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?
                 .ItemVNum,
@@ -354,70 +355,34 @@ namespace NosCore.GameObject.Ecs.Extensions
                 ?.ItemInstance?.ItemVNum
         };
 
-        private static GoldPacket GenerateGoldPacket(ICharacterEntity characterEntity) => new() { Gold = characterEntity.Gold };
-
-        private static LevPacket GenerateLevPacket(ICharacterEntity characterEntity, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
-            => new()
-            {
-                Level = characterEntity.Level,
-                LevelXp = characterEntity.LevelXp,
-                JobLevel = characterEntity.JobLevel,
-                JobLevelXp = characterEntity.JobLevelXp,
-                XpLoad = experienceService.GetExperience(characterEntity.Level),
-                JobXpLoad = jobExperienceService.GetJobExperience(characterEntity.Class, characterEntity.JobLevel),
-                Reputation = characterEntity.Reput,
-                SkillCp = characterEntity.RemainingSkillPoints(skillPointService),
-                HeroXp = characterEntity.HeroXp,
-                HeroLevel = characterEntity.HeroLevel,
-                HeroXpLoad = characterEntity.HeroLevel == 0 ? 0 : heroExperienceService.GetHeroExperience(characterEntity.HeroLevel)
-            };
-
-        private static StatPacket GenerateStatPacket(ICharacterEntity characterEntity) => new()
+        public static Task AddGoldAsync(this PlayerComponentBundle characterEntity)
         {
-            Hp = characterEntity.Hp,
-            HpMaximum = characterEntity.MaxHp,
-            Mp = characterEntity.Mp,
-            MpMaximum = characterEntity.MaxMp,
-            Unknown = 0,
-            Option = characterEntity.StatOption
-        };
-
-        private static FdPacket GenerateFdPacket(ICharacterEntity characterEntity) => new()
-        {
-            Reput = characterEntity.Reput,
-            Dignity = characterEntity.Dignity,
-            ReputIcon = (int)characterEntity.ReputIcon,
-            DignityIcon = (int)characterEntity.DignityIcon
-        };
-
-        public static Task AddGoldAsync(this ICharacterEntity characterEntity)
-        {
-            return characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
+            return characterEntity.SendPacketAsync(characterEntity.GenerateGold());
         }
 
-        public static async Task AddGoldAsync(this ICharacterEntity characterEntity, long gold, IGameLanguageLocalizer localizer)
+        public static async Task AddGoldAsync(this PlayerComponentBundle characterEntity, long gold, IGameLanguageLocalizer localizer)
         {
             characterEntity.Gold += gold;
-            await characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
             await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity, localizer));
         }
 
-        public static async Task RemoveGoldAsync(this ICharacterEntity characterEntity, long gold, IGameLanguageLocalizer localizer)
+        public static async Task RemoveGoldAsync(this PlayerComponentBundle characterEntity, long gold, IGameLanguageLocalizer localizer)
         {
             characterEntity.Gold -= gold;
-            await characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
             await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity, localizer));
         }
 
-        private static SayPacket GenerateUpdateGoldSayPacket(ICharacterEntity characterEntity, IGameLanguageLocalizer localizer) =>
+        private static SayPacket GenerateUpdateGoldSayPacket(PlayerComponentBundle characterEntity, IGameLanguageLocalizer localizer) =>
             characterEntity.GenerateSay(localizer[LanguageKey.UPDATE_GOLD, characterEntity.AccountLanguage], SayColorType.Red);
 
-        public static async Task SetJobLevelAsync(this ICharacterEntity characterEntity, byte jobLevel,
+        public static async Task SetJobLevelAsync(this PlayerComponentBundle characterEntity, byte jobLevel,
             IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.JobLevel = (byte)((characterEntity.Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             characterEntity.JobLevelXp = 0;
-            await characterEntity.SendPacketAsync(GenerateLevPacket(characterEntity, experienceService, jobExperienceService, heroExperienceService, skillPointService));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
             await characterEntity.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
@@ -425,14 +390,14 @@ namespace NosCore.GameObject.Ecs.Extensions
             });
         }
 
-        public static async Task SetHeroLevelAsync(this ICharacterEntity characterEntity, byte level,
+        public static async Task SetHeroLevelAsync(this PlayerComponentBundle characterEntity, byte level,
             IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.HeroLevel = level;
             characterEntity.HeroXp = 0;
-            await characterEntity.SendPacketAsync(GenerateStatPacket(characterEntity));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
             await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
-            await characterEntity.SendPacketAsync(GenerateLevPacket(characterEntity, experienceService, jobExperienceService, heroExperienceService, skillPointService));
+            await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
             await characterEntity.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
@@ -442,7 +407,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         // Alone, the official server lists nobody; in a group the players come first. Either way
         // the recipient's own pets that are out follow.
-        public static PinitPacket GeneratePinit(this ICharacterEntity character)
+        public static PinitPacket GeneratePinit(this PlayerComponentBundle character)
         {
             var group = character.Group;
             var entries = group is { Count: > 1 }
@@ -458,13 +423,13 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new PinitPacket { GroupSize = entries.Count, PinitSubPackets = entries };
         }
 
-        public static void JoinGroup(this ICharacterEntity characterEntity, Group group)
+        public static void JoinGroup(this PlayerComponentBundle characterEntity, Group group)
         {
             characterEntity.Group = group;
             group.JoinGroup(characterEntity);
         }
 
-        public static async Task LeaveGroupAsync(this ICharacterEntity characterEntity,
+        public static async Task LeaveGroupAsync(this PlayerComponentBundle characterEntity,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry)
         {
             characterEntity.Group.LeaveGroup(characterEntity);
@@ -472,7 +437,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             foreach (var entry in characterEntity.Group.Values.Where(s =>
                 s.Item2.VisualType == VisualType.Player && s.Item2.VisualId != characterEntity.VisualId))
             {
-                if (entry.Item2 is not ICharacterEntity groupMember)
+                if (entry.Item2 is not PlayerComponentBundle groupMember)
                 {
                     continue;
                 }
@@ -495,17 +460,17 @@ namespace NosCore.GameObject.Ecs.Extensions
             characterEntity.Group.JoinGroup(characterEntity);
         }
 
-        public static void AddBankGold(this ICharacterEntity characterEntity, long bankGold)
+        public static void AddBankGold(this PlayerComponentBundle characterEntity, long bankGold)
         {
             characterEntity.BankGold += bankGold;
         }
 
-        public static void RemoveBankGold(this ICharacterEntity characterEntity, long bankGold)
+        public static void RemoveBankGold(this PlayerComponentBundle characterEntity, long bankGold)
         {
             characterEntity.BankGold -= bankGold;
         }
 
-        public static async Task CloseShopAsync(this ICharacterEntity characterEntity)
+        public static async Task CloseShopAsync(this PlayerComponentBundle characterEntity)
         {
             if (characterEntity.Shop is { } shop)
             {
@@ -518,7 +483,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             await SendShopClosedAsync(characterEntity);
         }
 
-        private static void CloseShop(ICharacterEntity characterEntity, Shop shop)
+        private static void CloseShop(PlayerComponentBundle characterEntity, Shop shop)
         {
             shop.IsClosed = true;
             shop.DialogSubscription?.Dispose();
@@ -529,7 +494,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
         }
 
-        private static async Task SendShopClosedAsync(ICharacterEntity characterEntity)
+        private static async Task SendShopClosedAsync(PlayerComponentBundle characterEntity)
         {
             await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateShop(characterEntity.AccountLanguage));
             await characterEntity.MapInstance.SendPacketAsync(characterEntity.GeneratePFlag());
@@ -539,7 +504,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             await characterEntity.MapInstance.SendPacketAsync(characterEntity.GenerateRest());
         }
 
-        public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
+        public static async Task BuyAsync(this PlayerComponentBundle characterEntity, Shop shop, short slot, short amount,
             Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, IDignityService dignityService,
             IShellOptionService? shellOptionService = null,
@@ -619,12 +584,12 @@ namespace NosCore.GameObject.Ecs.Extensions
                 if (reputprice == 0)
                 {
                     characterEntity.Gold -= (long)(price * percent);
-                    await characterEntity.SendPacketAsync(GenerateGoldPacket(characterEntity));
+                    await characterEntity.SendPacketAsync(characterEntity.GenerateGold());
                 }
                 else
                 {
                     characterEntity.Reput -= reputprice;
-                    await characterEntity.SendPacketAsync(GenerateFdPacket(characterEntity));
+                    await characterEntity.SendPacketAsync(characterEntity.GenerateFd());
                     await characterEntity.SendPacketAsync(characterEntity.GenerateSayi(SayColorType.Red, Game18NConstString.ReputationReduced,
                         4, reputprice));
                 }
@@ -639,7 +604,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
         }
 
-        private static async Task BuyFromPlayerShopAsync(ICharacterEntity buyer, Shop shop, ICharacterEntity owner, short slot, short amount,
+        private static async Task BuyFromPlayerShopAsync(PlayerComponentBundle buyer, Shop shop, PlayerComponentBundle owner, short slot, short amount,
             long cost, long sellAmount, Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
             IShellOptionService? shellOptionService, IDao<IItemInstanceDto?, Guid>? itemInstanceDao)
         {
@@ -778,7 +743,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
 
             await owner.SendPacketAsync(sellerSlot.GeneratePocketChange(sellerType.ToPocketType(), sellerSlotIndex));
-            await owner.SendPacketAsync(GenerateGoldPacket(owner));
+            await owner.SendPacketAsync(owner.GenerateGold());
             if (closed)
             {
                 await SendShopClosedAsync(owner);
@@ -794,7 +759,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Type = SMemoType.SuccessNpc,
                 Message = Game18NConstString.TradeSuccessfull
             });
-            await buyer.SendPacketAsync(GenerateGoldPacket(buyer));
+            await buyer.SendPacketAsync(buyer.GenerateGold());
         }
     }
 }

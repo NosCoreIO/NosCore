@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -20,7 +21,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
         [UsedImplicitly]
         public async Task Handle(EntityCapturedEvent evt)
         {
-            if (evt.Captor is not ICharacterEntity character) return;
+            if (evt.Captor is not PlayerComponentBundle character) return;
             if (evt.Victim is not INonPlayableEntity npc || npc.NpcMonster is null) return;
 
             try

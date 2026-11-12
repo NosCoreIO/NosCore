@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Dao.Interfaces;
@@ -34,7 +35,7 @@ public sealed class EquipmentStatsService(
 {
     public EquipmentStats Resolve(IAliveEntity entity)
     {
-        if (entity is not ICharacterEntity character)
+        if (entity is not PlayerComponentBundle character)
         {
             return EquipmentStats.None;
         }
@@ -238,7 +239,7 @@ public sealed class EquipmentStatsService(
 
     // The equipment slot is the index in the pocket, which is why a weapon in the bag does
     // not count.
-    private static WearableInstance? Worn(ICharacterEntity character, EquipmentType slot) =>
+    private static WearableInstance? Worn(PlayerComponentBundle character, EquipmentType slot) =>
         character.InventoryService?
             .LoadBySlotAndType((byte)slot, NoscorePocketType.Wear)?.ItemInstance as WearableInstance;
 

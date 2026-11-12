@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ public sealed class RegenerationService(
     private static readonly Duration StandingDefenceGrace = Duration.FromSeconds(4);
 
     // Flat points added to each regeneration tick, sitting or standing alike.
-    private (int Hp, int Mp) RecoveryBonus(ICharacterEntity character)
+    private (int Hp, int Mp) RecoveryBonus(PlayerComponentBundle character)
     {
         int hp = 0, mp = 0;
         var cards = equipmentStatsService.Resolve(character).BCards
