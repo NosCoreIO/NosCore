@@ -18,6 +18,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.SkillService;
@@ -46,6 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private ClientSession Session;
         private Mock<IMapChangeService> MapChangeService;
         private Mock<ISkillService> SkillService;
+        private Mock<IStaticBuffService> StaticBuffService;
         private Mock<IQuestService> QuestService;
         private readonly Mock<ILogger<GameStartPacketHandler>> Logger = new();
         private TaskCompletionSource ScriptRun;
@@ -65,6 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             QuestService = new Mock<IQuestService>();
             MapChangeService = new Mock<IMapChangeService>();
             SkillService = new Mock<ISkillService>();
+            StaticBuffService = new Mock<IStaticBuffService>();
             var serializer = new Mock<ISerializer>();
 
             friendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
@@ -86,7 +89,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 MapChangeService.Object,
                 SkillService.Object,
                 new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService(),
-                Logger.Object);
+                Logger.Object,
+                StaticBuffService.Object);
         }
 
         [TestMethod]
@@ -156,6 +160,19 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .Then(MapChangeShouldBeCalled)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task GameStartShouldRestoreStaticBuffs()
+        {
+            await new Spec("Game start should restore static buffs")
+                .Given(CharacterIsReadyToStart)
+                .WhenAsync(ExecutingGameStart)
+                .Then(StaticBuffsShouldBeRestored)
+                .ExecuteAsync();
+        }
+
+        private void StaticBuffsShouldBeRestored() =>
+            StaticBuffService.Verify(s => s.RestoreAsync(It.IsAny<ICharacterEntity>()), Times.Once);
 
         [TestMethod]
         public async Task GameStartShouldLoadSkills()

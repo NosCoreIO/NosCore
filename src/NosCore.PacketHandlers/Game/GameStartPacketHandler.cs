@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MateService;
@@ -43,7 +44,8 @@ namespace NosCore.PacketHandlers.Game
             IPubSubHub pubSubHub, IBlacklistHub blacklistHttpClient,
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService, ISkillService skillService,
-            IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger)
+            IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
+            IStaticBuffService staticBuffService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -243,12 +245,10 @@ namespace NosCore.PacketHandlers.Game
                     4, mailcount));
             }
 
+            await staticBuffService.RestoreAsync(session.Character);
+
             //            Session.Character.DeleteTimeout();
 
-            //            foreach (StaticBuffDTO sb in _staticBuffDao.Where(s => s.CharacterId == Session.Character.CharacterId))
-            //            {
-            //                Session.Character.AddStaticBuff(sb);
-            //            }
             //            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.Act4 || m.MapTypeId == (short)MapTypeEnum.Act42))
             //            {
             //                Session.Character.ConnectAct4();

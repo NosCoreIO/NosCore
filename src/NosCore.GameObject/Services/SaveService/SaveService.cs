@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -30,7 +31,7 @@ namespace NosCore.GameObject.Services.SaveService
             IDao<CharacterQuestObjectiveDto, Guid> characterQuestObjectiveDao,
             IDao<RespawnDto, long> respawnDao, ILogger<SaveService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMateService mateService,
-            IDaoTransactionScope daoTransactionScope)
+            IDaoTransactionScope daoTransactionScope, IStaticBuffService staticBuffService)
         : ISaveService
     {
         public async Task SaveAsync(ClientSession session)
@@ -164,6 +165,12 @@ namespace NosCore.GameObject.Services.SaveService
                 if (!await staticBonusDao.TryInsertOrUpdateAsync(staticBonusList))
                 {
                     Fail("StaticBonus upsert");
+                    return;
+                }
+
+                if (!await staticBuffService.SaveAsync(character))
+                {
+                    Fail("StaticBuff save");
                     return;
                 }
 

@@ -17,6 +17,7 @@ using NosCore.Database;
 using NosCore.Database.Entities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.SaveService;
@@ -42,6 +43,9 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         private IDao<CharacterQuestObjectiveDto, Guid> CharacterQuestObjectiveDao;
         private IDao<IItemInstanceDto?, Guid> ItemInstanceDao;
         private IDao<InventoryItemInstanceDto, Guid> InventoryItemInstanceDao;
+        private IDao<StaticBuffDto, long> StaticBuffDao;
+        private BuffService Buffs;
+        private StaticBuffService StaticBuffs;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -65,6 +69,10 @@ namespace NosCore.GameObject.Tests.Services.SaveService
             ItemInstanceDao = itemInstanceDao;
             InventoryItemInstanceDao = inventoryItemInstanceDao;
             var respawnDao = new Dao<Database.Entities.Respawn, RespawnDto, long>(NullLogger<Dao<Database.Entities.Respawn, RespawnDto, long>>.Instance, contextBuilder);
+
+            Buffs = World.Create<BuffService>();
+            StaticBuffDao = new Dao<StaticBuff, StaticBuffDto, long>(NullLogger<Dao<StaticBuff, StaticBuffDto, long>>.Instance, contextBuilder);
+            StaticBuffs = new StaticBuffService(StaticBuffDao, Buffs, new Mock<ICardCatalog>().Object, World.Clock);
 
             var minilandService = new Mock<IMinilandService>();
             minilandService.Setup(s => s.GetMiniland(It.IsAny<long>()))
@@ -90,7 +98,8 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                     new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
                     World.Create<NosCore.GameObject.Services.MateService.MateStatsService>(),
                     NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance),
-                new DaoTransactionScope(contextBuilder));
+                new DaoTransactionScope(contextBuilder),
+                StaticBuffs);
         }
 
         [TestMethod]
@@ -136,6 +145,19 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .WhenAsync(SavingCharacter)
                 .ThenAsync(GoldShouldBePersisted)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SavingStoresTheTimeLeftOnAStaticBuff()
+        {
+            await Buffs.ApplyStaticAsync(Session.Character, new CardDto { CardId = 121 }, [], NodaTime.Duration.FromMinutes(30));
+
+            await Service.SaveAsync(Session);
+
+            var characterId = Session.Character.CharacterId;
+            var row = StaticBuffDao.Where(s => s.CharacterId == characterId).NotNull().Single();
+            Assert.AreEqual(121, row.CardId);
+            Assert.AreEqual(1800, row.RemainingTime);
         }
 
         [TestMethod]
