@@ -159,13 +159,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None with
             {
-                BCards = new[] { new BCardDto { Type = 44, SubType = 51, FirstData = 50 } },
+                BCards = new[] { new BCardDto { Type = 44, SubType = 51, FirstData = 200 } },
             });
 
             await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
 
             var gold = _map.GetMapItemBundles().Single(i => i.VNum == GoldVNum);
-            Assert.IsTrue(gold.Amount is >= 90 and <= 180, $"60..120 plus half, got {gold.Amount}");
+            Assert.IsTrue(gold.Amount is >= 180 and <= 360, $"60..120 tripled, got {gold.Amount}");
         }
 
         [TestMethod]
