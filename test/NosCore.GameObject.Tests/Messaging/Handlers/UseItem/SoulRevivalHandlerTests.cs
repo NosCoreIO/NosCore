@@ -113,7 +113,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void PlaceStone(ItemEffectType effect = ItemEffectType.SoulRevival)
         {
-            var stone = new ItemInstance(new Item { VNum = 1365, Type = NoscorePocketType.Main, ItemType = ItemType.Upgrade, Effect = effect })
+            var stone = new ItemInstance(new Item { VNum = 1365, Type = NoscorePocketType.Main, ItemType = ItemType.Upgrade, Effect = effect, EffectValue = 10000 })
             {
                 Amount = 1,
             };

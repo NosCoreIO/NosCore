@@ -163,6 +163,7 @@ namespace NosCore.Parser.Tests
             await parser.ParseAsync(_tempFolder);
 
             Assert.AreEqual(ItemEffectType.SoulRevival, _savedItems.Single().Effect);
+            Assert.AreEqual(10_000, _savedItems.Single().EffectValue);
         }
 
         [TestMethod]

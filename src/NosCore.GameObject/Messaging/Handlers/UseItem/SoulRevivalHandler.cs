@@ -25,8 +25,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     [UsedImplicitly]
     public sealed class SoulRevivalHandler(IOptions<WorldConfiguration> worldConfiguration)
     {
-        public const int SpPointsRestored = 10000;
-
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
         {
@@ -72,7 +70,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.UseUpOneAsync(stone);
             await session.SendPacketAsync(card.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
 
-            character.AddSpPoints(SpPointsRestored, worldConfiguration);
+            character.AddSpPoints(stone.ItemInstance.Item.EffectValue, worldConfiguration);
             await session.SendPacketAsync(character.GenerateSpPoint(worldConfiguration));
             await session.SendPacketAsync(new MsgiPacket
             {
