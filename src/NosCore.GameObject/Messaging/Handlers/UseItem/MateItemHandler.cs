@@ -7,7 +7,6 @@
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using NosCore.Algorithm.MateExperienceService;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs;
@@ -24,7 +23,7 @@ using MateModel = NosCore.GameObject.Services.MateService.Mate;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class MateItemHandler(IMateService mateService, IMateExperienceService mateExperienceService)
+    public sealed class MateItemHandler(IMateService mateService, IMateStatsService mateStatsService)
     {
         // A fed mate must stay this many levels under its owner.
         public const int LevelUpGap = 5;
@@ -85,14 +84,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             mate.Level++;
-            mate.XpLoad = mate.MateType == MateType.Pet
-                ? mateExperienceService.GetPetExperience(mate.Level)
-                : mateExperienceService.GetPartnerExperience(mate.Level);
+            mateStatsService.ApplyLevel(mate);
             mate.Hp = mate.MaxHp;
             mate.Mp = mate.MaxMp;
             if (mate.Entity is { } entity)
             {
                 entity.Level = mate.Level;
+                entity.MaxHp = mate.MaxHp;
+                entity.MaxMp = mate.MaxMp;
                 entity.Hp = mate.Hp;
                 entity.Mp = mate.Mp;
                 await owner.MapInstance.SendPacketAsync(entity.GenerateEff(LevelUpEffect));

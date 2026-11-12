@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _session.Character.Level = 30;
-            _service = new MateProgressionService(_curve);
+            _service = new MateProgressionService(World.Create<MateStatsService>());
         }
 
         private Mate AddPet(bool isTeamMember = true, byte level = 10)

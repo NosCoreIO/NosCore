@@ -138,6 +138,10 @@ namespace NosCore.Database.Entities
 
         public int MaxMp { get; set; }
 
+        public int HpBonus { get; set; }
+
+        public int MpBonus { get; set; }
+
         public MonsterType MonsterType { get; set; }
 
         [Required]

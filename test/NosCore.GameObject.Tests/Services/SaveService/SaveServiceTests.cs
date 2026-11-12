@@ -88,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 new NosCore.GameObject.Services.MateService.MateService(World.MateDao,
                     new List<NpcMonsterDto>(),
                     new NosCore.Core.Services.IdService.IdService<NosCore.GameObject.Services.MateService.Mate>(2000000),
-                    new NosCore.Algorithm.MateExperienceService.MateExperienceService(),
+                    World.Create<NosCore.GameObject.Services.MateService.MateStatsService>(),
                     NullLogger<NosCore.GameObject.Services.MateService.MateService>.Instance),
                 new DaoTransactionScope(contextBuilder));
         }

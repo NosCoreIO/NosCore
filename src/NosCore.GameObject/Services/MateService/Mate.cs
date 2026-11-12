@@ -35,11 +35,11 @@ namespace NosCore.GameObject.Services.MateService
 
         public Instant SpecialistCooldownEndsAt { get; set; }
 
-        public int MaxHp => NpcMonster.MaxHp;
+        /// <summary>Set on load and on level-up, like <see cref="MaxMp"/> and <see cref="XpLoad"/>.</summary>
+        public int MaxHp { get; set; }
 
-        public int MaxMp => NpcMonster.MaxMp;
+        public int MaxMp { get; set; }
 
-        /// <summary>Set on load; the curve lives in NosCore.Algorithm.</summary>
         public long XpLoad { get; set; }
     }
 }
