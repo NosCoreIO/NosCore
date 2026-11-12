@@ -36,7 +36,11 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            await familyService.RemoveMemberAsync(session.Character.CharacterId);
+            if (!await familyService.RemoveMemberAsync(family.FamilyId, session.Character.CharacterId))
+            {
+                return;
+            }
+
             await familyLogService.AddAsync(family.FamilyId, FamilyLogType.FamilyManaged, session.Character.Name);
             await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.LeftFamily });
             await pubSubHub.SendMessageAsync(new FamilyChangedData

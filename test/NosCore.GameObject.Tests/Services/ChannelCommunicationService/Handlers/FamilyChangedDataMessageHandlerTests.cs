@@ -7,7 +7,6 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.FamilyExperienceService;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -60,8 +59,8 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             var pubSubHub = new Mock<IPubSubHub>();
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var management = new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
-                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, registry.Object,
-                new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
+                registry.Object,
+                new Mock<IFamilyLogService>().Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
                 World.GameLanguageLocalizer, management);
             foreach (var session in sessions)

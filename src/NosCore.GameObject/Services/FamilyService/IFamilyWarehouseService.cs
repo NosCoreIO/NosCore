@@ -19,7 +19,5 @@ namespace NosCore.GameObject.Services.FamilyService
         Task WithdrawAsync(ClientSession session, short warehouseSlot, short amount);
 
         Task MoveAsync(ClientSession session, short sourceSlot, short amount, short destinationSlot);
-
-        Task EmptyAsync(long familyId);
     }
 }

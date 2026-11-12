@@ -188,14 +188,6 @@ namespace NosCore.GameObject.Services.FamilyService
             await SendSlotAsync(session, destination.Item, sourceSlot);
         }
 
-        public async Task EmptyAsync(long familyId)
-        {
-            foreach (var link in await warehouseHub.GetWarehouseItems(null, familyId, WarehouseType.FamilyWareHouse, null))
-            {
-                await warehouseHub.DeleteWarehouseItemAsync(link.WarehouseItemId);
-            }
-        }
-
         private async Task ReturnAsync(long familyId, IItemInstance item, short slot)
         {
             await itemInstanceDao.TryInsertOrUpdateAsync(item);
