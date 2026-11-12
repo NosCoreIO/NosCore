@@ -27,6 +27,8 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.GameObject.Services.UpgradeService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -46,11 +48,19 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private List<ItemDto> MinilandItems => new()
         {
-            new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet },
+            new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet, MinigameType = MinigameType.Sawmill },
             new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = true },
             new Item { Type = NoscorePocketType.Main, VNum = 1269, Effect = ItemEffectType.MinigameDurabilityCoupon, EffectValue = 300 },
             new Item { Type = NoscorePocketType.Main, VNum = 1271, Effect = ItemEffectType.ProductionCoupon, EffectValue = 500 },
         };
+
+        private static MinigameRewardService MinigameRewards => new(
+            new[] { 999, 4999, 9999, 13999, 17999, 1000000 }
+                .Select((max, level) => new MinigameScoreDto
+                    { MinigameScoreId = (short)(10 + level), MinigameType = MinigameType.Sawmill, Level = (byte)level, MaximumScore = max })
+                .ToList(),
+            [new MinigameRewardDto { MinigameRewardId = 0, MinigameVNum = 3000, Level = 0, ItemVNum = 1269, Amount = 1 }],
+            new RandomNumberSource());
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -79,7 +89,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 MinilandItems,
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer);
-            _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider);
+            _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards);
         }
 
         [TestMethod]
@@ -119,6 +129,27 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .And(MinilandHasZeroPoints)
                 .WhenAsync(PlayingMinigame)
                 .Then(ShouldReceiveConfirmationQuestion)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PlayingStartsTheMinigameOfTheObject()
+        {
+            await new Spec("Playing starts the minigame of the object")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .WhenAsync(PlayingMinigame)
+                .Then(TheStartedMinigameShouldBe_, MinigameType.Sawmill)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AScoreEarnsTheBoxOfItsBand()
+        {
+            await new Spec("A score earns the box of its band")
+                .Given(MinigameObjectExistsAndPlaced)
+                .WhenAsync(Scoring_, 12000)
+                .Then(TheEarnedBoxShouldBe_, 2)
                 .ExecuteAsync();
         }
 
@@ -244,6 +275,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _minilandProvider.AddMinilandObject(mapObject, _session.Character.CharacterId, _minilandObject);
         }
 
+        private void MinilandHasPoints() =>
+            _minilandProvider.GetMiniland(_session.Character.CharacterId).MinilandPoint = 2000;
+
         private void MinilandHasZeroPoints()
         {
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
@@ -304,6 +338,21 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             };
             await _mgPacketHandler.ExecuteAsync(minigamePacket, _session);
         }
+
+        private Task Scoring_(int score) =>
+            _mgPacketHandler.ExecuteAsync(new MinigamePacket
+            {
+                Type = MinigamePacketType.ShowBoxLevels,
+                Id = 0,
+                MinigameVNum = 3000,
+                Point = score
+            }, _session);
+
+        private void TheStartedMinigameShouldBe_(MinigameType expected) =>
+            Assert.AreEqual((short)expected, _session.LastPackets.OfType<MloStPacket>().Single().Game);
+
+        private void TheEarnedBoxShouldBe_(int expected) =>
+            Assert.AreEqual(expected, _session.LastPackets.OfType<MloLvPacket>().Single().Level);
 
         private void NothingShouldHappen()
         {

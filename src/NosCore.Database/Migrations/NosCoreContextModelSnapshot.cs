@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112162707_AddMinilandCouponEffects";
+    public override string LastMigrationId => "20261112164848_AddMinigameRewards";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -51,6 +51,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "item_type", new[] { "weapon", "armor", "fashion", "jewelery", "specialist", "box", "shell", "main", "upgrade", "production", "map", "special", "potion", "event", "title", "quest1", "sell", "food", "snack", "magical", "part", "teacher", "ammo", "quest2", "house", "garden", "minigame", "terrace", "miniland_theme" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "mate_type", new[] { "partner", "pet" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "material_type", new[] { "none", "cella_powder", "soul_gem", "complete_soul_gem", "dimensional_force", "dimensiolith_shard", "equipment_protection_scroll", "golden_equipment_protection_scroll", "angels_feather", "full_moon_crystal", "green_soul", "red_soul", "blue_soul", "dragon_skin", "dragon_blood", "dragon_heart", "dragon_gem", "lower_sp_protection_scroll", "higher_sp_protection_scroll", "river_sand", "small_ruby_of_completion", "small_sapphire_of_completion", "small_obsidian_of_completion", "small_topaz_of_completion", "ruby_of_completion", "sapphire_of_completion", "obsidian_of_completion", "topaz_of_completion", "seed_of_power" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "minigame_type", new[] { "quarry", "sawmill", "firing_range", "fishpond", "typewriter", "memory_table" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "miniland_state", new[] { "open", "private", "lock" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "monster_type", new[] { "unknown", "partner", "npc", "well", "portal", "boss", "elite", "peapod", "special", "gem_space_time" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "noscore_pocket_type", new[] { "equipment", "main", "etc", "miniland", "specialist", "costume", "wear", "mount", "raid", "first_partner_inventory", "second_partner_inventory", "third_partner_inventory" });
@@ -1429,6 +1430,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<byte>("MaximumAmmo")
                     .HasColumnType("smallint");
 
+                b.Property<byte?>("MinigameType")
+                    .HasColumnType("smallint");
+
                 b.Property<int>("MinilandObjectPoint")
                     .HasColumnType("integer");
 
@@ -1910,6 +1914,51 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("VNum");
 
                 b.ToTable("Mate");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.MinigameReward", b =>
+            {
+                b.Property<short>("MinigameRewardId")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("ItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Level")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("MinigameVNum")
+                    .HasColumnType("smallint");
+
+                b.HasKey("MinigameRewardId");
+
+                b.HasIndex("ItemVNum");
+
+                b.HasIndex("MinigameVNum");
+
+                b.ToTable("MinigameReward");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.MinigameScore", b =>
+            {
+                b.Property<short>("MinigameScoreId")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Level")
+                    .HasColumnType("smallint");
+
+                b.Property<int>("MaximumScore")
+                    .HasColumnType("integer");
+
+                b.Property<byte>("MinigameType")
+                    .HasColumnType("smallint");
+
+                b.HasKey("MinigameScoreId");
+
+                b.ToTable("MinigameScore");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Miniland", b =>
@@ -3790,6 +3839,25 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Character");
 
                 b.Navigation("NpcMonster");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.MinigameReward", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Item", "Item")
+                    .WithMany()
+                    .HasForeignKey("ItemVNum")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.HasOne("NosCore.Database.Entities.Item", "Minigame")
+                    .WithMany()
+                    .HasForeignKey("MinigameVNum")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Item");
+
+                b.Navigation("Minigame");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.Miniland", b =>
