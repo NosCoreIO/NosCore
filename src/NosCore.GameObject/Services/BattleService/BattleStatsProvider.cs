@@ -236,7 +236,13 @@ public sealed class BattleStatsProvider(
         {
             foreach (var card in source)
             {
-                if (CardEffects.TryGetValue(card.Effect(), out var apply))
+                var effect = card.Effect();
+                if (effect is BCardEffect.CriticalDamageIncreasingPropability or BCardEffect.CriticalDamageReducingPropability)
+                {
+                    var percent = effect == BCardEffect.CriticalDamageIncreasingPropability ? card.SecondData : -card.SecondData;
+                    (totals.ChanceDamage ??= []).Add(new ChanceDamage(card.FirstData, percent));
+                }
+                else if (CardEffects.TryGetValue(effect, out var apply))
                 {
                     apply(totals, ScaleByLevel(card, target.Level));
                 }
@@ -279,9 +285,9 @@ public sealed class BattleStatsProvider(
             CriticalRate = stats.CriticalRate + totals.CritDamage,
             DistanceCriticalChance = stats.DistanceCriticalChance + totals.CritInflicting,
             DistanceCriticalRate = stats.DistanceCriticalRate + totals.CritDamage,
-            Defence = ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee),
-            DistanceDefence = ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged),
-            MagicDefence = ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical),
+            Defence = ByPercent(ByFactor(stats.Defence + totals.DefenceAll + totals.DefenceMelee, totals.FactorDefenceAll + totals.FactorDefenceMelee), totals.DefencePercent),
+            DistanceDefence = ByPercent(ByFactor(stats.DistanceDefence + totals.DefenceAll + totals.DefenceRanged, totals.FactorDefenceAll + totals.FactorDefenceRanged), totals.DefencePercent),
+            MagicDefence = ByPercent(ByFactor(stats.MagicDefence + totals.DefenceAll + totals.DefenceMagical, totals.FactorDefenceAll + totals.FactorDefenceMagical), totals.DefencePercent),
             DefenceDodge = stats.DefenceDodge + totals.Dodge,
             DistanceDefenceDodge = stats.DistanceDefenceDodge + totals.Dodge,
             // "All" adds to each of the four rather than living in a fifth field: the
@@ -295,6 +301,7 @@ public sealed class BattleStatsProvider(
             GuaranteedHitChance = stats.GuaranteedHitChance + totals.GuaranteedHit,
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
+            ChanceDamage = totals.ChanceDamage ?? stats.ChanceDamage,
         };
     }
 
@@ -306,6 +313,8 @@ public sealed class BattleStatsProvider(
         < 0 => value / -factor,
         _ => value,
     };
+
+    private static int ByPercent(int value, int percent) => value * (100 + percent) / 100;
 
     private sealed class CardTotals
     {
@@ -321,6 +330,8 @@ public sealed class BattleStatsProvider(
         public int ElementAll, ElementFire, ElementWater, ElementLight, ElementDark;
         public int FairyElement;
         public int GuaranteedHit, GuaranteedDodge;
+        public int DefencePercent;
+        public List<ChanceDamage>? ChanceDamage;
     }
 
     private static readonly FrozenDictionary<BCardEffect, Action<CardTotals, int>> CardEffects =
@@ -403,6 +414,8 @@ public sealed class BattleStatsProvider(
 
             [BCardEffect.DodgeAndDefencePercentDodgeIncreased] = (t, v) => t.Dodge += v,
             [BCardEffect.DodgeAndDefencePercentDodgeDecreased] = (t, v) => t.Dodge -= v,
+            [BCardEffect.DodgeAndDefencePercentDefenceIncreased] = (t, v) => t.DefencePercent += v,
+            [BCardEffect.DodgeAndDefencePercentDefenceReduced] = (t, v) => t.DefencePercent -= v,
 
             [BCardEffect.MoraleMoraleIncreased] = (t, v) => t.Morale += v,
             [BCardEffect.MoraleMoraleDecreased] = (t, v) => t.Morale -= v,

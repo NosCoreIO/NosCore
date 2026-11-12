@@ -21,7 +21,8 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class HeatResistanceHandler(IBuffService buffService, ICardCatalog cardCatalog, IClock clock)
+    public sealed class HeatResistanceHandler(IBuffService buffService, ICardCatalog cardCatalog, IClock clock,
+        IBattleStatsProvider battleStatsProvider)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -49,6 +50,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await buffService.RemoveAsync(character, HeatResistance.BurningCardId);
             var duration = Duration.Min(left + Duration.FromSeconds(item.EffectValue), HeatResistance.MaximumDuration);
             await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(HeatResistance.CardId), duration);
+            await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,

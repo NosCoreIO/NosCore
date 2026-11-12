@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
@@ -61,6 +62,16 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             Assert.AreEqual(600, SecondsLeft());
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(OilVNum));
+        }
+
+        [TestMethod]
+        public async Task TheCharacterWindowIsRefreshedWithTheOil()
+        {
+            GiveOil(ItemEffectType.HeatResistance, 600, 1);
+
+            await UseAsync();
+
+            Assert.IsTrue(_session.LastPackets.OfType<ScPacket>().Any());
         }
 
         [TestMethod]
