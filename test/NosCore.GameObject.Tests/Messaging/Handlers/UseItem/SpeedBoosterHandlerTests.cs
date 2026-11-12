@@ -12,6 +12,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
@@ -146,8 +147,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         {
             Mount(new ItemDto { VNum = MountVNum, Speed = 21, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRemovesDebuffsUpToLevel = 4 });
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            var low = new CardDto { CardId = LowDebuff, Level = 4, Propability = 2, Duration = 600 };
-            var high = new CardDto { CardId = HighDebuff, Level = 5, Propability = 2, Duration = 600 };
+            var low = new CardDto { CardId = LowDebuff, Level = 4, BuffType = BuffType.Bad, Duration = 600 };
+            var high = new CardDto { CardId = HighDebuff, Level = 5, BuffType = BuffType.Bad, Duration = 600 };
             cards.Setup(c => c.GetCard(LowDebuff)).Returns(low);
             cards.Setup(c => c.GetCard(HighDebuff)).Returns(high);
             await _buffs.ApplyAsync(_session.Character, low, new List<BCardDto>(), null);

@@ -52,6 +52,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             ExpiresAt: now.Plus(Duration.FromMilliseconds(durationMs)),
             BCards: bCards);
 
+        await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
 
         // Notify the client so the buff icon appears + the visual effect plays. The
@@ -127,6 +128,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             BCards: bCards,
             Static: true);
 
+        await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
         await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true, RemainingTime = -1 });
     }
@@ -149,6 +151,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             BCards: bCards,
             Static: true);
 
+        await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
         await target.SendPacketAsync(new VbPacket
         {
@@ -443,12 +446,23 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         };
     }
 
-    // Cards are classified by their Propability field in the original content files:
-    // 0 means good, 1 neutral, 2 bad. The CardDto exposes it as Propability (sic).
-    private static BuffType ClassifyBuffType(CardDto card) => card.Propability switch
+    private static BuffType ClassifyBuffType(CardDto card) => card.BuffType;
+
+    // Group 0 holds unrelated cards (the bleedings among them), so only a real family replaces.
+    private async Task ReplaceSameGroupAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, CardDto card)
     {
-        0 => BuffType.Good,
-        2 => BuffType.Bad,
-        _ => BuffType.Neutral,
-    };
+        if (card.GroupId == 0)
+        {
+            return;
+        }
+
+        foreach (var (cardId, buff) in buffs)
+        {
+            if (cardId != card.CardId && !buff.FromSkill && cardCatalog.GetCard(cardId)?.GroupId == card.GroupId
+                && buffs.TryRemove(cardId, out var removed))
+            {
+                await SendIconRemovalAsync(target, removed);
+            }
+        }
+    }
 }

@@ -140,6 +140,17 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_AncelloansBlessingGrantsItsCard()
+        {
+            CreateTestFile(CreateItemData(vnum: 1286, indexType: 1, indexSubType: 4, data: "208\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(121, _savedBCards.Single(b => b.ItemVNum == 1286).SecondData);
+        }
+
+        [TestMethod]
         public async Task ItemParser_AnItemWithItsOwnBuffKeepsIt()
         {
             CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1340\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));

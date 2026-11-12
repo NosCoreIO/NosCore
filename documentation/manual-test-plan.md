@@ -413,6 +413,13 @@ window uses other ones, so the percentages the window shows are the check.
 - [ ] Drop the stone on a card whose soul is intact, or on any other item: nothing happens and
       the stone stays
 
+### Buffs of the same family
+
+- [ ] Drink an EXP potion (1249), then use Ancelloan's Blessing (1286): "Ancelloan's Blessing
+      effect activated" appears, the blessing icon shows and the potion's icon disappears, since
+      both cards are in Card.dat GROUP 86
+- [ ] Two buffs of different families (for example the heat and Ice Flower Oil) both stay
+
 ### Specialist card holder
 
 The holders are the box items with effect 69 and effect value 1 or 2, such as 287; the others:

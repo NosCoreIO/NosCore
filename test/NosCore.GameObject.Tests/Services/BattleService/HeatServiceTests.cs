@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -34,7 +35,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            cards.Setup(c => c.GetCard(BurningCardId)).Returns(new CardDto { CardId = BurningCardId, Propability = 2 });
+            cards.Setup(c => c.GetCard(BurningCardId)).Returns(new CardDto { CardId = BurningCardId, BuffType = BuffType.Bad });
             cards.Setup(c => c.IsGrantedBy(OilCardId, ItemEffectType.HeatResistance)).Returns(true);
             cards.Setup(c => c.GetCardBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             _buffs = World.Create<BuffService>();

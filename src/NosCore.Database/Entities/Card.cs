@@ -8,7 +8,7 @@ using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static NosCore.Data.Enumerations.Buff.BCardType;
+using NosCore.Data.Enumerations.Buff;
 
 namespace NosCore.Database.Entities
 {
@@ -41,7 +41,9 @@ namespace NosCore.Database.Entities
 
         public byte TimeoutBuffChance { get; set; }
 
-        public CardType BuffType { get; set; }
+        public BuffType BuffType { get; set; }
+
+        public short GroupId { get; set; }
 
         public byte Propability { get; set; }
 

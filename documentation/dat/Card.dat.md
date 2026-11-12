@@ -2,7 +2,7 @@
 
 ```text
 	EFFECT	{EffectId}
-	GROUP	0	{Level}
+	GROUP	{GroupId}	{Level}
 	LAST	{TimeoutBuff}	{TimeoutBuffChance}
 	NAME	{NameI18NKey}
 	STYLE	0	{BuffType}
@@ -20,7 +20,7 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Unknown |  |  |  |
+| 2 | Parsed | GroupId | Int16 | Buff family: a new buff replaces an active one of the same family |
 | 3 | Parsed | Level | Byte | Card level tier |
 
 ## LAST
@@ -41,7 +41,7 @@
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Unknown |  |  |  |
-| 3 | Parsed | BuffType | CardType | Buff type from STYLE column 3 |
+| 3 | Parsed | BuffType | BuffType | Good, neutral or bad |
 
 ## TIME
 

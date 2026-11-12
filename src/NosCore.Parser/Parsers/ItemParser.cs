@@ -793,6 +793,7 @@ namespace NosCore.Parser.Parsers
             short grantedCard = item.Effect switch
             {
                 ItemEffectType.SpeedBooster => 336,
+                ItemEffectType.AncelloansBlessing => 121,
                 ItemEffectType.HeatResistance => 340,
                 ItemEffectType.FairyBooster => 131,
                 _ => 0

@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112112130_AddZoneCardAndTeleportEffect";
+    public override string LastMigrationId => "20261112125227_AddCardGroup";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -30,6 +30,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "authority_type", new[] { "user", "moderator", "game_master", "administrator", "root", "closed", "banned", "unconfirmed" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_state", new[] { "pending", "settled", "compensated" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_type", new[] { "register", "buy", "modify", "claim" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "buff_type", new[] { "good", "neutral", "bad" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_class_type", new[] { "adventurer", "swordsman", "archer", "mage", "martial_artist" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_relation_type", new[] { "friend", "hidden_spouse", "spouse", "blocked" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "character_state", new[] { "active", "inactive" });
@@ -356,6 +357,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<int>("EffectId")
                     .HasColumnType("integer");
+
+                b.Property<short>("GroupId")
+                    .HasColumnType("smallint");
 
                 b.Property<byte>("Level")
                     .HasColumnType("smallint");
