@@ -477,6 +477,15 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] Die and revive: the blessing icon is still there
 - [ ] After an hour the icon disappears and kills give normal experience again
 
+### Fairy Booster
+
+- [ ] Wearing a fairy, `$CreateItem 1296` and double-click it in the Main tab: it is used up,
+      the "effect activated" message appears, the booster shows in the static buff bar with an
+      hour left and the fairy changes to its boosted look
+- [ ] Use a second one while boosted: nothing happens and it stays in the inventory
+- [ ] Hit a monster that is weak to the fairy's element: the damage is higher than unboosted
+- [ ] After an hour the icon disappears and the fairy goes back to its normal look
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove

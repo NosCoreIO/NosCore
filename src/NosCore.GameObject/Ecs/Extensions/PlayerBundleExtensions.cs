@@ -15,6 +15,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Battle;
+using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
@@ -754,9 +755,14 @@ public static class PlayerBundleExtensions
         };
     }
 
+    public static WearableInstance? WornFairy(this PlayerComponentBundle player) =>
+        player.InventoryService.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance
+            as WearableInstance;
+
     public static PairyPacket GeneratePairy(this PlayerComponentBundle player, WearableInstance? fairy)
     {
-        var isBuffed = false;
+        var isBuffed = player.World.TryGetComponent<BuffStateComponent>(player.Entity)?.ActiveBuffs
+            .ContainsKey(FairyBooster.CardId) == true;
         return new PairyPacket
         {
             VisualType = VisualType.Player,
@@ -771,7 +777,7 @@ public static class PlayerBundleExtensions
             // Morph: `Morph ?? 0 + (isBuffed ? 5 : 0)` parsed as `Morph ?? (0 + 5)`, which
             // applied the +5 buff only when Morph was null (i.e. never in practice).
             ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
-            Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? 5 : 0)
+            Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? FairyBooster.MorphBonus : 0)
         };
     }
 

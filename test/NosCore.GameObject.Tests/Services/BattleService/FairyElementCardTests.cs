@@ -78,6 +78,32 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task TheFairyBoosterAddsThirtyToTheWornFairy()
+        {
+            await new Spec("The Fairy Booster's card has no BCards but raises a worn fairy's element by 30")
+                .Given(AWornFairyOfRate_, FairyRate)
+                .And(TheFairyBoosterIsActive)
+                .When(ResolvingTheCharactersStats)
+                .Then(TheElementRateShouldBe_, FairyRate + 30)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheFairyBoosterNeedsAFairy()
+        {
+            await new Spec("Without a fairy the booster has nothing to raise")
+                .Given(NoFairy)
+                .And(TheFairyBoosterIsActive)
+                .When(ResolvingTheCharactersStats)
+                .Then(TheElementRateShouldBe_, 0)
+                .ExecuteAsync();
+        }
+
+        private void TheFairyBoosterIsActive() =>
+            Buffs.Add(new BuffInstance(CardId: FairyBooster.CardId, BuffType: BuffType.Good, Caster: null,
+                StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue, BCards: Array.Empty<BCardDto>(), Static: true));
+
         private void AWornFairyOfRate_(int rate) =>
             Gear = EquipmentStats.None with { ElementRate = rate, Element = ElementType.Fire, FairyWorn = true };
 

@@ -26,6 +26,7 @@ namespace NosCore.Data.Enumerations.Items
         CraftedSpRecharger = 152,
         SpecialistMedal = 204,
         AncelloansBlessing = 208,
+        FairyBooster = 250,
         FriendshipWings = 199,
         ApplySkinPartner = 305,
         ChangeSpecialistWings = 650,

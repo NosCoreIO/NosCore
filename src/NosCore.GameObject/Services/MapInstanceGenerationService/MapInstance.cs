@@ -548,6 +548,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         {
                             await _vitalityService.RefreshAndNotifyAsync(session.Character);
                         }
+
+                        if (expired.Any(b => b.CardId == FairyBooster.CardId))
+                        {
+                            await this.SendPacketAsync(session.Character.GeneratePairy(session.Character.WornFairy()));
+                        }
                     }
                     catch (Exception e)
                     {
