@@ -51,7 +51,9 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             _session = await World.CreateSessionAsync();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(
                 new Mock<IDao<CharacterSkillDto, Guid>>().Object, Catalog,
-                new Mock<IVitalityService>().Object, new Mock<IBattleStatsProvider>().Object);
+                new Mock<IVitalityService>().Object, new Mock<IBattleStatsProvider>().Object,
+                new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),
+                new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());
         }
 
         [TestMethod]

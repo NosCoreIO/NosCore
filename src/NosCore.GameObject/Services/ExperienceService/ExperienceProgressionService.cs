@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.FairyExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Algorithm.SpExperienceService;
 using NosCore.Data.Enumerations;
@@ -36,7 +37,7 @@ namespace NosCore.GameObject.Services.ExperienceService
     public sealed class ExperienceProgressionService(
         IExperienceService experienceService,
         IJobExperienceService jobExperienceService,
-        IHeroExperienceService heroExperienceService,
+        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService,
         ISpExperienceService spExperienceService,
         IFairyExperienceService fairyExperienceService,
         ISkillService skillService,
@@ -192,7 +193,7 @@ namespace NosCore.GameObject.Services.ExperienceService
 
             if (!characterLeveledUp && !fairyLeveledUp)
             {
-                await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+                await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
                 return;
             }
 
@@ -274,7 +275,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                 await player.SendPacketAsync(player.GeneratePairy(fairy));
             }
 
-            await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+            await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
         }
     }
 }

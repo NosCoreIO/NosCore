@@ -2,6 +2,7 @@
 using NodaTime;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.I18N;
 using NosCore.Data.Enumerations;
@@ -33,7 +34,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.MapChangeService
 {
     public class MapChangeService(IExperienceService experienceService, IJobExperienceService jobExperienceService,
-            IHeroExperienceService heroExperienceService, IMapInstanceAccessorService mapInstanceAccessorService,
+            IHeroExperienceService heroExperienceService, ISkillPointService skillPointService, IMapInstanceAccessorService mapInstanceAccessorService,
             IClock clock,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMinilandService minilandProvider, ILogger<MapChangeService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer, IGameLanguageLocalizer gameLanguageLocalizer,
@@ -213,7 +214,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketAsync(character.GenerateCMode());
                 await session.SendPacketAsync(character.GenerateEq());
                 await session.SendPacketAsync(character.GenerateEquipment());
-                await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService));
+                await session.SendPacketAsync(character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
                 await session.SendPacketAsync(character.GenerateStat());
                 await session.SendPacketAsync(character.GenerateAt(newMapInstance.Map.MapId, newMapInstance.Map.Music));
                 await session.SendPacketAsync(character.GenerateCond());

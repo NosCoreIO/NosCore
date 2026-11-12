@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Session = await World.CreateSessionAsync();
             Service = new SpecialistTransformationService(World.Clock,
                 new GameObject.Services.TransformationService.TransformationService(World.Clock, new Mock<IExperienceService>().Object,
-                    new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object,
+                    new Mock<IJobExperienceService>().Object, new Mock<IHeroExperienceService>().Object, new NosCore.Algorithm.SkillPointService.SkillPointService(),
                     new Mock<ILogger<GameObject.Services.TransformationService.TransformationService>>().Object, World.LogLanguageLocalizer, World.WorldConfiguration,
                     World.Create<NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                     new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,

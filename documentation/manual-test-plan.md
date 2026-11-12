@@ -293,6 +293,11 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Try the weaker one again: "You've already learned a higher level"
 - [ ] Try a course above your level: "You cannot learn that yet", no gold taken
 - [ ] **Relog**: the bought course is still there
+- [ ] Skill Info > Skill shows "Remaining CP": 40 plus two per job level, minus the CP of the
+      class skills you know (training courses cost none)
+- [ ] Buy a class skill: Remaining CP drops by its cost straight away
+- [ ] Try a class skill that costs more CP than you have left: "You don't have enough CP", no
+      gold taken
 - [ ] Buy Life Extension (+150 HP) with the Character Info window (`p`) open: the maximum HP
       rises by 150 straight away; Mental Training does the same for MP
 - [ ] Efficient Attack and Self-defence raise the attack and defence lines in Character Info

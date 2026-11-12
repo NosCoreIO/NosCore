@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             Service = new GameObject.Services.MapChangeService.MapChangeService(
                 new Mock<IExperienceService>().Object,
                 new Mock<IJobExperienceService>().Object,
-                new Mock<IHeroExperienceService>().Object,
+                new Mock<IHeroExperienceService>().Object, new NosCore.Algorithm.SkillPointService.SkillPointService(),
                 World.MapInstanceAccessorService,
                 World.Clock,
                 World.LogLanguageLocalizer,
