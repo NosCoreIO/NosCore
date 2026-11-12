@@ -151,7 +151,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
                     _optionReads++;
                     return _options.Where(filter.Compile()).ToList();
                 });
-            _service = new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects), optionDao.Object,
+            _service = new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects, new List<ItemDto>()), optionDao.Object,
                 new SpecialistCardService(new SpecialistPointService()));
 
         }

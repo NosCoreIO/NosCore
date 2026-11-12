@@ -6,6 +6,7 @@
 
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
@@ -215,6 +216,7 @@ namespace NosCore.Parser.Parsers
             foreach (var item in items.Where(s => s.VNum is 5319 or 5321 or 5323 or 9083 or 9084 or 9085 or 5330 or 9086 or 5997 or 9115))
             {
                 item.SpeedBoostTeleportsRandomly = true;
+                item.SpeedBoostTeleportEffect = 3625;
             }
 
             await itemDao.TryInsertOrUpdateAsync(items);
@@ -681,6 +683,7 @@ namespace NosCore.Parser.Parsers
                 var x when x == 9038 || x == 1339 => 5114,
                 9033 => 5111,
                 var x when x == 9034 || x == 1335 => 5107,
+                var x when x == 5119 || x == 9071 => 885,
                 var x when x == 5916 || x == 5927 => 7200,
                 var x when x == 5928 || x == 5929 => 600,
                 1581 => 860,
@@ -786,6 +789,25 @@ namespace NosCore.Parser.Parsers
                 var x when (x >= 4055 && x <= 4061) || (x > 4172 && x < 4176) || (x > 4045 && x < 4056) || (x == 967) || (x == 968) => 10800,
                 _ => item.ItemValidTime
             };
+            // These items leave their BUFF row empty, so the card they grant is declared here.
+            short grantedCard = item.Effect switch
+            {
+                ItemEffectType.SpeedBooster => 336,
+                ItemEffectType.HeatResistance => 340,
+                ItemEffectType.FairyBooster => 131,
+                _ => 0
+            };
+            if (grantedCard != 0 && item.BCards?.Any(b => b.Type == (byte)BCardType.CardType.Buff) != true)
+            {
+                item.BCards = [.. item.BCards ?? [], new BCardDto
+                {
+                    ItemVNum = item.VNum,
+                    Type = (byte)BCardType.CardType.Buff,
+                    SubType = 11,
+                    FirstData = 100,
+                    SecondData = grantedCard,
+                }];
+            }
         }
     }
 }

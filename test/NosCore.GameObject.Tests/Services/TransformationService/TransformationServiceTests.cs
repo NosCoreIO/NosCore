@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private ITransformationService Service;
         private NosCore.GameObject.Services.BattleService.BuffService Buffs;
         private ClientSession Session;
+        private const short BoostCardId = 336;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -39,6 +40,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
 
             Buffs = World.Create<NosCore.GameObject.Services.BattleService.BuffService>();
             World.Inject<NosCore.GameObject.Services.BattleService.IBuffService>(Buffs);
+            var cards = World.Freeze<Mock<NosCore.GameObject.Services.BattleService.ICardCatalog>>();
+            cards.Setup(c => c.IsGrantedBy(BoostCardId, NosCore.Data.Enumerations.Items.ItemEffectType.SpeedBooster)).Returns(true);
             Service = new GameObject.Services.TransformationService.TransformationService(
                 World.Clock,
                 new Mock<IExperienceService>().Object,
@@ -50,7 +53,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                 new Mock<GameObject.Services.SkillService.ISkillService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
-                Buffs);
+                Buffs,
+                cards.Object);
         }
 
         [TestMethod]
@@ -158,13 +162,13 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private async Task TheMountIsBoosted()
         {
             await Buffs.ApplyAsync(Session.Character,
-                new NosCore.Data.StaticEntities.CardDto { CardId = GameObject.Services.SpeedCalculationService.SpeedBooster.CardId },
+                new NosCore.Data.StaticEntities.CardDto { CardId = BoostCardId },
                 new List<NosCore.Data.StaticEntities.BCardDto>(), Session.Character, 5000);
         }
 
         private void TheBoostIsGone()
         {
-            Assert.IsFalse(Buffs.HasBuff(Session.Character, GameObject.Services.SpeedCalculationService.SpeedBooster.CardId));
+            Assert.IsFalse(Buffs.HasBuff(Session.Character, BoostCardId));
             Assert.AreEqual(20, Session.Character.Speed);
         }
 

@@ -28,8 +28,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var item = evt.InventoryItem.ItemInstance.Item;
             var session = evt.ClientSession;
             var character = session.Character;
-            if (item.Effect != ItemEffectType.FairyBooster || buffService.HasBuff(character, FairyBooster.CardId)
-                || cardCatalog.GetCard(FairyBooster.CardId) is not { } card)
+            if (item.Effect != ItemEffectType.FairyBooster || cardCatalog.GetItemCard(item.VNum) is not { } card
+                || buffService.HasBuff(character, card.CardId))
             {
                 return;
             }
@@ -37,7 +37,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.UseUpOneAsync(evt.InventoryItem);
 
             // A static buff's TIME column counts 0.6 s steps, so 6001 is an hour.
-            await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(FairyBooster.CardId),
+            await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(card.CardId),
                 Duration.FromMilliseconds(card.Duration * 600L));
             await session.SendPacketAsync(new SayiPacket
             {

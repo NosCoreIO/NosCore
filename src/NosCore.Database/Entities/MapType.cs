@@ -32,6 +32,8 @@ namespace NosCore.Database.Entities
 
         public short PotionDelay { get; set; }
 
+        public short? ZoneCardId { get; set; }
+
         public virtual RespawnMapType? RespawnMapType { get; set; }
 
         public long? RespawnMapTypeId { get; set; }

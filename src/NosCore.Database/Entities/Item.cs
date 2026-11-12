@@ -204,6 +204,8 @@ namespace NosCore.Database.Entities
 
         public bool SpeedBoostTeleportsRandomly { get; set; }
 
+        public short SpeedBoostTeleportEffect { get; set; }
+
         // Sound played around the user when a PlayEffect item goes off; 0 for none.
         public short UseSound { get; set; }
 

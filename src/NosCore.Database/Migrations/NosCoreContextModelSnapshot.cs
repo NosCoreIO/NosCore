@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112100942_AddHeatResistanceEffect";
+    public override string LastMigrationId => "20261112112130_AddZoneCardAndTeleportEffect";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1490,6 +1490,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<byte>("SpeedBoostRestoresPerLevel")
                     .HasColumnType("smallint");
 
+                b.Property<short>("SpeedBoostTeleportEffect")
+                    .HasColumnType("smallint");
+
                 b.Property<bool>("SpeedBoostTeleportsRandomly")
                     .HasColumnType("boolean");
 
@@ -1781,6 +1784,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<long?>("ReturnMapTypeId")
                     .HasColumnType("bigint");
+
+                b.Property<short?>("ZoneCardId")
+                    .HasColumnType("smallint");
 
                 b.HasKey("MapTypeId");
 

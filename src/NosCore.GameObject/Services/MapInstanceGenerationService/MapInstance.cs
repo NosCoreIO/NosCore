@@ -563,13 +563,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                             await session.SendPacketAsync(session.Character.GenerateSc(_battleStatsProvider));
                         }
 
-                        if (_speedCalculationService != null && expired.Any(b => b.CardId == SpeedBooster.CardId))
+                        if (_speedCalculationService != null && expired.Count > 0 && session.Character.IsVehicled)
                         {
                             session.Character.Speed = _speedCalculationService.CalculateSpeed(session.Character);
                             await session.SendPacketAsync(session.Character.GenerateCond());
                         }
 
-                        if (_heatService != null && expired.Any(b => b.CardId == HeatResistance.CardId))
+                        if (_heatService != null && expired.Count > 0)
                         {
                             await _heatService.RefreshAsync(session.Character);
                         }

@@ -22,6 +22,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     public sealed class SpeedBoosterHandler(IBuffService buffService, ICardCatalog cardCatalog,
         ISpeedCalculationService speedCalculationService, List<ItemDto> items, IRandomProvider random)
     {
+        private const int TeleportAttempts = 100;
+
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
         {
@@ -30,24 +32,24 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (evt.InventoryItem.ItemInstance.Item.Effect != ItemEffectType.SpeedBooster || !character.IsVehicled
                 || items.Find(i => i.VNum == character.VehicleVNum) is not { } mount
                 || mount is { SpeedBoost: 0, SpeedBoostRestoresPerLevel: 0, SpeedBoostRemovesDebuffsUpToLevel: 0, SpeedBoostTeleportsRandomly: false }
-                || buffService.HasBuff(character, SpeedBooster.CardId)
-                || cardCatalog.GetCard(SpeedBooster.CardId) is not { } card)
+                || cardCatalog.GetItemCard(evt.InventoryItem.ItemInstance.ItemVNum) is not { } card
+                || buffService.HasBuff(character, card.CardId))
             {
                 return;
             }
 
-            var destination = mount.SpeedBoostTeleportsRandomly ? character.MapInstance.Map.RandomWalkableCell(random, SpeedBooster.TeleportAttempts) : null;
+            var destination = mount.SpeedBoostTeleportsRandomly ? character.MapInstance.Map.RandomWalkableCell(random, TeleportAttempts) : null;
             if (mount.SpeedBoostTeleportsRandomly && destination is null)
             {
                 return;
             }
 
             await character.UseUpOneAsync(evt.InventoryItem);
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.Effect));
+            await character.MapInstance.SendPacketAsync(character.GenerateEff(evt.InventoryItem.ItemInstance.Item.EffectValue));
 
             if (mount.SpeedBoost > 0)
             {
-                await buffService.ApplyAsync(character, card, cardCatalog.GetCardBCards(SpeedBooster.CardId), character,
+                await buffService.ApplyAsync(character, card, cardCatalog.GetCardBCards(card.CardId), character,
                     mount.SpeedBoostDuration * 1000);
                 character.Speed = speedCalculationService.CalculateSpeed(character);
                 await session.SendPacketAsync(character.GenerateCond());
@@ -67,7 +69,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (destination is { } cell)
             {
                 await character.TeleportAsync(cell.X, cell.Y);
-                await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.TeleportEffect));
+                await character.MapInstance.SendPacketAsync(character.GenerateEff(mount.SpeedBoostTeleportEffect));
             }
         }
     }

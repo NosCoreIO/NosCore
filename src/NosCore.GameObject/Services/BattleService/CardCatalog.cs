@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
 
@@ -24,8 +26,9 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
     private readonly IReadOnlyDictionary<short, CardDto> _cards;
     private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _bcardsByCard;
     private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _bcardsByItem;
+    private readonly HashSet<(short CardId, ItemEffectType Effect)> _grants;
 
-    public CardCatalog(List<CardDto> cards, List<BCardDto> bCards)
+    public CardCatalog(List<CardDto> cards, List<BCardDto> bCards, List<ItemDto> items)
     {
         // Duplicate cards should not exist, but a database imported twice does happen: keep
         // the first and carry on rather than bringing the startup down.
@@ -42,6 +45,13 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
             .Where(b => b.ItemVNum.HasValue)
             .GroupBy(b => b.ItemVNum.GetValueOrDefault())
             .ToDictionary(g => g.Key, g => (IReadOnlyList<BCardDto>)g.ToArray());
+
+        _grants = items
+            .Where(i => i.Effect != ItemEffectType.NoEffect)
+            .Select(i => (Card: GrantedCardId(i.VNum), i.Effect))
+            .Where(g => g.Card.HasValue)
+            .Select(g => (g.Card.GetValueOrDefault(), g.Effect))
+            .ToHashSet();
     }
 
     public CardDto? GetCard(short cardId) => _cards.GetValueOrDefault(cardId);
@@ -51,4 +61,12 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
 
     public IReadOnlyList<BCardDto> GetItemBCards(short itemVnum) =>
         _bcardsByItem.TryGetValue(itemVnum, out var list) ? list : EmptyBCards;
+
+    public CardDto? GetItemCard(short itemVnum) =>
+        GrantedCardId(itemVnum) is { } cardId ? GetCard(cardId) : null;
+
+    public bool IsGrantedBy(short cardId, ItemEffectType effect) => _grants.Contains((cardId, effect));
+
+    private short? GrantedCardId(short itemVnum) =>
+        (short?)GetItemBCards(itemVnum).FirstOrDefault(b => b.Type == (byte)BCardType.CardType.Buff)?.SecondData;
 }

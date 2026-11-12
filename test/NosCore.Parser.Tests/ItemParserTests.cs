@@ -9,6 +9,7 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
@@ -110,6 +111,43 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(12, card.SubType);
             Assert.AreEqual(10, card.FirstData);
             Assert.AreEqual(10, card.SecondData);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_TheSpeedBoosterGrantsItsCardAndAnimation()
+        {
+            CreateTestFile(CreateItemData(vnum: 5119));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.ItemVNum == 5119);
+            Assert.AreEqual((byte)BCardType.CardType.Buff, card.Type);
+            Assert.AreEqual(336, card.SecondData);
+            Assert.AreEqual(885, _savedItems.Single().EffectValue);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_IceFlowerOilGrantsHeatResistance()
+        {
+            CreateTestFile(CreateItemData(vnum: 5929));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(340, _savedBCards.Single(b => b.ItemVNum == 5929).SecondData);
+            Assert.AreEqual(ItemEffectType.HeatResistance, _savedItems.Single().Effect);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_AnItemWithItsOwnBuffKeepsIt()
+        {
+            CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1360\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(340, _savedBCards.Single(b => b.ItemVNum == 5929).SecondData);
         }
 
         [TestMethod]

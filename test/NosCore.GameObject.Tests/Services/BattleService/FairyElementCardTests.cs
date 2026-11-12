@@ -101,8 +101,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         private void TheFairyBoosterIsActive() =>
-            Buffs.Add(new BuffInstance(CardId: FairyBooster.CardId, BuffType: BuffType.Good, Caster: null,
-                StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue, BCards: Array.Empty<BCardDto>(), Static: true));
+            Buffs.Add(new BuffInstance(CardId: 131, BuffType: BuffType.Good, Caster: null,
+                StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue,
+                BCards: new[] { Card(BCardEffect.Type96IncreaseFairyElement, 30) }, Static: true));
 
         private void AWornFairyOfRate_(int rate) =>
             Gear = EquipmentStats.None with { ElementRate = rate, Element = ElementType.Fire, FairyWorn = true };
