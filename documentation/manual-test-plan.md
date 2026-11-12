@@ -948,6 +948,17 @@ and 5 Apples.
 - [ ] Press Produce and confirm: after the bar, "[Attack Potion] has been produced." pops up,
       the potion appears, the materials are gone and one scroll is used up
 
+### Leaving a party
+
+`/mnt/project-files/group-disconnect/scene.sh <checkout> <outdir>` groups Tester and Buddy and
+closes Buddy's connection.
+
+- [ ] Two characters group up and one logs out: the other's party panel empties and "In party"
+      goes away
+- [ ] Three characters group up and the leader logs out: the two left stay grouped and one of
+      them is told they lead now
+- [ ] Two married characters group up and one logs out: the other's Wedding icon goes away
+
 ### Group loot
 
 Two characters, A and B, in a party with A as the master, on the same map and channel; a third

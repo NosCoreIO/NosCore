@@ -11,6 +11,9 @@ using NosCore.Data.Enumerations.Group;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Networking.ClientSession.DisconnectHandlers;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.PacketHandlers.Group;
@@ -34,6 +37,7 @@ namespace NosCore.PacketHandlers.Tests.Group
         private readonly Dictionary<int, ClientSession> Sessions = new();
         private PjoinPacketHandler PJoinPacketHandler;
         private PleavePacketHandler PLeavePacketHandler;
+        private GroupDisconnectHandler DisconnectHandler;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -55,7 +59,13 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             var sessionGroupFactoryForHandler = new Mock<ISessionGroupFactory>();
             sessionGroupFactoryForHandler.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
-            PLeavePacketHandler = new PleavePacketHandler(idServer, World.SessionRegistry, sessionGroupFactoryForHandler.Object, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
+            World.Inject<IIdService<NosCore.GameObject.Services.GroupService.Group>>(idServer);
+            World.Inject<ISessionRegistry>(World.SessionRegistry);
+            World.Inject(sessionGroupFactoryForHandler.Object);
+            World.Inject(new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
+            var groupLeaveService = World.Create<GroupLeaveService>();
+            PLeavePacketHandler = new PleavePacketHandler(groupLeaveService);
+            DisconnectHandler = new GroupDisconnectHandler(groupLeaveService);
 
             var mock = new Mock<IBlacklistHub>();
             PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
@@ -118,6 +128,37 @@ namespace NosCore.PacketHandlers.Tests.Group
                 .WhenAsync(Session_LeavesGroupAsync, 0)
                 .Then(BothSessionsShouldBeAlone)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DisconnectingFromATwoPersonGroupDissolvesIt()
+        {
+            await new Spec("Disconnecting from a two person group dissolves it")
+                .GivenAsync(TwoSessionsAreGroupedAsync)
+                .WhenAsync(Session_DisconnectsAsync, 1)
+                .Then(Session_ShouldBeAlone, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheLeaderDisconnectingHandsTheGroupOn()
+        {
+            await new Spec("The leader disconnecting hands the group on")
+                .GivenAsync(SessionsAreInFullGroupAsync)
+                .WhenAsync(Session_DisconnectsAsync, 0)
+                .Then(Session_ShouldBeLeader, 1)
+                .And(Session_ShouldBeInAGroupOf, 2)
+                .ExecuteAsync();
+        }
+
+        private async Task Session_DisconnectsAsync(int value)
+        {
+            await DisconnectHandler.HandleDisconnectAsync(Sessions[value]);
+        }
+
+        private void Session_ShouldBeInAGroupOf(int count)
+        {
+            Assert.AreEqual(count, Sessions[1].Character.Group.Count);
         }
 
         private async Task SessionsAreInFullGroupAsync()
