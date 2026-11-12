@@ -22,5 +22,10 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
             bus.RequestAsync<List<CharacterRelationStatus>>(new GetFriendsRequest(id));
 
         public Task<bool> DeleteAsync(Guid id) => bus.RequestAsync<bool>(new DeleteFriendRequest(id));
+
+        public Task<bool> MarryAsync(long characterId, long spouseId) =>
+            bus.RequestAsync<bool>(new MarryRequest(characterId, spouseId));
+
+        public Task<long?> SeparateAsync(long characterId) => bus.RequestAsync<long?>(new SeparateRequest(characterId));
     }
 }

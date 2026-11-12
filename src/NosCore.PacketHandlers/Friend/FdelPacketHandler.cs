@@ -14,7 +14,9 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.Packets.ClientPackets.Relations;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -28,6 +30,12 @@ namespace NosCore.PacketHandlers.Friend
         {
             var list = await friendHttpClient.GetFriendsAsync(session.Character.VisualId);
             var idtorem = list.FirstOrDefault(s => s.CharacterId == fdelPacket.CharacterId);
+            if (idtorem?.RelationType == CharacterRelationType.Spouse)
+            {
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CantDeleteSpouse });
+                return;
+            }
+
             if (idtorem != null)
             {
                 await friendHttpClient.DeleteAsync(idtorem.CharacterRelationId);

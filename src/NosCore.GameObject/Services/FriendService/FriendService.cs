@@ -154,6 +154,57 @@ namespace NosCore.GameObject.Services.FriendService
             }).ToList();
         }
 
+        public async Task<bool> MarryAsync(long characterId, long spouseId)
+        {
+            if (characterId == spouseId
+                || characterRelationDao.Where(s => (s.CharacterId == characterId || s.CharacterId == spouseId)
+                    && s.RelationType == CharacterRelationType.Spouse)?.Any() == true)
+            {
+                return false;
+            }
+
+            var relations = characterRelationDao.Where(s =>
+                ((s.CharacterId == characterId && s.RelatedCharacterId == spouseId)
+                    || (s.CharacterId == spouseId && s.RelatedCharacterId == characterId))
+                && s.RelationType == CharacterRelationType.Friend)?.ToList() ?? [];
+            if (relations.Count != 2)
+            {
+                return false;
+            }
+
+            foreach (var relation in relations)
+            {
+                relation.RelationType = CharacterRelationType.Spouse;
+                if (await characterRelationDao.TryInsertOrUpdateAsync(relation) == null)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public async Task<long?> SeparateAsync(long characterId)
+        {
+            var relation = await characterRelationDao.FirstOrDefaultAsync(s =>
+                s.CharacterId == characterId && s.RelationType == CharacterRelationType.Spouse);
+            if (relation == null)
+            {
+                return null;
+            }
+
+            var mirror = await characterRelationDao.FirstOrDefaultAsync(s =>
+                s.CharacterId == relation.RelatedCharacterId && s.RelatedCharacterId == characterId
+                && s.RelationType == CharacterRelationType.Spouse);
+            await characterRelationDao.TryDeleteAsync(relation.CharacterRelationId);
+            if (mirror != null)
+            {
+                await characterRelationDao.TryDeleteAsync(mirror.CharacterRelationId);
+            }
+
+            return relation.RelatedCharacterId;
+        }
+
         public async Task<bool> DeleteAsync(Guid id)
         {
             var rel = await characterRelationDao.FirstOrDefaultAsync(s =>

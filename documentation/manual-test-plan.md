@@ -477,6 +477,25 @@ Needs two characters who are friends, both online on the same channel.
       used here" message appears and the wings stay
 - [ ] Walk, or cast a skill, during the bar: the bar stops, you stay, and the wings stay
 
+### Marriage
+
+Needs two characters who are friends, both online on the same channel.
+
+- [ ] Select the friend and use Cupid's Arrow (`$CreateItem 1981`): a question asks whether to
+      propose to them, and the arrow stays until you confirm
+- [ ] Confirm: the arrow is used, you are told you proposed, and the friend gets a dialog asking
+      whether to accept
+- [ ] The friend accepts: everyone on the channel sees that the two of you are married, and the
+      friend list of both shows the other as spouse
+- [ ] The friend declines instead: everyone on the channel sees the proposal was declined, and
+      nobody is married
+- [ ] Propose to someone who is not a friend, or while already married: the matching client
+      message appears and the arrow stays
+- [ ] Delete the spouse from the friend list: the client's "cannot delete your spouse" message
+      appears and the spouse stays
+- [ ] Use the separation letter (`$CreateItem 1982`) and confirm: you are told you separated,
+      the letter is used, and the spouse is gone from both friend lists
+
 ### NPC teleporters
 
 Run the parser's teleporter import first (the full import does it), then stand next to each kind

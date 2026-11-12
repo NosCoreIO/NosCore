@@ -14,3 +14,7 @@ public record AddFriendRequest(FriendShipRequest FriendShipRequest) : IMasterReq
 public record GetFriendsRequest(long Id) : IMasterRequest;
 
 public record DeleteFriendRequest(Guid Id) : IMasterRequest;
+
+public record MarryRequest(long CharacterId, long SpouseId) : IMasterRequest;
+
+public record SeparateRequest(long CharacterId) : IMasterRequest;

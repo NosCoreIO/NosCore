@@ -22,10 +22,18 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub
 
         public async Task<bool> DeleteAsync(Guid id) => await friendService.DeleteAsync(id);
 
+        public Task<bool> MarryAsync(long characterId, long spouseId) => friendService.MarryAsync(characterId, spouseId);
+
+        public Task<long?> SeparateAsync(long characterId) => friendService.SeparateAsync(characterId);
+
         public static async Task<Reply<LanguageKey>> Handle(AddFriendRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().AddFriendAsync(r.FriendShipRequest));
 
         public static async Task<Reply<List<CharacterRelationStatus>>> Handle(GetFriendsRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().GetFriendsAsync(r.Id));
 
         public static async Task<Reply<bool>> Handle(DeleteFriendRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().DeleteAsync(r.Id));
+
+        public static async Task<Reply<bool>> Handle(MarryRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().MarryAsync(r.CharacterId, r.SpouseId));
+
+        public static async Task<Reply<long?>> Handle(SeparateRequest r, IServiceProvider services) => new(await services.GetRequiredService<FriendHub>().SeparateAsync(r.CharacterId));
     }
 }
