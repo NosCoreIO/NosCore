@@ -54,6 +54,24 @@ namespace NosCore.GameObject.Tests.Services.MateService
         }
 
         [TestMethod]
+        [DataRow((short)2682, (byte)2, 12, 0, 500, 39825, 2225)]
+        [DataRow((short)535, (byte)3, 0, 0, 0, 6640, 3270)]
+        public void ALevel99MateMatchesItsPublishedStats(short vNum, byte race, int hpFactor, int mpFactor, int hpBonus,
+            int maxHp, int maxMp)
+        {
+            var monster = new NpcMonsterDto
+            {
+                NpcMonsterVNum = vNum, Race = race, PetInfoVal1 = hpFactor, PetInfoVal3 = mpFactor, HpBonus = hpBonus
+            };
+            var pet = Build(MateType.Pet, 99, monster);
+
+            _service.ApplyLevel(pet);
+
+            Assert.AreEqual(maxHp, pet.MaxHp);
+            Assert.AreEqual(maxMp, pet.MaxMp);
+        }
+
+        [TestMethod]
         public void AHigherLevelMeansHigherMaxima()
         {
             var monster = new NpcMonsterDto { Race = 3, PetInfoVal1 = 8, PetInfoVal3 = 6 };
