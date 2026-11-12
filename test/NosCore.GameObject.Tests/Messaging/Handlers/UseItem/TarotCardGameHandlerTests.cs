@@ -117,7 +117,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void EachDealtCardIsAnnounced() =>
             Assert.AreEqual(5, _session.LastPackets.OfType<SayiPacket>()
-                .Where(p => p.Message == Game18NConstString.ItemReceived)
+                .Where(p => p.Message == Game18NConstString.ReceivedThisItem)
                 .Sum(p => (short)p.Game18NArguments[1]));
     }
 }

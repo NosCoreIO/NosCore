@@ -14,7 +14,6 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 
@@ -46,13 +45,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var inventory = character.InventoryService;
             if (!inventory.HasRoomFor(dealt))
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                 return;
             }
 
@@ -68,15 +61,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                     await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
                 }
 
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.ItemReceived,
-                    ArgumentType = 2,
-                    Game18NArguments = { card.ItemVNum.ToString(), card.Amount }
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                    2, card.ItemVNum.ToString(), card.Amount));
             }
 
             await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
