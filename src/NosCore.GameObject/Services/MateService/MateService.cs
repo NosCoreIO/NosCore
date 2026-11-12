@@ -13,6 +13,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -76,6 +77,8 @@ namespace NosCore.GameObject.Services.MateService
             row.Adapt(mate);
             mate.MateTransportId = mateIdService.GetNextId();
             mateStatsService.ApplyLevel(mate);
+            mate.Hp = Math.Min(mate.Hp, mate.MaxHp);
+            mate.Mp = Math.Min(mate.Mp, mate.MaxMp);
             return mate;
         }
 
