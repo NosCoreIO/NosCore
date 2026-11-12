@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.DamageService;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -55,7 +54,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var equipment = new Mock<IEquipmentStatsService>();
             equipment.Setup(s => s.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
 
-            return new BattleStatsProvider(buffs.Object, equipment.Object, new DamageService()).GetStats(entity.Object);
+            return BattleStats.Provider(buffs.Object, equipment.Object).GetStats(entity.Object);
         }
 
         [TestMethod]

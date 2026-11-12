@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.DamageService;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -58,7 +57,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     StartedAt: Instant.MinValue, ExpiresAt: Instant.MaxValue, BCards: bCards)
             });
 
-            return new BattleStatsProvider(buffs.Object, NoEquipment(), new DamageService()).GetStats(entity.Object);
+            return BattleStats.Provider(buffs.Object, NoEquipment()).GetStats(entity.Object);
         }
 
         private static IEquipmentStatsService NoEquipment()

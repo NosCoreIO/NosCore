@@ -149,7 +149,8 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         AttackContext context, int morale)
     {
         var weapon = RollBaseDamage(context.MainWeaponMin, context.MainWeaponMax);
-        var attack = RollBaseDamage(context.MainMinDmg - context.MainWeaponMin, context.MainMaxDmg - context.MainWeaponMax);
+        // Signed: an attack debuff can take the rest below zero, and it must still count.
+        var attack = RollSigned(context.MainMinDmg - context.MainWeaponMin, context.MainMaxDmg - context.MainWeaponMax);
 
         var defence = context.MonsterDefence;
         var upgrade = context.MainUpgrade - defender.DefenceUpgrade;
@@ -242,7 +243,6 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             ctx.MainUpgrade = attacker.RangedUpgrade;
             ctx.MainWeaponMin = attacker.WeaponMinDistance;
             ctx.MainWeaponMax = attacker.WeaponMaxDistance;
-            ctx.Kind = AttackKind.Ranged;
         }
 
         switch (skill.Type)
@@ -269,6 +269,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
                 {
                     case CharacterClassType.Archer:
                         UseRanged();
+                        ctx.Kind = AttackKind.Ranged;
                         ctx.MonsterDefence = defender.DistanceDefence;
                         ctx.MonsterDodge = defender.DistanceDefenceDodge;
                         break;
@@ -286,6 +287,9 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
 
         return ctx;
     }
+
+    private int RollSigned(int min, int max) =>
+        max <= min ? min : random.Next(min, max + 1);
 
     private int RollBaseDamage(int min, int max)
     {

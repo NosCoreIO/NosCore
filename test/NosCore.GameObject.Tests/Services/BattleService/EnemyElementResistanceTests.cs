@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.DamageService;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Data.Enumerations.Buff;
 using NodaTime;
@@ -139,7 +138,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     })
             });
 
-            return new BattleStatsProvider(buffs.Object, NoEquipment(), new DamageService()).GetStats(entity.Object);
+            return BattleStats.Provider(buffs.Object, NoEquipment()).GetStats(entity.Object);
         }
 
         private static IEquipmentStatsService NoEquipment()

@@ -230,6 +230,30 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(231, Hit(Player(CharacterClassType.Swordsman, 30, attack: 62, weapon: 100, upgrade: 5), Chicken(), MeleeSkill));
         }
 
+        // An attack decrease of 86 on 62 + 100 leaves the rest at -24, which still counts: 76 + 15 - 18 + 29.
+        [TestMethod]
+        public void AnAttackDecreaseLargerThanTheClassAttackStillCounts()
+        {
+            Assert.AreEqual(102, Hit(Player(CharacterClassType.Swordsman, 30, attack: -24, weapon: 100), Chicken(), MeleeSkill));
+        }
+
+        // An archer's melee skill swings the secondary weapon, but melee bonuses still apply: 26 + 15 + 20 - 18 + 9.
+        [TestMethod]
+        public void AnArchersMeleeSkillTakesTheMeleeAttackBonus()
+        {
+            var archer = StatsBuilder.Default() with
+            {
+                IsPlayer = true, Class = CharacterClassType.Archer, Level = 10, Morale = 10, HitRate = 999,
+                DistanceRate = 999, MinDistance = 26, MaxDistance = 26,
+            };
+            var meleeBonus = MeleeSkill with
+            {
+                BCards = new[] { new BCardDto { Type = 3, SubType = 21, FirstData = 20 } },
+            };
+
+            Assert.AreEqual(52, Hit(archer, Chicken(), meleeBonus));
+        }
+
         // A 70% critical adds 70% of attack less defence, 159, and not of the 29 level gap.
         [TestMethod]
         public void ACriticalHitLeavesTheLevelGapOutOfItsBonus()

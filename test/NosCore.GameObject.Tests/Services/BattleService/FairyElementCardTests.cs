@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Algorithm.DamageService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -102,7 +101,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var equipment = new Mock<IEquipmentStatsService>();
             equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(Gear);
 
-            Stats = new BattleStatsProvider(buffs.Object, equipment.Object, new DamageService()).GetStats(character.Object);
+            Stats = BattleStats.Provider(buffs.Object, equipment.Object).GetStats(character.Object);
         }
 
         private void TheElementRateShouldBe_(int expected) => Assert.AreEqual(expected, Stats.ElementRate);
