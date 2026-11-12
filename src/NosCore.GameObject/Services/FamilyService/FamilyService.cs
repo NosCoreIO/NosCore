@@ -153,19 +153,20 @@ namespace NosCore.GameObject.Services.FamilyService
                     return FamilyAuthorityChange.NotAuthorized;
             }
 
-            if (authority == FamilyAuthority.Head)
-            {
-                if (!await UpdateMemberAsync(actorId, s => s.Authority = FamilyAuthority.Assistant))
-                {
-                    return FamilyAuthorityChange.NotInFamily;
-                }
-
-                family.Members.First(s => s.CharacterId == actorId).Authority = FamilyAuthority.Assistant;
-            }
-
-            if (!await UpdateMemberAsync(targetId, s => s.Authority = authority))
+            if (authority == FamilyAuthority.Head
+                && !await UpdateMemberAsync(family.FamilyId, actorId, s => s.Authority = FamilyAuthority.Assistant))
             {
                 return FamilyAuthorityChange.NotInFamily;
+            }
+
+            if (!await UpdateMemberAsync(family.FamilyId, targetId, s => s.Authority = authority))
+            {
+                return FamilyAuthorityChange.NotInFamily;
+            }
+
+            if (authority == FamilyAuthority.Head)
+            {
+                family.Members.First(s => s.CharacterId == actorId).Authority = FamilyAuthority.Assistant;
             }
 
             membership.Authority = authority;
@@ -176,6 +177,7 @@ namespace NosCore.GameObject.Services.FamilyService
         // than writing that copy back over what the master has saved since.
         public async Task<bool> UpdateAsync(long familyId, Action<FamilyDto> change)
         {
+            using var _ = await FamilyRowLock.Instance.AcquireAsync();
             var family = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
             if (family == null)
             {
@@ -186,9 +188,10 @@ namespace NosCore.GameObject.Services.FamilyService
             return await familyDao.TryInsertOrUpdateAsync(family) != null;
         }
 
-        public async Task<bool> UpdateMemberAsync(long characterId, Action<FamilyCharacterDto> change)
+        public async Task<bool> UpdateMemberAsync(long familyId, long characterId, Action<FamilyCharacterDto> change)
         {
-            var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
+            using var _ = await FamilyRowLock.Instance.AcquireAsync();
+            var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId && s.FamilyId == familyId);
             if (membership == null)
             {
                 return false;

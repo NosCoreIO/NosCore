@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 }
             };
             var rows = _family.Members
-                .Select(s => new FamilyCharacterDto { CharacterId = s.CharacterId, Authority = s.Authority })
+                .Select(s => new FamilyCharacterDto { FamilyId = _family.FamilyId, CharacterId = s.CharacterId, Authority = s.Authority })
                 .ToList();
             _memberships = new Mock<IDao<FamilyCharacterDto, long>>();
             _memberships.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<FamilyCharacterDto, bool>>>()))
@@ -98,6 +98,21 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.AreEqual(FamilyAuthorityChange.Changed, result);
             Assert.AreEqual(FamilyAuthority.Head, AuthorityOf(Assistant));
             Assert.AreEqual(FamilyAuthority.Assistant, AuthorityOf(Head));
+        }
+
+        [TestMethod]
+        public async Task TheHeadStaysHeadWhenTheDeputyCannotBeSaved()
+        {
+#nullable disable
+            _memberships.Setup(s => s.TryInsertOrUpdateAsync(It.Is<FamilyCharacterDto>(d => d.CharacterId == Assistant)))
+                .Returns(Task.FromResult<FamilyCharacterDto>(null));
+#nullable restore
+
+            var result = await _service.ChangeAuthorityAsync(_family, Head, Assistant, FamilyAuthority.Head);
+
+            Assert.AreEqual(FamilyAuthorityChange.NotInFamily, result);
+            Assert.AreEqual(FamilyAuthority.Head, AuthorityOf(Head));
+            Assert.AreEqual(FamilyAuthority.Assistant, AuthorityOf(Assistant));
         }
 
         [TestMethod]
