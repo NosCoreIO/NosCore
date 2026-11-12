@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.SumService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -25,30 +26,13 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
-// Sum upgrade combines two wearables into one with combined upgrade level + summed
-// elemental resistances. Modeled on OpenNos's WearableInstance.Sum (lines 609-665).
-//
-// Slot restriction: both items must occupy the SAME equipment slot AND that slot must be
-// Boots or Gloves — those are the only equipment types Nostale lets you sum-resist on.
-//
-// Cost tables are indexed by source.Upgrade (NOT combined level — that's the success-rate
-// table). Numbers ported from OpenNos:
-//   upsuccess[combined]: { 100, 100, 85, 70, 50, 20 }
-//   goldprice[source]:   { 1500, 3000, 6000, 12000, 24000, 48000 }
-//   sand[source]:        { 5, 10, 15, 20, 25, 30 }
-//
-// On success: source.Upgrade += target.Upgrade + 1; resistances are summed.
-// On failure: BOTH source and target are destroyed.
-// Sand and gold are charged regardless.
+// Combines two boots or two gloves: on success the source gains the target's upgrade plus one
+// and both resistances; on failure both are lost. Gold and sand are spent either way.
 [UsedImplicitly]
 public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        IItemCatalog itemCatalog)
+        IItemCatalog itemCatalog, ISumService sumService)
     : UpgradeOperation(random, localizer)
 {
-    private static readonly double[] SuccessRateByCombinedLevel = { 1.00, 1.00, 0.85, 0.70, 0.50, 0.20 };
-    private static readonly long[] GoldCostBySourceLevel = { 1500, 3000, 6000, 12000, 24000, 48000 };
-    private static readonly short[] SandCostBySourceLevel = { 5, 10, 15, 20, 25, 30 };
-
     public override UpgradePacketType Kind => UpgradePacketType.SumResistance;
 
     protected override Game18NConstString SuccessMessage => Game18NConstString.CombinationSuccessful;
@@ -71,16 +55,11 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             return null;
         }
 
-        // Reject self-sum: same slot/type sent twice resolves source and target to the
-        // same InventoryItemInstance, which would double-remove on failure and sum the
-        // item into itself on success.
         if (source.ItemInstanceId == target.ItemInstanceId)
         {
             return null;
         }
 
-        // Both must be the same slot type AND that slot must be Boots or Gloves.
-        // Mirrors OpenNos WearableInstance.Sum lines 623-625.
         if (s.Item.EquipmentSlot != t.Item.EquipmentSlot
             || (s.Item.EquipmentSlot != EquipmentType.Boots
                 && s.Item.EquipmentSlot != EquipmentType.Gloves))
@@ -88,8 +67,7 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             return null;
         }
 
-        if (s.Upgrade >= SandCostBySourceLevel.Length
-            || s.Upgrade + t.Upgrade >= SuccessRateByCombinedLevel.Length)
+        if (s.Upgrade + t.Upgrade > sumService.MaxLevel)
         {
             return null;
         }
@@ -97,17 +75,15 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
         return new UpgradeContext(
             Source: source,
             Target: target,
-            GoldCost: GoldCostBySourceLevel[s.Upgrade],
-            MaterialCosts: new[] { new MaterialCost(itemCatalog.GetMaterialVNum(MaterialType.RiverSand), SandCostBySourceLevel[s.Upgrade]) },
+            GoldCost: sumService.GetPrice(s.Upgrade),
+            MaterialCosts: new[] { new MaterialCost(itemCatalog.GetMaterialVNum(MaterialType.RiverSand), (short)sumService.GetSandCost(s.Upgrade)) },
             ExtraData: s.Upgrade + t.Upgrade);
     }
 
     protected override double GetSuccessRate(UpgradeContext ctx) =>
-        SuccessRateByCombinedLevel[ctx.Data<int>()];
+        sumService.GetSuccessRate((byte)ctx.Data<int>()) / 100d;
 
-    // OpenNos WearableInstance.cs:643-646 adds BOTH the target's accumulated (instance) resistance
-    // AND its base-item resistance — a fresh pair of boots with Item.FireResistance=5 contributes
-    // 5 to the fire total even if its accumulated instance resistance is 0.
+    // The target contributes its base item resistance as well as what it has already accumulated.
     protected override void ApplySuccess(UpgradeContext ctx)
     {
         var source = (WearableInstance)ctx.Source.ItemInstance;
@@ -127,13 +103,9 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
 
     protected override void ConsumeFixedSlots(ClientSession session, UpgradeContext ctx)
     {
-        // Target slot is consumed regardless of outcome.
         session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.RequiredTarget.ItemInstanceId);
     }
 
-    // OpenNos Sum effect pattern (WearableInstance.cs 651/658/662):
-    //   - Player-only  : guri 19 1 <charId> 1324 (success) / 1332 (failure) — sparkle animation
-    //   - Broadcast    : guri 6  1 <charId>                                — ground-burst explosion
     protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
         UpgradeOutcome outcome, List<IPacket> playerPackets)
     {
@@ -151,7 +123,7 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             Argument = 1,
             SecondArgument = 0,
             EntityId = session.Character.CharacterId,
-        }).ConfigureAwait(false);
+        });
     }
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
@@ -161,8 +133,6 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
         if (outcome == UpgradeOutcome.Success)
         {
             yield return RefreshSource(ctx);
-            // OpenNos WearableInstance.cs:648 pdti 10 popup announcing the combined upgrade level.
-            // Type=10 (ResistanceFused), RecipeAmount=1, Slot=27 are fixed values from OpenNos.
             var source = (WearableInstance)ctx.Source.ItemInstance;
             yield return new PdtiPacket
             {
