@@ -6,7 +6,6 @@
 
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -22,14 +21,13 @@ namespace NosCore.GameObject.Services.FamilyService
 
         Task<bool> DisbandAsync(Family family);
 
-        Task AddMemberAsync(long familyId, long characterId);
+        Task<bool> AddMemberAsync(long familyId, long characterId);
 
-        Task RemoveMemberAsync(long characterId);
+        Task<bool> RemoveMemberAsync(long familyId, long characterId);
 
         Task<CharacterDto?> FindCharacterAsync(string name);
         Task<IReadOnlyList<CharacterDto>> GetMemberCharactersAsync(Family family);
         Task<FamilyAuthorityChange> ChangeAuthorityAsync(Family family, long actorId, long targetId, FamilyAuthority authority);
-        Task<bool> UpdateAsync(long familyId, Action<FamilyDto> change);
-        Task<bool> UpdateMemberAsync(long familyId, long characterId, Action<FamilyCharacterDto> change);
+        Task<bool> UpdateAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members);
     }
 }

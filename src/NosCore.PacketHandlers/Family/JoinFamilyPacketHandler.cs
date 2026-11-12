@@ -50,7 +50,11 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            await familyService.AddMemberAsync(family.FamilyId, session.Character.CharacterId);
+            if (!await familyService.AddMemberAsync(family.FamilyId, session.Character.CharacterId))
+            {
+                return;
+            }
+
             await familyLogService.AddAsync(family.FamilyId, FamilyLogType.UserManaged, inviter.Name, session.Character.Name);
             await pubSubHub.SendMessageAsync(new FamilyChangedData
             {

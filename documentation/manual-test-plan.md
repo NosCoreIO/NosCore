@@ -1525,6 +1525,18 @@ Same seeded family, with a plain member on the same map as the head.
 - [ ] `%Gender <0|1>` from the head switches the family's titles to the matching set and
       clears every member's title
 
+### Family changes keep what was saved elsewhere
+
+Same seeded family, with the head in the world. Then raise the family and a member behind
+the session's back, standing in for experience earned on another channel:
+`update "Family" set "FamilyLevel" = 5, "FamilyExperience" = 777 where "Name" = 'Testers';`
+`update "FamilyCharacter" set "Experience" = 999 where "CharacterId" = <member>;`
+
+- [ ] After each of `%Notice <text>`, `%Today <text>`, a permission tick, `%Title <name> <rank>`,
+      `%Familydeputy <name>` and `%Gender <0|1>` as the head, the family window shows level 5 and
+      the two rows still hold level 5, experience 777 and the member's 999
+- [ ] `%Familydismiss <name>` removes the member's row and leaves the family row as it was
+
 ### Family history, ranking and daily message windows
 
 Same seeded family, with a plain member on the same map as the head, and at least two other
@@ -1784,6 +1796,10 @@ Recorded so nobody spends time hunting for them:
   using a given subtype is wired to behaviour.
 - **The `st` percentage guard** — guards a zero maximum, which is not a state the game
   reaches. It cannot be triggered from the client by design.
+- **A family changed from two channels at the same moment** — two channels saving the same
+  family within the same instant cannot be produced by hand. Every family write is made by the
+  master server one at a time; unit tests cover joining two families at once, a full family
+  and a founder who already has a family.
 - **A family name with a space** — the client's name prompt refuses a space itself ("Can not use
   Space in name") and sends nothing, so the server's refusal ("Contains an invalid character.
   Choose another name.") cannot be produced from an unmodified client; the unit tests cover it.

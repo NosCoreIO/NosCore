@@ -20,7 +20,6 @@ using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.AutoFixture;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -63,8 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _head.Character.Family = _family;
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
-            _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<Action<FamilyDto>>())).ReturnsAsync(true);
-            _familyService.Setup(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>())).ReturnsAsync(true);
             _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
         }
 
@@ -158,7 +156,8 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsTrue(_family.ManagerCanInvite);
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, It.IsAny<Action<FamilyDto>>()), Times.Once);
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, new FamilyChange { ManagerCanInvite = true },
+                It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == 0)), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
@@ -174,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsFalse(_family.ManagerCanInvite);
-            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<Action<FamilyDto>>()), Times.Never);
+            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
         }
 
         private void Become(FamilyAuthority authority) =>
@@ -187,7 +186,8 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FamilyNoticePacket { Message = "meet at the bank " }, _head);
 
             Assert.AreEqual("meet at the bank", _family.FamilyMessage);
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, It.IsAny<Action<FamilyDto>>()), Times.Once);
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, new FamilyChange { FamilyMessage = "meet at the bank" },
+                It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == 0)), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
@@ -231,7 +231,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var mine = _family.Members.First(s => s.CharacterId == _headId);
             Assert.AreEqual("good morning", mine.DailyMessage);
-            _familyService.Verify(s => s.UpdateMemberAsync(FamilyId, mine.CharacterId, It.IsAny<Action<FamilyCharacterDto>>()), Times.Once);
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, null, It.Is<IReadOnlyList<FamilyMemberChange>>(members =>
+                members.Single() == new FamilyMemberChange(mine.CharacterId) { DailyMessage = "good morning" })), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
@@ -247,8 +248,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.IsNull(_family.FamilyMessage);
             Assert.AreNotEqual(tooLong, _family.Members.First(s => s.CharacterId == _headId).DailyMessage);
-            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<Action<FamilyDto>>()), Times.Never);
-            _familyService.Verify(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>()), Times.Never);
+            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
         }
 
         [TestMethod]
@@ -298,7 +298,9 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(GenderType.Female, _family.FamilyHeadGender);
             Assert.IsTrue(_family.Members.All(s => s.Rank == Data.Enumerations.Family.FamilyMemberRank.Nothing));
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, It.IsAny<Action<FamilyDto>>()), Times.Once);
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, new FamilyChange { FamilyHeadGender = GenderType.Female },
+                It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == _family.Members.Count
+                    && members.All(m => m.Rank == Data.Enumerations.Family.FamilyMemberRank.Nothing))), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
@@ -306,7 +308,8 @@ namespace NosCore.PacketHandlers.Tests.Family
         public async Task AFailedGenderSaveKeepsTheTitles()
         {
             _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
-            _familyService.Setup(s => s.UpdateAsync(FamilyId, It.IsAny<Action<FamilyDto>>())).ReturnsAsync(false);
+            _familyService.Setup(s => s.UpdateAsync(FamilyId, It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
+                .ReturnsAsync(false);
 
             await World.Create<FamilyGenderPacketHandler>()
                 .ExecuteAsync(new FamilyGenderPacket { Gender = GenderType.Female }, _head);

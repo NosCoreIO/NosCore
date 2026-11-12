@@ -96,8 +96,6 @@ namespace NosCore.PacketHandlers.Tests.Family
             _familyDao = new Dao<FamilyEntity, FamilyDto, long>(NullLogger<Dao<FamilyEntity, FamilyDto, long>>.Instance, context);
             _familyCharacterDao = new Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>(
                 NullLogger<Dao<Database.Entities.FamilyCharacter, FamilyCharacterDto, long>>.Instance, context);
-            var familyLogDao = new Dao<Database.Entities.FamilyLog, FamilyLogDto, long>(
-                NullLogger<Dao<Database.Entities.FamilyLog, FamilyLogDto, long>>.Instance, context);
             var familyUpgradeDao = new Dao<Database.Entities.FamilyUpgrade, FamilyUpgradeDto, short>(
                 NullLogger<Dao<Database.Entities.FamilyUpgrade, FamilyUpgradeDto, short>>.Instance, context);
             await familyUpgradeDao.TryInsertOrUpdateAsync(Upgrades);
@@ -115,9 +113,9 @@ namespace NosCore.PacketHandlers.Tests.Family
                 Membership(_member, FamilyAuthority.Member)
             });
 
-            _familyService = new FamilyService(_familyDao, _familyCharacterDao, familyLogDao, World.CharacterDao);
             var master = new FamilyExtensionService(_familyDao, _familyCharacterDao, familyUpgradeDao, new FamilyUpgradeService());
             var familyHub = new Mock<IFamilyHub>();
+            _familyService = new FamilyService(_familyDao, _familyCharacterDao, World.CharacterDao, familyHub.Object);
             familyHub.Setup(s => s.PurchaseExtensionAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<short>()))
                 .Returns((long familyId, long characterId, short vnum) => master.PurchaseAsync(familyId, characterId, vnum));
             var pubSubHub = new Mock<IPubSubHub>();
@@ -150,7 +148,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             registry.Setup(s => s.GetSessions(It.IsAny<Func<ClientSession, bool>?>()))
                 .Returns((Func<ClientSession, bool>? predicate) => predicate == null ? sessions : sessions.Where(predicate));
             var management = new FamilyManagementService(_familyService, pubSubHub.Object, new FamilyExperienceService(),
-                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, registry.Object,
+                registry.Object,
                 new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
             _familyChanged = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService,
                 World.GameLanguageLocalizer, management);

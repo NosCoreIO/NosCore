@@ -7,12 +7,11 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Services.FamilyService;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
 using FamilyServiceImpl = NosCore.GameObject.Services.FamilyService.FamilyService;
@@ -30,7 +29,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
 
         private Family _family;
         private FamilyServiceImpl _service;
-        private Mock<IDao<FamilyCharacterDto, long>> _memberships;
+        private Mock<IFamilyHub> _hub;
 
         [TestInitialize]
         public void Setup()
@@ -48,16 +47,11 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                     new() { CharacterId = SecondMember, Authority = FamilyAuthority.Member }
                 }
             };
-            var rows = _family.Members
-                .Select(s => new FamilyCharacterDto { FamilyId = _family.FamilyId, CharacterId = s.CharacterId, Authority = s.Authority })
-                .ToList();
-            _memberships = new Mock<IDao<FamilyCharacterDto, long>>();
-            _memberships.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<FamilyCharacterDto, bool>>>()))
-                .ReturnsAsync((Expression<Func<FamilyCharacterDto, bool>> predicate) => rows.FirstOrDefault(predicate.Compile()));
-            _memberships.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
-                .ReturnsAsync((FamilyCharacterDto dto) => dto);
-            _service = new FamilyServiceImpl(new Mock<IDao<FamilyDto, long>>().Object, _memberships.Object,
-                new Mock<IDao<FamilyLogDto, long>>().Object, new Mock<IDao<CharacterDto, long>>().Object);
+            _hub = new Mock<IFamilyHub>();
+            _hub.Setup(s => s.ChangeAsync(_family.FamilyId, null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
+                .ReturnsAsync(true);
+            _service = new FamilyServiceImpl(new Mock<IDao<FamilyDto, long>>().Object,
+                new Mock<IDao<FamilyCharacterDto, long>>().Object, new Mock<IDao<CharacterDto, long>>().Object, _hub.Object);
         }
 
         private FamilyAuthority AuthorityOf(long id) => _family.AuthorityOf(id);
@@ -98,15 +92,17 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.AreEqual(FamilyAuthorityChange.Changed, result);
             Assert.AreEqual(FamilyAuthority.Head, AuthorityOf(Assistant));
             Assert.AreEqual(FamilyAuthority.Assistant, AuthorityOf(Head));
+            _hub.Verify(s => s.ChangeAsync(_family.FamilyId, null, It.Is<IReadOnlyList<FamilyMemberChange>>(changes =>
+                changes.Count == 2
+                && changes.Single(c => c.CharacterId == Assistant).Authority == FamilyAuthority.Head
+                && changes.Single(c => c.CharacterId == Head).Authority == FamilyAuthority.Assistant)), Times.Once);
         }
 
         [TestMethod]
-        public async Task TheHeadStaysHeadWhenTheDeputyCannotBeSaved()
+        public async Task TheHeadStaysHeadWhenTheChangeIsRefused()
         {
-#nullable disable
-            _memberships.Setup(s => s.TryInsertOrUpdateAsync(It.Is<FamilyCharacterDto>(d => d.CharacterId == Assistant)))
-                .Returns(Task.FromResult<FamilyCharacterDto>(null));
-#nullable restore
+            _hub.Setup(s => s.ChangeAsync(_family.FamilyId, null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
+                .ReturnsAsync(false);
 
             var result = await _service.ChangeAuthorityAsync(_family, Head, Assistant, FamilyAuthority.Head);
 
@@ -152,7 +148,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 await _service.ChangeAuthorityAsync(_family, Manager, Member, FamilyAuthority.Manager));
             Assert.AreEqual(FamilyAuthorityChange.NotAuthorized,
                 await _service.ChangeAuthorityAsync(_family, Member, SecondMember, FamilyAuthority.Manager));
-            _memberships.Verify(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()), Times.Never);
+            _hub.Verify(s => s.ChangeAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
         }
 
         [TestMethod]

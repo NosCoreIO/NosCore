@@ -16,7 +16,6 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Algorithm.FamilyExperienceService;
-using NosCore.Dao.Interfaces;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Group;
@@ -30,9 +29,8 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
-        IFamilyExperienceService familyExperienceService, IDaoTransactionScope daoTransactionScope,
-        ISessionRegistry sessionRegistry, IFamilyWarehouseService familyWarehouseService,
-        IFamilyLogService familyLogService) : IFamilyManagementService
+        IFamilyExperienceService familyExperienceService, ISessionRegistry sessionRegistry,
+        IFamilyWarehouseService familyWarehouseService, IFamilyLogService familyLogService) : IFamilyManagementService
     {
         private const int MessageMaxLength = 255;
         private const long CreationPrice = 200000;
@@ -68,15 +66,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return FamilyAuthorityChange.NotInFamily;
             }
 
-            FamilyAuthorityChange result;
-            await using (var transaction = daoTransactionScope.Begin())
-            {
-                result = await familyService.ChangeAuthorityAsync(family, session.Character.CharacterId, targetId, authority);
-                if (result == FamilyAuthorityChange.Changed)
-                {
-                    await transaction.CommitAsync();
-                }
-            }
+            var result = await familyService.ChangeAuthorityAsync(family, session.Character.CharacterId, targetId, authority);
 
             Game18NConstString? message = result switch
             {
@@ -183,18 +173,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            long? familyId;
-            await using (var transaction = daoTransactionScope.Begin())
+            var familyId = await familyService.CreateAsync(name, MaxSize, session.Character.CharacterId,
+                founders.Where(s => s.CharacterId != session.Character.CharacterId).Select(s => s.CharacterId));
+            if (familyId == null)
             {
-                familyId = await familyService.CreateAsync(name, MaxSize, session.Character.CharacterId,
-                    founders.Where(s => s.CharacterId != session.Character.CharacterId).Select(s => s.CharacterId));
-                if (familyId == null)
-                {
-                    await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyCreationFailed });
-                    return;
-                }
-
-                await transaction.CommitAsync();
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyCreationFailed });
+                return;
             }
 
             session.Character.RemoveGold(CreationPrice);
@@ -236,15 +220,10 @@ namespace NosCore.GameObject.Services.FamilyService
             }
 
             await familyWarehouseService.EmptyAsync(family.FamilyId);
-            await using (var transaction = daoTransactionScope.Begin())
+            if (!await familyService.DisbandAsync(family))
             {
-                if (!await familyService.DisbandAsync(family))
-                {
-                    await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FailedToDisbandFamily });
-                    return;
-                }
-
-                await transaction.CommitAsync();
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FailedToDisbandFamily });
+                return;
             }
 
             await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyDisbanded });
@@ -332,7 +311,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateAsync(family.FamilyId, s => s.FamilyMessage = notice))
+            if (!await familyService.UpdateAsync(family.FamilyId, new FamilyChange { FamilyMessage = notice }, []))
             {
                 return;
             }
@@ -357,7 +336,8 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateMemberAsync(family.FamilyId, membership.CharacterId, s => s.DailyMessage = dailyMessage))
+            if (!await familyService.UpdateAsync(family.FamilyId, null,
+                    [new FamilyMemberChange(membership.CharacterId) { DailyMessage = dailyMessage }]))
             {
                 return;
             }
@@ -389,7 +369,8 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateMemberAsync(family.FamilyId, membership.CharacterId, s => s.Rank = rank))
+            if (!await familyService.UpdateAsync(family.FamilyId, null,
+                    [new FamilyMemberChange(membership.CharacterId) { Rank = rank }]))
             {
                 return;
             }
@@ -406,22 +387,10 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            await using (var transaction = daoTransactionScope.Begin())
+            if (!await familyService.UpdateAsync(family.FamilyId, new FamilyChange { FamilyHeadGender = gender },
+                    family.Members.Select(s => new FamilyMemberChange(s.CharacterId) { Rank = FamilyMemberRank.Nothing }).ToList()))
             {
-                foreach (var member in family.Members)
-                {
-                    if (!await familyService.UpdateMemberAsync(family.FamilyId, member.CharacterId, s => s.Rank = FamilyMemberRank.Nothing))
-                    {
-                        return;
-                    }
-                }
-
-                if (!await familyService.UpdateAsync(family.FamilyId, s => s.FamilyHeadGender = gender))
-                {
-                    return;
-                }
-
-                await transaction.CommitAsync();
+                return;
             }
 
             foreach (var member in family.Members)
