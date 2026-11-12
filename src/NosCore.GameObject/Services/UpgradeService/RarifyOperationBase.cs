@@ -25,12 +25,9 @@ using NosCore.Shared.I18N;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
-// Rarify mirrors OpenNos WearableInstance.RarifyItem (Normal mode, lines 266-527).
-//
 // The reroll picks the first band a uniform [0, 80) roll falls into, walking from the
 // highest rare (7) downward. Negative rares (raren1/raren2) and the zero-reroll band
-// are disabled in Normal mode — OpenNos zeroes those thresholds at line 294-296 so they
-// never match.
+// are disabled in Normal mode, so they never match.
 //
 // Scroll protection makes any band that would not improve the item skip; if every band
 // is skipped, the item is saved at its current rare instead of destroyed. Without scroll
@@ -46,9 +43,8 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     public const long BaseGoldCost = 500;
     public const short BaseCellonCost = 5;
 
-    // OpenNos RarifyItem cumulative thresholds (Normal mode, rnd in [0, 80)).
-    // The Rare 8 band is only reachable via the heroic-scroll path OpenNos guards with
-    // Item.IsHeroic — NosCore doesn't model IsHeroic yet, so rare 7 is the natural ceiling.
+    // Cumulative thresholds for Normal mode, roll in [0, 80).
+    // The Rare 8 band is only reachable through the heroic-scroll path, so rare 7 is the ceiling here.
     //   rare:   7   6   5   4    3    2    1
     //   cap:    2   3   5   10   15   30   40
     // Rolls in [40, 80) match no band → Failure (destroy unprotected / save protected).
@@ -77,9 +73,8 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     // of Failure, so FailureMessage only needs the destroy copy.
     protected override Game18NConstString FailureMessage => Game18NConstString.GambleItemDisappeared;
 
-    // Protected failure: scroll absorbs the destroy, item stays at its original rare. OpenNos
-    // line 512-513 uses "RARIFY_FAILED_ITEM_SAVED"; NosCore's closest enum is
-    // `GambleFailedButSurvived` for say and `RarityUnchangedProtectionScroll` for the dialog.
+    // Protected failure: scroll absorbs the destroy, item stays at its original rare.
+    // `GambleFailedButSurvived` is the say line and `RarityUnchangedProtectionScroll` the dialog.
     protected override Game18NConstString ProtectedSaveMessage =>
         Game18NConstString.RarityUnchangedProtectionScroll;
 
@@ -118,7 +113,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
             ExtraData: new RarifyRollState((sbyte)wearable.Rare));
     }
 
-    // Walk the OpenNos bands descending from rare 7. First band the roll falls into whose
+    // Walk the bands descending from rare 7. First band the roll falls into whose
     // protection guard passes wins. If every band is skipped (scroll) or no band matches,
     // outcome is Failure (unprotected → destroy) or ProtectedSave (scroll absorbs).
     protected override UpgradeOutcome DetermineOutcome(double roll, UpgradeContext ctx)
@@ -148,14 +143,13 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
     {
         var wearable = (WearableInstance)ctx.Source.ItemInstance;
         wearable.Rare = ctx.Data<RarifyRollState>().NewRare;
-        // OpenNos line 413/422/431/…/SetRarityPoint re-rolls the rarity-driven stat bonuses
-        // (defence for armor, damage/concentrate for weapons) to match the new rare tier.
+        // Re-roll the rarity-driven stat bonuses (defence for armor, damage/concentrate for
+        // weapons) to match the new rare tier.
         wearable.SetRarityPoint(rarityPoints);
     }
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx)
     {
-        // OpenNos WearableInstance.cs:507 — unprotected rarify failure destroys the item.
         session.Character.InventoryService.RemoveItemAmountFromInventory(1, ctx.Source.ItemInstanceId);
     }
 

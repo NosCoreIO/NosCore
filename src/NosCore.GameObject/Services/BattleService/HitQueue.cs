@@ -173,9 +173,7 @@ public sealed class HitQueue(
             var credited = damage.Damage - overkill;
             target.HitList.AddOrUpdate(request.Origin.Handle, credited, (_, existing) => existing + credited);
 
-            // Players get a 4s "no standing regen" grace after being hit — matches
-            // OpenNos HealthHPLoad which zeros the standing rate until LastDefence
-            // is 4s in the past. Monster damage doesn't need tracking; they don't
+            // Players get no standing regen until 4s after being hit. Monster damage doesn't need tracking; they don't
             // regen.
             if (target is ICharacterEntity hurtCharacter)
             {

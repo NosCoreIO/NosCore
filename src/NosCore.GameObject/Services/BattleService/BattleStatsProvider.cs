@@ -21,7 +21,7 @@ using NosCore.GameObject.Services.BattleService.Model;
 namespace NosCore.GameObject.Services.BattleService;
 
 // Builds CombatStats from the underlying ECS components. Players synthesise their
-// "base" profile from level+class (matching OpenNos CharacterHelper), then add the worn
+// "base" profile from level+class, then add the worn
 // equipment and fold in every active effect. Monsters read straight from NpcMonsterDto.
 public sealed class BattleStatsProvider(
     IBuffService buffService,
@@ -185,7 +185,7 @@ public sealed class BattleStatsProvider(
             HeroLevel: character.HeroLevel,
             Class: cls,
             IsPlayer: true,
-            Morale: level, // OpenNos morale is Level + MoraleUp buffs; buffs added later
+            Morale: level, // morale is Level + MoraleUp buffs; buffs added later
             MinHit: Math.Max(baseMinHit, combat.MinHit),
             MaxHit: Math.Max(baseMaxHit, combat.MaxHit),
             HitRate: combat.HitRate > 0 ? combat.HitRate : baseHitRate,
@@ -225,7 +225,7 @@ public sealed class BattleStatsProvider(
         return default;
     }
 
-    // Buff folding: mirrors OpenNos' GetBuff queries. We scan each active card's BCards
+    // Buff folding: we scan each active card's BCards
     // once, summing +/− per (Type, SubType) pair, then inject the net effect into the
     // CombatStats record. Unknown BCard types fall through silently so content can ship
     // them ahead of server-side handling.
@@ -477,7 +477,7 @@ public sealed class BattleStatsProvider(
 
     public static int ScaleByLevel(BCardDto card, int level)
     {
-        // Matches OpenNos: IsLevelScaled + IsLevelDivided together means "first/level",
+        // IsLevelScaled + IsLevelDivided together means "first/level",
         // IsLevelScaled alone means "first * level". Default path uses FirstData as-is.
         if (!card.IsLevelScaled) return card.FirstData;
         if (card.IsLevelDivided) return card.FirstData == 0 ? 0 : Math.Max(1, level / Math.Max(1, card.FirstData));

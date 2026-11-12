@@ -30,8 +30,7 @@ namespace NosCore.GameObject.Services.ExperienceService
     // Cascades level / job / hero / SP / fairy XP when a player gains experience, emits the
     // level-up packet sequence from the official trace (quest.txt ~line 2075):
     //   levelup <cid> / stat / msgi 510 / eff 6 / eff 198 / (msgi 514 / eff 8) / lev
-    // msgi is the i18n variant the current client expects — OpenNos still uses `msg` but
-    // that's from before the i18n redesign, so we follow the trace.
+    // msgi is the i18n variant the current client expects; `msg` predates the i18n redesign.
     // Overflow XP carries across level boundaries so big grants (quest rewards, GM edicts)
     // telescope cleanly through multiple levels in one call.
     public sealed class ExperienceProgressionService(
@@ -74,7 +73,7 @@ namespace NosCore.GameObject.Services.ExperienceService
                     player.LevelXp -= threshold;
                     player.Level = (byte)(player.Level + 1);
                     leveledUp = true;
-                    // Crossing level 88 unlocks hero XP (OpenNos Character.cs:5270).
+                    // Crossing level 88 unlocks hero XP.
                     if (player.Level == HeroicStartLevel && player.HeroLevel == 0)
                     {
                         player.HeroLevel = 1;
@@ -89,7 +88,7 @@ namespace NosCore.GameObject.Services.ExperienceService
 
             if (jobXpDelta > 0)
             {
-                // Adventurer caps at job level 20 until class-change (OpenNos Character.cs:5345).
+                // Adventurer caps at job level 20 until class-change.
                 var jobCap = player.Class == CharacterClassType.Adventurer ? (byte)20 : MaxJobLevel;
                 player.JobLevelXp += jobXpDelta;
                 while (player.JobLevel < jobCap)

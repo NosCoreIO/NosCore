@@ -11,11 +11,9 @@ namespace NosCore.GameObject.Services.UpgradeService;
 //   Failure       → the operation's failure path runs (item destroyed / degraded / unchanged)
 //   Fixed         → the item is locked (IsFixed = true) and cannot be upgraded further;
 //                   materials are consumed but no positive or negative state change to the item.
-//                   Used by the equipment-upgrade flow per OpenNos's WearableInstance.UpgradeItem
-//                   upfix table.
+//                   Used by the equipment-upgrade flow's fix table.
 //   ProtectedSave → a failure roll was absorbed by a scroll. Materials are consumed but the
 //                   item is saved in its original state (IsFixed is NOT set, unlike Fixed).
-//                   OpenNos emits "SCROLL_PROTECT_USED" + "UPGRADE_FAILED_ITEM_SAVED" for this.
 //   Destroyed     → the item stays in the inventory but can no longer be used (a specialist card
 //                   whose soul was destroyed).
 public enum UpgradeOutcome

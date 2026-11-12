@@ -11,7 +11,7 @@ namespace NosCore.GameObject.Services.BattleService;
 public interface IRespawnService
 {
     // The MapType.RespawnMapTypeId for the given MapId, or null if the map isn't tied
-    // to a respawn group. OpenNos keys per-character saved respawns by this value so a
+    // to a respawn group. Saved respawns are keyed by this value per character so a
     // save-point NPC in Act 5 doesn't overwrite the Act 1 save.
     long? ResolveRespawnMapTypeId(short mapId);
 

@@ -136,8 +136,8 @@ namespace NosCore.PacketHandlers.Tests.Game
         public async Task MateInfoReqWithoutMateVNumIsMateLookupNoOp()
         {
             // `req_info 6 <mateTransportId>` single-arg form routes to the mate-lookup
-            // branch. OpenNos looks the mate up in Character.Mates; NosCore has no runtime
-            // Mate collection yet so this no-ops, same as OpenNos's null-mate path.
+            // branch. There is no runtime Mate collection yet, so this no-ops like an
+            // unknown mate id.
             await new Spec("req_info 6 <mateTransportId> no-ops until the mate subsystem lands")
                 .WhenAsync(RequestingMateInfoForUnknownTransportId)
                 .Then(NoEInfoNpcMonsterPacketShouldBeSent)
