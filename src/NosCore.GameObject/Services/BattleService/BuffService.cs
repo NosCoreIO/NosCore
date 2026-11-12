@@ -159,9 +159,9 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     public async Task RemoveAsync(IAliveEntity target, short cardId)
     {
         var buffs = ResolveState(target);
-        if (buffs != null && buffs.TryRemove(cardId, out var removed) && removed.Static && target is ICharacterEntity character)
+        if (buffs != null && buffs.TryRemove(cardId, out var removed))
         {
-            await character.SendPacketAsync(new VbPacket { CardId = cardId, IsActivated = false, RemainingTime = -1 });
+            await SendIconRemovalAsync(target, removed);
         }
     }
 

@@ -501,6 +501,17 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] Hit a monster with a skill of the fairy's element: the damage is higher than unboosted
 - [ ] After an hour the icon disappears and the damage goes back to normal
 
+### Speed Booster
+
+- [ ] On foot, `$CreateItem 5119` and double-click it in the Main tab: nothing happens and it
+      stays in the inventory
+- [ ] Ride a Magic Scooter (1906, from the mount inventory) and use the booster: it is used up,
+      the boost effect plays, a buff icon appears and the scooter runs faster (speed 22 against 20)
+- [ ] Use a second one while boosted: nothing happens and it stays in the inventory
+- [ ] After 3 seconds the icon goes and the scooter is back to its own speed
+- [ ] Dismount while boosted and ride again: the icon is gone and the speed is the scooter's own
+- [ ] A Unicorn (5319), whose booster does something other than speed, keeps the booster
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove
