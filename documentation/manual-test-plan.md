@@ -483,7 +483,7 @@ success, on the assumption that the window says "Appearance changed" itself.
       the "effect activated" message appears and the booster shows in the static buff bar with an
       hour left
 - [ ] Use a second one while boosted: nothing happens and it stays in the inventory
-- [ ] Hit a monster that is weak to the fairy's element: the damage is higher than unboosted
+- [ ] Hit a monster with a skill of the fairy's element: the damage is higher than unboosted
 - [ ] After an hour the icon disappears and the damage goes back to normal
 
 ### Magic Lamp
