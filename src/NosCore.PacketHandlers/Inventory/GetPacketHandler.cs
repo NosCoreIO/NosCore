@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Messaging.Events;
@@ -60,13 +61,7 @@ namespace NosCore.PacketHandlers.Inventory
 
             if (!groupLootService.CanPickUp(clientSession.Character, mapItem))
             {
-                await clientSession.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = clientSession.Character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.UnableToPickUp
-                });
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.UnableToPickUp));
                 return;
             }
 

@@ -49,13 +49,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 .FirstOrDefault(i => i.ItemInstance.Item.Effect == ItemEffectType.FriendshipWings);
             if (wings == null)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NoFriendshipWings
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NoFriendshipWings));
                 return;
             }
 
@@ -100,13 +94,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             if (character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
                 || friend.Value.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.CanNotBeUsedHere
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CanNotBeUsedHere));
                 return;
             }
 

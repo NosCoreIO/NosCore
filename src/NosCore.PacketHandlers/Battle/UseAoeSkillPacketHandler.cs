@@ -68,13 +68,7 @@ namespace NosCore.PacketHandlers.Battle
 
         internal static Task NotEnoughMpAsync(ICharacterEntity character)
         {
-            return character.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.VisualId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.NotEnoughMpForSpell,
-            });
+            return character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughMpForSpell));
         }
 
         private static Task CancelAsync(ClientSession session)

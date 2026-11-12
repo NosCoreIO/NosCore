@@ -70,7 +70,7 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
         var inventory = session.Character.InventoryService;
         if (LoadPair(session, packet) is null
             || packet.Slot2 is not { } slot2 || packet.InventoryType2 is not { } type2
-            || inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType) is not { } source)
+            || LoadSource(session, packet) is not { } source)
         {
             return null;
         }
@@ -109,7 +109,7 @@ public sealed class CostumeFusionOperation(IRandomNumberSource random, IGameLang
         }
 
         var inventory = session.Character.InventoryService;
-        var effects = inventory.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+        var effects = LoadSource(session, packet);
         var design = inventory.LoadBySlotAndType(designSlot, (NoscorePocketType)designPocket);
         if (effects?.ItemInstance is not WearableInstance e || design?.ItemInstance is not WearableInstance d
             || effects.Type != NoscorePocketType.Equipment || design.Type != NoscorePocketType.Equipment

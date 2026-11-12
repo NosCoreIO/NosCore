@@ -192,10 +192,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.ToArray());
 
                     await clientSession.SendPacketAsync(new SuccessPacket());
-                    await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket()
-                    {
-                        Name = clientSession.Account.Name,
-                    } });
+                    await clientSession.ShowCharacterListAsync();
                 }
                 else
                 {

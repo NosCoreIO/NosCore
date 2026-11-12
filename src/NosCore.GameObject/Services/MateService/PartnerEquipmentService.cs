@@ -39,13 +39,7 @@ namespace NosCore.GameObject.Services.MateService
             var item = inventoryItem.ItemInstance.Item;
             if (!CanWear(item.EquipmentSlot, item.ItemType, item.ItemSubType) || item.LevelMinimum > mate.Level)
             {
-                await character.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.PartnerCanNotUseThatEquipment
-                });
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.PartnerCanNotUseThatEquipment));
                 return;
             }
 

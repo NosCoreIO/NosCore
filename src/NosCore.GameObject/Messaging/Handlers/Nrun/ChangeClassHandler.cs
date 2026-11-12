@@ -55,13 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
 
             if (!session.Character.Group.IsEmpty)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.CantUseInGroup
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Red, Game18NConstString.CantUseInGroup));
                 return;
             }
 
@@ -72,13 +66,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                     Type = MessageType.Default,
                     Message = Game18NConstString.CanNotChangeJobAtThisLevel
                 });
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.CanNotChangeJobAtThisJobLevel
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CanNotChangeJobAtThisJobLevel));
                 return;
             }
 

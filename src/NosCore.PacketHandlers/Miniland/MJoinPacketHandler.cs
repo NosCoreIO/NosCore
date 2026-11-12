@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -42,13 +43,7 @@ namespace NosCore.PacketHandlers.Miniland
             if (session.Character.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance
                 && minilandProvider.GetMinilandFromMapInstanceId(session.Character.MapInstance.MapInstanceId) == null)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.CanNotBeUsedHere
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CanNotBeUsedHere));
                 return;
             }
 

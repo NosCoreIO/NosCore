@@ -15,6 +15,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.NpcDialogService;
+using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Player;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -210,26 +211,18 @@ public abstract class UpgradeOperation(IRandomNumberSource random, IGameLanguage
     {
         foreach (var cost in ctx.MaterialCosts.Where(c => !c.OnSuccessOnly || outcome == UpgradeOutcome.Success))
         {
-            var remaining = cost.Amount;
-            var instances = session.Character.InventoryService
-                .Where(kv => kv.Value.ItemInstance?.ItemVNum == cost.VNum)
-                .Select(kv => kv.Value)
-                .OrderBy(i => i.Slot)
-                .ToList();
-
-            foreach (var inst in instances)
-            {
-                if (remaining <= 0)
-                {
-                    break;
-                }
-                var taken = Math.Min(remaining, inst.ItemInstance.Amount);
-                session.Character.InventoryService.RemoveItemAmountFromInventory(taken, inst.ItemInstanceId);
-                remaining -= taken;
-                outPackets.Add(inst.GeneratePocketChange(inst.Type.ToPocketType(), inst.Slot));
-            }
+            outPackets.AddRange(session.Character.InventoryService.RemoveItemAmountByVNum(cost.VNum, cost.Amount));
         }
     }
+
+    protected static InventoryItemInstance? LoadSource(ClientSession session, UpgradePacket packet) =>
+        session.Character.InventoryService.LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+
+    protected static IPacket RefreshSource(UpgradeContext ctx, bool destroyed = false) =>
+        (destroyed ? null : ctx.Source).GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
+
+    protected static Task BroadcastEffectAsync(ClientSession session, int effectId) =>
+        session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEff(effectId));
 
     // Uniform integer in [0, exclusiveUpperBound) for operations that need to roll more than the
     // single success check the skeleton performs.

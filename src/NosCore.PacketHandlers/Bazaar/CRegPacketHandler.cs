@@ -214,13 +214,7 @@ namespace NosCore.PacketHandlers.Bazaar
                         cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory,
                         cRegPacket.Slot));
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
-                    await clientSession.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = clientSession.Character.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.ItemAddedToBazar
-                    });
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ItemAddedToBazar));
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,

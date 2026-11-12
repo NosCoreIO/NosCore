@@ -268,13 +268,7 @@ namespace NosCore.GameObject.Services.QuestService
                     {
                         logger.LogWarning("Quest reward lost: inventory full for item {VNum}x{Amount} character {CharacterId}",
                             reward.Data, amount, character.CharacterId);
-                        await character.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = character.VisualId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.NotEnoughSpace
-                        });
+                        await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                         break;
                     }
                     foreach (var inv in added)

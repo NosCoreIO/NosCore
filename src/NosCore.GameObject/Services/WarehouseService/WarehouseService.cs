@@ -15,6 +15,7 @@ using NosCore.GameObject.Services.ItemStorage;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.WarehouseService
@@ -43,108 +44,76 @@ namespace NosCore.GameObject.Services.WarehouseService
 
         public async Task<List<WarehouseLink>> GetItemsAsync(Guid? id, long? ownerId, WarehouseType warehouseType, byte? slot)
         {
-            var list = new List<WarehouseLink>();
             if (id == null)
             {
-                var warehouses = warehouseDao.Where(s =>
-                    s.Type == warehouseType &&
-                    s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId) &&
-                    s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null))?.ToList();
-
-                if (warehouses == null || warehouses.Count == 0)
-                {
-                    return list;
-                }
-
-                var warehouseIds = warehouses.Select(w => w.Id).ToList();
-                var warehouseItems = warehouseItemDao.Where(wi => warehouseIds.Contains(wi.WarehouseId))?.ToList();
-
-                if (warehouseItems == null)
-                {
-                    return list;
-                }
-
-                foreach (var warehouseItem in warehouseItems)
-                {
-                    if (slot.HasValue && warehouseItem.Slot != slot.Value)
-                    {
-                        continue;
-                    }
-
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
-                    if (itemInstance != null)
-                    {
-                        list.Add(new WarehouseLink
-                        {
-                            WarehouseItemId = warehouseItem.Id,
-                            Slot = warehouseItem.Slot,
-                            ItemInstance = itemInstance.Adapt<ItemInstanceDto>()
-                        });
-                    }
-                }
-            }
-            else
-            {
-                var warehouseItem = await warehouseItemDao.FirstOrDefaultAsync(wi => wi.Id == id.Value);
-                if (warehouseItem != null)
-                {
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
-                    if (itemInstance != null)
-                    {
-                        list.Add(new WarehouseLink
-                        {
-                            WarehouseItemId = warehouseItem.Id,
-                            Slot = warehouseItem.Slot,
-                            ItemInstance = itemInstance.Adapt<ItemInstanceDto>()
-                        });
-                    }
-                }
+                return (await LoadItemsAsync(ownerId, warehouseType, slot))
+                    .Select(entry => ToLink(entry.Item, entry.Instance))
+                    .ToList();
             }
 
-            return list;
+            var warehouseItem = await warehouseItemDao.FirstOrDefaultAsync(wi => wi.Id == id.Value);
+            var itemInstance = warehouseItem == null
+                ? null
+                : await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
+            return warehouseItem == null || itemInstance == null
+                ? new List<WarehouseLink>()
+                : new List<WarehouseLink> { ToLink(warehouseItem, itemInstance) };
         }
 
-        public async Task<List<WarehouseItem>> GetWarehouseItemsAsync(long ownerId, WarehouseType warehouseType)
+        public async Task<List<WarehouseItem>> GetWarehouseItemsAsync(long ownerId, WarehouseType warehouseType) =>
+            (await LoadItemsAsync(ownerId, warehouseType, null))
+            .Select(entry => new WarehouseItem
+            {
+                Id = entry.Item.Id,
+                Slot = entry.Item.Slot,
+                ItemInstanceId = entry.Item.ItemInstanceId,
+                WarehouseId = entry.Item.WarehouseId,
+                WarehouseType = warehouseType,
+                ItemInstance = entry.Instance
+            })
+            .ToList();
+
+        // A family warehouse belongs to the family, every other one to a character.
+        private static Expression<Func<WarehouseDto, bool>> OwnedBy(long? ownerId, WarehouseType warehouseType)
         {
-            var result = new List<WarehouseItem>();
+            var characterId = warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId;
+            var familyId = warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null;
+            return s => s.Type == warehouseType && s.CharacterId == characterId && s.FamilyId == familyId;
+        }
 
-            var warehouses = warehouseDao.Where(s =>
-                s.Type == warehouseType &&
-                s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId) &&
-                s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null))?.ToList();
-
-            if (warehouses == null || warehouses.Count == 0)
+        private async Task<List<(WarehouseItemDto Item, IItemInstanceDto Instance)>> LoadItemsAsync(long? ownerId,
+            WarehouseType warehouseType, byte? slot)
+        {
+            var result = new List<(WarehouseItemDto, IItemInstanceDto)>();
+            var warehouseIds = warehouseDao.Where(OwnedBy(ownerId, warehouseType))?.Select(w => w.Id).ToList();
+            if (warehouseIds == null || warehouseIds.Count == 0)
             {
                 return result;
             }
 
-            var warehouseIds = warehouses.Select(w => w.Id).ToList();
-            var warehouseItems = warehouseItemDao.Where(wi => warehouseIds.Contains(wi.WarehouseId))?.ToList();
-
-            if (warehouseItems == null)
+            foreach (var warehouseItem in warehouseItemDao.Where(wi => warehouseIds.Contains(wi.WarehouseId)) ?? [])
             {
-                return result;
-            }
+                if (slot.HasValue && warehouseItem.Slot != slot.Value)
+                {
+                    continue;
+                }
 
-            foreach (var warehouseItem in warehouseItems)
-            {
                 var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(i => i.Id == warehouseItem.ItemInstanceId);
                 if (itemInstance != null)
                 {
-                    result.Add(new WarehouseItem
-                    {
-                        Id = warehouseItem.Id,
-                        Slot = warehouseItem.Slot,
-                        ItemInstanceId = warehouseItem.ItemInstanceId,
-                        WarehouseId = warehouseItem.WarehouseId,
-                        WarehouseType = warehouseType,
-                        ItemInstance = itemInstance
-                    });
+                    result.Add((warehouseItem, itemInstance));
                 }
             }
 
             return result;
         }
+
+        private static WarehouseLink ToLink(WarehouseItemDto warehouseItem, IItemInstanceDto itemInstance) => new()
+        {
+            WarehouseItemId = warehouseItem.Id,
+            Slot = warehouseItem.Slot,
+            ItemInstance = itemInstance.Adapt<ItemInstanceDto>()
+        };
 
         public async Task<WarehouseItem?> GetItemBySlotAsync(long ownerId, WarehouseType warehouseType, short slot)
         {
@@ -233,10 +202,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 }
             }
 
-            var existingWarehouse = await warehouseDao.FirstOrDefaultAsync(s =>
-                s.Type == warehouseType &&
-                s.CharacterId == (warehouseType == WarehouseType.FamilyWareHouse ? null : ownerId) &&
-                s.FamilyId == (warehouseType == WarehouseType.FamilyWareHouse ? ownerId : null));
+            var existingWarehouse = await warehouseDao.FirstOrDefaultAsync(OwnedBy(ownerId, warehouseType));
 
             WarehouseDto warehouse;
             if (existingWarehouse != null)

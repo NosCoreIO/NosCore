@@ -40,6 +40,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Session = await World.CreateSessionAsync();
             DignityService = World.Freeze<Mock<IDignityService>>();
             DignityService.Setup(x => x.GetLevelFromDignity(It.IsAny<short>())).Returns(DignityType.Default);
+            DignityService.Setup(x => x.GetShopPriceMultiplier(It.IsAny<DignityType>())).Returns(1);
 
             Handler = World.Create<ShoppingPacketHandler>();
         }

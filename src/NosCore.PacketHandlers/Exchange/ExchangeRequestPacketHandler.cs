@@ -80,13 +80,7 @@ namespace NosCore.PacketHandlers.Exchange
 
                     if (await IsBlacklistedByAsync(clientSession.Character.VisualId, target.VisualId))
                     {
-                        await clientSession.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.AlreadyBlacklisted
-                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.AlreadyBlacklisted));
                         return;
                     }
 
@@ -182,13 +176,7 @@ namespace NosCore.PacketHandlers.Exchange
                         ArgumentType = 1,
                         Game18NArguments = { target.Name }
                     });
-                    await target.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = target.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.TradeCancelled2
-                    });
+                    await target.SendPacketAsync(target.GenerateSayi(SayColorType.Yellow, Game18NConstString.TradeCancelled2));
                     return;
 
                 case RequestExchangeType.Confirmed:

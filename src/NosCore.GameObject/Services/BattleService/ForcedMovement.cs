@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Services.MovementService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -33,7 +34,7 @@ public static class ForcedMovement
 
         for (var i = 0; i < steps; i++)
         {
-            if (closingIn && Chebyshev(x, y, towardsX, towardsY) <= stopAt)
+            if (closingIn && WalkPath.Steps(x, y, towardsX, towardsY) <= stopAt)
             {
                 break;
             }
@@ -53,7 +54,4 @@ public static class ForcedMovement
         }
 
         return (x, y);
-    }
-    private static int Chebyshev(short ax, short ay, short bx, short by) =>
-        Math.Max(Math.Abs(ax - bx), Math.Abs(ay - by));
-}
+    }}

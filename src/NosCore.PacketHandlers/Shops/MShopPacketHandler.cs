@@ -44,13 +44,7 @@ namespace NosCore.PacketHandlers.Shops
 
             if (clientSession.Character.Group.Type != GroupType.Group)
             {
-                await clientSession.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = clientSession.Character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.TeammateCanNotOpenShop
-                });
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.TeammateCanNotOpenShop));
                 return;
             }
 
@@ -112,13 +106,7 @@ namespace NosCore.PacketHandlers.Shops
 
                         if (!inv.ItemInstance.Item.IsTradable || (inv.ItemInstance.BoundCharacterId != null))
                         {
-                            await clientSession.SendPacketAsync(new SayiPacket
-                            {
-                                VisualType = VisualType.Player,
-                                VisualId = clientSession.Character.CharacterId,
-                                Type = SayColorType.Red,
-                                Message = Game18NConstString.SomeItemsCannotBeTraded
-                            });
+                            await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.SomeItemsCannotBeTraded));
                             await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                             return;
                         }
@@ -136,13 +124,7 @@ namespace NosCore.PacketHandlers.Shops
 
                     if (shop.ShopItems.IsEmpty)
                     {
-                        await clientSession.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.NoItemToSell
-                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NoItemToSell));
                         await clientSession.SendPacketAsync(new ShopEndPacket { Type = ShopEndPacketType.PersonalShop });
                         return;
                     }

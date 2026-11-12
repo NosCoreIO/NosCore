@@ -41,15 +41,8 @@ namespace NosCore.GameObject.Services.MateService
 
                 if (leveledUp)
                 {
-                    mate.Hp = mate.MaxHp;
-                    mate.Mp = mate.MaxMp;
-                    if (mate.Entity is { } entity)
+                    if (mate.RefillAfterLevelUp() is { } entity)
                     {
-                        entity.Level = mate.Level;
-                        entity.MaxHp = mate.MaxHp;
-                        entity.MaxMp = mate.MaxMp;
-                        entity.Hp = mate.Hp;
-                        entity.Mp = mate.Mp;
                         await owner.MapInstance.SendPacketAsync(entity.GenerateEff(6));
                         await owner.MapInstance.SendPacketAsync(entity.GenerateEff(198));
                     }

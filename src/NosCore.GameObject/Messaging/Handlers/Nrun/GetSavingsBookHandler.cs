@@ -43,13 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
                 InventoryItemInstance.Create(book, character.CharacterId))?.FirstOrDefault();
             if (added == null)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                 return;
             }
 

@@ -39,13 +39,7 @@ public sealed class TransmitGoldQuestHandler(IGameLanguageLocalizer gameLanguage
             var gold = units * GoldUnit;
             if (character.Gold < gold)
             {
-                await character.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.VisualId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NotEnoughGold
-                });
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughGold));
                 return false;
             }
 

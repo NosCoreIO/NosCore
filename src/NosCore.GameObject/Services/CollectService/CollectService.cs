@@ -68,13 +68,7 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
                 InventoryItemInstance.Create(item, character.CharacterId))?.FirstOrDefault();
             if (added == null)
             {
-                await character.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NotEnoughSpace
-                });
+                await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
                 return false;
             }
 

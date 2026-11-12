@@ -271,8 +271,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 VisualId = aliveEntity.VisualId,
                 FairyMoveType = fairy == null ? 0 : 4,
                 Element = fairy?.Item?.Element ?? 0,
-                ElementRate = fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0,
-                Morph = fairy?.Item?.Morph ?? 0 + (isBuffed ? 5 : 0)
+                ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
+                Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? 5 : 0)
             };
         }
 

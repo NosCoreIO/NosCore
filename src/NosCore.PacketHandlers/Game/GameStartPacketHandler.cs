@@ -115,13 +115,7 @@ namespace NosCore.PacketHandlers.Game
             var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
             if (medal != null)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.NosMerchantActive,
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.NosMerchantActive));
             }
 
             //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))

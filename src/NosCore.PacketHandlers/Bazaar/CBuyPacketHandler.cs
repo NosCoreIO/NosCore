@@ -172,13 +172,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     }
                     else
                     {
-                        await clientSession.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.InsufficientGoldAvailable
-                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.InsufficientGoldAvailable));
                         await clientSession.SendPacketAsync(new ModaliPacket
                         {
                             Type = 1,

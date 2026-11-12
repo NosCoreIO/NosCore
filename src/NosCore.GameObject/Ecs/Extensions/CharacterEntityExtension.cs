@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
@@ -58,6 +59,17 @@ namespace NosCore.GameObject.Ecs.Extensions
 {
     public static class CharacterEntityExtension
     {
+        // A system message the client shows as said by this character, which is how it tells
+        // a player about their own actions.
+        public static SayiPacket GenerateSayi(this ICharacterEntity character, SayColorType type,
+            Game18NConstString message) => new()
+        {
+            VisualType = VisualType.Player,
+            VisualId = character.CharacterId,
+            Type = type,
+            Message = message
+        };
+
         [Obsolete(
            "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public static IEnumerable<IPacket> GenerateInv(this ICharacterEntity characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
@@ -529,7 +541,8 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static async Task BuyAsync(this ICharacterEntity characterEntity, Shop shop, short slot, short amount,
             Microsoft.Extensions.Options.IOptions<NosCore.Core.Configuration.WorldConfiguration> worldConfiguration,
-            IItemGenerationService itemProvider, IShellOptionService? shellOptionService = null,
+            IItemGenerationService itemProvider, IDignityService dignityService,
+            IShellOptionService? shellOptionService = null,
             IDao<IItemInstanceDto?, Guid>? itemInstanceDao = null)
         {
             if (amount <= 0)
@@ -557,14 +570,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             }
             var reputprice = itemReputPrice * amount;
 
-            var percent = characterEntity.DignityIcon switch
-            {
-                DignityType.Dreadful => 1.1,
-                DignityType.Unqualified => 1.2,
-                DignityType.Failed => 1.5,
-                DignityType.Useless => 1.5,
-                _ => 1.0,
-            };
+            var percent = dignityService.GetShopPriceMultiplier(characterEntity.DignityIcon);
             if (amount > item.Amount)
             {
                 return;

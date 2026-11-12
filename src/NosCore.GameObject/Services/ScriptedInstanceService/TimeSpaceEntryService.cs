@@ -65,13 +65,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private static Task RefuseAsync(ClientSession session, Game18NConstString message)
         {
-            return session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = message
-            });
+            return session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, message));
         }
     }
 }

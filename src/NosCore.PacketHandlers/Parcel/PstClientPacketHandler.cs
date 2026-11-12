@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using Json.More;
 using Json.Patch;
 using Json.Pointer;
@@ -51,13 +52,7 @@ namespace NosCore.PacketHandlers.Parcel
                         return;
                     }
 
-                    await clientSession.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = clientSession.Character.CharacterId,
-                        Type = SayColorType.Red,
-                        Message = Game18NConstString.NoteDeleted
-                    });
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.NoteDeleted));
                     break;
                 case PostActionType.Send:
                     if (string.IsNullOrEmpty(pstClientPacket.Text) || string.IsNullOrEmpty(pstClientPacket.Title))
@@ -70,23 +65,11 @@ namespace NosCore.PacketHandlers.Parcel
                     if (dest != null)
                     {
                         await mailHttpClient.SendMailAsync(GiftHelper.GenerateMailRequest(clock, clientSession.Character, dest.CharacterId, null, null, null, null, null, false, pstClientPacket.Title, pstClientPacket.Text));
-                        await clientSession.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
-                            Type = SayColorType.Red,
-                            Message = Game18NConstString.NoteSent
-                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.NoteSent));
                     }
                     else
                     {
-                        await clientSession.SendPacketAsync(new SayiPacket
-                        {
-                            VisualType = VisualType.Player,
-                            VisualId = clientSession.Character.CharacterId,
-                            Type = SayColorType.Yellow,
-                            Message = Game18NConstString.CanNotFindPlayer
-                        });
+                        await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CanNotFindPlayer));
                     }
 
                     break;

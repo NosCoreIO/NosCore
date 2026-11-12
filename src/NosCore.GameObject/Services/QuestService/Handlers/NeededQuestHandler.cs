@@ -27,7 +27,7 @@ public sealed class NeededQuestHandler : ItemQuestHandlerBase
         }
 
         var carried = objectives.All(o => o.ItemVNum(QuestType) is { } item
-            && CountCarried(character, item) >= System.Math.Max(1, o.RequiredAmount(QuestType)));
+            && character.InventoryService.CountItem(item) >= System.Math.Max(1, o.RequiredAmount(QuestType)));
         return Task.FromResult(carried ? ItemQuestProgress.Completed : ItemQuestProgress.None);
     }
 }

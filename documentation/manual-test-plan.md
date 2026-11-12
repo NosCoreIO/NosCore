@@ -639,6 +639,9 @@ Two clients, A and B.
       own "This village is the designated place of revival." appears, in the client's
       language
 - [ ] Die and choose to revive in the village: you come back at that NPC
+- [ ] Die with 10 Seeds of Power and choose to continue on the spot: "You used 5 Seeds of
+      Power" appears, you get up where you fell, and the Etc pocket shows 5 seeds straight
+      away
 
 ### Dignity items
 
