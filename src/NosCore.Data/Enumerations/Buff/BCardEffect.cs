@@ -632,10 +632,10 @@ namespace NosCore.Data.Enumerations.Buff
         SummonedMonsterAttackMovementSpeedCapped = 5751,
         SummonedMonsterAttackMovementSpeedCappedNegated = 5752,
 
-        BearSpiritIncreaseMaximumMp = 5811,
-        BearSpiritDecreaseMaximumMp = 5812,
-        BearSpiritIncreaseMaximumHp = 5831,
-        BearSpiritDecreaseMaximumHp = 5832,
+        BearSpiritIncreaseMaximumHp = 5811,
+        BearSpiritDecreaseMaximumHp = 5812,
+        BearSpiritIncreaseMaximumMp = 5831,
+        BearSpiritDecreaseMaximumMp = 5832,
 
         BearSpiritNextSkillDamageFromStored = 5841,
         BearSpiritNextSkillDamageFromStoredNegated = 5842,
@@ -987,8 +987,8 @@ namespace NosCore.Data.Enumerations.Buff
         Type91AllowFullMoonSkillNegated = 9132,
         Type91AllowLotusPowerSkill = 9141,
         Type91AllowLotusPowerSkillNegated = 9142,
-        Type91ReduceCriticalDamageRecived = 9151,
-        Type91IncreaseCriticalDamageRecived = 9152,
+        Type91IncreaseDamageToMarkedEnemy = 9151,
+        Type91ReduceDamageFromMarkedEnemy = 9152,
 
         Type92AddBuffOnReceiveAttack = 9211,
         Type92AddBuffOnReceiveAttackNegated = 9212,
@@ -1086,8 +1086,8 @@ namespace NosCore.Data.Enumerations.Buff
         Type100DecreaseDamageToDemon = 10032,
         Type100IncreaseDamageToLowLevelUndead = 10041,
         Type100DecreaseDamageToLowLevelUndead = 10042,
-        Type100IncreaseProductionPointConsume = 10051,
-        Type100DecreaseProductionPointConsume = 10052,
+        Type100DecreaseProductionPointConsume = 10051,
+        Type100IncreaseProductionPointConsume = 10052,
 
         Type101IncreaseDamageToLODMonster = 10111,
         Type101DecreaseDamageToLODMonster = 10112,
