@@ -11,6 +11,7 @@ using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers;
@@ -254,6 +255,34 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(effect, _savedItems.Single().Effect);
             Assert.AreEqual(points, _savedItems.Single().EffectValue);
+        }
+
+        [TestMethod]
+        [DataRow((short)3117, 0, MinigameType.Quarry)]
+        [DataRow((short)3118, 3, MinigameType.Sawmill)]
+        [DataRow((short)3128, 11, MinigameType.Fishpond)]
+        [DataRow((short)3130, 0, MinigameType.Typewriter)]
+        [DataRow((short)3131, 0, MinigameType.MemoryTable)]
+        public async Task ItemParser_ReadsTheMinigameOfAMinilandObject(short vnum, int slot, MinigameType expected)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum, indexType: 3, indexSubType: 2, equipmentSlot: slot,
+                data: "3000\t0\t2\t0\t0\t0\t2114\t2\t2\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(expected, _savedItems.Single().MinigameType);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_AnItemThatIsNotAMinigameHasNone()
+        {
+            CreateTestFile(CreateItemData(vnum: 1));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.IsNull(_savedItems.Single().MinigameType);
         }
 
         [TestMethod]

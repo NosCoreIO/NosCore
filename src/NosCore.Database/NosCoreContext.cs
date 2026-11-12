@@ -76,6 +76,10 @@ namespace NosCore.Database
 
         public virtual DbSet<FamilyUpgrade>? FamilyUpgrade { get; set; }
 
+        public virtual DbSet<MinigameReward>? MinigameReward { get; set; }
+
+        public virtual DbSet<MinigameScore>? MinigameScore { get; set; }
+
         public virtual DbSet<Item>? Item { get; set; }
 
         public virtual DbSet<ItemInstance>? ItemInstance { get; set; }
@@ -467,6 +471,18 @@ namespace NosCore.Database
             modelBuilder.Entity<Item>()
                 .HasMany(e => e.ShopItem)
                 .WithOne(e => e.Item)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MinigameReward>()
+                .HasOne(e => e.Minigame)
+                .WithMany()
+                .HasForeignKey(e => e.MinigameVNum)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<MinigameReward>()
+                .HasOne(e => e.Item)
+                .WithMany()
+                .HasForeignKey(e => e.ItemVNum)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<FamilyUpgrade>()

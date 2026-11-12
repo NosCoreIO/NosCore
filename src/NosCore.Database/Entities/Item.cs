@@ -8,6 +8,7 @@ using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.Database.Entities.Base;
 using NosCore.Packets.Enumerations;
 using NosCore.Shared.Enumerations;
@@ -174,6 +175,8 @@ namespace NosCore.Database.Entities
         public short PvpDefence { get; set; }
 
         public ShellType? ShellType { get; set; }
+
+        public MinigameType? MinigameType { get; set; }
 
         public byte PvpStrength { get; set; }
 

@@ -30,6 +30,7 @@ using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
+using NosCore.GameObject.Services.UpgradeService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -53,9 +54,17 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private List<ItemDto> MinilandItems => new()
         {
-            new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet },
+            new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet, MinigameType = MinigameType.Sawmill },
             new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 50, IsWarehouse = true }
         };
+
+        private static MinigameRewardService MinigameRewards => new(
+            new[] { 999, 4999, 9999, 13999, 17999, 1000000 }
+                .Select((max, level) => new MinigameScoreDto
+                    { MinigameScoreId = (short)(10 + level), MinigameType = MinigameType.Sawmill, Level = (byte)level, MaximumScore = max })
+                .ToList(),
+            [new MinigameRewardDto { MinigameRewardId = 0, MinigameVNum = 3000, Level = 0, ItemVNum = 1269, Amount = 1 }],
+            new RandomNumberSource());
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -86,7 +95,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 MinilandItems,
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer);
-            _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider);
+            _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider,
+                MinigameRewards);
         }
 
         [TestMethod]
@@ -95,6 +105,16 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             await new Spec("Use object without object should fail")
                 .WhenAsync(UsingNonExistentObject)
                 .Then(NothingShouldHappen)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheInfoShowsTheScoreBandsOfItsMinigame()
+        {
+            await new Spec("The info shows the score bands of its minigame")
+                .Given(MinigameObjectExistsAndPlaced)
+                .WhenAsync(UsingMinigameObject)
+                .Then(TheScoreBandsShouldEndAt_, new long[] { 999, 4999, 9999, 13999, 17999, 1000000 })
                 .ExecuteAsync();
         }
 
@@ -217,6 +237,14 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private void NothingShouldHappen()
         {
             Assert.AreEqual(0, _session.LastPackets.Count);
+        }
+
+        private void TheScoreBandsShouldEndAt_(long[] expected)
+        {
+            var bands = _session.LastPackets.OfType<MloInfoPacket>().Single().MinigamePoints.NotNull().Select(b => b.NotNull()).ToList();
+            CollectionAssert.AreEqual(expected, bands.Select(b => b.MaximumPoints).ToArray());
+            CollectionAssert.AreEqual(new[] { 0L }.Concat(expected.SkipLast(1).Select(m => m + 1)).ToArray(),
+                bands.Select(b => b.MinimumPoints).ToArray());
         }
 
         private void ShouldReceiveMinigameInfoPacket()

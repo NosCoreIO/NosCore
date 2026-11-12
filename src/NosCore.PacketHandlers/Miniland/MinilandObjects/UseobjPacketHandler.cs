@@ -25,7 +25,8 @@ using UseObjPacket = NosCore.Packets.ClientPackets.Miniland.UseObjPacket;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
-    public class UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHub warehouseHttpClient, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IItemGenerationService itemProvider)
+    public class UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHub warehouseHttpClient, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IItemGenerationService itemProvider,
+        IMinigameRewardService minigameRewards)
         : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(UseObjPacket useobjPacket, ClientSession clientSession)
@@ -41,10 +42,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             if (!instance.Item.IsWarehouse)
             {
-                var game = (byte)(instance.Item.EquipmentSlot ==
-                    EquipmentType.MainWeapon
-                        ? (4 + instance.ItemVNum) % 10
-                        : (int)instance.Item.EquipmentSlot / 3);
+                var maximums = minigameRewards.GetMaximumScores(instance.Item.MinigameType ?? MinigameType.Quarry);
                 var full = false;
                 await clientSession.SendPacketAsync(new MloInfoPacket
                 {
@@ -54,35 +52,11 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     MinilandPoints = miniland.MinilandPoint,
                     LawDurability = minilandObject.DurabilityPoint < 1000,
                     IsFull = full,
-                    MinigamePoints = new MloInfoPacketSubPacket[]
+                    MinigamePoints = maximums.Select((max, level) => new MloInfoPacketSubPacket
                     {
-                        new() {MinimumPoints = 0, MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0]},
-                        new()
-                        {
-                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][0] + 1,
-                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1]
-                        },
-                        new()
-                        {
-                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][1] + 1,
-                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2]
-                        },
-                        new()
-                        {
-                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][2] + 1,
-                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3]
-                        },
-                        new()
-                        {
-                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][3] + 1,
-                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4]
-                        },
-                        new()
-                        {
-                            MinimumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][4] + 1,
-                            MaximumPoints = MinilandHelper.Instance.MinilandMaxPoint[game][5]
-                        }
-                    }
+                        MinimumPoints = level == 0 ? 0 : maximums[level - 1] + 1,
+                        MaximumPoints = max
+                    }).ToArray()
                 });
             }
             else

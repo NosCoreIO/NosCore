@@ -9,6 +9,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers.Generic;
@@ -808,6 +809,15 @@ namespace NosCore.Parser.Parsers
                 2521 => MaterialType.TopazOfCompletion,
                 1012 => MaterialType.SeedOfPower,
                 _ => MaterialType.None,
+            };
+
+            // The production objects keep their minigame in the INDEX slot column, three tiers per game;
+            // the typewriter and the memory table leave it 0 like the basic quarry.
+            item.MinigameType = item.ItemType != ItemType.Minigame || item.MinilandObjectPoint == 0 ? null : item.VNum switch
+            {
+                3130 => MinigameType.Typewriter,
+                3131 => MinigameType.MemoryTable,
+                _ => (MinigameType)((byte)item.EquipmentSlot / 3),
             };
 
             // Each stone's description names the cards it perfects. None names Jajamaru or Chicken,
