@@ -63,10 +63,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
             _buffs = World.Create<BuffService>();
-            _service = new RewardService(new Mock<IItemGenerationService>().Object,
-                new Mock<IMapItemGenerationService>().Object, catalog.Object,
-                progression.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), World.GroupLootService, new MateProgressionService(new MateExperienceService()), _buffs, NullLogger<RewardService>.Instance);
+            World.Inject(catalog.Object);
+            World.Inject(progression.Object);
+            World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IMateProgressionService, MateProgressionService>();
+            World.Inject<IBuffService>(_buffs);
+            _service = World.Create<RewardService>();
         }
 
         [TestMethod]

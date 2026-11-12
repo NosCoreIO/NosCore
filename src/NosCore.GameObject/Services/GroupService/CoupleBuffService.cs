@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Core.Concurrency;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -20,13 +21,18 @@ public sealed class CoupleBuffService(IFriendHub friendHub, IBuffService buffSer
 {
     public const short CoupleCardId = 319;
 
+    // A refresh that read the group before a leave must not apply the buff after the leave's own refresh.
+    private readonly AsyncLock _lock = new();
+
     public async Task RefreshAsync(IEnumerable<ICharacterEntity> characters)
     {
+        using var _ = await _lock.AcquireAsync();
         foreach (var character in characters.DistinctBy(s => s.VisualId))
         {
-            var withSpouse = character.Group is { Count: > 1 } group
-                && (await friendHub.GetFriendsAsync(character.VisualId))
-                    .Any(s => s.RelationType == CharacterRelationType.Spouse && group.IsMember(s.CharacterId));
+            var spouses = (await friendHub.GetFriendsAsync(character.VisualId))
+                .Where(s => s.RelationType == CharacterRelationType.Spouse)
+                .Select(s => s.CharacterId);
+            var withSpouse = character.Group is { Count: > 1 } group && spouses.Any(group.IsMember);
             var hasBuff = buffService.HasBuff(character, CoupleCardId);
             if (withSpouse && !hasBuff && cardCatalog.GetCard(CoupleCardId) is { } card)
             {

@@ -180,7 +180,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
     {
         var buffs = ResolveState(target);
-        return buffs == null ? EmptyBuffs : buffs.Values.ToArray();
+        if (buffs == null)
+        {
+            return EmptyBuffs;
+        }
+
+        var now = clock.GetCurrentInstant();
+        return buffs.Values.Where(b => b.ExpiresAt > now).ToArray();
     }
 
     public bool HasBuff(IAliveEntity target, short cardId)

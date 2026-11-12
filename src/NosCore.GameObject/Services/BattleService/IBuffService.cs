@@ -34,6 +34,7 @@ public interface IBuffService
 
     Task RemoveAsync(IAliveEntity target, short cardId);
 
+    // Leaves out buffs that have run out, even if the life tick has not swept them away yet.
     IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target);
 
     Task ClearAsync(IAliveEntity target);

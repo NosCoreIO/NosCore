@@ -27,6 +27,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.EquipmentService;
 using NosCore.GameObject.Services.ExperienceService;
@@ -123,9 +124,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 });
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
-            var rewards = new RewardService(World.GenerateItemProvider(), World.MapItemProvider.NotNull(),
-                catalog.Object, experience.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), World.GroupLootService, new MateProgressionService(new MateExperienceService()), World.Create<BuffService>(), NullLogger<RewardService>.Instance);
+            World.Inject(catalog.Object);
+            World.Inject(experience.Object);
+            World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IMateProgressionService, MateProgressionService>();
+            World.UseReal<IBuffService, BuffService>();
+            var rewards = World.Create<RewardService>();
 
             const int kills = 50;
             _map.LoadMonsters(

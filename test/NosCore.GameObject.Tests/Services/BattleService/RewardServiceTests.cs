@@ -23,6 +23,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Tests.Shared;
@@ -55,16 +56,12 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _experience = new Mock<IExperienceProgressionService>();
             _catalog = new Mock<INpcCombatCatalog>();
             _catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
-            _service = new RewardService(
-                World.GenerateItemProvider(),
-                World.MapItemProvider.NotNull(),
-                _catalog.Object,
-                _experience.Object,
-                new ExperienceShareService(),
-                new LevelPenaltyService(),
-                new LowLevelBoostService(), World.GroupLootService,
-                new MateProgressionService(new MateExperienceService()),
-                World.Create<BuffService>(), NullLogger<RewardService>.Instance);
+            World.Inject(_catalog.Object);
+            World.Inject(_experience.Object);
+            World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IMateProgressionService, MateProgressionService>();
+            World.UseReal<IBuffService, BuffService>();
+            _service = World.Create<RewardService>();
 
             var template = new NpcMonsterDto
             {
