@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService.Model;
@@ -31,6 +32,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
+    private static readonly Duration PulseStep = Duration.FromSeconds(2);
 
     public async Task ApplyAsync(IAliveEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster, int overrideDuration = -1)
     {
@@ -299,7 +301,74 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             await ApplyTimeoutBuffAsync(target, buff);
         }
 
+        if (target is PlayerComponentBundle player)
+        {
+            await PulseAsync(player, buffs, now);
+        }
+
         return expired;
+    }
+
+    // A card BCard with ThirdData set fires every ThirdData x 2 seconds while the buff lasts.
+    // Periodic damage never takes the last hit point.
+    private static async Task PulseAsync(PlayerComponentBundle player, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
+    {
+        if (!player.IsAlive)
+        {
+            return;
+        }
+
+        long hpPercent = 0, mpPercent = 0;
+        foreach (var (cardId, buff) in buffs)
+        {
+            if (buff.FromSkill || buff.ExpiresAt <= now || buff.PulsedUntil >= now)
+            {
+                continue;
+            }
+
+            foreach (var bCard in buff.BCards)
+            {
+                if (bCard.ThirdData <= 0)
+                {
+                    continue;
+                }
+
+                var interval = PulseStep.BclCompatibleTicks * bCard.ThirdData;
+                var times = (now - buff.StartedAt).BclCompatibleTicks / interval
+                    - (buff.PulsedUntil - buff.StartedAt).BclCompatibleTicks / interval;
+                if (times <= 0)
+                {
+                    continue;
+                }
+
+                var amount = times * BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                switch (bCard.Effect())
+                {
+                    case BCardEffect.RecoveryAndDamagePercentHpRecovered: hpPercent += amount; break;
+                    case BCardEffect.RecoveryAndDamagePercentHpReduced: hpPercent -= amount; break;
+                    case BCardEffect.RecoveryAndDamagePercentMpRecovered: mpPercent += amount; break;
+                    case BCardEffect.RecoveryAndDamagePercentMpReduced: mpPercent -= amount; break;
+                }
+            }
+
+            buffs.TryUpdate(cardId, buff with { PulsedUntil = now }, buff);
+        }
+
+        if (hpPercent == 0 && mpPercent == 0)
+        {
+            return;
+        }
+
+        var hp = (int)Math.Clamp(player.Hp + player.MaxHp * hpPercent / 100, Math.Min(1, player.Hp), player.MaxHp);
+        var mp = (int)Math.Clamp(player.Mp + player.MaxMp * mpPercent / 100, 0, player.MaxMp);
+        if (hp == player.Hp && mp == player.Mp)
+        {
+            return;
+        }
+
+        player.Hp = hp;
+        player.Mp = mp;
+        await player.SendPacketAsync(player.GenerateStat());
     }
 
     // BuffStateComponent lives on the target's ECS world; walking through the bundle

@@ -72,6 +72,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IDigestionService? _digestionService;
         private readonly ISpeedCalculationService? _speedCalculationService;
         private readonly IBattleStatsProvider? _battleStatsProvider;
+        private readonly IHeatService? _heatService;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
         private readonly ConcurrentDictionary<long, (NpcComponentBundle Npc, Instant RespawnAt)> _pendingNpcRespawns = new();
 
@@ -85,7 +86,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
             IBattleService? battleService = null, IVitalityService? vitalityService = null,
             IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null,
-            IBattleStatsProvider? battleStatsProvider = null)
+            IBattleStatsProvider? battleStatsProvider = null,
+            IHeatService? heatService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -115,6 +117,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _digestionService = digestionService;
             _speedCalculationService = speedCalculationService;
             _battleStatsProvider = battleStatsProvider;
+            _heatService = heatService;
             EcsWorld = new MapWorld();
         }
 
@@ -564,6 +567,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         {
                             session.Character.Speed = _speedCalculationService.CalculateSpeed(session.Character);
                             await session.SendPacketAsync(session.Character.GenerateCond());
+                        }
+
+                        if (_heatService != null && expired.Any(b => b.CardId == HeatResistance.CardId))
+                        {
+                            await _heatService.RefreshAsync(session.Character);
                         }
                     }
                     catch (Exception e)
