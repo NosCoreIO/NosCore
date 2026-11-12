@@ -21,16 +21,14 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     [UsedImplicitly]
     public sealed class AncelloansBlessingHandler(IBuffService buffService, ICardCatalog cardCatalog)
     {
-        public const short BlessingCardId = 121;
-
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
         {
             var item = evt.InventoryItem.ItemInstance.Item;
             var session = evt.ClientSession;
             var character = session.Character;
-            if (item.Effect != ItemEffectType.AncelloansBlessing || buffService.HasBuff(character, BlessingCardId)
-                || cardCatalog.GetCard(BlessingCardId) is not { } card)
+            if (item.Effect != ItemEffectType.AncelloansBlessing || cardCatalog.GetItemCard(item.VNum) is not { } card
+                || buffService.HasBuff(character, card.CardId))
             {
                 return;
             }
@@ -38,7 +36,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.UseUpOneAsync(evt.InventoryItem);
 
             // A static buff's TIME column counts 0.6 s steps, so 6001 is an hour.
-            await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(BlessingCardId),
+            await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(card.CardId),
                 Duration.FromMilliseconds(card.Duration * 600L));
             await session.SendPacketAsync(new SayiPacket
             {

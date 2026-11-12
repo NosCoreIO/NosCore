@@ -80,11 +80,12 @@ namespace NosCore.Parser.Tests
             int duration = 0,
             int delay = 0,
             short timeoutBuff = 0,
-            byte timeoutBuffChance = 0)
+            byte timeoutBuffChance = 0,
+            short group = 0)
         {
             return $"\tVNUM\t{cardId}\r\n" +
                    $"\tNAME\t{name}\r\n" +
-                   $"\tGROUP\t0\t{level}\t0\r\n" +
+                   $"\tGROUP\t{group}\t{level}\t0\r\n" +
                    $"\tSTYLE\t0\t{buffType}\t0\t0\r\n" +
                    $"\tEFFECT\t{effectId}\t0\r\n" +
                    $"\tTIME\t{duration}\t{delay}\r\n" +
@@ -93,6 +94,18 @@ namespace NosCore.Parser.Tests
                    $"\tLAST\t{timeoutBuff}\t{timeoutBuffChance}\r\n" +
                    "\tDESC\tTest Description\r\n" +
                    "END";
+        }
+
+        [TestMethod]
+        public async Task CardParser_ReadsTheBuffFamilyAndWhetherTheBuffIsBad()
+        {
+            CreateTestFile(CreateCardData(cardId: 339, buffType: 2, group: 404));
+
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertCardsAsync(_tempFolder);
+
+            Assert.AreEqual(BuffType.Bad, _savedCards.Single().BuffType);
+            Assert.AreEqual(404, _savedCards.Single().GroupId);
         }
 
         [TestMethod]

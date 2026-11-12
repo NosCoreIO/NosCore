@@ -33,10 +33,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private TestWorld World;
         private const short BlessingVNum = 1286;
+        private const short BlessingCardId = 121;
 
         private static readonly IReadOnlyList<BCardDto> BlessingBCards = new[]
         {
-            new BCardDto { CardId = AncelloansBlessingHandler.BlessingCardId, Type = 44, SubType = 11, FirstData = 100 }
+            new BCardDto { CardId = BlessingCardId, Type = 44, SubType = 11, FirstData = 100 }
         };
 
         private ClientSession _session;
@@ -50,9 +51,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            cards.Setup(c => c.GetCard(AncelloansBlessingHandler.BlessingCardId))
-                .Returns(new CardDto { CardId = AncelloansBlessingHandler.BlessingCardId, Duration = 6001 });
-            cards.Setup(c => c.GetCardBCards(AncelloansBlessingHandler.BlessingCardId)).Returns(BlessingBCards);
+            var card = new CardDto { CardId = BlessingCardId, Duration = 6001 };
+            cards.Setup(c => c.GetCard(BlessingCardId)).Returns(card);
+            cards.Setup(c => c.GetItemCard(BlessingVNum)).Returns(card);
+            cards.Setup(c => c.GetCardBCards(BlessingCardId)).Returns(BlessingBCards);
             _buffs = World.Create<BuffService>();
             World.Inject<IBuffService>(_buffs);
             _handler = World.Create<AncelloansBlessingHandler>();
@@ -100,10 +102,10 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World.Clock.Advance(Duration.FromHours(1) + Duration.FromSeconds(1));
             var expired = await _buffs.TickAsync(_session.Character);
 
-            Assert.IsTrue(expired.Any(b => b.CardId == AncelloansBlessingHandler.BlessingCardId));
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, AncelloansBlessingHandler.BlessingCardId));
+            Assert.IsTrue(expired.Any(b => b.CardId == BlessingCardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, BlessingCardId));
             var vb = _session.LastPackets.OfType<VbPacket>().Last();
-            Assert.AreEqual(AncelloansBlessingHandler.BlessingCardId, vb.CardId);
+            Assert.AreEqual(BlessingCardId, vb.CardId);
             Assert.IsFalse(vb.IsActivated);
         }
 
@@ -120,7 +122,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private NosCore.GameObject.Services.BattleService.Model.BuffInstance? BlessingBuff() =>
             System.Linq.Enumerable.FirstOrDefault(_buffs.GetActiveBuffs(_session.Character),
-                b => b.CardId == AncelloansBlessingHandler.BlessingCardId);
+                b => b.CardId == BlessingCardId);
 
         private void GiveBlessing(ItemEffectType effect, short amount)
         {
