@@ -108,7 +108,6 @@ namespace NosCore.PacketHandlers.Game
                 });
             }
 
-            //            Session.SendPacket(Session.Character.GenerateSki());
             //            Session.SendPacket($"fd {Session.Character.Reput} 0 {(int)Session.Character.Dignity} {Math.Abs(Session.Character.GetDignityIco())}");
             await session.SendPacketAsync(session.Character.GenerateFd());
             await session.SendPacketAsync(session.Character.GenerateStat());
@@ -178,7 +177,7 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateGold());
             await session.SendPacketAsync(session.Character.GenerateCond());
 
-            await session.SendPacketAsync(session.Character.GenerateSki());
+            await session.SendPacketAsync(session.Character.GenerateSki(useSpecialist: false));
             await session.SendPacketsAsync(session.Character.GenerateQuicklist());
 
             //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",

@@ -221,17 +221,23 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
         }
 
-        public static SkiPacket GenerateSki(this ICharacterEntity characterEntity)
+        public static SkiPacket GenerateSki(this ICharacterEntity characterEntity, bool useSpecialist)
         {
             // The client takes the first listed skill for the basic attack, so passives go last.
-            List<CharacterSkill> characterSkills = characterEntity.Skills.Values
-                .OrderBy(s => s.Skill?.IsPassive() == true).ThenBy(s => s.Skill?.CastId).ToList();
-            var spStarter = characterSkills.FirstOrDefault()?.SkillVNum ?? 0;
+            var ordered = characterEntity.Skills.Values
+                .Where(s => s.Skill != null && s.Skill.IsSpecialist() == useSpecialist)
+                .OrderBy(s => s.Skill.IsPassive())
+                .ThenBy(s => s.Skill.CastId)
+                .Select(s => s.SkillVNum)
+                .ToList();
+
+            var classByte = (byte)characterEntity.Class;
+            var cardAttack = ordered.Count > 0 ? ordered[0] : (short)0;
             return new SkiPacket
             {
-                PrimarySkillVnum = (short)(!characterEntity.UseSp ? 201 + 20 * (byte)characterEntity.Class : spStarter),
-                SecondarySkillVnum = (short)(!characterEntity.UseSp ? 200 + 20 * (byte)characterEntity.Class : spStarter),
-                SkillVnums = characterSkills.Select(x => (short)x.SkillVNum).ToList(),
+                PrimarySkillVnum = useSpecialist ? cardAttack : (short)(200 + 20 * classByte),
+                SecondarySkillVnum = useSpecialist ? cardAttack : (short)(201 + 20 * classByte),
+                SkillVnums = ordered,
             };
         }
 

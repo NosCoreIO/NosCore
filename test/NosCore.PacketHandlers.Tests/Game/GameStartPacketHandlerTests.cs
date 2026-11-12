@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Packets.ServerPackets.Player;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.WebApi;
@@ -183,6 +184,25 @@ namespace NosCore.PacketHandlers.Tests.Game
                 .WhenAsync(ExecutingGameStart)
                 .Then(SkillServiceShouldBeCalled)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task GameStartSendsOneSkillListWithTheClassAttacksInOrder()
+        {
+            await new Spec("Game start sends one skill list with the class attacks in order")
+                .Given(CharacterIsReadyToStart)
+                .WhenAsync(ExecutingGameStart)
+                .Then(TheSkillListShouldStartWithTheClassAttacks)
+                .ExecuteAsync();
+        }
+
+        private void TheSkillListShouldStartWithTheClassAttacks()
+        {
+            var lists = Session.LastPackets.OfType<SkiPacket>().ToList();
+            Assert.AreEqual(1, lists.Count);
+            var classAttack = (short)(200 + 20 * (byte)Session.Character.Class);
+            Assert.AreEqual(classAttack, lists[0].PrimarySkillVnum);
+            Assert.AreEqual((short)(classAttack + 1), lists[0].SecondarySkillVnum);
         }
 
         [TestMethod]
