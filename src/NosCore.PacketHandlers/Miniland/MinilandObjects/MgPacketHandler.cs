@@ -323,7 +323,6 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private async Task ShowBoxLevelsAsync(Minigame mg, MinigameType game)
         {
-            mg.Miniland.CurrentMinigame = 0;
             await mg.Session.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Dance,
@@ -340,7 +339,6 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private Task BroadcastEffectAsync(Minigame mg)
         {
-            mg.Miniland.CurrentMinigame = 0;
             return mg.Session.Character.MapInstance.SendPacketAsync(new GuriPacket
             {
                 Type = GuriPacketType.Dance,
@@ -357,15 +355,16 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            if (mg.Miniland == null || mg.Miniland.MinilandPoint <= 0)
+            // The client's own Start Game sends no point; the confirmation below sends 1.
+            if (mg.Miniland.MinilandPoint <= 0 && mg.Packet.Point is null)
             {
                 await mg.Session.SendPacketAsync(new QnaiPacket
                 {
                     YesPacket = new MinigamePacket
                     {
                         Type = MinigamePacketType.Play,
-                        Id = 7,
-                        MinigameVNum = 3125,
+                        Id = mg.Packet.Id,
+                        MinigameVNum = mg.Packet.MinigameVNum,
                         Point = 1,
                         Unknown = 1
                     },
@@ -380,15 +379,6 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 Value = 1,
                 EntityId = mg.Session.Character.CharacterId
             });
-            mg.Miniland.CurrentMinigame = game switch
-            {
-                MinigameType.Quarry => 5102,
-                MinigameType.Sawmill => 5103,
-                MinigameType.FiringRange => 5105,
-                MinigameType.Fishpond => 5104,
-                MinigameType.Typewriter => 5113,
-                _ => 5112
-            };
             await mg.Session.SendPacketAsync(new MloStPacket { Game = (short)game });
         }
     }
