@@ -6,6 +6,7 @@
 
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -62,7 +63,13 @@ namespace NosCore.Parser.Parsers
                 Music = dictionaryMusic.TryGetValue(file.Name, out var value) ? int.Parse(value) : 0,
                 MapId = short.Parse(file.Name),
                 Data = File.ReadAllBytes(file.FullName),
-                ShopAllowed = short.Parse(file.Name) == 147
+                ShopAllowed = short.Parse(file.Name) == 147,
+                Arena = short.Parse(file.Name) switch
+                {
+                    2006 => ArenaType.Individual,
+                    2106 => ArenaType.Glory,
+                    _ => ArenaType.None
+                }
             }).ToList();
 
             await mapDao.TryInsertOrUpdateAsync(maps);

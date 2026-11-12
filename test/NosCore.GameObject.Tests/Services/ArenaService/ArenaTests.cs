@@ -145,7 +145,8 @@ namespace NosCore.GameObject.Tests.Services.ArenaService
         // A 4x2 arena: open floor, with a merchants' platform at (2,1) and a wall at (3,1).
         public static GameObject.Map.Map Create() => new()
         {
-            MapId = Arena.IndividualArenaMapId,
+            MapId = 2006,
+            Arena = ArenaType.Individual,
             NameI18NKey = "arena",
             Data = new byte[]
             {

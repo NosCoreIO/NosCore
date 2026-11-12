@@ -105,6 +105,31 @@ namespace NosCore.Parser.Parsers
                 await portalDao.TryInsertOrUpdateAsync(glacerusCavernPortal);
             }
 
+            // The arenas are entered through an NPC, so no portal leads out of them.
+            foreach (var arenaExit in new[]
+                     {
+                         new PortalDto
+                         {
+                             SourceMapId = 2006, SourceX = 37, SourceY = 15, DestinationMapId = 1,
+                             DestinationX = 50, DestinationY = 66, Type = PortalType.MapPortal
+                         },
+                         new PortalDto
+                         {
+                             SourceMapId = 2106, SourceX = 38, SourceY = 3, DestinationMapId = 1,
+                             DestinationX = 50, DestinationY = 66, Type = PortalType.MapPortal
+                         },
+                     })
+            {
+                if (portalsdb.Any(s => s.SourceMapId == arenaExit.SourceMapId)
+                    || maps.All(s => s.MapId != arenaExit.SourceMapId))
+                {
+                    continue;
+                }
+
+                portalCounter++;
+                await portalDao.TryInsertOrUpdateAsync(arenaExit);
+            }
+
             foreach (var currentPacket in packetList.Where(o => o[0].Equals("at") || o[0].Equals("gp")))
             {
                 if ((currentPacket.Length > 5) && (currentPacket[0] == "at"))

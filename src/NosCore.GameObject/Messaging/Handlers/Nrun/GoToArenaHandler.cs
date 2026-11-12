@@ -40,9 +40,9 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             var type = packet.Type ?? 0;
-            var mapId = Arena.MapIdForType(type);
-            var arena = mapId == null ? null : mapInstanceRegistry.GetAll()
-                .FirstOrDefault(s => s.MapInstanceType == MapInstanceType.ArenaInstance && s.Map.MapId == mapId);
+            var arenaType = Arena.ArenaForType(type);
+            var arena = arenaType == null ? null : mapInstanceRegistry.GetAll()
+                .FirstOrDefault(s => s.MapInstanceType == MapInstanceType.ArenaInstance && s.Map.Arena == arenaType);
             if (arena == null)
             {
                 return;

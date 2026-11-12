@@ -6,6 +6,7 @@
 
 using NosCore.Data.DataAttributes;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Database.Entities.Base;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -29,6 +30,8 @@ namespace NosCore.Database.Entities
             Respawn = new HashSet<Respawn>();
             RespawnMapType = new HashSet<RespawnMapType>();
         }
+
+        public ArenaType Arena { get; set; }
 
         public virtual ICollection<Character> Character { get; set; }
 
