@@ -134,6 +134,17 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         }
 
         [TestMethod]
+        public async Task ConfirmingWithoutPointsStartsTheMinigameOfTheObject()
+        {
+            await new Spec("Confirming without points starts the minigame of the object")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasZeroPoints)
+                .WhenAsync(ConfirmingTheQuestion)
+                .Then(TheStartedMinigameShouldBe_, MinigameType.Sawmill)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task PlayingStartsTheMinigameOfTheObject()
         {
             await new Spec("Playing starts the minigame of the object")
@@ -318,6 +329,14 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             await _mgPacketHandler.ExecuteAsync(minigamePacket, _session);
         }
 
+        private async Task ConfirmingTheQuestion()
+        {
+            await PlayingMinigame();
+            var question = _session.LastPackets.OfType<QnaiPacket>().Single();
+            _session.LastPackets.Clear();
+            await _mgPacketHandler.ExecuteAsync((MinigamePacket)question.YesPacket.NotNull(), _session);
+        }
+
         private async Task ShowingManagement()
         {
             var minigamePacket = new MinigamePacket
@@ -372,6 +391,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             var lastPacket = (QnaiPacket?)_session.LastPackets.FirstOrDefault(s => s is QnaiPacket);
             Assert.IsNotNull(lastPacket);
             Assert.AreEqual(Game18NConstString.NotEnoughProductionPointsAskStart, lastPacket.Question);
+            var yes = (MinigamePacket)lastPacket.YesPacket.NotNull();
+            Assert.AreEqual(0, yes.Id);
+            Assert.AreEqual(3000, yes.MinigameVNum);
+            Assert.AreEqual(1, yes.Point);
+            Assert.IsFalse(_session.LastPackets.OfType<MloStPacket>().Any());
         }
 
         private void ShouldReceiveManagementPacket()

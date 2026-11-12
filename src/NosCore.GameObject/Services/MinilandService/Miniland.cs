@@ -15,7 +15,6 @@ namespace NosCore.GameObject.Services.MinilandService
         public Guid MapInstanceId { get; set; }
 
         public string? CharacterName { get; set; }
-        public int CurrentMinigame { get; set; }
 
         public MlInfoBrPacket GenerateMlinfobr()
         {
