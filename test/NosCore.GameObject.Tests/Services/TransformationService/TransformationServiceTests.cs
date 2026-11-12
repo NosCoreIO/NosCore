@@ -150,6 +150,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Morph = 2432,
                 SecondMorph = 0
             };
+            World.ItemList.RemoveAll(i => i.VNum == vehicleItem.VNum);
+            World.ItemList.Add(vehicleItem);
             await Service.ChangeVehicleAsync(Session, vehicleItem);
         }
 

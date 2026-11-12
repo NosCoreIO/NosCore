@@ -11,5 +11,9 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
         public const short CardId = 336;
 
         public const short Effect = 885;
+
+        public const short TeleportEffect = 3625;
+
+        public const int TeleportAttempts = 100;
     }
 }
