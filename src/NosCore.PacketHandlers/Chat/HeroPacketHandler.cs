@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
@@ -35,13 +36,7 @@ namespace NosCore.PacketHandlers.Chat
             var character = session.Character;
             if (!reputationRankingService.IsTopThree(character.CharacterId, character.Reput, session.Account.Authority))
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.OnlyTheTopThreePlayers
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red, Game18NConstString.OnlyTheTopThreePlayers));
                 return;
             }
 

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.DignityService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Services.FamilyService;
@@ -47,7 +48,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 World.GenerateItemProvider(), World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
                 new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object,
-                new Mock<IFamilyShopService>().Object);
+                new Mock<IFamilyShopService>().Object,
+                World.Create<DignityService>());
         }
 
         [TestMethod]

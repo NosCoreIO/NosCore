@@ -32,7 +32,7 @@ public abstract class SpUpgradeOperationBase(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
     ISpUpgradeService spUpgradeService)
-    : UpgradeOperation(random, localizer)
+    : SpecialistCardOperation(random, localizer)
 {
     public const short FeatherVNum = 2282;
     public const short FullMoonVNum = 1030;
@@ -46,7 +46,6 @@ public abstract class SpUpgradeOperationBase(
     public const short ShardVNum = 2748;
     public const short BlueScrollVNum = 1363;
     public const short RedScrollVNum = 1364;
-    public const sbyte DestroyedSoulRare = -2;
 
     // Cards with a higher morph are upgraded with the dragon materials instead of souls.
     private const short LastSoulMorph = 16;
@@ -69,26 +68,6 @@ public abstract class SpUpgradeOperationBase(
         outcome == UpgradeOutcome.Destroyed
             ? Game18NConstString.SpecialistSouldDestroyed
             : base.SayMessageFor(outcome);
-
-    protected override IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet)
-    {
-        if (LoadCard(session, packet)?.ItemInstance is not SpecialistInstance card)
-        {
-            return null;
-        }
-
-        var rejection = Rejection(session, card);
-        return rejection is null ? null : new IPacket[]
-        {
-            new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = rejection.Value,
-            },
-        };
-    }
 
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
@@ -164,28 +143,16 @@ public abstract class SpUpgradeOperationBase(
     {
         if (IsProtected)
         {
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEff(3004));
+            await BroadcastEffectAsync(session, 3004);
         }
 
         if (outcome == UpgradeOutcome.Success)
         {
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEff(3005));
+            await BroadcastEffectAsync(session, 3005);
         }
     }
 
-    protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
-    {
-        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
-    }
-
-    private static InventoryItemInstance? LoadCard(ClientSession session, UpgradePacket packet)
-    {
-        var source = session.Character.InventoryService
-            .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
-        return source?.ItemInstance is SpecialistInstance { Item.EquipmentSlot: EquipmentType.Sp } ? source : null;
-    }
-
-    private Game18NConstString? Rejection(ClientSession session, SpecialistInstance card)
+    protected override Game18NConstString? Rejection(ClientSession session, SpecialistInstance card)
     {
         if (card.Rare == DestroyedSoulRare)
         {

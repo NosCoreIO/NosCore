@@ -38,10 +38,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             if (tfa.VerifyCode(session.Account.MfaSecret, packet.Value))
             {
                 session.MfaValidated = true;
-                await session.HandlePacketsAsync(new[]
-                {
-                    new EntryPointPacket { Name = session.Account.Name }
-                });
+                await session.ShowCharacterListAsync();
                 return;
             }
 

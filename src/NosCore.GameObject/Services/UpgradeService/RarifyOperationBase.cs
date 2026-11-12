@@ -88,8 +88,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
-        var source = session.Character.InventoryService
-            .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+        var source = LoadSource(session, packet);
         if (source?.ItemInstance is not WearableInstance wearable)
         {
             return null;
@@ -160,13 +159,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {
-        if (outcome == UpgradeOutcome.Failure)
-        {
-            yield return ((InventoryItemInstance?)null).GeneratePocketChange(
-                ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
-            yield break;
-        }
-        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
+        yield return RefreshSource(ctx, destroyed: outcome == UpgradeOutcome.Failure);
     }
 
     // OpenNos effect pattern:
@@ -186,8 +179,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         {
             return;
         }
-        await session.Character.MapInstance
-            .SendPacketAsync(session.Character.GenerateEff(effectId.Value)).ConfigureAwait(false);
+        await BroadcastEffectAsync(session, effectId.Value);
     }
 
     // Success message 147 "Gamble successful! Rarity level: %d" carries the new rare as a

@@ -141,7 +141,8 @@ namespace NosCore.PacketHandlers.Tests.Family
                 World.SessionRegistry, World.WorldConfiguration,
                 World.GenerateItemProvider(), World.NpcDialogService,
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
-                new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, Guid>>().Object, shop);
+                new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, Guid>>().Object, shop,
+                World.Create<DignityService>());
 
             var sessions = new[] { _head, _member };
             var registry = new Mock<ISessionRegistry>();

@@ -102,22 +102,7 @@ namespace NosCore.GameObject.Services.ProductionService
             var packets = new List<IPacket>();
             foreach (var material in recipe.Items)
             {
-                var remaining = (int)material.Amount;
-                foreach (var stack in character.InventoryService.Values
-                    .Where(s => s.ItemInstance.ItemVNum == material.ItemVNum)
-                    .OrderBy(s => s.Slot)
-                    .ToList())
-                {
-                    if (remaining <= 0)
-                    {
-                        break;
-                    }
-
-                    var taken = (short)Math.Min(remaining, stack.ItemInstance.Amount);
-                    var left = character.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
-                    remaining -= taken;
-                    packets.Add(left.GeneratePocketChange(stack.Type.ToPocketType(), stack.Slot));
-                }
+                packets.AddRange(character.InventoryService.RemoveItemAmountByVNum(material.ItemVNum, material.Amount));
             }
 
             packets.AddRange(produced.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));

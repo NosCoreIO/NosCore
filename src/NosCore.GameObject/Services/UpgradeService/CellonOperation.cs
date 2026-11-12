@@ -133,7 +133,7 @@ public sealed class CellonOperation(
         var cellon = ctx.RequiredTarget;
         yield return (cellon.ItemInstance.Amount > 0 ? cellon : null)
             .GeneratePocketChange(cellon.Type.ToPocketType(), cellon.Slot);
-        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
+        yield return RefreshSource(ctx);
     }
 
     // Only an upgrade material carries a tier in EffectValue, and only a cellon among them.
@@ -147,8 +147,7 @@ public sealed class CellonOperation(
             return false;
         }
 
-        var jewel = session.Character.InventoryService
-            .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+        var jewel = LoadSource(session, packet);
         var cellon = session.Character.InventoryService
             .LoadBySlotAndType(packet.CellonSlot.Value, (NoscorePocketType)packet.CellonInventoryType.Value);
         if (jewel?.ItemInstance is not WearableInstance { Item.MaxCellon: > 0 }

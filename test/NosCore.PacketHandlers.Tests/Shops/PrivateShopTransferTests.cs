@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.DignityService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
@@ -262,14 +263,14 @@ namespace NosCore.PacketHandlers.Tests.Shops
 
         private Task TheBuyerBuysTheWeapon() =>
             _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), 0, 1, World.WorldConfiguration, _items,
-                _options, _itemInstanceDao);
+                World.Create<DignityService>(), _options, _itemInstanceDao);
 
         private Task TheBuyerBuysTheWeaponButItsOptionsCannotBeCopied()
         {
             var options = new Mock<IShellOptionService>();
             options.Setup(o => o.CopyAsync(It.IsAny<Guid>(), It.IsAny<Guid>())).ReturnsAsync(false);
             return _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), 0, 1, World.WorldConfiguration,
-                _items, options.Object, _itemInstanceDao);
+                _items, World.Create<DignityService>(), options.Object, _itemInstanceDao);
         }
 
         private void TheOwnerShouldStillHoldTheWeapon() =>
@@ -299,7 +300,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             try
             {
                 await _buyer.Character.BuyAsync(_owner.Character.Shop.NotNull(), slot, amount,
-                    World.WorldConfiguration, _items);
+                    World.WorldConfiguration, _items, World.Create<DignityService>());
             }
             catch (Exception e)
             {
@@ -319,7 +320,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         {
             try
             {
-                await _buyer.Character.BuyAsync(_keptShop.NotNull(), 1, 3, World.WorldConfiguration, _items);
+                await _buyer.Character.BuyAsync(_keptShop.NotNull(), 1, 3, World.WorldConfiguration, _items, World.Create<DignityService>());
             }
             catch (Exception e)
             {
@@ -354,7 +355,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 barrier.SignalAndWait();
                 try
                 {
-                    await session.Character.BuyAsync(shop, slot, amount, World.WorldConfiguration, _items);
+                    await session.Character.BuyAsync(shop, slot, amount, World.WorldConfiguration, _items, World.Create<DignityService>());
                 }
                 catch (Exception e)
                 {

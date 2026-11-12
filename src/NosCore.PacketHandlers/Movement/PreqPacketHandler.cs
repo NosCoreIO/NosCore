@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
@@ -25,13 +26,7 @@ namespace NosCore.PacketHandlers.Movement
                 return;
             }
 
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.WillMoveShortly
-            });
+            await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.WillMoveShortly));
         }
     }
 }

@@ -175,6 +175,24 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
+        // A level gained refills the mate, and its entity on the map when it is out.
+        public static Ecs.MateComponentBundle? RefillAfterLevelUp(this Mate mate)
+        {
+            mate.Hp = mate.MaxHp;
+            mate.Mp = mate.MaxMp;
+            if (mate.Entity is not { } entity)
+            {
+                return null;
+            }
+
+            entity.Level = mate.Level;
+            entity.MaxHp = mate.MaxHp;
+            entity.MaxMp = mate.MaxMp;
+            entity.Hp = mate.Hp;
+            entity.Mp = mate.Mp;
+            return entity;
+        }
+
         public static Task SpawnAsync(this Mate mate, PlayerComponentBundle owner, MapInstance mapInstance,
             short x, short y)
         {

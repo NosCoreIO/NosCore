@@ -50,13 +50,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             var cost = Cost(index);
             if (character.Gold < cost)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.NotEnoughGold
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughGold));
                 return;
             }
 

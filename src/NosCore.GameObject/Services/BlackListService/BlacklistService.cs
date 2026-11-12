@@ -26,10 +26,9 @@ namespace NosCore.GameObject.Services.BlackListService
     {
         public async Task<LanguageKey> BlacklistPlayerAsync(long characterId, long secondCharacterId)
         {
-            var servers = await channelHub.GetCommunicationChannels();
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
-            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            var accounts = await pubSubHub.GetWorldSubscribersAsync(channelHub);
+            var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId);
+            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId);
 
 
             if ((character == null) || (targetCharacter == null))
@@ -69,30 +68,9 @@ namespace NosCore.GameObject.Services.BlackListService
         {
             var list = characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType == CharacterRelationType.Blocked))?.ToList();
-            if (list == null || list.Count == 0)
-            {
-                return new List<CharacterRelationStatus>();
-            }
-
-            var servers = await channelHub.GetCommunicationChannels();
-            var worldServerIds = servers.Where(c => c.Type == ServerType.WorldServer).Select(c => c.Id).ToHashSet();
-            var online = (await pubSubHub.GetSubscribersAsync())
-                .Where(s => worldServerIds.Contains(s.ChannelId))
-                .Select(s => s.ConnectedCharacter?.Id)
-                .OfType<long>()
-                .ToHashSet();
-            var relatedIds = list.Select(s => s.RelatedCharacterId).Distinct().ToList();
-            var names = characterDao.Where(s => relatedIds.Contains(s.CharacterId))?
-                .ToDictionary(s => s.CharacterId, s => (string?)s.Name) ?? new Dictionary<long, string?>();
-
-            return list.Select(rel => new CharacterRelationStatus
-            {
-                CharacterName = names.GetValueOrDefault(rel.RelatedCharacterId) ?? "",
-                CharacterId = rel.RelatedCharacterId,
-                IsConnected = online.Contains(rel.RelatedCharacterId),
-                RelationType = rel.RelationType,
-                CharacterRelationId = rel.CharacterRelationId
-            }).ToList();
+            var statuses = await pubSubHub.GetRelationStatusesAsync(channelHub, characterDao, list);
+            statuses.ForEach(s => s.CharacterName ??= string.Empty);
+            return statuses;
         }
 
         public async Task<bool> UnblacklistAsync(Guid id)

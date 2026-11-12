@@ -69,9 +69,7 @@ namespace NosCore.GameObject.Services.MailService
                 await itemInstanceDao.TryDeleteAsync(maildata.ItemInstance.Id);
             }
 
-            var servers = await channelHub.GetCommunicationChannels();
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            var receiver = await pubSubHub.GetWorldSubscriberAsync(channelHub, characterId);
 
             await NotifyAsync(1, receiver, maildata);
             return true;
@@ -166,9 +164,7 @@ namespace NosCore.GameObject.Services.MailService
                 mailref.ItemInstanceId = itemInstance?.Id;
             }
 
-            var servers = await channelHub.GetCommunicationChannels();
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == mailref.ReceiverId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            var receiver = await pubSubHub.GetWorldSubscriberAsync(channelHub, mailref.ReceiverId);
 
             mailref = await mailDao.TryInsertOrUpdateAsync(mailref);
             if (itemInstance == null)

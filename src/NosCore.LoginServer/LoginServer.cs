@@ -16,7 +16,6 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.Networking;
 using NosCore.Shared.Helpers;
 using NosCore.Shared.I18N;
-using Polly;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -44,14 +43,7 @@ namespace NosCore.LoginServer
                 logger.LogError(logLanguage[LogLanguageKey.DATABASE_NOT_UPTODATE]);
                 throw;
             }
-            var connectTask = Policy
-                 .Handle<Exception>()
-                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                     (_, __, timeSpan) =>
-                         logger.LogError(
-                             logLanguage[LogLanguageKey.MASTER_SERVER_RETRY],
-                             timeSpan.TotalSeconds)
-                 ).ExecuteAsync(() => channelHubClient.Bind(channel));
+            var connectTask = channelHubClient.BindUntilConnectedAsync(channel, logger, logLanguage);
 
             await Task.WhenAny(connectTask, networkManager.RunServerAsync());
         }

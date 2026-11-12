@@ -79,7 +79,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
         public int CountItem(int itemVNum)
         {
-            return this.Select(s => s.Value).Where(s => s.ItemInstance?.ItemVNum == itemVNum)
+            return this.Select(s => s.Value).Where(s => s.Type != NoscorePocketType.Wear && s.ItemInstance?.ItemVNum == itemVNum)
                 .Sum(i => i.ItemInstance?.Amount ?? 0);
         }
 

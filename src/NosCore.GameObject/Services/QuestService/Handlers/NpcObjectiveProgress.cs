@@ -7,7 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.QuestService.Handlers;
 
@@ -37,4 +40,25 @@ internal static class NpcObjectiveProgress
 
     public static bool AllReached(CharacterQuest quest, Func<QuestObjectiveDto, int> target) =>
         quest.Quest.QuestObjectives.All(o => quest.ObjectiveProgress.GetValueOrDefault(o.QuestObjectiveId) >= target(o));
+
+    // Counts one more of the NPC towards the quest: true once every objective is reached,
+    // otherwise the client's quest window is refreshed when anything moved.
+    public static async Task<bool> RecordAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum,
+        Func<QuestObjectiveDto, int> target)
+    {
+        if (!Advance(quest, npcVNum, target))
+        {
+            return false;
+        }
+
+        if (AllReached(quest, target))
+        {
+            return true;
+        }
+
+        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
+        return false;
+    }
+
+    public static int Times(QuestObjectiveDto objective) => objective.ThirdData is > 0 and var times ? times : 1;
 }

@@ -17,6 +17,7 @@ using NosCore.Core.I18N;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.Algorithm.DignityService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using System;
@@ -32,7 +33,7 @@ namespace NosCore.PacketHandlers.Shops
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, INpcDialogService npcDialogService,
             IShellOptionService shellOptionService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IFamilyShopService familyShopService)
+            IFamilyShopService familyShopService, IDignityService dignityService)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -68,7 +69,7 @@ namespace NosCore.PacketHandlers.Shops
                 return buyPacket.VisualType == VisualType.Npc && shop.ShopType == FamilyShopService.ShopType
                     ? familyShopService.BuyAsync(clientSession, aliveEntity, buyPacket.Slot)
                     : clientSession.Character.BuyAsync(shop, buyPacket.Slot, buyPacket.Amount, worldConfiguration,
-                        itemProvider, shellOptionService, itemInstanceDao);
+                        itemProvider, dignityService, shellOptionService, itemInstanceDao);
             }
 
             logger.LogError(logLanguage[LogLanguageKey.VISUALENTITY_DOES_NOT_EXIST]);

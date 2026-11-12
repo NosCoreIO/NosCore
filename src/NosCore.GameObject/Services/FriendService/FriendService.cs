@@ -29,10 +29,9 @@ namespace NosCore.GameObject.Services.FriendService
     {
         public async Task<LanguageKey> AddFriendAsync(long characterId, long secondCharacterId, FinsPacketType friendsPacketType)
         {
-            var servers = await channelHub.GetCommunicationChannels();
-            var accounts = await pubSubHub.GetSubscribersAsync();
-            var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
-            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId && servers.Where(c => c.Type == ServerType.WorldServer).Any(x => x.Id == s.ChannelId));
+            var accounts = await pubSubHub.GetWorldSubscribersAsync(channelHub);
+            var character = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == characterId);
+            var targetCharacter = accounts.FirstOrDefault(s => s.ConnectedCharacter?.Id == secondCharacterId);
 
             var friendRequest = friendRequestRegistry.GetRequestsForCharacter(character?.ConnectedCharacter?.Id ?? 0)
                 .Where(s => s.Value.ReceiverId == character?.ConnectedCharacter?.Id &&
@@ -128,30 +127,7 @@ namespace NosCore.GameObject.Services.FriendService
         {
             var list = characterRelationDao
                 .Where(s => (s.CharacterId == id) && (s.RelationType != CharacterRelationType.Blocked))?.ToList();
-            if (list == null || list.Count == 0)
-            {
-                return new List<CharacterRelationStatus>();
-            }
-
-            var servers = await channelHub.GetCommunicationChannels();
-            var worldServerIds = servers.Where(c => c.Type == ServerType.WorldServer).Select(c => c.Id).ToHashSet();
-            var online = (await pubSubHub.GetSubscribersAsync())
-                .Where(s => worldServerIds.Contains(s.ChannelId))
-                .Select(s => s.ConnectedCharacter?.Id)
-                .OfType<long>()
-                .ToHashSet();
-            var relatedIds = list.Select(s => s.RelatedCharacterId).Distinct().ToList();
-            var names = characterDao.Where(s => relatedIds.Contains(s.CharacterId))?
-                .ToDictionary(s => s.CharacterId, s => (string?)s.Name) ?? new Dictionary<long, string?>();
-
-            return list.Select(rel => new CharacterRelationStatus
-            {
-                CharacterName = names.GetValueOrDefault(rel.RelatedCharacterId),
-                CharacterId = rel.RelatedCharacterId,
-                IsConnected = online.Contains(rel.RelatedCharacterId),
-                RelationType = rel.RelationType,
-                CharacterRelationId = rel.CharacterRelationId
-            }).ToList();
+            return await pubSubHub.GetRelationStatusesAsync(channelHub, characterDao, list);
         }
 
         public async Task<bool> MarryAsync(long characterId, long spouseId)

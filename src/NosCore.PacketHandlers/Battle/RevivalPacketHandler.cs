@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
@@ -96,7 +97,8 @@ namespace NosCore.PacketHandlers.Battle
                     return;
                 }
 
-                ConsumeSeeds(session, SeedsRequired);
+                await session.SendPacketsAsync(
+                    character.InventoryService.RemoveItemAmountByVNum(SeedOfPowerVNum, SeedsRequired));
                 percent = 50;
 
                 await session.SendPacketAsync(new MsgiPacket
@@ -156,19 +158,6 @@ namespace NosCore.PacketHandlers.Battle
             c.Hp = Math.Max(1, c.MaxHp * percent / 100);
             c.Mp = Math.Max(1, c.MaxMp * percent / 100);
             c.IsAlive = true;
-        }
-
-        private static void ConsumeSeeds(ClientSession session, short needed)
-        {
-            var inventory = session.Character.InventoryService;
-            short remaining = needed;
-            foreach (var slot in inventory.GetAll().Where(i => i.ItemInstance?.ItemVNum == SeedOfPowerVNum).ToList())
-            {
-                if (remaining <= 0) break;
-                var take = (short)Math.Min(remaining, slot.ItemInstance.Amount);
-                inventory.RemoveItemAmountFromInventory(take, slot.ItemInstanceId);
-                remaining -= take;
-            }
         }
 
         private static async Task BroadcastReviveAsync(ClientSession session, short x, short y)

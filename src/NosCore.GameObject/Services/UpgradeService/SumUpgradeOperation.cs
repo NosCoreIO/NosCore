@@ -62,8 +62,7 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             return null;
         }
 
-        var source = session.Character.InventoryService
-            .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
+        var source = LoadSource(session, packet);
         var target = session.Character.InventoryService
             .LoadBySlotAndType(packet.Slot2.Value, (NoscorePocketType)packet.InventoryType2.Value);
 
@@ -161,7 +160,7 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             ctx.RequiredTarget.Type.ToPocketType(), ctx.RequiredTarget.Slot);
         if (outcome == UpgradeOutcome.Success)
         {
-            yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
+            yield return RefreshSource(ctx);
             // OpenNos WearableInstance.cs:648 pdti 10 popup announcing the combined upgrade level.
             // Type=10 (ResistanceFused), RecipeAmount=1, Slot=27 are fixed values from OpenNos.
             var source = (WearableInstance)ctx.Source.ItemInstance;

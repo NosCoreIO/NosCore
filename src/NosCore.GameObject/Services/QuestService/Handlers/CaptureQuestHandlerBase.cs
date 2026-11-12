@@ -19,21 +19,8 @@ public abstract class CaptureQuestHandlerBase : IQuestTypeHandler
     public Task<bool> ValidateAsync(ICharacterEntity character, CharacterQuest quest) =>
         Task.FromResult(quest.AreObjectivesComplete());
 
-    public async Task<bool> OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest)
-    {
-        if (!NpcObjectiveProgress.Advance(quest, mob.NpcMonsterVNum, Required))
-        {
-            return false;
-        }
-
-        if (NpcObjectiveProgress.AllReached(quest, Required))
-        {
-            return true;
-        }
-
-        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-        return false;
-    }
+    public Task<bool> OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) =>
+        NpcObjectiveProgress.RecordAsync(character, quest, mob.NpcMonsterVNum, Required);
 
     private static int Required(QuestObjectiveDto objective) => objective.SecondData ?? 0;
 }

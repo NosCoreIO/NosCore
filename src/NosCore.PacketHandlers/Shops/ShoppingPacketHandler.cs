@@ -37,14 +37,8 @@ namespace NosCore.PacketHandlers.Shops
                     break;
                 case VisualType.Npc:
 
-                    percent = (dignityService.GetLevelFromDignity(clientSession.Character.Dignity)) switch
-                    {
-                        DignityType.Dreadful => 1.1,
-                        DignityType.Unqualified => 1.2,
-                        DignityType.Failed => 1.5,
-                        DignityType.Useless => 1.5,
-                        _ => 1.0,
-                    };
+                    percent = dignityService.GetShopPriceMultiplier(
+                        dignityService.GetLevelFromDignity(clientSession.Character.Dignity));
                     aliveEntity =
                         clientSession.Character.MapInstance.FindNpc(s => s.VisualId == shoppingPacket.VisualId);
                     break;

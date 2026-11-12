@@ -53,10 +53,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     chara.ShouldRename = false;
                     await characterDao.TryInsertOrUpdateAsync(chara);
                     await clientSession.SendPacketAsync(new SuccessPacket());
-                    await clientSession.HandlePacketsAsync(new[] { new EntryPointPacket()
-                    {
-                        Name = clientSession.Account.Name,
-                    } });
+                    await clientSession.ShowCharacterListAsync();
                 }
                 else
                 {

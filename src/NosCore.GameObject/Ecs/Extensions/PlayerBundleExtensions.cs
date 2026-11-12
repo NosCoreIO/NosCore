@@ -159,29 +159,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static SpeakPacket GenerateSpk(this PlayerComponentBundle player, SpeakPacket speakPacket)
-    {
-        return new SpeakPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            SpeakType = speakPacket.SpeakType,
-            Message = speakPacket.Message,
-            EntityName = player.Name
-        };
-    }
-
-    public static SayPacket GenerateSay(this PlayerComponentBundle player, SayPacket sayPacket)
-    {
-        return new SayPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            Type = sayPacket.Type,
-            Message = sayPacket.Message
-        };
-    }
-
     public static async Task<FinitPacket> GenerateFinitAsync(this PlayerComponentBundle player, IFriendHub friendHub, IChannelHub channelHub, IPubSubHub pubSubHub)
     {
         var friends = await friendHub.GetFriendsAsync(player.CharacterId);
@@ -354,24 +331,6 @@ public static class PlayerBundleExtensions
                 Size = player.Size,
                 HeroLevel = player.HeroLevel
             }
-        };
-    }
-
-    public static InEquipmentSubPacket GetEquipmentSubPacket(this PlayerComponentBundle player)
-    {
-        var inventory = player.InventoryService;
-        return new InEquipmentSubPacket
-        {
-            Armor = inventory.LoadBySlotAndType((short)EquipmentType.Armor, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            CostumeHat = inventory.LoadBySlotAndType((short)EquipmentType.CostumeHat, NoscorePocketType.Wear)?.ItemInstance?.LookVNum(),
-            CostumeSuit = inventory.LoadBySlotAndType((short)EquipmentType.CostumeSuit, NoscorePocketType.Wear)?.ItemInstance?.LookVNum(),
-            Fairy = inventory.LoadBySlotAndType((short)EquipmentType.Fairy, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            Hat = inventory.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            MainWeapon = inventory.LoadBySlotAndType((short)EquipmentType.MainWeapon, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            Mask = inventory.LoadBySlotAndType((short)EquipmentType.Mask, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            SecondaryWeapon = inventory.LoadBySlotAndType((short)EquipmentType.SecondaryWeapon, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            WeaponSkin = inventory.LoadBySlotAndType((short)EquipmentType.WeaponSkin, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum,
-            WingSkin = inventory.LoadBySlotAndType((short)EquipmentType.WingSkin, NoscorePocketType.Wear)?.ItemInstance?.ItemVNum
         };
     }
 
@@ -568,48 +527,12 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static CondPacket GenerateCond(this PlayerComponentBundle player)
-    {
-        return new CondPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            NoAttack = player.NoAttack,
-            NoMove = player.NoMove,
-            Speed = player.Speed
-        };
-    }
-
-    public static CModePacket GenerateCMode(this PlayerComponentBundle player)
-    {
-        return new CModePacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            Morph = player.Morph,
-            MorphUpgrade = player.MorphUpgrade,
-            MorphDesign = player.MorphDesign,
-            MorphBonus = player.MorphBonus,
-            Size = player.Size
-        };
-    }
-
     public static OutPacket GenerateOut(this PlayerComponentBundle player)
     {
         return new OutPacket
         {
             VisualType = VisualType.Player,
             VisualId = player.VisualId
-        };
-    }
-
-    public static RestPacket GenerateRest(this PlayerComponentBundle player)
-    {
-        return new RestPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            IsSitting = player.IsSitting
         };
     }
 
@@ -625,40 +548,6 @@ public static class PlayerBundleExtensions
         return dignity == DignityType.Default
             ? (byte)GetReputationIcon(player.Reputation)
             : (byte)-(int)dignity;
-    }
-
-    public static EffectPacket GenerateEff(this PlayerComponentBundle player, int effectId)
-    {
-        return new EffectPacket
-        {
-            EffectType = VisualType.Player,
-            VisualEntityId = player.VisualId,
-            Id = effectId
-        };
-    }
-
-    public static SayPacket GenerateSay(this PlayerComponentBundle player, string message, SayColorType type)
-    {
-        return new SayPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            Type = type,
-            Message = message
-        };
-    }
-
-    public static UseItemPacket GenerateUseItem(this PlayerComponentBundle player, PocketType type, short slot, byte mode, byte parameter)
-    {
-        return new UseItemPacket
-        {
-            VisualId = player.VisualId,
-            VisualType = VisualType.Player,
-            Type = type,
-            Slot = slot,
-            Mode = mode,
-            Parameter = parameter
-        };
     }
 
     public static EqPacket GenerateEq(this PlayerComponentBundle player)
@@ -788,27 +677,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static PairyPacket GeneratePairy(this PlayerComponentBundle player, WearableInstance? fairy)
-    {
-        var isBuffed = false;
-        return new PairyPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            FairyMoveType = fairy == null ? 0 : 4,
-            Element = fairy?.Item?.Element ?? 0,
-            // `??` has LOWER precedence than `+`, so the naive
-            // `fairy?.ElementRate + fairy?.Item?.ElementRate ?? 0` groups as
-            // `(fairy?.ElementRate + fairy?.Item?.ElementRate) ?? 0` — and int? + int? is
-            // null when either side is null, so a fairy with no Item fallback drops to 0
-            // instead of keeping the character's ElementRate. Same precedence trap on
-            // Morph: `Morph ?? 0 + (isBuffed ? 5 : 0)` parsed as `Morph ?? (0 + 5)`, which
-            // applied the +5 buff only when Morph was null (i.e. never in practice).
-            ElementRate = (fairy?.ElementRate ?? 0) + (fairy?.Item?.ElementRate ?? 0),
-            Morph = (fairy?.Item?.Morph ?? 0) + (isBuffed ? 5 : 0)
-        };
-    }
-
     public static TitlePacket GenerateTitle(this PlayerComponentBundle player)
     {
         var data = player.Titles.Select(s => new TitleSubPacket
@@ -876,24 +744,6 @@ public static class PlayerBundleExtensions
         };
     }
 
-    public static SayItemPacket GenerateSayItem(this PlayerComponentBundle player, string message, InventoryItemInstance item)
-    {
-        var isNormalItem = item.Type != NoscorePocketType.Equipment && item.Type != NoscorePocketType.Specialist;
-        return new SayItemPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            OratorSlot = 17,
-            Message = message,
-            IconInfo = isNormalItem ? new IconInfoPacket
-            {
-                IconId = item.ItemInstance.ItemVNum
-            } : null,
-            EquipmentInfo = isNormalItem ? null : new EInfoPacket(),
-            SlInfo = item.Type != NoscorePocketType.Specialist ? null : new SlInfoPacket()
-        };
-    }
-
     public static StPacket GenerateStatInfo(this PlayerComponentBundle player)
     {
         return new StPacket
@@ -913,86 +763,6 @@ public static class PlayerBundleExtensions
             MaxHp = player.MaxHp,
             MaxMp = player.MaxMp,
             BuffIds = null
-        };
-    }
-
-    public static PflagPacket GeneratePFlag(this PlayerComponentBundle player)
-    {
-        return new PflagPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            Flag = player.Shop?.ShopId ?? 0
-        };
-    }
-
-    public static ShopPacket GenerateShop(this PlayerComponentBundle player, RegionType language)
-    {
-        return new ShopPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            ShopId = player.Shop?.ShopId ?? 0,
-            MenuType = player.Shop?.MenuType ?? 0,
-            ShopType = player.Shop?.ShopType,
-            Name = player.Shop?.Name[language]
-        };
-    }
-
-    public static DirPacket GenerateChangeDir(this PlayerComponentBundle player)
-    {
-        return new DirPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            Direction = player.Direction
-        };
-    }
-
-    public static MovePacket GenerateMove(this PlayerComponentBundle player)
-    {
-        return player.GenerateMove(null, null);
-    }
-
-    public static MovePacket GenerateMove(this PlayerComponentBundle player, short? mapX, short? mapY)
-    {
-        return new MovePacket
-        {
-            VisualEntityId = player.VisualId,
-            MapX = mapX ?? player.PositionX,
-            MapY = mapY ?? player.PositionY,
-            Speed = player.Speed,
-            VisualType = VisualType.Player
-        };
-    }
-
-    public static PidxSubPacket GenerateSubPidx(this PlayerComponentBundle player)
-    {
-        return player.GenerateSubPidx(false);
-    }
-
-    public static PidxSubPacket GenerateSubPidx(this PlayerComponentBundle player, bool isMemberOfGroup)
-    {
-        return new PidxSubPacket
-        {
-            IsGrouped = isMemberOfGroup,
-            VisualId = player.VisualId
-        };
-    }
-
-    public static PinitSubPacket GenerateSubPinit(this PlayerComponentBundle player, int groupPosition)
-    {
-        return new PinitSubPacket
-        {
-            VisualType = VisualType.Player,
-            VisualId = player.VisualId,
-            GroupPosition = groupPosition,
-            Level = player.Level,
-            Name = player.Name,
-            Gender = player.Gender,
-            Race = player.Race,
-            Morph = player.Morph,
-            HeroLevel = player.HeroLevel
         };
     }
 

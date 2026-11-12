@@ -76,12 +76,6 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
         }
 
         private static Task SayAsync(ClientSession session, Game18NConstString message) =>
-            session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = message,
-            });
+            session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Yellow, message));
     }
 }

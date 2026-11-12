@@ -364,13 +364,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         {
             if (mg.Instance.DurabilityPoint <= 0)
             {
-                await mg.Session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = mg.Session.Character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.NeedToRestoreDurability
-                });
+                await mg.Session.SendPacketAsync(mg.Session.Character.GenerateSayi(SayColorType.Red, Game18NConstString.NeedToRestoreDurability));
                 return;
             }
 

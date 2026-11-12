@@ -40,33 +40,6 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
     public virtual Task<ItemQuestProgress> OnNpcDialogRequestedAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum) =>
         Task.FromResult(ItemQuestProgress.None);
 
-    protected static int CountCarried(ICharacterEntity character, int vNum) =>
-        character.InventoryService.Values
-            .Where(s => s.Type != NoscorePocketType.Wear && s.ItemInstance.ItemVNum == vNum)
-            .Sum(s => s.ItemInstance.Amount);
-
-    protected static List<IPacket> TakeCarried(ICharacterEntity character, int vNum, int amount)
-    {
-        var packets = new List<IPacket>();
-        foreach (var stack in character.InventoryService.Values
-                     .Where(s => s.Type != NoscorePocketType.Wear && s.ItemInstance.ItemVNum == vNum)
-                     .OrderBy(s => s.Slot)
-                     .ToList())
-        {
-            if (amount <= 0)
-            {
-                break;
-            }
-
-            var taken = (short)Math.Min(amount, stack.ItemInstance.Amount);
-            var left = character.InventoryService.RemoveItemAmountFromInventory(taken, stack.ItemInstanceId);
-            amount -= taken;
-            packets.Add(left.GeneratePocketChange(stack.Type.ToPocketType(), stack.Slot));
-        }
-
-        return packets;
-    }
-
     protected static bool RaiseProgress(CharacterQuest quest, QuestObjectiveDto objective, int value)
     {
         var required = objective.RequiredAmount(quest.Quest.QuestType);

@@ -23,6 +23,7 @@ using NosCore.Networking;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
+using NosCore.GameObject.Services.MovementService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -347,7 +348,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var goalMoved = cache == null || cache.TargetX != goalX || cache.TargetY != goalY;
         // A path cached before the entity was moved elsewhere (a respawn) no longer starts next to it.
         var leftPath = cache is { Path.Count: > 0 }
-            && Math.Max(Math.Abs(cache.Path[0].Item1 - entity.PositionX), Math.Abs(cache.Path[0].Item2 - entity.PositionY)) > 1;
+            && WalkPath.Steps(cache.Path[0].Item1, cache.Path[0].Item2, entity.PositionX, entity.PositionY) > 1;
 
         if (cache == null || goalMoved || leftPath || cache.Path.Count == 0)
         {

@@ -34,7 +34,7 @@ public sealed class SpPerfectionOperation(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
     ISpPerfectionService spPerfectionService)
-    : UpgradeOperation(random, localizer)
+    : SpecialistCardOperation(random, localizer)
 {
     public const short SmallRubyVNum = 2514;
     public const short SmallSapphireVNum = 2515;
@@ -56,29 +56,12 @@ public sealed class SpPerfectionOperation(
 
     protected override Game18NConstString FailureMessage => Game18NConstString.PerfectingSpecialistFailed;
 
-    protected override IReadOnlyList<IPacket>? TryReject(ClientSession session, UpgradePacket packet)
-    {
-        if (LoadCard(session, packet)?.ItemInstance is not SpecialistInstance card)
-        {
-            return null;
-        }
-
-        Game18NConstString? rejection = card.Rare == SpUpgradeOperationBase.DestroyedSoulRare
+    protected override Game18NConstString? Rejection(ClientSession session, SpecialistInstance card) =>
+        card.Rare == DestroyedSoulRare
             ? Game18NConstString.CantUseBecauseSoulDestroyed
             : card.SpStoneUpgrade >= spPerfectionService.MaxPerfection
                 ? Game18NConstString.MaximumUpgradeReached
                 : null;
-        return rejection is null ? null : new IPacket[]
-        {
-            new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = session.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = rejection.Value,
-            },
-        };
-    }
 
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
@@ -158,7 +141,7 @@ public sealed class SpPerfectionOperation(
     {
         if (outcome == UpgradeOutcome.Success)
         {
-            await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateEff(3005));
+            await BroadcastEffectAsync(session, 3005);
         }
     }
 
@@ -179,18 +162,6 @@ public sealed class SpPerfectionOperation(
         }
 
         return msgi;
-    }
-
-    protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
-    {
-        yield return ctx.Source.GeneratePocketChange(ctx.Source.Type.ToPocketType(), ctx.Source.Slot);
-    }
-
-    private static InventoryItemInstance? LoadCard(ClientSession session, UpgradePacket packet)
-    {
-        var source = session.Character.InventoryService
-            .LoadBySlotAndType(packet.Slot, (NoscorePocketType)packet.InventoryType);
-        return source?.ItemInstance is SpecialistInstance { Item.EquipmentSlot: EquipmentType.Sp } ? source : null;
     }
 
     private static short? StoneVNum(short morph) => morph switch

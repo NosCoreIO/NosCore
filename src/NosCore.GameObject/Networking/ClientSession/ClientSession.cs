@@ -18,6 +18,7 @@ using NosCore.GameObject.Services.PacketHandlerService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Packets.Attributes;
+using NosCore.Data.CommandPackets;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -375,6 +376,10 @@ namespace NosCore.GameObject.Networking.ClientSession
             return Task.WhenAll(packetConcatenated.Select(packet =>
                 packetHandlingStrategy.HandlePacketAsync(packet, this, isFromNetwork)));
         }
+
+        // Runs the account's entry point again, which sends the character select screen afresh.
+        public Task ShowCharacterListAsync() =>
+            HandlePacketsAsync(new[] { new EntryPointPacket { Name = Account.Name } });
 
         private sealed class PlayerSlot(PlayerComponentBundle bundle)
         {

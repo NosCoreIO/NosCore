@@ -23,7 +23,7 @@ public sealed class CollectQuestHandler : ItemQuestHandlerBase
         var progressed = false;
         foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.ItemVNum(QuestType) == vNum))
         {
-            progressed |= RaiseProgress(quest, objective, CountCarried(character, vNum));
+            progressed |= RaiseProgress(quest, objective, character.InventoryService.CountItem(vNum));
         }
 
         return Task.FromResult(Outcome(quest, progressed));

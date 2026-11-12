@@ -46,13 +46,7 @@ namespace NosCore.PacketHandlers.Inventory
                                 clientSession);
                         if (droppedItem == null)
                         {
-                            await clientSession.SendPacketAsync(new SayiPacket
-                            {
-                                VisualType = VisualType.Player,
-                                VisualId = clientSession.Character.CharacterId,
-                                Type = SayColorType.Yellow,
-                                Message = Game18NConstString.CantDropItem
-                            });
+                            await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CantDropItem));
                             return;
                         }
 
@@ -81,13 +75,7 @@ namespace NosCore.PacketHandlers.Inventory
             }
             else
             {
-                await clientSession.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = clientSession.Character.CharacterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.CantDropItem
-                });
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CantDropItem));
             }
         }
     }

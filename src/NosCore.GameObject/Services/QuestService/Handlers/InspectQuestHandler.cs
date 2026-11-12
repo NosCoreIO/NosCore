@@ -20,21 +20,6 @@ public sealed class InspectQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.Inspect;
 
-    public async Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest)
-    {
-        if (!NpcObjectiveProgress.Advance(quest, npc.NpcMonsterVNum, Times))
-        {
-            return false;
-        }
-
-        if (NpcObjectiveProgress.AllReached(quest, Times))
-        {
-            return true;
-        }
-
-        await character.SendPacketAsync(quest.GenerateQstiPacket(false));
-        return false;
-    }
-
-    private static int Times(QuestObjectiveDto objective) => objective.ThirdData is > 0 and var times ? times : 1;
+    public Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) =>
+        NpcObjectiveProgress.RecordAsync(character, quest, npc.NpcMonsterVNum, NpcObjectiveProgress.Times);
 }
