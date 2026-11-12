@@ -721,6 +721,7 @@ namespace NosCore.Parser.Parsers
                 // 300 matches the client's refusal below 300 missing points, not a stated amount.
                 1269 => 300,
                 1271 => 500,
+                1904 => 5,
                 5369 => 61,
                 _ => item.EffectValue
             };
@@ -759,6 +760,7 @@ namespace NosCore.Parser.Parsers
                 1981 => ItemEffectType.MarriageProposal,
                 1982 => ItemEffectType.MarriageSeparation,
                 var x when x >= 1894 && x <= 1903 => ItemEffectType.SealedTarotCard,
+                1904 => ItemEffectType.TarotCardGame,
                 var x when x >= 4046 && x <= 4055 => ItemEffectType.TarotCard,
                 var x when x == 5119 || x == 9071 => ItemEffectType.SpeedBooster,
                 var x when x == 2160 || x == 2312 || x == 10048 => ItemEffectType.FriendshipWings,
