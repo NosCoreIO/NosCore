@@ -47,7 +47,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private List<ItemDto> MinilandItems => new()
         {
             new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet },
-            new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = true }
+            new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = true },
+            new Item { Type = NoscorePocketType.Main, VNum = 1269, Effect = ItemEffectType.MinigameDurabilityCoupon, EffectValue = 300 },
+            new Item { Type = NoscorePocketType.Main, VNum = 1271, Effect = ItemEffectType.ProductionCoupon, EffectValue = 500 },
         };
 
         [TestInitialize]
@@ -139,6 +141,52 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .Then(ShouldReceiveGiftsPacket)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ADurabilityCouponRepairsTheMinigame()
+        {
+            await new Spec("A durability coupon adds its points to the minigame's durability")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(CharacterHolds_, (short)1269)
+                .WhenAsync(UsingACoupon)
+                .Then(DurabilityShouldBe_, 1300)
+                .And(CharacterShouldHold_Of_, 0, (short)1269)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AProductionCouponIsNotARepairCoupon()
+        {
+            await new Spec("Without a durability coupon nothing is spent and the client is told there are none")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(CharacterHolds_, (short)1271)
+                .WhenAsync(UsingACoupon)
+                .Then(DurabilityShouldBe_, 1000)
+                .And(CharacterShouldHold_Of_, 1, (short)1271)
+                .And(NoCouponsMessageShouldBeSent)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHolds_(short vnum) =>
+            _session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(_itemProvider.Create(vnum, 1), _session.Character.CharacterId));
+
+        private Task UsingACoupon() =>
+            _mgPacketHandler.ExecuteAsync(new MinigamePacket
+            {
+                Type = MinigamePacketType.UseCoupon,
+                Id = 0,
+                MinigameVNum = 3000
+            }, _session);
+
+        private void DurabilityShouldBe_(int expected) =>
+            Assert.AreEqual(expected, _minilandObject.ItemInstance.DurabilityPoint);
+
+        private void CharacterShouldHold_Of_(int expected, short vnum) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(vnum));
+
+        private void NoCouponsMessageShouldBeSent() =>
+            Assert.IsTrue(_session.LastPackets.OfType<InfoiPacket>().Any(p => p.Message == Game18NConstString.NoCoupons));
 
         private void MinigameObjectExistsAndPlaced()
         {

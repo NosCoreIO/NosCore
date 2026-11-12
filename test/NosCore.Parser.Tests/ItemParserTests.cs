@@ -243,6 +243,20 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)1269, ItemEffectType.MinigameDurabilityCoupon, 300)]
+        [DataRow((short)1271, ItemEffectType.ProductionCoupon, 500)]
+        public async Task ItemParser_MarksTheMinilandCoupons(short vnum, ItemEffectType effect, int points)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(effect, _savedItems.Single().Effect);
+            Assert.AreEqual(points, _savedItems.Single().EffectValue);
+        }
+
+        [TestMethod]
         public async Task ItemParser_AnItemWithItsOwnBuffKeepsIt()
         {
             CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1340\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Map;
@@ -103,21 +104,24 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         private async Task UseCouponAsync(Minigame mg)
         {
             var item = mg.Session.Character.InventoryService.Select(s => s.Value)
-                .Where(s => (s.ItemInstance?.ItemVNum == 1269) || (s.ItemInstance?.ItemVNum == 1271)).OrderBy(s => s.Slot)
+                .Where(s => s.ItemInstance?.Item.Effect == ItemEffectType.MinigameDurabilityCoupon).OrderBy(s => s.Slot)
                 .FirstOrDefault();
-            if (item != null)
+            if (item == null)
             {
-                var point = item.ItemInstance.ItemVNum == 1269 ? 300 : 500;
-                mg.Session.Character.InventoryService.RemoveItemAmountFromInventory(1, item.ItemInstance.Id);
-                mg.Instance.DurabilityPoint += point;
-                await mg.Session.SendPacketAsync(new InfoiPacket
-                {
-                    Message = Game18NConstString.ToppedUpPoints,
-                    ArgumentType = 4,
-                    Game18NArguments = { point }
-                });
-                await ShowMinilandManagmentAsync(mg);
+                await mg.Session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NoCoupons });
+                return;
             }
+
+            var point = item.ItemInstance.Item.EffectValue;
+            await mg.Session.Character.UseUpOneAsync(item);
+            mg.Instance.DurabilityPoint += point;
+            await mg.Session.SendPacketAsync(new InfoiPacket
+            {
+                Message = Game18NConstString.ToppedUpPoints,
+                ArgumentType = 4,
+                Game18NArguments = { point }
+            });
+            await ShowMinilandManagmentAsync(mg);
         }
 
         private Task ShowMinilandManagmentAsync(Minigame mg)

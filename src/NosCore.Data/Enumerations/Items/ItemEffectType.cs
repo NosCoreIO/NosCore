@@ -70,6 +70,12 @@ namespace NosCore.Data.Enumerations.Items
         EventSpecialist = 1017,
 
         CostumeFusion = 1016,
+
+        // EffectValue is the points one coupon adds: minigame durability for the first, miniland
+        // production points for the second.
+        MinigameDurabilityCoupon = 1018,
+        ProductionCoupon = 1019,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

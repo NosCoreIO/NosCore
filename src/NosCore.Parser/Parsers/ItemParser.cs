@@ -715,6 +715,10 @@ namespace NosCore.Parser.Parsers
                 var x when x == 5107 || x == 907 => (int)UpgradePacketType.UpgradeSpChiken,
                 var x when x == 5207 || x == 900 => (int)UpgradePacketType.UpgradeSpPyjama,
                 var x when x == 5519 || x == 4099 || x == 4100 => (int)UpgradePacketType.UpgradeSpPirate,
+                // The production coupon's description gives its 500 points. The durability coupon's
+                // 300 matches the client's refusal below 300 missing points, not a stated amount.
+                1269 => 300,
+                1271 => 500,
                 5369 => 61,
                 _ => item.EffectValue
             };
@@ -766,6 +770,8 @@ namespace NosCore.Parser.Parsers
                 var x when x == 5107 || x == 5207 || x == 5519 => ItemEffectType.EventSpUpgradeScroll,
                 var x when x == 907 || x == 900 || x == 4099 || x == 4100 => ItemEffectType.EventSpecialist,
                 var x when x == 5874 || x == 9112 => ItemEffectType.CostumeFusion,
+                1269 => ItemEffectType.MinigameDurabilityCoupon,
+                1271 => ItemEffectType.ProductionCoupon,
                 var x when x == 5916 || x == 5927 || x == 5928 || x == 5929 => ItemEffectType.HeatResistance,
                 _ when item.ItemType == ItemType.Event && item.EffectValue > 1 => ItemEffectType.PlayEffect,
                 _ => item.Effect,
