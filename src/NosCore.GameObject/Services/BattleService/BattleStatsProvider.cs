@@ -9,6 +9,7 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Algorithm.DamageService;
+using NosCore.Algorithm.SecondaryDamageService;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Shared.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -25,7 +26,8 @@ namespace NosCore.GameObject.Services.BattleService;
 public sealed class BattleStatsProvider(
     IBuffService buffService,
     EquipmentService.IEquipmentStatsService equipmentStatsService,
-    IDamageService damageService) : IBattleStatsProvider
+    IDamageService damageService,
+    ISecondaryDamageService secondaryDamageService) : IBattleStatsProvider
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
@@ -146,13 +148,7 @@ public sealed class BattleStatsProvider(
 
         // The main weapon's slot carries the class table; for an archer that is the bow.
         var baseMinHit = (int)damageService.GetMinDamage(cls, level);
-        var baseMinDistance = cls switch
-        {
-            CharacterClassType.Swordsman => 2 * level + 5,
-            CharacterClassType.Mage => 2 * level + 9,
-            CharacterClassType.Archer => 9 + 3 * level,
-            _ => 2 * level + 2,
-        };
+        var baseMinDistance = (int)secondaryDamageService.GetSecondaryMinDamage(cls, level);
         var baseMaxHit = baseMinHit;
         var baseHitRate = cls switch
         {

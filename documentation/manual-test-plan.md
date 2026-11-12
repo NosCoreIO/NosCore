@@ -80,6 +80,8 @@ same damage means only one of the two is being read.
 - [ ] Upgrade the weapon from +0 to +5: the damage goes up by a share of the weapon's own attack,
       not of the whole attack
 - [ ] A critical hit adds its bonus on top of a normal hit; the level gap is not multiplied
+- [ ] A level 30 swordsman with a +0 Crossbow (68) fires Crossbow Shot at a level 30 Baby Dander
+      from range: every non-critical hit is between 132 and 137
 
 ### Combo chains
 
