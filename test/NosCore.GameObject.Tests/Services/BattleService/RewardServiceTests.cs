@@ -64,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new LevelPenaltyService(),
                 new LowLevelBoostService(), World.GroupLootService,
                 new MateProgressionService(new MateExperienceService()),
-                NullLogger<RewardService>.Instance);
+                World.Create<BuffService>(), NullLogger<RewardService>.Instance);
 
             var template = new NpcMonsterDto
             {

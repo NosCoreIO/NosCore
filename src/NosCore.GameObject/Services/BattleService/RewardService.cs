@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Arch.Core;
 using NosCore.Data.Enumerations;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -47,6 +48,7 @@ public sealed class RewardService(
     ILowLevelBoostService lowLevelBoostService,
     IGroupLootService groupLootService,
     IMateProgressionService mateProgression,
+    IBuffService buffService,
     ILogger<RewardService> logger) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
@@ -148,10 +150,12 @@ public sealed class RewardService(
 
     private async Task AwardMemberExperienceAsync(PlayerComponentBundle player, NpcMonsterDto mob, double share, double jobShare)
     {
+        var buffBonus = 1 + ExperienceBuffPercent(player) / 100d;
         var levelXp = (long)(mob.Xp * share
             * levelPenaltyService.GetExperiencePenalty(player.Level, mob.Level)
-            * lowLevelBoostService.GetExperienceBoost(player.Level));
-        var jobXp = (long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.JobLevel));
+            * lowLevelBoostService.GetExperienceBoost(player.Level)
+            * buffBonus);
+        var jobXp = (long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.JobLevel) * buffBonus);
         var heroXp = (long)(mob.HeroXp * share);
 
         var spXp = 0L;
@@ -185,6 +189,25 @@ public sealed class RewardService(
 
         await AwardReputationAsync(player, mob).ConfigureAwait(false);
         await AwardDignityAsync(player, mob).ConfigureAwait(false);
+    }
+
+    private int ExperienceBuffPercent(PlayerComponentBundle player)
+    {
+        var percent = 0;
+        foreach (var bCard in buffService.GetActiveBuffs(player).SelectMany(b => b.BCards))
+        {
+            switch (bCard.Effect())
+            {
+                case BCardEffect.ItemExpIncreased:
+                    percent += BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                    break;
+                case BCardEffect.ItemExpIncreasedNegated:
+                    percent -= BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                    break;
+            }
+        }
+
+        return percent;
     }
 
     private static async Task AwardReputationAsync(PlayerComponentBundle player, NpcMonsterDto mob)

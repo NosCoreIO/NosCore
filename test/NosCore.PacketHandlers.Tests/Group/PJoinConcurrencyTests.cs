@@ -49,7 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             _groups = groups.Object;
             _handler = new PjoinPacketHandler(NullLogger<PjoinPacketHandler>.Instance, new Mock<IBlacklistHub>().Object,
                 World.Clock, new IdService<GroupOfPlayers>(1), World.LogLanguageLocalizer,
-                World.GameLanguageLocalizer, World.SessionRegistry);
+                World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
         }
 
         private void EveryoneAlone()

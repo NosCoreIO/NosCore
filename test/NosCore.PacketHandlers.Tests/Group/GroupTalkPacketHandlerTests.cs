@@ -66,7 +66,8 @@ namespace NosCore.PacketHandlers.Tests.Group
                 idServer,
                 World.LogLanguageLocalizer,
                 World.GameLanguageLocalizer,
-                World.SessionRegistry);
+                World.SessionRegistry,
+                new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
         }
 
         [TestMethod]

@@ -68,7 +68,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
                 new LowLevelBoostService(),
                 World.GroupLootService,
                 new MateProgressionService(new MateExperienceService()),
-                NullLogger<RewardService>.Instance);
+                World.Create<BuffService>(), NullLogger<RewardService>.Instance);
 
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },

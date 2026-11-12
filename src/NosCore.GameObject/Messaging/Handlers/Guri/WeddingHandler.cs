@@ -13,6 +13,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 
@@ -21,7 +22,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
     // Argument 1 accepts the proposal from VisualId, argument 0 declines it.
     [UsedImplicitly]
     public sealed class WeddingHandler(IFriendHub friendHub, IChannelHub channelHub, IPubSubHub pubSubHub,
-        ISessionRegistry sessionRegistry)
+        ISessionRegistry sessionRegistry, ICoupleBuffService coupleBuffService)
     {
         private const int Accept = 1;
 
@@ -73,6 +74,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             });
             await session.SendPacketAsync(await character.GenerateFinitAsync(friendHub, channelHub, pubSubHub));
             await proposer.SendPacketAsync(await proposer.GenerateFinitAsync(friendHub, channelHub, pubSubHub));
+            await coupleBuffService.RefreshAsync([character, proposer]);
         }
 
         private Task BroadcastAsync(Msgi2Packet packet) =>

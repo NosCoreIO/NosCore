@@ -55,10 +55,10 @@ namespace NosCore.PacketHandlers.Tests.Group
 
             var sessionGroupFactoryForHandler = new Mock<ISessionGroupFactory>();
             sessionGroupFactoryForHandler.Setup(x => x.Create()).Returns(new Mock<ISessionGroup>().Object);
-            PLeavePacketHandler = new PleavePacketHandler(idServer, World.SessionRegistry, sessionGroupFactoryForHandler.Object);
+            PLeavePacketHandler = new PleavePacketHandler(idServer, World.SessionRegistry, sessionGroupFactoryForHandler.Object, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
 
             var mock = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
         }
 
         [TestMethod]

@@ -14,6 +14,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
@@ -23,7 +24,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class SeparationLetterHandler(IFriendHub friendHub, IChannelHub channelHub, IPubSubHub pubSubHub,
-        ISessionRegistry sessionRegistry)
+        ISessionRegistry sessionRegistry, ICoupleBuffService coupleBuffService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -72,7 +73,10 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (sessionRegistry.GetSessionByCharacterId(spouseId)?.Character is { } spouse)
             {
                 await spouse.SendPacketAsync(await spouse.GenerateFinitAsync(friendHub, channelHub, pubSubHub));
+                await coupleBuffService.RefreshAsync([spouse]);
             }
+
+            await coupleBuffService.RefreshAsync([character]);
         }
     }
 }

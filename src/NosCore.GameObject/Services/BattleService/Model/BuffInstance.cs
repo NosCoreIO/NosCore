@@ -21,4 +21,5 @@ public sealed record BuffInstance(
     Instant StartedAt,
     Instant ExpiresAt,
     IReadOnlyList<BCardDto> BCards,
-    bool FromSkill = false);
+    bool FromSkill = false,
+    bool Permanent = false);
