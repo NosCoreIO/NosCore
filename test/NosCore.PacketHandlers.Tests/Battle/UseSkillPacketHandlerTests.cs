@@ -468,7 +468,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             Session.Character.Skills[2] = new CharacterSkill
             {
-                Skill = new SkillDto { SkillVNum = 2, CastId = castId, MpCost = 10, Cooldown = 10, Range = 2 },
+                Skill = new SkillDto { SkillVNum = 2, CastId = castId, MpCost = 10, Cooldown = 10, Range = 2, SkillType = 1 },
             };
         }
 
@@ -560,6 +560,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                     UpgradeSkill = 0,
                     MpCost = mpCost,
                     Cooldown = cooldown,
+                    SkillType = 1,
                 },
             };
             Session.Character.Skills = new ConcurrentDictionary<short, CharacterSkill>();

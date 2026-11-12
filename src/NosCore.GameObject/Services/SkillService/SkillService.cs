@@ -156,8 +156,9 @@ namespace NosCore.GameObject.Services.SkillService
                 .ToHashSet();
             var characterId = character.VisualId;
 
+            var passives = skills.Where(s => s.IsPassive()).Select(s => s.SkillVNum).ToHashSet();
             foreach (var stale in characterSkillDao.Where(x => x.CharacterId == characterId)?
-                         .Where(x => !keep.Contains(x.SkillVNum)).ToList() ?? [])
+                         .Where(x => !keep.Contains(x.SkillVNum) && !passives.Contains(x.SkillVNum)).ToList() ?? [])
             {
                 await characterSkillDao.TryDeleteAsync(stale.Id).ConfigureAwait(false);
                 character.Skills.TryRemove(stale.SkillVNum, out _);

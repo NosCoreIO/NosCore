@@ -38,8 +38,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         {
             _skills = new Dictionary<short, SkillDto>
             {
-                [100] = new SkillDto { SkillVNum = 100, CastId = 1, UpgradeSkill = 0, Cooldown = 50, HitType = (byte)TargetHitType.SingleTargetHit },
-                [200] = new SkillDto { SkillVNum = 200, CastId = 2, UpgradeSkill = 0, Cooldown = 50, HitType = (byte)TargetHitType.AoeTargetHit },
+                [100] = new SkillDto { SkillVNum = 100, CastId = 1, UpgradeSkill = 0, Cooldown = 50, HitType = (byte)TargetHitType.SingleTargetHit, SkillType = 1 },
+                [200] = new SkillDto { SkillVNum = 200, CastId = 2, UpgradeSkill = 0, Cooldown = 50, HitType = (byte)TargetHitType.AoeTargetHit, SkillType = 1 },
             };
             _catalog = new NpcCombatCatalog(new(), new(), new());
         }

@@ -10,6 +10,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Services.SkillService;
 
 namespace NosCore.GameObject.Services.BattleService;
 
@@ -67,7 +68,7 @@ public sealed class SkillResolver : ISkillResolver
     public static CharacterSkill? FindLearned(ICharacterEntity character, long castId)
     {
         var owned = character.Skills?.Values
-            .Where(s => s.Skill != null && s.Skill.CastId == castId)
+            .Where(s => s.Skill != null && !s.Skill.IsPassive() && s.Skill.CastId == castId)
             .ToList();
         if (owned == null) return null;
         return owned.FirstOrDefault(s => s.Skill.UpgradeSkill == 0)

@@ -14,6 +14,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
@@ -36,22 +37,23 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         private static readonly List<SkillDto> Catalog = new()
         {
             // the Adventurer's real skills, listed one by one from the original game
-            new SkillDto { SkillVNum = 200, Class = 0, LevelMinimum = 0, CastId = 0 },
-            new SkillDto { SkillVNum = 201, Class = 0, LevelMinimum = 0, CastId = 1 },
-            new SkillDto { SkillVNum = 208, Class = 0, LevelMinimum = 0, CastId = 8 },
-            new SkillDto { SkillVNum = 210, Class = 0, LevelMinimum = 0, CastId = 9 },
+            new SkillDto { SkillVNum = 200, Class = 0, LevelMinimum = 0, CastId = 0, SkillType = 1 },
+            new SkillDto { SkillVNum = 201, Class = 0, LevelMinimum = 0, CastId = 1, SkillType = 1 },
+            new SkillDto { SkillVNum = 208, Class = 0, LevelMinimum = 0, CastId = 8, SkillType = 1 },
+            new SkillDto { SkillVNum = 210, Class = 0, LevelMinimum = 0, CastId = 9, SkillType = 1 },
             // 209 is the Adventurer's Capture: class 0, cast id 16, LevelMinimum 1 in Skill.dat.
-            new SkillDto { SkillVNum = 209, Class = 0, LevelMinimum = 1, CastId = 16 },
+            new SkillDto { SkillVNum = 209, Class = 0, LevelMinimum = 1, CastId = 16, SkillType = 1 },
             // A cheat skill, class 0 like the rest of the bucket.
-            new SkillDto { SkillVNum = 211, Class = 0, LevelMinimum = 0, CastId = 10 },
+            new SkillDto { SkillVNum = 211, Class = 0, LevelMinimum = 0, CastId = 10, SkillType = 1 },
             // scrap: the same class 0, but they are passives and monster skills
             new SkillDto { SkillVNum = 1, Class = 0, LevelMinimum = 0, CastId = 4, SkillType = 3 },
             new SkillDto { SkillVNum = 17, Class = 0, LevelMinimum = 0, CastId = 0, SkillType = 3 },
             new SkillDto { SkillVNum = 999, Class = 0, LevelMinimum = 0, CastId = 4, SkillType = 3 },
             // a real job's skill
-            new SkillDto { SkillVNum = 220, Class = 1, LevelMinimum = 0, CastId = 0 },
-            new SkillDto { SkillVNum = 221, Class = 1, LevelMinimum = 5, CastId = 1 },
-            new SkillDto { SkillVNum = 222, Class = 1, LevelMinimum = 50, CastId = 2 },
+            new SkillDto { SkillVNum = 220, Class = 1, LevelMinimum = 0, CastId = 0, SkillType = 1 },
+            new SkillDto { SkillVNum = 221, Class = 1, LevelMinimum = 5, CastId = 1, SkillType = 1 },
+            new SkillDto { SkillVNum = 222, Class = 1, LevelMinimum = 50, CastId = 2, SkillType = 1 },
+            new SkillDto { SkillVNum = 20, Class = 0, LevelMinimum = 0, CastId = 0, SkillType = 0 },
         };
 
         [TestInitialize]
@@ -175,6 +177,34 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             await _service.ForgetUnlearnableSkillsAsync(_session.Character);
 
             Assert.IsFalse(_dao.Rows.Any(r => r.SkillVNum == 222));
+        }
+
+        // Passives are bought, not tied to a class, so neither a class change nor a login drops them.
+        [TestMethod]
+        public async Task APassiveIsKept()
+        {
+            _session.Character.Class = CharacterClassType.Swordsman;
+            _dao.Rows.Add(new CharacterSkillDto
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = _session.Character.VisualId,
+                SkillVNum = 20
+            });
+
+            await _service.ForgetUnlearnableSkillsAsync(_session.Character);
+
+            Assert.IsTrue(_dao.Rows.Any(r => r.SkillVNum == 20));
+        }
+
+        // Passive 20 shares cast id 0 with the basic attack; a cast must never pick it.
+        [TestMethod]
+        public void APassiveIsNeverTheSkillACastResolvesTo()
+        {
+            _session.Character.Skills.Clear();
+            _session.Character.Skills[20] = new CharacterSkill { SkillVNum = 20, Skill = Catalog.Single(s => s.SkillVNum == 20) };
+            _session.Character.Skills[220] = new CharacterSkill { SkillVNum = 220, Skill = Catalog.Single(s => s.SkillVNum == 220) };
+
+            Assert.AreEqual((short)220, SkillResolver.FindLearned(_session.Character, 0)?.SkillVNum);
         }
 
         /// <summary>

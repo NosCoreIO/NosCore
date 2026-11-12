@@ -156,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             _skill = new CharacterSkill
             {
-                Skill = new SkillDto { SkillVNum = 1, CastId = 3, Range = range, MpCost = mpCost, Cooldown = cooldown, HitType = 4 },
+                Skill = new SkillDto { SkillVNum = 1, CastId = 3, Range = range, MpCost = mpCost, Cooldown = cooldown, HitType = 4, SkillType = 1 },
             };
             _session.Character.Skills = new ConcurrentDictionary<short, CharacterSkill> { [1] = _skill };
         }
