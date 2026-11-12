@@ -22,4 +22,4 @@ public sealed record BuffInstance(
     Instant ExpiresAt,
     IReadOnlyList<BCardDto> BCards,
     bool FromSkill = false,
-    bool Permanent = false);
+    bool Static = false);

@@ -123,16 +123,43 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             StartedAt: clock.GetCurrentInstant(),
             ExpiresAt: Instant.MaxValue,
             BCards: bCards,
-            Permanent: true);
+            Static: true);
 
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
         await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true, RemainingTime = -1 });
     }
 
+    public async Task ApplyStaticAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
+    {
+        var buffs = ResolveState(target);
+        if (buffs == null)
+        {
+            return;
+        }
+
+        var now = clock.GetCurrentInstant();
+        var buff = new BuffInstance(
+            CardId: card.CardId,
+            BuffType: ClassifyBuffType(card),
+            Caster: null,
+            StartedAt: now,
+            ExpiresAt: now.Plus(duration),
+            BCards: bCards,
+            Static: true);
+
+        buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
+        await target.SendPacketAsync(new VbPacket
+        {
+            CardId = card.CardId,
+            IsActivated = true,
+            RemainingTime = (int)(duration.TotalMilliseconds / 100)
+        });
+    }
+
     public async Task RemoveAsync(IAliveEntity target, short cardId)
     {
         var buffs = ResolveState(target);
-        if (buffs != null && buffs.TryRemove(cardId, out var removed) && removed.Permanent && target is ICharacterEntity character)
+        if (buffs != null && buffs.TryRemove(cardId, out var removed) && removed.Static && target is ICharacterEntity character)
         {
             await character.SendPacketAsync(new VbPacket { CardId = cardId, IsActivated = false, RemainingTime = -1 });
         }
@@ -148,7 +175,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         foreach (var (cardId, buff) in buffs)
         {
-            if (!buff.Permanent && buffs.TryRemove(cardId, out var removed))
+            if (!buff.Static && buffs.TryRemove(cardId, out var removed))
             {
                 await SendIconRemovalAsync(target, removed);
             }
@@ -158,6 +185,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     // The client keeps a greyed icon on bf_e; a bf with no duration left is what takes it down.
     private static Task SendIconRemovalAsync(IAliveEntity target, BuffInstance buff)
     {
+        if (buff.Static)
+        {
+            return target is ICharacterEntity character
+                ? character.SendPacketAsync(new VbPacket { CardId = buff.CardId, IsActivated = false, RemainingTime = -1 })
+                : Task.CompletedTask;
+        }
+
         if (target.MapInstance == null || buff.FromSkill)
         {
             return Task.CompletedTask;

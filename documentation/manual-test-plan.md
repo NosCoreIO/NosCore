@@ -454,6 +454,16 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] The Defence, Energy and Experience potions (1247, 1248, 1249) show their own buff icon
 - [ ] Dead, the potion stays in the inventory
 
+### Ancelloan's Blessing
+
+- [ ] `$CreateItem 1286 2` and double-click it in the Main tab: the stack drops to 1, the
+      "effect activated" message appears and the blessing icon shows in the static buff bar
+      with an hour left
+- [ ] Use the second one while blessed: nothing happens and it stays in the inventory
+- [ ] Kill a monster while blessed: the experience gained is double that of an unblessed kill
+- [ ] Die and revive: the blessing icon is still there
+- [ ] After an hour the icon disappears and kills give normal experience again
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove

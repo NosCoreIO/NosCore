@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using NodaTime;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -28,6 +29,9 @@ public interface IBuffService
 
     // Stays until removed, through death included, and shows in the static buff bar.
     Task ApplyPermanentAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards);
+
+    // Shows in the static buff bar with its time left and survives death, until it runs out.
+    Task ApplyStaticAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
 
     Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
         IReadOnlyList<BCardDto> skillBCards);
