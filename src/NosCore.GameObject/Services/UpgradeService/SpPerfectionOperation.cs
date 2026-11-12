@@ -14,6 +14,7 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Player;
@@ -33,18 +34,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 public sealed class SpPerfectionOperation(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
-    ISpPerfectionService spPerfectionService)
+    ISpPerfectionService spPerfectionService,
+    IItemCatalog itemCatalog)
     : SpecialistCardOperation(random, localizer)
 {
-    public const short SmallRubyVNum = 2514;
-    public const short SmallSapphireVNum = 2515;
-    public const short SmallObsidianVNum = 2516;
-    public const short SmallTopazVNum = 2517;
-    public const short RubyVNum = 2518;
-    public const short SapphireVNum = 2519;
-    public const short ObsidianVNum = 2520;
-    public const short TopazVNum = 2521;
-
     private const int StatFaces = 16;
 
     // The client reads the first argument as a message text and the second as a number.
@@ -66,7 +59,13 @@ public sealed class SpPerfectionOperation(
     protected override UpgradeContext? TryPrepareContext(ClientSession session, UpgradePacket packet)
     {
         var source = LoadCard(session, packet);
-        if (source?.ItemInstance is not SpecialistInstance card || StoneVNum(card.Item.Morph) is not { } stone)
+        if (source?.ItemInstance is not SpecialistInstance card)
+        {
+            return null;
+        }
+
+        var stone = itemCatalog.GetMaterialVNum(card.Item.PerfectionMaterial);
+        if (stone == 0)
         {
             return null;
         }
@@ -156,19 +155,6 @@ public sealed class SpPerfectionOperation(
 
         return msgi;
     }
-
-    private static short? StoneVNum(short morph) => morph switch
-    {
-        2 or 6 or 9 or 12 => SmallRubyVNum,
-        3 or 4 or 14 => SmallSapphireVNum,
-        5 or 11 or 15 => SmallObsidianVNum,
-        7 or 8 or 10 or 13 => SmallTopazVNum,
-        17 or 18 or 19 => RubyVNum,
-        20 or 21 or 22 => SapphireVNum,
-        23 or 24 or 25 => ObsidianVNum,
-        26 or 27 or 28 => TopazVNum,
-        _ => null,
-    };
 
     private sealed class PerfectionGain
     {

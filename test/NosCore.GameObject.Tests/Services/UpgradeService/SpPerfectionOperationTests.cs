@@ -43,22 +43,22 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _operation = new SpPerfectionOperation(_random.Object, World.GameLanguageLocalizer,
-                new SpPerfectionService());
+                new SpPerfectionService(), UpgradeMaterials.Catalog());
             _session.Character.Gold = 10_000_000;
         }
 
         [TestMethod]
         public async Task ASuccessRaisesThePerfectionAndTheRolledStat()
         {
-            PlaceCard(morph: 2, perfection: 0);
-            AddStones(SpPerfectionOperation.SmallRubyVNum);
+            PlaceCard(MaterialType.SmallRubyOfCompletion, perfection: 0);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion));
             Roll(0.0);
 
             await PerfectAsync();
 
             Assert.AreEqual((byte)1, _card.SpStoneUpgrade);
             Assert.AreEqual((byte)1, _card.SpDamage);
-            Assert.AreEqual(100 - 1, Count(SpPerfectionOperation.SmallRubyVNum));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion)));
             Assert.AreEqual(10_000_000 - 5_000, _session.Character.Gold);
             var msgi = Msgi();
             Assert.AreEqual(Game18NConstString.PerfectingSpecialistSuccessful, msgi.Message);
@@ -70,15 +70,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task AFailureSpendsTheStonesAndKeepsTheCard()
         {
-            PlaceCard(morph: 2, perfection: 0);
-            AddStones(SpPerfectionOperation.SmallRubyVNum);
+            PlaceCard(MaterialType.SmallRubyOfCompletion, perfection: 0);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion));
             Roll(0.6);
 
             await PerfectAsync();
 
             Assert.AreEqual((byte)0, _card.SpStoneUpgrade);
             Assert.AreEqual((byte)0, _card.SpDamage);
-            Assert.AreEqual(100 - 1, Count(SpPerfectionOperation.SmallRubyVNum));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion)));
             Assert.AreEqual(10_000_000 - 5_000, _session.Character.Gold);
             Assert.AreEqual(Game18NConstString.PerfectingSpecialistFailed, Msgi().Message);
         }
@@ -86,34 +86,34 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task TheLastFaceOfTheRollIsShadowResistance()
         {
-            PlaceCard(morph: 5, perfection: 0);
-            AddStones(SpPerfectionOperation.SmallObsidianVNum);
+            PlaceCard(MaterialType.SmallObsidianOfCompletion, perfection: 0);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallObsidianOfCompletion));
             _random.SetupSequence(r => r.NextDouble()).Returns(0.0).Returns(0.0).Returns(0.99);
 
             await PerfectAsync();
 
             Assert.AreEqual((byte)1, _card.SpDark);
-            Assert.AreEqual(100 - 1, Count(SpPerfectionOperation.SmallObsidianVNum));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.SmallObsidianOfCompletion)));
         }
 
         [TestMethod]
         public async Task FromPerfectionTwentyTwoStonesAndMoreGoldAreUsed()
         {
-            PlaceCard(morph: 3, perfection: 20);
-            AddStones(SpPerfectionOperation.SmallSapphireVNum);
+            PlaceCard(MaterialType.SmallSapphireOfCompletion, perfection: 20);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallSapphireOfCompletion));
             Roll(0.99);
 
             await PerfectAsync();
 
-            Assert.AreEqual(100 - 2, Count(SpPerfectionOperation.SmallSapphireVNum));
+            Assert.AreEqual(100 - 2, Count(UpgradeMaterials.VNum(MaterialType.SmallSapphireOfCompletion)));
             Assert.AreEqual(10_000_000 - 10_000, _session.Character.Gold);
         }
 
         [TestMethod]
         public async Task TheCardsOwnStoneIsRequired()
         {
-            PlaceCard(morph: 2, perfection: 0);
-            AddStones(SpPerfectionOperation.SmallSapphireVNum);
+            PlaceCard(MaterialType.SmallRubyOfCompletion, perfection: 0);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallSapphireOfCompletion));
 
             await PerfectAsync();
 
@@ -123,35 +123,47 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
+        public async Task ACardWithoutAStoneCannotBePerfected()
+        {
+            PlaceCard(MaterialType.None, perfection: 0);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion));
+
+            await PerfectAsync();
+
+            Assert.IsFalse(_result.Any());
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion)));
+        }
+
+        [TestMethod]
         public async Task ADestroyedCardIsRefused()
         {
-            PlaceCard(morph: 2, perfection: 0);
+            PlaceCard(MaterialType.SmallRubyOfCompletion, perfection: 0);
             _card.Rare = SpUpgradeOperationBase.DestroyedSoulRare;
-            AddStones(SpPerfectionOperation.SmallRubyVNum);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion));
 
             await PerfectAsync();
 
             Assert.AreEqual(Game18NConstString.CantUseBecauseSoulDestroyed, Sayi().Message);
-            Assert.AreEqual(100, Count(SpPerfectionOperation.SmallRubyVNum));
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion)));
         }
 
         [TestMethod]
         public async Task AFullyPerfectedCardIsRefused()
         {
-            PlaceCard(morph: 2, perfection: 100);
-            AddStones(SpPerfectionOperation.SmallRubyVNum);
+            PlaceCard(MaterialType.SmallRubyOfCompletion, perfection: 100);
+            AddStones(UpgradeMaterials.VNum(MaterialType.SmallRubyOfCompletion));
 
             await PerfectAsync();
 
             Assert.AreEqual(Game18NConstString.MaximumUpgradeReached, Sayi().Message);
         }
 
-        private void PlaceCard(short morph, byte perfection)
+        private void PlaceCard(MaterialType stone, byte perfection)
         {
             _card = new SpecialistInstance(new Item
             {
                 VNum = 901, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
-                EquipmentSlot = EquipmentType.Sp, Morph = morph,
+                EquipmentSlot = EquipmentType.Sp, PerfectionMaterial = stone,
             })
             {
                 Amount = 1,

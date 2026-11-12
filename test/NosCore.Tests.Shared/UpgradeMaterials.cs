@@ -35,6 +35,14 @@ namespace NosCore.Tests.Shared
             [MaterialType.LowerSpProtectionScroll] = 1363,
             [MaterialType.HigherSpProtectionScroll] = 1364,
             [MaterialType.RiverSand] = 1027,
+            [MaterialType.SmallRubyOfCompletion] = 2514,
+            [MaterialType.SmallSapphireOfCompletion] = 2515,
+            [MaterialType.SmallObsidianOfCompletion] = 2516,
+            [MaterialType.SmallTopazOfCompletion] = 2517,
+            [MaterialType.RubyOfCompletion] = 2518,
+            [MaterialType.SapphireOfCompletion] = 2519,
+            [MaterialType.ObsidianOfCompletion] = 2520,
+            [MaterialType.TopazOfCompletion] = 2521,
         };
 
         public static short VNum(MaterialType material) => VNums[material];
