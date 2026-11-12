@@ -69,7 +69,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 _mapChangeService.Object,
                 _respawnService.Object,
                 _buffs,
-                catalog.Object);
+                catalog.Object,
+                UpgradeMaterials.Catalog());
         }
 
         [TestMethod]
@@ -301,7 +302,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 _mapChangeService.Object,
                 _respawnService.Object,
                 buffs.Object,
-                catalog.Object);
+                catalog.Object,
+                UpgradeMaterials.Catalog());
         }
 
         private void CharacterShouldBeAlive() =>
@@ -336,6 +338,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 VNum = SeedOfPowerVNum,
                 Type = NoscorePocketType.Main,
                 ItemType = ItemType.Main,
+                Material = MaterialType.SeedOfPower,
             };
             var inst = new ItemInstanceForTest(SeedOfPowerVNum) { Amount = amount, Item = item };
             var inv = InventoryItemInstance.Create(inst, _session.Character.CharacterId);

@@ -37,7 +37,7 @@ namespace NosCore.Tests.Shared.BDD
 
         protected List<ItemDto> DefaultItems { get; } = new()
         {
-            new Item { Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true, IsDroppable = true },
+            new Item { Type = NoscorePocketType.Main, VNum = 1012, IsSoldable = true, IsDroppable = true, Material = MaterialType.SeedOfPower },
             new Item { Type = NoscorePocketType.Main, VNum = 1013 },
             new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon },
             new Item { Type = NoscorePocketType.Equipment, VNum = 2, ItemType = ItemType.Weapon },

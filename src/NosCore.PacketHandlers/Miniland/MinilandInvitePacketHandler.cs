@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -24,7 +25,6 @@ namespace NosCore.PacketHandlers.Miniland
     public class MinilandInvitePacketHandler(ISessionRegistry sessionRegistry, IMinilandService minilandService, IClock clock)
         : PacketHandler<MinilandInvitePacket>, IWorldPacketHandler
     {
-        private const short SeedOfPowerVNum = 1012;
 
         public override async Task ExecuteAsync(MinilandInvitePacket packet, ClientSession session)
         {
@@ -79,7 +79,7 @@ namespace NosCore.PacketHandlers.Miniland
             }
 
             var seed = character.InventoryService.Values
-                .Where(s => s.ItemInstance.ItemVNum == SeedOfPowerVNum)
+                .Where(s => s.ItemInstance.Item.Material == MaterialType.SeedOfPower)
                 .OrderBy(s => s.Type).ThenBy(s => s.Slot)
                 .FirstOrDefault();
             if (seed == null)

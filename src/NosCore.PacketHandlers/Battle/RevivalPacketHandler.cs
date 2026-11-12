@@ -8,12 +8,14 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
@@ -28,7 +30,7 @@ namespace NosCore.PacketHandlers.Battle
 {
     // Client-driven revive branch after the death dlgi. Three flavours:
     //   Type 0 — "continue here": free at lvl<=20; lvl>20 costs 10x Seed of Power
-    //            (item 1012) and only restores HP/MP to 50%. Not enough seeds =>
+    //            and only restores HP/MP to 50%. Not enough seeds =>
     //            fall through to the save-point branch with an info message.
     //   Type 1 — "save point": warp to the respawn stored by IRespawnService,
     //            full HP/MP restore.
@@ -42,10 +44,10 @@ namespace NosCore.PacketHandlers.Battle
         IMapChangeService mapChangeService,
         IRespawnService respawnService,
         IBuffService buffService,
-        ICardCatalog cardCatalog)
+        ICardCatalog cardCatalog,
+        IItemCatalog itemCatalog)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
-        private const short SeedOfPowerVNum = 1012;
         private const short SeedsRequired = 10;
         private const long ArenaReviveCost = 100;
 
@@ -86,7 +88,8 @@ namespace NosCore.PacketHandlers.Battle
 
             if (character.Level > 20)
             {
-                if (character.InventoryService.CountItem(SeedOfPowerVNum) < SeedsRequired)
+                var seedOfPower = itemCatalog.GetMaterialVNum(MaterialType.SeedOfPower);
+                if (character.InventoryService.CountItem(seedOfPower) < SeedsRequired)
                 {
                     await session.SendPacketAsync(new MsgiPacket
                     {
@@ -98,7 +101,7 @@ namespace NosCore.PacketHandlers.Battle
                 }
 
                 await session.SendPacketsAsync(
-                    character.InventoryService.RemoveItemAmountByVNum(SeedOfPowerVNum, SeedsRequired));
+                    character.InventoryService.RemoveItemAmountByVNum(seedOfPower, SeedsRequired));
                 percent = 50;
 
                 await session.SendPacketAsync(new MsgiPacket
@@ -106,7 +109,7 @@ namespace NosCore.PacketHandlers.Battle
                     Type = MessageType.Default,
                     Message = Game18NConstString.YouHaveUsed,
                     ArgumentType = 2,
-                    Game18NArguments = { SeedOfPowerVNum, SeedsRequired },
+                    Game18NArguments = { seedOfPower, SeedsRequired },
                 });
             }
 
