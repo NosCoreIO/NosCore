@@ -117,8 +117,7 @@ namespace NosCore.MasterServer
                 ?? throw new InvalidOperationException("The MasterConfiguration section could not be read.");
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
-            services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(masterConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
+            services.AddNosCoreContext(masterConfiguration.Database.ConnectionString);
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
             services.AddLogging(b => b.AddFilter("Microsoft", LogLevel.Warning));
@@ -152,12 +151,7 @@ namespace NosCore.MasterServer
         {
             containerBuilder.RegisterType<ChannelHub>().AsSelf().AsImplementedInterfaces().SingleInstance();
             containerBuilder.RegisterType<MasterClientList>().SingleInstance();
-            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<WebApiConfiguration>>().Value.HashingType switch
-            {
-                HashingType.BCrypt => new BcryptHasher(),
-                HashingType.Pbkdf2 => new Pbkdf2Hasher(),
-                _ => new Sha512Hasher()
-            });
+            containerBuilder.RegisterHasher();
             containerBuilder.Register(c =>
             {
                 var configuration = c.Resolve<IOptions<MasterConfiguration>>();

@@ -27,6 +27,7 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Database;
 using NosCore.Database.Entities;
+using NosCore.GameObject.Networking;
 using NosCore.GameObject.Hosting.Modules;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication;
@@ -43,8 +44,6 @@ using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Generated;
 using NosCore.PacketHandlers.Login;
 using NosCore.Packets;
-using NosCore.Packets.Attributes;
-using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.Helpers;
 using NosCore.Shared.Authentication;
@@ -56,7 +55,6 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace NosCore.LoginServer
@@ -71,8 +69,7 @@ namespace NosCore.LoginServer
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "login.yml" });
             var loginConfiguration = conf.Get<LoginConfiguration>()
                 ?? throw new InvalidOperationException("The LoginConfiguration section could not be read.");
-            services.AddDbContext<NosCoreContext>(
-                conf => conf.UseNpgsql(loginConfiguration.Database.ConnectionString, options => { options.UseNodaTime(); }));
+            services.AddNosCoreContext(loginConfiguration.Database.ConnectionString);
             services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
             services.AddOptions<WebApiConfiguration>().Bind(conf.GetSection(nameof(LoginConfiguration.MasterCommunication))).ValidateDataAnnotations();
@@ -111,12 +108,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterType<AuthHubClient>().AsImplementedInterfaces();
             containerBuilder.Register<IIdService<ChannelInfo>>(_ => new IdService<ChannelInfo>(1)).SingleInstance();
 
-            containerBuilder.Register<IHasher>(o => o.Resolve<IOptions<LoginConfiguration>>().Value.MasterCommunication.HashingType switch
-            {
-                HashingType.BCrypt => new BcryptHasher(),
-                HashingType.Pbkdf2 => new Pbkdf2Hasher(),
-                _ => new Sha512Hasher()
-            });
+            containerBuilder.RegisterHasher();
             containerBuilder.Register(c =>
             {
                 var conf = c.Resolve<IOptions<LoginConfiguration>>();
@@ -133,14 +125,7 @@ namespace NosCore.LoginServer
             containerBuilder.RegisterTypes(GeneratedPacketHandlers.LoginHandlerTypes)
                 .AsImplementedInterfaces();
 
-            var listofpacket = typeof(IPacket).Assembly.GetTypes()
-                .Where(p => p.GetInterfaces().Contains(typeof(IPacket)) && (p.GetCustomAttribute<PacketHeaderAttribute>() is not { } header || (header.Scopes & Scope.OnLoginScreen) != 0) && p.IsClass && !p.IsAbstract).ToList();
-            containerBuilder.Register(c => new Deserializer(listofpacket))
-                .AsImplementedInterfaces()
-                .SingleInstance();
-            containerBuilder.Register(c => new Serializer(listofpacket))
-                .AsImplementedInterfaces()
-                .SingleInstance();
+            containerBuilder.RegisterPacketSerializers(PacketTypes.LoginScreen());
         }
 
         public static async Task Main(string[] args)

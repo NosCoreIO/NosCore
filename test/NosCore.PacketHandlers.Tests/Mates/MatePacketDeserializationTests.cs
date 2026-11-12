@@ -5,15 +5,11 @@
 //
 
 using System;
-using System.Linq;
-using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Networking;
 using NosCore.PacketHandlers.Mates;
 using NosCore.Packets;
-using NosCore.Packets.Attributes;
 using NosCore.Packets.ClientPackets.Mates;
-using NosCore.Packets.Enumerations;
-using NosCore.Packets.Interfaces;
 using NosCore.Tests.Shared;
 
 namespace NosCore.PacketHandlers.Tests.Mates
@@ -22,11 +18,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
     [TestClass]
     public class MatePacketDeserializationTests
     {
-        private static readonly Deserializer Deserializer = new(typeof(IPacket).Assembly.GetTypes()
-            .Where(p => p.GetInterfaces().Contains(typeof(IPacket))
-                && (p.GetCustomAttribute<PacketHeaderAttribute>() == null
-                    || (p.GetCustomAttribute<PacketHeaderAttribute>().NotNull().Scopes & Scope.OnLoginScreen) == 0)
-                && p.IsClass && !p.IsAbstract));
+        private static readonly Deserializer Deserializer = new(PacketTypes.World());
 
         [TestMethod]
         [DataRow("ptctl 1 2 1135623 50 132 1135626 49 133 1135623 9", typeof(PtctlPacketHandler))]

@@ -117,7 +117,7 @@ public sealed class PersistenceModule : Autofac.Module
     private static readonly Lazy<Microsoft.EntityFrameworkCore.Metadata.IModel> DesignModel = new(() =>
     {
         var options = new DbContextOptionsBuilder<NosCoreContext>()
-            .UseNpgsql("Host=design-time-only", o => o.UseNodaTime()).Options;
+            .UseNosCoreDatabase("Host=design-time-only").Options;
         using var context = new NosCoreContext(options);
         return context.Model;
     });
