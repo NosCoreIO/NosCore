@@ -6,6 +6,9 @@ using NosCore.Packets.Interfaces;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Buff;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Ecs;
@@ -103,6 +106,9 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
     public DignityType DignityIcon => DignityLevels.FromDignity(Dignity);
 
     public int ReputIconValue => (int)ReputationLevels.FromReputation(Reputation);
+
+    public StaticBonusDto? BazaarMedal => StaticBonusList.FirstOrDefault(s =>
+        s.StaticBonusType is StaticBonusType.BazaarMedalGold or StaticBonusType.BazaarMedalSilver);
 
     public Task SendPacketAsync(IPacket? packet)
     {

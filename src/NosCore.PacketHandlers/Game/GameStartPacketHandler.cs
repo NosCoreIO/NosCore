@@ -114,8 +114,7 @@ namespace NosCore.PacketHandlers.Game
             //            Session.SendPacket("rage 0 250000");
             //            Session.SendPacket("rank_cool 0 0 18000");
             //            SpecialistInstance specialistInstance = Session.Character.Inventory.LoadBySlotAndType<SpecialistInstance>(8, InventoryType.Wear);
-            var medal = session.Character.StaticBonusList.FirstOrDefault(s => s.StaticBonusType == StaticBonusType.BazaarMedalGold || s.StaticBonusType == StaticBonusType.BazaarMedalSilver);
-            if (medal != null)
+            if (session.Character.BazaarMedal != null)
             {
                 await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.NosMerchantActive));
             }

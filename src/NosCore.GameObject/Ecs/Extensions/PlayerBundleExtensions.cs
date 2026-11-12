@@ -66,6 +66,19 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class PlayerBundleExtensions
 {
+    public static WopenPacket GenerateBazaarWindow(this PlayerComponentBundle player, IClock clock)
+    {
+        var medal = player.BazaarMedal;
+        return new WopenPacket
+        {
+            Type = WindowType.NosBazaar,
+            Unknown = medal == null ? (byte)0
+                : medal.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver,
+            Unknown2 = medal == null ? (byte)0
+                : (byte)(int)(medal.DateEnd == null ? 720 : (medal.DateEnd.Value - clock.GetCurrentInstant()).TotalHours),
+        };
+    }
+
     // An emptied stack is gone from the inventory, and the client then needs the slot cleared.
     public static Task UseUpOneAsync(this PlayerComponentBundle player, InventoryItemInstance item)
     {

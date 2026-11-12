@@ -53,9 +53,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 return;
             }
 
-            var medal = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
-                (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
-                (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
+            var medal = clientSession.Character.BazaarMedal;
 
             if (cRegPacket.Price > long.MaxValue / cRegPacket.Amount)
             {

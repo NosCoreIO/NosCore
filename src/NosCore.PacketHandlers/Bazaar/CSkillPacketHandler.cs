@@ -5,14 +5,13 @@
 //
 
 using NodaTime;
-using NosCore.Data.Enumerations.Buff;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.Packets.ClientPackets.Bazaar;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Bazaar
@@ -21,13 +20,8 @@ namespace NosCore.PacketHandlers.Bazaar
     {
         public override async Task ExecuteAsync(CSkillPacket packet, ClientSession clientSession)
         {
-            var medalBonus = clientSession.Character.StaticBonusList.FirstOrDefault(s =>
-                (s.StaticBonusType == StaticBonusType.BazaarMedalGold) ||
-                (s.StaticBonusType == StaticBonusType.BazaarMedalSilver));
-            if (medalBonus != null)
+            if (clientSession.Character.BazaarMedal != null)
             {
-                var medal = medalBonus.StaticBonusType == StaticBonusType.BazaarMedalGold ? (byte)MedalType.Gold : (byte)MedalType.Silver;
-                var time = (int)(medalBonus.DateEnd == null ? 720 : (((Instant)medalBonus.DateEnd) - clock.GetCurrentInstant()).TotalHours);
                 await clientSession.SendPacketAsync(new MsgiPacket
                 {
                     Type = MessageType.Default,
@@ -35,12 +29,7 @@ namespace NosCore.PacketHandlers.Bazaar
                 });
 
                 npcDialogService.OpenRemotely(clientSession.Character, NpcDialogWindow.Bazaar);
-                await clientSession.SendPacketAsync(new WopenPacket
-                {
-                    Type = WindowType.NosBazaar,
-                    Unknown = medal,
-                    Unknown2 = (byte)time
-                });
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateBazaarWindow(clock));
             }
             else
             {
