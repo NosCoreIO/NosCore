@@ -41,6 +41,12 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
+            var destination = mount.SpeedBoostTeleportsRandomly ? FindWalkableCell(character.MapInstance.Map) : null;
+            if (mount.SpeedBoostTeleportsRandomly && destination is null)
+            {
+                return;
+            }
+
             var itemInstance = evt.InventoryItem;
             character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
             await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
@@ -64,9 +70,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 await RestoreAsync(character, character.Level * mount.SpeedBoostRestoresPerLevel);
             }
 
-            if (mount.SpeedBoostTeleportsRandomly)
+            if (destination is { } cell)
             {
-                await TeleportRandomlyAsync(character);
+                await TeleportAsync(character, cell.X, cell.Y);
             }
         }
 
@@ -89,30 +95,33 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await character.SendPacketAsync(character.GenerateStat());
         }
 
-        private async Task TeleportRandomlyAsync(PlayerComponentBundle character)
+        private (short X, short Y)? FindWalkableCell(GameObject.Map.Map map)
         {
-            var map = character.MapInstance.Map;
             for (var i = 0; i < SpeedBooster.TeleportAttempts; i++)
             {
                 var x = (short)random.Next(0, map.Width);
                 var y = (short)random.Next(0, map.Height);
-                if (!map.IsWalkable(x, y))
+                if (map.IsWalkable(x, y))
                 {
-                    continue;
+                    return (x, y);
                 }
-
-                character.PositionX = x;
-                character.PositionY = y;
-                await character.MapInstance.SendPacketAsync(new TpPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.VisualId,
-                    X = x,
-                    Y = y,
-                });
-                await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.TeleportEffect));
-                return;
             }
+
+            return null;
+        }
+
+        private static async Task TeleportAsync(PlayerComponentBundle character, short x, short y)
+        {
+            character.PositionX = x;
+            character.PositionY = y;
+            await character.MapInstance.SendPacketAsync(new TpPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = character.VisualId,
+                X = x,
+                Y = y,
+            });
+            await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.TeleportEffect));
         }
     }
 }

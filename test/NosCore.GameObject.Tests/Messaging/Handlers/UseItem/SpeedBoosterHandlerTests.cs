@@ -110,6 +110,36 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task AHigherLevelRiderIsHealedMoreButNotPastTheMaximum()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 20, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRestoresPerLevel = 15 });
+            var character = _session.Character;
+            character.Level = 10;
+            character.Hp = character.MaxHp - 100;
+            character.Mp = 1;
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(character.MaxHp, character.Hp);
+            Assert.AreEqual(Math.Min(character.MaxMp, 151), character.Mp);
+        }
+
+        [TestMethod]
+        public async Task AUnicornWithNowhereToLandKeepsTheBooster()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 22, SpeedBoostTeleportsRandomly = true });
+            var random = World.Freeze<Mock<IRandomProvider>>();
+            random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(1);
+            _handler = World.Create<SpeedBoosterHandler>();
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(1, _session.Character.InventoryService.CountItem(BoosterVNum));
+        }
+
+        [TestMethod]
         public async Task ACleansingMountRemovesLowDebuffsOnly()
         {
             Mount(new ItemDto { VNum = MountVNum, Speed = 21, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRemovesDebuffsUpToLevel = 4 });
