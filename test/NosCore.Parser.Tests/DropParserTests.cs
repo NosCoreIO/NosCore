@@ -4,11 +4,16 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.Database;
 using NosCore.Parser.Parsers;
 using System.Collections.Generic;
 using System.Linq;
@@ -106,6 +111,23 @@ namespace NosCore.Parser.Tests
                 Assert.IsTrue(_savedDrops.Any(d => d.VNum == goldVNum && d.MapTypeId == (short)mapType),
                     $"Gold (1012) should drop on {mapType}");
             }
+        }
+
+        [TestMethod]
+        public async Task ParsingTwiceKeepsOneCopyOfEachGeneralDropAndTheMonsterDrops()
+        {
+            var options = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+            var dropDao = new Dao<Database.Entities.Drop, DropDto, short>(NullLogger<Dao<Database.Entities.Drop, DropDto, short>>.Instance, () => new NosCoreContext(options));
+            var parser = new DropParser(dropDao);
+            await dropDao.TryInsertOrUpdateAsync(parser.GenerateDropDto(1012, 1, 24, 5000, 0));
+
+            await parser.InsertDropAsync();
+            var generalDrops = dropDao.LoadAll().Count(s => s.MonsterVNum == null);
+            await parser.InsertDropAsync();
+
+            Assert.IsTrue(generalDrops > 0);
+            Assert.AreEqual(generalDrops, dropDao.LoadAll().Count(s => s.MonsterVNum == null));
+            Assert.AreEqual(1, dropDao.LoadAll().Count(s => s.MonsterVNum == 24));
         }
     }
 }

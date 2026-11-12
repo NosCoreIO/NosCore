@@ -283,8 +283,11 @@ namespace NosCore.Parser.Parsers
             var parser = BuildParser(folder).Build(_loggerFactory, _logLanguage);
             var monsters = (await parser.GetDtosAsync()).GroupBy(p => p.NpcMonsterVNum).Select(g => g.First()).ToList();
             await _npcMonsterDao.TryInsertOrUpdateAsync(monsters);
+            var monsterVNums = monsters.Select(s => s.NpcMonsterVNum).ToHashSet();
+            await _bCardDao.TryDeleteAsync(_bCardDao.Where(s => s.NpcMonsterVNum != null && monsterVNums.Contains(s.NpcMonsterVNum.Value))?.Select(s => s.BCardId).ToList() ?? []);
             await _bCardDao.TryInsertOrUpdateAsync(monsters.Where(s => s.BCards != null).SelectMany(s => s.BCards));
             await _dropDao.TryInsertOrUpdateAsync(monsters.Where(s => s.Drop != null).SelectMany(s => s.Drop));
+            await _npcMonsterSkillDao.TryDeleteAsync(_npcMonsterSkillDao.Where(s => monsterVNums.Contains(s.NpcMonsterVNum))?.Select(s => s.NpcMonsterSkillId).ToList() ?? []);
             await _npcMonsterSkillDao.TryInsertOrUpdateAsync(monsters.Where(s => s.NpcMonsterSkill != null).SelectMany(s => s.NpcMonsterSkill));
             _logger.LogInformation(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
         }

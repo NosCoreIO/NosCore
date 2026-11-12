@@ -4,11 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Database;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -156,6 +159,26 @@ namespace NosCore.Parser.Tests
             await parser.InsertCardsAsync(_tempFolder);
 
             Assert.AreEqual(0, _savedCards.Count);
+        }
+
+        [TestMethod]
+        public async Task ParsingTheSameCardsTwiceKeepsOneCopyOfEachBCard()
+        {
+            CreateTestFile(CreateCardData(cardId: 121).Replace(
+                "\t1ST\t0\t0\t0\t0\t0\t0",
+                "\t1ST\t44\t1\t0\t0\t400\t0"));
+            var options = new DbContextOptionsBuilder<NosCoreContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options;
+            NosCoreContext Context() => new NosCoreContext(options);
+            var cardDao = new Dao<Database.Entities.Card, CardDto, short>(NullLogger<Dao<Database.Entities.Card, CardDto, short>>.Instance, Context);
+            var bCardDao = new Dao<Database.Entities.BCard, BCardDto, int>(NullLogger<Dao<Database.Entities.BCard, BCardDto, int>>.Instance, Context);
+            var parser = new CardParser(cardDao, bCardDao, NullLoggerFactory.Instance, _logLanguageMock.Object);
+
+            await parser.InsertCardsAsync(_tempFolder);
+            await parser.InsertCardsAsync(_tempFolder);
+
+            var bCard = bCardDao.LoadAll().Single();
+            Assert.AreEqual((short)121, bCard.CardId);
+            Assert.AreEqual(100, bCard.FirstData);
         }
     }
 }
