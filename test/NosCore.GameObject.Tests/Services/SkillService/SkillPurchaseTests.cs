@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -26,6 +27,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         private NosCore.GameObject.Services.SkillService.SkillService _service;
         private ClientSession _session;
         private RememberingSkillDao _dao;
+        private Mock<IVitalityService> Vitality;
 
         private static readonly SkillDto Beginner = new()
             { SkillVNum = 20, SkillType = 0, CastId = 0, Price = 480, MinimumAdventurerLevel = 4 };
@@ -48,8 +50,10 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             _session.Character.JobLevel = 20;
             _session.Character.Gold = 100_000;
             _dao = new RememberingSkillDao();
+            Vitality = new Mock<IVitalityService>();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao,
-                new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, Slash, StrongSlash });
+                new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, Slash, StrongSlash },
+                Vitality.Object, new Mock<IBattleStatsProvider>().Object);
         }
 
         private void Know(SkillDto skill) =>
@@ -66,6 +70,24 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             Assert.AreEqual(100_000 - 480, _session.Character.Gold);
             Assert.AreEqual(1, _dao.Rows.Count(r => r.SkillVNum == 20));
             Assert.AreEqual(Game18NConstString.SkillLearned, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task ALearnedPassiveTakesEffectAtOnce()
+        {
+            await _service.BuyAsync(_session.Character, Beginner);
+
+            Vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task ARefusedPassiveChangesNoStat()
+        {
+            _session.Character.Gold = 0;
+
+            await _service.BuyAsync(_session.Character, Beginner);
+
+            Vitality.Verify(v => v.RefreshAndNotifyAsync(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>()), Times.Never);
         }
 
         [TestMethod]

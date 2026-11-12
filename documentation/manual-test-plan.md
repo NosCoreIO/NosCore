@@ -293,6 +293,11 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Try the weaker one again: "You've already learned a higher level"
 - [ ] Try a course above your level: "You cannot learn that yet", no gold taken
 - [ ] **Relog**: the bought course is still there
+- [ ] Buy Life Extension (+150 HP) with the Character Info window (`p`) open: the maximum HP
+      rises by 150 straight away; Mental Training does the same for MP
+- [ ] Efficient Attack and Self-defence raise the attack and defence lines in Character Info
+- [ ] **Relog** with those courses known: the maxima and lines keep their bonus
+- [ ] The HP and MP recovery courses make the bars refill faster while standing
 
 ### Equipment gates
 

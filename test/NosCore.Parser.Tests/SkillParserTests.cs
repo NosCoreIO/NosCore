@@ -7,6 +7,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
@@ -366,6 +367,41 @@ namespace NosCore.Parser.Tests
             await parser.InsertSkillsAsync(_tempFolder);
 
             Assert.AreEqual(0, _savedSkills.Count);
+        }
+
+        // Kinds 4 to 9 of the training courses, by their client tooltips: max HP, max MP, attack,
+        // defence, HP recovery and MP recovery, each by the first DATA field.
+        [TestMethod]
+        [DataRow((short)4, BCardEffect.MaxHpmpMaximumHpIncreased)]
+        [DataRow((short)5, BCardEffect.MaxHpmpMaximumMpIncreased)]
+        [DataRow((short)6, BCardEffect.AttackPowerAllAttacksIncreased)]
+        [DataRow((short)7, BCardEffect.DefenceAllIncreased)]
+        [DataRow((short)8, BCardEffect.RecoveryHpRecoveryIncreased)]
+        [DataRow((short)9, BCardEffect.RecoveryMpRecoveryIncreased)]
+        public async Task ATrainingCourseCarriesWhatItRaises(short kind, BCardEffect effect)
+        {
+            await ParseOneAsync(CreateSkillData(skillVNum: 36, skillType: 0, castId: kind, upgradeSkill: 50));
+
+            var card = _savedBCards.Single();
+            Assert.AreEqual((short)36, card.SkillVNum);
+            Assert.AreEqual(effect, card.Effect());
+            Assert.AreEqual(50, card.FirstData);
+        }
+
+        [TestMethod]
+        public async Task ACourseOfAnotherKindGetsNothing()
+        {
+            await ParseOneAsync(CreateSkillData(skillVNum: 20, skillType: 0, castId: 0, upgradeSkill: 3));
+
+            Assert.AreEqual(0, _savedBCards.Count);
+        }
+
+        [TestMethod]
+        public async Task AnActiveSkillWithTheSameCastIdGetsNothing()
+        {
+            await ParseOneAsync(CreateSkillData(skillVNum: 224, skillType: 1, castId: 4, upgradeSkill: 50));
+
+            Assert.AreEqual(0, _savedBCards.Count);
         }
     }
 }

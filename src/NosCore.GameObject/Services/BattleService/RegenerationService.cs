@@ -26,6 +26,7 @@ public sealed class RegenerationService(
     IClock clock,
     EquipmentService.IEquipmentStatsService equipmentStatsService,
     IBuffService buffService,
+    SkillService.IPassiveSkillService passiveSkillService,
     ILogger<RegenerationService> logger) : IRegenerationService, ISingletonService
 {
     private static readonly Duration SittingInterval = Duration.FromMilliseconds(1500);
@@ -56,7 +57,8 @@ public sealed class RegenerationService(
     {
         int hp = 0, mp = 0;
         var cards = equipmentStatsService.Resolve(character).BCards
-            .Concat(buffService.GetActiveBuffs(character).SelectMany(b => b.BCards));
+            .Concat(buffService.GetActiveBuffs(character).SelectMany(b => b.BCards))
+            .Concat(passiveSkillService.GetBCards(character));
         foreach (var card in cards)
         {
             switch (card.Effect())

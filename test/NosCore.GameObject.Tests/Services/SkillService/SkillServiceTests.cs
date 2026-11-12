@@ -6,6 +6,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -46,7 +47,9 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             Service = new GameObject.Services.SkillService.SkillService(
                 CharacterSkillDao.Object,
-                Skills);
+                Skills,
+                new Mock<IVitalityService>().Object,
+                new Mock<IBattleStatsProvider>().Object);
         }
 
         [TestMethod]

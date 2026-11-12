@@ -62,7 +62,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _dao = new RememberingSkillDao();
-            _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao, Catalog);
+            _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao, Catalog,
+                new Mock<IVitalityService>().Object, new Mock<IBattleStatsProvider>().Object);
         }
 
         [TestMethod]

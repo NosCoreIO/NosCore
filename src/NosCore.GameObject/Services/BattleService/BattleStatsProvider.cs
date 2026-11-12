@@ -27,7 +27,8 @@ public sealed class BattleStatsProvider(
     IBuffService buffService,
     EquipmentService.IEquipmentStatsService equipmentStatsService,
     IDamageService damageService,
-    ISecondaryDamageService secondaryDamageService) : IBattleStatsProvider
+    ISecondaryDamageService secondaryDamageService,
+    SkillService.IPassiveSkillService passiveSkillService) : IBattleStatsProvider
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
@@ -38,7 +39,11 @@ public sealed class BattleStatsProvider(
         // Flat equipment first: a card that raises attack by a percentage has to see the weapon.
         var withGear = ApplyEquipment(ResolveBaseStats(entity), gear);
 
-        return ApplyCards(withGear, buffService.GetActiveBuffs(entity), gear, entity);
+        var passives = entity is ICharacterEntity character
+            ? passiveSkillService.GetBCards(character)
+            : Array.Empty<BCardDto>();
+
+        return ApplyCards(withGear, buffService.GetActiveBuffs(entity), gear, passives, entity);
     }
 
     // Adds what the worn pieces carry.
@@ -225,14 +230,14 @@ public sealed class BattleStatsProvider(
     // CombatStats record. Unknown BCard types fall through silently so content can ship
     // them ahead of server-side handling.
     private static CombatStats ApplyCards(CombatStats stats, IReadOnlyCollection<BuffInstance> buffs,
-        EquipmentService.EquipmentStats gear, IAliveEntity target)
+        EquipmentService.EquipmentStats gear, IReadOnlyList<BCardDto> passives, IAliveEntity target)
     {
         var equipment = gear.BCards;
-        if (buffs.Count == 0 && equipment.Count == 0) return stats;
+        if (buffs.Count == 0 && equipment.Count == 0 && passives.Count == 0) return stats;
 
         var totals = new CardTotals();
 
-        foreach (var source in CardSources(buffs, equipment))
+        foreach (var source in CardSources(buffs, equipment, passives))
         {
             foreach (var card in source)
             {
@@ -459,7 +464,7 @@ public sealed class BattleStatsProvider(
     // Worn pieces fold in the same pass as the buffs, the way GetBuff sums both in the sibling
     // codebase. Two passes would apply each percentage to a different base.
     private static IEnumerable<IReadOnlyList<BCardDto>> CardSources(
-        IReadOnlyCollection<BuffInstance> buffs, IReadOnlyList<BCardDto> equipment)
+        IReadOnlyCollection<BuffInstance> buffs, IReadOnlyList<BCardDto> equipment, IReadOnlyList<BCardDto> passives)
     {
         foreach (var buff in buffs)
         {
@@ -467,6 +472,7 @@ public sealed class BattleStatsProvider(
         }
 
         yield return equipment;
+        yield return passives;
     }
 
     public static int ScaleByLevel(BCardDto card, int level)

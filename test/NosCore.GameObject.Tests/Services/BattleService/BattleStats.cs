@@ -13,11 +13,17 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 {
     internal static class BattleStats
     {
-        public static BattleStatsProvider Provider(IBuffService buffs, IEquipmentStatsService equipment)
+        public static BattleStatsProvider Provider(IBuffService buffs, IEquipmentStatsService equipment,
+            NosCore.GameObject.Services.SkillService.IPassiveSkillService? passives = null)
         {
             var fixture = new NosCoreFixture();
             fixture.Inject(buffs);
             fixture.Inject(equipment);
+            if (passives != null)
+            {
+                fixture.Inject(passives);
+            }
+
             return fixture.Create<BattleStatsProvider>();
         }
     }

@@ -5,6 +5,7 @@
 //
 
 using NosCore.Dao.Interfaces;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers.Generic;
@@ -27,6 +28,18 @@ namespace NosCore.Parser.Parsers
         private const int LevelsPerUnlock = 4;
 
         private readonly ILogger<SkillParser> _logger = loggerFactory.CreateLogger<SkillParser>();
+
+        // A training course has no BASIC line. Its kind is the TYPE cast id and its amount the
+        // first DATA field; the client's own tooltip names what each kind raises.
+        private static readonly Dictionary<short, BCardEffect> CourseEffects = new()
+        {
+            [4] = BCardEffect.MaxHpmpMaximumHpIncreased,
+            [5] = BCardEffect.MaxHpmpMaximumMpIncreased,
+            [6] = BCardEffect.AttackPowerAllAttacksIncreased,
+            [7] = BCardEffect.DefenceAllIncreased,
+            [8] = BCardEffect.RecoveryHpRecoveryIncreased,
+            [9] = BCardEffect.RecoveryMpRecoveryIncreased,
+        };
         //  VNUM    {VNum}
         //	NAME    {Name}
 
@@ -96,6 +109,23 @@ namespace NosCore.Parser.Parsers
                                                     && s.CastId is > SkillsUnlockedAtOnce and <= LastLevelledCastId))
             {
                 skill.LevelMinimum = (byte)((skill.CastId - SkillsUnlockedAtOnce) * LevelsPerUnlock);
+            }
+
+            foreach (var course in skills.Where(s => s.SkillType == 0 && (s.BCards == null || s.BCards.Count == 0)))
+            {
+                if (CourseEffects.TryGetValue(course.CastId, out var effect))
+                {
+                    course.BCards = new List<BCardDto>
+                    {
+                        new()
+                        {
+                            SkillVNum = course.SkillVNum,
+                            Type = effect.Type(),
+                            SubType = effect.SubType(),
+                            FirstData = course.UpgradeSkill
+                        }
+                    };
+                }
             }
 
             await skillDao.TryInsertOrUpdateAsync(skills);
