@@ -6,7 +6,6 @@
 
 using System.Threading.Tasks;
 using NosCore.Algorithm.FamilyExperienceService;
-using NosCore.Core.Concurrency;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 
@@ -18,11 +17,10 @@ namespace NosCore.GameObject.Services.FamilyService
         IDao<FamilyCharacterDto, long> familyCharacterDao, IFamilyExperienceService familyExperienceService,
         IDaoTransactionScope daoTransactionScope) : IFamilyProgressionService
     {
-        private static readonly AsyncLock Gains = new();
 
         public async Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience)
         {
-            using var _ = await Gains.AcquireAsync();
+            using var _ = await FamilyRowLock.Instance.AcquireAsync();
             var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
             var family = membership?.FamilyId == familyId
                 ? await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId)

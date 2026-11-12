@@ -70,8 +70,8 @@ namespace NosCore.PacketHandlers.Tests.Family
             _logDao.Setup(s => s.Where(It.IsAny<Expression<Func<FamilyLogDto, bool>>>()))
                 .Returns((Expression<Func<FamilyLogDto, bool>> p) => _logs.Where(p.Compile()));
 
-            _familyService.Setup(s => s.SaveAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(true);
-            _familyService.Setup(s => s.SaveMembersAsync(It.IsAny<IEnumerable<FamilyCharacterDto>>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<Action<FamilyDto>>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.UpdateMemberAsync(It.IsAny<long>(), It.IsAny<Action<FamilyCharacterDto>>())).ReturnsAsync(true);
             var otherName = _other.Character.Name;
             _familyService.Setup(s => s.FindCharacterAsync(otherName))
                 .ReturnsAsync(new CharacterDto { CharacterId = _other.Character.CharacterId, Name = _other.Character.Name });

@@ -5,7 +5,6 @@
 //
 
 using NosCore.Algorithm.FamilyUpgradeService;
-using NosCore.Core.Concurrency;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
@@ -21,7 +20,6 @@ namespace NosCore.GameObject.Services.FamilyService
         IDao<FamilyCharacterDto, long> familyCharacterDao, IDao<FamilyUpgradeDto, short> familyUpgradeDao,
         IFamilyUpgradeService capacities) : IFamilyExtensionService
     {
-        private static readonly AsyncLock Purchases = new();
 
         public async Task<FamilyExtensionPurchase> PurchaseAsync(long familyId, long characterId, short itemVNum)
         {
@@ -31,7 +29,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return FamilyExtensionPurchase.NotSold;
             }
 
-            using var _ = await Purchases.AcquireAsync();
+            using var _ = await FamilyRowLock.Instance.AcquireAsync();
             var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId);
             var family = membership?.FamilyId == familyId
                 ? await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId)

@@ -9,8 +9,10 @@ using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Services.FamilyService;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Family = NosCore.GameObject.Services.FamilyService.Family;
 using FamilyServiceImpl = NosCore.GameObject.Services.FamilyService.FamilyService;
@@ -46,7 +48,12 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                     new() { CharacterId = SecondMember, Authority = FamilyAuthority.Member }
                 }
             };
+            var rows = _family.Members
+                .Select(s => new FamilyCharacterDto { CharacterId = s.CharacterId, Authority = s.Authority })
+                .ToList();
             _memberships = new Mock<IDao<FamilyCharacterDto, long>>();
+            _memberships.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<FamilyCharacterDto, bool>>>()))
+                .ReturnsAsync((Expression<Func<FamilyCharacterDto, bool>> predicate) => rows.FirstOrDefault(predicate.Compile()));
             _memberships.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
                 .ReturnsAsync((FamilyCharacterDto dto) => dto);
             _service = new FamilyServiceImpl(new Mock<IDao<FamilyDto, long>>().Object, _memberships.Object,
