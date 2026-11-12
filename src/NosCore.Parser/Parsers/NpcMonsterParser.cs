@@ -150,6 +150,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.MaxMp, chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + (Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]),
                     reads: new[] { ("HP/MP", 0, 3), ("LEVEL", 0, 2), ("RACE", 0, 2) },
                     source: "HP/MP[3] + basic(Primary|Secondary)Mp[Level]", description: "Override MP plus level-based baseline, branch on Race")
+                .Field(x => x.HpBonus, "HP/MP", 0, 2, s => Convert.ToInt32(s), "Flat HP added to the level-derived baseline")
+                .Field(x => x.MpBonus, "HP/MP", 0, 3, s => Convert.ToInt32(s), "Flat MP added to the level-derived baseline")
                 .Field(x => x.Xp, chunk => ImportXp(chunk),
                     reads: new[] { ("EXP", 0, 2), ("LEVEL", 0, 2) },
                     source: "EXP[2]", description: "Base XP award")

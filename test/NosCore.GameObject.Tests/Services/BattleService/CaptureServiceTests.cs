@@ -32,6 +32,7 @@ using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
+using MateStatsService = NosCore.GameObject.Services.MateService.MateStatsService;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _random = new Mock<IRandomProvider>();
             _random.Setup(r => r.Next(0, 100)).Returns(0);
             _mateService = new MateServiceImpl(World.MateDao, new List<NpcMonsterDto> { creature },
-                new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(2000000), World.Create<MateStatsService>(), NullLogger<MateServiceImpl>.Instance);
             _service = new CaptureService(World.MateDao, _mateService,
                 new Mock<Wolverine.IMessageBus>().Object, World.Clock, _random.Object,
                 World.DistanceCalculator);

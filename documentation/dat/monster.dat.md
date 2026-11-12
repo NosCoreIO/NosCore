@@ -192,8 +192,10 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
+| 2 | Parsed | HpBonus | Int32 | Flat HP added to the level-derived baseline |
 | 2 | Parsed | MaxHp | Int32 | Override HP plus level-based baseline |
 | 3 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
+| 3 | Parsed | MpBonus | Int32 | Flat MP added to the level-derived baseline |
 
 ## ITEM
 

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.MateExperienceService;
+using NosCore.Algorithm.MateHpService;
+using NosCore.Algorithm.MateMpService;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
@@ -29,6 +31,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mate = NosCore.GameObject.Services.MateService.Mate;
 using MatePlacement = NosCore.GameObject.Services.MateService.MatePlacement;
+using MateStatsService = NosCore.GameObject.Services.MateService.MateStatsService;
 using MateServiceImpl = NosCore.GameObject.Services.MateService.MateService;
 using NosCore.Tests.Shared;
 
@@ -63,7 +66,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     rows.Where(predicate.Compile()));
 
             return new MateServiceImpl(dao.Object, creatures.ToList(),
-                new IdService<Mate>(2000000), new MateExperienceService(), NullLogger<MateServiceImpl>.Instance);
+                new IdService<Mate>(2000000), new MateStatsService(new MateExperienceService(), new MateHpService(), new MateMpService()), NullLogger<MateServiceImpl>.Instance);
         }
 
         [TestMethod]
@@ -186,10 +189,11 @@ namespace NosCore.GameObject.Tests.Services.MateService
         {
             var service = Build(new[]
             {
-                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet, Hp = 78, Mp = 5 }
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = ChickenVNum, MateType = MateType.Pet }
             }, Creature(ChickenVNum, "Chicken", 156, 10));
 
             var mate = (await service.LoadAsync(CharacterId))[0];
+            mate.Hp = mate.MaxHp / 2;
             mate.PositionX = 26;
             mate.PositionY = 26;
             var packet = mate.GenerateIn(RegionType.EN);
@@ -226,15 +230,17 @@ namespace NosCore.GameObject.Tests.Services.MateService
         {
             var service = Build(new[]
             {
-                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner, Hp = 435, Mp = 100 }
+                new MateDto { MateId = 1, CharacterId = CharacterId, VNum = PartnerVNum, MateType = MateType.Partner }
             }, Creature(PartnerVNum, "Bob", 870, 200));
+            var mate = (await service.LoadAsync(CharacterId))[0];
+            mate.Hp = mate.MaxHp / 2;
 
-            var packet = (await service.LoadAsync(CharacterId))[0].GeneratePst();
+            var packet = mate.GeneratePst();
 
             Assert.AreEqual(VisualType.Npc, packet.Type);
             Assert.AreEqual((int)MateType.Partner, packet.GroupOrder);
             Assert.AreEqual(50, packet.HpLeft);
-            Assert.AreEqual(870, packet.HpLoad);
+            Assert.AreEqual(mate.MaxHp, packet.HpLoad);
         }
 
         [TestMethod]

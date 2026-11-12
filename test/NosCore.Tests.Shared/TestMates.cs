@@ -37,6 +37,8 @@ namespace NosCore.Tests.Shared
                 Loyalty = 3000,
                 Hp = 156,
                 Mp = 10,
+                MaxHp = 156,
+                MaxMp = 10,
                 IsTeamMember = isTeamMember,
                 IsSummonable = true,
                 MateTransportId = Interlocked.Increment(ref _nextTransportId),

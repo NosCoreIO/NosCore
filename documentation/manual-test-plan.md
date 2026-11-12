@@ -646,6 +646,9 @@ under half health first.
 - [ ] Change map: the pet comes along and stays in the party panel
 - [ ] Log out and back in: every pet, its level and loyalty are still there
 - [ ] With a second client on the map, log out: your pet disappears from their screen too
+- [ ] Open the page of a level 48 Baron Scratch (2682): its maximum HP reads 10638 and its
+      maximum MP 708, not the creature's own 657/60
+- [ ] Level a pet or partner up: the maximum HP and MP on its page grow with the level
 
 Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
 under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a

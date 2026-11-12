@@ -7,7 +7,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NosCore.Algorithm.MateExperienceService;
 using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
@@ -15,7 +14,7 @@ using NosCore.Networking;
 
 namespace NosCore.GameObject.Services.MateService
 {
-    public sealed class MateProgressionService(IMateExperienceService mateExperienceService) : IMateProgressionService
+    public sealed class MateProgressionService(IMateStatsService mateStatsService) : IMateProgressionService
     {
         public async Task AddExperienceAsync(PlayerComponentBundle owner, long experience)
         {
@@ -27,14 +26,14 @@ namespace NosCore.GameObject.Services.MateService
             foreach (var mate in owner.Mates.Values.Where(s => s.IsTeamMember))
             {
                 var leveledUp = false;
-                mate.XpLoad = XpLoad(mate);
+                mateStatsService.ApplyLevel(mate);
                 mate.Experience += experience;
                 // A mate stays below its owner: the client refuses a partner of the same level.
                 while (mate.XpLoad > 0 && mate.Experience >= mate.XpLoad && mate.Level + 1 < owner.Level)
                 {
                     mate.Experience -= mate.XpLoad;
                     mate.Level++;
-                    mate.XpLoad = XpLoad(mate);
+                    mateStatsService.ApplyLevel(mate);
                     leveledUp = true;
                 }
 
@@ -47,6 +46,8 @@ namespace NosCore.GameObject.Services.MateService
                     if (mate.Entity is { } entity)
                     {
                         entity.Level = mate.Level;
+                        entity.MaxHp = mate.MaxHp;
+                        entity.MaxMp = mate.MaxMp;
                         entity.Hp = mate.Hp;
                         entity.Mp = mate.Mp;
                         await owner.MapInstance.SendPacketAsync(entity.GenerateEff(6));
@@ -59,9 +60,5 @@ namespace NosCore.GameObject.Services.MateService
                     : mate.GenerateScn(owner.AccountLanguage, owner.InventoryService));
             }
         }
-
-        private long XpLoad(Mate mate) => mate.MateType == MateType.Pet
-            ? mateExperienceService.GetPetExperience(mate.Level)
-            : mateExperienceService.GetPartnerExperience(mate.Level);
     }
 }
