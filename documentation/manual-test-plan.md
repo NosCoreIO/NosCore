@@ -307,6 +307,11 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] Efficient Attack and Self-defence raise the attack and defence lines in Character Info
 - [ ] **Relog** with those courses known: the maxima and lines keep their bonus
 - [ ] The HP and MP recovery courses make the bars refill faster while standing
+- [ ] With champion level 0, double-click a [Beginner] PvP Damage Boost book: "You cannot
+      learn that yet" and the book stays
+- [ ] At champion level 10, double-click it: "You've learned a new skill", the book is used up,
+      no gold is taken and the boost appears under Skill Info > Training
+- [ ] Double-click a second copy: "You've already learned" and the book stays
 
 ### Equipment gates
 

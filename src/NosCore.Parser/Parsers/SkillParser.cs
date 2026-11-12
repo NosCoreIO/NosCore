@@ -26,6 +26,8 @@ namespace NosCore.Parser.Parsers
         private const short SkillsUnlockedAtOnce = 5;
         private const short LastLevelledCastId = 10;
         private const int LevelsPerUnlock = 4;
+        // DATA c4 holds 999 when the skill's level requirement is a champion level.
+        private const string ChampionLevelMarker = "999";
 
         private readonly ILogger<SkillParser> _logger = loggerFactory.CreateLogger<SkillParser>();
 
@@ -94,7 +96,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.MinimumSwordmanLevel, chunk => chunk["LEVEL"][0][4] != "-1" ? byte.Parse(chunk["LEVEL"][0][4]) : (byte)0)
                 .Field(x => x.MinimumArcherLevel, chunk => chunk["LEVEL"][0][5] != "-1" ? byte.Parse(chunk["LEVEL"][0][5]) : (byte)0)
                 .Field(x => x.MinimumMagicianLevel, chunk => chunk["LEVEL"][0][6] != "-1" ? byte.Parse(chunk["LEVEL"][0][6]) : (byte)0)
-                .Field(x => x.LevelMinimum, chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0);
+                .Field(x => x.LevelMinimum, chunk => chunk["LEVEL"][0][2] != "-1" ? byte.Parse(chunk["LEVEL"][0][2]) : (byte)0)
+                .Field(x => x.MinimumLevelIsChampionLevel, chunk => chunk["DATA"][0][5] == ChampionLevelMarker);
         }
 
         public async Task InsertSkillsAsync(string folder)

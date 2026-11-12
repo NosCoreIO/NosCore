@@ -282,6 +282,7 @@ namespace NosCore.Parser.Parsers
                 ItemType.Special when ImportEffect(chunk) == ItemEffectType.ApplySkinPartner => chunk["DATA"][0][5],
                 ItemType.Box => chunk["DATA"][0][3],
                 ItemType.Event => chunk["DATA"][0][7],
+                ItemType.Magical when ImportEffect(chunk) == ItemEffectType.PassiveSkillBook => chunk["DATA"][0][5],
                 ItemType.Magical => chunk["DATA"][0][4],
                 ItemType.Production => chunk["DATA"][0][4],
                 // Cellons carry the option tier here; every other upgrade material leaves it 0.

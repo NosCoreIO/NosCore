@@ -28,5 +28,8 @@ namespace NosCore.GameObject.Services.SkillService
 
         /// <summary>Teaches a skill bought from a skill shop, charging its price.</summary>
         Task BuyAsync(PlayerComponentBundle character, SkillDto skill);
+
+        /// <summary>Teaches the passive a skill book holds, for free; false when it is refused.</summary>
+        Task<bool> LearnFromBookAsync(PlayerComponentBundle character, short skillVNum);
     }
 }

@@ -195,13 +195,26 @@ namespace NosCore.GameObject.Services.SkillService
             return true;
         }
 
-        public async Task BuyAsync(PlayerComponentBundle character, SkillDto skill)
+        public Task BuyAsync(PlayerComponentBundle character, SkillDto skill) => TeachAsync(character, skill, skill.Price);
+
+        public async Task<bool> LearnFromBookAsync(PlayerComponentBundle character, short skillVNum)
         {
-            var refusal = PurchaseRefusal(character, skill);
+            var skill = skills.FirstOrDefault(s => s.SkillVNum == skillVNum);
+            if (skill == null || !skill.IsPassive())
+            {
+                return false;
+            }
+
+            return await TeachAsync(character, skill, 0);
+        }
+
+        private async Task<bool> TeachAsync(PlayerComponentBundle character, SkillDto skill, int price)
+        {
+            var refusal = LearningRefusal(character, skill, price);
             if (refusal != null)
             {
                 await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = refusal.Value });
-                return;
+                return false;
             }
 
             if (skill.IsPassive())
@@ -223,9 +236,12 @@ namespace NosCore.GameObject.Services.SkillService
             };
             character.Skills[skill.SkillVNum] = entry;
             await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>());
-            character.Gold -= skill.Price;
+            if (price > 0)
+            {
+                character.Gold -= price;
+                await character.AddGoldAsync();
+            }
 
-            await character.AddGoldAsync();
             await SendSkillListAsync(character, useSpecialist: false);
             if (character is Ecs.PlayerComponentBundle player)
             {
@@ -242,9 +258,10 @@ namespace NosCore.GameObject.Services.SkillService
             }
 
             await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
+            return true;
         }
 
-        private Game18NConstString? PurchaseRefusal(PlayerComponentBundle character, SkillDto skill)
+        private Game18NConstString? LearningRefusal(PlayerComponentBundle character, SkillDto skill, int price)
         {
             if (character.Skills.ContainsKey(skill.SkillVNum))
             {
@@ -254,7 +271,8 @@ namespace NosCore.GameObject.Services.SkillService
             if (skill.IsPassive())
             {
                 var level = PassiveLevel(skill, character.Class);
-                if (level == 0 || character.Level < level)
+                var characterLevel = skill.MinimumLevelIsChampionLevel ? character.HeroLevel : character.Level;
+                if (level == 0 || characterLevel < level)
                 {
                     return Game18NConstString.YouCanNotLearnThat;
                 }
@@ -279,7 +297,7 @@ namespace NosCore.GameObject.Services.SkillService
                 }
             }
 
-            if (character.Gold < skill.Price)
+            if (character.Gold < price)
             {
                 return Game18NConstString.NotEnoughGold;
             }

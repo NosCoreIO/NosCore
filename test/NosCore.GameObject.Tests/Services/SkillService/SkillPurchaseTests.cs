@@ -36,6 +36,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             { SkillVNum = 21, SkillType = 0, CastId = 0, Price = 22500, MinimumAdventurerLevel = 25 };
         private static readonly SkillDto SwordsmanOnly = new()
             { SkillVNum = 70, SkillType = 0, CastId = 3, Price = 100, MinimumSwordmanLevel = 10 };
+        private static readonly SkillDto PvpDamageBoost = new()
+            { SkillVNum = 88, SkillType = 0, CastId = 19, Price = 500, MinimumAdventurerLevel = 10, MinimumLevelIsChampionLevel = true };
         private static readonly SkillDto Slash = new()
             { SkillVNum = 220, SkillType = 1, Class = 1, CastId = 0, LevelMinimum = 0 };
         private static readonly SkillDto StrongSlash = new()
@@ -53,7 +55,7 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             _dao = new RememberingSkillDao();
             Vitality = new Mock<IVitalityService>();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao,
-                new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, Slash, StrongSlash },
+                new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, PvpDamageBoost, Slash, StrongSlash },
                 Vitality.Object, new Mock<IBattleStatsProvider>().Object,
                 new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),
                 new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());
@@ -124,6 +126,61 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             Assert.IsFalse(_session.Character.Skills.ContainsKey(21));
             Assert.AreEqual(100_000, _session.Character.Gold);
             Assert.AreEqual(Game18NConstString.YouCanNotLearnThat, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task AChampionPassiveNeedsTheChampionLevel()
+        {
+            _session.Character.HeroLevel = 9;
+
+            await _service.BuyAsync(_session.Character, PvpDamageBoost);
+
+            Assert.IsFalse(_session.Character.Skills.ContainsKey(88));
+            Assert.AreEqual(100_000, _session.Character.Gold);
+            Assert.AreEqual(Game18NConstString.YouCanNotLearnThat, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task AChampionPassiveIsLearnedAtTheChampionLevel()
+        {
+            _session.Character.Level = 1;
+            _session.Character.HeroLevel = 10;
+
+            await _service.BuyAsync(_session.Character, PvpDamageBoost);
+
+            Assert.IsTrue(_session.Character.Skills.ContainsKey(88));
+            Assert.AreEqual(99_500, _session.Character.Gold);
+        }
+
+        [TestMethod]
+        public async Task ABookTeachesItsPassiveForFree()
+        {
+            _session.Character.HeroLevel = 10;
+
+            Assert.IsTrue(await _service.LearnFromBookAsync(_session.Character, 88));
+
+            Assert.IsTrue(_session.Character.Skills.ContainsKey(88));
+            Assert.AreEqual(100_000, _session.Character.Gold);
+            Assert.AreEqual(Game18NConstString.SkillLearned, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task ABookIsRefusedBelowTheChampionLevel()
+        {
+            _session.Character.HeroLevel = 9;
+
+            Assert.IsFalse(await _service.LearnFromBookAsync(_session.Character, 88));
+
+            Assert.IsFalse(_session.Character.Skills.ContainsKey(88));
+            Assert.AreEqual(Game18NConstString.YouCanNotLearnThat, LastMessage());
+        }
+
+        [TestMethod]
+        public async Task ABookCannotTeachAClassSkill()
+        {
+            Assert.IsFalse(await _service.LearnFromBookAsync(_session.Character, 220));
+
+            Assert.IsFalse(_session.Character.Skills.ContainsKey(220));
         }
 
         [TestMethod]
