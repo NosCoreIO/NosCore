@@ -65,15 +65,7 @@ namespace NosCore.GameObject.Services.TransformationService
             await session.SendPacketAsync(condPacket);
             await session.SendPacketAsync(levPacket);
             await session.SendPacketAsync(scPacket);
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = characterId,
-                Type = SayColorType.Red,
-                Message = Game18NConstString.DurationOfSideEffect,
-                ArgumentType = 4,
-                Game18NArguments = { spCooldown }
-            });
+            await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red, Game18NConstString.DurationOfSideEffect, 4, spCooldown));
             await session.SendPacketAsync(new SdPacket { Cooldown = spCooldown });
             await mapInstance.SendPacketAsync(cModePacket);
             await mapInstance.SendPacketAsync(new GuriPacket
@@ -84,15 +76,11 @@ namespace NosCore.GameObject.Services.TransformationService
             });
             await session.SendPacketAsync(statPacket);
 
+            var sideEffectGone = character.GenerateSayi(SayColorType.Red, Game18NConstString.TransformationSideEffectGone);
+
             async Task CoolDown()
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = characterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.TransformationSideEffectGone
-                });
+                await session.SendPacketAsync(sideEffectGone);
                 await session.SendPacketAsync(new SdPacket { Cooldown = 0 });
             }
 
@@ -111,14 +99,7 @@ namespace NosCore.GameObject.Services.TransformationService
 
             if (character.ReputIconValue < sp.Item.ReputationMinimum)
             {
-                var characterId = character.CharacterId;
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = characterId,
-                    Type = SayColorType.Yellow,
-                    Message = Game18NConstString.CanNotBeWornReputationLow
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.CanNotBeWornReputationLow));
                 return;
             }
 

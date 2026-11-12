@@ -280,15 +280,7 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-                    await clientSession.SendPacketAsync(new Sayi2Packet
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = clientSession.Character.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.GroupInviteRejected,
-                        ArgumentType = 1,
-                        Game18NArguments = { targetSession.Name ?? "" }
-                    });
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi2(SayColorType.Yellow, Game18NConstString.GroupInviteRejected, 1, targetSession.Name ?? ""));
                     break;
                 case GroupRequestType.AcceptedShare:
                     if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))

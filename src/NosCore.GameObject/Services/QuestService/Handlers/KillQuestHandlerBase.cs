@@ -55,15 +55,7 @@ public abstract class KillQuestHandlerBase(ILogger logger) : IQuestTypeHandler
         {
             foreach (var (mobVNum, current, required) in progressSnapshots)
             {
-                await character.SendPacketAsync(new Sayi2Packet
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.VisualId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.Hunting,
-                    ArgumentType = 6,
-                    Game18NArguments = new Game18NArguments(2) { mobVNum, $"{current}/{required}" }
-                });
+                await character.SendPacketAsync(character.GenerateSayi2(SayColorType.Red, Game18NConstString.Hunting, 6, mobVNum, $"{current}/{required}"));
             }
             await character.SendPacketAsync(quest.GenerateQstiPacket(false));
         }

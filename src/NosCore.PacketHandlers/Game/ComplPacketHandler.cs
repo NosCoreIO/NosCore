@@ -25,24 +25,8 @@ namespace NosCore.PacketHandlers.Game
             switch (complimentService.Compliment(character, packet.CharacterId))
             {
                 case Complimented(var target):
-                    await session.SendPacketAsync(new Sayi2Packet
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = character.CharacterId,
-                        Type = SayColorType.Green,
-                        Message = Game18NConstString.HaveCommendedPercentZero,
-                        ArgumentType = 1,
-                        Game18NArguments = { target.Name }
-                    });
-                    await target.SendPacketAsync(new Sayi2Packet
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = target.CharacterId,
-                        Type = SayColorType.Green,
-                        Message = Game18NConstString.HaveBeenCommendedByPercentZero,
-                        ArgumentType = 1,
-                        Game18NArguments = { character.Name }
-                    });
+                    await session.SendPacketAsync(character.GenerateSayi2(SayColorType.Green, Game18NConstString.HaveCommendedPercentZero, 1, target.Name));
+                    await target.SendPacketAsync(target.GenerateSayi2(SayColorType.Green, Game18NConstString.HaveBeenCommendedByPercentZero, 1, character.Name));
                     return;
 
                 case ComplimentTooSoon(var minutesToWait):

@@ -69,15 +69,8 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
 
                 if (mapInstance.MapInstanceType == MapInstanceType.LodInstance)
                 {
-                    await mapInstance.SendPacketAsync(new Sayi2Packet
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = session.Character.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.CharacterHasReceivedItem,
-                        ArgumentType = 13,
-                        Game18NArguments = { $"{session.Character.Name} {inv.ItemInstance.Item.VNum}" }
-                    });
+                    await mapInstance.SendPacketAsync(session.Character.GenerateSayi2(SayColorType.Yellow, Game18NConstString.CharacterHasReceivedItem, 13,
+                        $"{session.Character.Name} {inv.ItemInstance.Item.VNum}"));
                 }
 
                 await messageBus.PublishAsync(new ItemsReceivedEvent(session.Character, inv.ItemInstance.ItemVNum, amount));

@@ -167,15 +167,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    await clientSession.SendPacketAsync(new Sayi2Packet
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = clientSession.Character.CharacterId,
-                        Type = SayColorType.Yellow,
-                        Message = Game18NConstString.CancelledTrade,
-                        ArgumentType = 1,
-                        Game18NArguments = { target.Name }
-                    });
+                    await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi2(SayColorType.Yellow, Game18NConstString.CancelledTrade, 1, target.Name));
                     await target.SendPacketAsync(target.GenerateSayi(SayColorType.Yellow, Game18NConstString.TradeCancelled2));
                     return;
 
