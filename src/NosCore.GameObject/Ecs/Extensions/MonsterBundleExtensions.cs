@@ -5,9 +5,6 @@
 //
 
 using NosCore.Packets.Enumerations;
-using NosCore.Packets.ServerPackets.Entities;
-using NosCore.Packets.ServerPackets.Movement;
-using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Shared.Enumerations;
 
@@ -36,40 +33,6 @@ public static class MonsterBundleExtensions
                 SpawnEffect = SpawnEffectType.Summon,
                 IsSitting = monster.IsSitting,
             }
-        };
-    }
-
-    public static CondPacket GenerateCond(this MonsterComponentBundle monster)
-    {
-        return new CondPacket
-        {
-            VisualType = VisualType.Monster,
-            VisualId = monster.VisualId,
-            NoAttack = monster.NoAttack,
-            NoMove = monster.NoMove,
-            Speed = monster.Speed
-        };
-    }
-
-    public static MovePacket GenerateMove(this MonsterComponentBundle monster, short? mapX = null, short? mapY = null)
-    {
-        return new MovePacket
-        {
-            VisualType = VisualType.Monster,
-            VisualEntityId = monster.VisualId,
-            MapX = mapX ?? monster.PositionX,
-            MapY = mapY ?? monster.PositionY,
-            Speed = monster.Speed
-        };
-    }
-
-    public static CharScPacket GenerateCharSc(this MonsterComponentBundle monster)
-    {
-        return new CharScPacket
-        {
-            VisualType = VisualType.Monster,
-            VisualId = monster.VisualId,
-            Size = monster.Size
         };
     }
 }

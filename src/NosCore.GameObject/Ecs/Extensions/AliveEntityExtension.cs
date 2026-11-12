@@ -196,7 +196,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 aliveEntity.GenerateRest());
         }
 
-        public static CondPacket GenerateCond(this IAliveEntity aliveEntity)
+        public static CondPacket GenerateCond<T>(this T aliveEntity) where T : IAliveEntity
         {
             return new CondPacket
             {
@@ -336,7 +336,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static CharScPacket GenerateCharSc(this IAliveEntity aliveEntity)
+        public static CharScPacket GenerateCharSc<T>(this T aliveEntity) where T : IAliveEntity
         {
             return new CharScPacket
             {
@@ -346,12 +346,12 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static MovePacket GenerateMove(this IAliveEntity aliveEntity)
+        public static MovePacket GenerateMove<T>(this T aliveEntity) where T : IAliveEntity
         {
             return aliveEntity.GenerateMove(null, null);
         }
 
-        public static MovePacket GenerateMove(this IAliveEntity aliveEntity, short? mapX, short? mapY)
+        public static MovePacket GenerateMove<T>(this T aliveEntity, short? mapX, short? mapY) where T : IAliveEntity
         {
             return new MovePacket
             {
