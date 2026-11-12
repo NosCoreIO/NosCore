@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,6 +23,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
@@ -96,8 +98,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.IsNotNull(BlessingBuff());
 
             World.Clock.Advance(Duration.FromHours(1) + Duration.FromSeconds(1));
-            await _buffs.TickAsync(_session.Character);
-            Assert.IsNull(BlessingBuff());
+            var expired = await _buffs.TickAsync(_session.Character);
+
+            Assert.IsTrue(expired.Any(b => b.CardId == AncelloansBlessingHandler.BlessingCardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, AncelloansBlessingHandler.BlessingCardId));
+            var vb = _session.LastPackets.OfType<VbPacket>().Last();
+            Assert.AreEqual(AncelloansBlessingHandler.BlessingCardId, vb.CardId);
+            Assert.IsFalse(vb.IsActivated);
         }
 
         [TestMethod]
