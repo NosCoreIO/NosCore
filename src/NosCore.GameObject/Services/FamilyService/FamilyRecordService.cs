@@ -69,16 +69,20 @@ namespace NosCore.GameObject.Services.FamilyService
                 return false;
             }
 
-            foreach (var stored in await warehouseService.GetItemsAsync(null, familyId, WarehouseType.FamilyWareHouse, null))
-            {
-                await warehouseService.WithdrawItemAsync(stored.WarehouseItemId);
-            }
-
             var logs = familyLogDao.Where(s => s.FamilyId == familyId)?.Select(s => s.FamilyLogId).ToList()
                 ?? new List<long>();
             var members = familyCharacterDao.Where(s => s.FamilyId == familyId)?.Select(s => s.FamilyCharacterId).ToList()
                 ?? new List<long>();
+            // The warehouse goes in the same transaction: a disband that fails keeps its contents.
             await using var transaction = daoTransactionScope.Begin();
+            foreach (var stored in await warehouseService.GetItemsAsync(null, familyId, WarehouseType.FamilyWareHouse, null))
+            {
+                if (!await warehouseService.WithdrawItemAsync(stored.WarehouseItemId))
+                {
+                    return false;
+                }
+            }
+
             if ((logs.Count != 0 && await familyLogDao.TryDeleteAsync(logs) == null)
                 || (members.Count != 0 && await familyCharacterDao.TryDeleteAsync(members) == null)
                 || await familyDao.TryDeleteAsync(familyId) == null)

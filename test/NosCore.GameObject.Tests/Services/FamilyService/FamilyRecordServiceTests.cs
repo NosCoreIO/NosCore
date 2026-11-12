@@ -260,6 +260,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             var storedItem = Guid.NewGuid();
             _warehouse.Setup(s => s.GetItemsAsync(null, _familyId, WarehouseType.FamilyWareHouse, null))
                 .ReturnsAsync([new WarehouseLink { WarehouseItemId = storedItem, ItemInstance = new ItemInstanceDto() }]);
+            _warehouse.Setup(s => s.WithdrawItemAsync(storedItem)).ReturnsAsync(true);
 
             Assert.IsTrue(await _service.DisbandAsync(_familyId, HeadId));
 
@@ -268,6 +269,26 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.IsNull(await MemberAsync(DeputyId));
             Assert.IsNull(await _familyLogDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId));
             _warehouse.Verify(s => s.WithdrawItemAsync(storedItem), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task TheWarehouseIsEmptiedInsideTheDisbandsTransactionAndNotCommittedWhenItFails()
+        {
+            var steps = new List<string>();
+            var transaction = new Mock<IDaoTransaction>();
+            transaction.Setup(s => s.CommitAsync()).Callback(() => steps.Add("commit")).Returns(Task.CompletedTask);
+            var scope = new Mock<IDaoTransactionScope>();
+            scope.Setup(s => s.Begin()).Callback(() => steps.Add("begin")).Returns(transaction.Object);
+            World.Inject(scope.Object);
+            var storedItem = Guid.NewGuid();
+            _warehouse.Setup(s => s.GetItemsAsync(null, _familyId, WarehouseType.FamilyWareHouse, null))
+                .ReturnsAsync([new WarehouseLink { WarehouseItemId = storedItem, ItemInstance = new ItemInstanceDto() }]);
+            _warehouse.Setup(s => s.WithdrawItemAsync(storedItem)).Callback(() => steps.Add("withdraw")).ReturnsAsync(false);
+
+            Assert.IsFalse(await World.Create<FamilyRecordService>().DisbandAsync(_familyId, HeadId));
+
+            CollectionAssert.AreEqual(new[] { "begin", "withdraw" }, steps);
+            Assert.IsNotNull(await FamilyAsync());
         }
 
         [TestMethod]
