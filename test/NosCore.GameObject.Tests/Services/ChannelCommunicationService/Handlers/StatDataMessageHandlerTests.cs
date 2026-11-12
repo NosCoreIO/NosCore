@@ -53,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             ExperienceService = new Mock<IExperienceService>();
             JobExperienceService = new Mock<IJobExperienceService>();
             HeroExperienceService = new Mock<IHeroExperienceService>();
-            Handler = new StatDataMessageChannelCommunicationMessageHandler(Logger.Object, LogLanguage.Object, WorldConfig, SessionRegistry.Object, ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object);
+            Handler = new StatDataMessageChannelCommunicationMessageHandler(Logger.Object, LogLanguage.Object, WorldConfig, SessionRegistry.Object, ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object, new NosCore.Algorithm.SkillPointService.SkillPointService());
         }
 
         [TestMethod]

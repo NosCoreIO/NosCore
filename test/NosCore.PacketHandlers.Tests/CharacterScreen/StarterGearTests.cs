@@ -136,7 +136,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             _session.Character.MapInstance = World.GetBaseMap(1);
 
             await _session.ChangeClassAsync(CharacterClassType.Swordsman, _configuration, new ExperienceService(),
-                new JobExperienceService(), new HeroExperienceService(), World.GenerateItemProvider(),
+                new JobExperienceService(), new HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService(), World.GenerateItemProvider(),
                 new Mock<ISkillService>().Object);
 
             Assert.AreEqual(CharacterClassType.Swordsman, _session.Character.Class);
@@ -153,7 +153,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
             Assert.IsNotNull(_session.Character.InventoryService.MoveInPocket(worn.Slot, worn.Type, NoscorePocketType.Wear, 0, false));
 
             await _session.ChangeClassAsync(CharacterClassType.Swordsman, _configuration, new ExperienceService(),
-                new JobExperienceService(), new HeroExperienceService(), World.GenerateItemProvider(),
+                new JobExperienceService(), new HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService(), World.GenerateItemProvider(),
                 new Mock<ISkillService>().Object);
 
             Assert.AreNotEqual(CharacterClassType.Swordsman, _session.Character.Class);

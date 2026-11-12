@@ -1,4 +1,8 @@
 using Mapster;
+using NosCore.Algorithm.ExperienceService;
+using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.SkillPointService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -18,7 +22,9 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.SkillService
 {
     public class SkillService(IDao<CharacterSkillDto, Guid> characterSkillDao, List<SkillDto> skills,
-        IVitalityService vitalityService, IBattleStatsProvider battleStatsProvider) : ISkillService
+        IVitalityService vitalityService, IBattleStatsProvider battleStatsProvider,
+        IExperienceService experienceService, IJobExperienceService jobExperienceService,
+        IHeroExperienceService heroExperienceService, ISkillPointService skillPointService) : ISkillService
     {
         public async Task LoadSkill(ICharacterEntity character)
         {
@@ -220,10 +226,18 @@ namespace NosCore.GameObject.Services.SkillService
 
             await character.AddGoldAsync();
             await SendSkillListAsync(character, useSpecialist: false);
-            if (skill.IsPassive() && character is Ecs.PlayerComponentBundle player)
+            if (character is Ecs.PlayerComponentBundle player)
             {
-                await vitalityService.RefreshAndNotifyAsync(player);
-                await player.SendPacketAsync(player.GenerateSc(battleStatsProvider));
+                if (skill.IsPassive())
+                {
+                    await vitalityService.RefreshAndNotifyAsync(player);
+                    await player.SendPacketAsync(player.GenerateSc(battleStatsProvider));
+                }
+                else
+                {
+                    await player.SendPacketAsync(player.GenerateLev(experienceService, jobExperienceService,
+                        heroExperienceService, skillPointService));
+                }
             }
 
             await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
@@ -264,7 +278,14 @@ namespace NosCore.GameObject.Services.SkillService
                 }
             }
 
-            return character.Gold < skill.Price ? Game18NConstString.NotEnoughGold : null;
+            if (character.Gold < skill.Price)
+            {
+                return Game18NConstString.NotEnoughGold;
+            }
+
+            return !skill.IsPassive() && skill.CpCost > character.RemainingSkillPoints(skillPointService)
+                ? Game18NConstString.NotEnoughCp
+                : null;
         }
 
         // A passive open to every class only fills the Adventurer column.

@@ -49,7 +49,9 @@ namespace NosCore.GameObject.Tests.Services.SkillService
                 CharacterSkillDao.Object,
                 Skills,
                 new Mock<IVitalityService>().Object,
-                new Mock<IBattleStatsProvider>().Object);
+                new Mock<IBattleStatsProvider>().Object,
+                new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),
+                new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());
         }
 
         [TestMethod]

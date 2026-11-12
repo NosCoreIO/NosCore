@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
@@ -29,7 +30,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class StatDataMessageChannelCommunicationMessageHandler(ILogger<StatDataMessageChannelCommunicationMessageHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration, ISessionRegistry sessionRegistry,
-        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService) : ChannelCommunicationMessageHandler<StatData>
+        IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService) : ChannelCommunicationMessageHandler<StatData>
     {
         public override async Task Handle(StatData data)
         {
@@ -54,7 +55,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         var jobLevel = (byte)data.Data;
                         character.JobLevel = (byte)((character.Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
                         character.JobLevelXp = 0;
-                        var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService);
+                        var levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService);
                         await session.SendPacketAsync(levPacket);
                         await session.SendPacketAsync(new MsgiPacket
                         {
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         character.HeroLevelXp = 0;
                         IPacket statPacket = session.Character.GenerateStat();
                         IPacket statInfoPacket = session.Character.GenerateStatInfo();
-                        IPacket levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService);
+                        IPacket levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService);
                         await session.SendPacketAsync(statPacket);
                         await session.SendPacketAsync(statInfoPacket);
                         await session.SendPacketAsync(levPacket);
@@ -130,7 +131,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                         character.Hp = character.MaxHp;
                         character.Mp = character.MaxMp;
                         IPacket statPacket = session.Character.GenerateStat();
-                        IPacket levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService);
+                        IPacket levPacket = session.Character.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService);
                         await session.SendPacketAsync(statPacket);
                         await session.SendPacketAsync(levPacket);
                         await session.SendPacketAsync(new MsgiPacket

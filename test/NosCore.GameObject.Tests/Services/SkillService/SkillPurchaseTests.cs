@@ -53,7 +53,9 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             Vitality = new Mock<IVitalityService>();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(_dao,
                 new List<SkillDto> { Beginner, Advanced, SwordsmanOnly, Slash, StrongSlash },
-                Vitality.Object, new Mock<IBattleStatsProvider>().Object);
+                Vitality.Object, new Mock<IBattleStatsProvider>().Object,
+                new NosCore.Algorithm.ExperienceService.ExperienceService(), new NosCore.Algorithm.JobExperienceService.JobExperienceService(),
+                new NosCore.Algorithm.HeroExperienceService.HeroExperienceService(), new NosCore.Algorithm.SkillPointService.SkillPointService());
         }
 
         private void Know(SkillDto skill) =>
@@ -167,6 +169,34 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             Know(Slash);
             await _service.BuyAsync(_session.Character, StrongSlash);
             Assert.IsTrue(_session.Character.Skills.ContainsKey(310));
+        }
+
+        [TestMethod]
+        public async Task AClassSkillNeedsTheCpLeft()
+        {
+            // A job level 20 Swordsman has 80 CP; the known Slash spends 10 of them.
+            Know(new SkillDto { SkillVNum = 220, SkillType = 1, Class = 1, CastId = 0, CpCost = 10 });
+
+            await _service.BuyAsync(_session.Character, Costing(71));
+            Assert.IsFalse(_session.Character.Skills.ContainsKey(310));
+            Assert.AreEqual(Game18NConstString.NotEnoughCp, LastMessage());
+
+            await _service.BuyAsync(_session.Character, Costing(70));
+            Assert.IsTrue(_session.Character.Skills.ContainsKey(310));
+        }
+
+        private static SkillDto Costing(byte cp) => new()
+            { SkillVNum = 310, SkillType = 2, Class = 1, CastId = 0, UpgradeSkill = 220, LevelMinimum = 10, Price = 11700, CpCost = cp };
+
+        [TestMethod]
+        public async Task APassiveCostsNoCp()
+        {
+            _session.Character.JobLevel = 1;
+
+            await _service.BuyAsync(_session.Character,
+                new SkillDto { SkillVNum = 20, SkillType = 0, CastId = 0, Price = 480, MinimumAdventurerLevel = 4, CpCost = 50 });
+
+            Assert.IsTrue(_session.Character.Skills.ContainsKey(20));
         }
 
         [TestMethod]

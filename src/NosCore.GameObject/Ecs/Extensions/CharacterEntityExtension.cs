@@ -7,6 +7,7 @@
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
+using NosCore.Algorithm.SkillPointService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Data;
 using NosCore.Data.Enumerations;
@@ -221,6 +222,13 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new List<IPacket> { inv0, inv1, inv2, inv3, inv6, inv7, inv9, inv10 };
         }
 
+        // Passives and specialist card skills are free; only the class skills spend CP.
+        public static int RemainingSkillPoints(this ICharacterEntity characterEntity, ISkillPointService skillPointService)
+            => skillPointService.GetSkillPoints(characterEntity.Class, characterEntity.JobLevel)
+               - characterEntity.Skills.Values
+                   .Where(s => s.Skill != null && !s.Skill.IsPassive() && !s.Skill.IsSpecialist())
+                   .Sum(s => s.Skill.CpCost);
+
         public static SkiPacket GenerateSki(this ICharacterEntity characterEntity, bool useSpecialist)
         {
             // The client takes the first listed skill for the basic attack, so passives go last.
@@ -370,7 +378,7 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         private static GoldPacket GenerateGoldPacket(ICharacterEntity characterEntity) => new() { Gold = characterEntity.Gold };
 
-        private static LevPacket GenerateLevPacket(ICharacterEntity characterEntity, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+        private static LevPacket GenerateLevPacket(ICharacterEntity characterEntity, IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
             => new()
             {
                 Level = characterEntity.Level,
@@ -380,7 +388,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 XpLoad = experienceService.GetExperience(characterEntity.Level),
                 JobXpLoad = jobExperienceService.GetJobExperience(characterEntity.Class, characterEntity.JobLevel),
                 Reputation = characterEntity.Reput,
-                SkillCp = 0,
+                SkillCp = characterEntity.RemainingSkillPoints(skillPointService),
                 HeroXp = characterEntity.HeroXp,
                 HeroLevel = characterEntity.HeroLevel,
                 HeroXpLoad = characterEntity.HeroLevel == 0 ? 0 : heroExperienceService.GetHeroExperience(characterEntity.HeroLevel)
@@ -435,11 +443,11 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         public static async Task SetJobLevelAsync(this ICharacterEntity characterEntity, byte jobLevel,
-            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.JobLevel = (byte)((characterEntity.Class == CharacterClassType.Adventurer) && (jobLevel > 20) ? 20 : jobLevel);
             characterEntity.JobLevelXp = 0;
-            await characterEntity.SendPacketAsync(GenerateLevPacket(characterEntity, experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(GenerateLevPacket(characterEntity, experienceService, jobExperienceService, heroExperienceService, skillPointService));
             await characterEntity.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
@@ -448,13 +456,13 @@ namespace NosCore.GameObject.Ecs.Extensions
         }
 
         public static async Task SetHeroLevelAsync(this ICharacterEntity characterEntity, byte level,
-            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService)
+            IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.HeroLevel = level;
             characterEntity.HeroXp = 0;
             await characterEntity.SendPacketAsync(GenerateStatPacket(characterEntity));
             await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
-            await characterEntity.SendPacketAsync(GenerateLevPacket(characterEntity, experienceService, jobExperienceService, heroExperienceService));
+            await characterEntity.SendPacketAsync(GenerateLevPacket(characterEntity, experienceService, jobExperienceService, heroExperienceService, skillPointService));
             await characterEntity.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,
