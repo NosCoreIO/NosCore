@@ -23,7 +23,8 @@ public sealed class VitalityService(
     IHpService hpService,
     IMpService mpService,
     EquipmentService.IEquipmentStatsService equipmentStatsService,
-    IBuffService buffService) : IVitalityService, ISingletonService
+    IBuffService buffService,
+    SkillService.IPassiveSkillService passiveSkillService) : IVitalityService, ISingletonService
 {
     public bool Refresh(ICharacterEntity character)
     {
@@ -33,7 +34,8 @@ public sealed class VitalityService(
         }
 
         var gear = equipmentStatsService.Resolve(character);
-        var cards = gear.BCards.Concat(buffService.GetActiveBuffs(character).SelectMany(b => b.BCards));
+        var cards = gear.BCards.Concat(buffService.GetActiveBuffs(character).SelectMany(b => b.BCards))
+            .Concat(passiveSkillService.GetBCards(character));
 
         var baseHp = (int)hpService.GetHp(character.Class, character.Level);
         var baseMp = (int)mpService.GetMp(character.Class, character.Level);

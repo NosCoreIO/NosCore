@@ -90,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                     new Mock<IDao<EquipmentOptionDto, Guid>>().Object,
                     new NosCore.GameObject.Services.SpecialistCardService.SpecialistCardService(
                         new NosCore.Algorithm.SpecialistPointService.SpecialistPointService())),
-                buffs.Object);
+                buffs.Object, new NosCore.GameObject.Services.SkillService.PassiveSkillService(new NpcCombatCatalog([], [], [])));
         }
 
         private void Wear(EquipmentType slot, short vnum)

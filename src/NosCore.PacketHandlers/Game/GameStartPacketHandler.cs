@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Game
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService, ISkillService skillService,
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
-            IBuffService buffService)
+            IBuffService buffService, IVitalityService vitalityService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -72,6 +72,7 @@ namespace NosCore.PacketHandlers.Game
             }
 
             await skillService.LoadSkill(session.Character);
+            vitalityService.Refresh(session.Character);
             await session.SendPacketAsync(session.Character.GenerateTit());
             await session.SendPacketAsync(session.Character.GenerateSpPoint(worldConfiguration));
             await session.SendPacketAsync(session.Character.GenerateRsfi());

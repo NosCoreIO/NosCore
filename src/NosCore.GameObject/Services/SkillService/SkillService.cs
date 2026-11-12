@@ -17,7 +17,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.SkillService
 {
-    public class SkillService(IDao<CharacterSkillDto, Guid> characterSkillDao, List<SkillDto> skills) : ISkillService
+    public class SkillService(IDao<CharacterSkillDto, Guid> characterSkillDao, List<SkillDto> skills,
+        IVitalityService vitalityService, IBattleStatsProvider battleStatsProvider) : ISkillService
     {
         public async Task LoadSkill(ICharacterEntity character)
         {
@@ -245,6 +246,12 @@ namespace NosCore.GameObject.Services.SkillService
 
             await character.AddGoldAsync();
             await SendSkillListAsync(character, useSpecialist: false);
+            if (skill.IsPassive() && character is Ecs.PlayerComponentBundle player)
+            {
+                await vitalityService.RefreshAndNotifyAsync(player);
+                await player.SendPacketAsync(player.GenerateSc(battleStatsProvider));
+            }
+
             await character.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.SkillLearned });
         }
 

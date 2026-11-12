@@ -86,7 +86,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
             var regeneration = new RegenerationService(World.SessionRegistry, World.Clock,
-                equipment.Object, buffs.Object, NullLogger<RegenerationService>.Instance);
+                equipment.Object, buffs.Object, new NosCore.GameObject.Services.SkillService.PassiveSkillService(new NpcCombatCatalog([], [], [])),
+                NullLogger<RegenerationService>.Instance);
             var lethal = Queue(1_000_000);
             var revived = 0;
 

@@ -10,6 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
@@ -49,7 +50,8 @@ namespace NosCore.GameObject.Tests.Services.SkillService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _service = new NosCore.GameObject.Services.SkillService.SkillService(
-                new Mock<IDao<CharacterSkillDto, Guid>>().Object, Catalog);
+                new Mock<IDao<CharacterSkillDto, Guid>>().Object, Catalog,
+                new Mock<IVitalityService>().Object, new Mock<IBattleStatsProvider>().Object);
         }
 
         [TestMethod]
