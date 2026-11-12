@@ -5,7 +5,9 @@
 //
 
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.Data.Enumerations.Map;
 using System;
+using System.Linq;
 
 namespace NosCore.GameObject.Services.MapInstanceAccessService
 {
@@ -14,5 +16,8 @@ namespace NosCore.GameObject.Services.MapInstanceAccessService
         public MapInstance? GetMapInstance(Guid id) => mapInstanceRegistry.GetById(id);
 
         public MapInstance? GetBaseMapById(short mapId) => mapInstanceRegistry.GetBaseMapById(mapId);
+
+        public MapInstance? GetArenaById(short mapId) => mapInstanceRegistry.GetAll()
+            .FirstOrDefault(s => s.Map.MapId == mapId && s.MapInstanceType == MapInstanceType.ArenaInstance);
     }
 }

@@ -13,7 +13,6 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
-using NosCore.GameObject.Services.ArenaService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService;
@@ -95,7 +94,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return recipe;
             }).ToList());
 
-            var portals = portalDao.LoadAll().Concat(ArenaExitPortals()).GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
+            var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
             var mapInstances = maps.Adapt<List<Map.Map>>().ToDictionary(
@@ -103,7 +102,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 map =>
                 {
                     var mapinstance = CreateMapInstance(map, mapsdic[map.MapId], map.ShopAllowed,
-                        Arena.IsArena(map.MapId) ? MapInstanceType.ArenaInstance : MapInstanceType.BaseMapInstance);
+                        map.Arena != ArenaType.None ? MapInstanceType.ArenaInstance : MapInstanceType.BaseMapInstance);
 
                     if (monsters.TryGetValue(map.MapId, out var monster))
                     {
@@ -146,30 +145,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
             await Task.WhenAll(mapInstanceRegistry.GetAll().Select(s => s.StartLifeAsync()));
             await Task.WhenAll(mapInstanceRegistry.GetAll().Select(mapInstance => portals.TryGetValue(mapInstance.Map.MapId, out var portal) ? LoadPortalsAsync(mapInstance, portal) : Task.CompletedTask));
-        }
-
-        // The arenas are entered through an NPC rather than a portal, so the data has no way out of
-        // them. The exit leads back to wherever the fighter came from.
-        private IEnumerable<PortalDto> ArenaExitPortals()
-        {
-            foreach (var map in maps)
-            {
-                if (Arena.ExitPortal(map.MapId) is not (var x, var y))
-                {
-                    continue;
-                }
-
-                yield return new PortalDto
-                {
-                    SourceMapId = map.MapId,
-                    SourceX = x,
-                    SourceY = y,
-                    DestinationMapId = Arena.ExitDestinationMapId,
-                    DestinationX = Arena.ExitDestinationX,
-                    DestinationY = Arena.ExitDestinationY,
-                    Type = PortalType.MapPortal,
-                };
-            }
         }
 
         public MapInstance CreateMapInstance(Map.Map map, Guid guid, bool shopAllowed, MapInstanceType normalInstance)

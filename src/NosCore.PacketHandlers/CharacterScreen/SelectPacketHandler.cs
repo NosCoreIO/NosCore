@@ -26,7 +26,6 @@ using NosCore.GameObject.Ecs.Components;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ArenaService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.GroupService;
@@ -107,11 +106,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     }
                 });
 
-                if (Arena.IsArena(characterDto.MapId))
+                if (mapInstanceAccessorService.GetArenaById(characterDto.MapId)?.Portals.FirstOrDefault() is { } arenaExit)
                 {
-                    characterDto.MapId = Arena.ExitDestinationMapId;
-                    characterDto.MapX = Arena.ExitDestinationX;
-                    characterDto.MapY = Arena.ExitDestinationY;
+                    characterDto.MapId = arenaExit.DestinationMapId;
+                    characterDto.MapX = arenaExit.DestinationX;
+                    characterDto.MapY = arenaExit.DestinationY;
                 }
 
                 var mapInstance = mapInstanceAccessorService.GetBaseMapById(characterDto.MapId)

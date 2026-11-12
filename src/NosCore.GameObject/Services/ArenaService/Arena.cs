@@ -15,32 +15,14 @@ namespace NosCore.GameObject.Services.ArenaService
 {
     public static class Arena
     {
-        public const short IndividualArenaMapId = 2006;
-        public const short ArenaOfGloryMapId = 2106;
         public const long EntryFee = 500;
-
-        // Only a fallback: leaving an arena returns the fighter to the spot they entered from.
-        public const short ExitDestinationMapId = 1;
-        public const short ExitDestinationX = 50;
-        public const short ExitDestinationY = 66;
-
-        private static readonly Dictionary<short, (short X, short Y)> ExitPortals = new()
-        {
-            [IndividualArenaMapId] = (37, 15),
-            [ArenaOfGloryMapId] = (38, 3),
-        };
-
-        public static bool IsArena(short mapId) => ExitPortals.ContainsKey(mapId);
-
-        public static (short X, short Y)? ExitPortal(short mapId) =>
-            ExitPortals.TryGetValue(mapId, out var cell) ? cell : null;
 
         // The n_run type picks the arena: 0 is the individual arena, 1 the Arena of Glory, which
         // costs twice as much to enter.
-        public static short? MapIdForType(short type) => type switch
+        public static ArenaType? ArenaForType(short type) => type switch
         {
-            0 => IndividualArenaMapId,
-            1 => ArenaOfGloryMapId,
+            0 => ArenaType.Individual,
+            1 => ArenaType.Glory,
             _ => null,
         };
 

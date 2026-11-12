@@ -14,5 +14,7 @@ namespace NosCore.GameObject.Services.MapInstanceAccessService
         MapInstance? GetMapInstance(Guid id);
 
         MapInstance? GetBaseMapById(short mapId);
+
+        MapInstance? GetArenaById(short mapId);
     }
 }

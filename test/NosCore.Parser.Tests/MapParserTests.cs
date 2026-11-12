@@ -8,6 +8,8 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
+using NosCore.Data.Enumerations.Map;
+using System.Collections.Generic;
 using NosCore.Data.StaticEntities;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
@@ -46,6 +48,29 @@ namespace NosCore.Parser.Tests
 
         private void WriteMapIdDat(string content) =>
             File.WriteAllText(Path.Combine(_tempFolder, "MapIDData.dat"), content);
+
+        [TestMethod]
+        public async Task MapParser_MarksTheArenas()
+        {
+            WriteMapIdDat("");
+            var maps = Path.Combine(_tempFolder, "map");
+            Directory.CreateDirectory(maps);
+            foreach (var mapId in new[] { "1", "2006", "2106" })
+            {
+                File.WriteAllBytes(Path.Combine(maps, mapId), new byte[] { 1, 0, 1, 0, 0 });
+            }
+
+            List<MapDto> saved = [];
+            _daoMock.Setup(x => x.TryInsertOrUpdateAsync(It.IsAny<IEnumerable<MapDto>>()))
+                .Callback<IEnumerable<MapDto>>(m => saved.AddRange(m))
+                .ReturnsAsync(true);
+            var parser = new MapParser(_daoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertOrUpdateMapsAsync(_tempFolder, new List<string[]>());
+
+            Assert.AreEqual(ArenaType.None, saved.Single(m => m.MapId == 1).Arena);
+            Assert.AreEqual(ArenaType.Individual, saved.Single(m => m.MapId == 2006).Arena);
+            Assert.AreEqual(ArenaType.Glory, saved.Single(m => m.MapId == 2106).Arena);
+        }
 
         [TestMethod]
         public async Task MapParser_ParsesSingleEntry()

@@ -9,6 +9,7 @@ using Moq;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
+using NosCore.Packets.Enumerations;
 using NosCore.Parser.Parsers;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
@@ -63,7 +64,9 @@ namespace NosCore.Parser.Tests
                     new() { MapId = 2586 },
                     new() { MapId = 145 },
                     new() { MapId = 2587 },
-                    new() { MapId = 189 }
+                    new() { MapId = 189 },
+                    new() { MapId = 2006 },
+                    new() { MapId = 2106 }
                 });
         }
 
@@ -97,6 +100,20 @@ namespace NosCore.Parser.Tests
             Assert.IsTrue(_savedPortals.Any(p => p.SourceMapId == 20001));
             Assert.IsTrue(_savedPortals.Any(p => p.SourceMapId == 2586));
             Assert.IsTrue(_savedPortals.Any(p => p.SourceMapId == 2587));
+        }
+
+        [TestMethod]
+        public async Task PortalParser_CreatesTheArenaExits()
+        {
+            var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
+            await parser.InsertPortalsAsync(new List<string[]>());
+
+            var individual = _savedPortals.Single(p => p.SourceMapId == 2006);
+            var glory = _savedPortals.Single(p => p.SourceMapId == 2106);
+            Assert.AreEqual(((short)37, (short)15), (individual.SourceX, individual.SourceY));
+            Assert.AreEqual(((short)38, (short)3), (glory.SourceX, glory.SourceY));
+            Assert.IsTrue(new[] { individual, glory }.All(p =>
+                p is { DestinationMapId: 1, DestinationX: 50, DestinationY: 66, Type: PortalType.MapPortal }));
         }
 
         [TestMethod]

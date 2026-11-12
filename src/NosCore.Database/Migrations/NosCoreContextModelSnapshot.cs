@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112143301_AddItemMaterial";
+    public override string LastMigrationId => "20261112144951_AddMapArena";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -26,6 +26,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
             .HasAnnotation("ProductVersion", "11.0.0-rc.3.26522.148")
             .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "arena_type", new[] { "none", "individual", "glory" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "audit_log_type", new[] { "account_creation", "character_creation", "email_update" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "authority_type", new[] { "user", "moderator", "game_master", "administrator", "root", "closed", "banned", "unconfirmed" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "bazaar_operation_state", new[] { "pending", "settled", "compensated" });
@@ -1676,6 +1677,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         modelBuilder.Entity("NosCore.Database.Entities.Map", b =>
             {
                 b.Property<short>("MapId")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Arena")
                     .HasColumnType("smallint");
 
                 b.Property<byte[]>("Data")
