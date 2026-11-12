@@ -224,7 +224,7 @@ namespace NosCore.Parser.Parsers
                         + (first < 0 ? 1 : 0)),
                     IsLevelScaled = Convert.ToBoolean(first % 4),
                     IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
-                    FirstData = (short)(first > 0 ? first : -first / 4),
+                    FirstData = (short)((first > 0 ? first : -first) / 4),
                     SecondData = (short)(int.Parse(chunk["BUFF"][0][4 + 5 * i]) / 4),
                     ThirdData = (short)(int.Parse(chunk["BUFF"][0][6 + 5 * i]) / 4)
                 };
