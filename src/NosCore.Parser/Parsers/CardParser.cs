@@ -77,7 +77,7 @@ namespace NosCore.Parser.Parsers
         {
             switch (card.CardId)
             {
-                case 131:
+                case 131 when card.BCards?.Any(b => b.Type == (byte)BCardType.CardType.Type96 && b.SubType == 11) != true:
                     card.BCards = [.. card.BCards ?? [], new BCardDto
                     {
                         CardId = card.CardId,
