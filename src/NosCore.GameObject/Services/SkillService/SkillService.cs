@@ -36,17 +36,13 @@ namespace NosCore.GameObject.Services.SkillService
                 character.Skills.AddOrUpdate(characterSkill.SkillVNum, characterSkill,
                     (key, oldValue) => characterSkill);
             }
-
-            await SendSkillListAsync(character, useSpecialist: false);
         }
-
-        private const int PyjamaSpecialistClass = 32;
 
         public async Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel)
         {
             RemoveSpecialistSkills(character);
 
-            foreach (var skill in skills.Where(s => s.Class >= PyjamaSpecialistClass
+            foreach (var skill in skills.Where(s => s.IsSpecialist()
                                                     && s.UpgradeType == morph
                                                     && s.LevelMinimum <= spLevel))
             {
@@ -72,37 +68,15 @@ namespace NosCore.GameObject.Services.SkillService
         private static void RemoveSpecialistSkills(ICharacterEntity character)
         {
             foreach (var entry in character.Skills
-                         .Where(s => s.Value.Skill?.Class >= PyjamaSpecialistClass)
+                         .Where(s => s.Value.Skill?.IsSpecialist() == true)
                          .ToList())
             {
                 character.Skills.TryRemove(entry.Key, out _);
             }
         }
 
-        private async Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
-        {
-            var ordered = character.Skills.Values
-                .Where(s => s.Skill != null && (s.Skill.Class >= PyjamaSpecialistClass) == useSpecialist)
-                .OrderBy(s => s.Skill.IsPassive())
-                .ThenBy(s => s.Skill.CastId)
-                .Select(s => s.SkillVNum)
-                .ToList();
-
-            var classByte = (byte)character.Class;
-            var primary = useSpecialist
-                ? (ordered.Count > 0 ? ordered[0] : (short)0)
-                : (short)(200 + 20 * classByte);
-            var secondary = useSpecialist
-                ? (ordered.Count > 0 ? ordered[0] : (short)0)
-                : (short)(201 + 20 * classByte);
-
-            await character.SendPacketAsync(new SkiPacket
-            {
-                PrimarySkillVnum = primary,
-                SecondarySkillVnum = secondary,
-                SkillVnums = ordered,
-            }).ConfigureAwait(false);
-        }
+        private static Task SendSkillListAsync(ICharacterEntity character, bool useSpecialist)
+            => character.SendPacketAsync(character.GenerateSki(useSpecialist));
 
         /// <summary>
         /// The Adventurer's skills, listed one by one.

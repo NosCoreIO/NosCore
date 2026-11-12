@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.SpecialistCardService;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Inventory;
 
@@ -29,7 +30,6 @@ public sealed class ItemInfoService(
     ISpecialistPointService specialistPointService,
     ISpecialistCardService specialistCardService) : IItemInfoService
 {
-    private const int PyjamaSpecialistClass = 32;
     private const int ListedSpecialistSkills = 10;
 
     private const byte AdventurerClass = 1;
@@ -181,7 +181,7 @@ public sealed class ItemInfoService(
     {
         var item = specialist.Item;
         var cardSkills = skills
-            .Where(s => s.Class >= PyjamaSpecialistClass && s.UpgradeType == item.Morph && s.LevelMinimum <= specialist.SpLevel)
+            .Where(s => s.IsSpecialist() && s.UpgradeType == item.Morph && s.LevelMinimum <= specialist.SpLevel)
             .OrderBy(s => s.SkillVNum)
             .ToList();
         // The first skill is the card's basic attack, which the window does not list.
