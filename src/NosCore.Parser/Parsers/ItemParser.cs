@@ -679,7 +679,7 @@ namespace NosCore.Parser.Parsers
                 9035 => 5106,
                 var x when x == 9036 || x == 1337 => 5110,
                 var x when x == 9038 || x == 1339 => 5114,
-                9033 => 5011,
+                9033 => 5111,
                 var x when x == 9034 || x == 1335 => 5107,
                 1581 => 860,
                 1582 => 861,
@@ -756,7 +756,20 @@ namespace NosCore.Parser.Parsers
                 5836 => ItemEffectType.CuarryBankSavingsBook,
                 1429 => ItemEffectType.ShellIdentification,
                 1430 => ItemEffectType.ShellOptionRemoval,
+                _ when item.ItemType == ItemType.Event && item.EffectValue > 1 => ItemEffectType.PlayEffect,
                 _ => item.Effect,
+            };
+
+            item.UseSound = item.EffectValue switch
+            {
+                _ when item.Effect != ItemEffectType.PlayEffect => 0,
+                859 => 1343,
+                860 or 861 => 1344,
+                875 => 1558,
+                876 => 1559,
+                877 or 878 => 1560,
+                879 or 880 => 1561,
+                _ => 0,
             };
 
             item.EquipmentSlot = item.VNum switch

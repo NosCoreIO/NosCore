@@ -42,6 +42,8 @@ namespace NosCore.Data.Enumerations.Items
         RandomHeroic = 795,
         AttackAmulet = 932,
         DefenseAmulet = 933,
+        // Fireworks and similar toys: show the item's EffectValue on the user.
+        PlayEffect = 997,
         SpeedBooster = 998,
         BoxEffect = 999,
         Vehicle = 1000,

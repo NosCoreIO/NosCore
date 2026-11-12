@@ -523,6 +523,12 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] On Nossi the Dragon (5196) while under a level 4 or lower debuff, the booster removes it;
       a higher level debuff stays
 
+### Fireworks and event toys
+
+- [ ] `$CreateItem 1983` (Single Fireworks) and double-click it: one is used up and the firework
+      goes off over the character for everyone on the map, with its sound
+- [ ] An Airwaves gum (1332) shows the chewing emote over the character and is used up
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove
