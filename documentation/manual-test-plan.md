@@ -213,7 +213,13 @@ cooldown once.
 - [ ] In a group of two at the same level, each member gets 75 % of the kill; in a group of
       three, 70 %
 
-## Monsters
+### Gold from kills
+
+- [ ] A monster at your level drops 6 to 12 gold per monster level on every kill
+- [ ] A monster 30 levels below you never drops gold, and one 20 levels below drops it about
+      one kill in twenty
+- [ ] Wearing amulet 4361 ("Increases Gold earned by 40%") and costume hat 4259 (+20%), a
+      level 30 monster's gold goes above the 359 it can drop without them, up to 574
 
 ### Aggro and chasing
 

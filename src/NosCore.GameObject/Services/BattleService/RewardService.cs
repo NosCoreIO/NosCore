@@ -26,6 +26,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.Networking;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.EquipmentService;
 using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 using NosCore.Algorithm.ExperienceShareService;
@@ -49,6 +50,7 @@ public sealed class RewardService(
     IGroupLootService groupLootService,
     IMateProgressionService mateProgression,
     IBuffService buffService,
+    IEquipmentStatsService equipmentStatsService,
     ILogger<RewardService> logger) : IRewardService
 {
     // Flat fairy XP granted per qualifying kill. OpenNos exposes this as a runtime knob
@@ -210,6 +212,27 @@ public sealed class RewardService(
         return percent;
     }
 
+    private int GoldBonusPercent(PlayerComponentBundle player)
+    {
+        var percent = 0;
+        var cards = buffService.GetActiveBuffs(player).SelectMany(b => b.BCards)
+            .Concat(equipmentStatsService.Resolve(player).BCards ?? []);
+        foreach (var bCard in cards)
+        {
+            switch (bCard.Effect())
+            {
+                case BCardEffect.ItemIncreaseEarnedGold:
+                    percent += BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                    break;
+                case BCardEffect.ItemIncreaseEarnedGoldNegated:
+                    percent -= BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                    break;
+            }
+        }
+
+        return percent;
+    }
+
     private static async Task AwardReputationAsync(PlayerComponentBundle player, NpcMonsterDto mob)
     {
         if (player.MapInstance.MapInstanceType != MapInstanceType.BaseMapInstance || mob.Level < 3)
@@ -286,6 +309,16 @@ public sealed class RewardService(
         }
 
         var goldAmount = RandomHelper.Instance.RandomNumber(6 * mob.Level, 12 * mob.Level);
+        if (topDamageDealer is { } owner)
+        {
+            if (RandomHelper.Instance.RandomNumber(0, 100) >= levelPenaltyService.GetGoldPenalty(owner.Level, mob.Level) * 100)
+            {
+                return;
+            }
+
+            goldAmount = (int)(goldAmount * (1 + GoldBonusPercent(owner) / 100d));
+        }
+
         if (goldAmount <= 0) return;
 
         try

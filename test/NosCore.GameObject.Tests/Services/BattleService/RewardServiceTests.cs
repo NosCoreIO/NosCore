@@ -23,6 +23,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.EquipmentService;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.ExperienceService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -43,6 +45,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<IExperienceProgressionService> _experience;
         private Mock<INpcCombatCatalog> _catalog;
         private RewardService _service;
+        private Mock<IEquipmentStatsService> _equipment;
         private MonsterComponentBundle _monster;
 
         [TestInitialize]
@@ -61,6 +64,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World.UseReal<IGroupLootService, GroupLootService>();
             World.UseReal<IMateProgressionService, MateProgressionService>();
             World.UseReal<IBuffService, BuffService>();
+            _equipment = World.Freeze<Mock<IEquipmentStatsService>>();
+            _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None);
             _service = World.Create<RewardService>();
 
             var template = new NpcMonsterDto
@@ -147,6 +152,31 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             var gold = _map.GetMapItemBundles().Single(i => i.VNum == GoldVNum);
             Assert.IsTrue(gold.Amount is >= 60 and <= 120, $"level 10 pays 6..12 per level, got {gold.Amount}");
+        }
+
+        [TestMethod]
+        public async Task WornGoldBonusesRaiseTheGoldDropped()
+        {
+            _equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(EquipmentStats.None with
+            {
+                BCards = new[] { new BCardDto { Type = 44, SubType = 51, FirstData = 50 } },
+            });
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            var gold = _map.GetMapItemBundles().Single(i => i.VNum == GoldVNum);
+            Assert.IsTrue(gold.Amount is >= 90 and <= 180, $"60..120 plus half, got {gold.Amount}");
+        }
+
+        [TestMethod]
+        public async Task AMonsterThirtyLevelsBelowTheKillerDropsNoGold()
+        {
+            _first.Character.Level = 40;
+            _second.Character.Level = 40;
+
+            await _service.DistributeAsync(_monster, _first.Character, Damage(1, 1));
+
+            Assert.IsFalse(_map.GetMapItemBundles().Any(i => i.VNum == GoldVNum));
         }
 
         [TestMethod]
