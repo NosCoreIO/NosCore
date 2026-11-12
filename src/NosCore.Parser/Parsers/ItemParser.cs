@@ -681,6 +681,8 @@ namespace NosCore.Parser.Parsers
                 var x when x == 9038 || x == 1339 => 5114,
                 9033 => 5111,
                 var x when x == 9034 || x == 1335 => 5107,
+                var x when x == 5916 || x == 5927 => 7200,
+                var x when x == 5928 || x == 5929 => 600,
                 1581 => 860,
                 1582 => 861,
                 var x when x == 1585 || x == 9044 => 859,
@@ -756,6 +758,7 @@ namespace NosCore.Parser.Parsers
                 5836 => ItemEffectType.CuarryBankSavingsBook,
                 1429 => ItemEffectType.ShellIdentification,
                 1430 => ItemEffectType.ShellOptionRemoval,
+                var x when x == 5916 || x == 5927 || x == 5928 || x == 5929 => ItemEffectType.HeatResistance,
                 _ when item.ItemType == ItemType.Event && item.EffectValue > 1 => ItemEffectType.PlayEffect,
                 _ => item.Effect,
             };
