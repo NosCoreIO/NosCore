@@ -32,12 +32,15 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private TestWorld World;
         private const short BoosterVNum = 5119;
+        private const short MountVNum = 1906;
 
         private ClientSession _session;
         private BuffService _buffs;
         private ISpeedCalculationService _speed;
         private SpeedBoosterHandler _handler;
         private InventoryItemInstance _booster;
+        private const short LowDebuff = 900;
+        private const short HighDebuff = 901;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -92,6 +95,86 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
+        public async Task ARestoringMountHealsByTheCharactersLevel()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 20, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRestoresPerLevel = 15 });
+            var character = _session.Character;
+            character.Hp = 1;
+            character.Mp = 1;
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(Math.Min(character.MaxHp, 1 + character.Level * 15), character.Hp);
+            Assert.AreEqual(Math.Min(character.MaxMp, 1 + character.Level * 15), character.Mp);
+        }
+
+        [TestMethod]
+        public async Task AHigherLevelRiderIsHealedMoreButNotPastTheMaximum()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 20, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRestoresPerLevel = 15 });
+            var character = _session.Character;
+            character.Level = 10;
+            character.Hp = character.MaxHp - 100;
+            character.Mp = 1;
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(character.MaxHp, character.Hp);
+            Assert.AreEqual(Math.Min(character.MaxMp, 151), character.Mp);
+        }
+
+        [TestMethod]
+        public async Task AUnicornWithNowhereToLandKeepsTheBooster()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 22, SpeedBoostTeleportsRandomly = true });
+            var random = World.Freeze<Mock<IRandomProvider>>();
+            random.Setup(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(1);
+            _handler = World.Create<SpeedBoosterHandler>();
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(1, _session.Character.InventoryService.CountItem(BoosterVNum));
+        }
+
+        [TestMethod]
+        public async Task ACleansingMountRemovesLowDebuffsOnly()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 21, SpeedBoost = 3, SpeedBoostDuration = 5, SpeedBoostRemovesDebuffsUpToLevel = 4 });
+            var cards = World.Freeze<Mock<ICardCatalog>>();
+            var low = new CardDto { CardId = LowDebuff, Level = 4, Propability = 2, Duration = 600 };
+            var high = new CardDto { CardId = HighDebuff, Level = 5, Propability = 2, Duration = 600 };
+            cards.Setup(c => c.GetCard(LowDebuff)).Returns(low);
+            cards.Setup(c => c.GetCard(HighDebuff)).Returns(high);
+            await _buffs.ApplyAsync(_session.Character, low, new List<BCardDto>(), null);
+            await _buffs.ApplyAsync(_session.Character, high, new List<BCardDto>(), null);
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, LowDebuff));
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, HighDebuff));
+        }
+
+        [TestMethod]
+        public async Task AUnicornSkipsAWallAndLandsOnAWalkableCell()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 22, SpeedBoostTeleportsRandomly = true });
+            var random = World.Freeze<Mock<IRandomProvider>>();
+            random.SetupSequence(r => r.Next(It.IsAny<int>(), It.IsAny<int>())).Returns(1).Returns(1).Returns(0).Returns(1);
+            _handler = World.Create<SpeedBoosterHandler>();
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual((short)0, _session.Character.PositionX);
+            Assert.AreEqual((short)1, _session.Character.PositionY);
+            Assert.AreEqual(0, _session.Character.InventoryService.CountItem(BoosterVNum));
+        }
+
+        [TestMethod]
         public async Task ABoostedMountKeepsTheSecondBooster()
         {
             Mount(speed: 20, boost: 2, seconds: 3);
@@ -117,13 +200,17 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(20, _speed.CalculateSpeed(_session.Character));
         }
 
-        private void Mount(byte speed, byte boost, byte seconds)
+        private void Mount(byte speed, byte boost, byte seconds) =>
+            Mount(new ItemDto { VNum = MountVNum, Speed = speed, SpeedBoost = boost, SpeedBoostDuration = seconds });
+
+        private void Mount(ItemDto mount)
         {
+            World.ItemList.RemoveAll(i => i.VNum == MountVNum);
+            World.ItemList.Add(mount);
             var character = _session.Character;
             character.IsVehicled = true;
-            character.VehicleSpeed = speed;
-            character.VehicleSpeedBoost = boost;
-            character.VehicleSpeedBoostSeconds = seconds;
+            character.VehicleSpeed = mount.Speed;
+            character.VehicleVNum = MountVNum;
             character.Speed = _speed.CalculateSpeed(character);
         }
 

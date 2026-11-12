@@ -370,7 +370,7 @@ namespace NosCore.Tests.Shared
             var group = new Group(Data.Enumerations.Group.GroupType.Group, SessionGroupFactory);
             var ecs = mapInstance.EcsWorld;
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerStateComponent(
-                characterDto, account, null, false, false, false, false, true, now, now, 0, 0, 0, now));
+                characterDto, account, null, false, false, false, false, true, now, now, 0, 0, now));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerNetworkComponent(session, session.Channel));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerContextComponent(mapInstance, group, null));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerInventoryComponent(

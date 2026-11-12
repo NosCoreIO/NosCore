@@ -4,12 +4,14 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.SpeedService;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Shared.Enumerations;
+using NosCore.Tests.Shared;
 using SpecLight;
 
 namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
@@ -17,13 +19,16 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
     [TestClass]
     public class SpeedCalculationServiceTests
     {
-        private readonly GameObject.Services.SpeedCalculationService.SpeedCalculationService SpeedCalculationService;
-        private readonly Mock<ISpeedService> SpeedService;
+        private TestWorld World;
+        private GameObject.Services.SpeedCalculationService.SpeedCalculationService SpeedCalculationService;
+        private Mock<ISpeedService> SpeedService;
 
-        public SpeedCalculationServiceTests()
+        [TestInitialize]
+        public async Task SetupAsync()
         {
-            SpeedService = new Mock<ISpeedService>();
-            SpeedCalculationService = new GameObject.Services.SpeedCalculationService.SpeedCalculationService(SpeedService.Object, new Mock<GameObject.Services.BattleService.IBuffService>().Object);
+            World = await TestWorld.CreateAsync();
+            SpeedService = World.Freeze<Mock<ISpeedService>>();
+            SpeedCalculationService = World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>();
         }
 
         [DataTestMethod]

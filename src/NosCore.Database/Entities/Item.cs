@@ -197,6 +197,13 @@ namespace NosCore.Database.Entities
         // In seconds.
         public byte SpeedBoostDuration { get; set; }
 
+        // HP and MP restored per character level.
+        public byte SpeedBoostRestoresPerLevel { get; set; }
+
+        public byte SpeedBoostRemovesDebuffsUpToLevel { get; set; }
+
+        public bool SpeedBoostTeleportsRandomly { get; set; }
+
         public byte SpType { get; set; }
 
         public NoscorePocketType Type { get; set; }

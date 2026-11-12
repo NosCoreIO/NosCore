@@ -516,7 +516,12 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] Use a second one while boosted: nothing happens and it stays in the inventory
 - [ ] After 3 seconds the icon goes and the scooter is back to its own speed
 - [ ] Dismount while boosted and ride again: the icon is gone and the speed is the scooter's own
-- [ ] A Unicorn (5319), whose booster does something other than speed, keeps the booster
+- [ ] On a White Unicorn (5319) the booster is used up and the character lands on a random
+      walkable cell of the map with the teleport effect
+- [ ] On a 'Doni Darkslide' Skateboard (5236) with HP and MP down, the booster restores level × 15
+      of each (450 at level 30) with the heal number over the character
+- [ ] On Nossi the Dragon (5196) while under a level 4 or lower debuff, the booster removes it;
+      a higher level debuff stays
 
 ### Magic Lamp
 

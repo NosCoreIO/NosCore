@@ -192,7 +192,7 @@ namespace NosCore.Parser.Parsers
                 { 14, new List<(short, short)> { (9087, 2930), (5332, 2930), (5914, 2513) } },
                 { 16, new List<(short, short)> { (5173, 2511) } },
             });
-            // Read off each mount's "[With Speed Booster]" description lines: speed added, seconds.
+            // Read off each mount's "[With Speed Booster]" description lines.
             SetSpeedBoosts(items, new Dictionary<(byte Speed, byte Seconds), short[]>
             {
                 { (2, 3), [1906, 9054, 1907, 9055, 1965, 9058, 5008, 9065, 5332, 9087] },
@@ -202,6 +202,20 @@ namespace NosCore.Parser.Parsers
                 { (2, 6), [5386, 5387, 9090, 5388, 9091, 5389, 9092, 5390, 9093, 5391, 9094] },
                 { (2, 5), [5914] },
             });
+            foreach (var item in items.Where(s => s.VNum is 5236 or 9080))
+            {
+                item.SpeedBoostRestoresPerLevel = 15;
+            }
+
+            foreach (var item in items.Where(s => s.VNum is 5196 or 5234 or 9079 or 5360 or 9088))
+            {
+                item.SpeedBoostRemovesDebuffsUpToLevel = 4;
+            }
+
+            foreach (var item in items.Where(s => s.VNum is 5319 or 5321 or 5323 or 9083 or 9084 or 9085 or 5330 or 9086 or 5997 or 9115))
+            {
+                item.SpeedBoostTeleportsRandomly = true;
+            }
 
             await itemDao.TryInsertOrUpdateAsync(items);
             var itemVNums = items.Select(s => (short?)s.VNum).ToHashSet();

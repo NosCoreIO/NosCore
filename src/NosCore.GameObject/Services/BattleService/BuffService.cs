@@ -165,6 +165,24 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
+    public async Task RemoveBadAsync(IAliveEntity target, byte maxLevel)
+    {
+        var buffs = ResolveState(target);
+        if (buffs == null)
+        {
+            return;
+        }
+
+        foreach (var (cardId, buff) in buffs)
+        {
+            if (buff.BuffType == BuffType.Bad && cardCatalog.GetCard(cardId)?.Level <= maxLevel
+                && buffs.TryRemove(cardId, out var removed))
+            {
+                await SendIconRemovalAsync(target, removed);
+            }
+        }
+    }
+
     public async Task ClearAsync(IAliveEntity target)
     {
         var buffs = ResolveState(target);

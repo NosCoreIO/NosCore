@@ -16,7 +16,6 @@ public record struct PlayerStateComponent(
     Instant LastPortal,
     Instant LastSp,
     byte VehicleSpeed,
-    byte VehicleSpeedBoost,
-    byte VehicleSpeedBoostSeconds,
+    short VehicleVNum,
     Instant ConnectedAt
 );

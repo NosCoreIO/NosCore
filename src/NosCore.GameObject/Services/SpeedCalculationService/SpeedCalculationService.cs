@@ -4,13 +4,15 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using NosCore.Algorithm.SpeedService;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {
-    public class SpeedCalculationService(ISpeedService speedService, IBuffService buffService) : ISpeedCalculationService
+    public class SpeedCalculationService(ISpeedService speedService, IBuffService buffService, List<ItemDto> items) : ISpeedCalculationService
     {
         private byte CalculateSpeed(IAliveEntity aliveEntity, byte defaultSpeed)
         {
@@ -47,7 +49,9 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             // reported it because nothing called the service at all.
             if (characterEntity.IsVehicled)
             {
-                var boost = buffService.HasBuff(characterEntity, SpeedBooster.CardId) ? characterEntity.VehicleSpeedBoost : 0;
+                var boost = buffService.HasBuff(characterEntity, SpeedBooster.CardId)
+                    ? items.Find(i => i.VNum == characterEntity.VehicleVNum)?.SpeedBoost ?? 0
+                    : 0;
                 return (byte)((characterEntity.VehicleSpeed ?? 0) + boost);
             }
 

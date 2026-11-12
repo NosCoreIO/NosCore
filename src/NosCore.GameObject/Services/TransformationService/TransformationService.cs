@@ -170,8 +170,7 @@ namespace NosCore.GameObject.Services.TransformationService
             var character = session.Character;
             character.IsVehicled = true;
             character.VehicleSpeed = item.Speed;
-            character.VehicleSpeedBoost = item.SpeedBoost;
-            character.VehicleSpeedBoostSeconds = item.SpeedBoostDuration;
+            character.VehicleVNum = item.VNum;
 
             // cond carries Speed, not VehicleSpeed, and Speed is written once at login from
             // the class table. Without this line the mount changes the sprite and nothing
@@ -219,8 +218,7 @@ namespace NosCore.GameObject.Services.TransformationService
 
             character.IsVehicled = false;
             character.VehicleSpeed = 0;
-            character.VehicleSpeedBoost = 0;
-            character.VehicleSpeedBoostSeconds = 0;
+            character.VehicleVNum = 0;
             await buffService.RemoveAsync(character, SpeedCalculationService.SpeedBooster.CardId);
             character.Speed = speedCalculationService.CalculateSpeed(character);
 
