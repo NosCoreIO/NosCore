@@ -33,6 +33,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private TestWorld World;
         private const short BoosterVNum = 5119;
         private const short MountVNum = 1906;
+        private const short BoostCardId = 336;
 
         private ClientSession _session;
         private BuffService _buffs;
@@ -48,8 +49,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            cards.Setup(c => c.GetCard(SpeedBooster.CardId)).Returns(new CardDto { CardId = SpeedBooster.CardId });
-            cards.Setup(c => c.GetCardBCards(SpeedBooster.CardId)).Returns(new List<BCardDto>());
+            cards.Setup(c => c.GetItemCard(BoosterVNum)).Returns(new CardDto { CardId = BoostCardId });
+            cards.Setup(c => c.GetCardBCards(BoostCardId)).Returns(new List<BCardDto>());
+            cards.Setup(c => c.IsGrantedBy(BoostCardId, ItemEffectType.SpeedBooster)).Returns(true);
             _buffs = World.Create<BuffService>();
             World.Inject<IBuffService>(_buffs);
             _speed = World.Create<SpeedCalculationService>();
@@ -64,7 +66,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             await UseAsync();
 
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, SpeedBooster.CardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, BoostCardId));
             Assert.AreEqual(1, _session.Character.InventoryService.CountItem(BoosterVNum));
         }
 
@@ -89,7 +91,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             await UseAsync();
 
             Assert.AreEqual(22, _session.Character.Speed);
-            var buff = _buffs.GetActiveBuffs(_session.Character).Single(b => b.CardId == SpeedBooster.CardId);
+            var buff = _buffs.GetActiveBuffs(_session.Character).Single(b => b.CardId == BoostCardId);
             Assert.AreEqual(3, (int)(buff.ExpiresAt - World.Clock.GetCurrentInstant()).TotalSeconds);
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(BoosterVNum));
         }

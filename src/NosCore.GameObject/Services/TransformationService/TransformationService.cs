@@ -24,6 +24,8 @@ using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
 using System;
+using NosCore.Data.Enumerations.Items;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -35,7 +37,8 @@ namespace NosCore.GameObject.Services.TransformationService
             SpeedCalculationService.ISpeedCalculationService speedCalculationService,
             SkillService.ISkillService skillService,
             BattleService.IBattleStatsProvider battleStatsProvider,
-            BattleService.IBuffService buffService)
+            BattleService.IBuffService buffService,
+            BattleService.ICardCatalog cardCatalog)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -219,7 +222,11 @@ namespace NosCore.GameObject.Services.TransformationService
             character.IsVehicled = false;
             character.VehicleSpeed = 0;
             character.VehicleVNum = 0;
-            await buffService.RemoveAsync(character, SpeedCalculationService.SpeedBooster.CardId);
+            foreach (var boost in buffService.GetActiveBuffs(character)
+                         .Where(b => cardCatalog.IsGrantedBy(b.CardId, ItemEffectType.SpeedBooster)).ToList())
+            {
+                await buffService.RemoveAsync(character, boost.CardId);
+            }
             character.Speed = speedCalculationService.CalculateSpeed(character);
 
             var mapInstance = character.MapInstance;

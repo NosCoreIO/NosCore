@@ -11,7 +11,7 @@ namespace NosCore.GameObject.Services.BattleService;
 
 public interface IHeatService
 {
-    // Burns the character while it stands on an Act 5.2 map without heat resistance, and
-    // stops once it leaves.
+    // Applies the card of the map type the character stands in unless heat resistance is
+    // active, and removes it once they leave.
     Task RefreshAsync(ICharacterEntity character);
 }

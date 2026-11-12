@@ -86,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
 
             _service = new VitalityService(new HpService(), new MpService(),
-                new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects),
+                new EquipmentStatsService(new CardCatalog(new List<CardDto>(), ItemEffects, new List<ItemDto>()),
                     new Mock<IDao<EquipmentOptionDto, Guid>>().Object,
                     new NosCore.GameObject.Services.SpecialistCardService.SpecialistCardService(
                         new NosCore.Algorithm.SpecialistPointService.SpecialistPointService())),

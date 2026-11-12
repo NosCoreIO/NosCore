@@ -22,7 +22,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
     public sealed class HeatResistanceHandler(IBuffService buffService, ICardCatalog cardCatalog, IClock clock,
-        IBattleStatsProvider battleStatsProvider)
+        IBattleStatsProvider battleStatsProvider, IHeatService heatService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -31,23 +31,25 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             var session = evt.ClientSession;
             var character = session.Character;
             if (item.Effect != ItemEffectType.HeatResistance
-                || cardCatalog.GetCard(HeatResistance.CardId) is not { } card)
+                || cardCatalog.GetItemCard(item.VNum) is not { } card)
             {
                 return;
             }
 
-            var current = buffService.GetActiveBuffs(character).FirstOrDefault(b => b.CardId == HeatResistance.CardId);
+            var current = buffService.GetActiveBuffs(character).FirstOrDefault(b => b.CardId == card.CardId);
             var left = current == null ? Duration.Zero : current.ExpiresAt - clock.GetCurrentInstant();
-            if (left >= HeatResistance.MaximumDuration)
+            // A static buff's TIME column counts 0.6 s steps.
+            var maximum = Duration.FromMilliseconds(card.Duration * 600L);
+            if (left >= maximum)
             {
                 return;
             }
 
             await character.UseUpOneAsync(evt.InventoryItem);
 
-            await buffService.RemoveAsync(character, HeatResistance.BurningCardId);
-            var duration = Duration.Min(left + Duration.FromSeconds(item.EffectValue), HeatResistance.MaximumDuration);
-            await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(HeatResistance.CardId), duration);
+            var duration = Duration.Min(left + Duration.FromSeconds(item.EffectValue), maximum);
+            await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(card.CardId), duration);
+            await heatService.RefreshAsync(character);
             await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));
             await session.SendPacketAsync(new SayiPacket
             {

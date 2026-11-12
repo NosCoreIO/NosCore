@@ -9,6 +9,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
 using NosCore.Database;
@@ -92,6 +93,30 @@ namespace NosCore.Parser.Tests
                    $"\tLAST\t{timeoutBuff}\t{timeoutBuffChance}\r\n" +
                    "\tDESC\tTest Description\r\n" +
                    "END";
+        }
+
+        [TestMethod]
+        public async Task CardParser_HeatResistanceLastsUpToTwoHours()
+        {
+            CreateTestFile(CreateCardData(cardId: 340));
+
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertCardsAsync(_tempFolder);
+
+            Assert.AreEqual(12000, _savedCards.Single().Duration);
+        }
+
+        [TestMethod]
+        public async Task CardParser_TheFairyBoosterRaisesTheFairyElement()
+        {
+            CreateTestFile(CreateCardData(cardId: 131));
+
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertCardsAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.CardId == 131);
+            Assert.AreEqual(BCardEffect.Type96IncreaseFairyElement, card.Effect());
+            Assert.AreEqual(30, card.FirstData);
         }
 
         [TestMethod]

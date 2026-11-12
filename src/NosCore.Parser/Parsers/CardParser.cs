@@ -59,12 +59,37 @@ namespace NosCore.Parser.Parsers
         {
             var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var cards = (await parser.GetDtosAsync()).GroupBy(p => p.CardId).Select(g => g.First()).ToList();
+            foreach (var card in cards)
+            {
+                HardcodeCard(card);
+            }
+
             await cardDao.TryInsertOrUpdateAsync(cards);
             var cardIds = cards.Select(s => (short?)s.CardId).ToHashSet();
             await bcardDao.TryDeleteAsync(bcardDao.Where(s => cardIds.Contains(s.CardId))?.Select(s => s.BCardId).ToList() ?? []);
             await bcardDao.TryInsertOrUpdateAsync(cards.Where(s => s.BCards != null).SelectMany(s => s.BCards));
 
             _logger.LogInformation(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
+        }
+
+        // Cards whose TIME or effect rows are empty but whose behaviour is fixed.
+        private static void HardcodeCard(CardDto card)
+        {
+            switch (card.CardId)
+            {
+                case 131:
+                    card.BCards = [.. card.BCards ?? [], new BCardDto
+                    {
+                        CardId = card.CardId,
+                        Type = (byte)BCardType.CardType.Type96,
+                        SubType = 11,
+                        FirstData = 30,
+                    }];
+                    break;
+                case 340:
+                    card.Duration = 12000;
+                    break;
+            }
         }
 
         public List<BCardDto> AddBCards(Dictionary<string, string[][]> chunks)

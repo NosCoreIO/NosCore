@@ -17,6 +17,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
@@ -32,10 +33,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
     {
         private TestWorld World;
         private const short OilVNum = 5929;
+        private const short OilCardId = 340;
 
         private ClientSession _session;
         private BuffService _buffs;
         private HeatResistanceHandler _handler;
+        private Mock<IHeatService> _heat;
         private InventoryItemInstance _oil;
 
         [TestInitialize]
@@ -44,12 +47,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            cards.Setup(c => c.GetCard(HeatResistance.CardId)).Returns(new CardDto { CardId = HeatResistance.CardId });
-            cards.Setup(c => c.GetCard(HeatResistance.BurningCardId))
-                .Returns(new CardDto { CardId = HeatResistance.BurningCardId, Propability = 2, Duration = 600 });
+            cards.Setup(c => c.GetItemCard(OilVNum)).Returns(new CardDto { CardId = OilCardId, Duration = 12000 });
             cards.Setup(c => c.GetCardBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             _buffs = World.Create<BuffService>();
             World.Inject<IBuffService>(_buffs);
+            _heat = World.Freeze<Mock<IHeatService>>();
             _handler = World.Create<HeatResistanceHandler>();
         }
 
@@ -110,18 +112,13 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task TheOilCoolsOffTheBurningSword()
+        public async Task TheOilRefreshesTheHeat()
         {
-            var cards = World.Freeze<Mock<ICardCatalog>>();
-            var burning = cards.Object.GetCard(HeatResistance.BurningCardId);
-            Assert.IsNotNull(burning);
-            await _buffs.ApplyAsync(_session.Character, burning, new List<BCardDto>(), null);
-            Assert.IsTrue(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
             GiveOil(ItemEffectType.HeatResistance, 600, 1);
 
             await UseAsync();
 
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
+            _heat.Verify(h => h.RefreshAsync(It.IsAny<ICharacterEntity>()), Times.Once);
         }
 
         [TestMethod]
@@ -131,12 +128,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             await UseAsync();
 
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, HeatResistance.CardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, OilCardId));
             Assert.AreEqual(1, _session.Character.InventoryService.CountItem(OilVNum));
         }
 
         private int SecondsLeft() =>
-            (int)(_buffs.GetActiveBuffs(_session.Character).Single(b => b.CardId == HeatResistance.CardId).ExpiresAt
+            (int)(_buffs.GetActiveBuffs(_session.Character).Single(b => b.CardId == OilCardId).ExpiresAt
                 - World.Clock.GetCurrentInstant()).TotalSeconds;
 
         private void GiveOil(ItemEffectType effect, int seconds, short amount)

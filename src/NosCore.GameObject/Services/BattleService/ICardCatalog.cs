@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -21,4 +22,10 @@ public interface ICardCatalog
 
     /// <summary>The effects an item declares.</summary>
     IReadOnlyList<BCardDto> GetItemBCards(short itemVnum);
+
+    /// <summary>The Card an item grants when used, or null if it grants none.</summary>
+    CardDto? GetItemCard(short itemVnum);
+
+    /// <summary>Whether that Card is the one granted by items with that effect.</summary>
+    bool IsGrantedBy(short cardId, ItemEffectType effect);
 }

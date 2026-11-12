@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
@@ -22,6 +23,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     {
         private TestWorld World;
         private ClientSession _session;
+        private const short BurningCardId = 339;
+        private const short OilCardId = 340;
         private BuffService _buffs;
         private List<MapTypeMapDto> _mapTypes;
 
@@ -31,14 +34,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            cards.Setup(c => c.GetCard(HeatResistance.CardId)).Returns(new CardDto { CardId = HeatResistance.CardId });
-            cards.Setup(c => c.GetCard(HeatResistance.BurningCardId))
-                .Returns(new CardDto { CardId = HeatResistance.BurningCardId, Propability = 2 });
+            cards.Setup(c => c.GetCard(BurningCardId)).Returns(new CardDto { CardId = BurningCardId, Propability = 2 });
+            cards.Setup(c => c.IsGrantedBy(OilCardId, ItemEffectType.HeatResistance)).Returns(true);
             cards.Setup(c => c.GetCardBCards(It.IsAny<short>())).Returns(new List<BCardDto>());
             _buffs = World.Create<BuffService>();
             World.Inject<IBuffService>(_buffs);
             _mapTypes = [];
             World.Inject(_mapTypes);
+            World.Inject(new List<MapTypeDto>
+            {
+                new() { MapTypeId = (short)MapTypeType.Act51, MapTypeName = "Act5.1" },
+                new() { MapTypeId = (short)MapTypeType.Act52, MapTypeName = "Act5.2", ZoneCardId = BurningCardId },
+            });
         }
 
         private HeatService CreateService(params short[] mapTypes)
@@ -58,7 +65,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             await service.RefreshAsync(_session.Character);
 
-            Assert.IsTrue(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, BurningCardId));
         }
 
         [TestMethod]
@@ -68,44 +75,57 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             await service.RefreshAsync(_session.Character);
 
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, BurningCardId));
         }
 
         [TestMethod]
         public async Task HeatResistanceKeepsTheHeatAway()
         {
             var service = CreateService((short)MapTypeType.Act52);
-            await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = HeatResistance.CardId }, [],
+            await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = OilCardId }, [],
                 Duration.FromMinutes(10));
 
             await service.RefreshAsync(_session.Character);
 
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, BurningCardId));
+        }
+
+        [TestMethod]
+        public async Task HeatResistanceCoolsOffTheBurningSword()
+        {
+            var service = CreateService((short)MapTypeType.Act52);
+            await service.RefreshAsync(_session.Character);
+            await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = OilCardId }, [],
+                Duration.FromMinutes(10));
+
+            await service.RefreshAsync(_session.Character);
+
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, BurningCardId));
         }
 
         [TestMethod]
         public async Task LeavingTheHeatCoolsDown()
         {
             var service = CreateService();
-            await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = HeatResistance.BurningCardId }, []);
+            await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = BurningCardId }, []);
 
             await service.RefreshAsync(_session.Character);
 
-            Assert.IsFalse(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
+            Assert.IsFalse(_buffs.HasBuff(_session.Character, BurningCardId));
         }
 
         [TestMethod]
         public async Task TheHeatReturnsWhenTheResistanceRunsOut()
         {
             var service = CreateService((short)MapTypeType.Act52);
-            await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = HeatResistance.CardId }, [],
+            await _buffs.ApplyStaticAsync(_session.Character, new CardDto { CardId = OilCardId }, [],
                 Duration.FromMinutes(10));
             World.Clock.Advance(Duration.FromMinutes(11));
             await _buffs.TickAsync(_session.Character);
 
             await service.RefreshAsync(_session.Character);
 
-            Assert.IsTrue(_buffs.HasBuff(_session.Character, HeatResistance.BurningCardId));
+            Assert.IsTrue(_buffs.HasBuff(_session.Character, BurningCardId));
         }
     }
 }

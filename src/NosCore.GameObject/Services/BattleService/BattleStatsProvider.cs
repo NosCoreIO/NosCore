@@ -262,10 +262,6 @@ public sealed class BattleStatsProvider(
         if (gear.FairyWorn)
         {
             elementFlatBonus += totals.FairyElement;
-            if (buffs.Any(b => b.CardId == FairyBooster.CardId))
-            {
-                elementFlatBonus += FairyBooster.ElementRateBonus;
-            }
         }
 
         return stats with

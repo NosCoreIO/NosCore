@@ -63,6 +63,7 @@ namespace NosCore.Parser.Parsers
                     MapTypeId = (short) MapTypeType.Act52,
                     MapTypeName = "Act5.2",
                     PotionDelay = 300,
+                    ZoneCardId = 339,
                     RespawnMapTypeId = (long) RespawnType.DefaultAct5,
                     ReturnMapTypeId = (long) RespawnType.ReturnAct5
                 },
