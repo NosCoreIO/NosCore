@@ -125,7 +125,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             _session.Character.Skills = new ConcurrentDictionary<short, CharacterSkill>
             {
-                [1] = new() { Skill = new SkillDto { SkillVNum = 1, CastId = 5, Range = range, TargetRange = 3, HitType = 3 } },
+                [1] = new() { Skill = new SkillDto { SkillVNum = 1, CastId = 5, Range = range, TargetRange = 3, HitType = 3, SkillType = 1 } },
             };
             _session.Character.Mp = 100;
         }
