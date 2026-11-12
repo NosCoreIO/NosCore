@@ -45,6 +45,8 @@ namespace NosCore.Database.Entities
 
         public short GroupId { get; set; }
 
+        public CardTrigger Trigger { get; set; }
+
         public byte Propability { get; set; }
 
         public virtual ICollection<BCard> BCards { get; set; }

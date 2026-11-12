@@ -1305,6 +1305,8 @@ Two characters with at least 1 000 gold each, in different groups, next to the a
       reputation is lost
 - [ ] Confirm: 100 gold is taken, HP and MP are full and the player stands on the cell they
       fell on
+- [ ] Right after the revive the buff bar shows the protection icon (card 169) for five seconds
+- [ ] Closing the question with Escape counts as Cancel
 - [ ] Hits in the first five seconds after the revive show "MISS"; after that they land again
 - [ ] Cancel instead: the player is sent to their respawn point and the arena keeps no gold
 - [ ] Walk onto the arena's exit portal: the player is back on the map and cell they entered from

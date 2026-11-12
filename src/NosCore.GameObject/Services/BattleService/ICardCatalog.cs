@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 
@@ -28,4 +29,7 @@ public interface ICardCatalog
 
     /// <summary>Whether that Card is the one granted by items with that effect.</summary>
     bool IsGrantedBy(short cardId, ItemEffectType effect);
+
+    /// <summary>The Card the server applies when that situation arises, or null if none.</summary>
+    CardDto? GetTriggeredCard(CardTrigger trigger);
 }

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Concurrency;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FriendHub;
@@ -19,28 +20,31 @@ namespace NosCore.GameObject.Services.GroupService;
 public sealed class CoupleBuffService(IFriendHub friendHub, IBuffService buffService, ICardCatalog cardCatalog)
     : ICoupleBuffService, ISingletonService
 {
-    public const short CoupleCardId = 319;
-
     // A refresh that read the group before a leave must not apply the buff after the leave's own refresh.
     private readonly AsyncLock _lock = new();
 
     public async Task RefreshAsync(IEnumerable<ICharacterEntity> characters)
     {
         using var _ = await _lock.AcquireAsync();
+        if (cardCatalog.GetTriggeredCard(CardTrigger.SpouseInGroup) is not { } card)
+        {
+            return;
+        }
+
         foreach (var character in characters.DistinctBy(s => s.VisualId))
         {
             var spouses = (await friendHub.GetFriendsAsync(character.VisualId))
                 .Where(s => s.RelationType == CharacterRelationType.Spouse)
                 .Select(s => s.CharacterId);
             var withSpouse = character.Group is { Count: > 1 } group && spouses.Any(group.IsMember);
-            var hasBuff = buffService.HasBuff(character, CoupleCardId);
-            if (withSpouse && !hasBuff && cardCatalog.GetCard(CoupleCardId) is { } card)
+            var hasBuff = buffService.HasBuff(character, card.CardId);
+            if (withSpouse && !hasBuff)
             {
-                await buffService.ApplyPermanentAsync(character, card, cardCatalog.GetCardBCards(CoupleCardId));
+                await buffService.ApplyPermanentAsync(character, card, cardCatalog.GetCardBCards(card.CardId));
             }
             else if (!withSpouse && hasBuff)
             {
-                await buffService.RemoveAsync(character, CoupleCardId);
+                await buffService.RemoveAsync(character, card.CardId);
             }
         }
     }
