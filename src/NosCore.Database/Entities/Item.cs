@@ -192,6 +192,11 @@ namespace NosCore.Database.Entities
 
         public byte Speed { get; set; }
 
+        public byte SpeedBoost { get; set; }
+
+        // In seconds.
+        public byte SpeedBoostDuration { get; set; }
+
         public byte SpType { get; set; }
 
         public NoscorePocketType Type { get; set; }

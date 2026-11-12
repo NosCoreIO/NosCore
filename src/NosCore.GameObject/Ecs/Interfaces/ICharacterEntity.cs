@@ -38,6 +38,8 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         byte? VehicleSpeed { get; }
 
+        byte VehicleSpeedBoost { get; }
+
         GenderType Gender { get; }
 
         HairStyleType HairStyle { get; set; }

@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapItemGenerationService;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
@@ -69,6 +70,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IBattleService? _battleService;
         private readonly IVitalityService? _vitalityService;
         private readonly IDigestionService? _digestionService;
+        private readonly ISpeedCalculationService? _speedCalculationService;
         private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
         private readonly ConcurrentDictionary<long, (NpcComponentBundle Npc, Instant RespawnAt)> _pendingNpcRespawns = new();
 
@@ -81,7 +83,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
             IBattleService? battleService = null, IVitalityService? vitalityService = null,
-            IDigestionService? digestionService = null)
+            IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -109,6 +111,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _battleService = battleService;
             _vitalityService = vitalityService;
             _digestionService = digestionService;
+            _speedCalculationService = speedCalculationService;
             EcsWorld = new MapWorld();
         }
 
@@ -547,6 +550,12 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                         if (expired.Count > 0 && _vitalityService != null)
                         {
                             await _vitalityService.RefreshAndNotifyAsync(session.Character);
+                        }
+
+                        if (_speedCalculationService != null && expired.Any(b => b.CardId == SpeedBooster.CardId))
+                        {
+                            session.Character.Speed = _speedCalculationService.CalculateSpeed(session.Character);
+                            await session.SendPacketAsync(session.Character.GenerateCond());
                         }
                     }
                     catch (Exception e)

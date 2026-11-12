@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112064858_AddFairyBoosterEffect";
+    public override string LastMigrationId => "20261112070935_AddMountSpeedBoost";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1476,6 +1476,12 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<byte>("Speed")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("SpeedBoost")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("SpeedBoostDuration")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("Type")

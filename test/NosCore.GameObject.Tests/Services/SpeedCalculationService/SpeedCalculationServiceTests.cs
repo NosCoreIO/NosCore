@@ -23,7 +23,7 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         public SpeedCalculationServiceTests()
         {
             SpeedService = new Mock<ISpeedService>();
-            SpeedCalculationService = new GameObject.Services.SpeedCalculationService.SpeedCalculationService(SpeedService.Object);
+            SpeedCalculationService = new GameObject.Services.SpeedCalculationService.SpeedCalculationService(SpeedService.Object, new Mock<GameObject.Services.BattleService.IBuffService>().Object);
         }
 
         [DataTestMethod]

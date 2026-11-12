@@ -192,6 +192,16 @@ namespace NosCore.Parser.Parsers
                 { 14, new List<(short, short)> { (9087, 2930), (5332, 2930), (5914, 2513) } },
                 { 16, new List<(short, short)> { (5173, 2511) } },
             });
+            // Read off each mount's "[With Speed Booster]" description lines: speed added, seconds.
+            SetSpeedBoosts(items, new Dictionary<(byte Speed, byte Seconds), short[]>
+            {
+                { (2, 3), [1906, 9054, 1907, 9055, 1965, 9058, 5008, 9065, 5332, 9087] },
+                { (5, 3), [5117, 9070] },
+                { (3, 5), [5152, 9073, 5196, 5226, 5228, 5232, 9078, 5234, 9079, 5236, 9080, 5238, 9081, 5240, 9082, 5360, 9088] },
+                { (2, 8), [5173] },
+                { (2, 6), [5386, 5387, 9090, 5388, 9091, 5389, 9092, 5390, 9093, 5391, 9094] },
+                { (2, 5), [5914] },
+            });
 
             await itemDao.TryInsertOrUpdateAsync(items);
             var itemVNums = items.Select(s => (short?)s.VNum).ToHashSet();
@@ -612,6 +622,18 @@ namespace NosCore.Parser.Parsers
 
         }
 
+        private static void SetSpeedBoosts(List<ItemDto> items, Dictionary<(byte Speed, byte Seconds), short[]> boosts)
+        {
+            foreach (var (boost, vnums) in boosts)
+            {
+                foreach (var item in items.Where(s => vnums.Contains(s.VNum)))
+                {
+                    item.SpeedBoost = boost.Speed;
+                    item.SpeedBoostDuration = boost.Seconds;
+                }
+            }
+        }
+
         private void HardcodeItem(ItemDto item)
         {
             if (item.EquipmentSlot == EquipmentType.Fairy)
@@ -712,7 +734,7 @@ namespace NosCore.Parser.Parsers
                 1982 => ItemEffectType.MarriageSeparation,
                 var x when x >= 1894 && x <= 1903 => ItemEffectType.SealedTarotCard,
                 var x when x >= 4046 && x <= 4055 => ItemEffectType.TarotCard,
-                5119 => ItemEffectType.SpeedBooster,
+                var x when x == 5119 || x == 9071 => ItemEffectType.SpeedBooster,
                 var x when x == 2160 || x == 2312 || x == 10048 => ItemEffectType.FriendshipWings,
                 180 => ItemEffectType.AttackAmulet,
                 181 => ItemEffectType.DefenseAmulet,

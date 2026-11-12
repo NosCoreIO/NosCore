@@ -192,6 +192,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     now,
                     now,
                     0,
+                    0,
+                    0,
                     now
                 );
 

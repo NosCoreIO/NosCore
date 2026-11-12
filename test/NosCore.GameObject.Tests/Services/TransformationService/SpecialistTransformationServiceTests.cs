@@ -55,7 +55,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                     new Mock<ILogger<GameObject.Services.TransformationService.TransformationService>>().Object, World.LogLanguageLocalizer, World.WorldConfiguration,
                     World.Create<NosCore.GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                     new Mock<NosCore.GameObject.Services.SkillService.ISkillService>().Object,
-                    new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object),
+                    new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
+                    World.Create<NosCore.GameObject.Services.BattleService.BuffService>()),
                 new SpecialistCardService(new SpecialistPointService()),
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
         }

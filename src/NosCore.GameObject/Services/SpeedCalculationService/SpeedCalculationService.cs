@@ -6,10 +6,11 @@
 
 using NosCore.Algorithm.SpeedService;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Services.BattleService;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {
-    public class SpeedCalculationService(ISpeedService speedService) : ISpeedCalculationService
+    public class SpeedCalculationService(ISpeedService speedService, IBuffService buffService) : ISpeedCalculationService
     {
         private byte CalculateSpeed(IAliveEntity aliveEntity, byte defaultSpeed)
         {
@@ -46,7 +47,8 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             // reported it because nothing called the service at all.
             if (characterEntity.IsVehicled)
             {
-                return characterEntity.VehicleSpeed ?? 0;
+                var boost = buffService.HasBuff(characterEntity, SpeedBooster.CardId) ? characterEntity.VehicleSpeedBoost : 0;
+                return (byte)((characterEntity.VehicleSpeed ?? 0) + boost);
             }
 
             return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class));

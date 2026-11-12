@@ -34,7 +34,8 @@ namespace NosCore.GameObject.Services.TransformationService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IOptions<WorldConfiguration> worldConfiguration,
             SpeedCalculationService.ISpeedCalculationService speedCalculationService,
             SkillService.ISkillService skillService,
-            BattleService.IBattleStatsProvider battleStatsProvider)
+            BattleService.IBattleStatsProvider battleStatsProvider,
+            BattleService.IBuffService buffService)
         : ITransformationService
     {
         public async Task RemoveSpAsync(ClientSession session)
@@ -169,6 +170,8 @@ namespace NosCore.GameObject.Services.TransformationService
             var character = session.Character;
             character.IsVehicled = true;
             character.VehicleSpeed = item.Speed;
+            character.VehicleSpeedBoost = item.SpeedBoost;
+            character.VehicleSpeedBoostSeconds = item.SpeedBoostDuration;
 
             // cond carries Speed, not VehicleSpeed, and Speed is written once at login from
             // the class table. Without this line the mount changes the sprite and nothing
@@ -216,6 +219,9 @@ namespace NosCore.GameObject.Services.TransformationService
 
             character.IsVehicled = false;
             character.VehicleSpeed = 0;
+            character.VehicleSpeedBoost = 0;
+            character.VehicleSpeedBoostSeconds = 0;
+            await buffService.RemoveAsync(character, SpeedCalculationService.SpeedBooster.CardId);
             character.Speed = speedCalculationService.CalculateSpeed(character);
 
             var mapInstance = character.MapInstance;

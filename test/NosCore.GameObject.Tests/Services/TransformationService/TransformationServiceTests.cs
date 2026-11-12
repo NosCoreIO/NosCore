@@ -16,6 +16,7 @@ using NosCore.GameObject.Services.TransformationService;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Tests.Services.TransformationService
@@ -26,6 +27,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
         private TestWorld World;
         private static readonly ILogger<NosCore.GameObject.Services.TransformationService.TransformationService> Logger = new Mock<ILogger<NosCore.GameObject.Services.TransformationService.TransformationService>>().Object;
         private ITransformationService Service;
+        private NosCore.GameObject.Services.BattleService.BuffService Buffs;
         private ClientSession Session;
 
         [TestInitialize]
@@ -35,6 +37,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             Session = await World.CreateSessionAsync();
             Session.Character.MapInstance = World.GetBaseMap(1);
 
+            Buffs = World.Create<NosCore.GameObject.Services.BattleService.BuffService>();
+            World.Inject<NosCore.GameObject.Services.BattleService.IBuffService>(Buffs);
             Service = new GameObject.Services.TransformationService.TransformationService(
                 World.Clock,
                 new Mock<IExperienceService>().Object,
@@ -45,7 +49,8 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 World.WorldConfiguration,
                 World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>(),
                 new Mock<GameObject.Services.SkillService.ISkillService>().Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object,
+                Buffs);
         }
 
         [TestMethod]
@@ -67,6 +72,18 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 .Then(CharacterShouldBeVehicled)
                 .And(VehicleSpeedShouldBeSet)
                 .And(TheSpeedTheClientSeesIsTheVehicles)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task DismountingEndsTheSpeedBoost()
+        {
+            await new Spec("Dismounting ends the speed boost, so the next ride starts at the mount's own speed")
+                .GivenAsync(CharacterIsVehicled)
+                .AndAsync(TheMountIsBoosted)
+                .WhenAsync(RemovingVehicle)
+                .AndAsync(CharacterIsVehicled)
+                .Then(TheBoostIsGone)
                 .ExecuteAsync();
         }
 
@@ -128,10 +145,25 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             {
                 VNum = 5196,
                 Speed = 20,
+                SpeedBoost = 3,
+                SpeedBoostDuration = 5,
                 Morph = 2432,
                 SecondMorph = 0
             };
             await Service.ChangeVehicleAsync(Session, vehicleItem);
+        }
+
+        private async Task TheMountIsBoosted()
+        {
+            await Buffs.ApplyAsync(Session.Character,
+                new NosCore.Data.StaticEntities.CardDto { CardId = GameObject.Services.SpeedCalculationService.SpeedBooster.CardId },
+                new List<NosCore.Data.StaticEntities.BCardDto>(), Session.Character, 5000);
+        }
+
+        private void TheBoostIsGone()
+        {
+            Assert.IsFalse(Buffs.HasBuff(Session.Character, GameObject.Services.SpeedCalculationService.SpeedBooster.CardId));
+            Assert.AreEqual(20, Session.Character.Speed);
         }
 
         private async Task RemovingVehicle()
