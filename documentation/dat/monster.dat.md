@@ -2,7 +2,7 @@
 
 ```text
 	AINFO	{ainfoDefType}	{DefenceUpgrade}
-	ARMOR	{armorLvl}	{CloseDefence}	{DistanceDefence}	{MagicDefence}	{dodge}
+	ARMOR	{armorLvl}	{meleeDef}	{rangedDef}	{magicDef}	{dodge}
 	ATTRIB	{Element}	{ElementRate}	{FireResistance}	{WaterResistance}	{LightResistance}	{DarkResistance}
 	BASIC	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	CARD	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
@@ -21,7 +21,7 @@
 	SETTING	{IconId}	{SpawnMobOrColor}	{amountOrItem}	{SpriteSize}	{CellSize}	{unknown0}
 	SKILL	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}
 	VNUM	{NpcMonsterVNum}
-	WEAPON	{weaponLvl}	{weaponRange}	{DamageMinimum}	{DamageMaximum}	{Concentrate}	{CriticalChance}	{CriticalRate}
+	WEAPON	{weaponLvl}	{weaponRange}	{weaponDmgMin}	{weaponDmgMax}	{weaponHitRate}	{CriticalChance}	{CriticalRate}
 	WINFO	{winfoAttType}	{unknown5}	{AttackUpgrade}
 	ZSKILL	{AttackClass}	{BasicRange}	{BasicHitChance}	{BasicArea}	{BasicCooldown}	{DashSpeed}	{unknown4}
 ```
@@ -43,10 +43,14 @@
 | 2 | Parsed | DistanceDefenceDodge | Int16 | Dodge against ranged attacks, the same as close dodge |
 | 2 | Parsed | MagicDefence | Int16 | Magic defence |
 | 3 | Parsed | CloseDefence | Int16 | Close defence |
+| 3 | Parsed | CloseDefenceBonus | Int16 | Flat close defence added to the curve |
 | 4 | Parsed | DistanceDefence | Int16 | Distance defence |
+| 4 | Parsed | DistanceDefenceBonus | Int16 | Flat distance defence added to the curve |
 | 5 | Parsed | MagicDefence | Int16 | Magic defence |
+| 5 | Parsed | MagicDefenceBonus | Int16 | Flat magic defence added to the curve |
 | 6 | Parsed | DefenceDodge | Int16 | Dodge |
 | 6 | Parsed | DistanceDefenceDodge | Int16 | Dodge against ranged attacks, the same as close dodge |
+| 6 | Parsed | DodgeBonus | Int16 | Flat dodge added to the curve |
 
 ## ATTRIB
 
@@ -425,8 +429,11 @@
 | 2 | Parsed | DamageMinimum | Int16 | Min attack damage |
 | 3 | NonParsed | weaponRange |  |  |
 | 4 | Parsed | DamageMinimum | Int16 | Min attack damage |
+| 4 | Parsed | DamageMinimumBonus | Int16 | Flat minimum damage added to the curve |
 | 5 | Parsed | DamageMaximum | Int16 | Max attack damage |
+| 5 | Parsed | DamageMaximumBonus | Int16 | Flat maximum damage added to the curve |
 | 6 | Parsed | Concentrate | Int16 | Hit rate |
+| 6 | Parsed | ConcentrateBonus | Int16 | Flat hit rate added to the curve |
 | 7 | Parsed | CriticalChance | Byte | Critical hit chance |
 | 8 | Parsed | CriticalRate | Int16 | Critical hit damage multiplier |
 

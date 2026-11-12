@@ -152,6 +152,13 @@ namespace NosCore.Parser.Parsers
                     source: "HP/MP[3] + race/level MP curve", description: "Flat MP on top of the race and level baseline")
                 .Field(x => x.HpBonus, "HP/MP", 0, 2, s => Convert.ToInt32(s), "Flat HP added to the level-derived baseline")
                 .Field(x => x.MpBonus, "HP/MP", 0, 3, s => Convert.ToInt32(s), "Flat MP added to the level-derived baseline")
+                .Field(x => x.CloseDefenceBonus, "ARMOR", 0, 3, s => Convert.ToInt16(s), "Flat close defence added to the curve")
+                .Field(x => x.DistanceDefenceBonus, "ARMOR", 0, 4, s => Convert.ToInt16(s), "Flat distance defence added to the curve")
+                .Field(x => x.MagicDefenceBonus, "ARMOR", 0, 5, s => Convert.ToInt16(s), "Flat magic defence added to the curve")
+                .Field(x => x.DodgeBonus, "ARMOR", 0, 6, s => Convert.ToInt16(s), "Flat dodge added to the curve")
+                .Field(x => x.DamageMinimumBonus, "WEAPON", 0, 4, s => Convert.ToInt16(s), "Flat minimum damage added to the curve")
+                .Field(x => x.DamageMaximumBonus, "WEAPON", 0, 5, s => Convert.ToInt16(s), "Flat maximum damage added to the curve")
+                .Field(x => x.ConcentrateBonus, "WEAPON", 0, 6, s => Convert.ToInt16(s), "Flat hit rate added to the curve")
                 .Field(x => x.Xp, chunk => ImportXp(chunk),
                     reads: new[] { ("EXP", 0, 2), ("LEVEL", 0, 2) },
                     source: "EXP[2]", description: "Base XP award")

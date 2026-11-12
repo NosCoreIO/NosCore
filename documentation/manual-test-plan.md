@@ -673,6 +673,10 @@ under half health first.
       maximum MP 708, not the creature's own 657/60
 - [ ] Level a pet or partner up: the maximum HP and MP on its page and in the party panel grow
       with the level
+- [ ] Open the page of a level 40 Otter (683): attack reads 314 to 441 with hit rate 269,
+      defence 155 / 142 / 117 and dodge 254, not the level 1 creature's own values
+- [ ] Level a pet up: its attack, defence and dodge grow with the level; a partner keeps its
+      creature's values
 
 Managing NosMates. Double-click one of your own NosMates to get Company / Stay / Send back
 under its target bar. `/mnt/project-files/pets-partners/reset-mates.sh` sets up a pet and a

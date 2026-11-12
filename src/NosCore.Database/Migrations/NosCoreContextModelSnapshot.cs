@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261112040125_AddAncelloansBlessingEffect";
+    public override string LastMigrationId => "20261112051510_AddNpcMonsterStatBonuses";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -2006,7 +2006,13 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("CloseDefence")
                     .HasColumnType("smallint");
 
+                b.Property<short>("CloseDefenceBonus")
+                    .HasColumnType("smallint");
+
                 b.Property<short>("Concentrate")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("ConcentrateBonus")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("CriticalChance")
@@ -2018,7 +2024,13 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("DamageMaximum")
                     .HasColumnType("smallint");
 
+                b.Property<short>("DamageMaximumBonus")
+                    .HasColumnType("smallint");
+
                 b.Property<short>("DamageMinimum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("DamageMinimumBonus")
                     .HasColumnType("smallint");
 
                 b.Property<short>("DarkResistance")
@@ -2045,7 +2057,13 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("DistanceDefence")
                     .HasColumnType("smallint");
 
+                b.Property<short>("DistanceDefenceBonus")
+                    .HasColumnType("smallint");
+
                 b.Property<short>("DistanceDefenceDodge")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("DodgeBonus")
                     .HasColumnType("smallint");
 
                 b.Property<bool>("DontDrainHpAfterSeconds")
@@ -2118,6 +2136,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("smallint");
 
                 b.Property<short>("MagicDefence")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("MagicDefenceBonus")
                     .HasColumnType("smallint");
 
                 b.Property<int>("MaxHp")

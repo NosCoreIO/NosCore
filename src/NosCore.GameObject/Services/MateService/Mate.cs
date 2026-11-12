@@ -41,5 +41,26 @@ namespace NosCore.GameObject.Services.MateService
         public int MaxMp { get; set; }
 
         public long XpLoad { get; set; }
+
+        /// <summary>Attack, defence and dodge at the mate's level, set with <see cref="MaxHp"/>.</summary>
+        public short DamageMinimum { get; set; }
+
+        /// <inheritdoc cref="DamageMinimum" />
+        public short DamageMaximum { get; set; }
+
+        /// <inheritdoc cref="DamageMinimum" />
+        public short Concentrate { get; set; }
+
+        /// <inheritdoc cref="DamageMinimum" />
+        public short CloseDefence { get; set; }
+
+        /// <inheritdoc cref="DamageMinimum" />
+        public short DistanceDefence { get; set; }
+
+        /// <inheritdoc cref="DamageMinimum" />
+        public short MagicDefence { get; set; }
+
+        /// <inheritdoc cref="DamageMinimum" />
+        public short Dodge { get; set; }
     }
 }
