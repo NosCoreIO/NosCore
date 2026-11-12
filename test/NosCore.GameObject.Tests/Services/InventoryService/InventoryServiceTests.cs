@@ -60,6 +60,16 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
         }
 
         [TestMethod]
+        public void TwoDifferentItemsNeedTwoFreeSlots()
+        {
+            new Spec("Two different items do not fit in the last free slot together")
+                .Given(OneFreeMainSlotLeft)
+                .Then(ThereIsRoomFor_And_, (short)1013, (short)1013)
+                .And(ThereIsNoRoomFor_And_, (short)1013, (short)1012)
+                .Execute();
+        }
+
+        [TestMethod]
         public void ABoxGoesIntoTheEquipmentPocket()
         {
             new Spec("A box such as a card holder goes into the equipment pocket")
@@ -620,5 +630,20 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 (MovedItem?.Type == NoscorePocketType.Wear) &&
                 (MovedItem.Slot == (short)EquipmentType.MainWeapon));
         }
+
+        private void OneFreeMainSlotLeft()
+        {
+            var maxSlots = ((GameObject.Services.InventoryService.InventoryService)Inventory).GetMaxSlots(NoscorePocketType.Main);
+            while (Inventory.CountItemInAnPocket(NoscorePocketType.Main) < maxSlots - 1)
+            {
+                Inventory.AddItemToPocket(InventoryItemInstance.Create(ItemProvider.Create(1012, 999), 0));
+            }
+        }
+
+        private void ThereIsRoomFor_And_(short first, short second) =>
+            Assert.IsTrue(Inventory.HasRoomFor([ItemProvider.Create(first, 1), ItemProvider.Create(second, 1)]));
+
+        private void ThereIsNoRoomFor_And_(short first, short second) =>
+            Assert.IsFalse(Inventory.HasRoomFor([ItemProvider.Create(first, 1), ItemProvider.Create(second, 1)]));
     }
 }

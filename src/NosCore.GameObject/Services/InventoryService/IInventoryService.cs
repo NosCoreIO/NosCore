@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Services.InventoryService
 
         bool CanAddItem(short itemVnum);
         bool HasRoomFor(IItemInstance itemInstance);
+        bool HasRoomFor(IReadOnlyCollection<IItemInstance> itemInstances);
         int CountItemInAnPocket(NoscorePocketType inv);
         InventoryItemInstance? DeleteById(Guid id);
         InventoryItemInstance? DeleteFromTypeAndSlot(NoscorePocketType type, short slot);

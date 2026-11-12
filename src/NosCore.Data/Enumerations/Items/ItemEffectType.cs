@@ -76,6 +76,9 @@ namespace NosCore.Data.Enumerations.Items
         MinigameDurabilityCoupon = 1018,
         ProductionCoupon = 1019,
 
+        // EffectValue is how many cards one game deals.
+        TarotCardGame = 1020,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

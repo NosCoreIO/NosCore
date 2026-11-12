@@ -465,20 +465,25 @@ namespace NosCore.GameObject.Services.InventoryService
             return null;
         }
 
-        public bool HasRoomFor(IItemInstance itemInstance)
-        {
-            var type = (NoscorePocketType)itemInstance.Item.Type;
-            if (type != NoscorePocketType.Etc && type != NoscorePocketType.Main)
-            {
-                return HasFreeSlot(type);
-            }
+        public bool HasRoomFor(IItemInstance itemInstance) => HasRoomFor([itemInstance]);
 
+        public bool HasRoomFor(IReadOnlyCollection<IItemInstance> itemInstances) =>
+            itemInstances.GroupBy(i => (NoscorePocketType)i.Item.Type).All(pocket =>
+            {
+                var slotsNeeded = pocket.Key is NoscorePocketType.Etc or NoscorePocketType.Main
+                    ? pocket.GroupBy(i => i.ItemVNum).Sum(g => SlotsToStack(g.Key, g.Sum(i => i.Amount)))
+                    : pocket.Count();
+                return slotsNeeded <= GetMaxSlots(pocket.Key) - CountItemInAnPocket(pocket.Key);
+            });
+
+        private int SlotsToStack(short vnum, int amount)
+        {
             var maxAmount = configuration.Value.MaxItemAmount;
-            var freeSlots = GetMaxSlots(type) - CountItemInAnPocket(type);
             var stackRoom = this.Select(s => s.Value)
-                .Where(i => i.ItemInstance?.ItemVNum == itemInstance.ItemVNum && i.ItemInstance.Amount < maxAmount)
+                .Where(i => i.ItemInstance?.ItemVNum == vnum && i.ItemInstance.Amount < maxAmount)
                 .Sum(i => maxAmount - i.ItemInstance.Amount);
-            return itemInstance.Amount <= freeSlots * maxAmount + stackRoom;
+            var overflow = amount - stackRoom;
+            return overflow <= 0 ? 0 : (overflow + maxAmount - 1) / maxAmount;
         }
 
         public bool TryConsume(InventoryItemInstance source, short amount)

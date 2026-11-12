@@ -724,6 +724,10 @@ Needs two characters on the same channel. The commending one must be level 31 or
       card is gone; with a stack of two, two rapid double-clicks give two rewards and empty the stack
 - [ ] With the bag full, double-click a box: the not-enough-space message appears and the box
       stays in its slot
+- [ ] Double-click a Tarot Card Game: it is used up and five sealed tarot cards from Fool to
+      The Sun arrive, with one "received" line per kind of card
+- [ ] With one free Main slot and no sealed cards yet, double-click a Tarot Card Game: unless all
+      five cards came out the same, the not-enough-space message appears and the game stays
 - [ ] Use a title item and a speaker: both still work as before
 
 ### Inventory sort
