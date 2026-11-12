@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using NosCore.Algorithm.DignityService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -195,7 +196,7 @@ namespace NosCore.GameObject.Tests
             };
             return new ItemGenerationService(items,
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer, new RarityPointService());
         }
 
         private void CharacterHasGold_(long gold)

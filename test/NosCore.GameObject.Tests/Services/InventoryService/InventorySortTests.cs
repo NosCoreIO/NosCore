@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Tests.Services.InventoryService
                 new Item { Type = NoscorePocketType.Costume, VNum = 4075, Name = Name("Wedding Dress", "Robe de mariee") },
             };
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(Items,
-                NullLoggerFactory.Instance, TestLocalizers.Log);
+                NullLoggerFactory.Instance, TestLocalizers.Log, new RarityPointService());
             Inventory = new GameObject.Services.InventoryService.InventoryService(Items,
                 Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), BackpackSize = 48, MaxItemAmount = 999 }),
                 NullLogger<GameObject.Services.InventoryService.InventoryService>.Instance);

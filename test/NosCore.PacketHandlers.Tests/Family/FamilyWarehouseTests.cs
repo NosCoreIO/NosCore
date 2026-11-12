@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 new Item { Type = NoscorePocketType.Main, VNum = 1012, IsTradable = true },
                 new Item { Type = NoscorePocketType.Main, VNum = 1013 },
                 new Item { Type = NoscorePocketType.Equipment, VNum = 1, ItemType = ItemType.Weapon, IsTradable = true }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             JoinFamily(FamilyAuthority.Head, 21);
         }
 

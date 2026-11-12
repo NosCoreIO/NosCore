@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Core;
@@ -95,7 +96,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             _parcelRegistry.Setup(s => s.TryAddMail(It.IsAny<long>(), It.IsAny<bool>(), It.IsAny<MailData>())).Returns(true);
 
             _service = new GameObject.Services.MailService.MailService(mails.Object, itemInstances.Object, _pubSubHub.Object,
-                channels.Object, _items, new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer),
+                channels.Object, _items, new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
                 _parcelRegistry.Object, characters.Object);
         }
 

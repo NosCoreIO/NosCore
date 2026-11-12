@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -70,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                     Type = NoscorePocketType.Equipment, VNum = HighLevelGloves, ItemType = ItemType.Fashion,
                     EquipmentSlot = EquipmentType.Gloves, LevelMinimum = 50
                 }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             _partner = TestMates.Partner(_session.Character.CharacterId);
             _session.Character.Mates[_partner.MateTransportId] = _partner;
         }

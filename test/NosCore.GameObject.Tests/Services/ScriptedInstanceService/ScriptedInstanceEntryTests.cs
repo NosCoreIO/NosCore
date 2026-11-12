@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
@@ -36,7 +37,7 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(
                 new List<ItemDto> { new() { VNum = SeedVnum, Type = NoscorePocketType.Etc } },
-                NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
         }
 
         private static ScriptedInstance Needing(short amount) => new()

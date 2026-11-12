@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations;
@@ -54,7 +55,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                 new Item { Type = NoscorePocketType.Main, VNum = 1013, IsTradable = false }
             };
             ItemProvider = new ItemGenerationService(items,
-                NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+                NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
 
             Handler = World.Create<ExcListPacketHandler>();
         }

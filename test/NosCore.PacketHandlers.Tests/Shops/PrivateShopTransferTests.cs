@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using NosCore.Algorithm.DignityService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -70,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
             {
                 new Item { Type = NoscorePocketType.Etc, VNum = ItemVNum, IsTradable = true },
                 new Item { Type = NoscorePocketType.Equipment, VNum = WeaponVNum, ItemType = ItemType.Weapon, IsTradable = true }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             _mShop = World.Create<MShopPacketHandler>();
 
             _owner.Character.MapInstance = World.GetBaseMap(1);

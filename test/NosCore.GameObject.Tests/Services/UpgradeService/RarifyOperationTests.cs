@@ -108,9 +108,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         }
 
         [TestMethod]
-        public async Task SuccessResetsRarityDrivenStatsViaSetRarityPoint()
+        public async Task SuccessRerollsTheRarityBonusOfTheArmour()
         {
-            await new Spec("Successful rarify re-rolls the rarity-driven stats via SetRarityPoint")
+            await new Spec("Successful rarify re-rolls the rarity bonus of the armour")
                 .Given(WearableAtRarity_, (sbyte)0)
                 .And(SourceWearableHasPreExistingDefenseStats)
                 .And(MaterialsInInventory)
@@ -118,9 +118,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
                 .And(NextRollWillBe_, 0.02)
                 .WhenAsync(UnprotectedRarifyIsExecuted)
                 .Then(WearableRarityShouldBe_, (sbyte)7)
-                .And(CloseDefenceShouldBe_, (short)0)
-                .And(DistanceDefenceShouldBe_, (short)0)
-                .And(MagicDefenceShouldBe_, (short)0)
+                .And(TheArmourShouldSpend_RarityPointsOnDefenceAndDodge, 10)
                 .ExecuteAsync();
         }
 
@@ -241,17 +239,15 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void SourceSlotShouldBeEmpty() =>
             Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Equipment));
 
-        private void CloseDefenceShouldBe_(short expected) =>
-            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).CloseDefence);
-
-        private void DistanceDefenceShouldBe_(short expected) =>
-            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).DistanceDefence);
-
-        private void MagicDefenceShouldBe_(short expected) =>
-            Assert.AreEqual(expected, ((WearableInstance)_session.Character.InventoryService
-                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance).MagicDefence);
+        private void TheArmourShouldSpend_RarityPointsOnDefenceAndDodge(int points)
+        {
+            var armour = (WearableInstance)_session.Character.InventoryService
+                .LoadBySlotAndType(0, NoscorePocketType.Equipment).NotNull().ItemInstance;
+            Assert.AreEqual(points, armour.CloseDefence + armour.DefenceDodge);
+            Assert.AreEqual(armour.CloseDefence, armour.DistanceDefence);
+            Assert.AreEqual(armour.CloseDefence, armour.MagicDefence);
+            Assert.AreEqual(armour.DefenceDodge, armour.DistanceDefenceDodge);
+        }
 
         private void CellonRemainingShouldBe_(short expected) =>
             Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(CellonVNum));

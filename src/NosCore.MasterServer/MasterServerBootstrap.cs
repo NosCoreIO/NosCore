@@ -45,6 +45,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Algorithm.FamilyUpgradeService;
+using NosCore.Algorithm.RarityPointService;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.AuthService;
@@ -193,6 +194,7 @@ namespace NosCore.MasterServer
             containerBuilder.RegisterType<AuthCodeService>().As<IAuthCodeService>().SingleInstance();
             containerBuilder.RegisterType<FamilyUpgradeService>().As<IFamilyUpgradeService>().SingleInstance();
             containerBuilder.RegisterType<FamilyExperienceService>().As<IFamilyExperienceService>().SingleInstance();
+            containerBuilder.RegisterType<RarityPointService>().As<IRarityPointService>().SingleInstance();
 
             RegisterDto(containerBuilder);
         }

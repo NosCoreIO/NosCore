@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -80,7 +81,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer, new RarityPointService());
 
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());

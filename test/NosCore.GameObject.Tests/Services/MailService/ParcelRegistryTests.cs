@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -132,7 +133,7 @@ namespace NosCore.GameObject.Tests.Services.MailService
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var service = new GameObject.Services.MailService.MailService(_mails.Object, _itemInstances.Object,
                 pubSubHub.Object, channels.Object, _items,
-                new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer),
+                new ItemGenerationService(_items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
                 _registry, _characters.Object);
 
             var results = await Task.WhenAll(Enumerable.Range(0, MailCount).Select(_ => Task.Run(() =>

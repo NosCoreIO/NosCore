@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -44,7 +45,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
             {
                 new Item { VNum = SavingsBookVNum, Type = NoscorePocketType.Main, Effect = ItemEffectType.CuarryBankSavingsBook },
             };
-            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer),
+            _handler = new GetSavingsBookHandler(new ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService()),
                 new ItemCatalog(items));
         }
 

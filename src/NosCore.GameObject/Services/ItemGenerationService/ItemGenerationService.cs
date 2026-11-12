@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Mapster;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -22,7 +23,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService
     public class ItemGenerationService(
         List<ItemDto> items,
         ILoggerFactory loggerFactory,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage) : IItemGenerationService
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+        IRarityPointService rarityPoints) : IItemGenerationService
     {
         public IItemInstance Convert(IItemInstanceDto k)
         {
@@ -94,7 +96,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                             };
                             if (wear.Rare > 0)
                             {
-                                wear.SetRarityPoint();
+                                wear.SetRarityPoint(rarityPoints);
                             }
                             return wear;
                     }
