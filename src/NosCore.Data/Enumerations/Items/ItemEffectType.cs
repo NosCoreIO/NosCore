@@ -18,6 +18,8 @@ namespace NosCore.Data.Enumerations.Items
         MateCapture = 100,
         OpenProduction = 100,
         Undefined = 69,
+        // The map item that adds its amount to the gold counter when picked up.
+        Gold = 70,
         MedalOfHonour = 69,
         Holder = 69,
         SpCharger = 71,
@@ -60,6 +62,7 @@ namespace NosCore.Data.Enumerations.Items
         CuarryBankSavingsBook = 1011,
         ShellIdentification = 1012,
         ShellOptionRemoval = 1013,
+        SoulRevival = 1014,
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

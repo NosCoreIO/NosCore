@@ -73,7 +73,7 @@ namespace NosCore.Parser.Parsers
             _logger.LogInformation(logLanguage[LogLanguageKey.CARDS_PARSED], cards.Count);
         }
 
-        // Cards whose TIME or effect rows are empty but whose behaviour is fixed.
+        // Cards whose TIME or effect rows are empty, or that the server applies on its own.
         private static void HardcodeCard(CardDto card)
         {
             switch (card.CardId)
@@ -89,6 +89,12 @@ namespace NosCore.Parser.Parsers
                     break;
                 case 340:
                     card.Duration = 12000;
+                    break;
+                case 319:
+                    card.Trigger = CardTrigger.SpouseInGroup;
+                    break;
+                case 169:
+                    card.Trigger = CardTrigger.ArenaRevival;
                     break;
             }
         }

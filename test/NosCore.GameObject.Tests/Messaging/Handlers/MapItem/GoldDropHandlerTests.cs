@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -40,6 +41,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
             {
                 VNum = GoldVNum,
                 Type = NoscorePocketType.Main,
+                Effect = ItemEffectType.Gold,
                 Name = new I18NString { [RegionType.EN] = "Gold" }
             };
             _handler = new GoldDropHandler(World.WorldConfiguration, new List<ItemDto> { gold });

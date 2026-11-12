@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Enumerations.Group;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Extensions;
@@ -27,6 +28,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
     [TestClass]
     public class CoupleBuffTests
     {
+        private const short CoupleCardId = 319;
         private TestWorld World;
         private ClientSession _husband;
         private ClientSession _wife;
@@ -51,8 +53,10 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             friends.Setup(s => s.GetFriendsAsync(wifeId))
                 .ReturnsAsync([Relation(_husband, CharacterRelationType.Spouse)]);
             var cards = World.Freeze<Mock<ICardCatalog>>();
-            cards.Setup(s => s.GetCard(CoupleBuffService.CoupleCardId)).Returns(new CardDto { CardId = CoupleBuffService.CoupleCardId });
-            cards.Setup(s => s.GetCardBCards(CoupleBuffService.CoupleCardId)).Returns(new List<BCardDto>());
+            var couple = new CardDto { CardId = CoupleCardId, Trigger = CardTrigger.SpouseInGroup };
+            cards.Setup(s => s.GetCard(CoupleCardId)).Returns(couple);
+            cards.Setup(s => s.GetTriggeredCard(CardTrigger.SpouseInGroup)).Returns(couple);
+            cards.Setup(s => s.GetCardBCards(CoupleCardId)).Returns(new List<BCardDto>());
 
             _buffs = World.Create<BuffService>();
             World.Inject<IBuffService>(_buffs);
@@ -75,7 +79,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
 
         private Task RefreshAsync() => _service.RefreshAsync(Everyone.Select(s => (ICharacterEntity)s.Character));
 
-        private bool HasBuff(ClientSession session) => _buffs.HasBuff(session.Character, CoupleBuffService.CoupleCardId);
+        private bool HasBuff(ClientSession session) => _buffs.HasBuff(session.Character, CoupleCardId);
 
         [TestMethod]
         public async Task SpousesInOneGroupBothGetTheBuff()
@@ -88,7 +92,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             Assert.IsTrue(HasBuff(_wife));
             Assert.IsFalse(HasBuff(_friend));
             var vb = _husband.LastPackets.OfType<VbPacket>().Single();
-            Assert.AreEqual(CoupleBuffService.CoupleCardId, vb.CardId);
+            Assert.AreEqual(CoupleCardId, vb.CardId);
             Assert.IsTrue(vb.IsActivated);
         }
 

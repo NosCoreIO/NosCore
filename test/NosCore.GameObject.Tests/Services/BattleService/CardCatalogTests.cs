@@ -44,5 +44,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(catalog.IsGrantedBy(BoostCardId, ItemEffectType.SpeedBooster));
             Assert.IsFalse(catalog.IsGrantedBy(BoostCardId, ItemEffectType.HeatResistance));
         }
+
+        [TestMethod]
+        public void TheCardForASituationIsFoundByItsTrigger()
+        {
+            var catalog = new CardCatalog([new CardDto { CardId = 169, Trigger = CardTrigger.ArenaRevival }, new CardDto { CardId = 1 }], [], []);
+
+            Assert.AreEqual((short)169, catalog.GetTriggeredCard(CardTrigger.ArenaRevival)?.CardId);
+            Assert.IsNull(catalog.GetTriggeredCard(CardTrigger.SpouseInGroup));
+        }
     }
 }

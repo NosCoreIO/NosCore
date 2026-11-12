@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Options;
+using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
@@ -24,15 +25,13 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
     [UsedImplicitly]
     public sealed class SoulRevivalHandler(IOptions<WorldConfiguration> worldConfiguration)
     {
-        public const short SoulRevivalStoneVNum = 1365;
-        public const short EventSoulRevivalStoneVNum = 9039;
         public const int SpPointsRestored = 10000;
 
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
         {
             var stone = evt.InventoryItem;
-            if (stone.ItemInstance.ItemVNum is not (SoulRevivalStoneVNum or EventSoulRevivalStoneVNum)
+            if (stone.ItemInstance.Item.Effect != ItemEffectType.SoulRevival
                 || evt.Packet.TargetType is not { } targetType || evt.Packet.TargetSlot is not { } targetSlot)
             {
                 return;

@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Items;
 using NosCore.Algorithm.MateExperienceService;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MateService;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
-            World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum });
+            World.ItemList.Add(new ItemDto { Type = NoscorePocketType.Main, VNum = GoldVNum, Effect = ItemEffectType.Gold });
             _first = await World.CreateSessionAsync();
             _second = await World.CreateSessionAsync();
             _map = World.GetBaseMap(0);
@@ -61,6 +63,7 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             World.Inject(catalog.Object);
             World.Inject(new Mock<IExperienceProgressionService>().Object);
             World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IItemCatalog, ItemCatalog>();
             World.UseReal<IMateProgressionService, MateProgressionService>();
             World.UseReal<IBuffService, BuffService>();
             _service = World.Create<RewardService>();

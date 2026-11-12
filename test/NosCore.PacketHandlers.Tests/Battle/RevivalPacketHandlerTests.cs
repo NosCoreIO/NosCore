@@ -10,6 +10,7 @@ using NosCore.Packets.ServerPackets.Entities;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -59,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .Returns(((short)1, (short)50, (short)60));
 
             var catalog = new Mock<ICardCatalog>();
-            catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
+            catalog.Setup(c => c.GetTriggeredCard(CardTrigger.ArenaRevival)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
             _buffs = new BuffService(World.Clock, catalog.Object, new Mock<IRandomProvider>().Object);
 
@@ -293,7 +294,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
                     It.IsAny<IReadOnlyList<NosCore.Data.StaticEntities.BCardDto>>(), It.IsAny<IAliveEntity>(), It.IsAny<int>()))
                 .ThrowsAsync(new InvalidOperationException());
             var catalog = new Mock<ICardCatalog>();
-            catalog.Setup(c => c.GetCard(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.Card);
+            catalog.Setup(c => c.GetTriggeredCard(CardTrigger.ArenaRevival)).Returns(RevivalProtectionCard.Card);
             catalog.Setup(c => c.GetCardBCards(RevivalProtectionCard.CardId)).Returns(RevivalProtectionCard.BCards);
             _handler = new RevivalPacketHandler(
                 new Mock<ILogger<RevivalPacketHandler>>().Object,

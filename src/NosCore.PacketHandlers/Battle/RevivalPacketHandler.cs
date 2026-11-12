@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
@@ -31,7 +32,7 @@ namespace NosCore.PacketHandlers.Battle
     //            fall through to the save-point branch with an info message.
     //   Type 1 — "save point": warp to the respawn stored by IRespawnService,
     //            full HP/MP restore.
-    //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map, and card 169
+    //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map, and the arena revival card
     //            ("Invincible in PvP"). Only offered inside an arena.
     //
     // Every branch ends with `tp` (position) + `revive` + refreshed `stat`, mirroring
@@ -47,7 +48,6 @@ namespace NosCore.PacketHandlers.Battle
         private const short SeedOfPowerVNum = 1012;
         private const short SeedsRequired = 10;
         private const long ArenaReviveCost = 100;
-        private const short ArenaRevivalProtectionCardId = 169;
 
         public override async Task ExecuteAsync(RevivalPacket packet, ClientSession session)
         {
@@ -135,10 +135,10 @@ namespace NosCore.PacketHandlers.Battle
             await session.SendPacketAsync(character.GenerateGold()).ConfigureAwait(false);
             await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
 
-            var protection = cardCatalog.GetCard(ArenaRevivalProtectionCardId);
+            var protection = cardCatalog.GetTriggeredCard(CardTrigger.ArenaRevival);
             if (protection == null)
             {
-                logger.LogWarning("Arena revival protection card {CardId} is missing", ArenaRevivalProtectionCardId);
+                logger.LogWarning("No card is set to protect a fighter revived in the arena");
                 return;
             }
 
@@ -146,7 +146,7 @@ namespace NosCore.PacketHandlers.Battle
             try
             {
                 await buffService.ApplyAsync(character, protection,
-                    cardCatalog.GetCardBCards(ArenaRevivalProtectionCardId), character);
+                    cardCatalog.GetCardBCards(protection.CardId), character);
             }
             catch (Exception ex)
             {

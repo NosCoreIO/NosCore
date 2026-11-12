@@ -27,6 +27,7 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
     private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _bcardsByCard;
     private readonly IReadOnlyDictionary<short, IReadOnlyList<BCardDto>> _bcardsByItem;
     private readonly HashSet<(short CardId, ItemEffectType Effect)> _grants;
+    private readonly IReadOnlyDictionary<CardTrigger, CardDto> _triggered;
 
     public CardCatalog(List<CardDto> cards, List<BCardDto> bCards, List<ItemDto> items)
     {
@@ -52,6 +53,11 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
             .Where(g => g.Card.HasValue)
             .Select(g => (g.Card.GetValueOrDefault(), g.Effect))
             .ToHashSet();
+
+        _triggered = _cards.Values
+            .Where(c => c.Trigger != CardTrigger.None)
+            .GroupBy(c => c.Trigger)
+            .ToDictionary(g => g.Key, g => g.First());
     }
 
     public CardDto? GetCard(short cardId) => _cards.GetValueOrDefault(cardId);
@@ -66,6 +72,8 @@ public sealed class CardCatalog : ICardCatalog, ISingletonService
         GrantedCardId(itemVnum) is { } cardId ? GetCard(cardId) : null;
 
     public bool IsGrantedBy(short cardId, ItemEffectType effect) => _grants.Contains((cardId, effect));
+
+    public CardDto? GetTriggeredCard(CardTrigger trigger) => _triggered.GetValueOrDefault(trigger);
 
     private short? GrantedCardId(short itemVnum) =>
         (short?)GetItemBCards(itemVnum).FirstOrDefault(b => b.Type == (byte)BCardType.CardType.Buff)?.SecondData;

@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Group;
 using NosCore.Data.StaticEntities;
@@ -178,7 +179,7 @@ namespace NosCore.PacketHandlers.Tests.Inventory
         {
             World.ItemList.Add(new ItemDto
             {
-                VNum = GoldVNum, Type = NoscorePocketType.Main, Name = new I18NString { [RegionType.EN] = "Gold" }
+                VNum = GoldVNum, Type = NoscorePocketType.Main, ItemType = ItemType.Map, Effect = ItemEffectType.Gold, Name = new I18NString { [RegionType.EN] = "Gold" }
             });
             Session.Character.Gold = 0;
             Owner.Character.Gold = 0;

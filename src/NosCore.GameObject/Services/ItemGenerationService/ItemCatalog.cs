@@ -1,0 +1,33 @@
+//  __  _  __    __   ___ __  ___ ___
+// |  \| |/__\ /' _/ / _//__\| _ \ __|
+// | | ' | \/ |`._`.| \_| \/ | v / _|
+// |_|\__|\__/ |___/ \__/\__/|_|_\___|
+//
+
+using System.Collections.Generic;
+using System.Linq;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Infastructure;
+
+namespace NosCore.GameObject.Services.ItemGenerationService
+{
+    public sealed class ItemCatalog : IItemCatalog, ISingletonService
+    {
+        private readonly IReadOnlyDictionary<short, ItemDto> _items;
+        private readonly IReadOnlyDictionary<ItemEffectType, ItemDto> _byEffect;
+
+        public ItemCatalog(List<ItemDto> items)
+        {
+            _items = items.GroupBy(i => i.VNum).ToDictionary(g => g.Key, g => g.First());
+            _byEffect = _items.Values
+                .Where(i => i.Effect != ItemEffectType.NoEffect)
+                .GroupBy(i => i.Effect)
+                .ToDictionary(g => g.Key, g => g.OrderBy(i => i.VNum).First());
+        }
+
+        public ItemDto? GetItem(short vnum) => _items.GetValueOrDefault(vnum);
+
+        public ItemDto? GetItemWithEffect(ItemEffectType effect) => _byEffect.GetValueOrDefault(effect);
+    }
+}
