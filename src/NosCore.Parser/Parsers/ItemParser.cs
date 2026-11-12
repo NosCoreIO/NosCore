@@ -770,6 +770,7 @@ namespace NosCore.Parser.Parsers
                 5836 => ItemEffectType.CuarryBankSavingsBook,
                 1429 => ItemEffectType.ShellIdentification,
                 1430 => ItemEffectType.ShellOptionRemoval,
+                1428 => ItemEffectType.Perfume,
                 var x when x == 1365 || x == 9039 => ItemEffectType.SoulRevival,
                 var x when x == 5107 || x == 5207 || x == 5519 => ItemEffectType.EventSpUpgradeScroll,
                 var x when x == 907 || x == 900 || x == 4099 || x == 4100 => ItemEffectType.EventSpecialist,

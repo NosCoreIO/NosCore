@@ -79,6 +79,9 @@ namespace NosCore.Data.Enumerations.Items
         // EffectValue is how many cards one game deals.
         TarotCardGame = 1020,
 
+        // Takes over an item bound to another player; the item's level and rarity set how many it takes.
+        Perfume = 1021,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

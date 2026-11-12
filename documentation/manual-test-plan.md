@@ -734,6 +734,17 @@ Needs two characters on the same channel. The commending one must be level 31 or
       five cards came out the same, the not-enough-space message appears and the game stays
 - [ ] Use a title item and a speaker: both still work as before
 
+### Perfume
+
+- [ ] Double-click a Perfume: the perfume window opens
+- [ ] Put a level 70, rarity 5 weapon bound to another character into the window and confirm:
+      80 perfumes and 15 000 gold are taken, the "perfumed" message appears, and the weapon can
+      now be worn
+- [ ] With 79 perfumes, confirm the same weapon: the not-enough-perfume message appears and
+      nothing is taken
+- [ ] With 14 999 gold, confirm: the not-enough-gold message appears and nothing is taken
+- [ ] Put your own bound item into the window: nothing is taken
+
 ### Inventory sort
 
 - [ ] Scatter a few different items over the MAIN tab with gaps between them, press the sort
