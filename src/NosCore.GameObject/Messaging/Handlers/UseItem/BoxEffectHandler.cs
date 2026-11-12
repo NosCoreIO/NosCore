@@ -113,15 +113,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 ItemVNum = chosen.ItemGeneratedVNum,
                 Amount = chosen.ItemGeneratedAmount,
             });
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.CharacterId,
-                Type = SayColorType.Green,
-                Message = Game18NConstString.ItemReceived,
-                ArgumentType = 2,
-                Game18NArguments = { chosen.ItemGeneratedVNum.ToString(), chosen.ItemGeneratedAmount }
-            });
+            await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                2, chosen.ItemGeneratedVNum.ToString(), chosen.ItemGeneratedAmount));
 
             await session.SendPacketAsync(inventory.LoadBySlotAndType(source.Slot, source.Type)
                 .GeneratePocketChange(source.Type.ToPocketType(), source.Slot));
