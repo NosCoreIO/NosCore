@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
@@ -21,8 +22,9 @@ namespace NosCore.GameObject.Services.UpgradeService;
 public abstract class EventSpUpgradeOperationBase(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
-    ISpUpgradeService spUpgradeService)
-    : SpUpgradeOperationBase(random, localizer, spUpgradeService), IItemOpenedUpgradeOperation
+    ISpUpgradeService spUpgradeService,
+    IItemCatalog itemCatalog)
+    : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog), IItemOpenedUpgradeOperation
 {
     public abstract short ScrollVNum { get; }
 
@@ -49,8 +51,8 @@ public abstract class EventSpUpgradeOperationBase(
 
 [UsedImplicitly]
 public sealed class ChickenSpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        ISpUpgradeService spUpgradeService)
-    : EventSpUpgradeOperationBase(random, localizer, spUpgradeService)
+        ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
+    : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public const short ChickenScrollVNum = 5107;
     public const short ChickenCardVNum = 907;
@@ -64,8 +66,8 @@ public sealed class ChickenSpUpgradeOperation(IRandomNumberSource random, IGameL
 
 [UsedImplicitly]
 public sealed class PyjamaSpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        ISpUpgradeService spUpgradeService)
-    : EventSpUpgradeOperationBase(random, localizer, spUpgradeService)
+        ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
+    : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public const short PyjamaScrollVNum = 5207;
     public const short PyjamaCardVNum = 900;
@@ -79,8 +81,8 @@ public sealed class PyjamaSpUpgradeOperation(IRandomNumberSource random, IGameLa
 
 [UsedImplicitly]
 public sealed class PirateSpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        ISpUpgradeService spUpgradeService)
-    : EventSpUpgradeOperationBase(random, localizer, spUpgradeService)
+        ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
+    : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public const short PirateScrollVNum = 5519;
     public const short PirateCardVNum = 4099;

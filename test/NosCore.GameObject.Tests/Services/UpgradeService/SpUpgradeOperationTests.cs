@@ -44,9 +44,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _unprotected = new SpUpgradeOperation(_random.Object, World.GameLanguageLocalizer,
-                new SpUpgradeService());
+                new SpUpgradeService(), UpgradeMaterials.Catalog());
             _protected = new SpUpgradeProtectedOperation(_random.Object, World.GameLanguageLocalizer,
-                new SpUpgradeService());
+                new SpUpgradeService(), UpgradeMaterials.Catalog());
             _session.Character.Gold = 10_000_000;
         }
 
@@ -60,9 +60,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await UpgradeAsync(_unprotected);
 
             Assert.AreEqual((byte)1, _card.Upgrade);
-            Assert.AreEqual(100 - 3, Count(SpUpgradeOperationBase.FeatherVNum));
-            Assert.AreEqual(100 - 1, Count(SpUpgradeOperationBase.FullMoonVNum));
-            Assert.AreEqual(100 - 2, Count(SpUpgradeOperationBase.GreenSoulVNum));
+            Assert.AreEqual(100 - 3, Count(UpgradeMaterials.VNum(MaterialType.AngelsFeather)));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.FullMoonCrystal)));
+            Assert.AreEqual(100 - 2, Count(UpgradeMaterials.VNum(MaterialType.GreenSoul)));
             Assert.AreEqual(10_000_000 - 200_000, _session.Character.Gold);
             Assert.AreEqual(Game18NConstString.UpgradeSuccessful, Msgi().Message);
         }
@@ -78,8 +78,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
 
             Assert.AreEqual((byte)0, _card.Upgrade);
             Assert.AreEqual((sbyte)0, _card.Rare);
-            Assert.AreEqual(100 - 3, Count(SpUpgradeOperationBase.FeatherVNum));
-            Assert.AreEqual(100, Count(SpUpgradeOperationBase.GreenSoulVNum));
+            Assert.AreEqual(100 - 3, Count(UpgradeMaterials.VNum(MaterialType.AngelsFeather)));
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.GreenSoul)));
             Assert.AreEqual(Game18NConstString.SpecialistUpgradeFailed, Msgi().Message);
         }
 
@@ -107,7 +107,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await UpgradeAsync(_protected);
 
             Assert.AreEqual((sbyte)0, _card.Rare);
-            Assert.AreEqual(100 - 1, Count(SpUpgradeOperationBase.BlueScrollVNum));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.LowerSpProtectionScroll)));
             Assert.AreEqual(Game18NConstString.SpecialistSouldProtected, Msgi().Message);
         }
 
@@ -121,9 +121,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await UpgradeAsync(_protected);
 
             Assert.AreEqual((byte)11, _card.Upgrade);
-            Assert.AreEqual(100 - 1, Count(SpUpgradeOperationBase.RedScrollVNum));
-            Assert.AreEqual(100, Count(SpUpgradeOperationBase.BlueScrollVNum));
-            Assert.AreEqual(100 - 1, Count(SpUpgradeOperationBase.BlueSoulVNum));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.HigherSpProtectionScroll)));
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.LowerSpProtectionScroll)));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.BlueSoul)));
         }
 
         [TestMethod]
@@ -135,7 +135,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await UpgradeAsync(_unprotected);
 
             Assert.AreEqual(Game18NConstString.SpecialistCardRequireLevelFourtyOne, Sayi().Message);
-            Assert.AreEqual(100, Count(SpUpgradeOperationBase.FeatherVNum));
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.AngelsFeather)));
         }
 
         [TestMethod]
@@ -181,9 +181,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await UpgradeAsync(_unprotected);
 
             Assert.AreEqual((byte)16, _card.Upgrade);
-            Assert.AreEqual(100 - 2, Count(SpUpgradeOperationBase.DragonGemVNum));
-            Assert.AreEqual(100, Count(SpUpgradeOperationBase.BlueSoulVNum));
-            Assert.AreEqual(100, Count(SpUpgradeOperationBase.ShardVNum));
+            Assert.AreEqual(100 - 2, Count(UpgradeMaterials.VNum(MaterialType.DragonGem)));
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.BlueSoul)));
+            Assert.AreEqual(100, Count(UpgradeMaterials.VNum(MaterialType.DimensiolithShard)));
         }
 
         [TestMethod]
@@ -196,8 +196,8 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await UpgradeAsync(_unprotected);
 
             Assert.AreEqual((byte)16, _card.Upgrade);
-            Assert.AreEqual(100 - 2, Count(SpUpgradeOperationBase.DragonGemVNum));
-            Assert.AreEqual(100 - 1, Count(SpUpgradeOperationBase.ShardVNum));
+            Assert.AreEqual(100 - 2, Count(UpgradeMaterials.VNum(MaterialType.DragonGem)));
+            Assert.AreEqual(100 - 1, Count(UpgradeMaterials.VNum(MaterialType.DimensiolithShard)));
         }
 
         private void PlaceCard(byte upgrade, byte spLevel, short morph = 1)
@@ -223,11 +223,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             short slot = 0;
             foreach (var vnum in new[]
                      {
-                         SpUpgradeOperationBase.FeatherVNum, SpUpgradeOperationBase.FullMoonVNum,
-                         SpUpgradeOperationBase.GreenSoulVNum, SpUpgradeOperationBase.RedSoulVNum,
-                         SpUpgradeOperationBase.BlueSoulVNum, SpUpgradeOperationBase.BlueScrollVNum,
-                         SpUpgradeOperationBase.RedScrollVNum, SpUpgradeOperationBase.DragonGemVNum,
-                         SpUpgradeOperationBase.ShardVNum,
+                         UpgradeMaterials.VNum(MaterialType.AngelsFeather), UpgradeMaterials.VNum(MaterialType.FullMoonCrystal),
+                         UpgradeMaterials.VNum(MaterialType.GreenSoul), UpgradeMaterials.VNum(MaterialType.RedSoul),
+                         UpgradeMaterials.VNum(MaterialType.BlueSoul), UpgradeMaterials.VNum(MaterialType.LowerSpProtectionScroll),
+                         UpgradeMaterials.VNum(MaterialType.HigherSpProtectionScroll), UpgradeMaterials.VNum(MaterialType.DragonGem),
+                         UpgradeMaterials.VNum(MaterialType.DimensiolithShard),
                      })
             {
                 var inst = InventoryItemInstance.Create(

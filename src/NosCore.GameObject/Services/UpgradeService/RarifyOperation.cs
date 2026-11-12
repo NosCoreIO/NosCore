@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Data.Enumerations.Items;
 using JetBrains.Annotations;
 using NosCore.Core.I18N;
 using NosCore.Packets.Enumerations;
@@ -11,8 +13,9 @@ using NosCore.Packets.Enumerations;
 namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
-public sealed class RarifyOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
-    : RarifyOperationBase(random, localizer)
+public sealed class RarifyOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IItemCatalog itemCatalog)
+    : RarifyOperationBase(random, localizer, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.RarifyItem;
 
@@ -20,8 +23,9 @@ public sealed class RarifyOperation(IRandomNumberSource random, IGameLanguageLoc
 }
 
 [UsedImplicitly]
-public sealed class RarifyProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
-    : RarifyOperationBase(random, localizer)
+public sealed class RarifyProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IItemCatalog itemCatalog)
+    : RarifyOperationBase(random, localizer, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.RarifyItemProtected;
 

@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Tests.Services.ItemCatalogTests
             new() { VNum = 1046, Effect = ItemEffectType.Gold },
             new() { VNum = 9039, Effect = ItemEffectType.SoulRevival },
             new() { VNum = 1365, Effect = ItemEffectType.SoulRevival },
+            new() { VNum = 1014, Material = MaterialType.CellaPowder },
         });
 
         [TestMethod]
@@ -34,6 +35,14 @@ namespace NosCore.GameObject.Tests.Services.ItemCatalogTests
         [TestMethod]
         public void AnEffectNoItemCarriesFindsNothing() =>
             Assert.IsNull(Catalog().GetItemWithEffect(ItemEffectType.CuarryBankSavingsBook));
+
+        [TestMethod]
+        public void AMaterialGivesItsItem() =>
+            Assert.AreEqual((short)1014, Catalog().GetMaterialVNum(MaterialType.CellaPowder));
+
+        [TestMethod]
+        public void AMaterialNoItemIsGivesZero() =>
+            Assert.AreEqual((short)0, Catalog().GetMaterialVNum(MaterialType.RiverSand));
 
         [TestMethod]
         public void AnItemIsFoundByItsVnum() =>

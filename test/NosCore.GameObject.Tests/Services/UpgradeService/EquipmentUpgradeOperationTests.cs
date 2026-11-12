@@ -52,9 +52,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _unprotected = new UpgradeItemOperation(_random.Object, World.GameLanguageLocalizer,
-                new EquipmentUpgradeService());
+                new EquipmentUpgradeService(), UpgradeMaterials.Catalog());
             _protected = new UpgradeItemProtectedOperation(_random.Object, World.GameLanguageLocalizer,
-                new EquipmentUpgradeService());
+                new EquipmentUpgradeService(), UpgradeMaterials.Catalog());
         }
 
         [TestMethod]

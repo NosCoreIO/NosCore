@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Data.Enumerations.Items;
 using JetBrains.Annotations;
 using NosCore.Algorithm.SpUpgradeService;
 using NosCore.Core.I18N;
@@ -13,8 +15,8 @@ namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
 public sealed class SpUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        ISpUpgradeService spUpgradeService)
-    : SpUpgradeOperationBase(random, localizer, spUpgradeService)
+        ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
+    : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpNoProtection;
 
@@ -23,8 +25,8 @@ public sealed class SpUpgradeOperation(IRandomNumberSource random, IGameLanguage
 
 [UsedImplicitly]
 public sealed class SpUpgradeProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        ISpUpgradeService spUpgradeService)
-    : SpUpgradeOperationBase(random, localizer, spUpgradeService)
+        ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
+    : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpProtected;
 
@@ -33,8 +35,8 @@ public sealed class SpUpgradeProtectedOperation(IRandomNumberSource random, IGam
 
 [UsedImplicitly]
 public sealed class SpUpgradeProtected2Operation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        ISpUpgradeService spUpgradeService)
-    : SpUpgradeOperationBase(random, localizer, spUpgradeService)
+        ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
+    : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpProtected2;
 

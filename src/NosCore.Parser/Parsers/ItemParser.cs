@@ -767,6 +767,30 @@ namespace NosCore.Parser.Parsers
                 _ => item.Effect,
             };
 
+            item.Material = item.VNum switch
+            {
+                1014 => MaterialType.CellaPowder,
+                1015 => MaterialType.SoulGem,
+                1016 => MaterialType.CompleteSoulGem,
+                2774 => MaterialType.DimensionalForce,
+                2748 => MaterialType.DimensiolithShard,
+                1218 => MaterialType.EquipmentProtectionScroll,
+                5369 => MaterialType.GoldenEquipmentProtectionScroll,
+                2282 => MaterialType.AngelsFeather,
+                1030 => MaterialType.FullMoonCrystal,
+                2283 => MaterialType.GreenSoul,
+                2284 => MaterialType.RedSoul,
+                2285 => MaterialType.BlueSoul,
+                2511 => MaterialType.DragonSkin,
+                2512 => MaterialType.DragonBlood,
+                2513 => MaterialType.DragonHeart,
+                2630 => MaterialType.DragonGem,
+                1363 => MaterialType.LowerSpProtectionScroll,
+                1364 => MaterialType.HigherSpProtectionScroll,
+                1027 => MaterialType.RiverSand,
+                _ => MaterialType.None,
+            };
+
             item.UseSound = item.EffectValue switch
             {
                 _ when item.Effect != ItemEffectType.PlayEffect => 0,

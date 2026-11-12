@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Data.Enumerations.Items;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Core.I18N;
@@ -33,13 +35,12 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // is skipped, the item is saved at its current rare instead of destroyed. Without scroll
 // the same "no band matched" path destroys the item outright.
 //
-// Materials per attempt: Cellon (vnum 1014) × 5 + Gold 500. Protected variant additionally
-// consumes a Magic Pearl Scroll (vnum 1218).
-public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer)
+// Materials per attempt: 5 Cella Powder + 500 gold. The protected variant also consumes an
+// Equipment Protection Scroll.
+public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IItemCatalog itemCatalog)
     : UpgradeOperation(random, localizer)
 {
-    public const short CellonVNum = 1014;
-    public const short NormalScrollVNum = 1218;
     public const sbyte MaxRarity = 8;
     public const long BaseGoldCost = 500;
     public const short BaseCellonCost = 5;
@@ -101,11 +102,11 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
 
         var materials = new List<MaterialCost>
         {
-            new(CellonVNum, BaseCellonCost),
+            new(itemCatalog.GetMaterialVNum(MaterialType.CellaPowder), BaseCellonCost),
         };
         if (IsProtected)
         {
-            materials.Add(new MaterialCost(NormalScrollVNum, 1));
+            materials.Add(new MaterialCost(itemCatalog.GetMaterialVNum(MaterialType.EquipmentProtectionScroll), 1));
         }
 
         return new UpgradeContext(

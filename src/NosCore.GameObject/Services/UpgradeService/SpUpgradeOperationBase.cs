@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NosCore.Algorithm.SpUpgradeService;
@@ -31,22 +32,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 public abstract class SpUpgradeOperationBase(
     IRandomNumberSource random,
     IGameLanguageLocalizer localizer,
-    ISpUpgradeService spUpgradeService)
+    ISpUpgradeService spUpgradeService,
+    IItemCatalog itemCatalog)
     : SpecialistCardOperation(random, localizer)
 {
-    public const short FeatherVNum = 2282;
-    public const short FullMoonVNum = 1030;
-    public const short GreenSoulVNum = 2283;
-    public const short RedSoulVNum = 2284;
-    public const short BlueSoulVNum = 2285;
-    public const short DragonSkinVNum = 2511;
-    public const short DragonBloodVNum = 2512;
-    public const short DragonHeartVNum = 2513;
-    public const short DragonGemVNum = 2630;
-    public const short ShardVNum = 2748;
-    public const short BlueScrollVNum = 1363;
-    public const short RedScrollVNum = 1364;
-
     // Cards with a higher morph are upgraded with the dragon materials instead of souls.
     private const short LastSoulMorph = 16;
 
@@ -94,18 +83,18 @@ public abstract class SpUpgradeOperationBase(
         var upgrade = card.Upgrade;
         var materials = new List<MaterialCost>
         {
-            new(FeatherVNum, spUpgradeService.GetFeatherCost(upgrade)),
-            new(FullMoonVNum, spUpgradeService.GetFullMoonCost(upgrade)),
+            new(VNum(MaterialType.AngelsFeather), spUpgradeService.GetFeatherCost(upgrade)),
+            new(VNum(MaterialType.FullMoonCrystal), spUpgradeService.GetFullMoonCost(upgrade)),
         };
-        AddIfNeeded(materials, SoulVNum(card), spUpgradeService.GetSoulCost(upgrade));
-        AddIfNeeded(materials, DragonGemVNum, spUpgradeService.GetDragonGemCost(upgrade));
+        AddIfNeeded(materials, VNum(Soul(card)), spUpgradeService.GetSoulCost(upgrade));
+        AddIfNeeded(materials, VNum(MaterialType.DragonGem), spUpgradeService.GetDragonGemCost(upgrade));
         if (card.Item.Morph is >= FirstDimensionMorph and <= LastDimensionMorph)
         {
-            AddIfNeeded(materials, ShardVNum, spUpgradeService.GetShardCost(upgrade));
+            AddIfNeeded(materials, VNum(MaterialType.DimensiolithShard), spUpgradeService.GetShardCost(upgrade));
         }
         if (IsProtected)
         {
-            materials.Add(new MaterialCost(ScrollVNum(upgrade), 1));
+            materials.Add(new MaterialCost(VNum(Scroll(upgrade)), 1));
         }
 
         return materials;
@@ -187,28 +176,28 @@ public abstract class SpUpgradeOperationBase(
     {
         var upgrade = card.Upgrade;
         var inventory = session.Character.InventoryService;
-        if (inventory.CountItem(FeatherVNum) < spUpgradeService.GetFeatherCost(upgrade))
+        if (inventory.CountItem(VNum(MaterialType.AngelsFeather)) < spUpgradeService.GetFeatherCost(upgrade))
         {
             return Game18NConstString.NotEnoughAngelFeathers;
         }
 
-        if (inventory.CountItem(FullMoonVNum) < spUpgradeService.GetFullMoonCost(upgrade))
+        if (inventory.CountItem(VNum(MaterialType.FullMoonCrystal)) < spUpgradeService.GetFullMoonCost(upgrade))
         {
             return Game18NConstString.NotEnoughFullMoon;
         }
 
-        if (inventory.CountItem(SoulVNum(card)) < spUpgradeService.GetSoulCost(upgrade))
+        if (inventory.CountItem(VNum(Soul(card))) < spUpgradeService.GetSoulCost(upgrade))
         {
-            return SoulVNum(card) switch
+            return Soul(card) switch
             {
-                GreenSoulVNum => Game18NConstString.NotEnoughGreenSouls,
-                RedSoulVNum => Game18NConstString.NotEnoughRedSouls,
-                BlueSoulVNum => Game18NConstString.NotEnoughBlueSouls,
+                MaterialType.GreenSoul => Game18NConstString.NotEnoughGreenSouls,
+                MaterialType.RedSoul => Game18NConstString.NotEnoughRedSouls,
+                MaterialType.BlueSoul => Game18NConstString.NotEnoughBlueSouls,
                 _ => Game18NConstString.NotEnoughIngredients,
             };
         }
 
-        if (IsProtected && inventory.CountItem(ScrollVNum(upgrade)) < 1)
+        if (IsProtected && inventory.CountItem(VNum(Scroll(upgrade))) < 1)
         {
             return Game18NConstString.NotEnoughIngredients;
         }
@@ -216,14 +205,16 @@ public abstract class SpUpgradeOperationBase(
         return null;
     }
 
-    private static short SoulVNum(SpecialistInstance card)
+    private short VNum(MaterialType material) => itemCatalog.GetMaterialVNum(material);
+
+    private static MaterialType Soul(SpecialistInstance card)
     {
         var dragon = card.Item.Morph > LastSoulMorph;
         return card.Upgrade switch
         {
-            < 5 => dragon ? DragonSkinVNum : GreenSoulVNum,
-            < 10 => dragon ? DragonBloodVNum : RedSoulVNum,
-            _ => dragon ? DragonHeartVNum : BlueSoulVNum,
+            < 5 => dragon ? MaterialType.DragonSkin : MaterialType.GreenSoul,
+            < 10 => dragon ? MaterialType.DragonBlood : MaterialType.RedSoul,
+            _ => dragon ? MaterialType.DragonHeart : MaterialType.BlueSoul,
         };
     }
 
@@ -235,5 +226,6 @@ public abstract class SpUpgradeOperationBase(
         }
     }
 
-    private static short ScrollVNum(byte upgrade) => upgrade < 10 ? BlueScrollVNum : RedScrollVNum;
+    private static MaterialType Scroll(byte upgrade) =>
+        upgrade < 10 ? MaterialType.LowerSpProtectionScroll : MaterialType.HigherSpProtectionScroll;
 }

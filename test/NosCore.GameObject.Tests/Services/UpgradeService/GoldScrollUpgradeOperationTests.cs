@@ -51,7 +51,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _session = await World.CreateSessionAsync();
             _random = new Mock<IRandomNumberSource>();
             _operation = new UpgradeItemGoldScrollOperation(_random.Object,
-                World.GameLanguageLocalizer, new EquipmentUpgradeService());
+                World.GameLanguageLocalizer, new EquipmentUpgradeService(), UpgradeMaterials.Catalog());
         }
 
         [TestMethod]
