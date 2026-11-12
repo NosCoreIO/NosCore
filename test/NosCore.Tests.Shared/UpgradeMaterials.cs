@@ -43,6 +43,7 @@ namespace NosCore.Tests.Shared
             [MaterialType.SapphireOfCompletion] = 2519,
             [MaterialType.ObsidianOfCompletion] = 2520,
             [MaterialType.TopazOfCompletion] = 2521,
+            [MaterialType.SeedOfPower] = 1012,
         };
 
         public static short VNum(MaterialType material) => VNums[material];

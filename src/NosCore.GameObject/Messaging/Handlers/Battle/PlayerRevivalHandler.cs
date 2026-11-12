@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     //
     // Dialog text id depends on level:
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
-    //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power (item 1012).
+    //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power.
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger)
     {

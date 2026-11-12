@@ -202,6 +202,7 @@ namespace NosCore.Parser.Tests
         [DataRow((short)1364, MaterialType.HigherSpProtectionScroll)]
         [DataRow((short)2516, MaterialType.SmallObsidianOfCompletion)]
         [DataRow((short)2521, MaterialType.TopazOfCompletion)]
+        [DataRow((short)1012, MaterialType.SeedOfPower)]
         [DataRow((short)1, MaterialType.None)]
         public async Task ItemParser_MarksTheUpgradeMaterials(short vnum, MaterialType expected)
         {

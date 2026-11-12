@@ -6,7 +6,7 @@
 
 namespace NosCore.Data.Enumerations.Items
 {
-    // What an upgrade consumes. Item.dat does not say which item is which, so the parser sets it.
+    // What an upgrade or another paid action consumes. Item.dat does not say which item is which, so the parser sets it.
     public enum MaterialType : byte
     {
         None = 0,
@@ -37,5 +37,6 @@ namespace NosCore.Data.Enumerations.Items
         SapphireOfCompletion = 25,
         ObsidianOfCompletion = 26,
         TopazOfCompletion = 27,
+        SeedOfPower = 28,
     }
 }

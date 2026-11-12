@@ -235,7 +235,7 @@ namespace NosCore.Tests.Shared
 
         public List<ItemDto> ItemList { get; } = new()
         {
-            new Item { Type = NoscorePocketType.Main, VNum = 1012, IsDroppable = true },
+            new Item { Type = NoscorePocketType.Main, VNum = 1012, IsDroppable = true, Material = MaterialType.SeedOfPower },
             new Item { Type = NoscorePocketType.Main, VNum = 1013 },
             new Item { Type = NoscorePocketType.Main, VNum = 1014, ItemType = ItemType.Production, Effect = ItemEffectType.OpenProduction },
             new Item { Type = NoscorePocketType.Etc, VNum = 1015 },
