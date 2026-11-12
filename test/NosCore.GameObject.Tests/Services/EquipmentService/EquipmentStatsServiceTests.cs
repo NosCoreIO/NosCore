@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -141,7 +142,7 @@ namespace NosCore.GameObject.Tests.Services.EquipmentService
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _items = new ItemGenerationService(Catalog, NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer, new RarityPointService());
             _options = new List<EquipmentOptionDto>();
             _optionReads = 0;
             var optionDao = new Mock<IDao<EquipmentOptionDto, Guid>>();

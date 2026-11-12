@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Items;
@@ -44,14 +45,18 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
             return (WearableInstance)MemberwiseClone();
         }
 
-        public void SetRarityPoint()
+        // Heroic equipment counts its level past the 95 regular ones.
+        private int RarityPoints(IRarityPointService rarityPoints) =>
+            rarityPoints.GetRarityPoint((sbyte)Rare, (byte)(Item.IsHeroic ? 95 + Item.LevelMinimum : Item.LevelMinimum));
+
+        public void SetRarityPoint(IRarityPointService rarityPoints)
         {
             switch (Item.EquipmentSlot)
             {
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
                     {
-                        var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        var point = RarityPoints(rarityPoints);
                         Concentrate = 0;
                         HitRate = 0;
                         DamageMinimum = 0;
@@ -86,7 +91,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService.Item
 
                 case EquipmentType.Armor:
                     {
-                        var point = 0; //todo CharacterHelper.Instance.RarityPoint(Rare, Item.IsHeroic ? (short) (95 + Item.LevelMinimum) : Item.LevelMinimum);
+                        var point = RarityPoints(rarityPoints);
                         DefenceDodge = 0;
                         DistanceDefenceDodge = 0;
                         DistanceDefence = 0;

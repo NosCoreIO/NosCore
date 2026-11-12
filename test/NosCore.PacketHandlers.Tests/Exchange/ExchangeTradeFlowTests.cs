@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -106,7 +107,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     Type = NoscorePocketType.Equipment, VNum = 1, IsTradable = true, ItemType = ItemType.Armor,
                     EquipmentSlot = EquipmentType.Armor
                 }
-            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer);
+            }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
         }
 
         private TransferService CreateTransferService()

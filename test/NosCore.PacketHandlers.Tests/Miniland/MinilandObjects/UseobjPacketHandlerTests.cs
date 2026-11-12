@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -94,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer, new RarityPointService());
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider,
                 MinigameRewards);
         }

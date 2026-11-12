@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -54,7 +55,7 @@ namespace NosCore.Tests.Shared.BDD
             ItemProvider = new ItemGenerationService(
                 DefaultItems,
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer, new RarityPointService());
         }
 
         protected void CharacterHasGold(long gold) => Session.Character.Gold = gold;

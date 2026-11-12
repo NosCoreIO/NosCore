@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.Data.Enumerations.Items;
 using System.Collections.Generic;
@@ -38,7 +39,7 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // Materials per attempt: 5 Cella Powder + 500 gold. The protected variant also consumes an
 // Equipment Protection Scroll.
 public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        IItemCatalog itemCatalog)
+        IItemCatalog itemCatalog, IRarityPointService rarityPoints)
     : UpgradeOperation(random, localizer)
 {
     public const sbyte MaxRarity = 8;
@@ -149,7 +150,7 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         wearable.Rare = ctx.Data<RarifyRollState>().NewRare;
         // OpenNos line 413/422/431/…/SetRarityPoint re-rolls the rarity-driven stat bonuses
         // (defence for armor, damage/concentrate for weapons) to match the new rare tier.
-        wearable.SetRarityPoint();
+        wearable.SetRarityPoint(rarityPoints);
     }
 
     protected override void ApplyFailure(ClientSession session, UpgradeContext ctx)

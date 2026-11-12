@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NosCore.Core.Configuration;
@@ -30,7 +31,7 @@ public interface IItemGrantService
 
 public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<ItemDto> items,
         IOptions<WorldConfiguration> worldConfiguration, IItemGenerationService itemProvider,
-        ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        ILogLanguageLocalizer<LogLanguageKey> logLanguage, IRarityPointService rarityPoints)
     : IItemGrantService
 {
     public ItemGrantResult Grant(PlayerComponentBundle character, short vnum, short? designOrAmount, byte? upgradeArgument)
@@ -115,7 +116,7 @@ public sealed class ItemGrantService(ILogger<ItemGrantService> logger, List<Item
                 case EquipmentType.Armor:
                 case EquipmentType.MainWeapon:
                 case EquipmentType.SecondaryWeapon:
-                    wearable.SetRarityPoint();
+                    wearable.SetRarityPoint(rarityPoints);
                     break;
                 case EquipmentType.Boots:
                 case EquipmentType.Gloves:

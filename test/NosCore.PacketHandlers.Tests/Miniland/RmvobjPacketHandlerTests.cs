@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Mapster;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
@@ -74,7 +75,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland
             _itemProvider = new ItemGenerationService(
                 MinilandItems,
                 NullLoggerFactory.Instance,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer, new RarityPointService());
         }
 
         [TestMethod]

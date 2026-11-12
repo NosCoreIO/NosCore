@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RarityPointService;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -58,7 +59,8 @@ namespace NosCore.GameObject.Tests.Services.ItemGrantService
                 items,
                 World.WorldConfiguration,
                 ItemProvider.Object,
-                World.LogLanguageLocalizer);
+                World.LogLanguageLocalizer,
+                new RarityPointService());
         }
 
         [TestMethod]
