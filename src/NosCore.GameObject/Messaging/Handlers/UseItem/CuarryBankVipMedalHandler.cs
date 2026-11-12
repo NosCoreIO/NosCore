@@ -55,8 +55,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 Game18NArguments = { item.VNum.ToString() }
             });
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(itemInstance);
         }
     }
 }

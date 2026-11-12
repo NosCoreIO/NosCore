@@ -101,8 +101,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             character.MarriageProposalCharacterIds[spouse.CharacterId] = spouse.CharacterId;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(itemInstance);
             await session.SendPacketAsync(new Msgi2Packet
             {
                 Type = MessageType.Default,

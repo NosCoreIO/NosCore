@@ -70,8 +70,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             specialist.Rare = 0;
-            character.InventoryService.RemoveItemAmountFromInventory(1, stone.ItemInstanceId);
-            await session.SendPacketAsync(stone.GeneratePocketChange(stone.Type.ToPocketType(), stone.Slot));
+            await character.UseUpOneAsync(stone);
             await session.SendPacketAsync(card.GeneratePocketChange(card.Type.ToPocketType(), card.Slot));
 
             character.AddSpPoints(SpPointsRestored, worldConfiguration);

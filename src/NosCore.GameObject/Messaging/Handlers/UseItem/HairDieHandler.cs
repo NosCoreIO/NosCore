@@ -63,8 +63,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             await session.SendPacketAsync(session.Character.GenerateEq());
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateIn(string.Empty));
 
-            session.Character.InventoryService.RemoveItemAmountFromInventory(1, evt.InventoryItem.ItemInstanceId);
-            await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange(evt.InventoryItem.Type.ToPocketType(), evt.InventoryItem.Slot));
+            await session.Character.UseUpOneAsync(evt.InventoryItem);
         }
     }
 }

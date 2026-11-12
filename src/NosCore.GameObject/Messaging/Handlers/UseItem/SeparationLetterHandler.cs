@@ -62,8 +62,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(itemInstance);
             await session.SendPacketAsync(new MsgiPacket
             {
                 Type = MessageType.Default,

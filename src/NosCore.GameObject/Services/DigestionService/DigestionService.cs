@@ -91,26 +91,6 @@ public sealed class DigestionService(
             state.Lock.Release();
         }
 
-        var hp = Math.Min(player.MaxHp, player.Hp + food.Hp + snack.Hp) - player.Hp;
-        var mp = Math.Min(player.MaxMp, player.Mp + food.Mp + snack.Mp) - player.Mp;
-        if (hp <= 0 && mp <= 0)
-        {
-            return;
-        }
-
-        player.Hp += Math.Max(hp, 0);
-        player.Mp += Math.Max(mp, 0);
-        if (hp > 0)
-        {
-            await player.MapInstance.SendPacketAsync(new RcPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = player.VisualId,
-                HealAmount = hp,
-                Unknown = 0
-            });
-        }
-
-        await player.SendPacketAsync(player.GenerateStat());
+        await player.HealAsync(food.Hp + snack.Hp, food.Mp + snack.Mp);
     }
 }

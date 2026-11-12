@@ -30,9 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var character = session.Character;
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
 
             character.Reputation += item.EffectValue;
             await session.SendPacketAsync(character.GenerateFd());

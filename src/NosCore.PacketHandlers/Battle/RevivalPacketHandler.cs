@@ -177,13 +177,7 @@ namespace NosCore.PacketHandlers.Battle
             var mapInstance = character.MapInstance;
             if (mapInstance == null) return;
 
-            await mapInstance.SendPacketAsync(new TpPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.VisualId,
-                X = x,
-                Y = y,
-            }).ConfigureAwait(false);
+            await character.TeleportAsync(x, y);
 
             await mapInstance.SendPacketAsync(new RevivePacket
             {

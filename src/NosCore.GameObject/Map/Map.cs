@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Shared.Helpers;
 using System;
@@ -107,6 +108,21 @@ namespace NosCore.GameObject.Map
             }
 
             return false;
+        }
+
+        public (short X, short Y)? RandomWalkableCell(IRandomProvider random, int attempts)
+        {
+            for (var i = 0; i < attempts; i++)
+            {
+                var x = (short)random.Next(0, Width);
+                var y = (short)random.Next(0, Height);
+                if (IsWalkable(x, y))
+                {
+                    return (x, y);
+                }
+            }
+
+            return null;
         }
 
         public bool IsWalkable(short mapX, short mapY)

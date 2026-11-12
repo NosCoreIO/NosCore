@@ -110,8 +110,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return;
             }
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, wings.ItemInstanceId);
-            await session.SendPacketAsync(wings.GeneratePocketChange(wings.Type.ToPocketType(), wings.Slot));
+            await character.UseUpOneAsync(wings);
             await mapChangeService.ChangeMapAsync(session, friend.Value.MapId, friend.Value.PositionX, friend.Value.PositionY);
         }
     }

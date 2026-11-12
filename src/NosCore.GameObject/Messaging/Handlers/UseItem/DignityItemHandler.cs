@@ -46,9 +46,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             var gained = (short)Math.Min(item.EffectValue, maximum - character.Dignity);
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
 
             character.Dignity += gained;
             await session.SendPacketAsync(character.GenerateFd());

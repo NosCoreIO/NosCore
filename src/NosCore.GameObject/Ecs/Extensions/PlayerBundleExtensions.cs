@@ -37,6 +37,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Bank;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.MiniMap;
@@ -62,6 +63,39 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class PlayerBundleExtensions
 {
+    // An emptied stack is gone from the inventory, and the client then needs the slot cleared.
+    public static Task UseUpOneAsync(this PlayerComponentBundle player, InventoryItemInstance item)
+    {
+        var left = player.InventoryService.RemoveItemAmountFromInventory(1, item.ItemInstanceId);
+        return player.SendPacketAsync(left.GeneratePocketChange(item.Type.ToPocketType(), item.Slot));
+    }
+
+    // The healed amount floats over the character for everyone on the map; MP has no such number.
+    public static async Task HealAsync(this PlayerComponentBundle player, int hp, int mp)
+    {
+        var healed = Math.Max(Math.Min(player.MaxHp - player.Hp, hp), 0);
+        var restored = Math.Max(Math.Min(player.MaxMp - player.Mp, mp), 0);
+        if (healed == 0 && restored == 0)
+        {
+            return;
+        }
+
+        player.Hp += healed;
+        player.Mp += restored;
+        if (healed > 0)
+        {
+            await player.MapInstance.SendPacketAsync(new RcPacket
+            {
+                VisualType = VisualType.Player,
+                VisualId = player.VisualId,
+                HealAmount = healed,
+                Unknown = 0
+            });
+        }
+
+        await player.SendPacketAsync(player.GenerateStat());
+    }
+
     public static FsPacket GenerateFaction(this PlayerComponentBundle player) =>
         new() { Faction = player.CharacterDto.Faction };
 

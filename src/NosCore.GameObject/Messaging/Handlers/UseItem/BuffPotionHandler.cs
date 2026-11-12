@@ -28,9 +28,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange((PocketType)itemInstance.Type, itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
             await buffService.InflictCardsAsync(character, character, cardCatalog.GetItemBCards(item.VNum));
         }
     }
