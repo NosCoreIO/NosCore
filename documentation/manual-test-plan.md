@@ -519,6 +519,8 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] Use the second one while blessed: nothing happens and it stays in the inventory
 - [ ] Kill a monster while blessed: the experience gained is double that of an unblessed kill
 - [ ] Die and revive: the blessing icon is still there
+- [ ] Note the time left, go back to the character selection and come back a few minutes later:
+      the icon is there again with the time it had when you left, not less
 - [ ] After an hour the icon disappears and kills give normal experience again
 
 ### Fairy Booster
@@ -528,6 +530,8 @@ success, on the assumption that the window says "Appearance changed" itself.
       hour left
 - [ ] Use a second one while boosted: nothing happens and it stays in the inventory
 - [ ] Hit a monster with a skill of the fairy's element: the damage is higher than unboosted
+- [ ] Log out and back in while boosted: the icon is back with the time left and the damage is
+      still the boosted one
 - [ ] After an hour the icon disappears and the damage goes back to normal
 
 ### Speed Booster

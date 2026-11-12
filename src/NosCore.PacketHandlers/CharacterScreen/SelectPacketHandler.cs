@@ -68,7 +68,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
             ICharacterInitializationService characterInitializationService, IMessageBus messageBus,
-            IMateService mateService, IFamilyService familyService)
+            IMateService mateService, IFamilyService familyService, IStaticBuffService staticBuffService)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(SelectPacket packet, ClientSession clientSession)
@@ -282,6 +282,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<TitleDto>();
                 character.Respawns = respawnDao
                     .Where(s => s.CharacterId == characterId)?.ToList() ?? new List<RespawnDto>();
+                staticBuffService.Load(character);
 
                 foreach (var mate in await mateService.LoadAsync(characterId).ConfigureAwait(false))
                 {

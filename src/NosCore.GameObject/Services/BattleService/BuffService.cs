@@ -141,6 +141,24 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             return;
         }
 
+        await ReplaceSameGroupAsync(target, buffs, card);
+        RestoreStatic(target, card, bCards, duration);
+        await target.SendPacketAsync(new VbPacket
+        {
+            CardId = card.CardId,
+            IsActivated = true,
+            RemainingTime = (int)(duration.TotalMilliseconds / 100)
+        });
+    }
+
+    public void RestoreStatic(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
+    {
+        var buffs = ResolveState(target);
+        if (buffs == null)
+        {
+            return;
+        }
+
         var now = clock.GetCurrentInstant();
         var buff = new BuffInstance(
             CardId: card.CardId,
@@ -151,14 +169,21 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             BCards: bCards,
             Static: true);
 
-        await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
-        await target.SendPacketAsync(new VbPacket
+    }
+
+    public async Task ShowStaticAsync(ICharacterEntity target)
+    {
+        var now = clock.GetCurrentInstant();
+        foreach (var buff in GetActiveBuffs(target).Where(s => s.Static && s.ExpiresAt != Instant.MaxValue))
         {
-            CardId = card.CardId,
-            IsActivated = true,
-            RemainingTime = (int)(duration.TotalMilliseconds / 100)
-        });
+            await target.SendPacketAsync(new VbPacket
+            {
+                CardId = buff.CardId,
+                IsActivated = true,
+                RemainingTime = (int)((buff.ExpiresAt - now).TotalMilliseconds / 100)
+            });
+        }
     }
 
     public async Task RemoveAsync(IAliveEntity target, short cardId)
