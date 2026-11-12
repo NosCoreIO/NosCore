@@ -234,8 +234,9 @@ values from its race, level and equipment levels, then adds the flat modifiers o
       Farm Path): it hits for a visible amount rather than 0 or a miss every time
 - [ ] Target a few monsters and compare the HP shown in the target bar with the published
       values for that monster
-- [ ] Kill a monster whose entry has a negative experience column: the kill still gives
-      experience, the level's base award minus that amount
+- [ ] Kill a monster whose entry has a negative experience column smaller than its level's
+      base award (60 per level, 70 from level 19): the kill gives that award minus the
+      column. A column larger than the award gives 0, not a negative amount
 
 ---
 

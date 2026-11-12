@@ -191,5 +191,19 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1000, monster.Xp);
             Assert.AreEqual(50, monster.JobXp);
         }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_ANegativeExpLargerThanTheAwardGivesNothing()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(2667, "zts2667e", 10, race: 0,
+                xp: -700, jxp: -200, armorLvl: 10, weaponLvl: 10));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            var monster = _savedMonsters.Single();
+            Assert.AreEqual(0, monster.Xp);
+            Assert.AreEqual(0, monster.JobXp);
+        }
     }
 }

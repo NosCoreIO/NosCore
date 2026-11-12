@@ -2,27 +2,27 @@
 
 ```text
 	AINFO	{ainfoDefType}	{DefenceUpgrade}
-	ARMOR	{CloseDefence}	{CloseDefence}	{DistanceDefence}	{MagicDefence}	{DefenceDodge}
+	ARMOR	{armorLvl}	{CloseDefence}	{DistanceDefence}	{MagicDefence}	{dodge}
 	ATTRIB	{Element}	{ElementRate}	{FireResistance}	{WaterResistance}	{LightResistance}	{DarkResistance}
 	BASIC	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	CARD	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	EFF	{BasicSkill}	{EffectIdConstantly}	{EffectIdOnDeath}
 	ETC	{CanWalk}	{unknown1}	{IsPercentileDmg}	{CanOnlyBeDmgedByJajamaruLastSkill}	{unknown2}	{VisibleOnMinimapAsGreenDot}	{unknown3}	{IsValhallaPartner}
-	EXP	{HeroXp}	{JobXp}
-	HP/MP	{MaxHp}	{MaxMp}
+	EXP	{monsterXpBonus}	{JobXp}
+	HP/MP	{monsterMaxHpBonus}	{monsterMaxMpBonus}
 	ITEM	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}	{Drop}
-	LEVEL	{Level}
+	LEVEL	{monsterLevel}
 	MODE	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	{AlwaysActive}	{Limiter}	{HpThreshold}	{RangeThreshold}	{CModeVNum}	{CellMinRange}	{Midgard}
 	NAME	{NameI18NKey}
 	PARTNER	{partnerUnused}
-	PETINFO	{PetInfoVal1}	{PetInfoVal2}	{PetInfoVal3}	{PetInfoVal4}
+	PETINFO	{petInfoVal1}	{petInfoVal2}	{PetInfoVal3}	{PetInfoVal4}
 	PREATT	{IsHostile}	{GroupAttack}	{NoticeRange}	{Speed}	{RespawnTime}
 	RACE	{Race}	{RaceType}
-	SETTING	{IconId}	{SpawnMobOrColor}	{VNumRequired}	{SpriteSize}	{CellSize}	{unknown0}
+	SETTING	{IconId}	{SpawnMobOrColor}	{amountOrItem}	{SpriteSize}	{CellSize}	{unknown0}
 	SKILL	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}
 	VNUM	{NpcMonsterVNum}
-	WEAPON	{DamageMinimum}	{weaponRange}	{DamageMinimum}	{DamageMaximum}	{Concentrate}	{CriticalChance}	{CriticalRate}
-	WINFO	{AttackUpgrade}	{unknown5}	{AttackUpgrade}
+	WEAPON	{weaponLvl}	{weaponRange}	{DamageMinimum}	{DamageMaximum}	{Concentrate}	{CriticalChance}	{CriticalRate}
+	WINFO	{winfoAttType}	{unknown5}	{AttackUpgrade}
 	ZSKILL	{AttackClass}	{BasicRange}	{BasicHitChance}	{BasicArea}	{BasicCooldown}	{DashSpeed}	{unknown4}
 ```
 

@@ -75,7 +75,15 @@ namespace NosCore.Parser.Parsers.Generic
                     var match = sectionFields?.FirstOrDefault(f => f.Column == col);
                     var doc = sectionDocs?.FirstOrDefault(d => d.Column == col);
                     string placeholder;
-                    if (match != null)
+                    // A column feeding several properties (an equipment level picking every
+                    // defence curve) is named by its own doc rather than the first reader.
+                    var sharedColumn = sectionFields?
+                        .Where(f => f.Column == col)
+                        .Select(f => f.PropertyName)
+                        .Distinct()
+                        .Skip(1)
+                        .Any() ?? false;
+                    if (match != null && !(sharedColumn && doc != null))
                     {
                         placeholder = $"{{{match.PropertyName}}}";
                     }
