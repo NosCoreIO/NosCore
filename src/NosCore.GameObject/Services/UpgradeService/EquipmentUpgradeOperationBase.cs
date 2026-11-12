@@ -175,27 +175,12 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         wearable.IsFixed = true;
     }
 
-    // OpenNos UpgradeItem effect pattern (WearableInstance.cs 834/841/848/863/878/885):
-    //   - Success        → broadcast eff 3005 (green sparks)
-    //   - Fixed          → broadcast eff 3004 (neutral poof)
-    //   - ProtectedSave  → broadcast eff 3004 (scroll absorbs)
-    //   - Failure        → no effect (silent destruction)
-    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
-        UpgradeOutcome outcome, List<IPacket> playerPackets)
+    protected override int? OutcomeEffect(UpgradeOutcome outcome) => outcome switch
     {
-        var effectId = outcome switch
-        {
-            UpgradeOutcome.Success => 3005,
-            UpgradeOutcome.Fixed => 3004,
-            UpgradeOutcome.ProtectedSave => 3004,
-            _ => (int?)null,
-        };
-        if (effectId is null)
-        {
-            return;
-        }
-        await BroadcastEffectAsync(session, effectId.Value);
-    }
+        UpgradeOutcome.Success => 3005,
+        UpgradeOutcome.Fixed or UpgradeOutcome.ProtectedSave => 3004,
+        _ => null,
+    };
 
     protected override IEnumerable<IPacket> BuildPocketRefresh(UpgradeContext ctx, UpgradeOutcome outcome)
     {

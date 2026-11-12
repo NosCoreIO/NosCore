@@ -148,15 +148,8 @@ namespace NosCore.PacketHandlers.Bazaar
                                 Rarity = (byte)bz.ItemInstance.Rare
                             });
 
-                            await clientSession.SendPacketAsync(new SayiPacket
-                            {
-                                VisualType = VisualType.Player,
-                                VisualId = clientSession.Character.CharacterId,
-                                Type = SayColorType.Yellow,
-                                Message = Game18NConstString.BoughtItem,
-                                ArgumentType = 2,
-                                Game18NArguments = { bz.ItemInstance.ItemVNum.ToString(), packet.Amount }
-                            });
+                            await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.BoughtItem,
+                                2, bz.ItemInstance.ItemVNum.ToString(), packet.Amount));
 
                             return;
                         }

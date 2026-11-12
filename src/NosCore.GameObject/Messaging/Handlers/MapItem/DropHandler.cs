@@ -62,15 +62,8 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             if (inv != null)
             {
                 await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.ReceivedThisItem,
-                    ArgumentType = 2,
-                    Game18NArguments = { inv.ItemInstance.ItemVNum.ToString(), amount }
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                    2, inv.ItemInstance.ItemVNum.ToString(), amount));
                 await session.SendPacketAsync(session.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
                 await mapInstance.SendPacketAsync(session.Character.GenerateGet(visualId));
 

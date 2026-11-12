@@ -233,28 +233,14 @@ namespace NosCore.PacketHandlers.Game
 
             if (giftcount > 0)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.NewParcelArrived,
-                    ArgumentType = 4,
-                    Game18NArguments = { giftcount }
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.NewParcelArrived,
+                    4, giftcount));
             }
 
             if (mailcount > 0)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = session.Character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.NewNoteArrived,
-                    ArgumentType = 4,
-                    Game18NArguments = { mailcount }
-                });
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.NewNoteArrived,
+                    4, mailcount));
             }
 
             //            Session.Character.DeleteTimeout();

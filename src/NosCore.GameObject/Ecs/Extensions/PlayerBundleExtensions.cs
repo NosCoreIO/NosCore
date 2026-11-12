@@ -207,15 +207,8 @@ public static class PlayerBundleExtensions
         await player.SendPacketAsync(player.GenerateFd());
         if (delta != 0)
         {
-            await player.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = player.VisualId,
-                Type = delta > 0 ? SayColorType.Green : SayColorType.Red,
-                Message = delta > 0 ? Game18NConstString.ReputationIncreased : Game18NConstString.ReputationReduced,
-                ArgumentType = 4,
-                Game18NArguments = { Math.Abs(delta) }
-            });
+            await player.SendPacketAsync(player.GenerateSayi(delta > 0 ? SayColorType.Green : SayColorType.Red,
+                delta > 0 ? Game18NConstString.ReputationIncreased : Game18NConstString.ReputationReduced, 4, Math.Abs(delta)));
         }
         await player.MapInstance.SendPacketAsync(player.GenerateIn(""));
     }

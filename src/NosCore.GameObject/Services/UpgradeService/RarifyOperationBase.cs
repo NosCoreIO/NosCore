@@ -162,25 +162,12 @@ public abstract class RarifyOperationBase(IRandomNumberSource random, IGameLangu
         yield return RefreshSource(ctx, destroyed: outcome == UpgradeOutcome.Failure);
     }
 
-    // OpenNos effect pattern:
-    //   - Success        → broadcast eff 3005 (Character.NotifyRarifyResult)
-    //   - ProtectedSave  → broadcast eff 3004 (WearableInstance.cs:514)
-    //   - Failure        → no effect (silent destruction)
-    protected override async Task EmitOutcomeEffectsAsync(ClientSession session, UpgradeContext ctx,
-        UpgradeOutcome outcome, List<IPacket> playerPackets)
+    protected override int? OutcomeEffect(UpgradeOutcome outcome) => outcome switch
     {
-        var effectId = outcome switch
-        {
-            UpgradeOutcome.Success => 3005,
-            UpgradeOutcome.ProtectedSave => 3004,
-            _ => (int?)null,
-        };
-        if (effectId is null)
-        {
-            return;
-        }
-        await BroadcastEffectAsync(session, effectId.Value);
-    }
+        UpgradeOutcome.Success => 3005,
+        UpgradeOutcome.ProtectedSave => 3004,
+        _ => null,
+    };
 
     // Success message 147 "Gamble successful! Rarity level: %d" carries the new rare as a
     // long arg so the client renders the actual outcome rather than a generic confirmation.

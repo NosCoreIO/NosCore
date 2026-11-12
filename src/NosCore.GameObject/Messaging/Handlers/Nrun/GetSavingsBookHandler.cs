@@ -48,15 +48,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.CharacterId,
-                Type = SayColorType.Green,
-                Message = Game18NConstString.ReceivedThisItem,
-                ArgumentType = 2,
-                Game18NArguments = { SavingsBookVNum.ToString(), 1 }
-            });
+            await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
+                2, SavingsBookVNum.ToString(), 1));
         }
     }
 }

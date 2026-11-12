@@ -145,24 +145,10 @@ namespace NosCore.PacketHandlers.Bazaar
             await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
 
             var listing = claim.Listing;
-            await clientSession.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = clientSession.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.PurchaseCompleted,
-                ArgumentType = 2,
-                Game18NArguments = { bz.ItemInstance.ItemVNum.ToString(), claim.ReturnedAmount }
-            });
-            await clientSession.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = clientSession.Character.CharacterId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.PurchaseCompletedWithGoldUsed,
-                ArgumentType = 4,
-                Game18NArguments = { claim.Gold }
-            });
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.PurchaseCompleted,
+                2, bz.ItemInstance.ItemVNum.ToString(), claim.ReturnedAmount));
+            await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.PurchaseCompletedWithGoldUsed,
+                4, claim.Gold));
             await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());
             if (newInv != null)
             {

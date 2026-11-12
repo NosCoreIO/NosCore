@@ -28,15 +28,8 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
             var character = session.Character;
             if (data.ItemInstance != null && !data.MailDto.IsSenderCopy)
             {
-                await session.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.CharacterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.ParcelReceived,
-                    ArgumentType = 2,
-                    Game18NArguments = { data.ItemInstance.ItemVNum.ToString(), data.ItemInstance.Amount }
-                });
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Green, Game18NConstString.ParcelReceived,
+                    2, data.ItemInstance.ItemVNum.ToString(), data.ItemInstance.Amount));
             }
 
             await session.GenerateMailAsync(new[] { data });

@@ -121,25 +121,13 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         // Elemental damage layer. See `ComputeElementalDamage` for the full pipeline.
         var elementalDamage = ComputeElementalDamage(attacker, defender, skill, baseDamage);
 
-        var isCritical = false;
-        if (skill.Type != 2 && random.NextDouble() * 100 <= context.MainCritChance)
+        var criticalBonus = RollCriticalBonus(skill, context, defender);
+        if (criticalBonus is { } bonus)
         {
-            var critHit = context.MainCritHit * (100 + defender.CriticalDamageReceived) / 100.0;
-            baseDamage += (int)(baseDamage * (Math.Max(0, critHit) / 100.0));
-            isCritical = true;
+            baseDamage += (int)(baseDamage * bonus);
         }
 
-        var totalDamage = RollChanceDamage(attacker, baseDamage + elementalDamage);
-        if (totalDamage < 5)
-        {
-            // Floor: never fully no-op a hit that isn't a dodge. Matches OpenNos random
-            // spatter which is preferred over flat 1 to feel less deterministic.
-            totalDamage = random.Next(1, 6);
-        }
-
-        return new DamageResult(
-            Math.Max(1, totalDamage),
-            isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack);
+        return Land(attacker, baseDamage + elementalDamage, criticalBonus != null);
     }
 
     // A player's attack is the class table, the weapon scaled by its upgrade over the target's
@@ -169,15 +157,33 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         var levelDifference = morale - defender.Level;
         var elementalDamage = ComputeElementalDamage(attacker, defender, skill, damage + levelDifference);
 
-        var isCritical = false;
-        if (skill.Type != 2 && random.NextDouble() * 100 <= context.MainCritChance)
+        var criticalBonus = RollCriticalBonus(skill, context, defender);
+        if (criticalBonus is { } bonus)
         {
-            var critHit = context.MainCritHit * (100 + defender.CriticalDamageReceived) / 100.0;
-            damage += (int)(Math.Max(0, damage) * (Math.Max(0, critHit) / 100.0));
-            isCritical = true;
+            damage += (int)(Math.Max(0, damage) * bonus);
         }
 
-        var totalDamage = RollChanceDamage(attacker, damage + levelDifference + elementalDamage);
+        return Land(attacker, damage + levelDifference + elementalDamage, criticalBonus != null);
+    }
+
+    private const int PlayerFlatAttack = 15;
+
+    // The extra share of damage a critical adds, or null when the hit is not critical.
+    private double? RollCriticalBonus(SkillInfo skill, AttackContext context, CombatStats defender)
+    {
+        if (skill.Type == 2 || random.NextDouble() * 100 > context.MainCritChance)
+        {
+            return null;
+        }
+
+        var critHit = context.MainCritHit * (100 + defender.CriticalDamageReceived) / 100.0;
+        return Math.Max(0, critHit) / 100.0;
+    }
+
+    // A hit that lands always does some damage: anything under 5 becomes 1 to 5.
+    private DamageResult Land(CombatStats attacker, int damage, bool isCritical)
+    {
+        var totalDamage = RollChanceDamage(attacker, damage);
         if (totalDamage < 5)
         {
             totalDamage = random.Next(1, 6);
@@ -187,8 +193,6 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             Math.Max(1, totalDamage),
             isCritical ? SuPacketHitMode.CriticalAttack : SuPacketHitMode.SuccessAttack);
     }
-
-    private const int PlayerFlatAttack = 15;
 
     private int RollChanceDamage(CombatStats attacker, int damage)
     {

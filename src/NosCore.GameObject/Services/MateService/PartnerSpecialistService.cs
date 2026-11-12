@@ -110,15 +110,8 @@ namespace NosCore.GameObject.Services.MateService
                 await RefreshAsync(owner, partner, entity);
             }
 
-            await owner.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = owner.CharacterId,
-                Type = SayColorType.Red,
-                Message = Game18NConstString.DurationOfSideEffect,
-                ArgumentType = 4,
-                Game18NArguments = { CooldownSeconds }
-            });
+            await owner.SendPacketAsync(owner.GenerateSayi(SayColorType.Red, Game18NConstString.DurationOfSideEffect,
+                4, CooldownSeconds));
             await owner.SendPacketAsync(new PsdPacket { SpCooldown = CooldownSeconds });
         }
 

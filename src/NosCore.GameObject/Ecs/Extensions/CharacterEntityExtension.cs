@@ -70,6 +70,19 @@ namespace NosCore.GameObject.Ecs.Extensions
             Message = message
         };
 
+        public static SayiPacket GenerateSayi(this ICharacterEntity character, SayColorType type,
+            Game18NConstString message, byte argumentType, params object[] arguments)
+        {
+            var packet = character.GenerateSayi(type, message);
+            packet.ArgumentType = argumentType;
+            foreach (var argument in arguments)
+            {
+                packet.Game18NArguments.Add(argument);
+            }
+
+            return packet;
+        }
+
         [Obsolete(
            "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public static IEnumerable<IPacket> GenerateInv(this ICharacterEntity characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
@@ -625,15 +638,8 @@ namespace NosCore.GameObject.Ecs.Extensions
                 {
                     characterEntity.Reput -= reputprice;
                     await characterEntity.SendPacketAsync(GenerateFdPacket(characterEntity));
-                    await characterEntity.SendPacketAsync(new SayiPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = characterEntity.CharacterId,
-                        Type = SayColorType.Red,
-                        Message = Game18NConstString.ReputationReduced,
-                        ArgumentType = 4,
-                        Game18NArguments = { reputprice }
-                    });
+                    await characterEntity.SendPacketAsync(characterEntity.GenerateSayi(SayColorType.Red, Game18NConstString.ReputationReduced,
+                        4, reputprice));
                 }
             }
             else

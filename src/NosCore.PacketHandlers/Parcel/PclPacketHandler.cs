@@ -6,6 +6,7 @@
 
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.Networking.ClientSession;
@@ -77,15 +78,8 @@ namespace NosCore.PacketHandlers.Parcel
                     return;
                 }
 
-                await clientSession.SendPacketAsync(new SayiPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = clientSession.Character.CharacterId,
-                    Type = SayColorType.Red,
-                    Message = Game18NConstString.ParcelReceived,
-                    ArgumentType = 2,
-                    Game18NArguments = { newInv.ItemInstance.Item.VNum.ToString(), newInv.ItemInstance.Amount }
-                });
+                await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.ParcelReceived,
+                    2, newInv.ItemInstance.Item.VNum.ToString(), newInv.ItemInstance.Amount));
 
                 await clientSession.SendPacketAsync(
                     new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId });
