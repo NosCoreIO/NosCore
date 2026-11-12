@@ -164,6 +164,21 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)1014, MaterialType.CellaPowder)]
+        [DataRow((short)2748, MaterialType.DimensiolithShard)]
+        [DataRow((short)1364, MaterialType.HigherSpProtectionScroll)]
+        [DataRow((short)1, MaterialType.None)]
+        public async Task ItemParser_MarksTheUpgradeMaterials(short vnum, MaterialType expected)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(expected, _savedItems.Single().Material);
+        }
+
+        [TestMethod]
         public async Task ItemParser_AnItemWithItsOwnBuffKeepsIt()
         {
             CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1340\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));

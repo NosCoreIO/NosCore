@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Data.Enumerations.Items;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -29,20 +31,12 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // item at its level, and what is left fails. A failure destroys the item unless a scroll is
 // spent, in which case the item is kept and not fixed.
 public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        IEquipmentUpgradeService equipmentUpgradeService)
+        IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
     : UpgradeOperation(random, localizer)
 {
-    public const short CellonVNum = 1014;
-    public const short SmallGemVNum = 1015;
-    public const short FullGemVNum = 1016;
-    public const short DimensionalForceVNum = 2774;
-    public const short ShardVNum = 2748;
-    public const short NormalScrollVNum = 1218;
-    public const short GoldScrollVNum = 5369;
-
     protected abstract bool IsProtected { get; }
 
-    protected virtual short ProtectionScrollVNum => NormalScrollVNum;
+    protected virtual MaterialType ProtectionScroll => MaterialType.EquipmentProtectionScroll;
 
     protected virtual int GoldAndCellaDivisor => 1;
 
@@ -97,26 +91,27 @@ public abstract class EquipmentUpgradeOperationBase(IRandomNumberSource random, 
         }
 
         var upgrade = wearable.Upgrade;
-        var gemVNum = equipmentUpgradeService.GetGemType(upgrade) switch
+        var gem = equipmentUpgradeService.GetGemType(upgrade) switch
         {
-            UpgradeGemType.DimensionalForce => DimensionalForceVNum,
-            UpgradeGemType.CompleteSoulGem => FullGemVNum,
-            _ => SmallGemVNum,
+            UpgradeGemType.DimensionalForce => MaterialType.DimensionalForce,
+            UpgradeGemType.CompleteSoulGem => MaterialType.CompleteSoulGem,
+            _ => MaterialType.SoulGem,
         };
 
         var materials = new List<MaterialCost>
         {
-            new(CellonVNum, (short)(equipmentUpgradeService.GetCellaCost(upgrade) / GoldAndCellaDivisor)),
-            new(gemVNum, equipmentUpgradeService.GetGemCost(upgrade)),
+            new(itemCatalog.GetMaterialVNum(MaterialType.CellaPowder),
+                (short)(equipmentUpgradeService.GetCellaCost(upgrade) / GoldAndCellaDivisor)),
+            new(itemCatalog.GetMaterialVNum(gem), equipmentUpgradeService.GetGemCost(upgrade)),
         };
         var shards = equipmentUpgradeService.GetShardCost(upgrade);
         if (shards > 0)
         {
-            materials.Add(new MaterialCost(ShardVNum, shards));
+            materials.Add(new MaterialCost(itemCatalog.GetMaterialVNum(MaterialType.DimensiolithShard), shards));
         }
         if (IsProtected)
         {
-            materials.Add(new MaterialCost(ProtectionScrollVNum, 1));
+            materials.Add(new MaterialCost(itemCatalog.GetMaterialVNum(ProtectionScroll), 1));
         }
 
         return new UpgradeContext(

@@ -4,6 +4,8 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.Data.Enumerations.Items;
 using JetBrains.Annotations;
 using NosCore.Algorithm.EquipmentUpgradeService;
 using NosCore.Core.I18N;
@@ -13,8 +15,8 @@ namespace NosCore.GameObject.Services.UpgradeService;
 
 [UsedImplicitly]
 public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        IEquipmentUpgradeService equipmentUpgradeService)
-    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService)
+        IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
+    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItem;
 
@@ -23,8 +25,8 @@ public sealed class UpgradeItemOperation(IRandomNumberSource random, IGameLangua
 
 [UsedImplicitly]
 public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        IEquipmentUpgradeService equipmentUpgradeService)
-    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService)
+        IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
+    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItemProtected;
 
@@ -33,14 +35,14 @@ public sealed class UpgradeItemProtectedOperation(IRandomNumberSource random, IG
 
 [UsedImplicitly]
 public sealed class UpgradeItemGoldScrollOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
-        IEquipmentUpgradeService equipmentUpgradeService)
-    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService)
+        IEquipmentUpgradeService equipmentUpgradeService, IItemCatalog itemCatalog)
+    : EquipmentUpgradeOperationBase(random, localizer, equipmentUpgradeService, itemCatalog)
 {
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeItemGoldScroll;
 
     protected override bool IsProtected => true;
 
-    protected override short ProtectionScrollVNum => GoldScrollVNum;
+    protected override MaterialType ProtectionScroll => MaterialType.GoldenEquipmentProtectionScroll;
 
     protected override int GoldAndCellaDivisor => 2;
 }

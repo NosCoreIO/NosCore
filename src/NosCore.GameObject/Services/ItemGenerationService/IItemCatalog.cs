@@ -15,5 +15,8 @@ namespace NosCore.GameObject.Services.ItemGenerationService
 
         // For an effect only one item carries, such as gold or the savings book.
         ItemDto? GetItemWithEffect(ItemEffectType effect);
+
+        // 0 when no item is that material, so a cost in it can never be paid.
+        short GetMaterialVNum(MaterialType material);
     }
 }

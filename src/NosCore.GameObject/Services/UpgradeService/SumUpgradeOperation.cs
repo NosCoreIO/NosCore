@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -40,11 +41,10 @@ namespace NosCore.GameObject.Services.UpgradeService;
 // On failure: BOTH source and target are destroyed.
 // Sand and gold are charged regardless.
 [UsedImplicitly]
-public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer)
+public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguageLocalizer localizer,
+        IItemCatalog itemCatalog)
     : UpgradeOperation(random, localizer)
 {
-    public const short SandVNum = 1027;
-
     private static readonly double[] SuccessRateByCombinedLevel = { 1.00, 1.00, 0.85, 0.70, 0.50, 0.20 };
     private static readonly long[] GoldCostBySourceLevel = { 1500, 3000, 6000, 12000, 24000, 48000 };
     private static readonly short[] SandCostBySourceLevel = { 5, 10, 15, 20, 25, 30 };
@@ -98,7 +98,7 @@ public sealed class SumUpgradeOperation(IRandomNumberSource random, IGameLanguag
             Source: source,
             Target: target,
             GoldCost: GoldCostBySourceLevel[s.Upgrade],
-            MaterialCosts: new[] { new MaterialCost(SandVNum, SandCostBySourceLevel[s.Upgrade]) },
+            MaterialCosts: new[] { new MaterialCost(itemCatalog.GetMaterialVNum(MaterialType.RiverSand), SandCostBySourceLevel[s.Upgrade]) },
             ExtraData: s.Upgrade + t.Upgrade);
     }
 

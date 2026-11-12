@@ -16,6 +16,7 @@ namespace NosCore.GameObject.Services.ItemGenerationService
     {
         private readonly IReadOnlyDictionary<short, ItemDto> _items;
         private readonly IReadOnlyDictionary<ItemEffectType, ItemDto> _byEffect;
+        private readonly IReadOnlyDictionary<MaterialType, short> _materials;
 
         public ItemCatalog(List<ItemDto> items)
         {
@@ -24,10 +25,16 @@ namespace NosCore.GameObject.Services.ItemGenerationService
                 .Where(i => i.Effect != ItemEffectType.NoEffect)
                 .GroupBy(i => i.Effect)
                 .ToDictionary(g => g.Key, g => g.OrderBy(i => i.VNum).First());
+            _materials = _items.Values
+                .Where(i => i.Material != MaterialType.None)
+                .GroupBy(i => i.Material)
+                .ToDictionary(g => g.Key, g => g.Min(i => i.VNum));
         }
 
         public ItemDto? GetItem(short vnum) => _items.GetValueOrDefault(vnum);
 
         public ItemDto? GetItemWithEffect(ItemEffectType effect) => _byEffect.GetValueOrDefault(effect);
+
+        public short GetMaterialVNum(MaterialType material) => _materials.GetValueOrDefault(material);
     }
 }

@@ -77,6 +77,8 @@ namespace NosCore.Database.Entities
 
         public int EffectValue { get; set; }
 
+        public MaterialType Material { get; set; }
+
         public ElementType Element { get; set; }
 
         public short ElementRate { get; set; }

@@ -50,9 +50,9 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             var localizer = World.GameLanguageLocalizer;
             _operations = new EventSpUpgradeOperationBase[]
             {
-                new ChickenSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService()),
-                new PyjamaSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService()),
-                new PirateSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService()),
+                new ChickenSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), UpgradeMaterials.Catalog()),
+                new PyjamaSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), UpgradeMaterials.Catalog()),
+                new PirateSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), UpgradeMaterials.Catalog()),
             };
             CharacterHasGold(1_000);
         }
