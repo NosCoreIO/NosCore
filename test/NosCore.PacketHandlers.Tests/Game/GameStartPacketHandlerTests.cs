@@ -47,7 +47,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private ClientSession Session;
         private Mock<IMapChangeService> MapChangeService;
         private Mock<ISkillService> SkillService;
-        private Mock<IStaticBuffService> StaticBuffService;
+        private Mock<IBuffService> BuffService;
         private Mock<IQuestService> QuestService;
         private readonly Mock<ILogger<GameStartPacketHandler>> Logger = new();
         private TaskCompletionSource ScriptRun;
@@ -67,7 +67,7 @@ namespace NosCore.PacketHandlers.Tests.Game
             QuestService = new Mock<IQuestService>();
             MapChangeService = new Mock<IMapChangeService>();
             SkillService = new Mock<ISkillService>();
-            StaticBuffService = new Mock<IStaticBuffService>();
+            BuffService = new Mock<IBuffService>();
             var serializer = new Mock<ISerializer>();
 
             friendHub.Setup(s => s.GetFriendsAsync(It.IsAny<long>()))
@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Tests.Game
                 SkillService.Object,
                 new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService(),
                 Logger.Object,
-                StaticBuffService.Object);
+                BuffService.Object);
         }
 
         [TestMethod]
@@ -162,17 +162,17 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task GameStartShouldRestoreStaticBuffs()
+        public async Task GameStartShouldShowStaticBuffs()
         {
-            await new Spec("Game start should restore static buffs")
+            await new Spec("Game start should show static buffs")
                 .Given(CharacterIsReadyToStart)
                 .WhenAsync(ExecutingGameStart)
-                .Then(StaticBuffsShouldBeRestored)
+                .Then(StaticBuffsShouldBeShown)
                 .ExecuteAsync();
         }
 
-        private void StaticBuffsShouldBeRestored() =>
-            StaticBuffService.Verify(s => s.RestoreAsync(It.IsAny<ICharacterEntity>()), Times.Once);
+        private void StaticBuffsShouldBeShown() =>
+            BuffService.Verify(s => s.ShowStaticAsync(It.IsAny<ICharacterEntity>()), Times.Once);
 
         [TestMethod]
         public async Task GameStartShouldLoadSkills()

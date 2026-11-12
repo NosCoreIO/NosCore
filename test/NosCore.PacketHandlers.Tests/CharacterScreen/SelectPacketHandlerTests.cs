@@ -77,7 +77,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 World.Create<CharacterInitializationService>(),
                 new Mock<Wolverine.IMessageBus>().Object,
                 new Mock<NosCore.GameObject.Services.MateService.IMateService>().Object,
-                new Mock<NosCore.GameObject.Services.FamilyService.IFamilyService>().Object);
+                new Mock<NosCore.GameObject.Services.FamilyService.IFamilyService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IStaticBuffService>().Object);
         }
 
         [TestMethod]
@@ -97,6 +98,16 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .WhenAsync(SelectingCharacterInSlot_, 1)
                 .Then(TheCharacterShouldHaveSpecialistPoints_AndAdditionalPoints_, 4000, 250)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SelectingACharacterLoadsItsStaticBuffs()
+        {
+            var staticBuffs = World.Freeze<Mock<NosCore.GameObject.Services.BattleService.IStaticBuffService>>();
+
+            await World.Create<SelectPacketHandler>().ExecuteAsync(new SelectPacket { Slot = 1 }, Session);
+
+            staticBuffs.Verify(s => s.Load(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>()), Times.Once);
         }
 
         [TestMethod]

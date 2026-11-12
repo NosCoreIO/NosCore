@@ -33,6 +33,12 @@ public interface IBuffService
     // Shows in the static buff bar with its time left and survives death, until it runs out.
     Task ApplyStaticAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
 
+    // The same buff without telling the client, for a character that has not entered the world yet.
+    void RestoreStatic(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration);
+
+    // Fills the static buff bar with every timed static buff and the time each has left.
+    Task ShowStaticAsync(ICharacterEntity target);
+
     Task InflictCardsAsync(IAliveEntity target, IAliveEntity? caster,
         IReadOnlyList<BCardDto> skillBCards);
 

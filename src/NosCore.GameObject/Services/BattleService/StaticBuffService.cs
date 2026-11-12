@@ -16,14 +16,14 @@ namespace NosCore.GameObject.Services.BattleService;
 public sealed class StaticBuffService(IDao<StaticBuffDto, long> staticBuffDao, IBuffService buffService,
     ICardCatalog cardCatalog, IClock clock) : IStaticBuffService
 {
-    public async Task RestoreAsync(ICharacterEntity character)
+    public void Load(ICharacterEntity character)
     {
         var characterId = character.CharacterId;
         foreach (var row in staticBuffDao.Where(s => s.CharacterId == characterId)?.ToList() ?? [])
         {
             if (row.RemainingTime > 0 && cardCatalog.GetCard(row.CardId) is { } card)
             {
-                await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(row.CardId),
+                buffService.RestoreStatic(character, card, cardCatalog.GetCardBCards(row.CardId),
                     Duration.FromSeconds(row.RemainingTime));
             }
         }

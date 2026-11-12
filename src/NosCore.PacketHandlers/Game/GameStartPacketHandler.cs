@@ -45,7 +45,7 @@ namespace NosCore.PacketHandlers.Game
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService, ISkillService skillService,
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
-            IStaticBuffService staticBuffService)
+            IBuffService buffService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -245,7 +245,7 @@ namespace NosCore.PacketHandlers.Game
                     4, mailcount));
             }
 
-            await staticBuffService.RestoreAsync(session.Character);
+            await buffService.ShowStaticAsync(session.Character);
 
             //            Session.Character.DeleteTimeout();
 

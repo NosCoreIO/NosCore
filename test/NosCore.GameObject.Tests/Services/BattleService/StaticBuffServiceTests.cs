@@ -134,16 +134,47 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CharacterId = CharacterId, CardId = BlessingCardId, RemainingTime = 3000
             });
 
-            await _service.RestoreAsync(_session.Character);
+            _service.Load(_session.Character);
 
             var buff = _buffs.GetActiveBuffs(_session.Character).Single(s => s.CardId == BlessingCardId);
             Assert.IsTrue(buff.Static);
             Assert.AreEqual(3000, (int)(buff.ExpiresAt - World.Clock.GetCurrentInstant()).TotalSeconds);
             Assert.AreSame(BlessingBCards, buff.BCards);
-            var vb = _session.LastPackets.OfType<VbPacket>().Last();
+            Assert.AreEqual(0, _session.LastPackets.OfType<VbPacket>().Count());
+        }
+
+        [TestMethod]
+        public async Task EnteringTheWorldShowsEachTimedStaticBuffWithItsTimeLeft()
+        {
+            await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
+            {
+                CharacterId = CharacterId, CardId = BlessingCardId, RemainingTime = 3000
+            });
+            _service.Load(_session.Character);
+            await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = CoupleCardId }, []);
+            _session.LastPackets.Clear();
+            World.Clock.Advance(Duration.FromSeconds(10));
+
+            await _buffs.ShowStaticAsync(_session.Character);
+
+            var vb = _session.LastPackets.OfType<VbPacket>().Single();
             Assert.AreEqual(BlessingCardId, vb.CardId);
             Assert.IsTrue(vb.IsActivated);
-            Assert.AreEqual(30000, vb.RemainingTime);
+            Assert.AreEqual(29900, vb.RemainingTime);
+        }
+
+        [TestMethod]
+        public async Task ASaveBeforeTheWorldIsEnteredKeepsTheStoredTime()
+        {
+            await _staticBuffDao.TryInsertOrUpdateAsync(new StaticBuffDto
+            {
+                CharacterId = CharacterId, CardId = BlessingCardId, RemainingTime = 3000
+            });
+            _service.Load(_session.Character);
+
+            Assert.IsTrue(await _service.SaveAsync(_session.Character));
+
+            Assert.AreEqual(3000, Stored().Single().RemainingTime);
         }
 
         [TestMethod]
@@ -155,7 +186,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await _buffs.RemoveAsync(_session.Character, BlessingCardId);
             World.Clock.Advance(Duration.FromHours(5));
 
-            await _service.RestoreAsync(_session.Character);
+            _service.Load(_session.Character);
 
             var buff = _buffs.GetActiveBuffs(_session.Character).Single(s => s.CardId == BlessingCardId);
             Assert.AreEqual(3000, (int)(buff.ExpiresAt - World.Clock.GetCurrentInstant()).TotalSeconds);
@@ -169,7 +200,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CharacterId = CharacterId, CardId = 9999, RemainingTime = 3000
             });
 
-            await _service.RestoreAsync(_session.Character);
+            _service.Load(_session.Character);
 
             Assert.AreEqual(0, _buffs.GetActiveBuffs(_session.Character).Count);
         }
@@ -182,7 +213,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 CharacterId = CharacterId + 1, CardId = BlessingCardId, RemainingTime = 3000
             });
 
-            await _service.RestoreAsync(_session.Character);
+            _service.Load(_session.Character);
 
             Assert.AreEqual(0, _buffs.GetActiveBuffs(_session.Character).Count);
         }
