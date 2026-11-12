@@ -404,6 +404,9 @@
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>{0} ShopItems Parsed!</value>
   </data>
+  <data name="SHOPSKILLS_PARSED" xml:space="preserve">
+    <value>{0} ShopSkills Parsed!</value>
+  </data>
   <data name="RECIPES_PARSED" xml:space="preserve">
     <value>{0} Recipes parsed!</value>
   </data>

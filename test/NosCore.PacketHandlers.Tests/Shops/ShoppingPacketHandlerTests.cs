@@ -15,6 +15,7 @@ using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.StaticEntities;
 using SpecLight;
 using System.Threading.Tasks;
 using NosCore.Tests.Shared.BDD.Steps;
@@ -94,6 +95,49 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .WhenAsync(ShoppingFromTheShopNpc)
                 .Then(TheShopShouldBeSent)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ASkillShopListsThePassivesAndTheViewersClassSkills()
+        {
+            await new Spec("A skill shop's tab lists every passive and only the viewer's class skills")
+                .Given(ASkillTeacherStandsNextToASwordsman)
+                .And(TheNpcsDialogIsOpen)
+                .WhenAsync(OpeningTheTeachersClassTab)
+                .Then(OnlyTheSwordsmansSkillsShouldBeListed)
+                .ExecuteAsync();
+        }
+
+        private void ASkillTeacherStandsNextToASwordsman()
+        {
+            Session.Character.Class = CharacterClassType.Swordsman;
+            var npc = Session.WithNpcAt(100, 1, 1);
+            ShopSkill Entry(short vnum, byte tab, byte slot, byte skillClass, byte skillType) => new()
+            {
+                SkillVNum = vnum, Type = tab, Slot = slot,
+                Skill = new SkillDto { SkillVNum = vnum, Class = skillClass, SkillType = skillType }
+            };
+            npc.Shop = new Shop
+            {
+                ShopSkills =
+                [
+                    Entry(20, 0, 0, 0, 0),
+                    Entry(240, 1, 0, 2, 1),
+                    Entry(221, 1, 2, 1, 1),
+                    Entry(220, 1, 1, 1, 1),
+                ]
+            };
+        }
+
+        private Task OpeningTheTeachersClassTab() =>
+            Handler.ExecuteAsync(new ShoppingPacket { VisualType = VisualType.Npc, VisualId = 100, ShopType = 1 }, Session);
+
+        private void OnlyTheSwordsmansSkillsShouldBeListed()
+        {
+            var packet = Session.GetLastPacket<NosCore.Packets.ServerPackets.Shop.NInvPacket>();
+            Assert.IsNotNull(packet);
+            Assert.AreEqual((byte)1, packet.ShopKind);
+            CollectionAssert.AreEqual(new short[] { 220, 221 }, packet.Skills);
         }
 
         private void AShopNpcStandsNextToTheCharacter()

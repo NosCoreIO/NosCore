@@ -411,6 +411,9 @@
   <data name="SHOPITEMS_PARSED" xml:space="preserve">
     <value>Â¡{0} ShopItems Analizados!</value>
   </data>
+  <data name="SHOPSKILLS_PARSED" xml:space="preserve">
+    <value>¡{0} ShopSkills Analizados!</value>
+  </data>
   <data name="SHOPS_LOADED" xml:space="preserve">
     <value>Â¡{0} Shops Cargadas!</value>
   </data>

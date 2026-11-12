@@ -13,5 +13,8 @@ namespace NosCore.GameObject.Services.SkillService
         // Training courses, PvP boosts, tomes: never cast, and not tied to a class. Their CastId
         // is the passive's kind, so it overlaps the cast ids of real skills.
         public static bool IsPassive(this SkillDto skill) => skill.SkillType == 0;
+
+        // Strengthens the skill named in UpgradeSkill, which has to be known first.
+        public static bool IsUpgrade(this SkillDto skill) => skill.SkillType == 2;
     }
 }

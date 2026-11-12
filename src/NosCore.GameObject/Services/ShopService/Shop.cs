@@ -10,6 +10,7 @@ using NosCore.Core.Concurrency;
 using NosCore.GameObject.Ecs.Interfaces;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NosCore.GameObject.Services.ShopService
@@ -19,6 +20,8 @@ namespace NosCore.GameObject.Services.ShopService
         private int? _size;
 
         public ConcurrentDictionary<int, ShopItem> ShopItems { get; set; } = new();
+
+        public IReadOnlyList<ShopSkill> ShopSkills { get; set; } = [];
 
         public ICharacterEntity? OwnerCharacter { get; set; }
         public long Sell { get; internal set; }

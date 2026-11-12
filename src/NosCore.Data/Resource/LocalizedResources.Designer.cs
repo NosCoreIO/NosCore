@@ -981,6 +981,15 @@ namespace NosCore.Data.Resource {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} ShopSkills Parsed!.
+        /// </summary>
+        public static string SHOPSKILLS_PARSED {
+            get {
+                return ResourceManager.GetString("SHOPSKILLS_PARSED", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {0} Shops Loaded!.
         /// </summary>
         public static string SHOPS_LOADED {

@@ -17,6 +17,7 @@ using NosCore.Core.I18N;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.ShellOptionService;
+using NosCore.GameObject.Services.SkillService;
 using NosCore.Algorithm.DignityService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -25,6 +26,7 @@ using NosCore.Packets.ClientPackets.Shops;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using Microsoft.Extensions.Logging;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Shops
@@ -33,7 +35,7 @@ namespace NosCore.PacketHandlers.Shops
             ISessionRegistry sessionRegistry, IOptions<WorldConfiguration> worldConfiguration,
             IItemGenerationService itemProvider, INpcDialogService npcDialogService,
             IShellOptionService shellOptionService, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-            IFamilyShopService familyShopService, IDignityService dignityService)
+            IFamilyShopService familyShopService, IDignityService dignityService, ISkillService skillService)
         : PacketHandler<BuyPacket>, IWorldPacketHandler
     {
         public override Task ExecuteAsync(BuyPacket buyPacket, ClientSession clientSession)
@@ -66,9 +68,17 @@ namespace NosCore.PacketHandlers.Shops
                     return Task.CompletedTask;
                 }
 
+                if (buyPacket.Amount is not { } amount)
+                {
+                    var skill = buyPacket.VisualType == VisualType.Npc
+                        ? shop.ShopSkills.FirstOrDefault(s => s.SkillVNum == buyPacket.Slot)?.Skill
+                        : null;
+                    return skill == null ? Task.CompletedTask : skillService.BuyAsync(clientSession.Character, skill);
+                }
+
                 return buyPacket.VisualType == VisualType.Npc && shop.ShopType == FamilyShopService.ShopType
                     ? familyShopService.BuyAsync(clientSession, aliveEntity, buyPacket.Slot)
-                    : clientSession.Character.BuyAsync(shop, buyPacket.Slot, buyPacket.Amount, worldConfiguration,
+                    : clientSession.Character.BuyAsync(shop, buyPacket.Slot, amount, worldConfiguration,
                         itemProvider, dignityService, shellOptionService, itemInstanceDao);
             }
 

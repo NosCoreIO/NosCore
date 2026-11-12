@@ -34,7 +34,7 @@ namespace NosCore.GameObject.Ecs.Extensions
     {
         public static void InitializeShopAndDialog(this NpcComponentBundle bundle,
             IReadOnlyList<ShopDto> shopDtos, NpcTalkDto? npcTalkDto, List<ShopItemDto> shopItemsDto,
-            IItemGenerationService itemProvider)
+            IItemGenerationService itemProvider, IReadOnlyList<ShopSkill>? shopSkills = null)
         {
             var dialogId = bundle.Dialog ?? 0;
             if (bundle.Requests.TryGetValue(typeof(NpcDialogRequestSubject), out var subject))
@@ -83,6 +83,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 shop.Name = npcTalkDto?.Name ?? bundle.NpcMonster?.Name ?? new I18NString();
                 shop.OwnerCharacter = null;
                 shop.ShopItems = shopItemsList;
+                shop.ShopSkills = shopSkills?.Where(s => s.ShopId == shopDto.ShopId).ToList() ?? [];
                 shops[shop.ShopId] = shop;
             }
             bundle.Shops = shops;

@@ -11,6 +11,7 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.ShopService;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
@@ -33,7 +34,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.MapInstanceGenerationService
 {
     public class MapInstanceGeneratorService(List<MapDto> maps, List<NpcMonsterDto> npcMonsters,
-            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos, List<RecipeDto> recipeDtos, List<RecipeItemDto> recipeItemDtos,
+            List<NpcTalkDto> npcTalks, List<ShopDto> shopDtos, List<ShopSkillDto> shopSkillDtos, List<SkillDto> skills, List<RecipeDto> recipeDtos, List<RecipeItemDto> recipeItemDtos,
             IMapItemGenerationService mapItemGenerationService, IDao<MapNpcDto, int> mapNpcs,
             IDao<MapMonsterDto, int> mapMonsters, IDao<PortalDto, int> portalDao, IDao<ShopItemDto, int>? shopItems,
             ILoggerFactory loggerFactory, IMapInstanceRegistry mapInstanceRegistry,
@@ -94,6 +95,14 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 return recipe;
             }).ToList());
 
+            var skillsByVNum = skills.ToDictionary(s => s.SkillVNum);
+            var shopSkills = shopSkillDtos.Where(s => skillsByVNum.ContainsKey(s.SkillVNum)).Select(s =>
+            {
+                var shopSkill = s.Adapt<ShopSkill>();
+                shopSkill.Skill = skillsByVNum[s.SkillVNum];
+                return shopSkill;
+            }).ToList();
+
             var portals = portalDao.LoadAll().GroupBy(s => s.SourceMapId).ToDictionary(x => x.Key, x => x.ToList());
 
             var mapsdic = maps.ToDictionary(x => x.MapId, x => Guid.NewGuid());
@@ -130,7 +139,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                                 dtoShopItems = shopItems?.Where(si => shopIds.Contains(si.ShopId))?.ToList() ?? new List<ShopItemDto>();
                                 dialog = npcTalks.Find(o => o.DialogId == s.Dialog);
                             }
-                            bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider);
+                            bundle.Value.InitializeShopAndDialog(shopsOfNpc, dialog, dtoShopItems, itemProvider, shopSkills);
                             if (recipes.TryGetValue(s.MapNpcId, out var npcRecipes))
                             {
                                 var npcBundle = bundle.Value;

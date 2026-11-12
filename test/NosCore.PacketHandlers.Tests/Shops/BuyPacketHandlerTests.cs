@@ -18,6 +18,8 @@ using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using NosCore.Tests.Shared.BDD.Steps;
 using Microsoft.Extensions.Logging;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.SkillService;
 using SpecLight;
 using System;
 using System.Collections.Concurrent;
@@ -33,6 +35,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         private const int ShopNpcId = 100;
         private ClientSession Session;
         private ClientSession Seller;
+        private readonly Mock<ISkillService> SkillService = new();
         private readonly ILogger<BuyPacketHandler> Logger = new Mock<ILogger<BuyPacketHandler>>().Object;
 
         [TestInitialize]
@@ -49,7 +52,8 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 new Mock<NosCore.GameObject.Services.ShellOptionService.IShellOptionService>().Object,
                 new Mock<NosCore.Dao.Interfaces.IDao<NosCore.Data.Dto.IItemInstanceDto?, System.Guid>>().Object,
                 new Mock<IFamilyShopService>().Object,
-                World.Create<DignityService>());
+                World.Create<DignityService>(),
+                SkillService.Object);
         }
 
         [TestMethod]
@@ -91,6 +95,28 @@ namespace NosCore.PacketHandlers.Tests.Shops
                 .And(TheShopWindowWasOpenedAtTheNpc)
                 .WhenAsync(BuyingFromTheNpc)
                 .Then(GoldShouldBe_, 900L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingASkillFromAnOpenSkillShopTeachesIt()
+        {
+            await new Spec("A purchase without an amount at a skill shop teaches the skill it names")
+                .Given(ASkillTeacherStandsNearby)
+                .And(TheShopWindowWasOpenedAtTheNpc)
+                .WhenAsync(BuyingSkill_, (short)20)
+                .Then(SkillShouldBeTaught_, (short)20)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task BuyingASkillTheShopDoesNotTeachIsIgnored()
+        {
+            await new Spec("A purchase of a skill the shop does not list teaches nothing")
+                .Given(ASkillTeacherStandsNearby)
+                .And(TheShopWindowWasOpenedAtTheNpc)
+                .WhenAsync(BuyingSkill_, (short)21)
+                .Then(NoSkillShouldBeTaught)
                 .ExecuteAsync();
         }
 
@@ -206,6 +232,31 @@ namespace NosCore.PacketHandlers.Tests.Shops
             Slot = 0,
             Amount = 1
         }, Session);
+
+        private void ASkillTeacherStandsNearby()
+        {
+            var npc = Session.WithNpcAt(ShopNpcId, 2, 2);
+            npc.Shop = new Shop
+            {
+                ShopSkills = [new ShopSkill { SkillVNum = 20, Skill = new SkillDto { SkillVNum = 20 } }]
+            };
+        }
+
+        private Task BuyingSkill_(short skillVNum) => Handler.ExecuteAsync(new BuyPacket
+        {
+            VisualType = VisualType.Npc,
+            VisualId = ShopNpcId,
+            Slot = skillVNum
+        }, Session);
+
+        private void SkillShouldBeTaught_(short skillVNum)
+        {
+            var character = Session.Character;
+            SkillService.Verify(s => s.BuyAsync(character, It.Is<SkillDto>(k => k.SkillVNum == skillVNum)), Times.Once);
+        }
+
+        private void NoSkillShouldBeTaught() =>
+            SkillService.Verify(s => s.BuyAsync(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>(), It.IsAny<SkillDto>()), Times.Never);
 
         private void GoldShouldBe_(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
 
