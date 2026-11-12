@@ -574,12 +574,12 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 57 | 42 | yes | SummonedMonsterAttackNoHpMpRecovery | No HP/MP recovery |
 | 57 | 51 | yes | SummonedMonsterAttackMovementSpeedCapped | Movement speed is increased by %s (max. %s). |
 | 57 | 52 | yes | SummonedMonsterAttackMovementSpeedCappedNegated | Movement speed is reduced by %s (max. %s). |
-| 58 | 11 | yes | BearSpiritIncreaseMaximumMp | Increases maximum HP by %s%%, however not above 5000 HP. |
-| 58 | 12 | yes | BearSpiritDecreaseMaximumMp | Reduces maximum HP by %s%%, however not above 5000 HP. |
+| 58 | 11 | yes | BearSpiritIncreaseMaximumHp | Increases maximum HP by %s%%, however not above 5000 HP. |
+| 58 | 12 | yes | BearSpiritDecreaseMaximumHp | Reduces maximum HP by %s%%, however not above 5000 HP. |
 | 58 | 21 | yes |  |  |
 | 58 | 22 | yes |  |  |
-| 58 | 31 | yes | BearSpiritIncreaseMaximumHp | Increases maximum MP by %s%%, however not above 5000 MP. |
-| 58 | 32 | yes | BearSpiritDecreaseMaximumHp | Decreases maximum MP by %s%%, however not below 5000 MP. |
+| 58 | 31 | yes | BearSpiritIncreaseMaximumMp | Increases maximum MP by %s%%, however not above 5000 MP. |
+| 58 | 32 | yes | BearSpiritDecreaseMaximumMp | Decreases maximum MP by %s%%, however not below 5000 MP. |
 | 58 | 41 | yes | BearSpiritNextSkillDamageFromStored | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
 | 58 | 42 | yes | BearSpiritNextSkillDamageFromStoredNegated | The damage of the next skill is increased by the damage stored by Soulripper (min. %s, max. %s). |
 | 58 | 51 | yes | BearSpiritDamageAgainstMonsters | If the target is a monster, the damage from all attacks is increased by %s%%. Otherwise the player is forced to transform into the %s. |
@@ -912,8 +912,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 91 | 32 | yes | Type91AllowFullMoonSkillNegated |  |
 | 91 | 41 | yes | Type91AllowLotusPowerSkill | Allows you to use Lotus Flower skills. |
 | 91 | 42 | yes | Type91AllowLotusPowerSkillNegated |  |
-| 91 | 51 | yes | Type91ReduceCriticalDamageRecived | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Moon. |
-| 91 | 52 | yes | Type91IncreaseCriticalDamageRecived | The next damage inflicted by the enemy will be reduced by %s%% and consume the Mark of the Moon. |
+| 91 | 51 | yes | Type91IncreaseDamageToMarkedEnemy | The next damage you inflict on a marked enemy will be increased by %s%% and consume the Mark of the Moon. |
+| 91 | 52 | yes | Type91ReduceDamageFromMarkedEnemy | The next damage inflicted by the enemy will be reduced by %s%% and consume the Mark of the Moon. |
 | 92 | 11 | yes | Type92AddBuffOnReceiveAttack | Whenever you are attacked, you have a %s%% chance of generating %s. |
 | 92 | 12 | yes | Type92AddBuffOnReceiveAttackNegated | Whenever you are attacked, you have a %s%% chance of generating %s. |
 | 92 | 21 | yes | Type92ChanceToReciveOpportunityToAttack | After using an attack skill, there is a chance of receiving another Opportunity to Attack. |
@@ -1002,8 +1002,8 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 100 | 32 | yes | Type100DecreaseDamageToDemon | Damage to demons is reduced by %s%%. |
 | 100 | 41 | yes | Type100IncreaseDamageToLowLevelUndead | Damage to low-level undead is increased by %s%%. |
 | 100 | 42 | yes | Type100DecreaseDamageToLowLevelUndead | Damage to low-level undead is reduced by %s%%. |
-| 100 | 51 | yes | Type100IncreaseProductionPointConsume | Production point consumption is reduced by %s%%. |
-| 100 | 52 | yes | Type100DecreaseProductionPointConsume | Production point consumption is increased by %s%%. |
+| 100 | 51 | yes | Type100DecreaseProductionPointConsume | Production point consumption is reduced by %s%%. |
+| 100 | 52 | yes | Type100IncreaseProductionPointConsume | Production point consumption is increased by %s%%. |
 | 101 | 11 | yes | Type101IncreaseDamageToLODMonster | Damage to monsters in the Land of Death is increased by %s%%. |
 | 101 | 12 | yes | Type101DecreaseDamageToLODMonster | Damage to monsters in the Land of Death is reduced by %s%%. |
 | 101 | 21 | yes | Type101IncreaseDamageToSealed | Damage to monsters from Sealed Vessels is increased by %s%%. |
