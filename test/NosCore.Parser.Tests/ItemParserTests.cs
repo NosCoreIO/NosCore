@@ -142,12 +142,12 @@ namespace NosCore.Parser.Tests
         [TestMethod]
         public async Task ItemParser_AnItemWithItsOwnBuffKeepsIt()
         {
-            CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1360\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+            CreateTestFile(CreateItemData(vnum: 5929, buff: "25\t400\t1340\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
 
             var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
             await parser.ParseAsync(_tempFolder);
 
-            Assert.AreEqual(340, _savedBCards.Single(b => b.ItemVNum == 5929).SecondData);
+            Assert.AreEqual(335, _savedBCards.Single(b => b.ItemVNum == 5929).SecondData);
         }
 
         [TestMethod]
