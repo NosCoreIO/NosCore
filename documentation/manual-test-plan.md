@@ -62,6 +62,8 @@ confirms it. The server log line `walk dropped` names every refused packet.
       the same vnum
 - [ ] Transformed into the Ninja card with a water fairy, hit a monster, then wear wing skin
       4442 ("+20 to the equipped fairy's element") and hit again: the second hit is higher
+- [ ] Wear the Hellhound Necklace (331), "Maximum HP is increased by 100": the maximum HP in
+      the character window goes up by exactly 100
 
 Both the item model and the instance count. A +0 and a +10 of the same vnum giving the
 same damage means only one of the two is being read.

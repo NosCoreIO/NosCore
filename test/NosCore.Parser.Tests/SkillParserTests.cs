@@ -104,7 +104,8 @@ namespace NosCore.Parser.Tests
             byte levelMinimum = 0,
             string fcombo = "0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0",
             (int dx, int dy)[]? cells = null,
-            (int dx, int dy)[]? tailCells = null)
+            (int dx, int dy)[]? tailCells = null,
+            string firstBasic = "0\t0\t0\t0\t0\t0")
         {
             return $"\tVNUM\t{skillVNum}\r\n" +
                    $"\tNAME\t{name}\r\n" +
@@ -114,7 +115,7 @@ namespace NosCore.Parser.Tests
                    $"\tEFFECT\t0\t{castEffect}\t{castAnimation}\t{effect}\t{attackAnimation}\t0\t0\t0\t0\r\n" +
                    $"\tTARGET\t{targetType}\t{hitType}\t{range}\t{targetRange}\t0\r\n" +
                    $"\tDATA\t{upgradeSkill}\t{upgradeType}\t0\t0\t{castTime}\t{cooldown}\t0\t0\t{mpCost}\t0\t{itemVNum}\t0\t0\t0\t0\r\n" +
-                   "\tBASIC\t0\t0\t0\t0\t0\t0\r\n" +
+                   $"\tBASIC\t{firstBasic}\r\n" +
                    "\tBASIC\t1\t0\t0\t0\t0\t0\r\n" +
                    "\tBASIC\t2\t0\t0\t0\t0\t0\r\n" +
                    "\tBASIC\t3\t0\t0\t0\t0\t0\r\n" +
@@ -186,6 +187,17 @@ namespace NosCore.Parser.Tests
 
             CollectionAssert.AreEqual(new byte[] { 0, 0, 0, 0, 0, 0, 4, 8, 12, 16, 20 },
                 skills.OrderBy(s => s.CastId).Select(s => s.LevelMinimum).ToArray());
+        }
+
+        // A mage's basic attack reads 240 in the file and adds 60 magic attack in game.
+        [TestMethod]
+        public async Task APositiveEffectValueIsStoredAQuarterOfTheFileValue()
+        {
+            await ParseOneAsync(CreateSkillData(skillVNum: 260, firstBasic: "0\t3\t3\t240\t0\t0"));
+
+            var card = _savedBCards.Single();
+            Assert.AreEqual(60, card.FirstData);
+            Assert.IsFalse(card.IsLevelScaled);
         }
 
         [TestMethod]

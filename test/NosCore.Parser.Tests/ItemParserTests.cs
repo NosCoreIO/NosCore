@@ -122,6 +122,20 @@ namespace NosCore.Parser.Tests
 
             var card = _savedBCards.Single(b => b.Type == 11);
             Assert.AreEqual(11, card.SubType);
+            Assert.AreEqual(10, card.FirstData);
+        }
+
+        [TestMethod]
+        public async Task ItemParser_TheLowBitsOfAPositiveFirstValueAreFlagsNotValue()
+        {
+            CreateTestFile(CreateItemData(vnum: 121, buff: "11	41	40	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.Type == 11);
+            Assert.AreEqual(10, card.FirstData);
+            Assert.IsTrue(card.IsLevelScaled);
         }
 
         [TestMethod]
