@@ -46,9 +46,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var medal = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, medal.ItemInstanceId);
-            await session.SendPacketAsync(medal.GeneratePocketChange(medal.Type.ToPocketType(), medal.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
 
             character = session.Character;
             character.AddSpPoints(item.EffectValue, worldConfiguration);

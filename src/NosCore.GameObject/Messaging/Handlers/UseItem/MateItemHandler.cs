@@ -68,9 +68,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var itemInstance = evt.InventoryItem;
-            owner.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await owner.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await owner.UseUpOneAsync(evt.InventoryItem);
         }
 
         private async Task<bool> LevelUpAsync(PlayerComponentBundle owner, MateModel mate)

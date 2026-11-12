@@ -98,7 +98,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                         return;
                     }
 
-                    await ConsumeAsync(evt);
+                    await evt.ClientSession.Character.UseUpOneAsync(evt.InventoryItem);
                     if (evt.Packet.Mode == SaveAndLeave)
                     {
                         respawnService.SetReturnPoint(character, mapId, character.PositionX, character.PositionY);
@@ -142,7 +142,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                         return;
                     }
 
-                    await ConsumeAsync(evt);
+                    await evt.ClientSession.Character.UseUpOneAsync(evt.InventoryItem);
                     await mapChangeService.ChangeMapAsync(session, mapId, x, y);
                     return;
             }
@@ -164,13 +164,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         {
             return evt.ClientSession.Character.TryCompleteDelay(DelayPacketType.ItemInUse,
                 (evt.InventoryItem.ItemInstanceId, (byte)evt.Packet.Mode), clock.GetCurrentInstant());
-        }
-
-        private static Task ConsumeAsync(ItemUsedEvent evt)
-        {
-            var itemInstance = evt.InventoryItem;
-            evt.ClientSession.Character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            return evt.ClientSession.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
         }
 
         private static Task SayAsync(ClientSession session, Game18NConstString message)

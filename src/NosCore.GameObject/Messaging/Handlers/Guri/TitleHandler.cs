@@ -50,8 +50,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             });
             await session.Character.MapInstance.SendPacketAsync(session.Character.GenerateTitle());
             await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.TitleChangedOrHidden });
-            session.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
+            await session.Character.UseUpOneAsync(inv);
         }
     }
 }

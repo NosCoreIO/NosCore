@@ -37,8 +37,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             if (character.SpAdditionPoint < worldConfiguration.Value.MaxAdditionalSpPoints)
             {
                 var itemInstance = evt.InventoryItem;
-                character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-                await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+                await character.UseUpOneAsync(itemInstance);
 
                 character = session.Character;
                 character.AddAdditionalSpPoints(itemInstance.ItemInstance.Item.EffectValue, worldConfiguration);

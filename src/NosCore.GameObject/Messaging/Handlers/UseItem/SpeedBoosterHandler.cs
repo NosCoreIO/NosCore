@@ -4,22 +4,17 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.SpeedCalculationService;
 using NosCore.Networking;
-using NosCore.Packets.ServerPackets.Battle;
-using NosCore.Packets.ServerPackets.Entities;
-using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
@@ -41,15 +36,13 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var destination = mount.SpeedBoostTeleportsRandomly ? FindWalkableCell(character.MapInstance.Map) : null;
+            var destination = mount.SpeedBoostTeleportsRandomly ? character.MapInstance.Map.RandomWalkableCell(random, SpeedBooster.TeleportAttempts) : null;
             if (mount.SpeedBoostTeleportsRandomly && destination is null)
             {
                 return;
             }
 
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
             await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.Effect));
 
             if (mount.SpeedBoost > 0)
@@ -67,61 +60,15 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             if (mount.SpeedBoostRestoresPerLevel > 0)
             {
-                await RestoreAsync(character, character.Level * mount.SpeedBoostRestoresPerLevel);
+                var amount = character.Level * mount.SpeedBoostRestoresPerLevel;
+                await character.HealAsync(amount, amount);
             }
 
             if (destination is { } cell)
             {
-                await TeleportAsync(character, cell.X, cell.Y);
+                await character.TeleportAsync(cell.X, cell.Y);
+                await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.TeleportEffect));
             }
-        }
-
-        private static async Task RestoreAsync(PlayerComponentBundle character, int amount)
-        {
-            var hp = Math.Min(character.MaxHp - character.Hp, amount);
-            character.Hp += Math.Max(hp, 0);
-            character.Mp = Math.Min(character.MaxMp, character.Mp + amount);
-            if (hp > 0)
-            {
-                await character.MapInstance.SendPacketAsync(new RcPacket
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = character.VisualId,
-                    HealAmount = hp,
-                    Unknown = 0
-                });
-            }
-
-            await character.SendPacketAsync(character.GenerateStat());
-        }
-
-        private (short X, short Y)? FindWalkableCell(GameObject.Map.Map map)
-        {
-            for (var i = 0; i < SpeedBooster.TeleportAttempts; i++)
-            {
-                var x = (short)random.Next(0, map.Width);
-                var y = (short)random.Next(0, map.Height);
-                if (map.IsWalkable(x, y))
-                {
-                    return (x, y);
-                }
-            }
-
-            return null;
-        }
-
-        private static async Task TeleportAsync(PlayerComponentBundle character, short x, short y)
-        {
-            character.PositionX = x;
-            character.PositionY = y;
-            await character.MapInstance.SendPacketAsync(new TpPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = character.VisualId,
-                X = x,
-                Y = y,
-            });
-            await character.MapInstance.SendPacketAsync(character.GenerateEff(SpeedBooster.TeleportEffect));
         }
     }
 }

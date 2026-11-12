@@ -317,6 +317,21 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
+        public static TpPacket GenerateTp(this IAliveEntity aliveEntity) => new()
+        {
+            VisualType = aliveEntity.VisualType,
+            VisualId = aliveEntity.VisualId,
+            X = aliveEntity.PositionX,
+            Y = aliveEntity.PositionY,
+        };
+
+        public static Task TeleportAsync(this IAliveEntity aliveEntity, short x, short y)
+        {
+            aliveEntity.PositionX = x;
+            aliveEntity.PositionY = y;
+            return aliveEntity.MapInstance?.SendPacketAsync(aliveEntity.GenerateTp()) ?? Task.CompletedTask;
+        }
+
         public static EffectPacket GenerateEff(this IAliveEntity aliveEntity, int effectid)
         {
             return new EffectPacket

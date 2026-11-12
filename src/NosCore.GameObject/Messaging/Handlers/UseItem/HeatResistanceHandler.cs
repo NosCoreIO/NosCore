@@ -43,9 +43,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
 
             await buffService.RemoveAsync(character, HeatResistance.BurningCardId);
             var duration = Duration.Min(left + Duration.FromSeconds(item.EffectValue), HeatResistance.MaximumDuration);

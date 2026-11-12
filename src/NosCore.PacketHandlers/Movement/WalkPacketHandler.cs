@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.MovementService;
@@ -24,13 +25,7 @@ namespace NosCore.PacketHandlers.Movement
             switch (result)
             {
                 case WalkResult.Refused:
-                    await session.SendPacketAsync(new TpPacket
-                    {
-                        VisualType = VisualType.Player,
-                        VisualId = session.Character.VisualId,
-                        X = session.Character.PositionX,
-                        Y = session.Character.PositionY,
-                    });
+                    await session.SendPacketAsync(session.Character.GenerateTp());
                     break;
                 case WalkResult.Rejected:
                     await session.DisconnectAsync();

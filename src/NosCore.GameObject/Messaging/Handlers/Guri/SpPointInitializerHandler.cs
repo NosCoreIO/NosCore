@@ -74,8 +74,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 return;
             }
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, potion.ItemInstanceId);
-            await session.SendPacketAsync(potion.GeneratePocketChange(potion.Type.ToPocketType(), potion.Slot));
+            await character.UseUpOneAsync(potion);
             await vitalityService.RefreshAndNotifyAsync(character);
             await session.SendPacketAsync(itemInfoService.GenerateInfo(specialist));
             await session.SendPacketAsync(character.GenerateSc(battleStatsProvider));

@@ -75,9 +75,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             }
 
             await character.MapInstance.SendPacketAsync(character.GenerateEff(DigestionService.EatEffect));
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
         }
     }
 }

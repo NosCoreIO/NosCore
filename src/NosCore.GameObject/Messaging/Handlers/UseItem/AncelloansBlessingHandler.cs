@@ -35,9 +35,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            var itemInstance = evt.InventoryItem;
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await character.UseUpOneAsync(evt.InventoryItem);
 
             // A static buff's TIME column counts 0.6 s steps, so 6001 is an hour.
             await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(BlessingCardId),

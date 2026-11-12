@@ -11,6 +11,7 @@ using Arch.Core;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.Core.Concurrency;
@@ -333,35 +334,13 @@ public sealed class HitQueue(
         var (x, y) = ForcedMovement.Destination(entity.MapX, entity.MapY, towardsX, towardsY, steps, stepX, stepY,
             stopAt, map.IsWalkable);
 
-        if ((x == entity.MapX && y == entity.MapY) || !TryPlace(entity, x, y))
+        if (x == entity.MapX && y == entity.MapY)
         {
             return;
         }
 
         // The client has to be told, or it goes on drawing the entity where it was and the two
         // sides stop agreeing about who is within reach of what.
-        if (entity.MapInstance != null)
-        {
-            await entity.MapInstance.SendPacketAsync(new TpPacket
-            {
-                VisualType = entity.VisualType,
-                VisualId = entity.VisualId,
-                X = x,
-                Y = y,
-            }).ConfigureAwait(false);
-        }
-    }
-
-    // The position lives on a component, and only the concrete bundles can write it - the
-    // interface exposes it read-only. Same shape as FlipIsAlive below.
-    private static bool TryPlace(IAliveEntity entity, short x, short y)
-    {
-        switch (entity)
-        {
-            case PlayerComponentBundle p: p.PositionX = x; p.PositionY = y; return true;
-            case MonsterComponentBundle m: m.PositionX = x; m.PositionY = y; return true;
-            case NpcComponentBundle n: n.PositionX = x; n.PositionY = y; return true;
-            default: return false;
-        }
+        await entity.TeleportAsync(x, y);
     }
 }
