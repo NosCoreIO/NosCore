@@ -142,7 +142,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private void ItemReceivedShouldBeSent()
         {
             var say = _session.LastPackets.OfType<SayiPacket>()
-                .FirstOrDefault(p => p.Message == Game18NConstString.ItemReceived);
+                .FirstOrDefault(p => p.Message == Game18NConstString.ReceivedThisItem);
             Assert.IsNotNull(say);
         }
 
