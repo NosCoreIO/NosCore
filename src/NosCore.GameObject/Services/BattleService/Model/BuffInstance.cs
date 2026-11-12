@@ -22,4 +22,8 @@ public sealed record BuffInstance(
     Instant ExpiresAt,
     IReadOnlyList<BCardDto> BCards,
     bool FromSkill = false,
-    bool Static = false);
+    bool Static = false)
+{
+    // The periodic BCards have fired for every step up to this instant.
+    public Instant PulsedUntil { get; init; } = StartedAt;
+}

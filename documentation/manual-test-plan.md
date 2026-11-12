@@ -542,6 +542,16 @@ success, on the assumption that the window says "Appearance changed" itself.
 - [ ] Hit a monster with the oil on and off: the damage is about 5% higher with it
 - [ ] When the buff runs out, the window drops back to the old defence
 
+### Heat of the Burning Sword
+
+- [ ] `$Teleport 205 <x> <y>` (Kertos' Jaws, Act 5.2) without heat resistance: the "Heat of the
+      Burning Sword" icon appears in the static buff bar
+- [ ] Stand still for a few seconds: HP drops by 8 % of the maximum every 2 seconds and stops
+      at 1 HP
+- [ ] Use an Ice Flower Oil there: the heat icon goes, the oil's icon shows and HP stops dropping
+- [ ] Let the oil run out on the map: the heat comes back
+- [ ] Walk or teleport to a map outside Act 5.2: the heat icon goes
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove
