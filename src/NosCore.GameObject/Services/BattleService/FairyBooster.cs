@@ -11,5 +11,4 @@ public static class FairyBooster
 {
     public const short CardId = 131;
     public const int ElementRateBonus = 30;
-    public const short MorphBonus = 5;
 }

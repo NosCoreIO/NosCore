@@ -13,8 +13,6 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
-using NosCore.Networking;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
@@ -43,7 +41,6 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
             // A static buff's TIME column counts 0.6 s steps, so 6001 is an hour.
             await buffService.ApplyStaticAsync(character, card, cardCatalog.GetCardBCards(FairyBooster.CardId),
                 Duration.FromMilliseconds(card.Duration * 600L));
-            await character.MapInstance.SendPacketAsync(character.GeneratePairy(character.WornFairy()));
             await session.SendPacketAsync(new SayiPacket
             {
                 VisualType = VisualType.Player,

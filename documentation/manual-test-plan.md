@@ -480,11 +480,11 @@ success, on the assumption that the window says "Appearance changed" itself.
 ### Fairy Booster
 
 - [ ] Wearing a fairy, `$CreateItem 1296` and double-click it in the Main tab: it is used up,
-      the "effect activated" message appears, the booster shows in the static buff bar with an
-      hour left and the fairy changes to its boosted look
+      the "effect activated" message appears and the booster shows in the static buff bar with an
+      hour left
 - [ ] Use a second one while boosted: nothing happens and it stays in the inventory
 - [ ] Hit a monster that is weak to the fairy's element: the damage is higher than unboosted
-- [ ] After an hour the icon disappears and the fairy goes back to its normal look
+- [ ] After an hour the icon disappears and the damage goes back to normal
 
 ### Magic Lamp
 

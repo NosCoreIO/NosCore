@@ -14,7 +14,6 @@ using NodaTime;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
@@ -53,9 +52,8 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task TheBoosterLastsAnHourAndMakesTheWornFairyGlow()
+        public async Task TheBoosterLastsAnHourAndUsesTheItemUp()
         {
-            var fairy = WearAFairy();
             GiveBoosters(ItemEffectType.FairyBooster, 1);
 
             await UseAsync();
@@ -64,7 +62,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual(3600, (int)(buff.ExpiresAt - World.Clock.GetCurrentInstant()).TotalSeconds);
             Assert.IsTrue(buff.Static);
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(BoosterVNum));
-            Assert.AreEqual(fairy.Item.Morph + FairyBooster.MorphBonus, _session.Character.GeneratePairy(fairy).Morph);
         }
 
         [TestMethod]
@@ -80,19 +77,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         [TestMethod]
-        public async Task OnceItRunsOutTheFairyStopsGlowing()
-        {
-            var fairy = WearAFairy();
-            GiveBoosters(ItemEffectType.FairyBooster, 1);
-            await UseAsync();
-
-            World.Clock.Advance(Duration.FromHours(1) + Duration.FromSeconds(1));
-            await _buffs.TickAsync(_session.Character);
-
-            Assert.AreEqual(fairy.Item.Morph, _session.Character.GeneratePairy(fairy).Morph);
-        }
-
-        [TestMethod]
         public async Task AnotherEffectIsLeftToItsOwnHandler()
         {
             GiveBoosters(ItemEffectType.AncelloansBlessing, 1);
@@ -101,16 +85,6 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             Assert.IsFalse(_buffs.HasBuff(_session.Character, FairyBooster.CardId));
             Assert.AreEqual(1, _session.Character.InventoryService.CountItem(BoosterVNum));
-        }
-
-        private WearableInstance WearAFairy()
-        {
-            var fairy = _session.Character.InventoryService
-                .AddItemToPocket(InventoryItemInstance.Create(World.GenerateItemProvider().Create(2, 1), _session.Character.CharacterId)).NotNull()
-                .First();
-            fairy.Type = NoscorePocketType.Wear;
-            fairy.Slot = (byte)EquipmentType.Fairy;
-            return (WearableInstance)fairy.ItemInstance;
         }
 
         private void GiveBoosters(ItemEffectType effect, short amount)
