@@ -8,6 +8,7 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Algorithm.DamageService;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Shared.Enumerations;
 using NosCore.Data.StaticEntities;
@@ -23,7 +24,8 @@ namespace NosCore.GameObject.Services.BattleService;
 // equipment and fold in every active effect. Monsters read straight from NpcMonsterDto.
 public sealed class BattleStatsProvider(
     IBuffService buffService,
-    EquipmentService.IEquipmentStatsService equipmentStatsService) : IBattleStatsProvider
+    EquipmentService.IEquipmentStatsService equipmentStatsService,
+    IDamageService damageService) : IBattleStatsProvider
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
@@ -48,12 +50,16 @@ public sealed class BattleStatsProvider(
         {
             MinHit = stats.MinHit + gear.MinHit,
             MaxHit = stats.MaxHit + gear.MaxHit,
+            WeaponMinHit = gear.MinHit,
+            WeaponMaxHit = gear.MaxHit,
             HitRate = stats.HitRate + gear.HitRate,
             CriticalChance = stats.CriticalChance + gear.CriticalChance,
             CriticalRate = stats.CriticalRate + gear.CriticalRate,
             MeleeUpgrade = stats.MeleeUpgrade + gear.MainWeaponUpgrade,
             MinDistance = stats.MinDistance + gear.MinDistance,
             MaxDistance = stats.MaxDistance + gear.MaxDistance,
+            WeaponMinDistance = gear.MinDistance,
+            WeaponMaxDistance = gear.MaxDistance,
             DistanceRate = stats.DistanceRate + gear.DistanceRate,
             DistanceCriticalChance = stats.DistanceCriticalChance + gear.DistanceCriticalChance,
             DistanceCriticalRate = stats.DistanceCriticalRate + gear.DistanceCriticalRate,
@@ -73,7 +79,7 @@ public sealed class BattleStatsProvider(
             DarkResistance = stats.DarkResistance + gear.DarkResistance,
         };
 
-    private static CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch
+    private CombatStats ResolveBaseStats(IAliveEntity entity) => entity switch
     {
         MateComponentBundle mate => FromMate(mate.Mate, entity.Level, entity.HeroLevel),
         INonPlayableEntity npc => FromMonster(npc.NpcMonster, entity.Level, entity.HeroLevel),
@@ -132,16 +138,15 @@ public sealed class BattleStatsProvider(
             DistanceDefenceDodge = mate.Dodge,
         };
 
-    private static CombatStats FromCharacter(ICharacterEntity character)
+    private CombatStats FromCharacter(ICharacterEntity character)
     {
         var level = character.Level;
         var cls = character.Class;
         var combat = ReadCombat(character);
 
-        // CharacterHelper base tables: level+class formulas used when the inventory
-        // system hasn't populated CombatComponent yet (fresh char, test fixtures).
-        // Numbers lifted from OpenNos CharacterHelper.LoadStats for parity.
-        var baseMinHit = cls switch
+        // The main weapon's slot carries the class table; for an archer that is the bow.
+        var baseMinHit = (int)damageService.GetMinDamage(cls, level);
+        var baseMinDistance = cls switch
         {
             CharacterClassType.Swordsman => 2 * level + 5,
             CharacterClassType.Mage => 2 * level + 9,
@@ -178,6 +183,7 @@ public sealed class BattleStatsProvider(
             Level: level,
             HeroLevel: character.HeroLevel,
             Class: cls,
+            IsPlayer: true,
             Morale: level, // OpenNos morale is Level + MoraleUp buffs; buffs added later
             MinHit: Math.Max(baseMinHit, combat.MinHit),
             MaxHit: Math.Max(baseMaxHit, combat.MaxHit),
@@ -185,8 +191,8 @@ public sealed class BattleStatsProvider(
             CriticalChance: combat.CriticalChance,
             CriticalRate: combat.CriticalRate,
             MeleeUpgrade: 0,
-            MinDistance: Math.Max(baseMinHit, combat.MinDistance),
-            MaxDistance: Math.Max(baseMaxHit, combat.MaxDistance),
+            MinDistance: Math.Max(baseMinDistance, combat.MinDistance),
+            MaxDistance: Math.Max(baseMinDistance, combat.MaxDistance),
             DistanceRate: combat.DistanceRate > 0 ? combat.DistanceRate : baseHitRate,
             DistanceCriticalChance: combat.DistanceCriticalChance,
             DistanceCriticalRate: combat.DistanceCriticalRate,

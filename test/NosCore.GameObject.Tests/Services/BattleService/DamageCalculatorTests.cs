@@ -177,6 +177,71 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsTrue(adv.Damage > sword.Damage, $"Adventurer bonus should beat Swordsman baseline: {adv.Damage} vs {sword.Damage}");
         }
 
+        // A level 1 chicken: close defence 18, ranged 17, magic 13, no dodge.
+        private static CombatStats Chicken() => StatsBuilder.Default() with
+        {
+            Level = 1, Morale = 1, Defence = 18, DistanceDefence = 17, MagicDefence = 13,
+            DefenceDodge = 0, DistanceDefenceDodge = 0,
+        };
+
+        private static CombatStats Player(CharacterClassType cls, int level, int attack, int weapon = 0, int upgrade = 0) =>
+            StatsBuilder.Default() with
+            {
+                IsPlayer = true, Class = cls, Level = level, Morale = level, HitRate = 999,
+                MinHit = attack + weapon, MaxHit = attack + weapon, WeaponMinHit = weapon, WeaponMaxHit = weapon,
+                MeleeUpgrade = upgrade,
+            };
+
+        private static int Hit(CombatStats attacker, CombatStats defender, SkillInfo skill, double roll = 0.5) =>
+            new DamageCalculator(Rng(doubles: new[] { roll, roll }).Object).Calculate(attacker, defender, skill).Damage;
+
+        // A naked level 10 swordsman's basic attack does 32 to a chicken: 26 + 15 - 18 + (10 - 1).
+        [TestMethod]
+        public void APlayersAttackIsItsClassTableAndFifteenLessDefencePlusTheLevelGap()
+        {
+            Assert.AreEqual(32, Hit(Player(CharacterClassType.Swordsman, 10, attack: 26), Chicken(), MeleeSkill));
+        }
+
+        [TestMethod]
+        public void AnAdventurerGetsNoExtraFlatDamage()
+        {
+            Assert.AreEqual(25, Hit(Player(CharacterClassType.Adventurer, 10, attack: 19), Chicken(), MeleeSkill));
+        }
+
+        // The mage's basic attack carries "magic attack +60" of its own: 26 + 15 + 60 - 13 + 9.
+        [TestMethod]
+        public void ASkillsOwnAttackBonusAddsToTheMatchingAttack()
+        {
+            var basicMagic = MagicSkill with
+            {
+                BCards = new[] { new BCardDto { Type = 3, SubType = 41, FirstData = 60 } },
+            };
+
+            Assert.AreEqual(97, Hit(Player(CharacterClassType.Mage, 10, attack: 26), Chicken(), basicMagic));
+            Assert.AreEqual(32, Hit(Player(CharacterClassType.Swordsman, 10, attack: 26), Chicken(),
+                MeleeSkill with { BCards = basicMagic.BCards }));
+        }
+
+        // Level 30 swordsman, 100 weapon attack at +5: the upgrade adds 43% of the weapon only.
+        [TestMethod]
+        public void AWeaponUpgradeScalesOnlyTheWeaponsAttack()
+        {
+            Assert.AreEqual(188, Hit(Player(CharacterClassType.Swordsman, 30, attack: 62, weapon: 100), Chicken(), MeleeSkill));
+            Assert.AreEqual(231, Hit(Player(CharacterClassType.Swordsman, 30, attack: 62, weapon: 100, upgrade: 5), Chicken(), MeleeSkill));
+        }
+
+        // A 70% critical adds 70% of attack less defence, 159, and not of the 29 level gap.
+        [TestMethod]
+        public void ACriticalHitLeavesTheLevelGapOutOfItsBonus()
+        {
+            var attacker = Player(CharacterClassType.Swordsman, 30, attack: 62, weapon: 100) with
+            {
+                CriticalChance = 100, CriticalRate = 70,
+            };
+
+            Assert.AreEqual(299, Hit(attacker, Chicken(), MeleeSkill, roll: 0.5));
+        }
+
         private static class StatsBuilder
         {
             // Sane defaults that produce a hit at parity under the cubic dodge curve
