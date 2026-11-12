@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -149,7 +150,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private void RespawnPointShouldBeSetTo_And_(short x, short y)
         {
             var mapId = _session.Character.MapInstance.Map.MapId;
-            _respawnService.Verify(r => r.SetRespawnPoint(It.IsAny<ICharacterEntity>(), mapId, x, y), Times.Once);
+            _respawnService.Verify(r => r.SetRespawnPoint(It.IsAny<PlayerComponentBundle>(), mapId, x, y), Times.Once);
         }
 
         private void RevivalPlaceChangedShouldBeSent()
@@ -193,7 +194,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         }
 
         private void RespawnPointShouldNotHaveBeenUpdated() =>
-            _respawnService.Verify(x => x.SetRespawnPoint(It.IsAny<ICharacterEntity>(),
+            _respawnService.Verify(x => x.SetRespawnPoint(It.IsAny<PlayerComponentBundle>(),
                 It.IsAny<short>(), It.IsAny<short>(), It.IsAny<short>()), Times.Never);
 
         private void NoConfirmationMsgShouldBeSent() =>

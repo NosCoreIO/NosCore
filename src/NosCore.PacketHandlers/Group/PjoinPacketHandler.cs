@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Ecs;
 using NosCore.Core.I18N;
 using NosCore.Core.Services.IdService;
 using NosCore.Data.Enumerations.Group;
@@ -257,7 +258,7 @@ namespace NosCore.PacketHandlers.Group
 
                     var currentGroup = clientSession.Character.Group;
 
-                    foreach (var member in currentGroup.Values.Where(s => s.Item2 is ICharacterEntity))
+                    foreach (var member in currentGroup.Values.Where(s => s.Item2 is PlayerComponentBundle))
                     {
                         if (sessionRegistry.TryGetCharacter(s =>
                             s.VisualId == member.Item2.VisualId, out var session))
@@ -270,7 +271,7 @@ namespace NosCore.PacketHandlers.Group
                     groupIdService.Items[currentGroup.GroupId] = currentGroup;
                     await clientSession.Character.MapInstance.SendPacketAsync(
                         clientSession.Character.Group.GeneratePidx(clientSession.Character));
-                    await coupleBuffService.RefreshAsync(currentGroup.Values.Select(s => s.Item2).OfType<ICharacterEntity>());
+                    await coupleBuffService.RefreshAsync(currentGroup.Values.Select(s => s.Item2).OfType<PlayerComponentBundle>());
 
                     break;
                 case GroupRequestType.Declined:

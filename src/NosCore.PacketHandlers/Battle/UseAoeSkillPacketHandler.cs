@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
@@ -66,7 +67,7 @@ namespace NosCore.PacketHandlers.Battle
             }
         }
 
-        internal static Task NotEnoughMpAsync(ICharacterEntity character)
+        internal static Task NotEnoughMpAsync(PlayerComponentBundle character)
         {
             return character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughMpForSpell));
         }

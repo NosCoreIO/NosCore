@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Ecs;
 using Moq;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Data.Dto;
@@ -174,7 +175,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         private void StaticBuffsShouldBeShown() =>
-            BuffService.Verify(s => s.ShowStaticAsync(It.IsAny<ICharacterEntity>()), Times.Once);
+            BuffService.Verify(s => s.ShowStaticAsync(It.IsAny<PlayerComponentBundle>()), Times.Once);
 
         [TestMethod]
         public async Task GameStartShouldLoadSkills()
@@ -221,11 +222,11 @@ namespace NosCore.PacketHandlers.Tests.Game
         private void TheQuestScriptIsStillRunning()
         {
             ScriptRun = new TaskCompletionSource();
-            QuestService.Setup(s => s.RunScriptAsync(It.IsAny<ICharacterEntity>())).Returns(ScriptRun.Task);
+            QuestService.Setup(s => s.RunScriptAsync(It.IsAny<PlayerComponentBundle>())).Returns(ScriptRun.Task);
         }
 
         private void TheQuestScriptFails() =>
-            QuestService.Setup(s => s.RunScriptAsync(It.IsAny<ICharacterEntity>()))
+            QuestService.Setup(s => s.RunScriptAsync(It.IsAny<PlayerComponentBundle>()))
                 .ThrowsAsync(new InvalidOperationException("script data missing"));
 
         private void StartingTheGame() => GameStart = Handler.ExecuteAsync(new GameStartPacket(), Session);
@@ -367,7 +368,7 @@ namespace NosCore.PacketHandlers.Tests.Game
 
         private void SkillServiceShouldBeCalled()
         {
-            SkillService.Verify(x => x.LoadSkill(It.IsAny<ICharacterEntity>()), Times.Once);
+            SkillService.Verify(x => x.LoadSkill(It.IsAny<PlayerComponentBundle>()), Times.Once);
         }
     }
 }

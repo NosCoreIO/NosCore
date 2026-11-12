@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Ecs;
 using Moq;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -59,7 +60,7 @@ namespace NosCore.PacketHandlers.Tests.Command
         }
 
         private void TargetPlayerIsOnline() =>
-            RemoteCharacters.Setup(x => x.SendGiftAsync(It.IsAny<ICharacterEntity>(), "TargetPlayer", It.IsAny<short>(),
+            RemoteCharacters.Setup(x => x.SendGiftAsync(It.IsAny<PlayerComponentBundle>(), "TargetPlayer", It.IsAny<short>(),
                 It.IsAny<short>(), It.IsAny<sbyte>(), It.IsAny<byte>())).ReturnsAsync(true);
 
         private Task SendingGiftTo_(string name) =>
@@ -67,7 +68,7 @@ namespace NosCore.PacketHandlers.Tests.Command
                 Session);
 
         private void TheGiftShouldBeForwarded() =>
-            RemoteCharacters.Verify(x => x.SendGiftAsync(It.IsAny<ICharacterEntity>(), "TargetPlayer", 1012, 10, 5, 7),
+            RemoteCharacters.Verify(x => x.SendGiftAsync(It.IsAny<PlayerComponentBundle>(), "TargetPlayer", 1012, 10, 5, 7),
                 Times.Once);
 
         private void ShouldReceiveUnknownCharacterMessage() =>

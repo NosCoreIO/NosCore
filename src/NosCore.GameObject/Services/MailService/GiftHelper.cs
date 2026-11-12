@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Extensions;
@@ -14,7 +15,7 @@ namespace NosCore.GameObject.Services.MailService;
 
 public static class GiftHelper
 {
-    public static MailRequest GenerateMailRequest(IClock clock, ICharacterEntity characterEntity, long receiverId,
+    public static MailRequest GenerateMailRequest(IClock clock, PlayerComponentBundle characterEntity, long receiverId,
         IItemInstanceDto? itemInstance,
         short? vnum, short? amount, sbyte? rare,
         byte? upgrade, bool isNosmall, string? title, string? text)

@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -43,7 +44,7 @@ internal static class NpcObjectiveProgress
 
     // Counts one more of the NPC towards the quest: true once every objective is reached,
     // otherwise the client's quest window is refreshed when anything moved.
-    public static async Task<bool> RecordAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum,
+    public static async Task<bool> RecordAsync(PlayerComponentBundle character, CharacterQuest quest, short npcVNum,
         Func<QuestObjectiveDto, int> target)
     {
         if (!Advance(quest, npcVNum, target))

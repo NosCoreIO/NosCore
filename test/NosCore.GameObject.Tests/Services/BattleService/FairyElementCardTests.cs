@@ -5,9 +5,11 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Tests.Shared;
 using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
@@ -40,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("An effect on the equipped fairy's element raises the element rate a character fights with")
                 .Given(AWornFairyOfRate_, FairyRate)
                 .And(ABuffWith_Of_, BCardEffect.Type96IncreaseFairyElement, (short)5)
-                .When(ResolvingTheCharactersStats)
+                .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate + 5)
                 .ExecuteAsync();
         }
@@ -51,7 +53,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("The decreasing subtype takes the value off the fairy's element")
                 .Given(AWornFairyOfRate_, FairyRate)
                 .And(ABuffWith_Of_, BCardEffect.Type96DecreaseFairyElement, (short)10)
-                .When(ResolvingTheCharactersStats)
+                .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate - 10)
                 .ExecuteAsync();
         }
@@ -62,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("Gloves carrying the effect raise the fairy's element while worn")
                 .Given(AWornFairyOfRate_, FairyRate)
                 .And(WornGearWith_Of_, BCardEffect.Type96IncreaseFairyElement, (short)10)
-                .When(ResolvingTheCharactersStats)
+                .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate + 10)
                 .ExecuteAsync();
         }
@@ -73,7 +75,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("Without a fairy there is no fairy element to raise")
                 .Given(NoFairy)
                 .And(ABuffWith_Of_, BCardEffect.Type96IncreaseFairyElement, (short)5)
-                .When(ResolvingTheCharactersStats)
+                .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, 0)
                 .ExecuteAsync();
         }
@@ -84,7 +86,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("The Fairy Booster's card has no BCards but raises a worn fairy's element by 30")
                 .Given(AWornFairyOfRate_, FairyRate)
                 .And(TheFairyBoosterIsActive)
-                .When(ResolvingTheCharactersStats)
+                .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, FairyRate + 30)
                 .ExecuteAsync();
         }
@@ -95,7 +97,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await new Spec("Without a fairy the booster has nothing to raise")
                 .Given(NoFairy)
                 .And(TheFairyBoosterIsActive)
-                .When(ResolvingTheCharactersStats)
+                .WhenAsync(ResolvingTheCharactersStatsAsync)
                 .Then(TheElementRateShouldBe_, 0)
                 .ExecuteAsync();
         }
@@ -117,18 +119,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private void WornGearWith_Of_(BCardEffect effect, short value) =>
             Gear = Gear with { BCards = new[] { Card(effect, value) } };
 
-        private void ResolvingTheCharactersStats()
+        private async Task ResolvingTheCharactersStatsAsync()
         {
-            var character = new Mock<ICharacterEntity>();
-            character.SetupGet(c => c.Level).Returns((byte)50);
-            character.SetupGet(c => c.Class).Returns(CharacterClassType.Swordsman);
+            var character = (await (await TestWorld.CreateAsync()).CreateSessionAsync()).Character;
+            character.Level = 50;
+            character.Class = CharacterClassType.Swordsman;
 
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(Buffs);
             var equipment = new Mock<IEquipmentStatsService>();
             equipment.Setup(e => e.Resolve(It.IsAny<IAliveEntity>())).Returns(Gear);
 
-            Stats = BattleStats.Provider(buffs.Object, equipment.Object).GetStats(character.Object);
+            Stats = BattleStats.Provider(buffs.Object, equipment.Object).GetStats(character);
         }
 
         private void TheElementRateShouldBe_(int expected) => Assert.AreEqual(expected, Stats.ElementRate);

@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
         [UsedImplicitly]
         public Task Handle(ItemUsedEvent evt)
         {
-            ICharacterEntity character = evt.ClientSession.Character;
+            PlayerComponentBundle character = evt.ClientSession.Character;
             var vNum = evt.InventoryItem.ItemInstance.ItemVNum;
             return AdvanceAsync(character, (h, q) => h.OnItemUsedAsync(character, q, vNum));
         }
@@ -48,7 +49,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Quest
                 ? AdvanceAsync(evt.Character, (h, q) => h.OnNpcDialogRequestedAsync(evt.Character, q, npc.NpcMonsterVNum))
                 : Task.CompletedTask;
 
-        private async Task AdvanceAsync(ICharacterEntity character,
+        private async Task AdvanceAsync(PlayerComponentBundle character,
             Func<IItemQuestTypeHandler, CharacterQuest, Task<ItemQuestProgress>> step)
         {
             foreach (var quest in character.Quests.Values.Where(q => q.ObjectivesCompletedOn is null && q.CompletedOn is null).ToList())

@@ -1,4 +1,5 @@
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.StaticEntities;
 using System.Threading.Tasks;
 
@@ -6,14 +7,14 @@ namespace NosCore.GameObject.Services.SkillService
 {
     public interface ISkillService
     {
-        Task LoadSkill(ICharacterEntity character);
+        Task LoadSkill(PlayerComponentBundle character);
 
-        Task LoadSpecialistSkillsAsync(ICharacterEntity character, short morph, byte spLevel);
+        Task LoadSpecialistSkillsAsync(PlayerComponentBundle character, short morph, byte spLevel);
 
         /// <summary>Removes the specialist skills and sends the class list back.</summary>
-        Task UnloadSpecialistSkillsAsync(ICharacterEntity character);
+        Task UnloadSpecialistSkillsAsync(PlayerComponentBundle character);
 
-        Task<bool> LearnClassSkillsAsync(ICharacterEntity character);
+        Task<bool> LearnClassSkillsAsync(PlayerComponentBundle character);
 
         /// <summary>
         /// Deletes the skills the character cannot learn right now - wrong class, or a job level
@@ -23,9 +24,9 @@ namespace NosCore.GameObject.Services.SkillService
         /// A class change already emptied the in-memory list; the rows behind it stayed, and
         /// came back on the next login. See the implementation for what that did.
         /// </remarks>
-        Task ForgetUnlearnableSkillsAsync(ICharacterEntity character);
+        Task ForgetUnlearnableSkillsAsync(PlayerComponentBundle character);
 
         /// <summary>Teaches a skill bought from a skill shop, charging its price.</summary>
-        Task BuyAsync(ICharacterEntity character, SkillDto skill);
+        Task BuyAsync(PlayerComponentBundle character, SkillDto skill);
     }
 }

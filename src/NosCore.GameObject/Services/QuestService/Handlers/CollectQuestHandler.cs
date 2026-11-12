@@ -5,6 +5,7 @@
 //
 
 using System.Linq;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -18,7 +19,7 @@ public sealed class CollectQuestHandler : ItemQuestHandlerBase
 {
     public override QuestType QuestType => QuestType.Collect;
 
-    public override Task<ItemQuestProgress> OnItemsReceivedAsync(ICharacterEntity character, CharacterQuest quest, short vNum)
+    public override Task<ItemQuestProgress> OnItemsReceivedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum)
     {
         var progressed = false;
         foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.ItemVNum(QuestType) == vNum))

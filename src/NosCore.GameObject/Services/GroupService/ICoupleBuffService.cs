@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using NosCore.GameObject.Ecs.Interfaces;
 
@@ -13,5 +14,5 @@ namespace NosCore.GameObject.Services.GroupService;
 // Spouses in the same group both carry the couple buff, and lose it as soon as they are not.
 public interface ICoupleBuffService
 {
-    Task RefreshAsync(IEnumerable<ICharacterEntity> characters);
+    Task RefreshAsync(IEnumerable<PlayerComponentBundle> characters);
 }

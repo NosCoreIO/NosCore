@@ -5,12 +5,15 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Threading;
 using Arch.Core;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Tests.Shared;
 using Moq;
 using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.Enumerations.I18N;
@@ -44,6 +47,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _catalog = new NpcCombatCatalog(new(), new(), new());
         }
 
+        private static async Task<PlayerComponentBundle> NewCharacterAsync() =>
+            (await (await TestWorld.CreateAsync()).CreateSessionAsync()).Character;
+
         [TestMethod]
         public void UnknownCasterReturnsNull()
         {
@@ -52,16 +58,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public void CharacterResolvesByCastId()
+        public async Task CharacterResolvesByCastId()
         {
-            var character = new Mock<ICharacterEntity>();
-            var skills = new ConcurrentDictionary<short, CharacterSkill>();
+            var character = await NewCharacterAsync();
+            var skills = character.Skills;
+            skills.Clear();
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
             skills.TryAdd(200, new CharacterSkill { SkillVNum = 200, Skill = _skills[200] });
-            character.SetupGet(c => c.Skills).Returns(skills);
 
             var resolver = new SkillResolver(_skills, _catalog);
-            var resolved = resolver.Resolve(character.Object, 2);
+            var resolved = resolver.Resolve(character, 2);
 
             Assert.IsNotNull(resolved);
             Assert.AreEqual((short)200, resolved.SkillVnum);
@@ -69,43 +75,43 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public void CaptureResolvesThoughItsDataNamesAnUpgradeField()
+        public async Task CaptureResolvesThoughItsDataNamesAnUpgradeField()
         {
             // Every class's Capture skill carries a non-zero UpgradeSkill without being an upgrade.
             var capture = new SkillDto { SkillVNum = 209, CastId = 16, UpgradeSkill = 3, SkillType = 1 };
-            var character = new Mock<ICharacterEntity>();
-            var skills = new ConcurrentDictionary<short, CharacterSkill>();
+            var character = await NewCharacterAsync();
+            var skills = character.Skills;
+            skills.Clear();
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
             skills.TryAdd(209, new CharacterSkill { SkillVNum = 209, Skill = capture });
-            character.SetupGet(c => c.Skills).Returns(skills);
 
-            var resolved = new SkillResolver(_skills, _catalog).Resolve(character.Object, 16);
+            var resolved = new SkillResolver(_skills, _catalog).Resolve(character, 16);
 
             Assert.AreEqual((short)209, resolved?.SkillVnum);
         }
 
         [TestMethod]
-        public void AnUpgradeAloneDoesNotStandInForItsBaseSkill()
+        public async Task AnUpgradeAloneDoesNotStandInForItsBaseSkill()
         {
             var upgrade = new SkillDto { SkillVNum = 101, CastId = 1, UpgradeSkill = 100, SkillType = 2, Effect = 5 };
-            var character = new Mock<ICharacterEntity>();
-            var skills = new ConcurrentDictionary<short, CharacterSkill>();
+            var character = await NewCharacterAsync();
+            var skills = character.Skills;
+            skills.Clear();
             skills.TryAdd(101, new CharacterSkill { SkillVNum = 101, Skill = upgrade });
-            character.SetupGet(c => c.Skills).Returns(skills);
 
-            Assert.IsNull(new SkillResolver(_skills, _catalog).Resolve(character.Object, 1));
+            Assert.IsNull(new SkillResolver(_skills, _catalog).Resolve(character, 1));
         }
 
         [TestMethod]
-        public void CharacterWithoutMatchingCastIdReturnsNull()
+        public async Task CharacterWithoutMatchingCastIdReturnsNull()
         {
-            var character = new Mock<ICharacterEntity>();
-            var skills = new ConcurrentDictionary<short, CharacterSkill>();
+            var character = await NewCharacterAsync();
+            var skills = character.Skills;
+            skills.Clear();
             skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = _skills[100] });
-            character.SetupGet(c => c.Skills).Returns(skills);
 
             var resolver = new SkillResolver(_skills, _catalog);
-            Assert.IsNull(resolver.Resolve(character.Object, 999));
+            Assert.IsNull(resolver.Resolve(character, 999));
         }
     }
 }

@@ -5,6 +5,7 @@
 //
 
 using System.Linq;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using NosCore.Algorithm.SpeedService;
 using NosCore.Data.StaticEntities;
@@ -44,19 +45,15 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
             return CalculateSpeed(nonPlayableEntity, nonPlayableEntity.NpcMonster.Speed);
         }
 
-        public byte CalculateSpeed(ICharacterEntity characterEntity)
+        public byte CalculateSpeed(PlayerComponentBundle characterEntity)
         {
-            // IsVehicled and not "VehicleSpeed is not null": the component declares that field as
-            // a plain byte and the interface widens it to byte?, so the null branch could never
-            // be taken - the service answered VehicleSpeed always, which is 0 on foot. Nothing
-            // reported it because nothing called the service at all.
             if (characterEntity.IsVehicled)
             {
                 var boost = buffService.GetActiveBuffs(characterEntity)
                         .Any(b => cardCatalog.IsGrantedBy(b.CardId, ItemEffectType.SpeedBooster))
                     ? items.Find(i => i.VNum == characterEntity.VehicleVNum)?.SpeedBoost ?? 0
                     : 0;
-                return (byte)((characterEntity.VehicleSpeed ?? 0) + boost);
+                return (byte)(characterEntity.VehicleSpeed + boost);
             }
 
             return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class));

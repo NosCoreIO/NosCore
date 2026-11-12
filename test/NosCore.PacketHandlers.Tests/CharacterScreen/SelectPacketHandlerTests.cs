@@ -5,6 +5,7 @@
 //
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.GameObject.Ecs;
 using Moq;
 using NosCore.Algorithm.DignityService;
 using NosCore.Algorithm.HpService;
@@ -107,7 +108,7 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
 
             await World.Create<SelectPacketHandler>().ExecuteAsync(new SelectPacket { Slot = 1 }, Session);
 
-            staticBuffs.Verify(s => s.Load(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>()), Times.Once);
+            staticBuffs.Verify(s => s.Load(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>()), Times.Once);
         }
 
         [TestMethod]

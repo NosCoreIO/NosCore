@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Ecs.Extensions
 {
@@ -27,8 +28,5 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static IAliveEntity Live(this IAliveEntity entity) =>
             entity is PlayerComponentBundle player ? player.Live() : entity;
-
-        public static ICharacterEntity Live(this ICharacterEntity character) =>
-            character is PlayerComponentBundle player ? player.Live() : character;
     }
 }

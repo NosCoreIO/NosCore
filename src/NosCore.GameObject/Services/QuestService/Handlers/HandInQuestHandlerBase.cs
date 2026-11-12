@@ -5,6 +5,7 @@
 //
 
 using System.Linq;
+using NosCore.GameObject.Ecs;
 using System.Threading.Tasks;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.InventoryService;
@@ -15,7 +16,7 @@ namespace NosCore.GameObject.Services.QuestService.Handlers;
 // not count, so a q_pay step cannot pay out before it.
 public abstract class HandInQuestHandlerBase : ItemQuestHandlerBase
 {
-    public override async Task<ItemQuestProgress> OnNpcDialogRequestedAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum)
+    public override async Task<ItemQuestProgress> OnNpcDialogRequestedAsync(PlayerComponentBundle character, CharacterQuest quest, short npcVNum)
     {
         var due = quest.Quest.QuestObjectives
             .Where(o => o.NpcVNum(QuestType) == npcVNum && o.ItemVNum(QuestType) != null

@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -16,10 +17,10 @@ public abstract class CaptureQuestHandlerBase : IQuestTypeHandler
 {
     public abstract QuestType QuestType { get; }
 
-    public Task<bool> ValidateAsync(ICharacterEntity character, CharacterQuest quest) =>
+    public Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest) =>
         Task.FromResult(quest.AreObjectivesComplete());
 
-    public Task<bool> OnMonsterCapturedAsync(ICharacterEntity character, NpcMonsterDto mob, CharacterQuest quest) =>
+    public Task<bool> OnMonsterCapturedAsync(PlayerComponentBundle character, NpcMonsterDto mob, CharacterQuest quest) =>
         NpcObjectiveProgress.RecordAsync(character, quest, mob.NpcMonsterVNum, Required);
 
     private static int Required(QuestObjectiveDto objective) => objective.SecondData ?? 0;

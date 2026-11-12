@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,22 +23,22 @@ public abstract class ItemQuestHandlerBase : IItemQuestTypeHandler
 {
     public abstract QuestType QuestType { get; }
 
-    public Task<bool> ValidateAsync(ICharacterEntity character, CharacterQuest quest) =>
+    public Task<bool> ValidateAsync(PlayerComponentBundle character, CharacterQuest quest) =>
         Task.FromResult(quest.AreObjectivesComplete());
 
-    public virtual Task<ItemQuestProgress> OnItemsReceivedAsync(ICharacterEntity character, CharacterQuest quest, short vNum) =>
+    public virtual Task<ItemQuestProgress> OnItemsReceivedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum) =>
         Task.FromResult(ItemQuestProgress.None);
 
-    public virtual Task<ItemQuestProgress> OnItemProducedAsync(ICharacterEntity character, CharacterQuest quest, short vNum, short amount) =>
+    public virtual Task<ItemQuestProgress> OnItemProducedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum, short amount) =>
         OnItemsReceivedAsync(character, quest, vNum);
 
-    public virtual Task<ItemQuestProgress> OnItemUsedAsync(ICharacterEntity character, CharacterQuest quest, short vNum) =>
+    public virtual Task<ItemQuestProgress> OnItemUsedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum) =>
         Task.FromResult(ItemQuestProgress.None);
 
-    public virtual Task<ItemQuestProgress> OnItemWornAsync(ICharacterEntity character, CharacterQuest quest, short vNum) =>
+    public virtual Task<ItemQuestProgress> OnItemWornAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum) =>
         Task.FromResult(ItemQuestProgress.None);
 
-    public virtual Task<ItemQuestProgress> OnNpcDialogRequestedAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum) =>
+    public virtual Task<ItemQuestProgress> OnNpcDialogRequestedAsync(PlayerComponentBundle character, CharacterQuest quest, short npcVNum) =>
         Task.FromResult(ItemQuestProgress.None);
 
     protected static bool RaiseProgress(CharacterQuest quest, QuestObjectiveDto objective, int value)

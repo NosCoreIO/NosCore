@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using NosCore.Packets.ServerPackets.Entities;
 using System.Threading.Tasks;
@@ -56,7 +57,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
             _mapChangeService = new Mock<IMapChangeService>();
             _respawnService = new Mock<IRespawnService>();
             _respawnService.Setup(r => r.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns((long?)1);
-            _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<ICharacterEntity>(), It.IsAny<long?>()))
+            _respawnService.Setup(r => r.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
                 .Returns(((short)1, (short)50, (short)60));
 
             var catalog = new Mock<ICardCatalog>();

@@ -5,19 +5,20 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.QuestService;
 
 public interface IItemQuestTypeHandler : IQuestTypeHandler
 {
-    Task<ItemQuestProgress> OnItemsReceivedAsync(ICharacterEntity character, CharacterQuest quest, short vNum);
+    Task<ItemQuestProgress> OnItemsReceivedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum);
 
-    Task<ItemQuestProgress> OnItemProducedAsync(ICharacterEntity character, CharacterQuest quest, short vNum, short amount);
+    Task<ItemQuestProgress> OnItemProducedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum, short amount);
 
-    Task<ItemQuestProgress> OnItemUsedAsync(ICharacterEntity character, CharacterQuest quest, short vNum);
+    Task<ItemQuestProgress> OnItemUsedAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum);
 
-    Task<ItemQuestProgress> OnItemWornAsync(ICharacterEntity character, CharacterQuest quest, short vNum);
+    Task<ItemQuestProgress> OnItemWornAsync(PlayerComponentBundle character, CharacterQuest quest, short vNum);
 
-    Task<ItemQuestProgress> OnNpcDialogRequestedAsync(ICharacterEntity character, CharacterQuest quest, short npcVNum);
+    Task<ItemQuestProgress> OnNpcDialogRequestedAsync(PlayerComponentBundle character, CharacterQuest quest, short npcVNum);
 }

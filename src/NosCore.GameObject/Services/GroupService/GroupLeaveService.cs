@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Core.Services.IdService;
@@ -23,7 +24,7 @@ namespace NosCore.GameObject.Services.GroupService;
 public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISessionRegistry sessionRegistry,
     ISessionGroupFactory sessionGroupFactory, ICoupleBuffService coupleBuffService) : IGroupLeaveService, ISingletonService
 {
-    public async Task LeaveAsync(ICharacterEntity character)
+    public async Task LeaveAsync(PlayerComponentBundle character)
     {
         var group = character.Group;
         if (group.Count == 1)
@@ -31,7 +32,7 @@ public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISession
             return;
         }
 
-        var formerMembers = group.Values.Select(s => s.Item2).OfType<ICharacterEntity>().ToList();
+        var formerMembers = group.Values.Select(s => s.Item2).OfType<PlayerComponentBundle>().ToList();
         if (group.Count > 2)
         {
             await LeaveLargeGroupAsync(group, character);
@@ -44,7 +45,7 @@ public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISession
         await coupleBuffService.RefreshAsync(formerMembers);
     }
 
-    private async Task LeaveLargeGroupAsync(Group group, ICharacterEntity character)
+    private async Task LeaveLargeGroupAsync(Group group, PlayerComponentBundle character)
     {
         var isLeader = group.IsGroupLeader(character.CharacterId);
         await character.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
@@ -67,7 +68,7 @@ public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISession
             return;
         }
 
-        foreach (var member in group.Values.Select(s => s.Item2).OfType<ICharacterEntity>())
+        foreach (var member in group.Values.Select(s => s.Item2).OfType<PlayerComponentBundle>())
         {
             await member.SendPacketAsync(member.GeneratePinit());
         }
@@ -79,7 +80,7 @@ public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISession
     private async Task DisbandAsync(Group group)
     {
         var members = new List<INamedEntity>(group.Values.Select(s => s.Item2));
-        foreach (var member in members.OfType<ICharacterEntity>())
+        foreach (var member in members.OfType<PlayerComponentBundle>())
         {
             if (!sessionRegistry.TryGetCharacter(s => s.VisualId == member.VisualId, out var target))
             {

@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using JetBrains.Annotations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
@@ -19,6 +20,6 @@ public sealed class CollectMapEntityQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.CollectMapEntity;
 
-    public Task<bool> OnMapEntityCollectedAsync(ICharacterEntity character, NpcMonsterDto mapObject, CharacterQuest quest) =>
+    public Task<bool> OnMapEntityCollectedAsync(PlayerComponentBundle character, NpcMonsterDto mapObject, CharacterQuest quest) =>
         NpcObjectiveProgress.RecordAsync(character, quest, mapObject.NpcMonsterVNum, NpcObjectiveProgress.Times);
 }

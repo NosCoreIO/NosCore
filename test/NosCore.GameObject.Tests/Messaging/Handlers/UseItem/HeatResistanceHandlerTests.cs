@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -118,7 +119,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
             await UseAsync();
 
-            _heat.Verify(h => h.RefreshAsync(It.IsAny<ICharacterEntity>()), Times.Once);
+            _heat.Verify(h => h.RefreshAsync(It.IsAny<PlayerComponentBundle>()), Times.Once);
         }
 
         [TestMethod]

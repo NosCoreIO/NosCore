@@ -29,7 +29,7 @@ namespace NosCore.GameObject.Services.ExchangeService
         bool SetOffer(long visualId, long gold, long bankGold, IReadOnlyDictionary<InventoryItemInstance, short> items);
 
         Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
-            ICharacterEntity targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo);
+            PlayerComponentBundle targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo);
 
         // Records the confirmation. Returns both sides' offers to the one call that completes the
         // pair, which then owns the settlement; every other call gets null.

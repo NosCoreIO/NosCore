@@ -333,7 +333,7 @@ public sealed class RewardService(
 
     // HitList uses Arch Entity handles, so we walk the same world back to the owning
     // player bundle. AddExperienceAsync is an extension on PlayerComponentBundle (not
-    // ICharacterEntity) because it dispatches through strongly-typed bundle getters/setters
+    // PlayerComponentBundle) because it dispatches through strongly-typed bundle getters/setters
     // for level / LevelXp / JobLevelXp / HeroLevelXp.
     private static bool TryFindPlayer(IAliveEntity victim, Entity handle, out PlayerComponentBundle player)
     {

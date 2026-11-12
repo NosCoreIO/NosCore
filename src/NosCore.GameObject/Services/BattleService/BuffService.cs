@@ -111,7 +111,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         return Task.CompletedTask;
     }
 
-    public async Task ApplyPermanentAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards)
+    public async Task ApplyPermanentAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards)
     {
         var buffs = ResolveState(target);
         if (buffs == null)
@@ -133,7 +133,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true, RemainingTime = -1 });
     }
 
-    public async Task ApplyStaticAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
+    public async Task ApplyStaticAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
     {
         var buffs = ResolveState(target);
         if (buffs == null)
@@ -151,7 +151,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         });
     }
 
-    public void RestoreStatic(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
+    public void RestoreStatic(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards, Duration duration)
     {
         var buffs = ResolveState(target);
         if (buffs == null)
@@ -172,7 +172,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
     }
 
-    public async Task ShowStaticAsync(ICharacterEntity target)
+    public async Task ShowStaticAsync(PlayerComponentBundle target)
     {
         var now = clock.GetCurrentInstant();
         foreach (var buff in GetActiveBuffs(target).Where(s => s.Static && s.ExpiresAt != Instant.MaxValue))
@@ -235,7 +235,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     {
         if (buff.Static)
         {
-            return target is ICharacterEntity character
+            return target is PlayerComponentBundle character
                 ? character.SendPacketAsync(new VbPacket { CardId = buff.CardId, IsActivated = false, RemainingTime = -1 })
                 : Task.CompletedTask;
         }

@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Ecs;
 using NosCore.Data.Enumerations;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -25,7 +26,7 @@ public interface IRemoteCharacterService
 
     Task<bool> KickAsync(string? characterName);
 
-    Task<bool> SendGiftAsync(ICharacterEntity sender, string? characterName, short vnum, short amount, sbyte rare,
+    Task<bool> SendGiftAsync(PlayerComponentBundle sender, string? characterName, short vnum, short amount, sbyte rare,
         byte upgrade);
 }
 
@@ -60,7 +61,7 @@ public sealed class RemoteCharacterService(IPubSubHub pubSubHub, IMailHub mailHu
         return true;
     }
 
-    public async Task<bool> SendGiftAsync(ICharacterEntity sender, string? characterName, short vnum, short amount,
+    public async Task<bool> SendGiftAsync(PlayerComponentBundle sender, string? characterName, short vnum, short amount,
         sbyte rare, byte upgrade)
     {
         var receiver = await FindAsync(characterName);

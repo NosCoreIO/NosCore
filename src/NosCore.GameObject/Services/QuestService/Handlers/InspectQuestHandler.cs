@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using JetBrains.Annotations;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Extensions;
@@ -20,6 +21,6 @@ public sealed class InspectQuestHandler : IQuestTypeHandler
 {
     public QuestType QuestType => QuestType.Inspect;
 
-    public Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest) =>
+    public Task<bool> OnNpcTalkedAsync(PlayerComponentBundle character, NpcMonsterDto npc, CharacterQuest quest) =>
         NpcObjectiveProgress.RecordAsync(character, quest, npc.NpcMonsterVNum, NpcObjectiveProgress.Times);
 }

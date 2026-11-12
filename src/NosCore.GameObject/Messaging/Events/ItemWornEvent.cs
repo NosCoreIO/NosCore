@@ -5,9 +5,10 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Messaging.Events
 {
     // Published once an item has been moved into the character's equipment.
-    public sealed record ItemWornEvent(ICharacterEntity Character, short VNum);
+    public sealed record ItemWornEvent(PlayerComponentBundle Character, short VNum);
 }

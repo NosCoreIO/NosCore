@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _respawnService = World.Freeze<Mock<IRespawnService>>();
             _mapChangeService = World.Freeze<Mock<IMapChangeService>>();
             _respawnService.Setup(x => x.ResolveRespawnMapTypeId(It.IsAny<short>())).Returns(0);
-            _respawnService.Setup(x => x.GetRespawnLocation(It.IsAny<ICharacterEntity>(), It.IsAny<long?>()))
+            _respawnService.Setup(x => x.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
                 .Returns(((short)1, (short)80, (short)116));
             _handler = World.Create<ReturnItemHandler>();
         }
@@ -270,7 +271,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void AReturnPointIsSaved()
         {
-            _respawnService.Setup(x => x.GetReturnPoint(It.IsAny<ICharacterEntity>(), It.IsAny<short>()))
+            _respawnService.Setup(x => x.GetReturnPoint(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>()))
                 .Returns(((short)2550, (short)20, (short)33));
         }
 
@@ -333,7 +334,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
 
         private void ReturnPointShouldNotBeSaved()
         {
-            _respawnService.Verify(x => x.SetReturnPoint(It.IsAny<ICharacterEntity>(), It.IsAny<short>(),
+            _respawnService.Verify(x => x.SetReturnPoint(It.IsAny<PlayerComponentBundle>(), It.IsAny<short>(),
                 It.IsAny<short>(), It.IsAny<short>()), Times.Never);
         }
 

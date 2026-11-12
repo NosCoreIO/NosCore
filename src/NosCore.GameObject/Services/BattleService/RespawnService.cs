@@ -5,6 +5,7 @@
 //
 
 using System;
+using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using System.Linq;
 using NosCore.Data.Dto;
@@ -32,7 +33,7 @@ public sealed class RespawnService(
             .FirstOrDefault(id => id.HasValue);
     }
 
-    public (short MapId, short X, short Y) GetRespawnLocation(ICharacterEntity character, long? respawnMapTypeId)
+    public (short MapId, short X, short Y) GetRespawnLocation(PlayerComponentBundle character, long? respawnMapTypeId)
     {
         respawnMapTypeId ??= (long)RespawnType.DefaultAct1;
 
@@ -58,7 +59,7 @@ public sealed class RespawnService(
         return (mapId, x, y);
     }
 
-    public void SetRespawnPoint(ICharacterEntity character, short mapId, short x, short y)
+    public void SetRespawnPoint(PlayerComponentBundle character, short mapId, short x, short y)
     {
         var respawnMapTypeId = ResolveRespawnMapTypeId(mapId);
         if (!respawnMapTypeId.HasValue) return;
@@ -66,14 +67,14 @@ public sealed class RespawnService(
         Upsert(character, respawnMapTypeId.Value, mapId, x, y);
     }
 
-    public (short MapId, short X, short Y)? GetReturnPoint(ICharacterEntity character, short mapId)
+    public (short MapId, short X, short Y)? GetReturnPoint(PlayerComponentBundle character, short mapId)
     {
         var returnMapTypeId = ResolveReturnMapTypeId(mapId);
         var saved = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == returnMapTypeId);
         return saved == null ? null : (saved.MapId, saved.X, saved.Y);
     }
 
-    public void SetReturnPoint(ICharacterEntity character, short mapId, short x, short y)
+    public void SetReturnPoint(PlayerComponentBundle character, short mapId, short x, short y)
     {
         Upsert(character, ResolveReturnMapTypeId(mapId), mapId, x, y);
     }
@@ -87,7 +88,7 @@ public sealed class RespawnService(
             .FirstOrDefault(id => id.HasValue) ?? (long)RespawnType.ReturnAct1;
     }
 
-    private static void Upsert(ICharacterEntity character, long respawnMapTypeId, short mapId, short x, short y)
+    private static void Upsert(PlayerComponentBundle character, long respawnMapTypeId, short mapId, short x, short y)
     {
         var existing = character.Respawns.FirstOrDefault(r => r.RespawnMapTypeId == respawnMapTypeId);
         if (existing == null)

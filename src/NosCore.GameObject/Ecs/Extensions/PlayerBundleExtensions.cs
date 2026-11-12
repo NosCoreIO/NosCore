@@ -431,9 +431,9 @@ public static class PlayerBundleExtensions
         return new FdPacket
         {
             Reput = player.Reputation,
-            ReputIcon = (int)GetReputationIcon(player.Reputation),
+            ReputIcon = (int)player.ReputIcon,
             Dignity = player.Dignity,
-            DignityIcon = (int)GetDignityIcon(player.Dignity)
+            DignityIcon = (int)player.DignityIcon
         };
     }
 
@@ -459,8 +459,8 @@ public static class PlayerBundleExtensions
             ElementRate = fairy?.Item?.ElementRate ?? 0,
             Class = player.Class,
             Gender = player.Gender,
-            ReputationIco = (ExtendedReputationType)GetReputationIcon(player.Reputation),
-            DignityIco = (CharacterDignity)GetDignityIcon(player.Dignity),
+            ReputationIco = (ExtendedReputationType)player.ReputIcon,
+            DignityIco = (CharacterDignity)player.DignityIcon,
             HaveWeapon = weapon != null ? 1 : 0,
             WeaponRare = weapon?.Rare ?? 0,
             WeaponUpgrade = weapon?.Upgrade ?? 0,
@@ -540,17 +540,13 @@ public static class PlayerBundleExtensions
         };
     }
 
-    private static int GetReputationIcon(long reputation) => (int)ReputationLevels.FromReputation(reputation);
-
-    private static int GetDignityIcon(short dignity) => (int)DignityLevels.FromDignity(dignity);
-
     // The icon slot carries one of the two ladders: the reputation icon while dignity is
     // untouched, and the negated dignity icon once it drops into a penalty band.
     private static byte GetIcon(PlayerComponentBundle player)
     {
         var dignity = DignityLevels.FromDignity(player.Dignity);
         return dignity == DignityType.Default
-            ? (byte)GetReputationIcon(player.Reputation)
+            ? (byte)player.ReputIcon
             : (byte)-(int)dignity;
     }
 

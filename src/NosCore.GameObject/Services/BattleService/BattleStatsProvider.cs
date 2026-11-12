@@ -32,14 +32,14 @@ public sealed class BattleStatsProvider(
 {
     public CombatStats GetStats(IAliveEntity entity)
     {
-        var gear = entity is ICharacterEntity
+        var gear = entity is PlayerComponentBundle
             ? equipmentStatsService.Resolve(entity)
             : EquipmentService.EquipmentStats.None;
 
         // Flat equipment first: a card that raises attack by a percentage has to see the weapon.
         var withGear = ApplyEquipment(ResolveBaseStats(entity), gear);
 
-        var passives = entity is ICharacterEntity character
+        var passives = entity is PlayerComponentBundle character
             ? passiveSkillService.GetBCards(character)
             : Array.Empty<BCardDto>();
 
@@ -90,7 +90,7 @@ public sealed class BattleStatsProvider(
     {
         MateComponentBundle mate => FromMate(mate.Mate, entity.Level, entity.HeroLevel),
         INonPlayableEntity npc => FromMonster(npc.NpcMonster, entity.Level, entity.HeroLevel),
-        ICharacterEntity character => FromCharacter(character),
+        PlayerComponentBundle character => FromCharacter(character),
         _ => default,
     };
 
@@ -145,7 +145,7 @@ public sealed class BattleStatsProvider(
             DistanceDefenceDodge = mate.Dodge,
         };
 
-    private CombatStats FromCharacter(ICharacterEntity character)
+    private CombatStats FromCharacter(PlayerComponentBundle character)
     {
         var level = character.Level;
         var cls = character.Class;

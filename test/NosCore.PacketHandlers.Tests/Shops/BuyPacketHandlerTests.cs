@@ -5,6 +5,7 @@
 //
 
 using NosCore.Algorithm.DignityService;
+using NosCore.GameObject.Ecs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.GameObject.Services.FamilyService;
@@ -256,7 +257,7 @@ namespace NosCore.PacketHandlers.Tests.Shops
         }
 
         private void NoSkillShouldBeTaught() =>
-            SkillService.Verify(s => s.BuyAsync(It.IsAny<NosCore.GameObject.Ecs.Interfaces.ICharacterEntity>(), It.IsAny<SkillDto>()), Times.Never);
+            SkillService.Verify(s => s.BuyAsync(It.IsAny<NosCore.GameObject.Ecs.PlayerComponentBundle>(), It.IsAny<SkillDto>()), Times.Never);
 
         private void GoldShouldBe_(long gold) => Assert.AreEqual(gold, Session.Character.Gold);
 

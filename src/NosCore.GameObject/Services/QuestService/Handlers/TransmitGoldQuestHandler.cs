@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -26,7 +27,7 @@ public sealed class TransmitGoldQuestHandler(IGameLanguageLocalizer gameLanguage
 
     public QuestType QuestType => QuestType.TransmitGold;
 
-    public async Task<bool> OnNpcTalkedAsync(ICharacterEntity character, NpcMonsterDto npc, CharacterQuest quest)
+    public async Task<bool> OnNpcTalkedAsync(PlayerComponentBundle character, NpcMonsterDto npc, CharacterQuest quest)
     {
         foreach (var objective in quest.Quest.QuestObjectives.Where(o => o.FirstData == npc.NpcMonsterVNum))
         {

@@ -5,6 +5,7 @@
 //
 
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs;
 
 namespace NosCore.GameObject.Services.SpeedCalculationService
 {
@@ -12,6 +13,6 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
     {
         byte CalculateSpeed(INonPlayableEntity nonPlayableEntity);
 
-        byte CalculateSpeed(ICharacterEntity visualEntity);
+        byte CalculateSpeed(PlayerComponentBundle visualEntity);
     }
 }

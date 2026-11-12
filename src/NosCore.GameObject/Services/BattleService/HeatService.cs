@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using System.Threading.Tasks;
 using NosCore.Data.Enumerations.Items;
@@ -27,7 +28,7 @@ public sealed class HeatService(IBuffService buffService, ICardCatalog cardCatal
     private readonly HashSet<short> _zoneCards = mapTypes
         .Where(t => t.ZoneCardId.HasValue).Select(t => t.ZoneCardId.GetValueOrDefault()).ToHashSet();
 
-    public async Task RefreshAsync(ICharacterEntity character)
+    public async Task RefreshAsync(PlayerComponentBundle character)
     {
         var buffs = buffService.GetActiveBuffs(character);
         var resisted = buffs.Any(b => cardCatalog.IsGrantedBy(b.CardId, ItemEffectType.HeatResistance));

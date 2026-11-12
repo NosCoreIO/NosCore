@@ -5,6 +5,7 @@
 //
 
 using System.Collections.Generic;
+using NosCore.GameObject.Ecs;
 using System.Linq;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.Packets.Enumerations;
@@ -15,7 +16,7 @@ public static class CaptureQuestObjectives
 {
     // True when an open CaptureWithoutGettingTheMonster quest still needs this monster: the capture
     // is handed to the quest and no pet is made.
-    public static bool CapturedMonsterGoesToQuest(this ICharacterEntity character, short monsterVNum) =>
+    public static bool CapturedMonsterGoesToQuest(this PlayerComponentBundle character, short monsterVNum) =>
         character.Quests.Values.Any(quest => quest.ObjectivesCompletedOn is null && quest.CompletedOn is null
             && quest.Quest.QuestType == QuestType.CaptureWithoutGettingTheMonster
             && quest.Quest.QuestObjectives.Any(o => o.FirstData == monsterVNum
