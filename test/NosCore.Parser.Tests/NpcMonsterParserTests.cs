@@ -6,6 +6,9 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.MateHpService;
+using NosCore.Algorithm.MateMpService;
+using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -29,6 +32,7 @@ namespace NosCore.Parser.Tests
         private Mock<IDao<DropDto, short>> _dropDaoMock;
         private Mock<IDao<NpcMonsterSkillDto, long>> _npcMonsterSkillDaoMock;
         private Mock<IDao<NpcMonsterDto, short>> _npcMonsterDaoMock;
+        private static readonly MonsterStatService MonsterStats = new(new MateHpService(), new MateMpService());
         private string _tempFolder;
         private List<NpcMonsterDto> _savedMonsters;
 
@@ -68,7 +72,8 @@ namespace NosCore.Parser.Tests
         }
 
         private static string BuildMonster(short vnum, string name, byte level, byte race = 0, byte raceType = 0,
-            int hp = 0, int mp = 0, int xp = 0, int jxp = 0, byte armorLvl = 1, byte weaponLvl = 1, byte weaponType = 0)
+            int hp = 0, int mp = 0, int xp = 0, int jxp = 0, byte armorLvl = 1, byte weaponLvl = 1, byte weaponType = 0,
+            string weaponModifiers = "0\t0\t0\t0\t0", string armorModifiers = "0\t0\t0\t0", byte attackClass = 0)
         {
             var zeros50 = string.Join("\t", Enumerable.Repeat("0", 50));
             var zeros20 = string.Join("\t", Enumerable.Repeat("0", 20));
@@ -88,11 +93,11 @@ namespace NosCore.Parser.Tests
                 $"\tETC\t0\t0\t0\t0\t0\t0\t0\t0\r\n" +
                 $"\tPETINFO\t0\t0\t0\t0\r\n" +
                 $"\tEFF\t0\t0\t0\r\n" +
-                $"\tZSKILL\t0\t0\t0\t0\t0\t0\r\n" +
+                $"\tZSKILL\t{attackClass}\t0\t0\t0\t0\t0\r\n" +
                 $"\tWINFO\t0\t0\t0\r\n" +
-                $"\tWEAPON\t{weaponLvl}\t{weaponType}\t0\t0\t0\t0\t0\r\n" +
+                $"\tWEAPON\t{weaponLvl}\t{weaponType}\t{weaponModifiers}\r\n" +
                 $"\tAINFO\t0\t0\r\n" +
-                $"\tARMOR\t{armorLvl}\t0\t0\t0\t0\r\n" +
+                $"\tARMOR\t{armorLvl}\t{armorModifiers}\r\n" +
                 $"\tSKILL\t{zeros15}\r\n" +
                 $"\tPARTNER\t{zeros20}\r\n" +
                 $"\tBASIC\t{zeros50}\r\n" +
@@ -107,7 +112,7 @@ namespace NosCore.Parser.Tests
         {
             File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(1, "testmob", 1));
             var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
-                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
             await parser.InsertNpcMonstersAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedMonsters.Count);
@@ -121,7 +126,7 @@ namespace NosCore.Parser.Tests
             File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"),
                 BuildMonster(5, "first", 1) + BuildMonster(5, "duplicate", 1));
             var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
-                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
             await parser.InsertNpcMonstersAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedMonsters.Count);
@@ -132,7 +137,7 @@ namespace NosCore.Parser.Tests
         {
             File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(10, "leveltest", 42));
             var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
-                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
             await parser.InsertNpcMonstersAsync(_tempFolder);
 
             Assert.AreEqual(1, _savedMonsters.Count);
@@ -140,18 +145,65 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task NpcMonsterParser_ArmorDefenceFieldsDerivedFromArmorLevel()
+        public async Task NpcMonsterParser_StatsMatchThePublishedOnesForARace2MonsterInHigherLevelArmour()
         {
-            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(20, "armortest", 1, armorLvl: 5));
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(145, "zts145e", 41, race: 2,
+                armorLvl: 44, armorModifiers: "0\t-20\t0\t0", weaponLvl: 44, weaponType: 1, weaponModifiers: "20\t25\t0\t0\t50"));
             var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
-                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
             await parser.InsertNpcMonstersAsync(_tempFolder);
 
-            Assert.AreEqual(1, _savedMonsters.Count);
-            Assert.AreEqual((5 - 1) * 2 + 18, _savedMonsters[0].CloseDefence);
-            Assert.AreEqual((5 - 1) * 3 + 17, _savedMonsters[0].DistanceDefence);
-            Assert.AreEqual((5 - 1) * 2 + 13, _savedMonsters[0].MagicDefence);
-            Assert.AreEqual((5 - 1) * 5 + 31, _savedMonsters[0].DefenceDodge);
+            var monster = _savedMonsters.Single();
+            Assert.AreEqual(3493, monster.MaxHp);
+            Assert.AreEqual(580, monster.MaxMp);
+            Assert.AreEqual(136, monster.CloseDefence);
+            Assert.AreEqual(120, monster.DistanceDefence);
+            Assert.AreEqual(120, monster.MagicDefence);
+            Assert.AreEqual(246, monster.DefenceDodge);
+            Assert.AreEqual(247, monster.DamageMinimum);
+            Assert.AreEqual(330, monster.DamageMaximum);
+            Assert.AreEqual(242, monster.Concentrate);
+            Assert.AreEqual(4, monster.CriticalChance);
+            Assert.AreEqual(120, monster.CriticalRate);
+            Assert.AreEqual(2870, monster.Xp);
+            Assert.AreEqual(105, monster.JobXp);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_RangedMonsterGetsItsDamageAndANegativeExpLowersTheAward()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(2666, "zts2666e", 81, race: 5,
+                xp: -4670, jxp: -55, armorLvl: 81, weaponLvl: 81, weaponType: 8, weaponModifiers: "0\t50\t0\t5\t50", attackClass: 1));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            var monster = _savedMonsters.Single();
+            Assert.AreEqual(7970, monster.MaxHp);
+            Assert.AreEqual(1494, monster.MaxMp);
+            Assert.AreEqual(347, monster.DamageMinimum);
+            Assert.AreEqual(533, monster.DamageMaximum);
+            Assert.AreEqual(482, monster.Concentrate);
+            Assert.AreEqual(9, monster.CriticalChance);
+            Assert.AreEqual(120, monster.CriticalRate);
+            Assert.AreEqual(213, monster.CloseDefence);
+            Assert.AreEqual(415, monster.DefenceDodge);
+            Assert.AreEqual(1000, monster.Xp);
+            Assert.AreEqual(50, monster.JobXp);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_ANegativeExpLargerThanTheAwardGivesNothing()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(2667, "zts2667e", 10, race: 0,
+                xp: -700, jxp: -200, armorLvl: 10, weaponLvl: 10));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            var monster = _savedMonsters.Single();
+            Assert.AreEqual(0, monster.Xp);
+            Assert.AreEqual(0, monster.JobXp);
         }
     }
 }

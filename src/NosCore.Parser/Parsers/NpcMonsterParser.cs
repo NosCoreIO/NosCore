@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
@@ -55,16 +56,15 @@ namespace NosCore.Parser.Parsers
         private readonly IDao<NpcMonsterDto, short> _npcMonsterDao;
         private readonly IDao<NpcMonsterSkillDto, long> _npcMonsterSkillDao;
         private readonly IDao<SkillDto, short> _skillDao;
-        private readonly int[] _basicHp = new int[100];
-        private readonly int[] _basicPrimaryMp = new int[100];
-        private readonly int[] _basicSecondaryMp = new int[100];
+        private readonly IMonsterStatService _monsterStatService;
         private Dictionary<short, SkillDto>? _skilldb;
         private Dictionary<short, List<DropDto>>? _dropdb;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
 
         public NpcMonsterParser(IDao<SkillDto, short> skillDao, IDao<BCardDto, int> bCardDao,
             IDao<DropDto, short> dropDao, IDao<NpcMonsterSkillDto, long> npcMonsterSkillDao,
-            IDao<NpcMonsterDto, short> npcMonsterDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+            IDao<NpcMonsterDto, short> npcMonsterDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            IMonsterStatService monsterStatService)
         {
             _skillDao = skillDao;
             _bCardDao = bCardDao;
@@ -74,7 +74,7 @@ namespace NosCore.Parser.Parsers
             _loggerFactory = loggerFactory;
             _logger = loggerFactory.CreateLogger<NpcMonsterParser>();
             _logLanguage = logLanguage;
-            InitStats();
+            _monsterStatService = monsterStatService;
         }
 
 
@@ -144,12 +144,12 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.HeroXp, chunk => ImportXp(chunk) / 25,
                     reads: new[] { ("EXP", 0, 2), ("LEVEL", 0, 2) },
                     source: "EXP[2] / 25", description: "Hero-level XP award, scaled down from XP")
-                .Field(x => x.MaxHp, chunk => Convert.ToInt32(chunk["HP/MP"][0][2]) + _basicHp[Level(chunk)],
-                    reads: new[] { ("HP/MP", 0, 2), ("LEVEL", 0, 2) },
-                    source: "HP/MP[2] + basicHp[Level]", description: "Override HP plus level-based baseline")
-                .Field(x => x.MaxMp, chunk => Convert.ToInt32(chunk["HP/MP"][0][3]) + (Convert.ToByte(chunk["RACE"][0][2]) == 0 ? _basicPrimaryMp[Level(chunk)] : _basicSecondaryMp[Level(chunk)]),
+                .Field(x => x.MaxHp, chunk => (int)(Convert.ToInt32(chunk["HP/MP"][0][2]) + _monsterStatService.GetMaxHp(Race(chunk), Level(chunk))),
+                    reads: new[] { ("HP/MP", 0, 2), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "HP/MP[2] + race/level HP curve", description: "Flat HP on top of the race and level baseline")
+                .Field(x => x.MaxMp, chunk => (int)(Convert.ToInt32(chunk["HP/MP"][0][3]) + _monsterStatService.GetMaxMp(Race(chunk), Level(chunk))),
                     reads: new[] { ("HP/MP", 0, 3), ("LEVEL", 0, 2), ("RACE", 0, 2) },
-                    source: "HP/MP[3] + basic(Primary|Secondary)Mp[Level]", description: "Override MP plus level-based baseline, branch on Race")
+                    source: "HP/MP[3] + race/level MP curve", description: "Flat MP on top of the race and level baseline")
                 .Field(x => x.HpBonus, "HP/MP", 0, 2, s => Convert.ToInt32(s), "Flat HP added to the level-derived baseline")
                 .Field(x => x.MpBonus, "HP/MP", 0, 3, s => Convert.ToInt32(s), "Flat MP added to the level-derived baseline")
                 .Field(x => x.Xp, chunk => ImportXp(chunk),
@@ -158,21 +158,21 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.JobXp, chunk => ImportJxp(chunk),
                     reads: new[] { ("EXP", 0, 3), ("LEVEL", 0, 2) },
                     source: "EXP[3]", description: "Base job XP award")
-                .Field(x => x.CloseDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 18),
-                    reads: new[] { ("ARMOR", 0, 2) },
-                    source: "ARMOR[2] formula", description: "(armorLvl-1)*2 + 18")
-                .Field(x => x.DistanceDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 3 + 17),
-                    reads: new[] { ("ARMOR", 0, 2) },
-                    source: "ARMOR[2] formula", description: "(armorLvl-1)*3 + 17")
-                .Field(x => x.MagicDefence, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 2 + 13),
-                    reads: new[] { ("ARMOR", 0, 2) },
-                    source: "ARMOR[2] formula", description: "(armorLvl-1)*2 + 13")
-                .Field(x => x.DefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31),
-                    reads: new[] { ("ARMOR", 0, 2) },
-                    source: "ARMOR[2] formula", description: "(armorLvl-1)*5 + 31")
-                .Field(x => x.DistanceDefenceDodge, chunk => Convert.ToInt16((Convert.ToInt16(chunk["ARMOR"][0][2]) - 1) * 5 + 31),
-                    reads: new[] { ("ARMOR", 0, 2) },
-                    source: "ARMOR[2] formula", description: "(armorLvl-1)*5 + 31")
+                .Field(x => x.CloseDefence, chunk => Defence(chunk, _monsterStatService.GetCloseDefence, 3),
+                    reads: new[] { ("ARMOR", 0, 2), ("ARMOR", 0, 3), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "race/level/ARMOR[2] curve + ARMOR[3]", description: "Close defence")
+                .Field(x => x.DistanceDefence, chunk => Defence(chunk, _monsterStatService.GetDistanceDefence, 4),
+                    reads: new[] { ("ARMOR", 0, 2), ("ARMOR", 0, 4), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "race/level/ARMOR[2] curve + ARMOR[4]", description: "Distance defence")
+                .Field(x => x.MagicDefence, chunk => Defence(chunk, _monsterStatService.GetMagicDefence, 5),
+                    reads: new[] { ("ARMOR", 0, 2), ("ARMOR", 0, 5), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "race/level/ARMOR[2] curve + ARMOR[5]", description: "Magic defence")
+                .Field(x => x.DefenceDodge, chunk => Defence(chunk, _monsterStatService.GetDodge, 6),
+                    reads: new[] { ("ARMOR", 0, 2), ("ARMOR", 0, 6), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "race/level/ARMOR[2] curve + ARMOR[6]", description: "Dodge")
+                .Field(x => x.DistanceDefenceDodge, chunk => Defence(chunk, _monsterStatService.GetDodge, 6),
+                    reads: new[] { ("ARMOR", 0, 2), ("ARMOR", 0, 6), ("LEVEL", 0, 2), ("RACE", 0, 2) },
+                    source: "race/level/ARMOR[2] curve + ARMOR[6]", description: "Dodge against ranged attacks, the same as close dodge")
                 .Field(x => x.AttackUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["WINFO"][0][4]),
                     reads: new[] { ("WINFO", 0, 2), ("WINFO", 0, 4), ("ETC", 0, 2) },
                     source: "WINFO[2] or WINFO[4] (gated by LoadUnknownData)", description: "Weapon upgrade level")
@@ -185,21 +185,21 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.AmountRequired, chunk => Convert.ToByte(chunk["SETTING"][0][4] == "0" ? "1" : ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][3] : "0"),
                     reads: new[] { ("SETTING", 0, 4), ("PETINFO", 0, 3), ("ETC", 0, 2) },
                     source: "SETTING[4] or PETINFO[3]", description: "Amount of the required item")
-                .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk),
-                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 3), ("WEAPON", 0, 4), ("LEVEL", 0, 2) },
-                    source: "WEAPON[2..4]", description: "Min attack damage")
-                .Field(x => x.DamageMaximum, chunk => ImportDamageMaximum(chunk),
-                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 3), ("WEAPON", 0, 4), ("WEAPON", 0, 5), ("LEVEL", 0, 2) },
-                    source: "WEAPON[2..5]", description: "Max attack damage")
-                .Field(x => x.Concentrate, chunk => ImportConcentrate(chunk),
-                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 3), ("WEAPON", 0, 6) },
-                    source: "WEAPON[2,3,6]", description: "Hit rate")
-                .Field(x => x.CriticalChance, chunk => ImportCriticalChance(chunk),
-                    reads: new[] { ("WEAPON", 0, 3), ("WEAPON", 0, 7) },
-                    source: "WEAPON[3,7]", description: "Critical hit chance")
-                .Field(x => x.CriticalRate, chunk => ImportCriticalRate(chunk),
-                    reads: new[] { ("WEAPON", 0, 3), ("WEAPON", 0, 8) },
-                    source: "WEAPON[3,8]", description: "Critical hit damage multiplier")
+                .Field(x => x.DamageMinimum, chunk => Attack(chunk, _monsterStatService.GetMinimumDamage, 4),
+                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 4), ("LEVEL", 0, 2), ("RACE", 0, 2), ("ZSKILL", 0, 2) },
+                    source: "race/level/WEAPON[2]/attack class curve + WEAPON[4]", description: "Min attack damage")
+                .Field(x => x.DamageMaximum, chunk => Attack(chunk, _monsterStatService.GetMaximumDamage, 5),
+                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 5), ("LEVEL", 0, 2), ("RACE", 0, 2), ("ZSKILL", 0, 2) },
+                    source: "race/level/WEAPON[2]/attack class curve + WEAPON[5]", description: "Max attack damage")
+                .Field(x => x.Concentrate, chunk => Attack(chunk, _monsterStatService.GetHitRate, 6),
+                    reads: new[] { ("WEAPON", 0, 2), ("WEAPON", 0, 6), ("LEVEL", 0, 2), ("RACE", 0, 2), ("ZSKILL", 0, 2) },
+                    source: "race/level/WEAPON[2]/attack class curve + WEAPON[6]", description: "Hit rate")
+                .Field(x => x.CriticalChance, chunk => Convert.ToByte(_monsterStatService.GetCriticalChance() + Convert.ToInt16(chunk["WEAPON"][0][7])),
+                    reads: new[] { ("WEAPON", 0, 7) },
+                    source: "base chance + WEAPON[7]", description: "Critical hit chance")
+                .Field(x => x.CriticalRate, chunk => Convert.ToInt16(_monsterStatService.GetCriticalRate() + Convert.ToInt16(chunk["WEAPON"][0][8])),
+                    reads: new[] { ("WEAPON", 0, 8) },
+                    source: "base rate + WEAPON[8]", description: "Critical hit damage multiplier")
                 .Field(x => x.NpcMonsterSkill, chunk => ImportNpcMonsterSkill(chunk),
                     reads: Enumerable.Range(2, 15).Select(c => ("SKILL", 0, c)).Append(("VNUM", 0, 2)).ToArray(),
                     source: "VNUM[2] + SKILL[2..16]", description: "Up to 5 NpcMonsterSkill entries (vnum/chance/force triples)")
@@ -226,8 +226,8 @@ namespace NosCore.Parser.Parsers
                 .Doc("LEVEL", 2, "monsterLevel", "Base monster level.")
                 .Doc("HP/MP", 2, "monsterMaxHpBonus", "Additive HP bonus on top of the level-derived baseline.")
                 .Doc("HP/MP", 3, "monsterMaxMpBonus", "Additive MP bonus on top of the level-derived baseline.")
-                .Doc("EXP", 2, "monsterXpBonus", "XP awarded on kill.")
-                .Doc("EXP", 3, "monsterJobXpBonus", "Job XP awarded on kill.")
+                .Doc("EXP", 2, "monsterXpBonus", "Signed XP added to the level-based award (level × 60, × 70 from level 19), floored at 0.")
+                .Doc("EXP", 3, "monsterJobXpBonus", "Signed job XP added to the base 105, floored at 0.")
                 .Doc("SETTING", 2, "iconID", "Target-info avatar index (NSip).")
                 .Doc("SETTING", 3, "spawnMobOrColor", "When hostility>20000, the vnum of the mob this NPC spawns; otherwise a color.")
                 .Doc("SETTING", 4, "amountOrItem", "Required item vnum (tame/interact) or spawn count.")
@@ -253,20 +253,20 @@ namespace NosCore.Parser.Parsers
                 .Doc("WINFO", 2, "winfoAttType", "Attack-type override for ARMOR/WEAPON derivation (1 => special path).")
                 .Doc("WINFO", 3, "unknown5")
                 .Doc("WINFO", 4, "weaponGrade", "Weapon grade; used as AttackUpgrade when WINFO[0]!=1.")
-                .Doc("WEAPON", 2, "weaponLvl")
+                .Doc("WEAPON", 2, "weaponLvl", "Weapon level; with the monster level and race it gives damage and hit rate.")
                 .Doc("WEAPON", 3, "weaponRange")
-                .Doc("WEAPON", 4, "weaponDmgMin")
-                .Doc("WEAPON", 5, "weaponDmgMax")
-                .Doc("WEAPON", 6, "weaponHitRate")
-                .Doc("WEAPON", 7, "weaponCritChance")
-                .Doc("WEAPON", 8, "weaponCritDmg")
+                .Doc("WEAPON", 4, "weaponDmgMin", "Flat minimum damage added to the curve.")
+                .Doc("WEAPON", 5, "weaponDmgMax", "Flat maximum damage added to the curve.")
+                .Doc("WEAPON", 6, "weaponHitRate", "Flat hit rate added to the curve.")
+                .Doc("WEAPON", 7, "weaponCritChance", "Added to the base critical chance.")
+                .Doc("WEAPON", 8, "weaponCritDmg", "Added to the base critical damage.")
                 .Doc("AINFO", 2, "ainfoDefType", "Defence-type override for ARMOR derivation.")
                 .Doc("AINFO", 3, "armorGrade", "Armor grade; used as DefenceUpgrade when WINFO[0]!=1.")
-                .Doc("ARMOR", 2, "armorLvl", "Armor level — all Close/Distance/Magic defence + dodge are derived from this.")
-                .Doc("ARMOR", 3, "meleeDef", "Stored in .dat but we recompute from armorLvl.")
-                .Doc("ARMOR", 4, "rangedDef", "Stored in .dat but we recompute from armorLvl.")
-                .Doc("ARMOR", 5, "magicDef", "Stored in .dat but we recompute from armorLvl.")
-                .Doc("ARMOR", 6, "dodge", "Stored in .dat but we recompute from armorLvl.")
+                .Doc("ARMOR", 2, "armorLvl", "Armor level; with the monster level and race it gives every defence and dodge.")
+                .Doc("ARMOR", 3, "meleeDef", "Flat amount added to the curve.")
+                .Doc("ARMOR", 4, "rangedDef", "Flat amount added to the curve.")
+                .Doc("ARMOR", 5, "magicDef", "Flat amount added to the curve.")
+                .Doc("ARMOR", 6, "dodge", "Flat amount added to the curve.")
                 .Doc("SKILL", 2, "skill1Vnum", "First skill vnum.")
                 .Doc("SKILL", 3, "skill1Chance", "Cast chance % for skill 1.")
                 .Doc("SKILL", 4, "skill1Force", "Priority force for skill 1; groups 2-5 repeat at cols 5/8/11/14.")
@@ -289,86 +289,25 @@ namespace NosCore.Parser.Parsers
             _logger.LogInformation(_logLanguage[LogLanguageKey.NPCMONSTERS_PARSED], monsters.Count);
         }
 
+        // A negative EXP column lowers the level's base award rather than replacing it.
         private int ImportJxp(Dictionary<string, string[][]> chunk)
         {
-            var value = Convert.ToInt32(chunk["EXP"][0][3]);
-            if (value < 1)
-            {
-                value *= -1;
-            }
-
-            if (Level(chunk) < 61)
-            {
-                return value + 120;
-            }
-
-            return value + 105;
+            return Math.Max(0, Convert.ToInt32(chunk["EXP"][0][3]) + 105);
         }
 
         private int ImportXp(Dictionary<string, string[][]> chunk)
         {
-            var value = Convert.ToInt32(chunk["EXP"][0][2]);
-            if (value < 1)
-            {
-                value *= -1;
-            }
-
-            if (Level(chunk) >= 19)
-            {
-                return Math.Abs((Level(chunk) * 60) + Level(chunk) * 10 + value);
-            }
-
-            return Math.Abs((Level(chunk) * 60) + value);
+            var perLevel = Level(chunk) >= 19 ? 70 : 60;
+            return Math.Max(0, Level(chunk) * perLevel + Convert.ToInt32(chunk["EXP"][0][2]));
         }
 
-        private short ImportDamageMinimum(Dictionary<string, string[][]> chunk)
-        {
-            return chunk["WEAPON"][0][3] switch
-            {
-                "1" => Convert.ToInt16((Convert.ToInt16(chunk["WEAPON"][0][2]) - 1) * 4 + 32 + Convert.ToInt16(chunk["WEAPON"][0][4]) + Math.Round(Convert.ToDecimal((Level(chunk) - 1) / 5))),
-                "2" => Convert.ToInt16(Convert.ToInt16(chunk["WEAPON"][0][2]) * 6.5f + 23 + Convert.ToInt16(chunk["WEAPON"][0][4])),
-                _ => (short)0,
-            };
-        }
+        private short Defence(Dictionary<string, string[][]> chunk, Func<byte, byte, byte, int> curve, int modifierColumn) =>
+            Convert.ToInt16(curve(Race(chunk), Level(chunk), Convert.ToByte(chunk["ARMOR"][0][2]))
+                + Convert.ToInt16(chunk["ARMOR"][0][modifierColumn]));
 
-        private short ImportDamageMaximum(Dictionary<string, string[][]> chunk)
-        {
-            return chunk["WEAPON"][0][3] switch
-            {
-                "1" => Convert.ToInt16((Convert.ToInt16(chunk["WEAPON"][0][2]) - 1) * 6 + 40 + Convert.ToInt16(chunk["WEAPON"][0][5]) - Math.Round(Convert.ToDecimal((Level(chunk) - 1) / 5))),
-                "2" => Convert.ToInt16(Convert.ToInt16(chunk["WEAPON"][0][2]) * 6.5f + 23 + Convert.ToInt16(chunk["WEAPON"][0][4])),
-                _ => (short)0,
-            };
-
-        }
-
-        private short ImportConcentrate(Dictionary<string, string[][]> chunk)
-        {
-            return chunk["WEAPON"][0][3] switch
-            {
-                "1" => Convert.ToInt16((Convert.ToInt16(chunk["WEAPON"][0][2]) - 1) * 5 + 27 + Convert.ToInt16(chunk["WEAPON"][0][6])),
-                "2" => Convert.ToInt16(70 + Convert.ToInt16(chunk["WEAPON"][0][6])),
-                _ => (short)0,
-            };
-        }
-
-        private byte ImportCriticalChance(Dictionary<string, string[][]> chunk)
-        {
-            return chunk["WEAPON"][0][3] switch
-            {
-                "1" => Convert.ToByte(4 + Convert.ToInt16(chunk["WEAPON"][0][7])),
-                _ => (byte)0,
-            };
-        }
-
-        private short ImportCriticalRate(Dictionary<string, string[][]> chunk)
-        {
-            return chunk["WEAPON"][0][3] switch
-            {
-                "1" => Convert.ToInt16(70 + Convert.ToInt16(chunk["WEAPON"][0][8])),
-                _ => (short)0,
-            };
-        }
+        private short Attack(Dictionary<string, string[][]> chunk, Func<byte, byte, byte, MonsterAttackClass, int> curve, int modifierColumn) =>
+            Convert.ToInt16(curve(Race(chunk), Level(chunk), Convert.ToByte(chunk["WEAPON"][0][2]), (MonsterAttackClass)Convert.ToByte(chunk["ZSKILL"][0][2]))
+                + Convert.ToInt16(chunk["WEAPON"][0][modifierColumn]));
 
         private List<NpcMonsterSkillDto> ImportNpcMonsterSkill(Dictionary<string, string[][]> chunk)
         {
@@ -496,110 +435,9 @@ namespace NosCore.Parser.Parsers
             return MonsterType.Unknown;
         }
 
-        private void InitStats()
+        private byte Race(Dictionary<string, string[][]> chunk)
         {
-            // basicHPLoad
-            var baseHp = 138;
-            var hPbasup = 18;
-            for (var i = 0; i < 100; i++)
-            {
-                _basicHp[i] = baseHp;
-                hPbasup++;
-                baseHp += hPbasup;
-
-                if (i == 37)
-                {
-                    baseHp = 1765;
-                    hPbasup = 65;
-                }
-
-                if (i < 41)
-                {
-                    continue;
-                }
-
-                if ((99 - i) % 8 == 0)
-                {
-                    hPbasup++;
-                }
-            }
-
-            //Race == 0
-            _basicPrimaryMp[0] = 10;
-            _basicPrimaryMp[1] = 10;
-            _basicPrimaryMp[2] = 15;
-
-            var primaryBasup = 5;
-            byte count = 0;
-            var isStable = true;
-            var isDouble = false;
-
-            for (uint i = 3; i < 100; i++)
-            {
-                if (i % 10 == 1)
-                {
-                    _basicPrimaryMp[i] += _basicPrimaryMp[i - 1] + primaryBasup * 2;
-                    continue;
-                }
-
-                if (!isStable)
-                {
-                    primaryBasup++;
-                    count++;
-
-                    if (count == 2)
-                    {
-                        if (isDouble)
-                        {
-                            isDouble = false;
-                        }
-                        else
-                        {
-                            isStable = true;
-                            isDouble = true;
-                            count = 0;
-                        }
-                    }
-
-                    if (count == 4)
-                    {
-                        isStable = true;
-                        count = 0;
-                    }
-                }
-                else
-                {
-                    count++;
-                    if (count == 2)
-                    {
-                        isStable = false;
-                        count = 0;
-                    }
-                }
-
-                _basicPrimaryMp[i] = _basicPrimaryMp[i - (i % 10 == 2 ? 2 : 1)] + primaryBasup;
-            }
-
-            // Race == 2
-            _basicSecondaryMp[0] = 60;
-            _basicSecondaryMp[1] = 60;
-            _basicSecondaryMp[2] = 78;
-
-            var secondaryBasup = 18;
-            var boostup = false;
-
-            for (uint i = 3; i < 100; i++)
-            {
-                if (i % 10 == 1)
-                {
-                    _basicSecondaryMp[i] += _basicSecondaryMp[i - 1] + (int)i + 10;
-                    continue;
-                }
-
-                boostup = !boostup;
-                secondaryBasup += boostup ? 3 : 1;
-                _basicSecondaryMp[i] = _basicSecondaryMp[i - (i % 10 == 2 ? 2 : 1)] + secondaryBasup;
-            }
+            return Convert.ToByte(chunk["RACE"][0][2]);
         }
 
         private byte Level(Dictionary<string, string[][]> chunk)
