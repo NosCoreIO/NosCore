@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.SumService;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -47,13 +48,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             _session = await World.CreateSessionAsync();
             _random = World.Freeze<Mock<IRandomNumberSource>>();
             World.Inject(UpgradeMaterials.Catalog());
+            World.Inject<ISumService>(new SumService());
             _operation = World.Create<SumUpgradeOperation>();
         }
 
         [TestMethod]
         public async Task SuccessUpgradesSourceAndConsumesTargetAndSandAndGold()
         {
-            // Source upgrade 0 → goldprice[0]=1500, sand[0]=5, success rate at sum=0 is 1.00.
             await new Spec("Successful sum upgrades source, consumes target, sand and gold")
                 .Given(SourceAndTargetWearablesArePlaced)
                 .And(EnoughSandIsInInventory)
@@ -70,8 +71,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         [TestMethod]
         public async Task FailureDestroysSourceAndConsumesTargetAndChargesCosts()
         {
-            // Source upgrade 1 → goldprice[1]=3000, sand[1]=10. Combined 1+1=2 → success rate 0.85.
-            // Roll 0.95 lands on failure.
+            // Combined level 2 succeeds 85% of the time, so a 0.95 roll fails.
             await new Spec("Failed sum destroys source, consumes target, still charges costs")
                 .Given(SourceAtUpgrade_AndTargetAtUpgrade_, (byte)1, (byte)1)
                 .And(EnoughSandIsInInventory)

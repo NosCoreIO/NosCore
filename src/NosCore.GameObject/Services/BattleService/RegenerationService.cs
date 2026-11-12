@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Algorithm.RecoveryRateService;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -27,30 +28,12 @@ public sealed class RegenerationService(
     EquipmentService.IEquipmentStatsService equipmentStatsService,
     IBuffService buffService,
     SkillService.IPassiveSkillService passiveSkillService,
+    IRecoveryRateService recoveryRates,
     ILogger<RegenerationService> logger) : IRegenerationService, ISingletonService
 {
     private static readonly Duration SittingInterval = Duration.FromMilliseconds(1500);
     private static readonly Duration StandingInterval = Duration.FromMilliseconds(2000);
     private static readonly Duration StandingDefenceGrace = Duration.FromSeconds(4);
-
-    private static readonly int[] HpSittingRate = { 30, 80, 60, 30, 70 };
-    private static readonly int[] MpSittingRate = { 10, 30, 50, 80, 40 };
-
-    /// <summary>
-    /// On one's feet the rate is derived from the resting one, not looked up.
-    /// </summary>
-    /// <remarks>
-    /// The factor is one half up to level 20 and steps down in bands after it. Multiply before
-    /// dividing, or the band is lost to integer truncation.
-    /// </remarks>
-    public static int StandingRate(int restingRate, byte level)
-    {
-        var percent = level <= 20 ? 50
-            : level <= 40 ? 40
-            : level <= 60 ? 30
-            : 20;
-        return restingRate * percent / 100;
-    }
 
     // Flat points added to each regeneration tick, sitting or standing alike.
     private (int Hp, int Mp) RecoveryBonus(ICharacterEntity character)
@@ -97,14 +80,9 @@ public sealed class RegenerationService(
                 var last = _lastRegen.GetOrAdd(character.CharacterId, now);
                 if (now - last < interval) continue;
 
-                var classIndex = Math.Clamp((int)character.Class, 0, HpSittingRate.Length - 1);
-                int hpRate, mpRate;
-                if (character.IsSitting)
-                {
-                    hpRate = HpSittingRate[classIndex];
-                    mpRate = MpSittingRate[classIndex];
-                }
-                else
+                var hpRate = recoveryRates.GetRestingHpRate(character.Class);
+                var mpRate = recoveryRates.GetRestingMpRate(character.Class);
+                if (!character.IsSitting)
                 {
                     // Standing regen only kicks in once 4s have elapsed since the
                     // last incoming hit. Before that the rates are zero so the bars
@@ -116,8 +94,8 @@ public sealed class RegenerationService(
                         continue;
                     }
 
-                    hpRate = StandingRate(HpSittingRate[classIndex], character.Level);
-                    mpRate = StandingRate(MpSittingRate[classIndex], character.Level);
+                    hpRate = recoveryRates.GetStandingRate(hpRate, character.Level);
+                    mpRate = recoveryRates.GetStandingRate(mpRate, character.Level);
                 }
 
                 _lastRegen[character.CharacterId] = now;

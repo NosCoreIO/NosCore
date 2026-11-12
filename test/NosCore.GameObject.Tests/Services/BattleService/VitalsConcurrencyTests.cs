@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Algorithm.RecoveryRateService;
 using NosCore.Algorithm.MateExperienceService;
 using NosCore.GameObject.Services.MateService;
 using System;
@@ -87,7 +88,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(new List<BuffInstance>());
             var regeneration = new RegenerationService(World.SessionRegistry, World.Clock,
                 equipment.Object, buffs.Object, new NosCore.GameObject.Services.SkillService.PassiveSkillService(new NpcCombatCatalog([], [], [])),
-                NullLogger<RegenerationService>.Instance);
+                new RecoveryRateService(), NullLogger<RegenerationService>.Instance);
             var lethal = Queue(1_000_000);
             var revived = 0;
 
