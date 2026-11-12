@@ -8,6 +8,9 @@ using System;
 using System.IO;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Algorithm.MateHpService;
+using NosCore.Algorithm.MateMpService;
+using NosCore.Algorithm.MonsterStatService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.StaticEntities;
@@ -36,7 +39,8 @@ namespace NosCore.Parser.Tests
 
         [TestMethod] public void NpcMonster() => RegenerateFor(new NpcMonsterParser(
             Mock<SkillDto, short>(), Mock<BCardDto, int>(), Mock<DropDto, short>(),
-            Mock<NpcMonsterSkillDto, long>(), Mock<NpcMonsterDto, short>(), NullLoggerFactory.Instance, LogLang())
+            Mock<NpcMonsterSkillDto, long>(), Mock<NpcMonsterDto, short>(), NullLoggerFactory.Instance, LogLang(),
+            new MonsterStatService(new MateHpService(), new MateMpService()))
             .BuildParser("."));
 
         [TestMethod] public void Quest() => RegenerateFor(new QuestParser(

@@ -225,6 +225,18 @@ This one is easy to eyeball — before the fix everything came back a hundred ti
 - [ ] Pull a monster that spawns against the right or bottom border, run out of its range and
       let it walk home: it walks back and the server log shows no `AI tick failed`
 
+### Monster stats
+
+The parser derives each monster's HP, MP, defences, dodge, damage, hit rate and critical
+values from its race, level and equipment levels, then adds the flat modifiers of its entry.
+
+- [ ] Re-import the monsters, then stand next to a hostile ranged monster (vnum 96 on Chicken
+      Farm Path): it hits for a visible amount rather than 0 or a miss every time
+- [ ] Target a few monsters and compare the HP shown in the target bar with the published
+      values for that monster
+- [ ] Kill a monster whose entry has a negative experience column: the kill still gives
+      experience, the level's base award minus that amount
+
 ---
 
 ## Character

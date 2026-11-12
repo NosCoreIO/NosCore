@@ -12,6 +12,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NosCore.Algorithm.MateHpService;
+using NosCore.Algorithm.MateMpService;
+using NosCore.Algorithm.MonsterStatService;
 using NosCore.Core;
 using NosCore.Dao;
 using NosCore.Dao.Interfaces;
@@ -71,6 +74,9 @@ namespace NosCore.Parser
                 .Where(t => t.Name.EndsWith("Parser") && !t.IsGenericType)
                 .AsSelf();
 
+            containerBuilder.RegisterType<MateHpService>().As<IMateHpService>().SingleInstance();
+            containerBuilder.RegisterType<MateMpService>().As<IMateMpService>().SingleInstance();
+            containerBuilder.RegisterType<MonsterStatService>().As<IMonsterStatService>().SingleInstance();
             containerBuilder.RegisterType<ImportFactory>();
             var registerDatabaseObject = typeof(ParserBootstrap).GetMethod(nameof(RegisterDatabaseObject));
 

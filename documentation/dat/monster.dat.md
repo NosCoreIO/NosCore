@@ -2,7 +2,7 @@
 
 ```text
 	AINFO	{ainfoDefType}	{DefenceUpgrade}
-	ARMOR	{CloseDefence}	{meleeDef}	{rangedDef}	{magicDef}	{dodge}
+	ARMOR	{CloseDefence}	{CloseDefence}	{DistanceDefence}	{MagicDefence}	{DefenceDodge}
 	ATTRIB	{Element}	{ElementRate}	{FireResistance}	{WaterResistance}	{LightResistance}	{DarkResistance}
 	BASIC	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
 	CARD	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}	{BCards}
@@ -21,7 +21,7 @@
 	SETTING	{IconId}	{SpawnMobOrColor}	{VNumRequired}	{SpriteSize}	{CellSize}	{unknown0}
 	SKILL	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}	{NpcMonsterSkill}
 	VNUM	{NpcMonsterVNum}
-	WEAPON	{DamageMinimum}	{DamageMinimum}	{DamageMinimum}	{DamageMaximum}	{Concentrate}	{CriticalChance}	{CriticalRate}
+	WEAPON	{DamageMinimum}	{weaponRange}	{DamageMinimum}	{DamageMaximum}	{Concentrate}	{CriticalChance}	{CriticalRate}
 	WINFO	{AttackUpgrade}	{unknown5}	{AttackUpgrade}
 	ZSKILL	{AttackClass}	{BasicRange}	{BasicHitChance}	{BasicArea}	{BasicCooldown}	{DashSpeed}	{unknown4}
 ```
@@ -37,15 +37,16 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Parsed | CloseDefence | Int16 | (armorLvl-1)*2 + 18 |
-| 2 | Parsed | DefenceDodge | Int16 | (armorLvl-1)*5 + 31 |
-| 2 | Parsed | DistanceDefence | Int16 | (armorLvl-1)*3 + 17 |
-| 2 | Parsed | DistanceDefenceDodge | Int16 | (armorLvl-1)*5 + 31 |
-| 2 | Parsed | MagicDefence | Int16 | (armorLvl-1)*2 + 13 |
-| 3 | NonParsed | meleeDef |  | Stored in .dat but we recompute from armorLvl. |
-| 4 | NonParsed | rangedDef |  | Stored in .dat but we recompute from armorLvl. |
-| 5 | NonParsed | magicDef |  | Stored in .dat but we recompute from armorLvl. |
-| 6 | NonParsed | dodge |  | Stored in .dat but we recompute from armorLvl. |
+| 2 | Parsed | CloseDefence | Int16 | Close defence |
+| 2 | Parsed | DefenceDodge | Int16 | Dodge |
+| 2 | Parsed | DistanceDefence | Int16 | Distance defence |
+| 2 | Parsed | DistanceDefenceDodge | Int16 | Dodge against ranged attacks, the same as close dodge |
+| 2 | Parsed | MagicDefence | Int16 | Magic defence |
+| 3 | Parsed | CloseDefence | Int16 | Close defence |
+| 4 | Parsed | DistanceDefence | Int16 | Distance defence |
+| 5 | Parsed | MagicDefence | Int16 | Magic defence |
+| 6 | Parsed | DefenceDodge | Int16 | Dodge |
+| 6 | Parsed | DistanceDefenceDodge | Int16 | Dodge against ranged attacks, the same as close dodge |
 
 ## ATTRIB
 
@@ -193,8 +194,8 @@
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | HpBonus | Int32 | Flat HP added to the level-derived baseline |
-| 2 | Parsed | MaxHp | Int32 | Override HP plus level-based baseline |
-| 3 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
+| 2 | Parsed | MaxHp | Int32 | Flat HP on top of the race and level baseline |
+| 3 | Parsed | MaxMp | Int32 | Flat MP on top of the race and level baseline |
 | 3 | Parsed | MpBonus | Int32 | Flat MP added to the level-derived baseline |
 
 ## ITEM
@@ -266,13 +267,19 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
+| 2 | Parsed | CloseDefence | Int16 | Close defence |
+| 2 | Parsed | Concentrate | Int16 | Hit rate |
 | 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
 | 2 | Parsed | DamageMinimum | Int16 | Min attack damage |
+| 2 | Parsed | DefenceDodge | Int16 | Dodge |
+| 2 | Parsed | DistanceDefence | Int16 | Distance defence |
+| 2 | Parsed | DistanceDefenceDodge | Int16 | Dodge against ranged attacks, the same as close dodge |
 | 2 | Parsed | HeroXp | Int32 | Hero-level XP award, scaled down from XP |
 | 2 | Parsed | JobXp | Int32 | Base job XP award |
 | 2 | Parsed | Level | Byte | Parsed by Level(chunk) helper |
-| 2 | Parsed | MaxHp | Int32 | Override HP plus level-based baseline |
-| 2 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
+| 2 | Parsed | MagicDefence | Int16 | Magic defence |
+| 2 | Parsed | MaxHp | Int32 | Flat HP on top of the race and level baseline |
+| 2 | Parsed | MaxMp | Int32 | Flat MP on top of the race and level baseline |
 | 2 | Parsed | Xp | Int32 | Base XP award |
 
 ## MODE
@@ -350,7 +357,16 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Parsed | MaxMp | Int32 | Override MP plus level-based baseline, branch on Race |
+| 2 | Parsed | CloseDefence | Int16 | Close defence |
+| 2 | Parsed | Concentrate | Int16 | Hit rate |
+| 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
+| 2 | Parsed | DamageMinimum | Int16 | Min attack damage |
+| 2 | Parsed | DefenceDodge | Int16 | Dodge |
+| 2 | Parsed | DistanceDefence | Int16 | Distance defence |
+| 2 | Parsed | DistanceDefenceDodge | Int16 | Dodge against ranged attacks, the same as close dodge |
+| 2 | Parsed | MagicDefence | Int16 | Magic defence |
+| 2 | Parsed | MaxHp | Int32 | Flat HP on top of the race and level baseline |
+| 2 | Parsed | MaxMp | Int32 | Flat MP on top of the race and level baseline |
 | 2 | Parsed | MonsterType | MonsterType | Categorisation (Mate/Normal/Trap/Unknown) |
 | 2 | Parsed | NoAggresiveIcon | Boolean | Talkable / trap entities: suppress the aggressive icon |
 | 2 | Parsed | Race | Byte | Race group (plant, animal, monster, dragon, …) |
@@ -407,12 +423,7 @@
 | 2 | Parsed | Concentrate | Int16 | Hit rate |
 | 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
 | 2 | Parsed | DamageMinimum | Int16 | Min attack damage |
-| 3 | Parsed | Concentrate | Int16 | Hit rate |
-| 3 | Parsed | CriticalChance | Byte | Critical hit chance |
-| 3 | Parsed | CriticalRate | Int16 | Critical hit damage multiplier |
-| 3 | Parsed | DamageMaximum | Int16 | Max attack damage |
-| 3 | Parsed | DamageMinimum | Int16 | Min attack damage |
-| 4 | Parsed | DamageMaximum | Int16 | Max attack damage |
+| 3 | NonParsed | weaponRange |  |  |
 | 4 | Parsed | DamageMinimum | Int16 | Min attack damage |
 | 5 | Parsed | DamageMaximum | Int16 | Max attack damage |
 | 6 | Parsed | Concentrate | Int16 | Hit rate |
@@ -433,6 +444,9 @@
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | AttackClass | Byte | Attack class (melee/ranged/magic) |
+| 2 | Parsed | Concentrate | Int16 | Hit rate |
+| 2 | Parsed | DamageMaximum | Int16 | Max attack damage |
+| 2 | Parsed | DamageMinimum | Int16 | Min attack damage |
 | 3 | Parsed | BasicRange | Byte | Basic attack range in cells |
 | 4 | Parsed | BasicHitChance | Byte | Basic-attack hit chance (each tick rolls hitChance*20%) |
 | 5 | Parsed | BasicArea | Byte | Basic attack area-of-effect radius |
