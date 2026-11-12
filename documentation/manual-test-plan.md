@@ -531,6 +531,13 @@ success, on the assumption that the window says "Appearance changed" itself.
       goes off over the character for everyone on the map, with its sound
 - [ ] An Airwaves gum (1332) shows the chewing emote over the character and is used up
 
+### Ice Flower Oil
+
+- [ ] `$CreateItem 5929` (Ice Flower Oil) and double-click it: one is used up, "effect activated"
+      shows and a buff icon with 10 minutes appears
+- [ ] Use another one: the time left goes up by 10 minutes, and never past two hours
+- [ ] Strong Ice Flower Oil (5916) fills the buff to two hours; at two hours a further oil is kept
+
 ### Magic Lamp
 
 - [ ] Wearing any equipment, use a Magic Lamp (`$CreateItem 5105`): the client's own "remove
