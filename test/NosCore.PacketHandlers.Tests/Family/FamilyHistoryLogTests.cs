@@ -71,7 +71,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .Returns((Expression<Func<FamilyLogDto, bool>> p) => _logs.Where(p.Compile()));
 
             _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>())).ReturnsAsync(true);
-            _familyService.Setup(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(FamilyMemberAddition.Added);
             _familyService.Setup(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
             var otherName = _other.Character.Name;
             _familyService.Setup(s => s.FindCharacterAsync(otherName))

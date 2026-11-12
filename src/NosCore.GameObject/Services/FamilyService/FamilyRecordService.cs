@@ -7,6 +7,8 @@
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
+using NosCore.Data.Enumerations.Miniland;
+using NosCore.GameObject.Services.WarehouseService;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -17,7 +19,7 @@ namespace NosCore.GameObject.Services.FamilyService
     // lock held in one process does not stop another, so every write to them is made here.
     public class FamilyRecordService(IDao<FamilyDto, long> familyDao,
         IDao<FamilyCharacterDto, long> familyCharacterDao, IDao<FamilyLogDto, long> familyLogDao,
-        IDaoTransactionScope daoTransactionScope) : IFamilyRecordService
+        IDaoTransactionScope daoTransactionScope, IWarehouseService warehouseService) : IFamilyRecordService
     {
         public async Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds)
         {
@@ -58,9 +60,20 @@ namespace NosCore.GameObject.Services.FamilyService
             return family.FamilyId;
         }
 
-        public async Task<bool> DisbandAsync(long familyId)
+        public async Task<bool> DisbandAsync(long familyId, long headId)
         {
             using var _ = await FamilyRowLock.Instance.AcquireAsync();
+            var head = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == headId && s.FamilyId == familyId);
+            if (head?.Authority != FamilyAuthority.Head)
+            {
+                return false;
+            }
+
+            foreach (var stored in await warehouseService.GetItemsAsync(null, familyId, WarehouseType.FamilyWareHouse, null))
+            {
+                await warehouseService.WithdrawItemAsync(stored.WarehouseItemId);
+            }
+
             var logs = familyLogDao.Where(s => s.FamilyId == familyId)?.Select(s => s.FamilyLogId).ToList()
                 ?? new List<long>();
             var members = familyCharacterDao.Where(s => s.FamilyId == familyId)?.Select(s => s.FamilyCharacterId).ToList()
@@ -77,15 +90,18 @@ namespace NosCore.GameObject.Services.FamilyService
             return true;
         }
 
-        public async Task<bool> AddMemberAsync(long familyId, long characterId)
+        public async Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId)
         {
             using var _ = await FamilyRowLock.Instance.AcquireAsync();
             var family = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
-            if (family == null
-                || await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId) != null
-                || (familyCharacterDao.Where(s => s.FamilyId == familyId)?.Count() ?? 0) >= family.MaxSize)
+            if (family == null || await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId) != null)
             {
-                return false;
+                return FamilyMemberAddition.NotAdded;
+            }
+
+            if ((familyCharacterDao.Where(s => s.FamilyId == familyId)?.Count() ?? 0) >= family.MaxSize)
+            {
+                return FamilyMemberAddition.FamilyFull;
             }
 
             return await familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
@@ -94,7 +110,9 @@ namespace NosCore.GameObject.Services.FamilyService
                 CharacterId = characterId,
                 Authority = FamilyAuthority.Member,
                 DailyMessage = string.Empty
-            }) != null;
+            }) != null
+                ? FamilyMemberAddition.Added
+                : FamilyMemberAddition.NotAdded;
         }
 
         public async Task<bool> RemoveMemberAsync(long familyId, long characterId)
@@ -130,6 +148,20 @@ namespace NosCore.GameObject.Services.FamilyService
 
                 change.ApplyTo(membership);
                 memberships.Add(membership);
+            }
+
+            // A channel decides from its own copy of the family, which can be behind: whatever it asks,
+            // the family keeps exactly one head.
+            if (members.Any(s => s.Authority != null))
+            {
+                var changed = memberships.Select(s => s.FamilyCharacterId).ToHashSet();
+                var heads = memberships.Count(s => s.Authority == FamilyAuthority.Head)
+                    + (familyCharacterDao.Where(s => s.FamilyId == familyId && s.Authority == FamilyAuthority.Head)
+                        ?.Count(s => !changed.Contains(s.FamilyCharacterId)) ?? 0);
+                if (heads != 1)
+                {
+                    return false;
+                }
             }
 
             await using var transaction = daoTransactionScope.Begin();

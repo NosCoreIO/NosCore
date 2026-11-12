@@ -1527,14 +1527,15 @@ Same seeded family, with a plain member on the same map as the head.
 
 ### Family changes keep what was saved elsewhere
 
-Same seeded family, with the head in the world. Then raise the family and a member behind
-the session's back, standing in for experience earned on another channel:
-`update "Family" set "FamilyLevel" = 5, "FamilyExperience" = 777 where "Name" = 'Testers';`
-`update "FamilyCharacter" set "Experience" = 999 where "CharacterId" = <member>;`
+Same seeded family, with the head in the world. Before **each** command below, raise the
+family and a member behind the session's back, with a new value every time. This stands in
+for experience earned on another channel since the head's window was last refreshed:
+`update "Family" set "FamilyLevel" = "FamilyLevel" + 1, "FamilyExperience" = "FamilyExperience" + 100 where "Name" = 'Testers';`
+`update "FamilyCharacter" set "Experience" = "Experience" + 100 where "CharacterId" = <member>;`
 
 - [ ] After each of `%Notice <text>`, `%Today <text>`, a permission tick, `%Title <name> <rank>`,
-      `%Familydeputy <name>` and `%Gender <0|1>` as the head, the family window shows level 5 and
-      the two rows still hold level 5, experience 777 and the member's 999
+      `%Familydeputy <name>` and `%Gender <0|1>` as the head, the family window shows the level
+      just set and the two rows still hold the raised level, experience and contribution
 - [ ] `%Familydismiss <name>` removes the member's row and leaves the family row as it was
 
 ### Family history, ranking and daily message windows

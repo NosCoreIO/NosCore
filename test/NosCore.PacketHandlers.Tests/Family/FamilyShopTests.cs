@@ -149,7 +149,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .Returns((Func<ClientSession, bool>? predicate) => predicate == null ? sessions : sessions.Where(predicate));
             var management = new FamilyManagementService(_familyService, pubSubHub.Object, new FamilyExperienceService(),
                 registry.Object,
-                new Mock<IFamilyWarehouseService>().Object, new Mock<IFamilyLogService>().Object);
+                new Mock<IFamilyLogService>().Object);
             _familyChanged = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService,
                 World.GameLanguageLocalizer, management);
 

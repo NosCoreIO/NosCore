@@ -74,7 +74,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                     return found.Count > 0;
                 }));
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
-            _familyService.Setup(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(FamilyMemberAddition.Added);
             _familyService.Setup(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
             _blacklistHub.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
             _head.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Head));
@@ -245,11 +245,23 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task AJoinTheMasterRefusesAnnouncesNothing()
         {
-            _familyService.Setup(s => s.AddMemberAsync(FamilyId, _otherId)).ReturnsAsync(false);
+            _familyService.Setup(s => s.AddMemberAsync(FamilyId, _otherId)).ReturnsAsync(FamilyMemberAddition.NotAdded);
             await InviteAsync(_head, _other.Character.Name);
 
             await AnswerAsync(FamilyInviteAnswerType.Accept);
 
+            Assert.AreEqual(0, _published.Count);
+        }
+
+        [TestMethod]
+        public async Task AFamilyThatFilledUpMeanwhileTellsTheInvitee()
+        {
+            _familyService.Setup(s => s.AddMemberAsync(FamilyId, _otherId)).ReturnsAsync(FamilyMemberAddition.FamilyFull);
+            await InviteAsync(_head, _other.Character.Name);
+
+            await AnswerAsync(FamilyInviteAnswerType.Accept);
+
+            Assert.AreEqual(Game18NConstString.FamilyReachedMaxCapacity, LastInfo(_other));
             Assert.AreEqual(0, _published.Count);
         }
 

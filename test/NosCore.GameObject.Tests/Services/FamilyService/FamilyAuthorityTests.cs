@@ -5,11 +5,11 @@
 //
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Services.FamilyService;
+using NosCore.Tests.Shared;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -27,13 +27,15 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private const long Member = 4;
         private const long SecondMember = 5;
 
+        private TestWorld World;
         private Family _family;
         private FamilyServiceImpl _service;
         private Mock<IFamilyHub> _hub;
 
         [TestInitialize]
-        public void Setup()
+        public async Task SetupAsync()
         {
+            World = await TestWorld.CreateAsync();
             _family = new Family
             {
                 FamilyId = 9,
@@ -50,8 +52,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             _hub = new Mock<IFamilyHub>();
             _hub.Setup(s => s.ChangeAsync(_family.FamilyId, null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
                 .ReturnsAsync(true);
-            _service = new FamilyServiceImpl(new Mock<IDao<FamilyDto, long>>().Object,
-                new Mock<IDao<FamilyCharacterDto, long>>().Object, new Mock<IDao<CharacterDto, long>>().Object, _hub.Object);
+            World.Inject(_hub.Object);
+            _service = World.Create<FamilyServiceImpl>();
         }
 
         private FamilyAuthority AuthorityOf(long id) => _family.AuthorityOf(id);

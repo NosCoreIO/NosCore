@@ -22,11 +22,11 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
         public Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds) =>
             bus.RequestAsync<long?>(new CreateFamilyRequest(name, maxSize, headId, deputyIds));
 
-        public Task<bool> DisbandAsync(long familyId) =>
-            bus.RequestAsync<bool>(new DisbandFamilyRequest(familyId));
+        public Task<bool> DisbandAsync(long familyId, long headId) =>
+            bus.RequestAsync<bool>(new DisbandFamilyRequest(familyId, headId));
 
-        public Task<bool> AddMemberAsync(long familyId, long characterId) =>
-            bus.RequestAsync<bool>(new AddFamilyMemberRequest(familyId, characterId));
+        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId) =>
+            bus.RequestAsync<FamilyMemberAddition>(new AddFamilyMemberRequest(familyId, characterId));
 
         public Task<bool> RemoveMemberAsync(long familyId, long characterId) =>
             bus.RequestAsync<bool>(new RemoveFamilyMemberRequest(familyId, characterId));

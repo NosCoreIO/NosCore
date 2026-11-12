@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
         IFamilyExperienceService familyExperienceService, ISessionRegistry sessionRegistry,
-        IFamilyWarehouseService familyWarehouseService, IFamilyLogService familyLogService) : IFamilyManagementService
+        IFamilyLogService familyLogService) : IFamilyManagementService
     {
         private const int MessageMaxLength = 255;
         private const long CreationPrice = 200000;
@@ -219,8 +219,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            await familyWarehouseService.EmptyAsync(family.FamilyId);
-            if (!await familyService.DisbandAsync(family))
+            if (!await familyService.DisbandAsync(family, session.Character.CharacterId))
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FailedToDisbandFamily });
                 return;

@@ -50,7 +50,13 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            if (!await familyService.AddMemberAsync(family.FamilyId, session.Character.CharacterId))
+            var addition = await familyService.AddMemberAsync(family.FamilyId, session.Character.CharacterId);
+            if (addition == FamilyMemberAddition.FamilyFull)
+            {
+                await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyReachedMaxCapacity });
+            }
+
+            if (addition != FamilyMemberAddition.Added)
             {
                 return;
             }

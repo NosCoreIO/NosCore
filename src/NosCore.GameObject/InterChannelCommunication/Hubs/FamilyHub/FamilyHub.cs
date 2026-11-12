@@ -33,15 +33,15 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
         public static async Task<Reply<long?>> Handle(CreateFamilyRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<FamilyHub>().CreateAsync(r.Name, r.MaxSize, r.HeadId, r.DeputyIds));
 
-        public Task<bool> DisbandAsync(long familyId) => familyRecordService.DisbandAsync(familyId);
+        public Task<bool> DisbandAsync(long familyId, long headId) => familyRecordService.DisbandAsync(familyId, headId);
 
         public static async Task<Reply<bool>> Handle(DisbandFamilyRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<FamilyHub>().DisbandAsync(r.FamilyId));
+            new(await services.GetRequiredService<FamilyHub>().DisbandAsync(r.FamilyId, r.HeadId));
 
-        public Task<bool> AddMemberAsync(long familyId, long characterId) =>
+        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId) =>
             familyRecordService.AddMemberAsync(familyId, characterId);
 
-        public static async Task<Reply<bool>> Handle(AddFamilyMemberRequest r, IServiceProvider services) =>
+        public static async Task<Reply<FamilyMemberAddition>> Handle(AddFamilyMemberRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<FamilyHub>().AddMemberAsync(r.FamilyId, r.CharacterId));
 
         public Task<bool> RemoveMemberAsync(long familyId, long characterId) =>

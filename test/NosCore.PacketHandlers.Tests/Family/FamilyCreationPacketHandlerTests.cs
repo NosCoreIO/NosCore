@@ -38,7 +38,6 @@ namespace NosCore.PacketHandlers.Tests.Family
         private ClientSession _second;
         private ClientSession _third;
         private Mock<IFamilyService> _familyService;
-        private Mock<IFamilyWarehouseService> _warehouse;
         private readonly List<IMessage> _published = new();
 
         [TestInitialize]
@@ -47,7 +46,6 @@ namespace NosCore.PacketHandlers.Tests.Family
             World = await TestWorld.CreateAsync();
             World.UseReal<IFamilyManagementService, FamilyManagementService>();
             _familyService = World.Freeze<Mock<IFamilyService>>();
-            _warehouse = World.Freeze<Mock<IFamilyWarehouseService>>();
             World.PubSubHub
                 .Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             _head = await World.CreateSessionAsync();
@@ -233,7 +231,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await World.Create<FamilyDisbandPacketHandler>().ExecuteAsync(new FamilyDismissPacket(), _head);
 
             Assert.AreEqual(Game18NConstString.OnlyHeadCanDisbandFamily, LastInfo(_head));
-            _familyService.Verify(s => s.DisbandAsync(It.IsAny<GameObject.Services.FamilyService.Family>()), Times.Never);
+            _familyService.Verify(s => s.DisbandAsync(It.IsAny<GameObject.Services.FamilyService.Family>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
@@ -241,12 +239,12 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             JoinFamily(FamilyAuthority.Head);
             var family = _head.Character.Family.NotNull();
-            _familyService.Setup(s => s.DisbandAsync(family)).ReturnsAsync(true);
+            var headId = _head.Character.CharacterId;
+            _familyService.Setup(s => s.DisbandAsync(family, headId)).ReturnsAsync(true);
 
             await World.Create<FamilyDisbandPacketHandler>().ExecuteAsync(new FamilyDismissPacket(), _head);
 
             Assert.AreEqual(Game18NConstString.FamilyDisbanded, LastInfo(_head));
-            _warehouse.Verify(s => s.EmptyAsync(7), Times.Once);
             CollectionAssert.AreEquivalent(new[] { _head.Character.CharacterId, _second.Character.CharacterId },
                 ((FamilyChangedData)_published.Single()).CharacterIds);
         }

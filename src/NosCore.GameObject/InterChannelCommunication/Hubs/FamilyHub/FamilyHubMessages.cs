@@ -15,7 +15,7 @@ public record AddFamilyExperienceRequest(long FamilyId, long CharacterId, int Ex
 
 public record CreateFamilyRequest(string Name, byte MaxSize, long HeadId, IReadOnlyList<long> DeputyIds) : IMasterRequest;
 
-public record DisbandFamilyRequest(long FamilyId) : IMasterRequest;
+public record DisbandFamilyRequest(long FamilyId, long HeadId) : IMasterRequest;
 
 public record AddFamilyMemberRequest(long FamilyId, long CharacterId) : IMasterRequest;
 

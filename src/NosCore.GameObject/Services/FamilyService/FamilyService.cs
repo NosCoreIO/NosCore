@@ -60,9 +60,9 @@ namespace NosCore.GameObject.Services.FamilyService
         public Task<long?> CreateAsync(string name, byte maxSize, long headId, IEnumerable<long> deputyIds) =>
             familyHub.CreateAsync(name, maxSize, headId, deputyIds.ToList());
 
-        public Task<bool> DisbandAsync(Family family) => familyHub.DisbandAsync(family.FamilyId);
+        public Task<bool> DisbandAsync(Family family, long headId) => familyHub.DisbandAsync(family.FamilyId, headId);
 
-        public Task<bool> AddMemberAsync(long familyId, long characterId) =>
+        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId) =>
             familyHub.AddMemberAsync(familyId, characterId);
 
         public Task<bool> RemoveMemberAsync(long familyId, long characterId) =>
