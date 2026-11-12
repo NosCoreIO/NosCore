@@ -11,6 +11,7 @@ using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.ClientPackets.Groups;
@@ -22,7 +23,8 @@ using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Group
 {
-    public class PleavePacketHandler(IIdService<GameObject.Services.GroupService.Group> groupIdService, ISessionRegistry sessionRegistry, ISessionGroupFactory sessionGroupFactory) : PacketHandler<PleavePacket>,
+    public class PleavePacketHandler(IIdService<GameObject.Services.GroupService.Group> groupIdService, ISessionRegistry sessionRegistry, ISessionGroupFactory sessionGroupFactory,
+        ICoupleBuffService coupleBuffService) : PacketHandler<PleavePacket>,
         IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PleavePacket bIPacket, ClientSession clientSession)
@@ -33,6 +35,14 @@ namespace NosCore.PacketHandlers.Group
             {
                 return;
             }
+
+            var formerMembers = group.Values.Select(s => s.Item2).OfType<ICharacterEntity>().ToList();
+            await LeaveAsync(group, clientSession);
+            await coupleBuffService.RefreshAsync(formerMembers);
+        }
+
+        private async Task LeaveAsync(GameObject.Services.GroupService.Group group, ClientSession clientSession)
+        {
 
             if (group.Count > 2)
             {

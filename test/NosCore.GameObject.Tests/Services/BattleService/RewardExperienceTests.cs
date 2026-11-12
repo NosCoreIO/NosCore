@@ -38,6 +38,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private ClientSession _session;
         private MonsterComponentBundle _monster;
         private RewardService _service;
+        private BuffService _buffs;
         private readonly Dictionary<long, (long Xp, long JobXp)> _awarded = new();
 
         [TestInitialize]
@@ -61,10 +62,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .Returns(Task.CompletedTask);
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetDrops(It.IsAny<short>())).Returns(new List<DropDto>());
-            _service = new RewardService(new Mock<IItemGenerationService>().Object,
-                new Mock<IMapItemGenerationService>().Object, catalog.Object,
-                progression.Object, new ExperienceShareService(), new LevelPenaltyService(),
-                new LowLevelBoostService(), World.GroupLootService, new MateProgressionService(new MateExperienceService()), NullLogger<RewardService>.Instance);
+            _buffs = World.Create<BuffService>();
+            World.Inject(catalog.Object);
+            World.Inject(progression.Object);
+            World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IMateProgressionService, MateProgressionService>();
+            World.Inject<IBuffService>(_buffs);
+            _service = World.Create<RewardService>();
         }
 
         [TestMethod]
@@ -76,6 +80,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await KillAsync((_session, 100));
 
             Assert.AreEqual((1000L, 100L), _awarded[_session.Character.CharacterId]);
+        }
+
+        [TestMethod]
+        public async Task TheCoupleBuffAddsFivePercent()
+        {
+            _session.Character.Level = 30;
+            _session.Character.JobLevel = 30;
+            await _buffs.ApplyPermanentAsync(_session.Character, new CardDto { CardId = 319 },
+                [new BCardDto { Type = 44, SubType = 11, FirstData = 5, CardId = 319 }]);
+
+            await KillAsync((_session, 100));
+
+            Assert.AreEqual((1050L, 105L), _awarded[_session.Character.CharacterId]);
         }
 
         [TestMethod]

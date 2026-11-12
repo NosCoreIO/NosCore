@@ -108,11 +108,34 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         return Task.CompletedTask;
     }
 
-    public Task RemoveAsync(IAliveEntity target, short cardId)
+    public async Task ApplyPermanentAsync(ICharacterEntity target, CardDto card, IReadOnlyList<BCardDto> bCards)
     {
         var buffs = ResolveState(target);
-        buffs?.TryRemove(cardId, out _);
-        return Task.CompletedTask;
+        if (buffs == null)
+        {
+            return;
+        }
+
+        var buff = new BuffInstance(
+            CardId: card.CardId,
+            BuffType: ClassifyBuffType(card),
+            Caster: null,
+            StartedAt: clock.GetCurrentInstant(),
+            ExpiresAt: Instant.MaxValue,
+            BCards: bCards,
+            Permanent: true);
+
+        buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
+        await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true, RemainingTime = -1 });
+    }
+
+    public async Task RemoveAsync(IAliveEntity target, short cardId)
+    {
+        var buffs = ResolveState(target);
+        if (buffs != null && buffs.TryRemove(cardId, out var removed) && removed.Permanent && target is ICharacterEntity character)
+        {
+            await character.SendPacketAsync(new VbPacket { CardId = cardId, IsActivated = false, RemainingTime = -1 });
+        }
     }
 
     public async Task ClearAsync(IAliveEntity target)
@@ -123,9 +146,9 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             return;
         }
 
-        foreach (var cardId in buffs.Keys)
+        foreach (var (cardId, buff) in buffs)
         {
-            if (buffs.TryRemove(cardId, out var removed))
+            if (!buff.Permanent && buffs.TryRemove(cardId, out var removed))
             {
                 await SendIconRemovalAsync(target, removed);
             }
@@ -157,7 +180,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     public IReadOnlyCollection<BuffInstance> GetActiveBuffs(IAliveEntity target)
     {
         var buffs = ResolveState(target);
-        return buffs == null ? EmptyBuffs : buffs.Values.ToArray();
+        if (buffs == null)
+        {
+            return EmptyBuffs;
+        }
+
+        var now = clock.GetCurrentInstant();
+        return buffs.Values.Where(b => b.ExpiresAt > now).ToArray();
     }
 
     public bool HasBuff(IAliveEntity target, short cardId)

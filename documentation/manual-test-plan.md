@@ -495,6 +495,13 @@ Needs two characters who are friends, both online on the same channel.
       appears and the spouse stays
 - [ ] Use the separation letter (`$CreateItem 1982`) and confirm: you are told you separated,
       the letter is used, and the spouse is gone from both friend lists
+- [ ] Spouses group up: both get the Wedding icon in the static buff bar, and its tooltip reads
+      "Increases experience points earned by 5%"
+- [ ] A third player in the same group gets no icon
+- [ ] One spouse leaves the group, or the group breaks up: both icons go away
+- [ ] Separate while grouped: both icons go away
+- [ ] With the icon, a kill gives 5% more level and job experience than the same kill without it
+- [ ] Die with the icon: it is still there after reviving
 
 ### NPC teleporters
 

@@ -15,6 +15,7 @@ using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.InterChannelCommunication.Hubs.BlacklistHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.GroupService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
@@ -32,7 +33,7 @@ namespace NosCore.PacketHandlers.Group
     public class PjoinPacketHandler(ILogger<PjoinPacketHandler> logger, IBlacklistHub blacklistHttpCLient, IClock clock,
             IIdService<GameObject.Services.GroupService.Group> groupIdService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry)
+            ISessionRegistry sessionRegistry, ICoupleBuffService coupleBuffService)
         : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
@@ -269,6 +270,7 @@ namespace NosCore.PacketHandlers.Group
                     groupIdService.Items[currentGroup.GroupId] = currentGroup;
                     await clientSession.Character.MapInstance.SendPacketAsync(
                         clientSession.Character.Group.GeneratePidx(clientSession.Character));
+                    await coupleBuffService.RefreshAsync(currentGroup.Values.Select(s => s.Item2).OfType<ICharacterEntity>());
 
                     break;
                 case GroupRequestType.Declined:

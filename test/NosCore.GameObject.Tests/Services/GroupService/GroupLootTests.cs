@@ -58,17 +58,12 @@ namespace NosCore.GameObject.Tests.Services.GroupService
             {
                 new() { VNum = DroppableVNum, Amount = 1, DropChance = 10000, MonsterVNum = 1 },
             });
-            _service = new RewardService(
-                World.GenerateItemProvider(),
-                World.MapItemProvider.NotNull(),
-                catalog.Object,
-                new Mock<IExperienceProgressionService>().Object,
-                new ExperienceShareService(),
-                new LevelPenaltyService(),
-                new LowLevelBoostService(),
-                World.GroupLootService,
-                new MateProgressionService(new MateExperienceService()),
-                NullLogger<RewardService>.Instance);
+            World.Inject(catalog.Object);
+            World.Inject(new Mock<IExperienceProgressionService>().Object);
+            World.UseReal<IGroupLootService, GroupLootService>();
+            World.UseReal<IMateProgressionService, MateProgressionService>();
+            World.UseReal<IBuffService, BuffService>();
+            _service = World.Create<RewardService>();
 
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },
