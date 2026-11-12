@@ -7,6 +7,8 @@
 using NosCore.GameObject.Services.ItemGenerationService;
 using System.Collections.Generic;
 using System.Linq;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using JetBrains.Annotations;
 using NosCore.Algorithm.SpUpgradeService;
 using NosCore.Core.I18N;
@@ -26,17 +28,18 @@ public abstract class EventSpUpgradeOperationBase(
     IItemCatalog itemCatalog)
     : SpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog), IItemOpenedUpgradeOperation
 {
-    public abstract short ScrollVNum { get; }
+    private short ScrollVNum => ItemCatalog.GetItemsWithEffect(ItemEffectType.EventSpUpgradeScroll)
+        .FirstOrDefault(i => i.EffectValue == (int)Kind)?.VNum ?? 0;
 
-    public IReadOnlyCollection<short> OpeningItemVNums => new[] { ScrollVNum };
-
-    protected abstract IReadOnlyCollection<short> CardVNums { get; }
+    public bool IsOpenedBy(ItemDto item) => IsFor(item, ItemEffectType.EventSpUpgradeScroll);
 
     public override NpcDialogWindow Window => NpcDialogWindow.UpgradeScroll;
 
     protected override bool IsProtected => false;
 
-    protected override bool Accepts(SpecialistInstance card) => CardVNums.Contains(card.ItemVNum);
+    protected override bool Accepts(SpecialistInstance card) => IsFor(card.Item, ItemEffectType.EventSpecialist);
+
+    private bool IsFor(ItemDto item, ItemEffectType effect) => item.Effect == effect && item.EffectValue == (int)Kind;
 
     protected override long GoldCost(SpecialistInstance card) => 0;
 
@@ -54,14 +57,7 @@ public sealed class ChickenSpUpgradeOperation(IRandomNumberSource random, IGameL
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
-    public const short ChickenScrollVNum = 5107;
-    public const short ChickenCardVNum = 907;
-
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpChiken;
-
-    public override short ScrollVNum => ChickenScrollVNum;
-
-    protected override IReadOnlyCollection<short> CardVNums { get; } = new[] { ChickenCardVNum };
 }
 
 [UsedImplicitly]
@@ -69,14 +65,7 @@ public sealed class PyjamaSpUpgradeOperation(IRandomNumberSource random, IGameLa
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
-    public const short PyjamaScrollVNum = 5207;
-    public const short PyjamaCardVNum = 900;
-
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpPyjama;
-
-    public override short ScrollVNum => PyjamaScrollVNum;
-
-    protected override IReadOnlyCollection<short> CardVNums { get; } = new[] { PyjamaCardVNum };
 }
 
 [UsedImplicitly]
@@ -84,13 +73,5 @@ public sealed class PirateSpUpgradeOperation(IRandomNumberSource random, IGameLa
         ISpUpgradeService spUpgradeService, IItemCatalog itemCatalog)
     : EventSpUpgradeOperationBase(random, localizer, spUpgradeService, itemCatalog)
 {
-    public const short PirateScrollVNum = 5519;
-    public const short PirateCardVNum = 4099;
-    public const short EventPirateCardVNum = 4100;
-
     public override UpgradePacketType Kind => UpgradePacketType.UpgradeSpPirate;
-
-    public override short ScrollVNum => PirateScrollVNum;
-
-    protected override IReadOnlyCollection<short> CardVNums { get; } = new[] { PirateCardVNum, EventPirateCardVNum };
 }

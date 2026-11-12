@@ -16,6 +16,8 @@ using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.NpcDialogService;
 using NosCore.GameObject.Services.UpgradeService;
@@ -36,6 +38,24 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
     public class EventSpUpgradeOperationTests : SpecBase
     {
         private const short ScrollSlot = 0;
+        private const short ChickenScroll = 5107;
+        private const short ChickenCard = 907;
+        private const short PyjamaScroll = 5207;
+        private const short PyjamaCard = 900;
+        private const short PirateScroll = 5519;
+        private const short PirateCard = 4099;
+        private const short EventPirateCard = 4100;
+
+        private static readonly Dictionary<short, UpgradePacketType> Windows = new()
+        {
+            [ChickenScroll] = UpgradePacketType.UpgradeSpChiken,
+            [ChickenCard] = UpgradePacketType.UpgradeSpChiken,
+            [PyjamaScroll] = UpgradePacketType.UpgradeSpPyjama,
+            [PyjamaCard] = UpgradePacketType.UpgradeSpPyjama,
+            [PirateScroll] = UpgradePacketType.UpgradeSpPirate,
+            [PirateCard] = UpgradePacketType.UpgradeSpPirate,
+            [EventPirateCard] = UpgradePacketType.UpgradeSpPirate,
+        };
 
         private Mock<IRandomNumberSource> _random;
         private EventSpUpgradeOperationBase[] _operations;
@@ -48,11 +68,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             await base.SetupAsync();
             _random = new Mock<IRandomNumberSource>();
             var localizer = World.GameLanguageLocalizer;
+            var catalog = new ItemCatalog(new[] { ChickenScroll, PyjamaScroll, PirateScroll }
+                .Select(vnum => (ItemDto)ScrollItem(vnum)).ToList());
             _operations = new EventSpUpgradeOperationBase[]
             {
-                new ChickenSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), UpgradeMaterials.Catalog()),
-                new PyjamaSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), UpgradeMaterials.Catalog()),
-                new PirateSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), UpgradeMaterials.Catalog()),
+                new ChickenSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), catalog),
+                new PyjamaSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), catalog),
+                new PirateSpUpgradeOperation(_random.Object, localizer, new SpUpgradeService(), catalog),
             };
             CharacterHasGold(1_000);
         }
@@ -61,12 +83,12 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task ASuccessRaisesThePyjamaCardForOneScroll()
         {
             await new Spec("A successful roll raises the Pyjama card by one and spends one scroll and nothing else")
-                .Given(ACard_At_, PyjamaSpUpgradeOperation.PyjamaCardVNum, (byte)0)
-                .And(Scrolls_, PyjamaSpUpgradeOperation.PyjamaScrollVNum, (short)2)
+                .Given(ACard_At_, PyjamaCard, (byte)0)
+                .And(Scrolls_, PyjamaScroll, (short)2)
                 .And(TheRollIs_, 0.99)
                 .WhenAsync(UpgradingIn_, UpgradePacketType.UpgradeSpPyjama)
                 .Then(TheCardShouldBeAt_, (byte)1)
-                .And(ScrollsLeftShouldBe_, PyjamaSpUpgradeOperation.PyjamaScrollVNum, 1)
+                .And(ScrollsLeftShouldBe_, PyjamaScroll, 1)
                 .And(GoldShouldBe, 1_000L)
                 .And(TheMessageShouldBe_, Game18NConstString.UpgradeSuccessful)
                 .ExecuteAsync();
@@ -76,13 +98,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task AFailedRollKeepsTheChickenCardAndSpendsTheScroll()
         {
             await new Spec("A failed roll leaves the Chicken card as it was but still spends the scroll")
-                .Given(ACard_At_, ChickenSpUpgradeOperation.ChickenCardVNum, (byte)0)
-                .And(Scrolls_, ChickenSpUpgradeOperation.ChickenScrollVNum, (short)1)
+                .Given(ACard_At_, ChickenCard, (byte)0)
+                .And(Scrolls_, ChickenScroll, (short)1)
                 .And(TheRollIs_, 0.10)
                 .WhenAsync(UpgradingIn_, UpgradePacketType.UpgradeSpChiken)
                 .Then(TheCardShouldBeAt_, (byte)0)
                 .And(TheCardShouldNotBeDestroyed)
-                .And(ScrollsLeftShouldBe_, ChickenSpUpgradeOperation.ChickenScrollVNum, 0)
+                .And(ScrollsLeftShouldBe_, ChickenScroll, 0)
                 .And(TheMessageShouldBe_, Game18NConstString.SpecialistUpgradeFailed)
                 .ExecuteAsync();
         }
@@ -91,12 +113,12 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task TheEventPirateCardIsUpgradedToo()
         {
             await new Spec("The event copy of the Pirate card is upgraded with the Pirate scroll")
-                .Given(ACard_At_, PirateSpUpgradeOperation.EventPirateCardVNum, (byte)3)
-                .And(Scrolls_, PirateSpUpgradeOperation.PirateScrollVNum, (short)1)
+                .Given(ACard_At_, EventPirateCard, (byte)3)
+                .And(Scrolls_, PirateScroll, (short)1)
                 .And(TheRollIs_, 0.99)
                 .WhenAsync(UpgradingIn_, UpgradePacketType.UpgradeSpPirate)
                 .Then(TheCardShouldBeAt_, (byte)4)
-                .And(ScrollsLeftShouldBe_, PirateSpUpgradeOperation.PirateScrollVNum, 0)
+                .And(ScrollsLeftShouldBe_, PirateScroll, 0)
                 .ExecuteAsync();
         }
 
@@ -104,13 +126,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task WithoutTheScrollNothingHappens()
         {
             await new Spec("Without the card's own scroll the upgrade is refused and the card is left alone")
-                .Given(ACard_At_, PyjamaSpUpgradeOperation.PyjamaCardVNum, (byte)0)
-                .And(Scrolls_, ChickenSpUpgradeOperation.ChickenScrollVNum, (short)1)
+                .Given(ACard_At_, PyjamaCard, (byte)0)
+                .And(Scrolls_, ChickenScroll, (short)1)
                 .And(TheRollIs_, 0.99)
                 .WhenAsync(UpgradingIn_, UpgradePacketType.UpgradeSpPyjama)
                 .Then(TheRefusalShouldBe_, Game18NConstString.NotEnoughIngredients)
                 .And(TheCardShouldBeAt_, (byte)0)
-                .And(ScrollsLeftShouldBe_, ChickenSpUpgradeOperation.ChickenScrollVNum, 1)
+                .And(ScrollsLeftShouldBe_, ChickenScroll, 1)
                 .ExecuteAsync();
         }
 
@@ -118,13 +140,13 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task AnotherCardCannotBeUpgradedInTheWindow()
         {
             await new Spec("A card that is not the window's own is refused and the scroll is kept")
-                .Given(ACard_At_, ChickenSpUpgradeOperation.ChickenCardVNum, (byte)0)
-                .And(Scrolls_, PyjamaSpUpgradeOperation.PyjamaScrollVNum, (short)1)
+                .Given(ACard_At_, ChickenCard, (byte)0)
+                .And(Scrolls_, PyjamaScroll, (short)1)
                 .And(TheRollIs_, 0.99)
                 .WhenAsync(UpgradingIn_, UpgradePacketType.UpgradeSpPyjama)
                 .Then(TheRefusalShouldBe_, Game18NConstString.CardCannotBeUpgraded)
                 .And(TheCardShouldBeAt_, (byte)0)
-                .And(ScrollsLeftShouldBe_, PyjamaSpUpgradeOperation.PyjamaScrollVNum, 1)
+                .And(ScrollsLeftShouldBe_, PyjamaScroll, 1)
                 .ExecuteAsync();
         }
 
@@ -132,11 +154,11 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         public async Task UsingTheScrollOpensItsWindow()
         {
             await new Spec("Using the Pirate scroll opens the Pirate upgrade window and keeps the scroll")
-                .Given(Scrolls_, PirateSpUpgradeOperation.PirateScrollVNum, (short)1)
+                .Given(Scrolls_, PirateScroll, (short)1)
                 .WhenAsync(UsingTheScrollIn_, ScrollSlot)
                 .Then(TheWindowShouldBe_, WindowType.UpgradeSpPirate)
                 .And(TheScrollWindowShouldBeOpen)
-                .And(ScrollsLeftShouldBe_, PirateSpUpgradeOperation.PirateScrollVNum, 1)
+                .And(ScrollsLeftShouldBe_, PirateScroll, 1)
                 .ExecuteAsync();
         }
 
@@ -146,6 +168,7 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
             {
                 VNum = vnum, Type = NoscorePocketType.Equipment, ItemType = ItemType.Specialist,
                 EquipmentSlot = EquipmentType.Sp, Morph = 12,
+                Effect = ItemEffectType.EventSpecialist, EffectValue = (int)Windows[vnum],
             })
             {
                 Amount = 1,
@@ -161,12 +184,18 @@ namespace NosCore.GameObject.Tests.Services.UpgradeService
         private void Scrolls_(short vnum, short amount)
         {
             var inst = InventoryItemInstance.Create(
-                new ItemInstance(new Item { VNum = vnum, Type = NoscorePocketType.Main }) { Amount = amount },
+                new ItemInstance(ScrollItem(vnum)) { Amount = amount },
                 Session.Character.CharacterId);
             inst.Slot = ScrollSlot;
             inst.Type = NoscorePocketType.Main;
             Session.Character.InventoryService[inst.ItemInstanceId] = inst;
         }
+
+        private static Item ScrollItem(short vnum) => new()
+        {
+            VNum = vnum, Type = NoscorePocketType.Main,
+            Effect = ItemEffectType.EventSpUpgradeScroll, EffectValue = (int)Windows[vnum],
+        };
 
         private void TheRollIs_(double value) => _random.Setup(r => r.NextDouble()).Returns(value);
 

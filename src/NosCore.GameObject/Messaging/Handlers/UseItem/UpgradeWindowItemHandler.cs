@@ -25,9 +25,9 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
         [UsedImplicitly]
         public Task Handle(ItemUsedEvent evt)
         {
-            var vnum = evt.InventoryItem.ItemInstance.ItemVNum;
+            var item = evt.InventoryItem.ItemInstance.Item;
             var operation = operations.OfType<IItemOpenedUpgradeOperation>()
-                .FirstOrDefault(o => o.OpeningItemVNums.Contains(vnum));
+                .FirstOrDefault(o => o.IsOpenedBy(item));
             if (operation is null || evt.ClientSession.Character.InExchangeOrShop)
             {
                 return Task.CompletedTask;

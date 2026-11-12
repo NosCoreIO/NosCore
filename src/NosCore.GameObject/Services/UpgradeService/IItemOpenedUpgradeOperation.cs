@@ -4,12 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using System.Collections.Generic;
+using NosCore.Data.StaticEntities;
 
 namespace NosCore.GameObject.Services.UpgradeService;
 
 // An upgrade whose window is opened by using an item rather than at an NPC.
 public interface IItemOpenedUpgradeOperation : IUpgradeOperation
 {
-    IReadOnlyCollection<short> OpeningItemVNums { get; }
+    bool IsOpenedBy(ItemDto item);
 }
