@@ -58,18 +58,7 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
                 character.Gold += amount;
 
                 var goldName = items.First(i => i.VNum == vnum).Name[session.Account.Language];
-#pragma warning disable NosCoreAnalyzers
-                var characterId = character.CharacterId;
-                await session.SendPacketAsync(new Sayi2Packet
-                {
-                    VisualType = VisualType.Player,
-                    VisualId = characterId,
-                    Type = SayColorType.Green,
-                    Message = Game18NConstString.ItemReceived,
-                    ArgumentType = 9,
-                    Game18NArguments = new Game18NArguments(2) { amount, goldName }
-                });
-#pragma warning restore NosCoreAnalyzers
+                await session.SendPacketAsync(character.GenerateGoldReceived(amount, goldName));
             }
             else
             {

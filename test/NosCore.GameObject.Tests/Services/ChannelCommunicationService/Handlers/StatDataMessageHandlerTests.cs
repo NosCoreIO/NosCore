@@ -12,6 +12,7 @@ using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
 using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.InterChannelCommunication.Messages;
@@ -19,6 +20,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
+using NosCore.Shared.Enumerations;
 using NosCore.Shared.I18N;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
@@ -37,23 +39,18 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
         private Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>> Logger;
         private Mock<ILogLanguageLocalizer<LogLanguageKey>> LogLanguage;
         private IOptions<WorldConfiguration> WorldConfig;
-        private Mock<IExperienceService> ExperienceService;
-        private Mock<IJobExperienceService> JobExperienceService;
-        private Mock<IHeroExperienceService> HeroExperienceService;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
             Session = await World.CreateSessionAsync();
-            SessionRegistry = new Mock<ISessionRegistry>();
-            Logger = new Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>>();
-            LogLanguage = new Mock<ILogLanguageLocalizer<LogLanguageKey>>();
+            SessionRegistry = World.Freeze<Mock<ISessionRegistry>>();
+            Logger = World.Freeze<Mock<ILogger<StatDataMessageChannelCommunicationMessageHandler>>>();
+            LogLanguage = World.Freeze<Mock<ILogLanguageLocalizer<LogLanguageKey>>>();
             WorldConfig = Options.Create(new WorldConfiguration { Database = new(), MasterCommunication = new(), MaxGoldAmount = 999999999 });
-            ExperienceService = new Mock<IExperienceService>();
-            JobExperienceService = new Mock<IJobExperienceService>();
-            HeroExperienceService = new Mock<IHeroExperienceService>();
-            Handler = new StatDataMessageChannelCommunicationMessageHandler(Logger.Object, LogLanguage.Object, WorldConfig, SessionRegistry.Object, ExperienceService.Object, JobExperienceService.Object, HeroExperienceService.Object, new NosCore.Algorithm.SkillPointService.SkillPointService());
+            World.Inject(WorldConfig);
+            Handler = World.Create<StatDataMessageChannelCommunicationMessageHandler>();
         }
 
         [TestMethod]
@@ -87,6 +84,42 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 .Then(ShouldLogError)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task ARemoteClassChangeResetsTheSkillBarLikeALocalOne()
+        {
+            await new Spec("A remote class change resets the skill bar like a local one")
+                .Given(CharacterIsRegistered)
+                .And(CharacterKnowsAnAdventurerSkill)
+                .WhenAsync(HandlingStatDataWithClass_, CharacterClassType.Swordsman)
+                .Then(CharacterClassShouldBe_, CharacterClassType.Swordsman)
+                .And(OldSkillsShouldBeGone)
+                .ExecuteAsync();
+        }
+
+        private void CharacterKnowsAnAdventurerSkill() =>
+            Session.Character.Skills.TryAdd(200, new NosCore.GameObject.Services.BattleService.CharacterSkill
+            {
+                SkillVNum = 200,
+                CharacterId = Session.Character.CharacterId,
+                Skill = new SkillDto { SkillVNum = 200 }
+            });
+
+        private async Task HandlingStatDataWithClass_(CharacterClassType classType)
+        {
+            await Handler.Handle(new StatData
+            {
+                Character = new Data.WebApi.Character { Name = Session.Character.Name },
+                ActionType = UpdateStatActionType.UpdateClass,
+                Data = (long)classType
+            });
+        }
+
+        private void CharacterClassShouldBe_(CharacterClassType classType) =>
+            Assert.AreEqual(classType, Session.Character.Class);
+
+        private void OldSkillsShouldBeGone() =>
+            Assert.IsFalse(Session.Character.Skills.ContainsKey(200));
 
         private byte OriginalLevel;
 

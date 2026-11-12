@@ -281,6 +281,10 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 - [ ] No leftover icons the client refuses to cast
 - [ ] **Relog** and confirm the old skills have not come back — the rows behind the list
       have to be gone, not just the in-memory list
+- [ ] With a second player online, `$ChangeClass <class> <name>` changes them the same way:
+      their portrait and look switch, and they get the "class changed" message
+- [ ] `$Gold <amount> <name>` on another player shows them "You have received: N Gold", and
+      `$SetLevel <level> <name>` plays the level-up effect on them
 
 ### Skill teachers
 

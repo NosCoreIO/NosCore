@@ -11,6 +11,7 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
+using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.ClientPackets.Npcs;
 using NosCore.Packets.Enumerations;
@@ -207,7 +208,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, string message, SayColorType type)
+        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, string? message, SayColorType type)
         {
             return new SayPacket
             {
@@ -217,6 +218,50 @@ namespace NosCore.GameObject.Ecs.Extensions
                 Message = message
             };
         }
+
+        public static SayiPacket GenerateSayi(this IAliveEntity aliveEntity, SayColorType type, Game18NConstString message) => new()
+        {
+            VisualType = aliveEntity.VisualType,
+            VisualId = aliveEntity.VisualId,
+            Type = type,
+            Message = message
+        };
+
+        public static SayiPacket GenerateSayi(this IAliveEntity aliveEntity, SayColorType type,
+            Game18NConstString message, byte argumentType, params object[] arguments)
+        {
+            var packet = aliveEntity.GenerateSayi(type, message);
+            packet.ArgumentType = argumentType;
+            foreach (var argument in arguments)
+            {
+                packet.Game18NArguments.Add(argument);
+            }
+
+            return packet;
+        }
+
+        public static Sayi2Packet GenerateSayi2(this IAliveEntity aliveEntity, SayColorType type,
+            Game18NConstString message, byte argumentType, params object[] arguments)
+        {
+            var packet = new Sayi2Packet
+            {
+                VisualType = aliveEntity.VisualType,
+                VisualId = aliveEntity.VisualId,
+                Type = type,
+                Message = message,
+                ArgumentType = argumentType,
+                Game18NArguments = new Game18NArguments(Math.Max(1, arguments.Length))
+            };
+            foreach (var argument in arguments)
+            {
+                packet.Game18NArguments.Add(argument);
+            }
+
+            return packet;
+        }
+
+        public static Sayi2Packet GenerateGoldReceived(this IAliveEntity aliveEntity, long amount, string goldName) =>
+            aliveEntity.GenerateSayi2(SayColorType.Green, Game18NConstString.ItemReceived, 9, amount, goldName);
 
         public static SayItemPacket GenerateSayItem(this IAliveEntity aliveEntity, string message, InventoryItemInstance item)
         {
@@ -343,16 +388,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, SayPacket packet)
-        {
-            return new SayPacket
-            {
-                VisualType = aliveEntity.VisualType,
-                VisualId = aliveEntity.VisualId,
-                Type = packet.Type,
-                Message = packet.Message
-            };
-        }
+        public static SayPacket GenerateSay(this IAliveEntity aliveEntity, SayPacket packet) =>
+            aliveEntity.GenerateSay(packet.Message, packet.Type);
 
         public static RestPacket GenerateRest(this IAliveEntity aliveEntity)
         {

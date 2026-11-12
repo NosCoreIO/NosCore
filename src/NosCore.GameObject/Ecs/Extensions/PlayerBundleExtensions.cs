@@ -54,6 +54,8 @@ using NosCore.Packets.ServerPackets.Groups;
 using NosCore.Packets.ServerPackets.Movement;
 using NodaTime;
 using NosCore.Data.Enumerations.Buff;
+using NosCore.Data.Enumerations.Items;
+using NosCore.Data.StaticEntities;
 using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Generic;
@@ -199,6 +201,14 @@ public static class PlayerBundleExtensions
             });
         }
         return new BlinitPacket { SubPackets = subpackets };
+    }
+
+    public static async Task SetGoldAsync(this PlayerComponentBundle player, long gold, List<ItemDto> items)
+    {
+        player.Gold = gold;
+        await player.SendPacketAsync(player.GenerateGold());
+        var goldName = items.First(i => i.Effect == ItemEffectType.Gold).Name[player.AccountLanguage];
+        await player.SendPacketAsync(player.GenerateGoldReceived(gold, goldName));
     }
 
     public static async Task SetReputationAsync(this PlayerComponentBundle player, long reputation)
@@ -855,13 +865,7 @@ public static class ClientSessionMailExtensions
 
         if (inventoryService.Any(s => s.Value.Type == NoscorePocketType.Wear))
         {
-            await session.SendPacketAsync(new SayiPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = characterId,
-                Type = SayColorType.Yellow,
-                Message = Game18NConstString.RemoveEquipment
-            });
+            await session.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.RemoveEquipment));
             return;
         }
 

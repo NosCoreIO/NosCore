@@ -63,28 +63,6 @@ namespace NosCore.GameObject.Ecs.Extensions
     {
         // A system message the client shows as said by this character, which is how it tells
         // a player about their own actions.
-        public static SayiPacket GenerateSayi(this ICharacterEntity character, SayColorType type,
-            Game18NConstString message) => new()
-        {
-            VisualType = VisualType.Player,
-            VisualId = character.CharacterId,
-            Type = type,
-            Message = message
-        };
-
-        public static SayiPacket GenerateSayi(this ICharacterEntity character, SayColorType type,
-            Game18NConstString message, byte argumentType, params object[] arguments)
-        {
-            var packet = character.GenerateSayi(type, message);
-            packet.ArgumentType = argumentType;
-            foreach (var argument in arguments)
-            {
-                packet.Game18NArguments.Add(argument);
-            }
-
-            return packet;
-        }
-
         [Obsolete(
            "GenerateStartupInventory should be used only on startup, for refreshing an inventory slot please use GenerateInventoryAdd instead.")]
         public static IEnumerable<IPacket> GenerateInv(this ICharacterEntity characterEntity, ILogger logger, ILogLanguageLocalizer<LogLanguageKey> logLanguageLocalizer)
@@ -431,16 +409,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             await characterEntity.SendPacketAsync(GenerateUpdateGoldSayPacket(characterEntity, localizer));
         }
 
-        private static SayPacket GenerateUpdateGoldSayPacket(ICharacterEntity characterEntity, IGameLanguageLocalizer localizer)
-        {
-            return new SayPacket
-            {
-                VisualType = VisualType.Player,
-                VisualId = characterEntity.VisualId,
-                Type = SayColorType.Red,
-                Message = localizer[LanguageKey.UPDATE_GOLD, characterEntity.AccountLanguage]
-            };
-        }
+        private static SayPacket GenerateUpdateGoldSayPacket(ICharacterEntity characterEntity, IGameLanguageLocalizer localizer) =>
+            characterEntity.GenerateSay(localizer[LanguageKey.UPDATE_GOLD, characterEntity.AccountLanguage], SayColorType.Red);
 
         public static async Task SetJobLevelAsync(this ICharacterEntity characterEntity, byte jobLevel,
             IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
