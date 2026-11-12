@@ -81,8 +81,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
     {
-        // The client's counter is a ushort, so 0 follows 65535.
-        if (session.LastKeepAliveIdentity is { } last && packet.KeepAliveId != (ushort)(last + 1))
+        if (session.LastKeepAliveIdentity is { } last && packet.KeepAliveId != NextKeepAlive(last))
         {
             logger.LogError(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
             await session.DisconnectAsync();
@@ -99,6 +98,9 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
         return true;
     }
+
+    // The client never sends 65535: once its counter reaches it, the next packet goes out as 0.
+    private static ushort NextKeepAlive(ushort last) => last >= ushort.MaxValue - 1 ? (ushort)0 : (ushort)(last + 1);
 
     private Task<bool> HandleInitialConnectionAsync(IPacket packet, ClientSession session)
     {

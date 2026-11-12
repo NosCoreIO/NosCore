@@ -235,10 +235,20 @@ namespace NosCore.GameObject.Tests.Networking
         [TestMethod]
         public async Task PacketAfterTheCounterWrapsRuns()
         {
-            await new Spec("A packet numbered 0 after 65535 runs")
-                .Given(TheLastPacketWasNumbered_, ushort.MaxValue)
+            await new Spec("The client follows 65534 with 0, so that packet runs")
+                .Given(TheLastPacketWasNumbered_, (ushort)(ushort.MaxValue - 1))
                 .WhenAsync(A_Arrives, nameof(PulsePacket))
                 .Then(Packet_ShouldHaveRun, nameof(PulsePacket))
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task PacketNumbered65535IsRefused()
+        {
+            await new Spec("The client never sends 65535, so a packet numbered 65535 is refused")
+                .Given(TheLastPacketWasNumbered_, (ushort)(ushort.MaxValue - 1))
+                .WhenAsync(APulseNumbered_, ushort.MaxValue)
+                .Then(Packet_ShouldNotHaveRun, nameof(PulsePacket))
                 .ExecuteAsync();
         }
 
@@ -368,7 +378,9 @@ namespace NosCore.GameObject.Tests.Networking
 
         private Task FromNetwork(IPacket packet)
         {
-            packet.KeepAliveId = (ushort)((Session.LastKeepAliveIdentity ?? 0) + 1);
+            packet.KeepAliveId = Session.LastKeepAliveIdentity == ushort.MaxValue - 1
+                ? (ushort)0
+                : (ushort)((Session.LastKeepAliveIdentity ?? 0) + 1);
             return Session.HandlePacketsAsync(new[] { packet }, true);
         }
 
