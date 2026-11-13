@@ -984,6 +984,11 @@ in the Equipment bag; a second player on the map watches the partner.
       starts
 - [ ] Without a card on the partner the button says "No Specialist Card equipped."
 - [ ] Transformed, change map: the partner arrives transformed
+- [ ] Transformed, the partner skill bar shows the card's three skills (Shift+Q, W, E). Select a
+      monster near the partner and press Shift+Q: the partner plays the skill, the monster's bar
+      drops, the partner's MP drops and the slot shows its cooldown
+- [ ] Press Shift+Q again during the cooldown: nothing happens; once it is over the skill works again
+- [ ] Turn the partner back: the partner skill bar goes away
 
 #### Pet and partner items
 
@@ -1058,6 +1063,21 @@ Have a pet and a partner out, and a second client on the same map watching.
       pet
 - [ ] Use a pet skill on a monster across the map: the pet does not hit it
 - [ ] Use a pet skill on another player or on an NPC: nothing happens
+
+### A NosMate knocked out
+
+`/mnt/project-files/partner-skills/scene.sh` (stop the stack first) puts a Baby Dander that hits
+hard next to your partner, a partner card on the partner and `SEEDS` Seeds of Power (default 7)
+in the Main bag; `SPEED=10` lets the Dander walk to the partner.
+
+- [ ] Transform the partner and hit the Dander with a partner skill: the Dander turns on the
+      partner and hits it, and its HP in the party panel drops
+- [ ] With 5 or more Seeds of Power, let the Dander knock the partner out: it leaves the map, five
+      seeds are gone, "5 Seeds of Power used" and "NosMate dead: it will come back in 3 minutes"
+      show, the partner is turned back and its skill bar goes away
+- [ ] Wait 3 minutes: the partner is back at your side with full HP and MP
+- [ ] With fewer than 5 seeds: "NosMate dead: It has returned to your Miniland because you don't
+      have any Seeds of Power.", the partner leaves the team panel and is found in the Miniland
 
 ### Wing and Amulet of Return
 
