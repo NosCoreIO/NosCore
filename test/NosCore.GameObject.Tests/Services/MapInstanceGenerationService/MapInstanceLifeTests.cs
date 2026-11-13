@@ -14,6 +14,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -53,22 +54,30 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
         {
             var buffs = new Mock<IBuffService>();
             buffs.Setup(b => b.TickAsync(It.IsAny<IAliveEntity>())).ThrowsAsync(new InvalidOperationException());
-            var regenerated = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
-            var regeneration = new Mock<IRegenerationService>();
-            regeneration.Setup(r => r.TickAsync(It.IsAny<MapInstance>()))
-                .Callback(() => regenerated.TrySetResult())
-                .Returns(Task.CompletedTask);
-
-            var map = NewMap(buffs.Object, regeneration.Object);
-            map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1 } },
+            var map = NewMap(buffs.Object);
+            map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1 }, new() { MapMonsterId = 2, VNum = 1 } },
                 new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10 } });
+            var buffed = map.GetMonsterById(1).NotNull();
+            var now = World.Clock.GetCurrentInstant();
+            buffed.ActiveBuffs[1] = new BuffInstance(1, BuffType.Bad, null, now.Minus(Duration.FromSeconds(2)),
+                now.Minus(Duration.FromSeconds(1)), []);
+            var dead = map.GetMonsterById(2).NotNull();
+            dead.Hp = 0;
+            dead.IsAlive = false;
+            dead.RespawnAt = now;
             map.IsSleeping = false;
             await map.StartLifeAsync();
 
-            var finished = await Task.WhenAny(regenerated.Task, Task.Delay(TimeSpan.FromSeconds(5)));
+            for (var waited = 0; !dead.IsAlive && waited < 100; waited++)
+            {
+                await Task.Delay(50);
+            }
+
+            var respawned = dead.IsAlive;
             await map.DisposeAsync();
 
-            Assert.AreSame(regenerated.Task, finished, "regeneration never ran once a buff tick threw");
+            buffs.Verify(b => b.TickAsync(It.IsAny<IAliveEntity>()), Times.AtLeastOnce());
+            Assert.IsTrue(respawned, "the respawn never ran once a buff tick threw");
         }
 
         [TestMethod]
