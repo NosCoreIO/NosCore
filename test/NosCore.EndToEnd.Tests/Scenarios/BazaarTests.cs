@@ -135,6 +135,22 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task ListingPartOfAStackLeavesTheRestInTheBag()
+        {
+            var seller = await SellerAsync(1000, 5);
+            await using var alice = await EnterAsync(seller);
+            await OpenBazaarAsync(alice);
+            var listed = alice.Mark();
+
+            await alice.SendAsync(Register(3, 100));
+
+            await alice.ExpectSinceAsync(listed, p => p == "rc_reg 1", "the listing confirmed");
+            Assert.AreEqual(2, await StoredSeedsAsync(seller.CharacterId), "two are still stored in the bag");
+            Assert.AreEqual(3, (await StoredListingsAsync(seller.CharacterId)).Single().ItemInstance.Amount);
+            await alice.ExpectSinceAsync(listed, Bag(0, 2), "the two left in the bag");
+        }
+
+        [TestMethod]
         public async Task ABuyerFindsAListingBuysFromItAndTheSellerCollects()
         {
             var seller = await SellerAsync(1000, 5);

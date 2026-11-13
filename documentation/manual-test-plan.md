@@ -1169,6 +1169,8 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
       "Parcel received >> Seed of Power x 5" in the client's language; the parcel icon lights up
 - [ ] Send yourself three gifts in a row, then open the parcel window: each is listed once, and
       taking each one puts exactly that item in the inventory and removes only that parcel
+- [ ] Take a parcel's item with the inventory window open: the item appears in its slot at once,
+      without a relog
 - [ ] With the main inventory full, take a parcel: "Not enough space" shows, the parcel stays in
       the list, and taking it again after freeing a slot delivers it
 - [ ] Send a note to a character that is online: the note icon lights up for them at once, the

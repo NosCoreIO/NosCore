@@ -69,17 +69,17 @@ namespace NosCore.PacketHandlers.Parcel
                     return;
                 }
 
-                var newInv = inventory
-                    .AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId))?
-                    .FirstOrDefault();
-                if (newInv == null)
+                var amount = item.Amount;
+                var slots = inventory.AddItemToPocket(InventoryItemInstance.Create(item, clientSession.Character.CharacterId));
+                if (slots is not { Count: > 0 })
                 {
                     await SendNotEnoughSpaceAsync(clientSession);
                     return;
                 }
 
+                await clientSession.SendPacketsAsync(slots.Select(s => s.GeneratePocketChange(s.Type.ToPocketType(), s.Slot)));
                 await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi(SayColorType.Red, Game18NConstString.ParcelReceived,
-                    2, newInv.ItemInstance.Item.VNum.ToString(), newInv.ItemInstance.Amount));
+                    2, item.ItemVNum.ToString(), amount));
 
                 await clientSession.SendPacketAsync(
                     new ParcelPacket { Type = 2, Unknown = 1, Id = (short)getGiftPacket.GiftId });
