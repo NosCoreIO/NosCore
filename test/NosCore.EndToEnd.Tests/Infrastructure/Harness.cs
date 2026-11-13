@@ -7,7 +7,9 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Database.Entities;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
 {
@@ -40,23 +42,48 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             _database ?? throw new InvalidOperationException(_unavailable ?? "The database was not created.");
 
         // A new character on an account of its own, standing where the scenario wants it.
-        public static async Task<Player> AddPlayerAsync(string name, short mapId = WorldData.Town, short x = 80, short y = 116)
+        public static async Task<Player> AddPlayerAsync(string name, short mapId = WorldData.Town, short x = 80, short y = 116,
+            Action<Character>? configure = null)
         {
             _ = Stack;
             await using var context = Database.CreateContext();
             var unique = name + (char)('a' + Interlocked.Increment(ref _players) % 26) + Random.Shared.Next(100, 999);
-            return await WorldData.AddPlayerAsync(context, unique, mapId, x, y);
+            return await WorldData.AddPlayerAsync(context, unique, mapId, x, y, configure);
         }
 
         public static TestClient Client(Player player, string password = WorldData.Password) =>
             new(Stack.Host, Stack.LoginPort, player.Account, password);
 
         // A new character, already in the world.
-        public static async Task<TestClient> EnterAsync(string name, short mapId = WorldData.Town, short x = 80, short y = 116)
+        public static async Task<TestClient> EnterAsync(string name, short mapId = WorldData.Town, short x = 80, short y = 116,
+            Action<Character>? configure = null)
         {
-            var client = Client(await AddPlayerAsync(name, mapId, x, y));
-            await client.EnterWorldAsync(0);
+            var client = Client(await AddPlayerAsync(name, mapId, x, y, configure));
+            try
+            {
+                await client.EnterWorldAsync(0);
+            }
+            catch
+            {
+                await client.DisposeAsync();
+                throw;
+            }
+
             return client;
+        }
+
+        // Puts items in a character's bag. Call it before the character enters the world.
+        public static async Task GiveAsync(Player player, short vnum, short amount, short slot = 0)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.GiveAsync(context, player.CharacterId, vnum, amount, slot);
+        }
+
+        // The stored row of a character, as it is now.
+        public static async Task<Character> StoredAsync(long characterId)
+        {
+            await using var context = Database.CreateContext();
+            return await context.Set<Character>().AsNoTracking().SingleAsync(c => c.CharacterId == characterId);
         }
 
         [AssemblyInitialize]

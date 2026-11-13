@@ -110,8 +110,9 @@ What it needs and does:
 - **The built servers.** Build the solution first; the servers are started from
   `build/net11.0` on free ports, with a copy of `configuration/`.
 - **Its own database**, created for the run, migrated, seeded by `WorldData` and dropped at
-  the end. No client files are involved: the world is two open maps joined by portals and a
-  miniland.
+  the end. No client files are involved: the world is two open maps joined by portals, a
+  miniland, one item and a shopkeeper who sells it. Add to `WorldData` what a new scenario
+  needs; static data is read when the servers start.
 
 Writing one:
 
@@ -119,9 +120,16 @@ Writing one:
   it into the world. Every scenario makes its own characters, so scenarios never share one.
 - `client.SendAsync("line")` sends a packet as text. `client.ExpectAsync("header")` returns the
   next packet with that header and fails the test with the last packets received when none
-  comes. `client.WaitAsync(match, time)` returns null instead, for asserting that something is
-  not sent.
-- `Harness.Database.CreateContext()` reads what was stored.
+  comes. Each `ExpectAsync` starts after the packet the previous one returned, so a chain of
+  them also asserts the order.
+- When two packets answer one action and their order is not the point, take
+  `var mark = client.Mark()` before the action and use `client.ExpectSinceAsync(mark, ...)`.
+- To assert that something is not sent, take a mark before the action and check
+  `await client.NoneSinceAsync(mark, match, TimeSpan.FromSeconds(1))`.
+- `Harness.GiveAsync(player, vnum, amount)` puts items in a bag before the character enters;
+  `configure: c => c.Gold = 1000` on `EnterAsync` or `AddPlayerAsync` sets anything on the row.
+- `Harness.StoredAsync(characterId)` and `Harness.Database.CreateContext()` read what was
+  stored.
 - A failing start prints the server's last lines; `Harness.Stack.LogTail("NosCore.WorldServer")`
   gives them to a scenario.
 

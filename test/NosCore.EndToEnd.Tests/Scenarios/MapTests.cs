@@ -31,8 +31,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             var arrival = await bob.ExpectAsync(p => p.StartsWith($"in 1 {alice.Name} ", StringComparison.Ordinal), "in for Alice");
             StringAssert.Contains(arrival, $" {alice.CharacterId} 80 116 ");
-            Assert.IsTrue(aliceClient.Received.Any(p => p.StartsWith("in 1 Bob", StringComparison.Ordinal)),
-                "the newcomer is shown who was already there");
+            await aliceClient.ExpectSinceAsync(0, p => p.StartsWith("in 1 Bob", StringComparison.Ordinal),
+                "in for Bob, who was already there");
         }
 
         [TestMethod]
@@ -53,11 +53,12 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
 
+            var said = alice.Mark();
             await alice.SendAsync("say hello there");
 
             var heard = await bob.ExpectAsync("say");
             Assert.AreEqual($"say 1 {alice.CharacterId} 0 hello there", heard);
-            Assert.IsNull(await alice.WaitAsync(p => TestClient.HeaderOf(p) == "say", TimeSpan.FromSeconds(1)),
+            Assert.IsTrue(await alice.NoneSinceAsync(said, p => TestClient.HeaderOf(p) == "say", TimeSpan.FromSeconds(1)),
                 "the speaker's client draws its own line");
         }
 
@@ -79,11 +80,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         {
             await using var alice = await Harness.EnterAsync("Alice", x: 90, y: 116);
 
+            var asked = alice.Mark();
             await alice.SendAsync("preq");
 
             // 94 is the client's "You will be able to move shortly".
             await alice.ExpectAsync(p => p == $"sayi 1 {alice.CharacterId} 10 94 0 0 0 0 0", "sayi 94");
-            Assert.IsNull(await alice.WaitAsync(p => TestClient.HeaderOf(p) == "at", TimeSpan.FromSeconds(1)));
+            Assert.IsTrue(await alice.NoneSinceAsync(asked, p => TestClient.HeaderOf(p) == "at", TimeSpan.FromSeconds(1)),
+                "the character stays on its map");
         }
 
         [TestMethod]

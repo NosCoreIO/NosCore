@@ -176,6 +176,41 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 $"{(_disconnected ? " (the server closed the connection)" : string.Empty)}. Last packets:{Environment.NewLine}{tail}");
         }
 
+        // A packet received at or after a mark, wherever it falls among the others. For when two
+        // packets answer one action and their order is not the point.
+        public async Task<string> ExpectSinceAsync(int mark, Func<string, bool> matches, string description, TimeSpan? timeout = null)
+        {
+            var limit = timeout ?? DefaultTimeout;
+            var waited = Stopwatch.StartNew();
+            while (true)
+            {
+                var found = Since(mark).FirstOrDefault(matches);
+                if (found != null)
+                {
+                    return found;
+                }
+
+                var left = limit - waited.Elapsed;
+                if (left <= TimeSpan.Zero)
+                {
+                    var tail = string.Join(Environment.NewLine, Since(mark).TakeLast(15).Select(p => "  " + Shorten(p)));
+                    throw new TimeoutException(
+                        $"No '{description}' packet within {limit.TotalSeconds:0.#} s. Received since:{Environment.NewLine}{tail}");
+                }
+
+                await Task.Delay(50);
+            }
+        }
+
+        // Whether nothing matching has arrived since a mark, once the given time has passed. An
+        // Expect moves past the packets before the one it returns, so an absence is asserted
+        // from a mark taken before the action instead.
+        public async Task<bool> NoneSinceAsync(int mark, Func<string, bool> matches, TimeSpan after)
+        {
+            await Task.Delay(after);
+            return !Since(mark).Any(matches);
+        }
+
         // The next matching packet, or null when none arrives in time. Use it to assert that
         // something is not sent.
         public async Task<string?> WaitAsync(Func<string, bool> matches, TimeSpan timeout)

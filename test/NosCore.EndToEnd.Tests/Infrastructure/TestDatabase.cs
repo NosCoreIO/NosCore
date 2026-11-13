@@ -15,57 +15,66 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     // A database that exists for one test run: created empty, migrated, seeded, dropped.
     public sealed class TestDatabase : IAsyncDisposable
     {
-        private readonly string _server;
-
-        private TestDatabase(string server, string name)
+        private TestDatabase(string name)
         {
-            _server = server;
             Name = name;
         }
 
         public string Name { get; }
 
-        private string ConnectionString => $"{_server}Database={Name};";
-
         // The same defaults and environment variables the servers' own configuration reads.
-        private static string ServerConnectionString()
+        private static string ConnectionString(string database) => new NpgsqlConnectionStringBuilder
         {
-            var host = Environment.GetEnvironmentVariable("DB_HOST") is { Length: > 0 } h ? h : "localhost";
-            var user = Environment.GetEnvironmentVariable("DB_USER") is { Length: > 0 } u ? u : "postgres";
-            var password = Environment.GetEnvironmentVariable("DB_PASSWORD") is { Length: > 0 } p ? p : "password";
-            return $"Host={host};Port=5432;Username={user};Password={password};Timeout=3;";
-        }
+            Host = Environment.GetEnvironmentVariable("DB_HOST") is { Length: > 0 } host ? host : "localhost",
+            Port = 5432,
+            Username = Environment.GetEnvironmentVariable("DB_USER") is { Length: > 0 } user ? user : "postgres",
+            Password = Environment.GetEnvironmentVariable("DB_PASSWORD") is { Length: > 0 } password ? password : "password",
+            Database = database,
+            Timeout = 3
+        }.ConnectionString;
 
-        // Null when no PostgreSQL answers: the tests then report themselves as not run.
+        // Null when no PostgreSQL answers: the tests then report themselves as not run. A server
+        // that answers and then refuses is a failure, not an absence.
         public static async Task<TestDatabase?> TryCreateAsync()
         {
-            var server = ServerConnectionString();
-            var name = "noscore_e2e_" + Guid.NewGuid().ToString("N")[..8];
-            try
+            var database = new TestDatabase("noscore_e2e_" + Guid.NewGuid().ToString("N")[..8]);
+            await using (var connection = new NpgsqlConnection(ConnectionString("postgres")))
             {
-                await using var connection = new NpgsqlConnection(server + "Database=postgres;");
-                await connection.OpenAsync();
-                await using var create = new NpgsqlCommand($"CREATE DATABASE \"{name}\"", connection);
+                try
+                {
+                    await connection.OpenAsync();
+                }
+                catch (Exception ex) when (ex is System.Net.Sockets.SocketException or TimeoutException
+                    || (ex is NpgsqlException && ex is not PostgresException))
+                {
+                    return null;
+                }
+
+                await using var create = new NpgsqlCommand($"CREATE DATABASE \"{database.Name}\"", connection);
                 await create.ExecuteNonQueryAsync();
             }
-            catch (Exception ex) when (ex is NpgsqlException or System.Net.Sockets.SocketException or TimeoutException)
+
+            try
             {
-                return null;
+                await using var context = database.CreateContext();
+                await context.Database.MigrateAsync();
+            }
+            catch
+            {
+                await database.DisposeAsync();
+                throw;
             }
 
-            var database = new TestDatabase(server, name);
-            await using var context = database.CreateContext();
-            await context.Database.MigrateAsync();
             return database;
         }
 
         public NosCoreContext CreateContext() =>
-            new(new DbContextOptionsBuilder<NosCoreContext>().UseNosCoreDatabase(ConnectionString).Options);
+            new(new DbContextOptionsBuilder<NosCoreContext>().UseNosCoreDatabase(ConnectionString(Name)).Options);
 
         public async ValueTask DisposeAsync()
         {
             NpgsqlConnection.ClearAllPools();
-            await using var connection = new NpgsqlConnection(_server + "Database=postgres;");
+            await using var connection = new NpgsqlConnection(ConnectionString("postgres"));
             await connection.OpenAsync();
             await using var drop = new NpgsqlCommand($"DROP DATABASE IF EXISTS \"{Name}\" WITH (FORCE)", connection);
             await drop.ExecuteNonQueryAsync();
