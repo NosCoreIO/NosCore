@@ -175,7 +175,7 @@ namespace NosCore.PacketHandlers.Group
                                 return Task.CompletedTask;
                             }
 
-                            sharer.GroupRequestCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
+                            sharer.ReturnPointShareCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
                             return session.SendPacketAsync(new Dlgi2Packet
                             {
                                 Question = Game18NConstString.ConfirmSetPointOfReturn,
@@ -295,7 +295,7 @@ namespace NosCore.PacketHandlers.Group
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateSayi2(SayColorType.Yellow, Game18NConstString.GroupInviteRejected, 1, targetSession.Name ?? ""));
                     break;
                 case GroupRequestType.AcceptedShare:
-                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!hasTargetSession || !targetSession.ReturnPointShareCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
@@ -305,10 +305,14 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
-                    targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
+                    targetSession.ReturnPointShareCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     if (targetSession.MapInstance?.Map is not { } sharerMap
                         || respawnService.GetReturnPoint(targetSession, sharerMap.MapId) is not { } shared)
                     {
+                        await clientSession.SendPacketAsync(new InfoiPacket
+                        {
+                            Message = Game18NConstString.CantSharePoint
+                        });
                         return;
                     }
 
@@ -327,12 +331,12 @@ namespace NosCore.PacketHandlers.Group
                     });
                     break;
                 case GroupRequestType.DeclinedShare:
-                    if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
+                    if (!hasTargetSession || !targetSession.ReturnPointShareCharacterIds.Values.Contains(clientSession.Character.CharacterId))
                     {
                         return;
                     }
 
-                    targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
+                    targetSession.ReturnPointShareCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
                     await clientSession.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,

@@ -92,6 +92,17 @@ namespace NosCore.PacketHandlers.Tests.Group
         }
 
         [TestMethod]
+        public async Task SharingAPointOfReturnInvitesNobodyIntoTheParty()
+        {
+            await new Spec("Asking members to take a point of return is not a party invitation they could accept later")
+                .GivenAsync(Session0And1AreInAPartyAsync)
+                .And(Session0SavedAPointOfReturnAt_, (short)1, (short)80, (short)116)
+                .WhenAsync(Session0SharesItsPointOfReturnAsync)
+                .Then(Session0ShouldHaveNoPendingInvitation)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task SharingWithoutAPointOfReturnAsksNobody()
         {
             await new Spec("A sharer with no point of return is told so and no member is asked")
@@ -263,6 +274,9 @@ namespace NosCore.PacketHandlers.Tests.Group
 
         private void Session0ShouldBeTold_(Game18NConstString message) =>
             Assert.AreEqual(message, Sessions[0].LastPackets.OfType<InfoiPacket>().Last().Message);
+
+        private void Session0ShouldHaveNoPendingInvitation() =>
+            Assert.IsTrue(Sessions[0].Character.GroupRequestCharacterIds.IsEmpty);
 
         private void Session1ShouldHaveNoQuestion() =>
             Assert.IsFalse(Sessions[1].LastPackets.OfType<Dlgi2Packet>().Any());

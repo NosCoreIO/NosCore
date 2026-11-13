@@ -22,4 +22,5 @@ public record struct PlayerSocialComponent(
     Instant? LastExchangeRequest,
     ConcurrentDictionary<(InviteType Type, long TargetId), Instant> LastInvites,
     ConcurrentDictionary<long, long> MarriageProposalCharacterIds,
+    ConcurrentDictionary<long, long> ReturnPointShareCharacterIds,
     ExchangeData? Exchange = null);
