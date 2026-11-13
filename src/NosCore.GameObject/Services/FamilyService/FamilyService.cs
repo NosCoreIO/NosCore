@@ -21,8 +21,6 @@ namespace NosCore.GameObject.Services.FamilyService
         IDao<FamilyCharacterDto, long> familyCharacterDao,
         IDao<CharacterDto, long> characterDao, IFamilyHub familyHub) : IFamilyService
     {
-        private const int MaxAssistants = 2;
-
         public async Task<Family?> GetFamilyAsync(long characterId)
         {
             var membership = await familyCharacterDao
@@ -62,11 +60,11 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public Task<bool> DisbandAsync(Family family, long headId) => familyHub.DisbandAsync(family.FamilyId, headId);
 
-        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId) =>
-            familyHub.AddMemberAsync(familyId, characterId);
+        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long inviterId, long characterId) =>
+            familyHub.AddMemberAsync(familyId, inviterId, characterId);
 
-        public Task<bool> RemoveMemberAsync(long familyId, long characterId) =>
-            familyHub.RemoveMemberAsync(familyId, characterId);
+        public Task<bool> RemoveMemberAsync(long familyId, long actorId, long characterId) =>
+            familyHub.RemoveMemberAsync(familyId, actorId, characterId);
 
         public async Task<CharacterDto?> FindCharacterAsync(string name) =>
             await characterDao.FirstOrDefaultAsync(s => s.Name == name && s.State == CharacterState.Active);
@@ -81,31 +79,10 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public async Task<FamilyAuthorityChange> ChangeAuthorityAsync(Family family, long actorId, long targetId, FamilyAuthority authority)
         {
-            var membership = family.Members.FirstOrDefault(s => s.CharacterId == targetId);
-            if (membership == null)
+            var check = family.CheckAuthorityChange(actorId, targetId, authority);
+            if (check != FamilyAuthorityChange.Changed)
             {
-                return FamilyAuthorityChange.NotInFamily;
-            }
-
-            var actorAuthority = family.AuthorityOf(actorId);
-            if (actorAuthority is not (FamilyAuthority.Head or FamilyAuthority.Assistant)
-                || targetId == actorId || membership.Authority == FamilyAuthority.Head)
-            {
-                return FamilyAuthorityChange.NotAuthorized;
-            }
-
-            switch (authority)
-            {
-                case FamilyAuthority.Head when actorAuthority != FamilyAuthority.Head:
-                case FamilyAuthority.Assistant when actorAuthority != FamilyAuthority.Head:
-                    return FamilyAuthorityChange.NotAuthorized;
-                case FamilyAuthority.Head when membership.Authority != FamilyAuthority.Assistant:
-                    return FamilyAuthorityChange.OnlyAssistantCanBecomeHead;
-                case FamilyAuthority.Assistant when family.Members.Count(s => s.Authority == FamilyAuthority.Assistant) >= MaxAssistants:
-                    return FamilyAuthorityChange.TooManyAssistants;
-                case FamilyAuthority.Manager or FamilyAuthority.Member
-                    when membership.Authority == FamilyAuthority.Assistant && actorAuthority != FamilyAuthority.Head:
-                    return FamilyAuthorityChange.NotAuthorized;
+                return check;
             }
 
             var changes = new List<FamilyMemberChange> { new(targetId) { Authority = authority } };
@@ -114,7 +91,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 changes.Add(new FamilyMemberChange(actorId) { Authority = FamilyAuthority.Assistant });
             }
 
-            if (!await familyHub.ChangeAsync(family.FamilyId, null, changes))
+            if (!await familyHub.ChangeAsync(family.FamilyId, actorId, null, changes))
             {
                 return FamilyAuthorityChange.NotInFamily;
             }
@@ -124,11 +101,11 @@ namespace NosCore.GameObject.Services.FamilyService
                 family.Members.First(s => s.CharacterId == actorId).Authority = FamilyAuthority.Assistant;
             }
 
-            membership.Authority = authority;
+            family.Members.First(s => s.CharacterId == targetId).Authority = authority;
             return FamilyAuthorityChange.Changed;
         }
 
-        public Task<bool> UpdateAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members) =>
-            familyHub.ChangeAsync(familyId, family, members);
+        public Task<bool> UpdateAsync(long familyId, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members) =>
+            familyHub.ChangeAsync(familyId, actorId, family, members);
     }
 }

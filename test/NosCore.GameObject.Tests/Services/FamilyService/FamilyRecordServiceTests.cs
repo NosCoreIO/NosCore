@@ -87,7 +87,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             family.FamilyExperience = 1200;
             await _familyDao.TryInsertOrUpdateAsync(family);
 
-            Assert.IsTrue(await _service.ChangeAsync(_familyId, new FamilyChange { FamilyMessage = "meet at the bank" }, []));
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, new FamilyChange { FamilyMessage = "meet at the bank" }, []));
 
             var stored = (await FamilyAsync()).NotNull();
             Assert.AreEqual("meet at the bank", stored.FamilyMessage);
@@ -102,7 +102,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             membership.Experience = 500;
             await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
 
-            Assert.IsTrue(await _service.ChangeAsync(_familyId, null,
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Uncle }]));
 
             var stored = (await MemberAsync(DeputyId)).NotNull();
@@ -114,10 +114,10 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheHeadsGenderAndEveryTitleChangeTogether()
         {
-            Assert.IsTrue(await _service.ChangeAsync(_familyId, null,
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Uncle }]));
 
-            Assert.IsTrue(await _service.ChangeAsync(_familyId, new FamilyChange { FamilyHeadGender = GenderType.Female },
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, new FamilyChange { FamilyHeadGender = GenderType.Female },
             [
                 new FamilyMemberChange(HeadId) { Rank = FamilyMemberRank.Nothing },
                 new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Nothing }
@@ -130,14 +130,14 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AFamilyThatIsGoneIsNotRecreated()
         {
-            Assert.IsFalse(await _service.ChangeAsync(_familyId + 1, new FamilyChange { FamilyMessage = "hello" }, []));
+            Assert.IsFalse(await _service.ChangeAsync(_familyId + 1, HeadId, new FamilyChange { FamilyMessage = "hello" }, []));
             Assert.IsNull(await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId + 1));
         }
 
         [TestMethod]
         public async Task AMemberWhoMovedToAnotherFamilyIsNotChanged()
         {
-            Assert.IsFalse(await _service.ChangeAsync(_familyId + 1, null,
+            Assert.IsFalse(await _service.ChangeAsync(_familyId + 1, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Uncle }]));
 
             Assert.AreNotEqual(FamilyMemberRank.Uncle, (await MemberAsync(DeputyId)).NotNull().Rank);
@@ -146,7 +146,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task NothingIsWrittenWhenOneOfTheMembersHasLeft()
         {
-            Assert.IsFalse(await _service.ChangeAsync(_familyId, new FamilyChange { FamilyMessage = "hello" },
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, HeadId, new FamilyChange { FamilyMessage = "hello" },
             [
                 new FamilyMemberChange(DeputyId) { Authority = FamilyAuthority.Head },
                 new FamilyMemberChange(OutsiderId) { Authority = FamilyAuthority.Assistant }
@@ -160,8 +160,12 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         public async Task AFailedSaveIsReported()
         {
             var familyCharacterDao = new Mock<IDao<FamilyCharacterDto, long>>();
-            familyCharacterDao.Setup(s => s.FirstOrDefaultAsync(It.IsAny<System.Linq.Expressions.Expression<System.Func<FamilyCharacterDto, bool>>>()))
-                .ReturnsAsync(new FamilyCharacterDto { CharacterId = DeputyId, FamilyId = _familyId });
+            familyCharacterDao.Setup(s => s.Where(It.IsAny<System.Linq.Expressions.Expression<System.Func<FamilyCharacterDto, bool>>>()))
+                .Returns(new[]
+                {
+                    new FamilyCharacterDto { CharacterId = HeadId, FamilyId = _familyId, Authority = FamilyAuthority.Head },
+                    new FamilyCharacterDto { CharacterId = DeputyId, FamilyId = _familyId, Authority = FamilyAuthority.Assistant }
+                });
 #nullable disable
             familyCharacterDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
                 .Returns(Task.FromResult<FamilyCharacterDto>(null));
@@ -169,14 +173,144 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             World.Inject(familyCharacterDao.Object);
             var service = World.Create<FamilyRecordService>();
 
-            Assert.IsFalse(await service.ChangeAsync(_familyId, null,
+            Assert.IsFalse(await service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Uncle }]));
+        }
+
+        private async Task SetAuthorityAsync(long characterId, FamilyAuthority authority)
+        {
+            var membership = (await MemberAsync(characterId)).NotNull();
+            membership.Authority = authority;
+            await _familyCharacterDao.TryInsertOrUpdateAsync(membership);
+        }
+
+        private Task<bool> NoticeAsync(long actorId) =>
+            _service.ChangeAsync(_familyId, actorId, new FamilyChange { FamilyMessage = "by " + actorId }, []);
+
+        [TestMethod]
+        public async Task ADeputyWhoWasDemotedNoLongerSetsTheNotice()
+        {
+            Assert.IsTrue(await NoticeAsync(DeputyId));
+            await SetAuthorityAsync(DeputyId, FamilyAuthority.Member);
+
+            Assert.IsFalse(await NoticeAsync(DeputyId));
+
+            Assert.AreEqual("by " + DeputyId, (await FamilyAsync()).NotNull().FamilyMessage);
+        }
+
+        [TestMethod]
+        public async Task AKeeperSetsTheNoticeOnlyWhileTheStoredFamilyAllowsIt()
+        {
+            await SetAuthorityAsync(DeputyId, FamilyAuthority.Manager);
+            Assert.IsFalse(await NoticeAsync(DeputyId));
+
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, new FamilyChange { ManagerCanNotice = true }, []));
+
+            Assert.IsTrue(await NoticeAsync(DeputyId));
+        }
+
+        [TestMethod]
+        public async Task SomeoneOutsideTheFamilyChangesNothing()
+        {
+            Assert.IsFalse(await NoticeAsync(OutsiderId));
+
+            Assert.AreEqual(string.Empty, (await FamilyAsync()).NotNull().FamilyMessage);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheStoredHeadChangesPermissionsAndTheHeadsGender()
+        {
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, DeputyId, new FamilyChange { ManagerCanInvite = true }, []));
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, DeputyId, new FamilyChange { FamilyHeadGender = GenderType.Female }, []));
+            // A notice the deputy may set does not carry a permission along with it.
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, DeputyId,
+                new FamilyChange { FamilyMessage = "hello", ManagerCanInvite = true }, []));
+
+            var stored = (await FamilyAsync()).NotNull();
+            Assert.IsFalse(stored.ManagerCanInvite);
+            Assert.AreEqual(GenderType.Male, stored.FamilyHeadGender);
+            Assert.AreEqual(string.Empty, stored.FamilyMessage);
+        }
+
+        [TestMethod]
+        public async Task OnlyTheStoredHeadGivesTitles()
+        {
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, DeputyId, null,
+                [new FamilyMemberChange(DeputyId) { Rank = FamilyMemberRank.Uncle }]));
+
+            Assert.AreNotEqual(FamilyMemberRank.Uncle, (await MemberAsync(DeputyId)).NotNull().Rank);
+        }
+
+        [TestMethod]
+        public async Task ADailyMessageIsOnlyWrittenByItsOwner()
+        {
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, HeadId, null,
+                [new FamilyMemberChange(DeputyId) { DailyMessage = "not mine" }]));
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, DeputyId, null,
+                [new FamilyMemberChange(DeputyId) { DailyMessage = "mine" }]));
+
+            Assert.AreEqual("mine", (await MemberAsync(DeputyId)).NotNull().DailyMessage);
+        }
+
+        [TestMethod]
+        public async Task ADeputyWhoWasDemotedNoLongerAppointsKeepers()
+        {
+            Assert.IsTrue(await _service.AddMemberAsync(_familyId, HeadId, OutsiderId) == FamilyMemberAddition.Added);
+            await SetAuthorityAsync(DeputyId, FamilyAuthority.Member);
+
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, DeputyId, null,
+                [new FamilyMemberChange(OutsiderId) { Authority = FamilyAuthority.Manager }]));
+
+            Assert.AreEqual(FamilyAuthority.Member, (await MemberAsync(OutsiderId)).NotNull().Authority);
+        }
+
+        [TestMethod]
+        public async Task AHeadPassRequestedByAnyoneButTheStoredHeadIsRefused()
+        {
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, DeputyId, null,
+            [
+                new FamilyMemberChange(DeputyId) { Authority = FamilyAuthority.Head },
+                new FamilyMemberChange(HeadId) { Authority = FamilyAuthority.Assistant }
+            ]));
+
+            Assert.AreEqual(FamilyAuthority.Head, (await MemberAsync(HeadId)).NotNull().Authority);
+        }
+
+        [TestMethod]
+        public async Task APlainMemberInvitesNobody()
+        {
+            await SetAuthorityAsync(DeputyId, FamilyAuthority.Member);
+
+            Assert.AreEqual(FamilyMemberAddition.NotAdded, await _service.AddMemberAsync(_familyId, DeputyId, OutsiderId));
+
+            Assert.IsNull(await MemberAsync(OutsiderId));
+        }
+
+        [TestMethod]
+        public async Task DismissingFollowsTheStoredRanks()
+        {
+            Assert.AreEqual(FamilyMemberAddition.Added, await _service.AddMemberAsync(_familyId, HeadId, OutsiderId));
+
+            Assert.IsFalse(await _service.RemoveMemberAsync(_familyId, OutsiderId, DeputyId));
+            Assert.IsFalse(await _service.RemoveMemberAsync(_familyId, DeputyId, HeadId));
+            Assert.IsTrue(await _service.RemoveMemberAsync(_familyId, DeputyId, OutsiderId));
+
+            Assert.IsNotNull(await MemberAsync(DeputyId));
+            Assert.IsNull(await MemberAsync(OutsiderId));
+        }
+
+        [TestMethod]
+        public async Task TheHeadCannotLeave()
+        {
+            Assert.IsFalse(await _service.RemoveMemberAsync(_familyId, HeadId, HeadId));
+
+            Assert.IsNotNull(await MemberAsync(HeadId));
         }
 
         [TestMethod]
         public async Task ANewMemberJoinsAsAMember()
         {
-            Assert.AreEqual(FamilyMemberAddition.Added, await _service.AddMemberAsync(_familyId, OutsiderId));
+            Assert.AreEqual(FamilyMemberAddition.Added, await _service.AddMemberAsync(_familyId, HeadId, OutsiderId));
 
             var stored = (await MemberAsync(OutsiderId)).NotNull();
             Assert.AreEqual(_familyId, stored.FamilyId);
@@ -191,7 +325,12 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 Name = "Others", FamilyLevel = 1, MaxSize = 50, FamilyMessage = string.Empty
             })).NotNull();
 
-            Assert.AreEqual(FamilyMemberAddition.NotAdded, await _service.AddMemberAsync(other.FamilyId, DeputyId));
+            await _familyCharacterDao.TryInsertOrUpdateAsync(new FamilyCharacterDto
+            {
+                FamilyId = other.FamilyId, CharacterId = OutsiderId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
+            });
+
+            Assert.AreEqual(FamilyMemberAddition.NotAdded, await _service.AddMemberAsync(other.FamilyId, OutsiderId, DeputyId));
 
             Assert.AreEqual(_familyId, (await MemberAsync(DeputyId)).NotNull().FamilyId);
         }
@@ -199,9 +338,9 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AFullFamilyTakesNobody()
         {
-            Assert.AreEqual(FamilyMemberAddition.Added, await _service.AddMemberAsync(_familyId, OutsiderId));
+            Assert.AreEqual(FamilyMemberAddition.Added, await _service.AddMemberAsync(_familyId, HeadId, OutsiderId));
 
-            Assert.AreEqual(FamilyMemberAddition.FamilyFull, await _service.AddMemberAsync(_familyId, OutsiderId + 1));
+            Assert.AreEqual(FamilyMemberAddition.FamilyFull, await _service.AddMemberAsync(_familyId, HeadId, OutsiderId + 1));
 
             Assert.IsNull(await MemberAsync(OutsiderId + 1));
         }
@@ -209,7 +348,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task NobodyJoinsAFamilyThatIsGone()
         {
-            Assert.AreEqual(FamilyMemberAddition.NotAdded, await _service.AddMemberAsync(_familyId + 1, OutsiderId));
+            Assert.AreEqual(FamilyMemberAddition.NotAdded, await _service.AddMemberAsync(_familyId + 1, HeadId, OutsiderId));
 
             Assert.IsNull(await MemberAsync(OutsiderId));
         }
@@ -217,10 +356,10 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task ALeaverIsOnlyRemovedFromTheFamilyTheyWereIn()
         {
-            Assert.IsFalse(await _service.RemoveMemberAsync(_familyId + 1, DeputyId));
+            Assert.IsFalse(await _service.RemoveMemberAsync(_familyId + 1, DeputyId, DeputyId));
             Assert.IsNotNull(await MemberAsync(DeputyId));
 
-            Assert.IsTrue(await _service.RemoveMemberAsync(_familyId, DeputyId));
+            Assert.IsTrue(await _service.RemoveMemberAsync(_familyId, DeputyId, DeputyId));
             Assert.IsNull(await MemberAsync(DeputyId));
         }
 
@@ -305,7 +444,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task PassingTheHeadMovesItFromOneMemberToTheOther()
         {
-            Assert.IsTrue(await _service.ChangeAsync(_familyId, null,
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, null,
             [
                 new FamilyMemberChange(DeputyId) { Authority = FamilyAuthority.Head },
                 new FamilyMemberChange(HeadId) { Authority = FamilyAuthority.Assistant }
@@ -318,7 +457,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AFamilyNeverGetsASecondHead()
         {
-            Assert.IsFalse(await _service.ChangeAsync(_familyId, null,
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Authority = FamilyAuthority.Head }]));
 
             Assert.AreEqual(FamilyAuthority.Assistant, (await MemberAsync(DeputyId)).NotNull().Authority);
@@ -327,7 +466,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task AFamilyIsNeverLeftWithoutAHead()
         {
-            Assert.IsFalse(await _service.ChangeAsync(_familyId, null,
+            Assert.IsFalse(await _service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(HeadId) { Authority = FamilyAuthority.Member }]));
 
             Assert.AreEqual(FamilyAuthority.Head, (await MemberAsync(HeadId)).NotNull().Authority);
@@ -336,7 +475,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task ARankChangeBelowTheHeadPasses()
         {
-            Assert.IsTrue(await _service.ChangeAsync(_familyId, null,
+            Assert.IsTrue(await _service.ChangeAsync(_familyId, HeadId, null,
                 [new FamilyMemberChange(DeputyId) { Authority = FamilyAuthority.Manager }]));
 
             Assert.AreEqual(FamilyAuthority.Manager, (await MemberAsync(DeputyId)).NotNull().Authority);

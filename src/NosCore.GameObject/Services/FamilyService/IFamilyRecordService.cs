@@ -15,10 +15,10 @@ namespace NosCore.GameObject.Services.FamilyService
 
         Task<bool> DisbandAsync(long familyId, long headId);
 
-        Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId);
+        Task<FamilyMemberAddition> AddMemberAsync(long familyId, long inviterId, long characterId);
 
-        Task<bool> RemoveMemberAsync(long familyId, long characterId);
+        Task<bool> RemoveMemberAsync(long familyId, long actorId, long characterId);
 
-        Task<bool> ChangeAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members);
+        Task<bool> ChangeAsync(long familyId, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members);
     }
 }

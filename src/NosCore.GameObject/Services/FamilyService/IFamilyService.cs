@@ -21,13 +21,13 @@ namespace NosCore.GameObject.Services.FamilyService
 
         Task<bool> DisbandAsync(Family family, long headId);
 
-        Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId);
+        Task<FamilyMemberAddition> AddMemberAsync(long familyId, long inviterId, long characterId);
 
-        Task<bool> RemoveMemberAsync(long familyId, long characterId);
+        Task<bool> RemoveMemberAsync(long familyId, long actorId, long characterId);
 
         Task<CharacterDto?> FindCharacterAsync(string name);
         Task<IReadOnlyList<CharacterDto>> GetMemberCharactersAsync(Family family);
         Task<FamilyAuthorityChange> ChangeAuthorityAsync(Family family, long actorId, long targetId, FamilyAuthority authority);
-        Task<bool> UpdateAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members);
+        Task<bool> UpdateAsync(long familyId, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members);
     }
 }

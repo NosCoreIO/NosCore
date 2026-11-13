@@ -50,10 +50,20 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            var addition = await familyService.AddMemberAsync(family.FamilyId, session.Character.CharacterId);
+            var addition = await familyService.AddMemberAsync(family.FamilyId, inviter.CharacterId, session.Character.CharacterId);
             if (addition == FamilyMemberAddition.FamilyFull)
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.FamilyReachedMaxCapacity });
+            }
+
+            if (addition == FamilyMemberAddition.NotAdded)
+            {
+                // The master refused what the inviter's copy of the family allowed: the copy is behind.
+                await pubSubHub.SendMessageAsync(new FamilyChangedData
+                {
+                    FamilyId = family.FamilyId,
+                    CharacterIds = { inviter.CharacterId }
+                });
             }
 
             if (addition != FamilyMemberAddition.Added)

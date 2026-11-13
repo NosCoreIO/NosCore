@@ -1604,6 +1604,11 @@ for experience earned on another channel since the head's window was last refres
       `%Familydeputy <name>` and `%Gender <0|1>` as the head, the family window shows the level
       just set and the two rows still hold the raised level, experience and contribution
 - [ ] `%Familydismiss <name>` removes the member's row and leaves the family row as it was
+- [ ] With the head in the world and the Family tab open, swap the ranks behind the session
+      (`Authority` 3 for the head, 0 for the member), then type `%Notice <text>` as the former head:
+      the hint stays as it was, and the window and the tag under the name now show the stored ranks
+- [ ] The same demoted character then gets the ordinary refusals: `%Familydismiss <name>` says they
+      are not authorised, and ticking a permission changes nothing
 
 ### Family history, ranking and daily message windows
 

@@ -17,8 +17,8 @@ public record CreateFamilyRequest(string Name, byte MaxSize, long HeadId, IReadO
 
 public record DisbandFamilyRequest(long FamilyId, long HeadId) : IMasterRequest;
 
-public record AddFamilyMemberRequest(long FamilyId, long CharacterId) : IMasterRequest;
+public record AddFamilyMemberRequest(long FamilyId, long InviterId, long CharacterId) : IMasterRequest;
 
-public record RemoveFamilyMemberRequest(long FamilyId, long CharacterId) : IMasterRequest;
+public record RemoveFamilyMemberRequest(long FamilyId, long ActorId, long CharacterId) : IMasterRequest;
 
-public record ChangeFamilyRequest(long FamilyId, FamilyChange? Family, IReadOnlyList<FamilyMemberChange> Members) : IMasterRequest;
+public record ChangeFamilyRequest(long FamilyId, long ActorId, FamilyChange? Family, IReadOnlyList<FamilyMemberChange> Members) : IMasterRequest;

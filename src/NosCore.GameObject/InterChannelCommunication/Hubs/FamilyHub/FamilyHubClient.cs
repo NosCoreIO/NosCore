@@ -25,13 +25,13 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
         public Task<bool> DisbandAsync(long familyId, long headId) =>
             bus.RequestAsync<bool>(new DisbandFamilyRequest(familyId, headId));
 
-        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId) =>
-            bus.RequestAsync<FamilyMemberAddition>(new AddFamilyMemberRequest(familyId, characterId));
+        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long inviterId, long characterId) =>
+            bus.RequestAsync<FamilyMemberAddition>(new AddFamilyMemberRequest(familyId, inviterId, characterId));
 
-        public Task<bool> RemoveMemberAsync(long familyId, long characterId) =>
-            bus.RequestAsync<bool>(new RemoveFamilyMemberRequest(familyId, characterId));
+        public Task<bool> RemoveMemberAsync(long familyId, long actorId, long characterId) =>
+            bus.RequestAsync<bool>(new RemoveFamilyMemberRequest(familyId, actorId, characterId));
 
-        public Task<bool> ChangeAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members) =>
-            bus.RequestAsync<bool>(new ChangeFamilyRequest(familyId, family, members));
+        public Task<bool> ChangeAsync(long familyId, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members) =>
+            bus.RequestAsync<bool>(new ChangeFamilyRequest(familyId, actorId, family, members));
     }
 }

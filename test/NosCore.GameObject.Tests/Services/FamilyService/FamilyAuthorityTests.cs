@@ -50,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 }
             };
             _hub = new Mock<IFamilyHub>();
-            _hub.Setup(s => s.ChangeAsync(_family.FamilyId, null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
+            _hub.Setup(s => s.ChangeAsync(_family.FamilyId, It.IsAny<long>(), null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
                 .ReturnsAsync(true);
             World.Inject(_hub.Object);
             _service = World.Create<FamilyServiceImpl>();
@@ -94,7 +94,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             Assert.AreEqual(FamilyAuthorityChange.Changed, result);
             Assert.AreEqual(FamilyAuthority.Head, AuthorityOf(Assistant));
             Assert.AreEqual(FamilyAuthority.Assistant, AuthorityOf(Head));
-            _hub.Verify(s => s.ChangeAsync(_family.FamilyId, null, It.Is<IReadOnlyList<FamilyMemberChange>>(changes =>
+            _hub.Verify(s => s.ChangeAsync(_family.FamilyId, It.IsAny<long>(), null, It.Is<IReadOnlyList<FamilyMemberChange>>(changes =>
                 changes.Count == 2
                 && changes.Single(c => c.CharacterId == Assistant).Authority == FamilyAuthority.Head
                 && changes.Single(c => c.CharacterId == Head).Authority == FamilyAuthority.Assistant)), Times.Once);
@@ -103,7 +103,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         [TestMethod]
         public async Task TheHeadStaysHeadWhenTheChangeIsRefused()
         {
-            _hub.Setup(s => s.ChangeAsync(_family.FamilyId, null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
+            _hub.Setup(s => s.ChangeAsync(_family.FamilyId, It.IsAny<long>(), null, It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
                 .ReturnsAsync(false);
 
             var result = await _service.ChangeAuthorityAsync(_family, Head, Assistant, FamilyAuthority.Head);
@@ -150,7 +150,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 await _service.ChangeAuthorityAsync(_family, Manager, Member, FamilyAuthority.Manager));
             Assert.AreEqual(FamilyAuthorityChange.NotAuthorized,
                 await _service.ChangeAuthorityAsync(_family, Member, SecondMember, FamilyAuthority.Manager));
-            _hub.Verify(s => s.ChangeAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
+            _hub.Verify(s => s.ChangeAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
         }
 
         [TestMethod]

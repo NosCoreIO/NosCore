@@ -67,6 +67,10 @@ namespace NosCore.GameObject.Services.FamilyService
             }
 
             var result = await familyService.ChangeAuthorityAsync(family, session.Character.CharacterId, targetId, authority);
+            if (result == FamilyAuthorityChange.NotInFamily)
+            {
+                await ReloadAsync(session, family);
+            }
 
             Game18NConstString? message = result switch
             {
@@ -104,6 +108,15 @@ namespace NosCore.GameObject.Services.FamilyService
 
             return result;
         }
+        // The master refused what this session's copy of the family allowed, so the copy is behind:
+        // every session holding one reloads it and shows the ranks as they are stored.
+        private Task ReloadAsync(ClientSession session, Family family) =>
+            pubSubHub.SendMessageAsync(new FamilyChangedData
+            {
+                FamilyId = family.FamilyId,
+                CharacterIds = { session.Character.CharacterId }
+            });
+
             public async Task SendMemberListAsync(ClientSession session)
         {
             var family = session.Character.Family;
@@ -292,13 +305,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var canChange = family.AuthorityOf(session.Character.CharacterId) switch
-            {
-                FamilyAuthority.Head or FamilyAuthority.Assistant => true,
-                FamilyAuthority.Manager => family.ManagerCanNotice,
-                _ => false
-            };
-            if (!canChange)
+            if (!family.CanNotice(session.Character.CharacterId))
             {
                 await session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotAuthorizedToChangeNoticed });
                 return;
@@ -310,8 +317,9 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateAsync(family.FamilyId, new FamilyChange { FamilyMessage = notice }, []))
+            if (!await familyService.UpdateAsync(family.FamilyId, session.Character.CharacterId, new FamilyChange { FamilyMessage = notice }, []))
             {
+                await ReloadAsync(session, family);
                 return;
             }
 
@@ -335,9 +343,10 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateAsync(family.FamilyId, null,
+            if (!await familyService.UpdateAsync(family.FamilyId, session.Character.CharacterId, null,
                     [new FamilyMemberChange(membership.CharacterId) { DailyMessage = dailyMessage }]))
             {
+                await ReloadAsync(session, family);
                 return;
             }
 
@@ -368,9 +377,10 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateAsync(family.FamilyId, null,
+            if (!await familyService.UpdateAsync(family.FamilyId, session.Character.CharacterId, null,
                     [new FamilyMemberChange(membership.CharacterId) { Rank = rank }]))
             {
+                await ReloadAsync(session, family);
                 return;
             }
 
@@ -386,9 +396,10 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            if (!await familyService.UpdateAsync(family.FamilyId, new FamilyChange { FamilyHeadGender = gender },
+            if (!await familyService.UpdateAsync(family.FamilyId, session.Character.CharacterId, new FamilyChange { FamilyHeadGender = gender },
                     family.Members.Select(s => new FamilyMemberChange(s.CharacterId) { Rank = FamilyMemberRank.Nothing }).ToList()))
             {
+                await ReloadAsync(session, family);
                 return;
             }
 

@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Mapster;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
@@ -94,16 +95,17 @@ namespace NosCore.GameObject.Services.FamilyService
             return true;
         }
 
-        public async Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId)
+        public async Task<FamilyMemberAddition> AddMemberAsync(long familyId, long inviterId, long characterId)
         {
             using var _ = await FamilyRowLock.Instance.AcquireAsync();
-            var family = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
-            if (family == null || await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId) != null)
+            var family = await LoadAsync(familyId);
+            if (family == null || !family.CanInvite(inviterId)
+                || await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId) != null)
             {
                 return FamilyMemberAddition.NotAdded;
             }
 
-            if ((familyCharacterDao.Where(s => s.FamilyId == familyId)?.Count() ?? 0) >= family.MaxSize)
+            if (family.Members.Count >= family.MaxSize)
             {
                 return FamilyMemberAddition.FamilyFull;
             }
@@ -119,57 +121,50 @@ namespace NosCore.GameObject.Services.FamilyService
                 : FamilyMemberAddition.NotAdded;
         }
 
-        public async Task<bool> RemoveMemberAsync(long familyId, long characterId)
+        public async Task<bool> RemoveMemberAsync(long familyId, long actorId, long characterId)
         {
             using var _ = await FamilyRowLock.Instance.AcquireAsync();
-            var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == characterId && s.FamilyId == familyId);
-            return membership != null && await familyCharacterDao.TryDeleteAsync(membership.FamilyCharacterId) != null;
-        }
-
-        public async Task<bool> ChangeAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members)
-        {
-            using var _ = await FamilyRowLock.Instance.AcquireAsync();
-            FamilyDto? stored = null;
-            if (family != null)
+            var family = await LoadAsync(familyId);
+            var membership = family?.Members.FirstOrDefault(s => s.CharacterId == characterId);
+            if (family == null || membership == null)
             {
-                stored = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
-                if (stored == null)
-                {
-                    return false;
-                }
-
-                family.ApplyTo(stored);
+                return false;
             }
 
+            // Leaving is open to everyone but the head; dismissing follows the ranks.
+            var allowed = actorId == characterId
+                ? membership.Authority != FamilyAuthority.Head
+                : family.CanDismiss(actorId, characterId);
+            return allowed && await familyCharacterDao.TryDeleteAsync(membership.FamilyCharacterId) != null;
+        }
+
+        // A channel checks rights against the copy of the family its session holds, which can be behind. The
+        // rank and permissions stored here decide.
+        public async Task<bool> ChangeAsync(long familyId, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members)
+        {
+            using var _ = await FamilyRowLock.Instance.AcquireAsync();
+            var stored = await LoadAsync(familyId);
+            if (stored == null || !IsAllowed(stored, actorId, family, members))
+            {
+                return false;
+            }
+
+            family?.ApplyTo(stored);
             var memberships = new List<FamilyCharacterDto>();
             foreach (var change in members)
             {
-                var membership = await familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == change.CharacterId && s.FamilyId == familyId);
-                if (membership == null)
-                {
-                    return false;
-                }
-
+                var membership = stored.Members.First(s => s.CharacterId == change.CharacterId);
                 change.ApplyTo(membership);
                 memberships.Add(membership);
             }
 
-            // A channel decides from its own copy of the family, which can be behind: whatever it asks,
-            // the family keeps exactly one head.
-            if (members.Any(s => s.Authority != null))
+            if (stored.Members.Count(s => s.Authority == FamilyAuthority.Head) != 1)
             {
-                var changed = memberships.Select(s => s.FamilyCharacterId).ToHashSet();
-                var heads = memberships.Count(s => s.Authority == FamilyAuthority.Head)
-                    + (familyCharacterDao.Where(s => s.FamilyId == familyId && s.Authority == FamilyAuthority.Head)
-                        ?.Count(s => !changed.Contains(s.FamilyCharacterId)) ?? 0);
-                if (heads != 1)
-                {
-                    return false;
-                }
+                return false;
             }
 
             await using var transaction = daoTransactionScope.Begin();
-            if (stored != null && await familyDao.TryInsertOrUpdateAsync(stored) == null)
+            if (family != null && await familyDao.TryInsertOrUpdateAsync(stored.Adapt<FamilyDto>()) == null)
             {
                 return false;
             }
@@ -184,6 +179,73 @@ namespace NosCore.GameObject.Services.FamilyService
 
             await transaction.CommitAsync();
             return true;
+        }
+
+        private static bool IsAllowed(Family stored, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members)
+        {
+            var actor = stored.Members.FirstOrDefault(s => s.CharacterId == actorId);
+            if (actor == null || members.Any(change => stored.Members.All(s => s.CharacterId != change.CharacterId)))
+            {
+                return false;
+            }
+
+            var isHead = actor.Authority == FamilyAuthority.Head;
+            if (family != null)
+            {
+                if (family.FamilyMessage != null && !stored.CanNotice(actorId))
+                {
+                    return false;
+                }
+
+                // Everything else on the family row is the head's: its gender and what each rank may do.
+                if (family with { FamilyMessage = null } != new FamilyChange() && !isHead)
+                {
+                    return false;
+                }
+            }
+
+            var newHead = members.FirstOrDefault(s => s.Authority == FamilyAuthority.Head);
+            foreach (var change in members)
+            {
+                if (change.DailyMessage != null && change.CharacterId != actorId)
+                {
+                    return false;
+                }
+
+                if (change.Rank != null && !isHead)
+                {
+                    return false;
+                }
+
+                if (change.Authority == null)
+                {
+                    continue;
+                }
+
+                // Passing the head makes the old head a deputy in the same request.
+                var steppingDown = change.CharacterId == actorId && change.Authority == FamilyAuthority.Assistant
+                    && newHead != null && newHead.CharacterId != actorId;
+                if (!steppingDown && stored.CheckAuthorityChange(actorId, change.CharacterId, change.Authority.Value)
+                    != FamilyAuthorityChange.Changed)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task<Family?> LoadAsync(long familyId)
+        {
+            var dto = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
+            if (dto == null)
+            {
+                return null;
+            }
+
+            var family = dto.Adapt<Family>();
+            family.Members = familyCharacterDao.Where(s => s.FamilyId == familyId)?.ToList() ?? new List<FamilyCharacterDto>();
+            return family;
         }
     }
 }
