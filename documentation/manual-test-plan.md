@@ -270,6 +270,8 @@ The cell must be within the skill's range plus one cell of the caster.
 - [ ] Drop below the skill's mana cost and cast: "You don't have enough MP to cast the
       spell." appears in the client's language and nothing is spent
 - [ ] Click a cell well beyond the skill's range: the cast is cancelled and nothing is spent
+- [ ] Watch from a second character: the caster plays the cast, then the skill's effect is
+      drawn on the clicked cell before the hits, even when the area is empty
 - [ ] The skill icon comes back when the cooldown ends
 
 ### Skills on a list of targets
@@ -2324,9 +2326,6 @@ Recorded so nobody spends time hunting for them:
   collection flow (`guri 400`) that is not wired yet.
 - **Reputation target quests** (TargetReput) — no quest in the current client data uses this
   type, so there is nothing to implement or to check.
-- **The ground effect of an area skill on other screens** — the cell animation needs the `bs`
-  packet, which the packet library does not ship yet; until it does, only the per-monster
-  hits are drawn.
 
 ## Mount activation
 

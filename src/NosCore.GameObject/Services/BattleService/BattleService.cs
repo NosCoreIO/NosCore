@@ -121,6 +121,17 @@ namespace NosCore.GameObject.Services.BattleService
                 return false;
             }
 
+            await mapInstance.SendPacketAsync(new BsPacket
+            {
+                VisualType = origin.VisualType,
+                VisualId = origin.VisualId,
+                MapX = mapX,
+                MapY = mapY,
+                SkillVnum = skill.SkillVnum,
+                SkillCooldown = skill.Cooldown,
+                AttackAnimation = skill.AttackAnimation,
+                SkillEffect = skill.Effect
+            });
             var presentation = new HitPresentation(mapX, mapY, true);
             var targets = targetResolver.ResolveArea(origin, mapInstance, mapX, mapY, skill);
             for (var i = 0; i < targets.Count; i++)
@@ -275,22 +286,37 @@ namespace NosCore.GameObject.Services.BattleService
         private SkillInfo? Resolve(IAliveEntity origin, HitArguments arguments) =>
             arguments.Skill is { } skill ? skillResolver.Describe(skill) : skillResolver.Resolve(origin, arguments.SkillId);
 
+        // A cast at a cell is always announced with ct_n, cast time or not; a cast at an entity
+        // only needs ct when there is a wind-up to show.
         private async Task<bool> CastAsync(IAliveEntity origin, IAliveEntity? target, SkillInfo skill)
         {
+            var map = origin.MapInstance;
+            if (target == null && map != null)
+            {
+                await map.SendPacketAsync(new CtNPacket
+                {
+                    VisualType = origin.VisualType,
+                    VisualId = origin.VisualId,
+                    TargetVisualType = origin.VisualType,
+                    CastAnimationId = skill.CastAnimation,
+                    CastEffect = skill.CastEffect,
+                    SkillId = skill.SkillVnum
+                });
+            }
+
             if (skill.CastTime <= 0)
             {
                 return true;
             }
 
-            var map = origin.MapInstance;
-            if (map != null)
+            if (target != null && map != null)
             {
                 await map.SendPacketAsync(new CtPacket
                 {
                     VisualType = origin.VisualType,
                     VisualId = origin.VisualId,
-                    TargetVisualType = (target ?? origin).VisualType,
-                    TargetId = (target ?? origin).VisualId,
+                    TargetVisualType = target.VisualType,
+                    TargetId = target.VisualId,
                     CastAnimationId = skill.CastAnimation,
                     CastEffect = skill.CastEffect,
                     SkillId = skill.SkillVnum
