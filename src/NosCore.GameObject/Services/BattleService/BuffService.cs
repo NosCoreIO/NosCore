@@ -18,7 +18,9 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Services.BattleService.Model;
+using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
+using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -381,7 +383,8 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100, Math.Min(1, target.Hp), target.MaxHp);
         var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100, 0, target.MaxMp);
-        if (hp == target.Hp && mp == target.Mp)
+        var hpChange = hp - target.Hp;
+        if (hpChange == 0 && mp == target.Mp)
         {
             return;
         }
@@ -395,8 +398,34 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         if (target.MapInstance != null)
         {
+            await ShowHpChangeAsync(target, target.MapInstance, hpChange);
             await target.MapInstance.SendPacketAsync(target.GenerateStatInfo());
         }
+    }
+
+    // The number floats over the target for everyone on the map; MP has no such number.
+    private static Task ShowHpChangeAsync(IAliveEntity target, MapInstance map, int hpChange)
+    {
+        if (hpChange == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        return hpChange > 0
+            ? map.SendPacketAsync(new RcPacket
+            {
+                VisualType = target.VisualType,
+                VisualId = target.VisualId,
+                HealAmount = hpChange,
+                Unknown = 0
+            })
+            : map.SendPacketAsync(new DmPacket
+            {
+                VisualType = target.VisualType,
+                VisualId = target.VisualId,
+                Damages = -hpChange,
+                DamageType = DamagePacketType.Damage
+            });
     }
 
     // BuffStateComponent lives on the target's ECS world; walking through the bundle

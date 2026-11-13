@@ -270,6 +270,8 @@ values from its race, level and equipment levels, then adds the flat modifiers o
       has it selected, and the drain stops at 1 HP without killing it
 - [ ] A regeneration card on a monster (card 1426: 20 % every 6 seconds) refills its bar up to
       its maximum and no further
+- [ ] At each step the amount rises from the monster as a number, red for a drain, for everyone
+      on the map whether or not they have it selected
 
 ## Character
 
@@ -615,6 +617,7 @@ success, on the assumption that the window says "Appearance changed" itself.
       Burning Sword" icon appears in the static buff bar
 - [ ] Stand still for a few seconds: HP drops by 8 % of the maximum every 2 seconds and stops
       at 1 HP
+- [ ] Each drop floats over the character as a red number, for a second player on the map too
 - [ ] Use an Ice Flower Oil there: the heat icon goes, the oil's icon shows and HP stops dropping
 - [ ] Let the oil run out on the map: the heat comes back
 - [ ] Walk or teleport to a map outside Act 5.2: the heat icon goes
@@ -1914,6 +1917,12 @@ Use a character that has never logged in before, or one whose points were spent 
 
 Recorded so nobody spends time hunting for them:
 
+- **Poisons and regeneration on monsters, by playing** — no skill a player can learn inflicts
+  one of the cards that take or give a share of HP on a timer (427, 431, 455, 1437), so the
+  section above needs a database row that makes a skill inflict one (a skill BCard of type 25,
+  subtype 11, 100 % chance, the card as second value). With card 455 on the adventurer's basic
+  attack, a Big Wild Pii Pod (level 32, 1 210 HP, 382 MP) shows a red 96 over its head 4, 8 and
+  12 seconds after one hit, and its bars lose 96 HP and 22 MP each time.
 - **Sending rules while a private shop is open** — no code sets the shop flag yet, so the
   refusals that apply in a shop never fire; a character with an open private shop is treated
   like any other until it is wired.
