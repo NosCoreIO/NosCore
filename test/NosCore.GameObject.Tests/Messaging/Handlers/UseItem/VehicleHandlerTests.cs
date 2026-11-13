@@ -5,21 +5,28 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.Enumerations.Items;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.TransformationService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -36,6 +43,11 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         private Mock<ITransformationService> _transformationService;
         private VehicleHandler _handler;
         private InventoryItemInstance _vehicle;
+        private Mock<IDao<RollGeneratedItemDto, short>> _rolls;
+        private Mock<IRandomProvider> _random;
+        private const short ScrollVNum = 5214;
+        private static readonly Item Scooter = new() { VNum = 1906, Type = NoscorePocketType.Mount, Speed = 20, Morph = 2368 };
+        private static readonly Item Carpet = new() { VNum = 1907, Type = NoscorePocketType.Mount, Speed = 20, Morph = 2370 };
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -43,6 +55,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             World = await TestWorld.CreateAsync();
             _session = await World.CreateSessionAsync();
             _transformationService = World.Freeze<Mock<ITransformationService>>();
+            _rolls = World.Freeze<Mock<IDao<RollGeneratedItemDto, short>>>();
+            _rolls.Setup(r => r.Where(It.IsAny<Expression<Func<RollGeneratedItemDto, bool>>>()))
+                .Returns<Expression<Func<RollGeneratedItemDto, bool>>>(predicate => new List<RollGeneratedItemDto>
+                {
+                    new() { OriginalItemVNum = ScrollVNum, ItemGeneratedVNum = Scooter.VNum, ItemGeneratedAmount = 1, Probability = 1 },
+                    new() { OriginalItemVNum = ScrollVNum, ItemGeneratedVNum = Carpet.VNum, ItemGeneratedAmount = 1, Probability = 1 },
+                }.Where(predicate.Compile()));
+            World.ItemList.RemoveAll(i => i.VNum == Scooter.VNum || i.VNum == Carpet.VNum);
+            World.ItemList.Add(Scooter);
+            World.ItemList.Add(Carpet);
+            _random = World.Freeze<Mock<IRandomProvider>>();
+            _random.Setup(r => r.Next(0, 2)).Returns(1);
             _handler = World.Create<VehicleHandler>();
 
             var item = new Item
@@ -172,6 +196,78 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             _transformationService.Verify(t => t.RemoveVehicleAsync(_session), Times.Never);
         }
 
+        [TestMethod]
+        public async Task AMovementScrollRidesTheDrawnMountAndIsConsumed()
+        {
+            await new Spec("A Movement Scroll rides the mount it draws, at that mount's speed, and is used up")
+                .Given(TheItemIsAScroll_, (byte)0)
+                .And(TheScrollIsConsumedOnMount)
+                .And(TheCharacterHas_Scrolls, (short)2)
+                .WhenAsync(MountingWithTheScroll)
+                .Then(TheCharacterShouldRide_Looking_, Carpet.VNum, Carpet)
+                .And(TheCharacterShouldHave_Scrolls, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ANoviceScrollRidesAtItsOwnSpeedAndIsKept()
+        {
+            await new Spec("A Novice Mount Scroll rides at its own speed with the drawn mount's look, and is kept")
+                .Given(TheItemIsAScroll_, (byte)17)
+                .And(TheCharacterHas_Scrolls, (short)1)
+                .WhenAsync(MountingWithTheScroll)
+                .Then(TheCharacterShouldRide_Looking_, ScrollVNum, Carpet)
+                .And(TheCharacterShouldHave_Scrolls, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AScrollAboveItsLevelCeilingIsRefused()
+        {
+            await new Spec("A scroll with a level ceiling refuses a character above it")
+                .Given(TheItemIsAScroll_, (byte)17)
+                .And(TheScrollStopsAtLevel_, (byte)69)
+                .And(TheCharacterIsLevel_, (byte)70)
+                .WhenAsync(UsingTheVehicleWithMode_, (byte)1)
+                .Then(TheLevelTooHighMessageShouldBeSent)
+                .And(TheCharacterShouldNotHaveMounted)
+                .ExecuteAsync();
+        }
+
+        private void TheItemIsAScroll_(byte speed)
+        {
+            _vehicle.ItemInstance.Item = new Item { VNum = ScrollVNum, Type = NoscorePocketType.Mount, Speed = speed, Morph = -1 };
+            ((ItemInstanceForTest)_vehicle.ItemInstance).ItemVNum = ScrollVNum;
+            _vehicle.Type = NoscorePocketType.Mount;
+        }
+
+        private void TheScrollIsConsumedOnMount() => _vehicle.ItemInstance.Item.ConsumedOnMount = true;
+
+        private void TheScrollStopsAtLevel_(byte level) => _vehicle.ItemInstance.Item.LevelMaximum = level;
+
+        private void TheCharacterIsLevel_(byte level) => _session.Character.Level = level;
+
+        private void TheCharacterHas_Scrolls(short amount) => _vehicle.ItemInstance.Amount = amount;
+
+        private async Task MountingWithTheScroll()
+        {
+            await UsingTheVehicleWithMode_(1);
+            _SecondsPass(3);
+            await UsingTheVehicleWithMode_(2);
+        }
+
+        private void TheCharacterShouldRide_Looking_(short vehicleVNum, Item look) =>
+            _transformationService.Verify(t => t.ChangeVehicleAsync(_session, It.Is<ItemDto>(v => v.VNum == vehicleVNum), look), Times.Once);
+
+        private void TheCharacterShouldHave_Scrolls(int amount) =>
+            Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(ScrollVNum));
+
+        private void TheLevelTooHighMessageShouldBeSent()
+        {
+            Assert.AreEqual(Game18NConstString.LevelTooHigh, _session.LastPackets.OfType<MsgiPacket>().Single().Message);
+            Assert.IsFalse(_session.LastPackets.OfType<DelayPacket>().Any());
+        }
+
         private void _SecondsPass(int seconds) =>
             World.Clock.AdvanceSeconds(seconds);
 
@@ -193,12 +289,12 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.IsTrue(_session.LastPackets.OfType<DelayPacket>().Any());
 
         private void TheCharacterShouldHaveMounted() =>
-            _transformationService.Verify(t => t.ChangeVehicleAsync(_session, It.IsAny<Item>()), Times.Once);
+            _transformationService.Verify(t => t.ChangeVehicleAsync(_session, It.IsAny<ItemDto>(), It.IsAny<ItemDto>()), Times.Once);
 
         private void TheCharacterShouldHaveMountedOnce() => TheCharacterShouldHaveMounted();
 
         private void TheCharacterShouldNotHaveMounted() =>
-            _transformationService.Verify(t => t.ChangeVehicleAsync(It.IsAny<ClientSession>(), It.IsAny<Item>()), Times.Never);
+            _transformationService.Verify(t => t.ChangeVehicleAsync(It.IsAny<ClientSession>(), It.IsAny<ItemDto>(), It.IsAny<ItemDto>()), Times.Never);
 
         private sealed class ItemInstanceForTest(short vnum) : NosCore.Data.Dto.ItemInstanceDto, IItemInstance
         {

@@ -14,6 +14,7 @@ using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Networking;
@@ -150,12 +151,12 @@ namespace NosCore.GameObject.Services.TransformationService
             await session.SendPacketAsync(session.Character.GenerateSc(battleStatsProvider));
         }
 
-        public async Task ChangeVehicleAsync(ClientSession session, Item item)
+        public async Task ChangeVehicleAsync(ClientSession session, ItemDto vehicle, ItemDto look)
         {
             var character = session.Character;
             character.IsVehicled = true;
-            character.VehicleSpeed = item.Speed;
-            character.VehicleVNum = item.VNum;
+            character.VehicleSpeed = vehicle.Speed;
+            character.VehicleVNum = vehicle.VNum;
 
             // cond carries Speed, not VehicleSpeed, and Speed is written once at login from
             // the class table. Without this line the mount changes the sprite and nothing
@@ -163,11 +164,11 @@ namespace NosCore.GameObject.Services.TransformationService
             character.Speed = speedCalculationService.CalculateSpeed(character);
             character.MorphUpgrade = 0;
             character.MorphDesign = 0;
-            character.Morph = item.SecondMorph == 0
-                ? (short)((short)character.Gender + item.Morph)
+            character.Morph = look.SecondMorph == 0
+                ? (short)((short)character.Gender + look.Morph)
                 : character.Gender == GenderType.Male
-                    ? item.Morph
-                    : item.SecondMorph;
+                    ? look.Morph
+                    : look.SecondMorph;
 
             var mapInstance = character.MapInstance;
             var effPacket = session.Character.GenerateEff(196);

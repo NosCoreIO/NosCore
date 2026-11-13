@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261113172055_AddSpeedBoostDash";
+    public override string LastMigrationId => "20261113183532_AddMountScrolls";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1441,6 +1441,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<short>("Concentrate")
                     .HasColumnType("smallint");
 
+                b.Property<bool>("ConsumedOnMount")
+                    .HasColumnType("boolean");
+
                 b.Property<byte>("CriticalLuckRate")
                     .HasColumnType("smallint");
 
@@ -1559,6 +1562,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .HasColumnType("bigint");
 
                 b.Property<byte>("LevelJobMinimum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("LevelMaximum")
                     .HasColumnType("smallint");
 
                 b.Property<byte>("LevelMinimum")

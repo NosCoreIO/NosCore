@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using System.Threading.Tasks;
@@ -16,7 +17,8 @@ namespace NosCore.GameObject.Services.TransformationService
 
         Task ChangeSpAsync(ClientSession session);
 
-        Task ChangeVehicleAsync(ClientSession session, Item item);
+        // vehicle sets the speed and the Speed Booster; look sets the sprite.
+        Task ChangeVehicleAsync(ClientSession session, ItemDto vehicle, ItemDto look);
 
         Task RemoveVehicleAsync(ClientSession session);
     }
