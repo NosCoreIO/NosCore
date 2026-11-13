@@ -24,11 +24,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private static readonly TimeSpan StartTimeout = TimeSpan.FromSeconds(90);
 
         private readonly List<ServerProcess> _servers = new();
-        private readonly string _configuration;
+        private readonly List<string> _configurations = new();
 
-        private ServerStack(string configuration, int loginPort)
+        private ServerStack(int loginPort)
         {
-            _configuration = configuration;
             LoginPort = loginPort;
         }
 
@@ -36,26 +35,30 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         public int LoginPort { get; }
 
-        public static async Task<ServerStack> StartAsync(string databaseName)
+        // One world server per channel, on one master and one login server.
+        public static async Task<ServerStack> StartAsync(string databaseName, int channels = 2)
         {
             var root = RepositoryRoot();
             var binaries = Path.Combine(root, "build", "net11.0");
-            var masterPort = FreePort();
-            var loginPort = FreePort();
-            var worldPort = FreePort();
-            var stack = new ServerStack(WriteConfiguration(root, databaseName, worldPort), loginPort);
+            var stack = new ServerStack(FreePort());
             var environment = new Dictionary<string, string>
             {
-                ["MASTER_PORT"] = masterPort.ToString(),
-                ["LOGIN_PORT"] = loginPort.ToString(),
-                ["WORLD_PORT"] = worldPort.ToString(),
+                ["MASTER_PORT"] = FreePort().ToString(),
+                ["LOGIN_PORT"] = stack.LoginPort.ToString(),
             };
 
             try
             {
-                await stack.StartAsync(binaries, "NosCore.MasterServer", "Successfully Loaded", environment);
-                await stack.StartAsync(binaries, "NosCore.LoginServer", "Listening Port", environment);
-                await stack.StartAsync(binaries, "NosCore.WorldServer", "Successfully Loaded", environment);
+                var shared = stack.WriteConfiguration(root, databaseName, 0);
+                await stack.StartAsync(binaries, "NosCore.MasterServer", "Successfully Loaded", shared, environment);
+                await stack.StartAsync(binaries, "NosCore.LoginServer", "Listening Port", shared, environment);
+                for (var channel = 0; channel < channels; channel++)
+                {
+                    var port = FreePort();
+                    var world = new Dictionary<string, string>(environment) { ["WORLD_PORT"] = port.ToString() };
+                    await stack.StartAsync(binaries, "NosCore.WorldServer", "Successfully Loaded",
+                        stack.WriteConfiguration(root, databaseName, port), world);
+                }
             }
             catch
             {
@@ -68,12 +71,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // What a server has written since it started, for a failing test's message.
         public string LogTail(string server, int lines = 40) =>
-            string.Join(Environment.NewLine, _servers.First(s => s.Name == server).Output.TakeLast(lines));
+            string.Join(Environment.NewLine, _servers.Where(s => s.Name == server).SelectMany(s => s.Output.TakeLast(lines)));
 
         public IEnumerable<string> Errors(string server) =>
-            _servers.First(s => s.Name == server).Output.Where(line => line.StartsWith("EROR", StringComparison.Ordinal));
+            _servers.Where(s => s.Name == server).SelectMany(s => s.Output)
+                .Where(line => line.StartsWith("EROR", StringComparison.Ordinal));
 
-        private async Task StartAsync(string binaries, string name, string readyLine, Dictionary<string, string> environment)
+        private async Task StartAsync(string binaries, string name, string readyLine, string configuration,
+            Dictionary<string, string> environment)
         {
             var assembly = Path.Combine(binaries, name + ".dll");
             if (!File.Exists(assembly))
@@ -91,7 +96,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             };
             start.ArgumentList.Add(assembly);
             start.ArgumentList.Add("--config");
-            start.ArgumentList.Add(_configuration);
+            start.ArgumentList.Add(configuration);
             foreach (var (key, value) in environment)
             {
                 start.Environment[key] = value;
@@ -102,10 +107,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await server.WaitForAsync(readyLine, StartTimeout);
         }
 
-        private static string WriteConfiguration(string root, string databaseName, int worldPort)
+        // The address a world server announces is in its file, so each channel has its own copy.
+        private string WriteConfiguration(string root, string databaseName, int worldPort)
         {
             var target = Path.Combine(Path.GetTempPath(), "noscore-e2e-" + Guid.NewGuid().ToString("N")[..8]);
             Directory.CreateDirectory(target);
+            _configurations.Add(target);
             foreach (var file in Directory.GetFiles(Path.Combine(root, "configuration"), "*.yml"))
             {
                 var text = File.ReadAllText(file);
@@ -144,12 +151,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 await _servers[i].StopAsync();
             }
 
-            try
+            foreach (var configuration in _configurations)
             {
-                Directory.Delete(_configuration, true);
-            }
-            catch (IOException)
-            {
+                try
+                {
+                    Directory.Delete(configuration, true);
+                }
+                catch (IOException)
+                {
+                }
             }
         }
 

@@ -36,12 +36,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private int _cursor;
         private bool _disconnected;
 
-        public TestClient(string host, int loginPort, string account, string password = "test")
+        private readonly int _channel;
+
+        public TestClient(string host, int loginPort, string account, string password = "test", int channel = 0)
         {
             _host = host;
             _loginPort = loginPort;
             _account = account;
             _password = password;
+            _channel = channel;
         }
 
         public long CharacterId { get; private set; }
@@ -92,14 +95,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public async Task ConnectAsync()
         {
             var reply = await LoginAsync();
-            if (reply.World == null)
+            if (reply.Channels.Count <= _channel)
             {
-                throw new InvalidOperationException($"Login refused: {reply.Raw}");
+                throw new InvalidOperationException($"No channel {_channel} in the login reply: {reply.Raw}");
             }
 
             _session = reply.Session;
             _world = new TcpClient { NoDelay = true };
-            await _world.ConnectAsync(reply.World.Value.Host, reply.World.Value.Port);
+            await _world.ConnectAsync(reply.Channels[_channel].Host, reply.Channels[_channel].Port);
             await _world.GetStream().WriteAsync(ClientCipher.EncodeSession(_counter++, _session));
             _reading = Task.Run(ReadLoopAsync);
             await Task.Delay(200);
@@ -297,7 +300,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         }
     }
 
-    public sealed record LoginReply(string Raw, int Session, (string Host, int Port)? World)
+    public sealed record LoginReply(string Raw, int Session, IReadOnlyList<(string Host, int Port)> Channels)
     {
         // NsTeST <region> <account> ... <session> <ip:port:colour:world.channel.name> ... -1:-1:-1:10000.10000.1
         public static LoginReply Parse(string raw)
@@ -305,20 +308,27 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             var parts = raw.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (parts.Length == 0 || parts[0] != "NsTeST")
             {
-                return new LoginReply(raw, 0, null);
+                return new LoginReply(raw, 0, []);
             }
 
-            var index = Array.FindIndex(parts, part => part.Count(c => c == ':') == 3 && !part.StartsWith("-1", StringComparison.Ordinal));
-            if (index < 1)
+            var first = Array.FindIndex(parts, IsChannel);
+            if (first < 1)
             {
-                return new LoginReply(raw, 0, null);
+                return new LoginReply(raw, 0, []);
             }
 
-            var server = parts[index].Split(':');
-            return new LoginReply(raw, int.Parse(parts[index - 1], CultureInfo.InvariantCulture),
-                (server[0], int.Parse(server[1], CultureInfo.InvariantCulture)));
+            var channels = parts.Skip(first).Where(IsChannel)
+                .Select(part => part.Split(':'))
+                .Select(server => (server[0], int.Parse(server[1], CultureInfo.InvariantCulture)))
+                .ToList();
+            return new LoginReply(raw, int.Parse(parts[first - 1], CultureInfo.InvariantCulture), channels);
         }
 
-        public string? Refusal => World == null && Raw.StartsWith("failc", StringComparison.Ordinal) ? Raw : null;
+        public (string Host, int Port)? World => Channels.Count > 0 ? Channels[0] : null;
+
+        public string? Refusal => Channels.Count == 0 && Raw.StartsWith("failc", StringComparison.Ordinal) ? Raw : null;
+
+        private static bool IsChannel(string part) =>
+            part.Count(c => c == ':') == 3 && !part.StartsWith("-1", StringComparison.Ordinal);
     }
 }

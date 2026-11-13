@@ -18,6 +18,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     [TestClass]
     public static class Harness
     {
+        // A channel asks the master who is online at most every three seconds, so a whisper sent
+        // sooner after its receiver arrived can be told the receiver is not playing.
+        public static readonly TimeSpan WhoIsOnlineIsCachedFor = TimeSpan.FromSeconds(3.2);
+
         private static TestDatabase? _database;
         private static ServerStack? _stack;
         private static string? _unavailable;
@@ -51,14 +55,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             return await WorldData.AddPlayerAsync(context, unique, mapId, x, y, configure);
         }
 
-        public static TestClient Client(Player player, string password = WorldData.Password) =>
-            new(Stack.Host, Stack.LoginPort, player.Account, password);
+        public static TestClient Client(Player player, string password = WorldData.Password, int channel = 0) =>
+            new(Stack.Host, Stack.LoginPort, player.Account, password, channel);
 
         // A new character, already in the world.
         public static async Task<TestClient> EnterAsync(string name, short mapId = WorldData.Town, short x = 80, short y = 116,
-            Action<Character>? configure = null)
+            Action<Character>? configure = null, int channel = 0)
         {
-            var client = Client(await AddPlayerAsync(name, mapId, x, y, configure));
+            var client = Client(await AddPlayerAsync(name, mapId, x, y, configure), channel: channel);
             try
             {
                 await client.EnterWorldAsync(0);
