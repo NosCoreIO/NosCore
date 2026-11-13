@@ -165,7 +165,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
     // The extra share of damage a critical adds, or null when the hit is not critical.
     private double? RollCriticalBonus(SkillInfo skill, AttackContext context, CombatStats defender)
     {
-        if (skill.Type == 2 || random.NextDouble() * 100 > context.MainCritChance)
+        if (skill.Type == 2 || random.NextDouble() * 100 > context.MainCritChance + defender.CriticalReceivedChance)
         {
             return null;
         }

@@ -122,6 +122,39 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void ADefenderMoreLikelyToReceiveCriticalsTurnsAMissedCriticalRollIntoACritical()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 10, CriticalRate = 200,
+            };
+
+            var plain = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var exposed = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default() with { CriticalReceivedChance = 20 }, MeleeSkill);
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, plain.HitMode);
+            Assert.AreEqual(SuPacketHitMode.CriticalAttack, exposed.HitMode);
+        }
+
+        [TestMethod]
+        public void ADefenderLessLikelyToReceiveCriticalsTurnsACriticalRollIntoAPlainHit()
+        {
+            var attacker = StatsBuilder.Default() with
+            {
+                HitRate = 100, MinHit = 100, MaxHit = 100,
+                CriticalChance = 30, CriticalRate = 200,
+            };
+
+            var guarded = new DamageCalculator(Rng(doubles: new[] { 1.0, 0.25 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default() with { CriticalReceivedChance = -10 }, MeleeSkill);
+
+            Assert.AreEqual(SuPacketHitMode.SuccessAttack, guarded.HitMode);
+        }
+
+        [TestMethod]
         public void MoraleAddsFlatDamage()
         {
             var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);

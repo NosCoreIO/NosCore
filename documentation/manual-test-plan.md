@@ -199,6 +199,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       5 %, rounded down (109-117 becomes 114-122)
 - [ ] Wear Denim Clothing ("All defence stats +5%"): every defence rises by 5 %
 
+### Chance of receiving critical hits
+
+- [ ] Wear an armour with "probability to receive critical hits is decreased by 20%" (8643) and let a
+      monster with a 20% critical chance hit you: no hit lands as a critical; take it off and about
+      one landed hit in five is critical again
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

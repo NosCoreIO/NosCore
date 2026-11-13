@@ -302,6 +302,7 @@ public sealed class BattleStatsProvider(
             GuaranteedHitChance = stats.GuaranteedHitChance + totals.GuaranteedHit,
             GuaranteedDodgeChance = stats.GuaranteedDodgeChance + totals.GuaranteedDodge,
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
+            CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
             ChanceDamage = totals.ChanceDamage ?? stats.ChanceDamage,
         };
     }
@@ -321,7 +322,7 @@ public sealed class BattleStatsProvider(
     {
         public int AttackAll, AttackMelee, AttackRanged, AttackMagical;
         public int DamageAll, DamageMelee, DamageRanged, DamageMagical;
-        public int CritInflicting, CritDamage, CritReceived;
+        public int CritInflicting, CritDamage, CritReceived, CritReceivedChance;
         public int DefenceAll, DefenceMelee, DefenceRanged, DefenceMagical;
         public int FactorAttackAll, FactorAttackMelee, FactorAttackRanged;
         public int FactorDefenceAll, FactorDefenceMelee, FactorDefenceRanged, FactorDefenceMagical;
@@ -360,6 +361,8 @@ public sealed class BattleStatsProvider(
             [BCardEffect.CriticalInflictingReduced] = (t, v) => t.CritInflicting -= v,
             [BCardEffect.CriticalDamageIncreased] = (t, v) => t.CritDamage += v,
             [BCardEffect.CriticalDamageIncreasedInflictingReduced] = (t, v) => t.CritDamage -= v,
+            [BCardEffect.CriticalReceivingIncreased] = (t, v) => t.CritReceivedChance += v,
+            [BCardEffect.CriticalReceivingDecreased] = (t, v) => t.CritReceivedChance -= v,
             [BCardEffect.CriticalDamageFromCriticalIncreased] = (t, v) => t.CritReceived += v,
             [BCardEffect.CriticalDamageFromCriticalDecreased] = (t, v) => t.CritReceived -= v,
 

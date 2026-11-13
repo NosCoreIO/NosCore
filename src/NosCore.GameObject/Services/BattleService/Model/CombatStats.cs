@@ -63,6 +63,8 @@ public readonly record struct CombatStats(
     int GuaranteedDodgeChance = 0,
     // Percentage added to the critical bonus of hits this entity takes; negative shrinks it.
     int CriticalDamageReceived = 0,
+    // Percentage points added to the critical chance of whoever hits this entity.
+    int CriticalReceivedChance = 0,
     // The worn weapons' own share of the attack above: an upgrade scales only this part.
     int WeaponMinHit = 0,
     int WeaponMaxHit = 0,
