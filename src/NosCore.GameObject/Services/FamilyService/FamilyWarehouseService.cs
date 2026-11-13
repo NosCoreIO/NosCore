@@ -18,10 +18,12 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
@@ -59,7 +61,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotAuthorized });
             }
 
-            return session.SendPacketAsync(familyLogService.GetWarehouseHistory(family.FamilyId).GenerateFslog(clock.GetCurrentInstant()));
+            return session.SendPacketAsync(GenerateFslog(familyLogService.GetWarehouseHistory(family.FamilyId), clock.GetCurrentInstant()));
         }
 
         public async Task DepositAsync(ClientSession session, PocketType pocket, short slot, short amount, short warehouseSlot)
@@ -238,6 +240,21 @@ namespace NosCore.GameObject.Services.FamilyService
 
             return items;
         }
+
+        private static FslogStcPacket GenerateFslog(IEnumerable<FamilyLogDto> history, Instant now) => new()
+        {
+            Entries = history.Select(s => (FslogStcSubPacket?)new FslogStcSubPacket
+            {
+                Type = s.FamilyLogType == FamilyLogType.WareHouseAdded ? FamilyWarehouseLogType.Deposit : FamilyWarehouseLogType.Withdrawal,
+                CharacterName = s.FirstArgument,
+                ItemVNum = ParseShort(s.SecondArgument),
+                Amount = ParseShort(s.ThirdArgument),
+                HoursAgo = (int)(now - s.Timestamp).TotalHours
+            }).ToList()
+        };
+
+        private static short ParseShort(string? value) =>
+            short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : default;
 
         private static Task SendSlotAsync(ClientSession session, IItemInstance? item, short slot) =>
             session.SendPacketAsync(new FStashClientPacket { Items = [item.GenerateWarehouseSubPacket(slot)] });
