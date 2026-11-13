@@ -118,6 +118,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             await WorldData.GiveAsync(context, player.CharacterId, item, slot, pocket);
         }
 
+        // Teaches a character a skill. Call it before the character enters the world.
+        public static async Task TeachAsync(Player player, short skillVNum)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.TeachAsync(context, player.CharacterId, skillVNum);
+        }
+
         // A family name no other scenario of the run uses.
         public static string FamilyName() =>
             $"Clan{Interlocked.Increment(ref _families)}x{Random.Shared.Next(100, 999)}";
