@@ -217,6 +217,18 @@ namespace NosCore.GameObject.Services.SkillService
                 return false;
             }
 
+            var entry = new CharacterSkill
+            {
+                Id = Guid.NewGuid(),
+                CharacterId = character.VisualId,
+                SkillVNum = skill.SkillVNum,
+                Skill = skill,
+            };
+            if (await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>()) == null)
+            {
+                return false;
+            }
+
             if (skill.IsPassive())
             {
                 foreach (var weaker in character.Skills.Values
@@ -227,15 +239,7 @@ namespace NosCore.GameObject.Services.SkillService
                 }
             }
 
-            var entry = new CharacterSkill
-            {
-                Id = Guid.NewGuid(),
-                CharacterId = character.VisualId,
-                SkillVNum = skill.SkillVNum,
-                Skill = skill,
-            };
             character.Skills[skill.SkillVNum] = entry;
-            await characterSkillDao.TryInsertOrUpdateAsync(entry.Adapt<CharacterSkillDto>());
             if (price > 0)
             {
                 character.Gold -= price;
