@@ -74,8 +74,7 @@ namespace NosCore.PacketHandlers.Chat
                     Message = message.ToString()
                 });
 
-                var accounts = await subscriberCache.GetSubscribersAsync();
-                var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Name == receiverName);
+                var receiver = await subscriberCache.FindAsync(x => x.ConnectedCharacter?.Name == receiverName);
 
                 if (receiver == null)
                 {

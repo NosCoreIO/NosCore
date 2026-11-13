@@ -24,13 +24,29 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = Harness.Client(bobPlayer);
             await bob.EnterWorldAsync(bobPlayer.Slot);
             await using var alice = await Harness.EnterAsync("Alice");
-            await Task.Delay(Harness.WhoIsOnlineIsCachedFor);
 
             await alice.SendAsync($"/{bobPlayer.Name} see you at the portal");
 
             var heard = await bob.ExpectAsync("spk");
             StringAssert.StartsWith(heard, $"spk 1 {alice.CharacterId} ");
             StringAssert.Contains(heard, "see you at the portal");
+        }
+
+        [TestMethod]
+        public async Task AWhisperReachesSomeoneWhoHasJustArrived()
+        {
+            await using var alice = await Harness.EnterAsync("Alice");
+            var bobPlayer = await Harness.AddPlayerAsync("Bob", WorldData.Meadow, 20, 20);
+            await using var bob = Harness.Client(bobPlayer);
+
+            // The first whisper makes the channel read who is online; Bob arrives after that.
+            await alice.SendAsync($"/{bobPlayer.Name} are you there yet");
+            await alice.ExpectAsync("infoi2");
+            await bob.EnterWorldAsync(bobPlayer.Slot);
+            await alice.SendAsync($"/{bobPlayer.Name} there you are");
+
+            var heard = await bob.ExpectAsync("spk");
+            StringAssert.Contains(heard, "there you are");
         }
 
         [TestMethod]
