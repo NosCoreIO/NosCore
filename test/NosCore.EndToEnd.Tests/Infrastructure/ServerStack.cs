@@ -38,6 +38,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // One world server per channel, on one master and one login server.
         private const string WorldServer = "NosCore.WorldServer";
+        private const int RecentLines = 200;
 
         public static async Task<ServerStack> StartAsync(string databaseName, int channels = 2)
         {
@@ -81,7 +82,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             if (connectionClosed)
             {
                 Append(report, "Servers that stopped", _servers.Where(s => s.HasExited).Select(s => $"{s.Name} (exit code {s.ExitCode})"));
-                Append(report, "World server log", _servers.Where(s => s.Name == WorldServer).SelectMany(s => s.Output.TakeLast(25)));
+                Append(report, "World server log", _servers.Where(s => s.Name == WorldServer).SelectMany(s => s.Recent.TakeLast(25)));
             }
 
             return report.ToString();
@@ -224,6 +225,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
             public ConcurrentQueue<string> Output { get; } = new();
 
+            // The last lines at every level, for the report on a closed connection.
+            public ConcurrentQueue<string> Recent { get; } = new();
+
             public async Task WaitForAsync(string text, TimeSpan timeout)
             {
                 var waited = Stopwatch.StartNew();
@@ -273,12 +277,31 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 }
             }
 
-            // A server pings the master every second at debug level; none of that is worth keeping.
+            // The message bus reports every message it moves at debug level, about one a second.
+            // That is left out everywhere; other debug lines only go to the recent tail.
             private void Keep(string? line)
             {
-                if (line != null && !line.StartsWith("DBUG", StringComparison.Ordinal))
+                if (line == null)
+                {
+                    return;
+                }
+
+                var debug = line.StartsWith("DBUG", StringComparison.Ordinal);
+                if (!debug)
                 {
                     Output.Enqueue(line);
+                }
+
+                if (debug && (line.Contains("message(s) from", StringComparison.Ordinal)
+                        || line.Contains("Successfully processed message", StringComparison.Ordinal)))
+                {
+                    return;
+                }
+
+                Recent.Enqueue(line);
+                while (Recent.Count > RecentLines)
+                {
+                    Recent.TryDequeue(out _);
                 }
             }
         }
