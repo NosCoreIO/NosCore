@@ -18,7 +18,8 @@ rather than adding a lock next to it.
 1. **Work on a map goes through its executor.** Code reached from a packet handler that changes what
    other players on the map see or fight with runs inside `OnMapAsync`. Work running on an executor
    must not wait on another executor or on a session's packet lock; a map change takes two executors
-   through `RunExclusiveAsync`, in a fixed order.
+   through `RunExclusiveAsync`, in a fixed order. Start a map change outside
+   `OnMapAsync`: from inside the later-created of the two maps it throws instead of waiting.
 2. **State shared between channels is written by the master.** A channel asks through a hub
    (`IBazaarHub`, `IWarehouseHub`, `IFamilyHub`) and the master re-reads the row, checks and writes
    under its lock. A lock in a channel does not stop another channel.

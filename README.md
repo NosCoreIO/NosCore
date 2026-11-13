@@ -49,7 +49,7 @@ Any editor that handles .NET 11 works: the build, the tests and every tool here 
 
 [documentation/architecture.md](documentation/architecture.md) explains how the servers, the projects and the sibling packages fit together.
 
-In short:
+In short, with each server in its own terminal:
 
 ```
 dotnet build NosCore.sln

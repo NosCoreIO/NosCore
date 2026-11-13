@@ -26,23 +26,36 @@ git clone https://github.com/NosCoreIO/NosCore.ParserInputGenerator
 ```
 
 ```bash
-cd NosCore.ParserInputGenerator && dotnet build
+cd NosCore.ParserInputGenerator
 ```
 
 ```bash
-cd build/net10.0 && dotnet NosCore.ParserInputGenerator.Launcher.dll
+dotnet build
 ```
 
-The result is `build/net10.0/output/parser`: the `.dat` files, one `_code_<language>_*.txt` per
+```bash
+cd build/net10.0
+```
+
+```bash
+dotnet NosCore.ParserInputGenerator.Launcher.dll
+```
+
+The result is `NosCore.ParserInputGenerator/build/net10.0/output/parser`: the `.dat` files, one `_code_<language>_*.txt` per
 language, and a `map` folder.
 
 The parser also needs a file the client does not contain: **`packet.txt`**, a capture of what a
 server sends, one packet per line. Portals, monster and NPC positions, shops and teleporters
-exist only in those packets. Put it in the same `parser` folder. The Packet Logger in
-[NosCore.DeveloperTools](https://github.com/NosCoreIO/NosCore.DeveloperTools) records one.
-Without the file the parser stops.
+exist only in those packets, so the file has to be recorded while playing on a server that
+already has them: walk through the maps you want filled and open the shops you want stocked.
+The Packet Logger in
+[NosCore.DeveloperTools](https://github.com/NosCoreIO/NosCore.DeveloperTools) attaches to the
+running client and writes the lines. Put the file in the same `parser` folder. Without it the
+parser stops; with a short one the server runs, and the maps that were not visited are empty.
 
 ## 2. Build
+
+From the root of the NosCore clone:
 
 ```bash
 dotnet build NosCore.sln
@@ -54,12 +67,17 @@ so start them from there.
 ## 3. Fill the database
 
 ```bash
-cd build/net11.0 && dotnet NosCore.Parser.dll --folder /path/to/output/parser
+cd build/net11.0
+```
+
+```bash
+dotnet NosCore.Parser.dll --folder /path/to/output/parser
 ```
 
 The parser creates the `noscore` database if it is missing, applies every migration, and
 imports the data. It takes a minute or two. Run it again after pulling changes that add a
-migration: the servers do not migrate, and refuse to start against an older schema.
+migration: the master server, which starts first, does not migrate and stops against an older
+schema.
 
 It also creates two accounts, both with the password `test`:
 
