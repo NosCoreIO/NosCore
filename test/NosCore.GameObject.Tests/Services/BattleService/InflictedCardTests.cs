@@ -72,12 +72,13 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 _catalog.Object, _random.Object);
         }
 
-        // A bundle carrying only the two components the buff path reads. MapInstance comes off
+        // A bundle carrying only the three components the buff path reads. MapInstance comes off
         // NpcStateComponent and is left null, so ApplyAsync stores the buff and sends no packet.
         private IAliveEntity Entity(bool immuneToDebuffs = false) =>
             new MonsterComponentBundle(
                 _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
+                    new NpcDataComponent(333, 0, 1, 0, 0, 0),
                     new NpcStateComponent { NpcMonster = new NpcMonsterDto { CantDebuff = immuneToDebuffs } })),
                 _world);
 

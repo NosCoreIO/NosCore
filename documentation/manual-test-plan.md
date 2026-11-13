@@ -272,6 +272,21 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 
 ---
 
+### Bleeding, poison and regeneration — BCard type 22 with an interval
+
+A card of this family takes or gives a fixed amount of HP or MP every few seconds. When the
+amount is "per level", the level is that of whoever inflicted the card, not the bearer's.
+
+- [ ] Let a Hell's Guard Dog (level 38, map 10) hit you until the Heavy Bleeding icon appears:
+      a red 152 (4 per level of the dog) rises from your character every 2 seconds for 20
+      seconds, and the HP bar drops with it
+- [ ] The bleeding never kills: at 1 HP the numbers stop and the character stays alive
+- [ ] A second player on the map sees the same numbers over your character
+- [ ] Bleeding inflicted on a monster shows the numbers over the monster, for a bystander who
+      has not selected it too, and leaves it at 1 HP
+- [ ] A card that gives HP on a timer (Recovery Aura, card 34) shows a green number at each
+      step and stops at the maximum
+
 ### Poisons and regeneration on monsters
 
 - [ ] Inflict a card that drains HP over time on a monster (card 455: 8 % every 4 seconds) and
@@ -1931,6 +1946,10 @@ Use a character that has never logged in before, or one whose points were spent 
 
 Recorded so nobody spends time hunting for them:
 
+- **Bleeding on a monster, by playing** — no skill of a low-level character inflicts a bleeding
+  card, so the monster check was run with a database row that makes the adventurer's basic
+  attack inflict Heavy Bleeding (card 42): a level 40 character's hit makes a Big Wild Pii Pod
+  lose 160 every 2 seconds until 1 HP is left.
 - **Poisons and regeneration on monsters, by playing** — no skill a player can learn inflicts
   one of the cards that take or give a share of HP on a timer (427, 431, 455, 1437), so the
   section above needs a database row that makes a skill inflict one (a skill BCard of type 25,

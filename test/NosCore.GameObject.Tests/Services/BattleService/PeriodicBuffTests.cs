@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
     {
         private static readonly CardDto Heat = new() { CardId = 339, Duration = 0 };
         private static readonly CardDto Poison = new() { CardId = 455, Duration = 600 };
+        private static readonly CardDto Bleeding = new() { CardId = 42, Duration = 200 };
 
         private TestWorld World;
         private ClientSession _session;
@@ -248,12 +249,128 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = percent, ThirdData = steps,
         };
 
-        private MonsterComponentBundle Monster(int maxHp)
+        [TestMethod]
+        public async Task BleedingTakesItsValueTimesTheLevelOfWhoeverInflictedIt()
+        {
+            var victim = Monster(5000);
+            var attacker = Monster(100, level: 42, id: 9002);
+            await _buffs.ApplyAsync(victim, Bleeding, [Fixed(HpTaken, 4, steps: 1, perLevel: true)], attacker);
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(victim);
+
+            Assert.AreEqual(5000 - 168, victim.Hp);
+            Assert.AreEqual(168, map.LastPackets.OfType<DmPacket>().Single().Damages);
+        }
+
+        [TestMethod]
+        public async Task AFixedAmountThatDoesNotScaleIsTakenAsItIs()
+        {
+            var victim = Monster(5000);
+            await _buffs.ApplyAsync(victim, Bleeding, [Fixed(HpTaken, 30, steps: 2, perLevel: false)], Monster(100, level: 42, id: 9002));
+
+            World.Clock.Advance(Duration.FromSeconds(3));
+            await _buffs.TickAsync(victim);
+            Assert.AreEqual(5000, victim.Hp);
+
+            World.Clock.Advance(Duration.FromSeconds(1));
+            await _buffs.TickAsync(victim);
+            Assert.AreEqual(4970, victim.Hp);
+        }
+
+        [TestMethod]
+        public async Task BleedingStopsAtOneHp()
+        {
+            var victim = Monster(5000);
+            victim.Hp = 100;
+            await _buffs.ApplyAsync(victim, Bleeding, [Fixed(HpTaken, 4, steps: 1, perLevel: true)], Monster(100, level: 42, id: 9002));
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(victim);
+
+            Assert.AreEqual(1, victim.Hp);
+            Assert.IsTrue(victim.IsAlive);
+            Assert.AreEqual(99, map.LastPackets.OfType<DmPacket>().Single().Damages);
+        }
+
+        [TestMethod]
+        public async Task RegenerationGivesHpUpToTheMaximumAndShowsWhatItGave()
+        {
+            var healed = Monster(5000);
+            healed.Hp = 4900;
+            await _buffs.ApplyAsync(healed, Bleeding, [Fixed(HpGiven, 3, steps: 1, perLevel: true)], Monster(100, level: 42, id: 9002));
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(healed);
+
+            Assert.AreEqual(5000, healed.Hp);
+            Assert.AreEqual(100, map.LastPackets.OfType<RcPacket>().Single().HealAmount);
+        }
+
+        [TestMethod]
+        public async Task MpIsTakenAndGivenTheSameWay()
+        {
+            var character = _session.Character;
+            character.Mp = character.MaxMp;
+            await _buffs.ApplyAsync(character, Bleeding, [Fixed(MpTaken, 2, steps: 1, perLevel: true)], Monster(100, level: 10, id: 9002));
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(character);
+            Assert.AreEqual(character.MaxMp - 20, character.Mp);
+
+            await _buffs.ApplyAsync(character, Bleeding, [Fixed(MpGiven, 1, steps: 1, perLevel: true)], Monster(100, level: 10, id: 9003));
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(character);
+            Assert.AreEqual(character.MaxMp - 10, character.Mp);
+        }
+
+        [TestMethod]
+        public async Task ACardNobodyInflictedScalesWithItsBearersLevel()
+        {
+            var character = _session.Character;
+            character.Level = 30;
+            character.Hp = character.MaxHp;
+            await _buffs.ApplyPermanentAsync(character, Heat, [Fixed(HpTaken, 2, steps: 1, perLevel: true)]);
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(character);
+
+            Assert.AreEqual(character.MaxHp - 60, character.Hp);
+        }
+
+        [TestMethod]
+        public async Task AFixedLossAndAPercentLossAddUp()
+        {
+            var victim = Monster(1000);
+            await _buffs.ApplyAsync(victim, Bleeding,
+                [Fixed(HpTaken, 50, steps: 1, perLevel: false), HpReduced(10, 1)], null);
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(victim);
+
+            Assert.AreEqual(850, victim.Hp);
+        }
+
+        private const byte HpGiven = 11, HpTaken = 12, MpGiven = 21, MpTaken = 22;
+
+        private static BCardDto Fixed(byte subType, int value, int steps, bool perLevel) => new()
+        {
+            Type = (byte)BCardType.CardType.HealingBurningAndCasting, SubType = subType, FirstData = value,
+            ThirdData = steps, IsLevelScaled = perLevel,
+        };
+
+        private MonsterComponentBundle Monster(int maxHp, byte level = 1, int id = 9001)
         {
             var map = _session.Character.MapInstance;
-            var creature = new NpcMonsterDto { NpcMonsterVNum = 333, Level = 1, MaxHp = maxHp, MaxMp = 10 };
+            var creature = new NpcMonsterDto { NpcMonsterVNum = 333, Level = level, MaxHp = maxHp, MaxMp = 10 };
             return new MonsterComponentBundle(
-                map.EcsWorld.CreateMonster(9001, creature, map, 12, 14, 2, 12, 14, false, true, false), map.EcsWorld);
+                map.EcsWorld.CreateMonster(id, creature, map, 12, 14, 2, 12, 14, false, true, false), map.EcsWorld);
         }
 
         private static BCardDto HpReduced(int percent, int steps) => new()

@@ -29,6 +29,9 @@ public sealed record BuffInstance(
     // The periodic BCards have fired for every step up to this instant.
     public Instant PulsedUntil { get; init; } = StartedAt;
 
+    // Kept apart from Caster: the amounts that scale with it are still due after the caster is gone.
+    public byte? CasterLevel { get; init; }
+
     // A BCard with ThirdData set fires every ThirdData x 2 seconds while the buff lasts.
     public long PulsesDue(BCardDto bCard, Instant now)
     {
