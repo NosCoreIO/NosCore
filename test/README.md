@@ -133,6 +133,9 @@ Writing one:
 - A failing start prints the server's last lines; `Harness.Stack.LogTail("NosCore.WorldServer")`
   gives them to a scenario.
 
+The stack has two channels: two world servers on one master and one login server.
+`Harness.EnterAsync(..., channel: 1)` puts a character on the second one.
+
 The servers are shared by the whole run, so a scenario must not depend on being alone on a
 map: assert on packets about its own characters.
 
