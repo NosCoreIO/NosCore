@@ -26,8 +26,8 @@ namespace NosCore.PacketHandlers.Command
             {
                 if (sessionRegistry.TryGetCharacter(s => s.Name == teleportPacket.TeleportArgument, out var targetSession))
                 {
-                    return mapChangeService.ChangeMapInstanceAsync(session, targetSession.MapInstanceId, targetSession.MapX,
-                        targetSession.MapY);
+                    return mapChangeService.ChangeMapInstanceAsync(session, targetSession.MapInstanceId, targetSession.PositionX,
+                        targetSession.PositionY);
                 }
 
                 logger.LogError(gameLanguageLocalizer[LanguageKey.USER_NOT_CONNECTED,

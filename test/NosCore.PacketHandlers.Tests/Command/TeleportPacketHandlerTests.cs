@@ -71,11 +71,11 @@ namespace NosCore.PacketHandlers.Tests.Command
         }
 
         [TestMethod]
-        public async Task TeleportingToPlayerForwardsTargetMapXYNotSelfPosition()
+        public async Task TeleportingToPlayerLandsWhereTheTargetStands()
         {
-            await new Spec("Teleport-to-player forwards the target's MapX/MapY (not the caller's)")
+            await new Spec("Teleport-to-player lands on the target's current cell, not its saved base-map position or the caller's")
                 .Given(CharacterIsOnMap)
-                .And(TargetIsOnlineAtMapXY_, (short)77, (short)88)
+                .And(TargetStandsAt_WithSavedPosition_, (short)77, (short)88, (short)20, (short)33)
                 .And(CallerIsAtDifferentPosition_, (short)10, (short)10)
                 .WhenAsync(TeleportingToPlayer)
                 .Then(MapChangeInstanceCalledWithCoords_, 77, 88)
@@ -92,11 +92,13 @@ namespace NosCore.PacketHandlers.Tests.Command
                 .ExecuteAsync();
         }
 
-        private void TargetIsOnlineAtMapXY_(short x, short y)
+        private void TargetStandsAt_WithSavedPosition_(short x, short y, short savedX, short savedY)
         {
             TargetSession.Character.MapInstance = World.GetBaseMap(1);
-            TargetSession.Character.MapX = x;
-            TargetSession.Character.MapY = y;
+            TargetSession.Character.PositionX = x;
+            TargetSession.Character.PositionY = y;
+            TargetSession.Character.MapX = savedX;
+            TargetSession.Character.MapY = savedY;
         }
 
         private void CallerIsAtDifferentPosition_(short x, short y)
