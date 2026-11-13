@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using NodaTime;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -42,13 +43,14 @@ namespace NosCore.GameObject.Services.BattleService
         IClock clock,
         ICaptureService captureService,
         ICastDelayService castDelayService,
+        IBuffService buffService,
         ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
-            if (!CanAttack(origin, target))
+            if (!CanAttack(origin, target) || IsStunned(origin))
             {
-                await CancelAsync(origin, target).ConfigureAwait(false);
+                await CancelAsync(origin, target);
                 return false;
             }
 
@@ -106,7 +108,7 @@ namespace NosCore.GameObject.Services.BattleService
         public async Task<bool> HitArea(IAliveEntity origin, short mapX, short mapY, HitArguments arguments)
         {
             var mapInstance = origin.MapInstance;
-            var skill = CanCast(origin) && mapInstance != null ? skillResolver.Resolve(origin, arguments.SkillId) : null;
+            var skill = CanCast(origin) && !IsStunned(origin) && mapInstance != null ? skillResolver.Resolve(origin, arguments.SkillId) : null;
             if (mapInstance == null || skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill))
             {
                 await CancelAsync(origin, null);
@@ -288,8 +290,8 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await castDelayService.WaitAsync(Duration.FromMilliseconds(skill.CastTime * 100));
-            return ReferenceEquals(origin.MapInstance, map)
-                && (target == null ? CanCast(origin) : CanAttack(origin, target));
+            return ReferenceEquals(origin.MapInstance, map) && !IsStunned(origin)
+                && (target == null ? CanCast(origin) : CanAttack(origin, target) && ReferenceEquals(target.MapInstance, map));
         }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)
@@ -319,6 +321,8 @@ namespace NosCore.GameObject.Services.BattleService
         }
 
         private static bool CanCast(IAliveEntity origin) => origin.IsAlive && !origin.NoAttack;
+
+        private bool IsStunned(IAliveEntity origin) => buffService.HasEffect(origin, BCardEffect.SpecialAttackNoAttack);
 
         private static bool AreAllies(IAliveEntity a, IAliveEntity b)
         {

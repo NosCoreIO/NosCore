@@ -193,6 +193,14 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Wear the Monkey Hat ("high chance of protection from Blackouts") and repeat: Blackout
       lands only now and then (about one hit in ten)
 
+### Stun, root and speed buffs
+
+- [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
+      clicking the ground does not move you and skills do not cast
+- [ ] When Blackout ends you walk and cast again at your normal speed
+- [ ] A Blackout landed on a monster keeps it in place and stops its attacks until it ends
+- [ ] Haste (card 28/29) makes you walk faster; a slowing card makes you walk slower
+
 ### Area skills and bystanders
 
 - [ ] Stand a second character next to a monster and cast an area skill at the monster: the

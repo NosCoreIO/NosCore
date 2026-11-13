@@ -14,6 +14,7 @@ using NodaTime;
 using NodaTime.Testing;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Infastructure;
+using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.Networking.SessionGroup;
@@ -33,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private FakeClock _clock;
         private BuffService _service;
         private ClientSession _session;
+        private Mock<Wolverine.IMessageBus> _bus;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -48,7 +50,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .Returns(Task.CompletedTask);
             _session.Character.MapInstance.Sessions = mapSessions.Object;
             _clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
-            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object);
+            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object, (_bus = new Mock<Wolverine.IMessageBus>()).Object);
         }
 
         [TestMethod]
@@ -65,6 +67,27 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.AreEqual(Card.CardId, bf.Buff.NotNull().BuffId);
             Assert.AreEqual(0, bf.Buff.NotNull().Duration);
             Assert.IsFalse(_broadcast.OfType<BfePacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task AStunLandingAndEndingBothRefreshTheMovementCondition()
+        {
+            var stun = new[] { new BCardDto { Type = 1, SubType = 11 }, new BCardDto { Type = 19, SubType = 11 } };
+            await _service.ApplyAsync(_session.Character, Card, stun, null);
+            _clock.Advance(Duration.FromSeconds(10));
+            await _service.TickAsync(_session.Character);
+
+            _bus.Verify(b => b.PublishAsync(It.IsAny<MovementConditionChangedEvent>(), It.IsAny<Wolverine.DeliveryOptions>()), Times.Exactly(2));
+        }
+
+        [TestMethod]
+        public async Task ABuffThatLeavesMovementAloneRefreshesNothing()
+        {
+            await _service.ApplyAsync(_session.Character, Card, Array.Empty<BCardDto>(), null);
+            _clock.Advance(Duration.FromSeconds(10));
+            await _service.TickAsync(_session.Character);
+
+            _bus.Verify(b => b.PublishAsync(It.IsAny<MovementConditionChangedEvent>(), It.IsAny<Wolverine.DeliveryOptions>()), Times.Never);
         }
 
         [TestMethod]

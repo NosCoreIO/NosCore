@@ -35,6 +35,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<IHitQueue> _hitQueue;
         private Mock<IMessageBus> _bus;
         private Mock<ICastDelayService> _castDelay;
+        private Mock<IBuffService> _buffs;
         private GameObject.Services.BattleService.BattleService _service;
 
         [TestInitialize]
@@ -46,6 +47,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _bus = new Mock<IMessageBus>();
             _castDelay = new Mock<ICastDelayService>();
             _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>())).Returns(Task.CompletedTask);
+            _buffs = new Mock<IBuffService>();
             _service = new GameObject.Services.BattleService.BattleService(
                 _skillResolver.Object,
                 _targetResolver.Object,
@@ -55,6 +57,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 NodaTime.SystemClock.Instance,
                 new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
                 _castDelay.Object,
+                _buffs.Object,
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance);
         }
 
@@ -83,6 +86,34 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit) with { CastTime = 10 });
             _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>()))
                 .Callback(() => target.Hp = 0)
+                .Returns(Task.CompletedTask);
+
+            Assert.IsFalse(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AStunnedAttackerLandsNothing()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit));
+            _buffs.Setup(b => b.HasEffect(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialAttackNoAttack)).Returns(true);
+
+            Assert.IsFalse(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AStunLandingDuringTheWindUpCancelsTheCast()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit) with { CastTime = 10 });
+            var stunned = false;
+            _buffs.Setup(b => b.HasEffect(origin, NosCore.Data.Enumerations.Buff.BCardEffect.SpecialAttackNoAttack)).Returns(() => stunned);
+            _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>()))
+                .Callback(() => stunned = true)
                 .Returns(Task.CompletedTask);
 
             Assert.IsFalse(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));

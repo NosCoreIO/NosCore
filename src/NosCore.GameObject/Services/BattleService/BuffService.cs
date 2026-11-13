@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.GameObject.Messaging.Events;
+using Wolverine;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -30,7 +32,7 @@ namespace NosCore.GameObject.Services.BattleService;
 // Expiration is pull-based: the map's life loop asks BuffSystem which entities are due and
 // calls TickAsync on those, so the service needs no timers or background tasks.
 public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
-    IRandomProvider randomProvider, IDebuffResistanceService debuffResistanceService) : IBuffService
+    IRandomProvider randomProvider, IDebuffResistanceService debuffResistanceService, IMessageBus messageBus) : IBuffService
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
@@ -58,6 +60,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
+        await NotifyMovementAsync(target, buff);
 
         // Notify the client so the buff icon appears + the visual effect plays. The
         // client expects duration in deciseconds (same unit as the `bf` packet docs);
@@ -80,11 +83,11 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
-    public Task ApplySkillBuffAsync(IAliveEntity target, short skillVnum, short skillDuration, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster)
+    public async Task ApplySkillBuffAsync(IAliveEntity target, short skillVnum, short skillDuration, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster)
     {
         if (skillDuration <= 0 || bCards.Count == 0)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var lasting = bCards
@@ -92,13 +95,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             .ToArray();
         if (lasting.Length == 0)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var buffs = ResolveState(target);
         if (buffs == null)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var now = clock.GetCurrentInstant();
@@ -112,7 +115,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             FromSkill: true);
 
         buffs.AddOrUpdate(skillVnum, buff, (_, _) => buff);
-        return Task.CompletedTask;
+        await NotifyMovementAsync(target, buff);
     }
 
     public async Task ApplyPermanentAsync(PlayerComponentBundle target, CardDto card, IReadOnlyList<BCardDto> bCards)
@@ -134,6 +137,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
         await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
+        await NotifyMovementAsync(target, buff);
         await target.SendPacketAsync(new VbPacket { CardId = card.CardId, IsActivated = true, RemainingTime = -1 });
     }
 
@@ -235,7 +239,13 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     }
 
     // The client keeps a greyed icon on bf_e; a bf with no duration left is what takes it down.
-    private static Task SendIconRemovalAsync(IAliveEntity target, BuffInstance buff)
+    private async Task SendIconRemovalAsync(IAliveEntity target, BuffInstance buff)
+    {
+        await NotifyMovementAsync(target, buff);
+        await SendIconPacketRemovalAsync(target, buff);
+    }
+
+    private static Task SendIconPacketRemovalAsync(IAliveEntity target, BuffInstance buff)
     {
         if (buff.Static)
         {
@@ -501,6 +511,15 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
 
         await ApplyAsync(target, followUp, cardCatalog.GetCardBCards(followUp.CardId), expired.Caster);
+    }
+
+    private async Task NotifyMovementAsync(IAliveEntity target, BuffInstance buff)
+    {
+        if (buff.BCards.Any(b => b.Effect() is BCardEffect.SpecialAttackNoAttack or BCardEffect.MoveMovementImpossible
+                or BCardEffect.MoveMovementSpeedIncreased or BCardEffect.MoveMovementSpeedDecreased))
+        {
+            await messageBus.PublishAsync(new MovementConditionChangedEvent(target));
+        }
     }
 
     private bool Rolls(int percent) => percent > 0 && randomProvider.Next(0, 100) < percent;
