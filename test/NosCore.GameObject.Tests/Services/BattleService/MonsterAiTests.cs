@@ -331,7 +331,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         [TestMethod]
         public async Task AGroupMemberIgnoresAFightBeyondItsNoticeRange()
         {
-            var (fighting, idle) = SpawnGroup(GroupAttackType.SameRace, m => m.Race = 2, m => m.NoticeRange = 1);
+            var (fighting, idle) = SpawnGroup(GroupAttackType.SameRace, m => m.Race = 2, m =>
+            {
+                m.Race = 2;
+                m.NoticeRange = 1;
+            });
             PlacePlayer(4, 2);
             _aggro.AddThreat(fighting, _session.Character, 5);
 
