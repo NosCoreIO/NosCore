@@ -198,7 +198,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
 
             Assert.IsTrue(home.IsTeamMember);
             Assert.IsNotNull(home.Entity);
-            Assert.IsTrue(Math.Abs(home.PositionX - _session.Character.PositionX) <= 1);
+            Assert.IsTrue(Math.Abs(home.Entity.NotNull().PositionX - _session.Character.PositionX) <= 1);
             Assert.AreEqual(Game18NConstString.MateSummoned,
                 _session.LastPackets.OfType<MsgiPacket>().Single().Message);
         }

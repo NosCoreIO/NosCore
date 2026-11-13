@@ -257,8 +257,9 @@ namespace NosCore.GameObject.Services.MapChangeService
                     if (!otherCharacter.Invisible)
                     {
                         await session.SendPacketsAsync(otherCharacter.Mates.Values
-                            .Where(m => m.Entity != null)
-                            .Select(m => m.GenerateIn(accountLanguage)));
+                            .Where(m => m.Entity.HasValue)
+                            .Select(m => m.GenerateIn(accountLanguage, m.Entity.GetValueOrDefault().PositionX,
+                                m.Entity.GetValueOrDefault().PositionY)));
                     }
 
                     var shop = otherCharacter.Shop;
@@ -291,12 +292,10 @@ namespace NosCore.GameObject.Services.MapChangeService
                 }
 
                 var teamMates = character.Mates.Values.Where(s => s.IsTeamMember).ToList();
-                MatePlacement.Arrange(character.PositionX, character.PositionY,
-                    newMapInstance.Map, teamMates);
-
-                foreach (var mate in teamMates)
+                foreach (var (mate, x, y) in MatePlacement.Arrange(character.PositionX, character.PositionY,
+                    newMapInstance.Map, teamMates))
                 {
-                    await mate.SpawnAsync(character, newMapInstance, mate.PositionX, mate.PositionY);
+                    await mate.SpawnAsync(character, newMapInstance, x, y);
                 }
 
                 if (minilandProvider.GetMinilandFromMapInstanceId(mapInstanceId)?.OwnerId == characterId)

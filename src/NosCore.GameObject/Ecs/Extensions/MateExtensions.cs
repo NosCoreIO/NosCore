@@ -131,15 +131,15 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
-        public static InPacket GenerateIn(this Mate mate, RegionType language)
+        public static InPacket GenerateIn(this Mate mate, RegionType language, short x, short y)
         {
             return new InPacket
             {
                 VisualType = VisualType.Npc,
                 VNum = mate.VNum.ToString(CultureInfo.InvariantCulture),
                 VisualId = mate.MateTransportId,
-                PositionX = mate.PositionX,
-                PositionY = mate.PositionY,
+                PositionX = x,
+                PositionY = y,
                 Direction = mate.Direction,
                 InNonPlayerSubPacket = new InNonPlayerSubPacket
                 {
@@ -196,13 +196,11 @@ namespace NosCore.GameObject.Ecs.Extensions
         public static Task SpawnAsync(this Mate mate, PlayerComponentBundle owner, MapInstance mapInstance,
             short x, short y)
         {
-            mate.PositionX = x;
-            mate.PositionY = y;
             var handle = mapInstance.EcsWorld.CreateMate((int)mate.MateTransportId, mate, mapInstance, x, y, 2);
             mate.Entity = new MateComponentBundle(handle, mapInstance.EcsWorld) { Morph = mate.Morph() };
 
             // A hidden owner's pet would put the owner back on screen.
-            var spawn = mate.GenerateIn(owner.AccountLanguage);
+            var spawn = mate.GenerateIn(owner.AccountLanguage, x, y);
             return owner.Invisible ? owner.SendPacketAsync(spawn) : mapInstance.SendPacketAsync(spawn);
         }
 

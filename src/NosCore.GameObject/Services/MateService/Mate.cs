@@ -18,12 +18,6 @@ namespace NosCore.GameObject.Services.MateService
 
         public byte PetSlot { get; set; }
 
-        /// <summary>Where the mate is now; MapX/MapY are where it was saved.</summary>
-        public short PositionX { get; set; }
-
-        /// <inheritdoc cref="PositionX" />
-        public short PositionY { get; set; }
-
         /// <summary>The mate's ECS entity while it is out, null while it is not.</summary>
         public Ecs.MateComponentBundle? Entity { get; set; }
 

@@ -40,7 +40,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
 
             Assert.IsNotNull(_pet.Entity);
-            Assert.AreEqual((7, 9), ((int)_pet.PositionX, (int)_pet.PositionY));
+            Assert.AreEqual((7, 9), ((int)_pet.Entity.NotNull().PositionX, (int)_pet.Entity.NotNull().PositionY));
             var spawn = _session.Character.MapInstance.LastPackets.OfType<InPacket>().Single();
             Assert.AreEqual(_pet.MateTransportId, spawn.VisualId);
             Assert.AreEqual((short)7, spawn.PositionX);

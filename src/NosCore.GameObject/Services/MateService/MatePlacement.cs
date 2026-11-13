@@ -16,16 +16,19 @@ namespace NosCore.GameObject.Services.MateService
         private static readonly (short X, short Y)[] Offsets =
             [(1, 1), (-1, 1), (1, -1), (-1, -1), (1, 0), (-1, 0), (0, 1), (0, -1)];
 
-        public static void Arrange(short ownerX, short ownerY, Map.Map map, IEnumerable<Mate> mates)
+        public static List<(Mate Mate, short X, short Y)> Arrange(short ownerX, short ownerY, Map.Map map,
+            IEnumerable<Mate> mates)
         {
             var taken = new HashSet<(short, short)>();
+            var placed = new List<(Mate, short, short)>();
             foreach (var mate in mates)
             {
                 var spot = Free(ownerX, ownerY, map, taken);
-                mate.PositionX = spot.X;
-                mate.PositionY = spot.Y;
+                placed.Add((mate, spot.X, spot.Y));
                 taken.Add(spot);
             }
+
+            return placed;
         }
 
         // A mate that never stood in the Miniland gets a spot in its open middle.

@@ -180,8 +180,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             }
 
             var mapInstance = character.MapInstance;
-            MatePlacement.Arrange(character.PositionX, character.PositionY, mapInstance.Map, new[] { mate });
-            await mate.SpawnAsync(character, mapInstance, mate.PositionX, mate.PositionY);
+            var (_, x, y) = MatePlacement.Arrange(character.PositionX, character.PositionY, mapInstance.Map, new[] { mate })[0];
+            await mate.SpawnAsync(character, mapInstance, x, y);
             await character.SendPacketAsync(mate.GenerateCond());
         }
 
@@ -193,8 +193,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Nrun
             mate.IsTeamMember = false;
             if (inOwnMiniland)
             {
-                mate.MapX = mate.PositionX;
-                mate.MapY = mate.PositionY;
+                if (mate.Entity is { } entity)
+                {
+                    mate.MapX = entity.PositionX;
+                    mate.MapY = entity.PositionY;
+                }
+
                 return;
             }
 
