@@ -1807,6 +1807,24 @@ level 1 with 79 800 / 80 000 experience.
 - [ ] Not verifiable yet: experience from time-spaces, raids and Instant Combat, which do not
       exist yet
 
+### Family achievements
+
+Run the parser's quest import first. `/mnt/project-files/family-quests/reset-family-quests.sh quote`
+seeds the family above with 19 of the 20 quotes of the day. The family window's Missions button
+opens the list; its Achievements tab holds them.
+
+- [ ] The list keeps the state it had when the window was first built, so pick another entry in
+      the filter after logging in: "Enter 20 Quotes of the Day" moves to the top with
+      "[Progress: 19/20]"
+- [ ] `%Today <text>` with the window open: the 20th quote completes it ("[Completed: <date>]"),
+      "Enter 100 Quotes of the Day" shows 20/100, every member sees "Family Testers unlocked
+      achievement: Enter 20 Quotes of the Day", and its 10 000 FXP takes the family to level 2,
+      which also completes "Family Level 2 Unlocked" with its own message
+- [ ] Levelling a member up to fill the bar instead also completes "Family Level 2 Unlocked"
+- [ ] Logging in again keeps every completed date and the 20/100 count
+- [ ] Not verifiable yet: missions and the other achievements (raids, Rainbow Battle,
+      time-spaces), which have nothing that counts them yet
+
 ---
 
 ## Instances
@@ -2086,8 +2104,8 @@ Recorded so nobody spends time hunting for them:
   two monthly tabs of the family ranking stay empty on purpose.
 - **Reading the family history without permission** — the server sends nothing, but an
   unmodified client may grey the tab out first, in which case the refusal cannot be reached.
-- **Family experience** — nothing grants it yet, so the level bar only ever shows the
-  seeded value.
+- **Family experience from content** — time-spaces, raids and Instant Combat grant none yet;
+  only member level-ups and achievement rewards move the bar.
 - **Inside a time-space** — the entrance works, but rooms, objectives, lives and rewards
   do not run yet, so nothing past the first room can be checked.
 - **Skipped delay bars** — the server ignores a bar's follow-up that arrives early or without

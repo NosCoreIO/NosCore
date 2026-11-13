@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261113095154_AddCardKind";
+    public override string LastMigrationId => "20261113123614_AddFamilyQuests";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -44,6 +44,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_authority_type", new[] { "none", "put", "all" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_log_type", new[] { "daily_message", "raid_won", "rainbow_battle", "family_xp", "family_level_up", "level_up", "item_upgraded", "right_changed", "authority_changed", "family_managed", "user_managed", "ware_house_added", "ware_house_removed" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_member_rank", new[] { "nothing", "old_uncle", "old_aunt", "father", "mother", "uncle", "aunt", "brother", "sister", "spouse", "brother2", "sister2", "old_son", "old_daugter", "middle_son", "middle_daughter", "young_son", "young_daugter", "old_little_son", "old_little_daughter", "little_son", "little_daughter", "middle_little_son", "middle_little_daugter" });
+        NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_quest_kind", new[] { "mission", "achievement" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "family_upgrade_type", new[] { "warehouse", "member_limit" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "gender_type", new[] { "male", "female" });
         NpgsqlModelBuilderExtensions.HasPostgresEnum(modelBuilder, "hair_color_type", new[] { "dark_purple", "yellow", "blue", "purple", "orange", "brown", "green", "dark_grey", "light_blue", "pink_red", "light_yellow", "light_pink", "light_green", "light_grey", "sky_blue", "black", "dark_orange", "dark_orange_variant2", "dark_orange_variant3", "dark_orange_variant4", "dark_orange_variant5", "dark_orange_variant6", "light_orange", "light_light_orange", "light_light_light_orange", "light_light_light_light_orange", "super_light_orange", "dark_yellow", "light_light_yellow", "kaki_yellow", "super_light_yellow", "super_light_yellow2", "super_light_yellow3", "little_dark_yellow", "yellow_variant", "yellow_variant1", "yellow_variant2", "yellow_variant3", "yellow_variant4", "yellow_variant5", "yellow_variant6", "yellow_variant7", "yellow_variant8", "yellow_variant9", "green_variant", "green_variant1", "dark_green_variant", "green_more_dark_variant", "green_variant2", "green_variant3", "green_variant4", "green_variant5", "green_variant6", "green_variant7", "green_variant8", "green_variant9", "green_variant10", "green_variant11", "green_variant12", "green_variant13", "green_variant14", "green_variant15", "green_variant16", "green_variant17", "green_variant18", "green_variant19", "green_variant20", "light_blue_variant1", "light_blue_variant2", "light_blue_variant3", "light_blue_variant4", "light_blue_variant5", "light_blue_variant6", "light_blue_variant7", "light_blue_variant8", "light_blue_variant9", "light_blue_variant10", "light_blue_variant11", "light_blue_variant12", "light_blue_variant13", "dark_black", "light_blue_variant14", "light_blue_variant15", "light_blue_variant16", "light_blue_variant17", "blue_variant", "blue_variant_dark", "blue_variant_dark_dark", "blue_variant_dark_dark2", "flash_blue", "flash_blue_dark", "flash_blue_dark2", "flash_blue_dark3", "flash_blue_dark4", "flash_blue_dark5", "flash_blue_dark6", "flash_blue_dark7", "flash_blue_dark8", "flash_blue_dark9", "white", "flash_blue_dark10", "flash_blue1", "flash_blue2", "flash_blue3", "flash_blue4", "flash_blue5", "flash_purple", "flash_light_purple", "flash_light_purple2", "flash_light_purple3", "flash_light_purple4", "flash_light_purple5", "light_purple", "purple_variant1", "purple_variant2", "purple_variant3", "purple_variant4", "purple_variant5", "purple_variant6", "purple_variant7", "purple_variant8", "purple_variant9", "purple_variant10", "purple_variant11", "purple_variant12", "purple_variant13", "purple_variant14", "purple_variant15" });
@@ -946,6 +947,71 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasIndex("FamilyId");
 
                 b.ToTable("FamilyLog");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.FamilyQuest", b =>
+            {
+                b.Property<short>("QuestId")
+                    .HasColumnType("smallint");
+
+                b.Property<int>("Experience")
+                    .HasColumnType("integer");
+
+                b.Property<byte>("FamilyLevelMinimum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Kind")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("NameItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte?>("Objective")
+                    .HasColumnType("smallint");
+
+                b.Property<int?>("Parameter")
+                    .HasColumnType("integer");
+
+                b.Property<short?>("PreviousQuestId")
+                    .HasColumnType("smallint");
+
+                b.Property<int>("Target")
+                    .HasColumnType("integer");
+
+                b.HasKey("QuestId");
+
+                b.ToTable("FamilyQuest");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.FamilyQuestProgress", b =>
+            {
+                var familyQuestProgressId = b.Property<long>("FamilyQuestProgressId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
+
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(familyQuestProgressId);
+
+                b.Property<Instant?>("CompletedAt")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<long>("FamilyId")
+                    .HasColumnType("bigint");
+
+                b.Property<int>("Progress")
+                    .HasColumnType("integer");
+
+                b.Property<short>("QuestId")
+                    .HasColumnType("smallint");
+
+                b.Property<int>("TotalCompletions")
+                    .HasColumnType("integer");
+
+                b.HasKey("FamilyQuestProgressId");
+
+                b.HasIndex("FamilyId", "QuestId")
+                    .IsUnique();
+
+                b.ToTable("FamilyQuestProgress");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.FamilyUpgrade", b =>
@@ -3679,6 +3745,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Family");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.FamilyQuestProgress", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Family", "Family")
+                    .WithMany("FamilyQuestProgresses")
+                    .HasForeignKey("FamilyId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Family");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.FamilyUpgrade", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Item", "Item")
@@ -4311,6 +4388,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("FamilyCharacters");
 
                 b.Navigation("FamilyLogs");
+
+                b.Navigation("FamilyQuestProgresses");
 
                 b.Navigation("Warehouses");
             });

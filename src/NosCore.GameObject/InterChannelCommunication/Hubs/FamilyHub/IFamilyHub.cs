@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -15,6 +16,8 @@ public interface IFamilyHub
     Task<FamilyExtensionPurchase> PurchaseExtensionAsync(long familyId, long characterId, short itemVNum);
 
     Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience);
+
+    Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount);
 
     Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds);
 

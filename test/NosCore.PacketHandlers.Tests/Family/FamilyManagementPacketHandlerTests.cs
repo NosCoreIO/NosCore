@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.Dto;
 using NosCore.Data.WebApi;
+using NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
@@ -24,6 +25,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using FamilyQuestObjective = NosCore.Data.Enumerations.Family.FamilyQuestObjective;
 
 namespace NosCore.PacketHandlers.Tests.Family
 {
@@ -38,12 +40,15 @@ namespace NosCore.PacketHandlers.Tests.Family
         private Mock<IPubSubHub> _pubSubHub;
         private readonly List<IMessage> _published = new();
         private GameObject.Services.FamilyService.Family _family;
+        private Mock<IFamilyHub> _familyHub;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
             World.UseReal<IFamilyManagementService, FamilyManagementService>();
+            World.UseReal<IFamilyContributionService, FamilyContributionService>();
+            _familyHub = World.Freeze<Mock<IFamilyHub>>();
             _familyService = World.Freeze<Mock<IFamilyService>>();
             _pubSubHub = World.PubSubHub;
             _head = await World.CreateSessionAsync();
@@ -159,6 +164,18 @@ namespace NosCore.PacketHandlers.Tests.Family
             _familyService.Verify(s => s.UpdateAsync(FamilyId, _headId, new FamilyChange { ManagerCanInvite = true },
                 It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == 0)), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
+        }
+
+        [TestMethod]
+        public async Task ADailyMessageCountsTowardsTheFamilyAchievements()
+        {
+            _familyHub.Setup(s => s.AdvanceQuestsAsync(FamilyId, FamilyQuestObjective.DailyMessage, 1))
+                .ReturnsAsync(new FamilyExperienceGain(1, false) { CompletedQuestIds = [9037] });
+
+            await World.Create<FamilyTodayPacketHandler>()
+                .ExecuteAsync(new FamilyTodayPacket { Message = "good morning" }, _head);
+
+            CollectionAssert.AreEqual(new short[] { 9037 }, ((FamilyChangedData)_published.Single()).CompletedQuestIds);
         }
 
         [TestMethod]

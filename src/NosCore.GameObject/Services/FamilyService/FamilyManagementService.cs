@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyManagementService(IFamilyService familyService, IPubSubHub pubSubHub,
         IFamilyExperienceService familyExperienceService, ISessionRegistry sessionRegistry,
-        IFamilyLogService familyLogService) : IFamilyManagementService
+        IFamilyLogService familyLogService, IFamilyContributionService familyContributionService) : IFamilyManagementService
     {
         private const int MessageMaxLength = 255;
         private const long CreationPrice = 200000;
@@ -133,6 +133,7 @@ namespace NosCore.GameObject.Services.FamilyService
             await session.SendPacketsAsync(new IPacket?[]
             {
                 session.Character.GenerateGInfo(familyExperienceService),
+                session.Character.GenerateFmi(),
                 family.GenerateGmbr(characters, connected),
                 family.GenerateGmsg(),
                 family.GenerateGexp()
@@ -352,7 +353,7 @@ namespace NosCore.GameObject.Services.FamilyService
 
             membership.DailyMessage = dailyMessage;
             await familyLogService.AddAsync(family.FamilyId, FamilyLogType.DailyMessage, session.Character.Name, dailyMessage);
-            await pubSubHub.SendMessageAsync(new FamilyChangedData { FamilyId = family.FamilyId });
+            await familyContributionService.DailyMessageWrittenAsync(family.FamilyId);
         }
 
         public async Task SetTitleAsync(ClientSession session, string? characterName, FamilyMemberRank rank)

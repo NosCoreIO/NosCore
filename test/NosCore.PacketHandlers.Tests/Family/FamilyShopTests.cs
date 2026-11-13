@@ -115,7 +115,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var master = new FamilyExtensionService(_familyDao, _familyCharacterDao, familyUpgradeDao, new FamilyUpgradeService());
             var familyHub = new Mock<IFamilyHub>();
-            _familyService = new FamilyService(_familyDao, _familyCharacterDao, World.CharacterDao, familyHub.Object);
+            _familyService = new FamilyService(_familyDao, _familyCharacterDao, World.CharacterDao,
+                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], familyHub.Object);
             familyHub.Setup(s => s.PurchaseExtensionAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<short>()))
                 .Returns((long familyId, long characterId, short vnum) => master.PurchaseAsync(familyId, characterId, vnum));
             var pubSubHub = new Mock<IPubSubHub>();
@@ -149,7 +150,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .Returns((Func<ClientSession, bool>? predicate) => predicate == null ? sessions : sessions.Where(predicate));
             var management = new FamilyManagementService(_familyService, pubSubHub.Object, new FamilyExperienceService(),
                 registry.Object,
-                new Mock<IFamilyLogService>().Object);
+                new Mock<IFamilyLogService>().Object, new Mock<IFamilyContributionService>().Object);
             _familyChanged = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService,
                 World.GameLanguageLocalizer, management);
 

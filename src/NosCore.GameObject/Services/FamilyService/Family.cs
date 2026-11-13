@@ -17,6 +17,8 @@ namespace NosCore.GameObject.Services.FamilyService
 
         public IReadOnlyList<FamilyCharacterDto> Members { get; set; } = [];
 
+        public IReadOnlyList<FamilyQuestStatus> Quests { get; set; } = [];
+
         /// <summary>The head's name, kept here because the head is usually offline.</summary>
         public string HeadCharacterName { get; set; } = string.Empty;
 

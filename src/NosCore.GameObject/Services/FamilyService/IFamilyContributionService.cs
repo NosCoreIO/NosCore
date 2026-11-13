@@ -11,5 +11,7 @@ namespace NosCore.GameObject.Services.FamilyService
     public interface IFamilyContributionService
     {
         Task CharacterLevelledUpAsync(long familyId, long characterId, string characterName, byte previousLevel, byte level);
+
+        Task DailyMessageWrittenAsync(long familyId);
     }
 }

@@ -11,6 +11,8 @@ using NosCore.Data.Enumerations.I18N;
 using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
 using FamilyRankingTypeExtensions = NosCore.Packets.Enumerations.FamilyRankingTypeExtensions;
 using NosCore.Packets.ServerPackets.Families;
+using FamilyQuestKind = NosCore.Packets.Enumerations.FamilyQuestKind;
+using FamilyQuestState = NosCore.Packets.Enumerations.FamilyQuestState;
 using NosCore.Shared.Enumerations;
 using NodaTime;
 using NosCore.Data.Dto;
@@ -49,6 +51,33 @@ public static class FamilyExtensions
             // Without the three icon flags the client draws a stray string after the tag.
             FamilyIcons = [false, false, false]
         };
+    }
+
+    public static FmiPacket? GenerateFmi(this PlayerComponentBundle player)
+    {
+        var family = player.Family;
+        if (family == null)
+        {
+            return null;
+        }
+
+        return new FmiPacket
+        {
+            Entries = family.Quests.Select(s => (FmiSubPacket?)new FmiSubPacket
+            {
+                Kind = s.Quest.Kind,
+                QuestId = s.Quest.QuestId,
+                State = s.Progress.CompletedAt == null ? FamilyQuestState.InProgress : FamilyQuestState.Completed,
+                Value = s.Progress.CompletedAt is { } completedAt ? CompletionDate(completedAt) : s.Progress.Progress,
+                TotalCompletions = s.Quest.Kind == FamilyQuestKind.Mission ? s.Progress.TotalCompletions : 0
+            }).ToList()
+        };
+    }
+
+    private static int CompletionDate(Instant completedAt)
+    {
+        var date = completedAt.InUtc().Date;
+        return date.Year * 10000 + date.Month * 100 + date.Day;
     }
 
     public static GInfoPacket? GenerateGInfo(this PlayerComponentBundle player,

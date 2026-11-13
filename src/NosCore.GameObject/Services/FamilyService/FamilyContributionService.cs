@@ -39,17 +39,29 @@ namespace NosCore.GameObject.Services.FamilyService
                 }
 
                 await familyLogService.AddAsync(familyId, FamilyLogType.FamilyXp, characterName, experience);
-                if (gain.LeveledUp)
-                {
-                    await familyLogService.AddAsync(familyId, FamilyLogType.FamilyLevelUp, gain.FamilyLevel);
-                }
-
-                await pubSubHub.SendMessageAsync(new FamilyChangedData
-                {
-                    FamilyId = familyId,
-                    ReachedFamilyLevel = gain.LeveledUp ? gain.FamilyLevel : null
-                });
+                await AnnounceAsync(familyId, gain);
             }
+        }
+
+        public async Task DailyMessageWrittenAsync(long familyId)
+        {
+            var gain = await familyHub.AdvanceQuestsAsync(familyId, FamilyQuestObjective.DailyMessage, 1);
+            await AnnounceAsync(familyId, gain ?? new FamilyExperienceGain(0, false));
+        }
+
+        private async Task AnnounceAsync(long familyId, FamilyExperienceGain gain)
+        {
+            if (gain.LeveledUp)
+            {
+                await familyLogService.AddAsync(familyId, FamilyLogType.FamilyLevelUp, gain.FamilyLevel);
+            }
+
+            await pubSubHub.SendMessageAsync(new FamilyChangedData
+            {
+                FamilyId = familyId,
+                ReachedFamilyLevel = gain.LeveledUp ? gain.FamilyLevel : null,
+                CompletedQuestIds = [.. gain.CompletedQuestIds]
+            });
         }
     }
 }

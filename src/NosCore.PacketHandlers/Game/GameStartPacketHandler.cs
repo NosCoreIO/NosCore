@@ -170,6 +170,7 @@ namespace NosCore.PacketHandlers.Game
             if (familyInfo != null)
             {
                 await session.SendPacketAsync(familyInfo);
+                await session.SendPacketAsync(session.Character.GenerateFmi());
                 await session.SendPacketAsync(new FhisStcPacket());
             }
 

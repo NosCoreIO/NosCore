@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Family;
 using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Generic;
 
@@ -12,6 +13,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub;
 public record PurchaseFamilyExtensionRequest(long FamilyId, long CharacterId, short ItemVNum) : IMasterRequest;
 
 public record AddFamilyExperienceRequest(long FamilyId, long CharacterId, int Experience) : IMasterRequest;
+
+public record AdvanceFamilyQuestsRequest(long FamilyId, FamilyQuestObjective Objective, int Amount) : IMasterRequest;
 
 public record CreateFamilyRequest(string Name, byte MaxSize, long HeadId, IReadOnlyList<long> DeputyIds) : IMasterRequest;
 
