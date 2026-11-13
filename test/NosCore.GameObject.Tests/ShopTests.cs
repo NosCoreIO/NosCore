@@ -206,7 +206,7 @@ namespace NosCore.GameObject.Tests
 
         private void CharacterHasReputation_(long reput)
         {
-            Session.Character.Reput = reput;
+            Session.Character.Reputation = reput;
         }
 
         private async Task AttemptingToBuyFromWrongSlotAsync()
@@ -341,7 +341,7 @@ namespace NosCore.GameObject.Tests
 
         private void CharacterHasReputationAndPartialInventory()
         {
-            Session.Character.Reput = 500000;
+            Session.Character.Reputation = 500000;
             ItemBuilder = CreateItemBuilder(0, 1);
             
             Session.Character.InventoryService.AddItemToPocket(
@@ -365,7 +365,7 @@ namespace NosCore.GameObject.Tests
 
         private void ReputationShouldBeDeducted()
         {
-            Assert.AreEqual(499002, Session.Character.Reput);
+            Assert.AreEqual(499002, Session.Character.Reputation);
         }
     }
 }

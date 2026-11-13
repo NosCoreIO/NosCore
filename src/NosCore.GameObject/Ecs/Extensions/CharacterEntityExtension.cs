@@ -394,7 +394,7 @@ namespace NosCore.GameObject.Ecs.Extensions
             IExperienceService experienceService, IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService, ISkillPointService skillPointService)
         {
             characterEntity.HeroLevel = level;
-            characterEntity.HeroXp = 0;
+            characterEntity.HeroLevelXp = 0;
             await characterEntity.SendPacketAsync(characterEntity.GenerateStat());
             await characterEntity.SendPacketAsync(characterEntity.GenerateStatInfo());
             await characterEntity.SendPacketAsync(characterEntity.GenerateLev(experienceService, jobExperienceService, heroExperienceService, skillPointService));
@@ -542,7 +542,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 return;
             }
 
-            if (reputprice > characterEntity.Reput)
+            if (reputprice > characterEntity.Reputation)
             {
                 await characterEntity.SendPacketAsync(new SMemoiPacket
                 {
@@ -579,7 +579,7 @@ namespace NosCore.GameObject.Ecs.Extensions
                 }
                 else
                 {
-                    characterEntity.Reput -= reputprice;
+                    characterEntity.Reputation -= reputprice;
                     await characterEntity.SendPacketAsync(characterEntity.GenerateFd());
                     await characterEntity.SendPacketAsync(characterEntity.GenerateSayi(SayColorType.Red, Game18NConstString.ReputationReduced,
                         4, reputprice));

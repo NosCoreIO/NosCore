@@ -266,7 +266,7 @@ public static class PlayerBundleExtensions
         var visualId = player.VisualId;
         var authority = player.Authority;
         var supportPrefix = authority == AuthorityType.Moderator
-            ? localizer[LanguageKey.SUPPORT, player.Account.Language] : string.Empty;
+            ? localizer[LanguageKey.SUPPORT, player.AccountLanguage] : string.Empty;
         var inPacket = player.GenerateIn(supportPrefix);
         var eff6 = player.GenerateEff(6);
         var eff198 = player.GenerateEff(198);
@@ -534,7 +534,7 @@ public static class PlayerBundleExtensions
         return new CInfoPacket
         {
             Name = player.Authority == AuthorityType.Moderator
-                ? $"[{localizer[LanguageKey.SUPPORT, player.Account.Language]}]" + player.Name : player.Name,
+                ? $"[{localizer[LanguageKey.SUPPORT, player.AccountLanguage]}]" + player.Name : player.Name,
             Unknown1 = null,
             GroupId = -1,
             FamilyId = (int)(player.Family?.FamilyId ?? -1),
