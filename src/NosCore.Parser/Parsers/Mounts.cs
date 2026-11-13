@@ -9,12 +9,13 @@ namespace NosCore.Parser.Parsers
 {
     // The riding speed and the look of each mount. Item.dat has neither: the speed is the one the
     // mount's English description gives, and the look is 1000 + the vnum of the mount's male rider
-    // in monster.dat, the female rider being the next vnum.
+    // in monster.dat, the female rider being the next vnum. A riding card is the buff the
+    // description says the rider receives.
     public static class Mounts
     {
         public static readonly IReadOnlyDictionary<short, Mount> All = new Dictionary<short, Mount>
         {
-            [1618] = new(Speed: 23, Morph: 3763),
+            [1618] = new(Speed: 23, Morph: 3763, RidingCard: 4248),
             [1906] = new(Speed: 20, Morph: 2368),
             [1907] = new(Speed: 20, Morph: 2370),
             [1965] = new(Speed: 20, Morph: 2406),
@@ -46,7 +47,7 @@ namespace NosCore.Parser.Parsers
             [5714] = new(Speed: 22, Morph: 2442),
             [5743] = new(Speed: 21, Morph: 2444),
             [5806] = new(Speed: 15, Morph: 2450),
-            [5807] = new(Speed: 20, Morph: 2448),
+            [5807] = new(Speed: 20, Morph: 2448, RidingCard: 764),
             [5834] = new(Speed: 20, Morph: 3693),
             [5914] = new(Speed: 14, Morph: 2513),
             [5997] = new(Speed: 21, Morph: 3679),
@@ -79,7 +80,7 @@ namespace NosCore.Parser.Parsers
             [9140] = new(Speed: 22, Morph: 2442),
             [9141] = new(Speed: 21, Morph: 2444),
             [9145] = new(Speed: 15, Morph: 2450),
-            [9146] = new(Speed: 20, Morph: 2448),
+            [9146] = new(Speed: 20, Morph: 2448, RidingCard: 764),
             [9149] = new(Speed: 20, Morph: 3711),
             [9150] = new(Speed: 20, Morph: 3711),
             [9220] = new(Speed: 21, Morph: 3717),
@@ -92,10 +93,10 @@ namespace NosCore.Parser.Parsers
             [9589] = new(Speed: 23, Morph: 3728),
             [13414] = new(Speed: 16, Morph: 3756),
             [13415] = new(Speed: 24, Morph: 3758),
-            [13468] = new(Speed: 24, Morph: 3760),
-            [13752] = new(Speed: 24, Morph: 3770),
+            [13468] = new(Speed: 24, Morph: 3760, RidingCard: 4237),
+            [13752] = new(Speed: 24, Morph: 3770, RidingCard: 4328),
         };
     }
 
-    public sealed record Mount(byte Speed, short Morph);
+    public sealed record Mount(byte Speed, short Morph, short RidingCard = 0);
 }

@@ -199,6 +199,17 @@ namespace NosCore.Parser.Parsers
                     item.Speed = mount.Speed;
                     item.WaitDelay = 3000;
                     item.Morph = mount.Morph;
+                    if (mount.RidingCard != 0)
+                    {
+                        item.BCards = [.. item.BCards ?? [], new BCardDto
+                        {
+                            ItemVNum = item.VNum,
+                            Type = (byte)BCardType.CardType.Buff,
+                            SubType = 11,
+                            FirstData = 100,
+                            SecondData = mount.RidingCard,
+                        }];
+                    }
                 }
             }
 

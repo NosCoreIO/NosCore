@@ -371,6 +371,20 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task ItemParser_AMountThatGivesABuffGetsItsCard()
+        {
+            CreateTestFile(CreateItemData(vnum: 13752, indexType: 1, indexSubType: 4, equipmentSlot: 0, morph: -1,
+                data: "1000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var card = _savedBCards.Single(b => b.ItemVNum == 13752);
+            Assert.AreEqual((byte)BCardType.CardType.Buff, card.Type);
+            Assert.AreEqual(4328, card.SecondData);
+        }
+
+        [TestMethod]
         public void EveryMountHasASpeedAndALook()
         {
             foreach (var (vnum, mount) in Mounts.All)
