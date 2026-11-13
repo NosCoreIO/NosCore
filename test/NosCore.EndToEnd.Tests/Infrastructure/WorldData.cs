@@ -33,6 +33,15 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const long SeedPrice = 100;
         public const short Chest = 3000;
         public const short Blade = 4000;
+        public const short Pebble = 2025;
+        public const short Potion = 1002;
+        public const short PotionHp = 50;
+        public const short Hat = 4001;
+        public const short Fairy = 4002;
+        public const short FairyElementRate = 30;
+        public const short CostumeHat = 4003;
+        public const short Bench = 3001;
+        public const short PowerSeed = 2026;
         public const int ChestSlots = 4;
         public const int Shopkeeper = 1;
         private const short ShopkeeperVNum = 1;
@@ -45,6 +54,21 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const int SlowMonster = 102;
         private const short SlowVNum = 4;
         public const byte FamilySize = 50;
+
+        // Falls to any hit, is back a second later and leaves two pebbles every time.
+        public const int Prey = 103;
+        public const short PreyVNum = 6;
+        public const int PreyDrop = 2;
+
+        // Leaves everyone alone until it is hit, then hits back: a first blow is survived at full
+        // HP and a second one is not. It cannot be killed in a scenario.
+        public const int Biter = 104;
+        private const short BiterVNum = 7;
+
+        // A skill no adventurer starts with: costly, and a long time before it can be used again.
+        public const short SlowSkill = 210;
+        public const short SlowSkillCastId = 2;
+        public const short SlowSkillMp = 20;
 
         // Has something to say, so talking to it is answered, and stands away from the shopkeeper.
         public const int Broker = 2;
@@ -91,11 +115,48 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 VNum = Chest, Name = "chest", Type = NoscorePocketType.Miniland, ItemType = ItemType.House,
                 IsWarehouse = true, MinilandObjectPoint = ChestSlots
             });
+            // Something to stand in a miniland wherever its owner likes, and what an invitation there costs.
+            context.Add(new Item
+            {
+                VNum = Bench, Name = "bench", Type = NoscorePocketType.Miniland, ItemType = ItemType.Garden, Width = 1, Height = 1,
+                MinilandObjectPoint = 3
+            });
+            context.Add(new Item
+            {
+                VNum = PowerSeed, Name = "powerseed", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, Material = MaterialType.SeedOfPower
+            });
             // A weapon that may change hands, unlike what an adventurer starts with.
             context.Add(new Item
             {
                 VNum = Blade, Name = "blade", Type = NoscorePocketType.Equipment, ItemType = ItemType.Weapon,
                 EquipmentSlot = EquipmentType.MainWeapon, Price = 1000, IsSoldable = true, IsTradable = true
+            });
+            // A second thing to stack, a potion, and things to wear: a hat, a fairy and a costume hat.
+            context.Add(new Item
+            {
+                VNum = Pebble, Name = "pebble", Type = NoscorePocketType.Etc, ItemType = ItemType.Main, IsDroppable = true
+            });
+            // Named, so that a bag sorted by name does not come out in the order of the numbers.
+            context.Add(new I18NItem { Key = "seed", RegionType = RegionType.EN, Text = "seed" });
+            context.Add(new I18NItem { Key = "pebble", RegionType = RegionType.EN, Text = "pebble" });
+            context.Add(new Item
+            {
+                VNum = Potion, Name = "potion", Type = NoscorePocketType.Main, ItemType = ItemType.Potion, Hp = PotionHp
+            });
+            context.Add(new Item
+            {
+                VNum = Hat, Name = "hat", Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.Hat
+            });
+            context.Add(new Item
+            {
+                VNum = Fairy, Name = "fairy", Type = NoscorePocketType.Equipment, ItemType = ItemType.Jewelery,
+                EquipmentSlot = EquipmentType.Fairy, Element = ElementType.Fire, ElementRate = FairyElementRate
+            });
+            context.Add(new Item
+            {
+                VNum = CostumeHat, Name = "costumehat", Type = NoscorePocketType.Equipment, ItemType = ItemType.Fashion,
+                EquipmentSlot = EquipmentType.CostumeHat
             });
             // What a new adventurer is given: its club, its catapult, its clothes, and its three skills.
             context.Add(Worn(1, EquipmentType.MainWeapon, ItemType.Weapon));
@@ -118,6 +179,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 SkillVNum = 209, Name = "skill209", CastId = 16, SkillType = 1, CastTime = 6, Cooldown = 150, MpCost = 10,
                 UpgradeSkill = 3, LevelMinimum = 1, Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
             });
+            context.Add(new Skill
+            {
+                SkillVNum = SlowSkill, Name = "skill210", CastId = SlowSkillCastId, SkillType = 1, Type = 0, Range = 1, CastTime = 2,
+                Cooldown = 300, MpCost = SlowSkillMp, Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
+            });
 
             // Creatures that stand still on the meadow: one that falls to any hit, one that does
             // not, and one that stays dead for a while.
@@ -128,6 +194,18 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new MapMonster { MapMonsterId = WeakMonster, MapId = Meadow, MapX = 30, MapY = 30, VNum = WeakVNum });
             context.Add(new MapMonster { MapMonsterId = SturdyMonster, MapId = Meadow, MapX = 60, MapY = 60, VNum = SturdyVNum });
             context.Add(new MapMonster { MapMonsterId = SlowMonster, MapId = Meadow, MapX = 45, MapY = 45, VNum = SlowVNum });
+
+            context.Add(new NpcMonster { NpcMonsterVNum = PreyVNum, Name = "prey", Level = 1, MaxHp = 1, Xp = 40, JobXp = 10 });
+            await context.SaveChangesAsync();
+            context.Add(new MapMonster { MapMonsterId = Prey, MapId = Meadow, MapX = 30, MapY = 70, VNum = PreyVNum });
+            context.Add(new Drop { MonsterVNum = PreyVNum, VNum = Pebble, Amount = PreyDrop, DropChance = 10000 });
+            context.Add(new NpcMonster
+            {
+                NpcMonsterVNum = BiterVNum, Name = "biter", Level = 1, MaxHp = 100000, DamageMinimum = 150, DamageMaximum = 150,
+                Concentrate = 2000, BasicRange = 1, BasicCooldown = 20
+            });
+            await context.SaveChangesAsync();
+            context.Add(new MapMonster { MapMonsterId = Biter, MapId = Meadow, MapX = 80, MapY = 20, VNum = BiterVNum });
 
             context.Add(new NpcMonster { NpcMonsterVNum = ShopkeeperVNum, Name = "shopkeeper", Level = 1, MaxHp = 100 });
             await context.SaveChangesAsync();
@@ -164,6 +242,13 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             {
                 Id = Guid.NewGuid(), CharacterId = characterId, ItemInstanceId = item.Id, Slot = slot, Type = pocket
             });
+            await context.SaveChangesAsync();
+        }
+
+        // A skill has to be known before the character is selected, like what it carries.
+        public static async Task TeachAsync(NosCoreContext context, long characterId, short skillVNum)
+        {
+            context.Add(new CharacterSkill { Id = Guid.NewGuid(), CharacterId = characterId, SkillVNum = skillVNum });
             await context.SaveChangesAsync();
         }
 

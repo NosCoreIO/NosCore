@@ -30,6 +30,12 @@ even when its packets are covered here.
 | NosBazaar: listing and its tax, finding, buying, taking back, packages, a changed price, its limits | `BazaarTests` |
 | Parcels: a gift taken from its parcel, taken once, thrown away | `ParcelTests` |
 | Warehouses: depositing and withdrawing, the pet basket, the family warehouse and its permissions | `WarehouseTests` |
+| The bag: moving, splitting and merging stacks, sorting, wearing and taking off, costumes, potions, dropping, destroying | `InventoryTests` |
+| The bank: depositing, withdrawing and its fee, every limit, a window that is not open | `BankTests` |
+| Groups: inviting, declining, leaving, disbanding, a full group, a member leaving the world, shared experience | `GroupTests` |
+| Fights: a monster hitting back, death and what the dead cannot do, both revivals, range, cooldown and MP | `FightTests` |
+| Loot: whose a drop is, loot in turn and shared loot, how far a drop can be picked up from | `LootTests` |
+| Minilands: entering, friends and strangers, locking, placing and taking away objects, what visitors see, invitations | `MinilandTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
