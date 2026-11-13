@@ -75,9 +75,10 @@ dotnet NosCore.Parser.dll --folder /path/to/output/parser
 ```
 
 The parser creates the `noscore` database if it is missing, applies every migration, and
-imports the data. It takes a minute or two. Run it again after pulling changes that add a
-migration: the master server, which starts first, does not migrate and stops against an older
-schema.
+imports the data. It takes a minute or two. Run it again after pulling: the servers do not
+migrate, and each of them stops with "The database is N migrations behind this build" when it
+meets an older schema. A change to what the parser imports needs the same run and has no
+such message.
 
 It also creates two accounts, both with the password `test`:
 
@@ -143,8 +144,8 @@ need the PostgreSQL from above and report themselves as not run without it.
 
 ## When something does not work
 
-- **A server exits at once with a missing column or table.** The schema is older than the
-  code. Run the parser again.
+- **A server stops with "The database is N migrations behind this build".** The schema is
+  older than the code. Run the parser again.
 - **The parser stops on `packet.txt`.** The file is missing from the folder given to
   `--folder`.
 - **"Already connected" at login.** The world server still holds the account's last session.

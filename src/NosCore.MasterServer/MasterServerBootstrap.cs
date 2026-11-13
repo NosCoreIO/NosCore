@@ -117,6 +117,7 @@ namespace NosCore.MasterServer
                 ?? throw new InvalidOperationException("The MasterConfiguration section could not be read.");
 
             services.Configure<KestrelServerOptions>(options => options.ListenAnyIP(masterConfiguration.WebApi.Port));
+            DatabaseReadiness.EnsureUpToDate(masterConfiguration.Database.ConnectionString);
             services.AddNosCoreContext(masterConfiguration.Database.ConnectionString);
 
             services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
