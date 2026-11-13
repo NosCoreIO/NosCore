@@ -7,10 +7,12 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using NodaTime;
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
@@ -32,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
         private ClientSession _session;
         private GameObject.Services.MateService.Mate _pet;
         private MateRevivalService _service;
+        private Mock<IPartnerSpecialistService> _specialists;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,6 +45,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
             _session.Character.Mates[_pet.MateTransportId] = _pet;
             await _pet.SpawnAsync(_session.Character, _session.Character.MapInstance, 7, 9);
             World.Inject(UpgradeMaterials.Catalog());
+            _specialists = World.Freeze<Mock<IPartnerSpecialistService>>();
             _service = World.Create<MateRevivalService>();
             _session.LastPackets.Clear();
             _session.Character.MapInstance.LastPackets.Clear();
@@ -79,6 +83,16 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 .AndAsync(TheNosMateDies)
                 .WhenAsync(TheMapTicksAfter_Seconds, 179)
                 .Then(TheNosMateLeftTheMap)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AKnockedOutPartnerLosesItsTransformation()
+        {
+            await new Spec("A NosMate that is knocked out is turned back from its specialist")
+                .Given(TheOwnerHas_Seeds, (short)5)
+                .WhenAsync(TheNosMateDies)
+                .Then(TheNosMateWasTurnedBack)
                 .ExecuteAsync();
         }
 
@@ -130,6 +144,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
         private void TheOwnerWasTold_(Game18NConstString message) =>
             Assert.IsTrue(_session.LastPackets.OfType<MsgiPacket>().Any(s => s.Message == message));
+
+        private void TheNosMateWasTurnedBack() =>
+            _specialists.Verify(s => s.UntransformAsync(It.IsAny<PlayerComponentBundle>(), _pet), Times.Once);
 
         private void TheNosMateIsStillInTheTeam() => Assert.IsTrue(_pet.IsTeamMember);
 

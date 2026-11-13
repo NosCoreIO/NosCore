@@ -26,6 +26,7 @@ namespace NosCore.GameObject.Services.MateService
         IItemCatalog itemCatalog,
         ISessionRegistry sessionRegistry,
         IClock clock,
+        IPartnerSpecialistService partnerSpecialistService,
         ILogger<MateRevivalService> logger) : IMateRevivalService, ISingletonService
     {
         public const short SeedsRequired = 5;
@@ -37,6 +38,8 @@ namespace NosCore.GameObject.Services.MateService
             {
                 await mate.DespawnAsync(mapInstance);
             }
+
+            await partnerSpecialistService.UntransformAsync(owner, mate);
 
             var seedOfPower = itemCatalog.GetMaterialVNum(MaterialType.SeedOfPower);
             if (owner.InventoryService.CountItem(seedOfPower) < SeedsRequired)

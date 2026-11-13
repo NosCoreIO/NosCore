@@ -157,6 +157,7 @@ namespace NosCore.GameObject.Services.MateService
 
             partner.SpecialistMorph = null;
             partner.SpecialistCooldownEndsAt = clock.GetCurrentInstant() + Duration.FromSeconds(CooldownSeconds);
+            await owner.SendPacketAsync(new DpskiPacket());
             if (partner.Entity is { } entity)
             {
                 entity.Morph = partner.Morph();
@@ -173,9 +174,11 @@ namespace NosCore.GameObject.Services.MateService
             var partnerSkills = Skills(owner, partner);
             await owner.SendPacketAsync(partner.GenerateCond());
             await SendAsync(owner, entity.GenerateCMode());
-            await owner.SendPacketAsync(partner.SpecialistMorph == null
-                ? new DpskiPacket()
-                : partnerSkills.GeneratePski());
+            if (partner.SpecialistMorph != null)
+            {
+                await owner.SendPacketAsync(partnerSkills.GeneratePski());
+            }
+
             await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService, partnerSkills));
             await SendAsync(owner, partner.GenerateOut());
             await SendAsync(owner, partner.GenerateIn(owner.AccountLanguage, entity.PositionX, entity.PositionY, partnerSkills));
