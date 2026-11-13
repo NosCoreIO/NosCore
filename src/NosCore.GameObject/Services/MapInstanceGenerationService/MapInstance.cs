@@ -29,6 +29,7 @@ using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.MiniMap;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Shared.Enumerations;
@@ -69,7 +70,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IMonsterAi? _monsterAi;
         private readonly IBuffService? _buffService;
         private readonly IRegenerationService? _regenerationService;
-        private readonly IBattleService? _battleService;
         private readonly IVitalityService? _vitalityService;
         private readonly IDigestionService? _digestionService;
         private readonly ISpeedCalculationService? _speedCalculationService;
@@ -78,6 +78,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly RespawnSystem _respawnSystem = new();
         private readonly List<Entity> _dueRespawns = new();
         private readonly BuffSystem _buffSystem = new();
+        private readonly SkillResetSystem _skillResetSystem = new();
+        private readonly List<(Entity Entity, long CastId)> _readySkills = new();
         private readonly List<(Entity Entity, VisualType VisualType)> _dueBuffs = new();
 
         public MapWorld EcsWorld { get; }
@@ -88,7 +90,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IMapItemGenerationService mapItemGenerationService, ILogger<MapInstance> logger, IClock clock, IMapChangeService mapChangeService,
             ISessionGroupFactory sessionGroupFactory, ISessionRegistry sessionRegistry, IHeuristic distanceCalculator,
             IMonsterAi? monsterAi = null, IBuffService? buffService = null, IRegenerationService? regenerationService = null,
-            IBattleService? battleService = null, IVitalityService? vitalityService = null,
+            IVitalityService? vitalityService = null,
             IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null,
             IBattleStatsProvider? battleStatsProvider = null,
             IHeatService? heatService = null)
@@ -116,7 +118,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _monsterAi = monsterAi;
             _buffService = buffService;
             _regenerationService = regenerationService;
-            _battleService = battleService;
             _vitalityService = vitalityService;
             _digestionService = digestionService;
             _speedCalculationService = speedCalculationService;
@@ -519,7 +520,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             await GuardAsync(_buffService is { } buffs ? () => TickBuffsAsync(buffs) : null, "buffs");
             await GuardAsync(_regenerationService == null ? null : () => _regenerationService.TickAsync(this), "regeneration");
             await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
-            await GuardAsync(_battleService == null ? null : () => _battleService.TickCooldownResetsAsync(this), "cooldown resets");
+            await GuardAsync(SendSkillResetsAsync, "cooldown resets");
             await GuardAsync(SweepPendingRespawnsAsync, "respawns");
         }
 
@@ -578,6 +579,29 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             if (_heatService != null)
             {
                 await _heatService.RefreshAsync(character);
+            }
+        }
+
+        private async Task SendSkillResetsAsync()
+        {
+            _readySkills.Clear();
+            _skillResetSystem.TakeReady(EcsWorld, _clock.GetCurrentInstant(), _readySkills);
+            foreach (var (entity, castId) in _readySkills)
+            {
+                var character = new PlayerComponentBundle(entity, EcsWorld);
+                if (character.IsDisconnecting)
+                {
+                    continue;
+                }
+
+                try
+                {
+                    await character.SendPacketAsync(new SkillResetPacket { CastId = castId });
+                }
+                catch (Exception e)
+                {
+                    _logger.LogWarning(e, "Failed to reset cooldown for skill {CastId}", castId);
+                }
             }
         }
 

@@ -22,5 +22,4 @@ public record struct PlayerInventoryComponent(
     List<QuicklistEntryDto> QuicklistEntries,
     List<StaticBonusDto> StaticBonusList,
     List<TitleDto> Titles,
-    List<RespawnDto> Respawns,
-    ConcurrentDictionary<long, Instant> PendingSkillResets);
+    List<RespawnDto> Respawns);

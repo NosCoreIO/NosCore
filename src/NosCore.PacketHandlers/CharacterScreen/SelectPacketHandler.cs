@@ -205,8 +205,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new List<QuicklistEntryDto>(),
                     new List<StaticBonusDto>(),
                     new List<TitleDto>(),
-                    new List<RespawnDto>(),
-                    new ConcurrentDictionary<long, Instant>()));
+                    new List<RespawnDto>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerSocialComponent(
                     new ConcurrentDictionary<long, long>(),
                     null,
