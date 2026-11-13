@@ -21,6 +21,7 @@ namespace NosCore.Parser.Tests
         private const short Jaguar = 5196;
         private const short Unicorn = 5319;
         private const short Wings = 2000;
+        private const short Sweeper = 5152;
 
         private readonly List<ItemDto> _items = new();
         private readonly List<ItemDto> _savedItems = new();
@@ -58,6 +59,16 @@ namespace NosCore.Parser.Tests
 
             Assert.IsTrue(_savedItems.Single().SpeedBoostTeleportsRandomly);
             Assert.AreEqual(3625, _savedItems.Single().SpeedBoostTeleportEffect);
+        }
+
+        [TestMethod]
+        public async Task AMountThatMovesItsRiderForwardsGetsItsDash()
+        {
+            _items.Add(new ItemDto { VNum = Sweeper });
+
+            await _parser.InsertSpeedBoostsAsync();
+
+            Assert.AreEqual((byte)5, _savedItems.Single().SpeedBoostDashCells);
         }
 
         [TestMethod]

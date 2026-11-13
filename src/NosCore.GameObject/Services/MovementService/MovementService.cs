@@ -45,6 +45,9 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
     // Leaves room for network jitter so it is not counted as a speed hack.
     private const double SpeedDiffAllowed = 1D / 3;
 
+    // Packets of one walk arrive well within this of each other.
+    private static readonly Duration SameWalk = Duration.FromMilliseconds(1500);
+
     public async Task<WalkResult> WalkAsync(ClientSession session, short x, short y, short speed, byte checksum)
     {
         var character = session.Character;
@@ -86,6 +89,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
             return WalkResult.Rejected;
         }
 
+        var previousMove = character.LastMove;
         if (!walkService.TryStep(character, x, y))
         {
             logger.LogWarning(
@@ -96,6 +100,12 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
 
         // The position is written before `mv` is broadcast: GenerateMove and every observer
         // read it from the ECS.
+        var (fromX, fromY) = clock.GetCurrentInstant() - previousMove < SameWalk
+            ? (character.PreviousWalkX, character.PreviousWalkY)
+            : (character.PositionX, character.PositionY);
+        character.Direction = Facing.Towards(x - fromX, y - fromY, character.Direction);
+        character.PreviousWalkX = character.PositionX;
+        character.PreviousWalkY = character.PositionY;
         character.PositionX = x;
         character.PositionY = y;
         if (character.MapInstance.MapInstanceType == MapInstanceType.BaseMapInstance)

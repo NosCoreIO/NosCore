@@ -443,6 +443,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new BaseMapPositionComponent(mapId, positionX, positionY));
         _world.Add(entity, new SkillResetComponent(new ConcurrentDictionary<long, Instant>()));
         _world.Add(entity, new FactionComponent(faction));
+        _world.Add(entity, new WalkTrailComponent(0, 0));
         return entity;
     }
 
@@ -488,6 +489,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, baseMapPosition);
         _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue, null));
         _world.Add(entity, new WalkAllowanceComponent(0));
+        _world.Add(entity, new WalkTrailComponent(0, 0));
         _world.Add(entity, new NpcDialogComponent(null));
         _world.Add(entity, new ListedTargetsComponent(null));
         _world.Add(entity, new MinigameSessionComponent(null, Instant.MinValue, null));

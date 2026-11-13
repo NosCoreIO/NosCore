@@ -100,6 +100,28 @@ namespace NosCore.GameObject.Tests.Services.MovementService
         }
 
         [TestMethod]
+        public async Task WalkingTurnsTheCharacterTowardsWhereItWent()
+        {
+            await new Spec("A walk turns the character the way it went")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(WalkingToValidPosition)
+                .Then(DirectionShouldBe_, (byte)6)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AWalkEndingWithAStepBackStillFacesTheWayItWent()
+        {
+            await new Spec("A walk whose last packet steps back a cell keeps facing the way it went")
+                .Given(CharacterIsOnMap)
+                .WhenAsync(WalkingTo_After_Milliseconds, (short)7, (short)4, 2000)
+                .AndAsync(WalkingTo_After_Milliseconds, (short)6, (short)4, 500)
+                .Then(CharacterShouldBeAt_, (short)6, (short)4)
+                .And(DirectionShouldBe_, (byte)1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task WalkInsideMinilandDoesNotUpdateMapXY()
         {
             await new Spec("Walk inside a non-base instance leaves MapX/Y pinned to last base position")
@@ -329,6 +351,8 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             Session.Character.MapX = x;
             Session.Character.MapY = y;
         }
+
+        private void DirectionShouldBe_(byte direction) => Assert.AreEqual(direction, Session.Character.Direction);
 
         private void MapXYShouldBe_(short expectedX, short expectedY)
         {

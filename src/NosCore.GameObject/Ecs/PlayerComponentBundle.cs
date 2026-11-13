@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(DigestionComponent),
     typeof(PendingDelayComponent),
     typeof(WalkAllowanceComponent),
+    typeof(WalkTrailComponent),
     typeof(NpcDialogComponent),
     typeof(ListedTargetsComponent),
     typeof(MinigameSessionComponent),
