@@ -10,7 +10,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Enumerations;
+using NosCore.Database.Entities;
 using NosCore.EndToEnd.Tests.Infrastructure;
+using NosCore.Packets.Enumerations;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
 {
@@ -105,6 +107,31 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var info = (await alice.ExpectSinceAsync(entered, p => TestClient.HeaderOf(p) == "mlinfo", "the miniland's state")).Split(' ');
             Assert.AreEqual("0 0", $"{info[4]} {info[5]}", "the owner is no visitor");
             Assert.AreEqual(Open.ToString(CultureInfo.InvariantCulture), info[7], "a new miniland is open");
+        }
+
+        [TestMethod]
+        public async Task AVisitorIsShownTheOwnersMessageAsItWasWritten()
+        {
+            var owner = await OwnerAsync();
+            await using (var context = Harness.Database.CreateContext())
+            {
+                context.Add(new Miniland
+                {
+                    MinilandId = Guid.NewGuid(), OwnerId = owner.CharacterId, State = MinilandState.Open,
+                    MinilandMessage = "Come in and rest", WelcomeMusicInfo = 3800
+                });
+                await context.SaveChangesAsync();
+            }
+
+            await using var alice = await EnterAsync(owner);
+            await using var bob = await Harness.EnterAsync("Bob", x: 72, y: 116);
+            await BefriendAsync(alice, bob);
+            await GoHomeAsync(alice);
+            var visited = bob.Mark();
+
+            await bob.SendAsync($"mjoin {Player} {alice.CharacterId}");
+
+            await bob.ExpectSinceAsync(visited, p => p == "msg 0 Come in and rest", "the owner's message, spaces and all");
         }
 
         [TestMethod]

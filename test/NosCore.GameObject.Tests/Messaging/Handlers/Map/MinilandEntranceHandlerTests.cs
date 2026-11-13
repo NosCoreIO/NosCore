@@ -106,6 +106,22 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AVisitorIsSentTheMessageAsItsOwnerWroteIt()
+        {
+            await new Spec("A message with spaces reaches the visitor with its spaces")
+                .Given(MinilandIsRegisteredWithOwner_, false)
+                .And(TheMessageIs_, "Come in and rest")
+                .WhenAsync(HandlingEnterEvent)
+                .Then(TheWelcomeMessageShouldRead_, "Come in and rest")
+                .ExecuteAsync();
+        }
+
+        private void TheMessageIs_(string message) => _miniland.MinilandMessage = message;
+
+        private void TheWelcomeMessageShouldRead_(string message) =>
+            Assert.AreEqual(message, _session.LastPackets.OfType<MsgPacket>().Single().Message);
+
         private void MinilandIsRegisteredWithOwner_(bool ownedByThisCharacter)
         {
             _initialDailyVisitCount = 0;

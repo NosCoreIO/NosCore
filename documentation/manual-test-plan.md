@@ -830,6 +830,8 @@ Two clients, A and B.
       miniland keeps working on the next visit
 - [ ] Lock your miniland, take away an object that stands in it, log out and in again and walk
       in: the object is not standing there, and it is still in the miniland inventory
+- [ ] Visit a miniland whose introduction has spaces in it: the line across the screen on
+      entering reads with its spaces, as the introduction in the corner does
 
 ### Respawn point
 
