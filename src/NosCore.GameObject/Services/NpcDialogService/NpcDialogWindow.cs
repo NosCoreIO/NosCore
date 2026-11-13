@@ -14,6 +14,7 @@ namespace NosCore.GameObject.Services.NpcDialogService
         Bazaar,
         Upgrade,
         RevivalQuestion,
-        UpgradeScroll
+        UpgradeScroll,
+        LandOfDeathQuestion
     }
 }

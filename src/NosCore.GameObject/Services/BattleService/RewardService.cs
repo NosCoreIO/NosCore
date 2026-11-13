@@ -151,12 +151,12 @@ public sealed class RewardService(
 
     private async Task AwardMemberExperienceAsync(PlayerComponentBundle player, NpcMonsterDto mob, double share, double jobShare)
     {
-        var buffBonus = 1 + ExperienceBuffPercent(player) / 100d;
+        var bonus = (1 + ExperienceBuffPercent(player) / 100d) * (player.MapInstance?.XpRate ?? 1);
         var levelXp = (long)(mob.Xp * share
             * levelPenaltyService.GetExperiencePenalty(player.Level, mob.Level)
             * lowLevelBoostService.GetExperienceBoost(player.Level)
-            * buffBonus);
-        var jobXp = (long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.JobLevel) * buffBonus);
+            * bonus);
+        var jobXp = (long)(mob.JobXp * jobShare * lowLevelBoostService.GetJobExperienceBoost(player.JobLevel) * bonus);
         var heroXp = (long)(mob.HeroXp * share);
 
         var spXp = 0L;
@@ -288,8 +288,9 @@ public sealed class RewardService(
             try
             {
                 var item = itemGenerationService.Create(drop.VNum, (short)drop.Amount);
-                var dropped = mapItemGenerationService.Create(mapInstance, item, victim.PositionX, victim.PositionY,
-                    NextOwner(victim, topDamageDealer));
+                // Anyone may pick up what falls in the Land of Death.
+                var owner = mapInstance.MapInstanceType == MapInstanceType.LodInstance ? null : NextOwner(victim, topDamageDealer);
+                var dropped = mapItemGenerationService.Create(mapInstance, item, victim.PositionX, victim.PositionY, owner);
                 await mapInstance.SendPacketAsync(dropped.GenerateDrop());
             }
             catch (System.Exception ex)

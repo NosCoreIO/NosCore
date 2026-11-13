@@ -2044,6 +2044,34 @@ characters in the bracket on a base map, each with at least 500 gold.
 - [ ] After 10 minutes without a winner, "Icebreaker will end in 30 seconds" then "Icebreaker time
       has elapsed" show and nobody is rewarded
 
+### Land of Death
+
+Run `$Event LandOfDeath` as a GM, or wait for 14:00 or 19:00 server time. It lasts an hour. Use a
+level 55+ character in a family, standing next to the gatekeeper on map 98 (5,37), with a Saver
+(item 1211) or two.
+
+- [ ] Without a family, talking to the gatekeeper says "Only family members can enter the Land of Death."
+- [ ] Before the event, or after the first Flying Fire Devil has gone, it says "You are not authorised to
+      enter this place."
+- [ ] Under level 55 it says "Your level is too low. You can only enter from level 55."
+- [ ] Otherwise it asks "Would you like to move to the Land of Death?"; yes moves the character to
+      (153,145) of a Land of Death only their family shares, with the clock counting down from the
+      time left, and the land is full of its usual monsters
+- [ ] A second member of the same family lands in the same copy; a member of another family lands in
+      another one
+- [ ] Monsters drop no gold, and anyone can pick up an item; "X has received an item" shows to everyone
+- [ ] With 30 minutes left "The hunt for the Flying Fire Devil has begun." shows and the devil appears
+      on the last player who came in and attacks them; experience and drops are tripled
+- [ ] A minute later "The Flying Fire Devil has vanished." shows, the devil disappears and the rates
+      go back to normal; it comes back every 4 minutes until the end
+- [ ] Falling asks whether to use a Saver: yes spends one and revives on the spot at full HP; no,
+      no Saver, or no answer within 30 seconds says "You will be returned to the entrance of the Land
+      of Death." and puts the character back next to the gatekeeper with 1 HP
+- [ ] With 5 minutes left "The Land of Death will be closed soon." shows
+- [ ] At the end, "You are now out of the Land of Death" shows and everyone is back on map 98
+- [ ] The portal at (172,171) leads back to map 98 at any time
+- [ ] However the character leaves, the clock disappears from the bottom left
+
 ---
 
 ## Quests

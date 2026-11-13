@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Tests.Messaging
         public void AnEventAboutAPlayerInTheWorldIsKept()
         {
             Assert.IsFalse(new NpcTalkedEvent(_session.Character, new Mock<INonPlayableEntity>().Object).PlayerHasLeft);
-            Assert.IsFalse(new MapInstanceEnteredEvent(_session, _session.Character.MapInstance).PlayerHasLeft);
+            Assert.IsFalse(new MapInstanceEnteredEvent(_session, _session.Character.MapInstance, _session.Character.MapInstance).PlayerHasLeft);
         }
 
         [TestMethod]
@@ -49,7 +49,7 @@ namespace NosCore.GameObject.Tests.Messaging
 
             Assert.IsTrue(new NpcTalkedEvent(character, new Mock<INonPlayableEntity>().Object).PlayerHasLeft);
             Assert.IsTrue(new ItemWornEvent(character, 1).PlayerHasLeft);
-            Assert.IsTrue(new MapInstanceEnteredEvent(_session, map).PlayerHasLeft);
+            Assert.IsTrue(new MapInstanceEnteredEvent(_session, map, map).PlayerHasLeft);
         }
 
         [TestMethod]

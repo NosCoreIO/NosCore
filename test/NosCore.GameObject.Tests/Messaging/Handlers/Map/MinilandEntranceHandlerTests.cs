@@ -137,7 +137,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
 
         private async Task HandlingEnterEvent()
         {
-            await _handler.Handle(new MapInstanceEnteredEvent(_session, _session.Character.MapInstance));
+            await _handler.Handle(new MapInstanceEnteredEvent(_session, _session.Character.MapInstance, World.GetBaseMap(1)));
         }
 
         private void MlinfoPacketShouldHaveBeenSent() =>

@@ -776,6 +776,7 @@ namespace NosCore.Parser.Parsers
                 2520 => MaterialType.ObsidianOfCompletion,
                 2521 => MaterialType.TopazOfCompletion,
                 1012 => MaterialType.SeedOfPower,
+                1211 => MaterialType.Saver,
                 _ => MaterialType.None,
             };
 

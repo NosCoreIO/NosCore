@@ -49,6 +49,10 @@ Events:
 - Type: IceBreaker
   Every: 01:00:00
   Offset: 00:30:00
+- Type: LandOfDeath
+  At:
+  - 14:00:00
+  - 19:00:00
 # BasicEquipments / BasicSkills are keyed first by class name, then by starter origin:
 #   CreateAndUpgrade : Adventurer creation (lvl 1) and Adventurer -> specialist upgrade
 #   Create56         : specialist direct-create on normal server
