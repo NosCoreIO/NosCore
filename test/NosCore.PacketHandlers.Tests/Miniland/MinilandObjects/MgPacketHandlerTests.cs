@@ -6,6 +6,7 @@
 
 using NosCore.Algorithm.RarityPointService;
 using Mapster;
+using NodaTime;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -46,10 +47,11 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private IMinilandService _minilandProvider;
         private InventoryItemInstance _minilandObject;
         private ItemGenerationService _itemProvider;
+        private MapDesignObject _mapObject;
 
         private List<ItemDto> MinilandItems => new()
         {
-            new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet, MinigameType = MinigameType.Sawmill },
+            new Item { Type = NoscorePocketType.Miniland, VNum = 3000, ItemType = ItemType.Minigame, MinilandObjectPoint = 2000, IsWarehouse = false, EquipmentSlot = EquipmentType.Amulet, MinigameType = MinigameType.Sawmill },
             new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = true },
             new Item { Type = NoscorePocketType.Main, VNum = 1269, Effect = ItemEffectType.MinigameDurabilityCoupon, EffectValue = 300 },
             new Item { Type = NoscorePocketType.Main, VNum = 1271, Effect = ItemEffectType.ProductionCoupon, EffectValue = 500 },
@@ -60,7 +62,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .Select((max, level) => new MinigameScoreDto
                     { MinigameScoreId = (short)(10 + level), MinigameType = MinigameType.Sawmill, Level = (byte)level, MaximumScore = max })
                 .ToList(),
-            [new MinigameRewardDto { MinigameRewardId = 0, MinigameVNum = 3000, Level = 0, ItemVNum = 1269, Amount = 1 }],
+            Enumerable.Range(0, 5)
+                .Select(level => new MinigameRewardDto
+                    { MinigameRewardId = (short)level, MinigameVNum = 3000, Level = (byte)level, ItemVNum = 1269, Amount = 1 })
+                .ToList(),
             new RandomNumberSource());
 
         [TestInitialize]
@@ -90,7 +95,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 MinilandItems,
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
-            _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards);
+            _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards, World.Clock);
         }
 
         [TestMethod]
@@ -160,6 +165,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             await new Spec("A score earns the box of its band")
                 .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
                 .WhenAsync(Scoring_, 12000)
                 .Then(TheEarnedBoxShouldBe_, 2)
                 .ExecuteAsync();
@@ -210,6 +218,158 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task ScoringWithoutAStartedGameEarnsNothing()
+        {
+            await new Spec("Scoring without a started game earns nothing")
+                .Given(MinigameObjectExistsAndPlaced)
+                .WhenAsync(Scoring_, 999999)
+                .Then(NoBoxShouldBeEarned)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ScoringTooSoonAfterTheStartEarnsNothing()
+        {
+            await new Spec("Scoring too soon after the start earns nothing")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 5)
+                .WhenAsync(Scoring_, 999999)
+                .Then(NoBoxShouldBeEarned)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SelectingAGiftWithoutAFinishedGameGrantsNothing()
+        {
+            await new Spec("Selecting a gift without a finished game grants nothing")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(RewardsShouldBeGranted_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFinishedGameGrantsOneRewardUpToTheEarnedBox()
+        {
+            await new Spec("A finished game grants one reward up to the earned box")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .WhenAsync(SelectingGift_, 2)
+                .AndAsync(SelectingGift_, 1)
+                .AndAsync(SelectingGift_, 1)
+                .Then(RewardsShouldBeGranted_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RefillWithANegativeAmountIsIgnored()
+        {
+            await new Spec("Refill with a negative amount is ignored")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(CharacterHasGold_, 0L)
+                .WhenAsync(Refilling_, -100000)
+                .Then(GoldShouldBe_, 0L)
+                .And(DurabilityShouldBe_, 1000)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RefillPastTheMaximumDurabilityIsIgnored()
+        {
+            await new Spec("Refill past the maximum durability is ignored")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(CharacterHasGold_, 1000000L)
+                .WhenAsync(Refilling_, 200000)
+                .Then(GoldShouldBe_, 1000000L)
+                .And(DurabilityShouldBe_, 1000)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RefillCostingMoreThanTheGoldHeldIsIgnored()
+        {
+            await new Spec("Refill costing more than the gold held is ignored")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(CharacterHasGold_, 100L)
+                .WhenAsync(Refilling_, 50000)
+                .Then(GoldShouldBe_, 100L)
+                .And(DurabilityShouldBe_, 1000)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task RefillCostsOneHundredGoldPerPoint()
+        {
+            await new Spec("Refill costs one hundred gold per point")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(CharacterHasGold_, 1000000L)
+                .WhenAsync(Refilling_, 50000)
+                .Then(GoldShouldBe_, 950000L)
+                .And(DurabilityShouldBe_, 1500)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OpeningAGiftBatchEmptiesThatLevelsBoxes()
+        {
+            await new Spec("Opening a gift batch empties that level's boxes")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(ObjectHasLevel1Boxes_, 2)
+                .WhenAsync(OpeningGiftBatch)
+                .Then(Level1BoxesShouldBe_, 0)
+                .And(CharacterShouldHold_Of_, 2, (short)1269)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task OpeningAGiftBatchOfAnotherPlayersObjectGrantsNothing()
+        {
+            await new Spec("Opening a gift batch of another player's object grants nothing")
+                .Given(MinigameObjectOfAnotherPlayerExistsAndPlaced)
+                .And(ObjectHasLevel1Boxes_, 2)
+                .WhenAsync(OpeningGiftBatch)
+                .Then(Level1BoxesShouldBe_, 2)
+                .And(NothingShouldHappen)
+                .ExecuteAsync();
+        }
+
+        private void GameRunsForSeconds_(int seconds) => World.Clock.Advance(Duration.FromSeconds(seconds));
+
+        private void CharacterHasGold_(long gold) => _session.Character.Gold = gold;
+
+        private void ObjectHasLevel1Boxes_(int amount) => _mapObject.Level1BoxAmount = (byte)amount;
+
+        private Task Send_(MinigamePacketType type, int? point) =>
+            _mgPacketHandler.ExecuteAsync(new MinigamePacket
+            {
+                Type = type,
+                Id = 0,
+                MinigameVNum = 3000,
+                Point = point
+            }, _session);
+
+        private Task SelectingGift_(int tier) => Send_(MinigamePacketType.SelectGift, tier);
+
+        private Task Refilling_(int gold) => Send_(MinigamePacketType.Refill, gold);
+
+        private Task OpeningGiftBatch() => Send_(MinigamePacketType.OpenGiftBatch, 0);
+
+        private void GoldShouldBe_(long gold) => Assert.AreEqual(gold, _session.Character.Gold);
+
+        private void NoBoxShouldBeEarned() => Assert.IsFalse(_session.LastPackets.OfType<MloLvPacket>().Any());
+
+        private void RewardsShouldBeGranted_(int count) =>
+            Assert.AreEqual(count, _session.LastPackets.OfType<MloRwPacket>().Count());
+
+        private void Level1BoxesShouldBe_(int amount) => Assert.AreEqual(amount, _mapObject.Level1BoxAmount);
+
         private void CharacterHolds_(short vnum) =>
             _session.Character.InventoryService.AddItemToPocket(
                 InventoryItemInstance.Create(_itemProvider.Create(vnum, 1), _session.Character.CharacterId));
@@ -231,42 +391,32 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private void NoCouponsMessageShouldBeSent() =>
             Assert.IsTrue(_session.LastPackets.OfType<InfoiPacket>().Any(p => p.Message == Game18NConstString.NoCoupons));
 
-        private void MinigameObjectExistsAndPlaced()
+        private void MinigameObjectExistsAndPlaced() => PlaceMinigame(_session.Character.CharacterId, 1000);
+
+        private void MinigameObjectExistsAndPlacedWithZeroDurability() => PlaceMinigame(_session.Character.CharacterId, 0);
+
+        private void MinigameObjectOfAnotherPlayerExistsAndPlaced() => PlaceMinigame(_session.Character.CharacterId + 1, 1000);
+
+        private void PlaceMinigame(long ownerId, int durability)
         {
             var item = _itemProvider.Create(3000, 1);
-            item.DurabilityPoint = 1000;
-            _minilandObject = InventoryItemInstance.Create(item, _session.Character.CharacterId);
+            item.DurabilityPoint = durability;
+            _minilandObject = InventoryItemInstance.Create(item, ownerId);
             _minilandObject.Type = NoscorePocketType.Miniland;
             _minilandObject.Slot = 0;
-            _session.Character.InventoryService[_minilandObject.Id] = _minilandObject;
+            if (ownerId == _session.Character.CharacterId)
+            {
+                _session.Character.InventoryService[_minilandObject.Id] = _minilandObject;
+            }
 
-            var mapObject = new MapDesignObject
+            _mapObject = new MapDesignObject
             {
                 MinilandObjectId = Guid.NewGuid(),
                 MapX = 5,
                 MapY = 5,
                 Slot = 0
             };
-            _minilandProvider.AddMinilandObject(mapObject, _session.Character.CharacterId, _minilandObject);
-        }
-
-        private void MinigameObjectExistsAndPlacedWithZeroDurability()
-        {
-            var item = _itemProvider.Create(3000, 1);
-            item.DurabilityPoint = 0;
-            _minilandObject = InventoryItemInstance.Create(item, _session.Character.CharacterId);
-            _minilandObject.Type = NoscorePocketType.Miniland;
-            _minilandObject.Slot = 0;
-            _session.Character.InventoryService[_minilandObject.Id] = _minilandObject;
-
-            var mapObject = new MapDesignObject
-            {
-                MinilandObjectId = Guid.NewGuid(),
-                MapX = 5,
-                MapY = 5,
-                Slot = 0
-            };
-            _minilandProvider.AddMinilandObject(mapObject, _session.Character.CharacterId, _minilandObject);
+            _minilandProvider.AddMinilandObject(_mapObject, _session.Character.CharacterId, _minilandObject);
         }
 
         private void WarehouseObjectExistsAndPlaced()
