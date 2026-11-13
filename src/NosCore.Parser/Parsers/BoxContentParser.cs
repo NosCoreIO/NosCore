@@ -9,11 +9,8 @@ using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -25,9 +22,6 @@ namespace NosCore.Parser.Parsers
     public partial class BoxContentParser(IDao<ItemDto, short> itemDao,
         IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<BoxContentParser> logger)
     {
-        private const string ItemFile = "Item.dat";
-        private const string EnglishItemText = "_code_uk_Item.txt";
-
         [GeneratedRegex(@"^([1-9]\d*)x (.+)$")]
         private static partial Regex ContentLine();
 
@@ -43,8 +37,8 @@ namespace NosCore.Parser.Parsers
 
         public async Task InsertBoxContentsAsync(string folder)
         {
-            var text = ReadText(Path.Combine(folder, EnglishItemText));
-            var keys = ReadNameAndDescriptionKeys(Path.Combine(folder, ItemFile));
+            var text = ItemDescriptions.ReadText(folder);
+            var keys = ItemDescriptions.ReadNameAndDescriptionKeys(folder);
             var items = itemDao.LoadAll().ToDictionary(i => i.VNum);
 
             // A name shared by several items (a limited copy, a mall copy) means the oldest one.
@@ -96,60 +90,6 @@ namespace NosCore.Parser.Parsers
             await itemDao.TryInsertOrUpdateAsync(boxes);
             await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
             logger.LogInformation("{Boxes} boxes and packs take their {Rolls} items from their description", boxes.Count, rolls.Count);
-        }
-
-        private static Dictionary<string, string> ReadText(string file)
-        {
-            var text = new Dictionary<string, string>();
-            foreach (var line in File.ReadAllText(file, Encoding.Default).Split(["\r\n", "\r", "\n"], StringSplitOptions.None))
-            {
-                var columns = line.Split('\t');
-                if (columns.Length > 1)
-                {
-                    text.TryAdd(columns[0], columns[1]);
-                }
-            }
-
-            return text;
-        }
-
-        private static Dictionary<short, (string Name, string? Description)> ReadNameAndDescriptionKeys(string file)
-        {
-            var keys = new Dictionary<short, (string Name, string? Description)>();
-            short? vnum = null;
-            string? name = null;
-            var descriptionFollows = false;
-            foreach (var line in File.ReadAllText(file, Encoding.Default).Split(["\r\n", "\r", "\n"], StringSplitOptions.None))
-            {
-                var columns = line.Trim().Split('\t');
-                if (descriptionFollows)
-                {
-                    descriptionFollows = false;
-                    if (vnum is { } described && name != null)
-                    {
-                        keys[described] = (name, columns[0]);
-                    }
-
-                    continue;
-                }
-
-                switch (columns[0])
-                {
-                    case "VNUM" when columns.Length > 1:
-                        vnum = short.Parse(columns[1]);
-                        name = null;
-                        break;
-                    case "NAME" when columns.Length > 1 && vnum is { } named:
-                        name = columns[1];
-                        keys[named] = (name, null);
-                        break;
-                    case "LINEDESC":
-                        descriptionFollows = true;
-                        break;
-                }
-            }
-
-            return keys;
         }
     }
 }

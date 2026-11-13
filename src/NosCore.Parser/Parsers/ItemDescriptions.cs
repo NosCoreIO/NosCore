@@ -20,14 +20,15 @@ namespace NosCore.Parser.Parsers
 
         public static Dictionary<short, string> Read(string folder)
         {
-            var text = ReadText(Path.Combine(folder, EnglishItemText));
-            return ReadNameAndDescriptionKeys(Path.Combine(folder, ItemFile))
+            var text = ReadText(folder);
+            return ReadNameAndDescriptionKeys(folder)
                 .Where(k => k.Value.Description != null && text.ContainsKey(k.Value.Description))
                 .ToDictionary(k => k.Key, k => text[k.Value.Description ?? ""]);
         }
 
-        public static Dictionary<string, string> ReadText(string file)
+        public static Dictionary<string, string> ReadText(string folder)
         {
+            var file = Path.Combine(folder, EnglishItemText);
             var text = new Dictionary<string, string>();
             foreach (var line in File.ReadAllText(file, Encoding.Default).Split(["\r\n", "\r", "\n"], StringSplitOptions.None))
             {
@@ -41,8 +42,9 @@ namespace NosCore.Parser.Parsers
             return text;
         }
 
-        public static Dictionary<short, (string Name, string? Description)> ReadNameAndDescriptionKeys(string file)
+        public static Dictionary<short, (string Name, string? Description)> ReadNameAndDescriptionKeys(string folder)
         {
+            var file = Path.Combine(folder, ItemFile);
             var keys = new Dictionary<short, (string Name, string? Description)>();
             short? vnum = null;
             string? name = null;
