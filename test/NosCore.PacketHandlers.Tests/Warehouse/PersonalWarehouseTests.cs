@@ -38,6 +38,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
     [TestClass]
     public class PersonalWarehouseTests
     {
+        private readonly Mock<NosCore.GameObject.Services.SaveService.ISaveService> _saves = new();
         private TestWorld World;
         private ClientSession _session;
         private IItemGenerationService _items;
@@ -111,7 +112,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
             return new PersonalWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items));
+                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object));
         }
 
         private void OwnsAMinilandWarehouse()
@@ -172,6 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
             Assert.AreEqual(4, At(WarehouseType.Warehouse, 2).Amount);
             Assert.AreEqual(6, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(2, _session.LastPackets.OfType<StashClientPacket>().Single().Items.NotNull().Single().Slot);
+            _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored with the deposit");
         }
 
         [TestMethod]
@@ -220,6 +222,7 @@ namespace NosCore.PacketHandlers.Tests.Warehouse
 
             Assert.AreEqual(3, At(WarehouseType.Warehouse, 3).Amount);
             Assert.AreEqual(2, _session.Character.InventoryService.CountItem(1012));
+            _saves.Verify(s => s.SaveAsync(_session), Times.Once, "the bag is stored with the withdrawal");
         }
 
         [TestMethod]

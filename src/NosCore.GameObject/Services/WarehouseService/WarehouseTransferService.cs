@@ -22,13 +22,15 @@ using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
 using System;
 using System.Collections.Generic;
+using NosCore.GameObject.Services.SaveService;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.WarehouseService
 {
     public class WarehouseTransferService(IWarehouseHub warehouseHub, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-        IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider)
+        IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider,
+        ISaveService saveService)
         : IWarehouseTransferService
     {
         public async Task<List<StoredItem>> GetItemsAsync(long ownerId, WarehouseType warehouseType)
@@ -86,6 +88,8 @@ namespace NosCore.GameObject.Services.WarehouseService
                 remaining = session.Character.InventoryService.RemoveItemAmountFromInventory(amount, source.ItemInstanceId);
             }
 
+            // The warehouse side is already stored; the bag must not wait for the next save.
+            await saveService.SaveAsync(session);
             await session.SendPacketAsync(remaining.GeneratePocketChange(pocket, slot));
             await SendSlotAsync(session, warehouse.Type, stored, warehouseSlot);
             return stored;
@@ -128,6 +132,7 @@ namespace NosCore.GameObject.Services.WarehouseService
                 left = stored.Item;
             }
 
+            await saveService.SaveAsync(session);
             await session.SendPacketAsync(added.GeneratePocketChange());
             await SendSlotAsync(session, warehouse.Type, left, warehouseSlot);
             return taken;
