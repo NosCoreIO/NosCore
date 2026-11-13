@@ -327,7 +327,7 @@ public static class PlayerBundleExtensions
                 Authority = player.Authority >= AuthorityType.Administrator ? AuthorityType.Administrator : AuthorityType.User,
                 Gender = player.Gender,
                 HairStyle = player.HairStyle,
-                HairColor = player.HairColor,
+                HairColor = player.ShownHairColor(),
                 Class = player.Class,
                 Equipment = player.GetEquipmentSubPacket(),
                 InAliveSubPacket = new InAliveSubPacket
@@ -575,6 +575,13 @@ public static class PlayerBundleExtensions
             : (byte)-(int)dignity;
     }
 
+    // A worn wig is drawn in its own colour instead of the hair's.
+    public static HairColorType ShownHairColor(this PlayerComponentBundle player)
+    {
+        var hat = player.InventoryService.LoadBySlotAndType((short)EquipmentType.Hat, NoscorePocketType.Wear);
+        return hat?.ItemInstance.Item.IsColored == true ? (HairColorType)hat.ItemInstance.Design : player.HairColor;
+    }
+
     public static EqPacket GenerateEq(this PlayerComponentBundle player)
     {
         return new EqPacket
@@ -583,7 +590,7 @@ public static class PlayerBundleExtensions
             Visibility = (byte)(player.Authority < AuthorityType.GameMaster ? 0 : 2),
             Gender = player.Gender,
             HairStyle = player.HairStyle,
-            Haircolor = player.HairColor,
+            Haircolor = player.ShownHairColor(),
             ClassType = player.Class,
             EqSubPacket = player.GetEquipmentSubPacket(),
             WeaponUpgradeRarePacket = player.GetWeaponUpgradeRareSubPacket(),
