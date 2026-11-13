@@ -19,6 +19,7 @@ using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Networking;
+using NosCore.Packets;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Battle;
@@ -167,13 +168,13 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         public async Task AskReviveAsync(PlayerComponentBundle player)
         {
             await player.SendPacketAsync(player.GenerateStat());
-            await player.SendPacketAsync(new Dlgi2Packet
+            await player.SendPacketAsync(new DlgiPacket
             {
                 YesPacket = new RevivalPacket { Type = RevivalType.InPlace },
                 NoPacket = new RevivalPacket { Type = RevivalType.AtSavePoint },
                 Question = Game18NConstString.AskWantToUse,
                 ArgumentType = 2,
-                Game18NArguments = { itemCatalog.GetMaterialVNum(MaterialType.Saver), 1 },
+                Game18NArguments = new Game18NArguments(2) { itemCatalog.GetMaterialVNum(MaterialType.Saver), 1 },
             });
 
             var mapInstanceId = player.MapInstance?.MapInstanceId;
@@ -217,9 +218,10 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 });
             }
 
-            await player.SendPacketAsync(Message(Game18NConstString.ReturnToEntranceLandOfDeath));
             await player.SendPacketAsync(player.GenerateStat());
             await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
+            await player.SendPacketAsync(ClearClock);
+            await player.SendPacketAsync(Message(Game18NConstString.ReturnToEntranceLandOfDeath));
         }
 
         private async Task RunAsync()
@@ -342,8 +344,13 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             {
                 try
                 {
-                    await land.SendPacketAsync(Message(Game18NConstString.OutOfLandOfDeath));
+                    var players = sessionRegistry.GetClientSessionsByMapInstance(land.MapInstanceId).ToList();
                     await mapInstanceGeneratorService.Value.RemoveMapAsync(land.MapInstanceId);
+                    foreach (var player in players)
+                    {
+                        await player.SendPacketAsync(ClearClock);
+                        await player.SendPacketAsync(Message(Game18NConstString.OutOfLandOfDeath));
+                    }
                 }
                 catch (Exception e)
                 {
@@ -357,6 +364,8 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 }
             }
         }
+
+        private static readonly EventPacket ClearClock = new() { Type = EventPacketType.ClearTimeSpaceUI };
 
         private static EventPacket Clock(TimeSpan remaining)
         {
