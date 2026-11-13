@@ -6,6 +6,7 @@
 
 using NodaTime;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Components;
 using System;
 
 namespace NosCore.GameObject.Ecs.Interfaces
@@ -24,6 +25,7 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         Instant LastMove { get; set; }
 
+        CachedPath? ChasePath { get; set; }
 
         new bool IsAlive { get; set; }
 

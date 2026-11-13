@@ -17,6 +17,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(NpcStateComponent),
     typeof(BuffStateComponent),
     typeof(AggroComponent),
+    typeof(ChasePathComponent),
     typeof(SkillCooldownComponent),
     typeof(MateStateComponent)
 )]

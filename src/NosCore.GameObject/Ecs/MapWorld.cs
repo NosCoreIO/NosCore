@@ -260,6 +260,7 @@ public class MapWorld : IDisposable
             new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
         );
         return entity;
@@ -301,6 +302,7 @@ public class MapWorld : IDisposable
             new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
         );
         return entity;
@@ -332,6 +334,7 @@ public class MapWorld : IDisposable
                 new Dictionary<Type, Subject<RequestData>>(), null, false),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
+            new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
             new MateStateComponent(mate, mate.CharacterId)
         );
