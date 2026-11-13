@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.MinilandService;
@@ -15,23 +16,30 @@ namespace NosCore.GameObject.Services.CharacterService
     {
         private readonly IMinilandService? _minilandService;
         private readonly IMapInstanceGeneratorService? _mapInstanceGeneratorService;
+        private readonly IClock? _clock;
 
         public CharacterInitializationService(
             IMinilandService? minilandService = null,
-            IMapInstanceGeneratorService? mapInstanceGeneratorService = null)
+            IMapInstanceGeneratorService? mapInstanceGeneratorService = null,
+            IClock? clock = null)
         {
             _minilandService = minilandService;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
+            _clock = clock;
         }
 
-        public Task InitializeAsync(PlayerComponentBundle player)
+        public async Task InitializeAsync(PlayerComponentBundle player)
         {
-            if (_minilandService != null && _mapInstanceGeneratorService != null)
+            if (_minilandService == null || _mapInstanceGeneratorService == null)
             {
-                return _minilandService.InitializeAsync(player, _mapInstanceGeneratorService);
+                return;
             }
 
-            return Task.CompletedTask;
+            var miniland = await _minilandService.InitializeAsync(player, _mapInstanceGeneratorService);
+            if (_clock != null)
+            {
+                miniland.RefreshDailyPoints(_clock.GetCurrentInstant());
+            }
         }
     }
 }

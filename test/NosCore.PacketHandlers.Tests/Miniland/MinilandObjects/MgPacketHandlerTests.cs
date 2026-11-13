@@ -13,6 +13,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Map;
+using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
@@ -339,6 +340,81 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .And(NothingShouldHappen)
                 .ExecuteAsync();
         }
+
+        [TestMethod]
+        public async Task PlayingWithFewerPointsThanARewardCostsAsksConfirmation()
+        {
+            await new Spec("Playing with fewer points than a reward costs asks confirmation")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints_, 50L)
+                .WhenAsync(PlayingMinigame)
+                .Then(ShouldReceiveConfirmationQuestion)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClaimingARewardSpendsItsPoints()
+        {
+            await new Spec("Claiming a reward spends its points")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(RewardsShouldBeGranted_, 1)
+                .And(MinilandPointsShouldBe_, 1900L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ClaimingARewardWithoutEnoughPointsIsRefused()
+        {
+            await new Spec("Claiming a reward without enough points is refused")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .And(MinilandHasPoints_, 50L)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(RewardsShouldBeGranted_, 0)
+                .And(MinilandPointsShouldBe_, 50L)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AFreshOwnerEarnsARewardFromTheDailyAllowance()
+        {
+            await new Spec("A fresh owner earns a reward from the daily allowance")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandPointsWereNeverGranted)
+                .AndAsync(OwnerLogsIn)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(RewardsShouldBeGranted_, 1)
+                .And(MinilandPointsShouldBe_, 1900L)
+                .ExecuteAsync();
+        }
+
+        private void MinilandHasPoints_(long points) =>
+            _minilandProvider.GetMiniland(_session.Character.CharacterId).MinilandPoint = points;
+
+        private void MinilandPointsWereNeverGranted()
+        {
+            var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
+            miniland.MinilandPoint = 0;
+            miniland.MinilandPointRefreshedAt = null;
+        }
+
+        private Task OwnerLogsIn() =>
+            new CharacterInitializationService(_minilandProvider, World.MapInstanceGeneratorService, World.Clock)
+                .InitializeAsync(_session.Character);
+
+        private void MinilandPointsShouldBe_(long points) =>
+            Assert.AreEqual(points, _minilandProvider.GetMiniland(_session.Character.CharacterId).MinilandPoint);
 
         private void GameRunsForSeconds_(int seconds) => World.Clock.Advance(Duration.FromSeconds(seconds));
 

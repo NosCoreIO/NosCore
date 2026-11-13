@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Database.Entities.Base;
 using NosCore.Packets.Enumerations;
 using System;
@@ -17,6 +18,8 @@ namespace NosCore.Database.Entities
         public string? MinilandMessage { get; set; } = ((short)Game18NConstString.Welcome).ToString();
 
         public long MinilandPoint { get; set; }
+
+        public Instant? MinilandPointRefreshedAt { get; set; }
 
         public virtual Character Owner { get; set; }
 
