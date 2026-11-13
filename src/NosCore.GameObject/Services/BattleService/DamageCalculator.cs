@@ -223,7 +223,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             }
         }
 
-        return damage * (100 + percent) / 100;
+        return damage * Math.Max(0, 100 + percent) / 100;
     }
 
     private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level)
