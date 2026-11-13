@@ -786,6 +786,9 @@ Needs two characters on the same channel. The commending one must be level 31 or
       the monster died sooner
 - [ ] Sit with a Roasted Herring digesting and let a monster hit you: you stand up and the
       green numbers stop
+- [ ] Stand with missing HP: the bar refills every two seconds; sitting refills it faster
+- [ ] Stand while a monster keeps hitting you: the bar does not refill until four seconds after
+      its last hit, and changing map in between does not reset that wait
 
 ### Pets
 
