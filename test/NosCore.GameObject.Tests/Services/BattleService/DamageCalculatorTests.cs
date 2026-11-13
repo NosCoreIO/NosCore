@@ -160,7 +160,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public void AdventurerGetsFlatDamageBonus()
+        public void AMonstersHitGetsNoFlatBonusFromItsClass()
         {
             var advCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);
             var otherCalc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);
@@ -174,7 +174,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 StatsBuilder.Default(),
                 MeleeSkill);
 
-            Assert.IsTrue(adv.Damage > sword.Damage, $"Adventurer bonus should beat Swordsman baseline: {adv.Damage} vs {sword.Damage}");
+            Assert.AreEqual(sword.Damage, adv.Damage);
         }
 
         // A level 1 chicken: close defence 18, ranged 17, magic 13, no dodge.
