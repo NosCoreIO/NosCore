@@ -482,7 +482,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
 
         var followUp = cardCatalog.GetCard(card.TimeoutBuff);
-        if (followUp == null)
+        if (followUp == null || (followUp.BuffType == BuffType.Bad && IsImmuneToDebuffs(target)))
         {
             return;
         }
