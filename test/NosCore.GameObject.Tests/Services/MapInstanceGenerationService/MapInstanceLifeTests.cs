@@ -70,6 +70,34 @@ namespace NosCore.GameObject.Tests.Services.MapInstanceGenerationService
         }
 
         [TestMethod]
+        public async Task ADeadMonsterComesBackWholeAtItsSpawnOnceItsTimeHasCome()
+        {
+            var map = NewMap();
+            map.LoadMonsters(new List<MapMonsterDto> { new() { MapMonsterId = 1, VNum = 1, MapX = 1, MapY = 0 } },
+                new List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 10, MaxMp = 5 } });
+            var monster = map.GetMonsterById(1).NotNull();
+            monster.Hp = 0;
+            monster.Mp = 0;
+            monster.IsAlive = false;
+            monster.PositionX = 0;
+            monster.RespawnAt = World.Clock.GetCurrentInstant();
+            map.IsSleeping = false;
+            await map.StartLifeAsync();
+
+            for (var waited = 0; !monster.IsAlive && waited < 100; waited++)
+            {
+                await Task.Delay(50);
+            }
+
+            Assert.IsTrue(monster.IsAlive);
+            Assert.AreEqual(10, monster.Hp);
+            Assert.AreEqual(5, monster.Mp);
+            Assert.AreEqual(1, monster.PositionX);
+            Assert.IsNull(monster.RespawnAt);
+            await map.DisposeAsync();
+        }
+
+        [TestMethod]
         public async Task RemovingAMapStopsItsLifeAndReleasesItsWorld()
         {
             var map = NewMap();

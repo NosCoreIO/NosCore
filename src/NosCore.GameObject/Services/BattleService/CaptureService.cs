@@ -101,8 +101,7 @@ namespace NosCore.GameObject.Services.BattleService
             monster.Hp = 0;
             monster.IsAlive = false;
             monster.HitList.Clear();
-            monster.MapInstance.ScheduleRespawn(monster,
-                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
+            monster.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster));
 
             if (owner.CapturedMonsterGoesToQuest(monster.NpcMonster.NpcMonsterVNum))
             {

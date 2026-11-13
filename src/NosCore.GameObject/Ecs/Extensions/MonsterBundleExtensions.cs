@@ -12,6 +12,16 @@ namespace NosCore.GameObject.Ecs.Extensions;
 
 public static class MonsterBundleExtensions
 {
+    public static void Respawn(this MonsterComponentBundle monster)
+    {
+        monster.Hp = monster.MaxHp;
+        monster.Mp = monster.MaxMp;
+        monster.IsAlive = true;
+        monster.PositionX = monster.FirstX;
+        monster.PositionY = monster.FirstY;
+        monster.HitList.Clear();
+    }
+
     public static InPacket GenerateIn(this MonsterComponentBundle monster)
     {
         return new InPacket

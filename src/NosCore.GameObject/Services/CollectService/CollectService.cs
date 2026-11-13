@@ -79,7 +79,7 @@ public sealed class CollectService(INpcCombatCatalog catalog, IItemGenerationSer
 
         npc.IsAlive = false;
         await npc.MapInstance.SendPacketAsync(new OutPacket { VisualType = VisualType.Npc, VisualId = npc.VisualId });
-        npc.MapInstance.ScheduleRespawn(npc, clock.GetCurrentInstant().Plus(RespawnTiming.For(mapObject)));
+        npc.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(mapObject));
         await messageBus.PublishAsync(new MapEntityCollectedEvent(character, npc));
         return true;
     }

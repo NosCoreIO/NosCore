@@ -261,7 +261,8 @@ public class MapWorld : IDisposable
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
-            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
+            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
+            new RespawnComponent(null)
         );
         return entity;
     }
@@ -303,7 +304,8 @@ public class MapWorld : IDisposable
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
-            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>())
+            new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
+            new RespawnComponent(null)
         );
         return entity;
     }
