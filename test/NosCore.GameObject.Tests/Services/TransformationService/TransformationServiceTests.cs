@@ -140,7 +140,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
                 Morph = 2432,
                 SecondMorph = 0
             };
-            await Service.ChangeVehicleAsync(Session, vehicleItem);
+            await Service.ChangeVehicleAsync(Session, vehicleItem, vehicleItem);
         }
 
         private async Task CharacterIsVehicled()
@@ -156,7 +156,7 @@ namespace NosCore.GameObject.Tests.Services.TransformationService
             };
             World.ItemList.RemoveAll(i => i.VNum == vehicleItem.VNum);
             World.ItemList.Add(vehicleItem);
-            await Service.ChangeVehicleAsync(Session, vehicleItem);
+            await Service.ChangeVehicleAsync(Session, vehicleItem, vehicleItem);
         }
 
         private async Task TheMountIsBoosted()

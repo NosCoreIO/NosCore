@@ -133,6 +133,9 @@ namespace NosCore.Database.Entities
 
         public byte LevelMinimum { get; set; }
 
+        // 0 when the item has no ceiling.
+        public byte LevelMaximum { get; set; }
+
         public byte LightElement { get; set; }
 
         public short LightResistance { get; set; }
@@ -201,6 +204,9 @@ namespace NosCore.Database.Entities
         public virtual ICollection<ShopItem> ShopItem { get; set; }
 
         public byte Speed { get; set; }
+
+        // A mount scroll that disappears once its rider is mounted.
+        public bool ConsumedOnMount { get; set; }
 
         public byte SpeedBoost { get; set; }
 

@@ -387,6 +387,11 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] Walk, cast a skill, or take a hit during the mounting bar: you don't mount
 - [ ] Start the mounting bar and transform into your specialist straight after: the specialist
       bar doesn't finish off the mount, and the other way round
+- [ ] Use a Movement Scroll (5214): after the bar you ride one of the novice mounts at its own
+      speed, and the scroll count drops by one; use one again to dismount, and none is used
+- [ ] Use a Novice Mount Scroll (5833) below level 70: you ride one of its six mounts, slower than
+      that mount on its own, and the scroll stays; at level 70 it says your level is too high
+- [ ] Use a Magical Camel Parchment Scroll (5923): you ride the camel and the scroll is used up
 
 ### Class change
 
