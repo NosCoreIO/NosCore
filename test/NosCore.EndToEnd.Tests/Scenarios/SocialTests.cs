@@ -65,6 +65,64 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task GroupedPlayersWhoLeaveAtTheSameMomentAreAllStoredWhereTheyStood()
+        {
+            var players = new[]
+            {
+                await Harness.AddPlayerAsync("Alice", x: 80, y: 116),
+                await Harness.AddPlayerAsync("Bob", x: 81, y: 116),
+                await Harness.AddPlayerAsync("Carol", x: 82, y: 116)
+            };
+            var clients = players.Select(player => Harness.Client(player)).ToArray();
+            try
+            {
+                for (var i = 0; i < clients.Length; i++)
+                {
+                    await clients[i].EnterWorldAsync(players[i].Slot);
+                }
+
+                var alice = clients[0];
+                // The others ask to join in turn: one player may only send a group request every five seconds.
+                for (var i = 1; i < clients.Length; i++)
+                {
+                    await clients[i].SendAsync($"pjoin 1 {alice.CharacterId}");
+                    await alice.ExpectAsync(p => p.Contains($"#pjoin^3^{clients[i].CharacterId}", StringComparison.Ordinal), "the group request");
+                    var joined = clients[i].Mark();
+                    await alice.SendAsync($"pjoin 3 {clients[i].CharacterId}");
+                    await clients[i].ExpectSinceAsync(joined, p => p.StartsWith($"pinit {i + 1} ", StringComparison.Ordinal), $"the group of {i + 1}");
+                }
+
+                for (var i = 0; i < clients.Length; i++)
+                {
+                    var watcher = clients[(i + 1) % clients.Length];
+                    await clients[i].WalkAsync((short)(80 + i), 117);
+                    await watcher.ExpectAsync(p => p.StartsWith($"mv 1 {clients[i].CharacterId} {80 + i} 117 ", StringComparison.Ordinal), "the step");
+                }
+            }
+            finally
+            {
+                await Task.WhenAll(clients.Select(client => client.DisposeAsync().AsTask()));
+            }
+
+            var waited = Stopwatch.StartNew();
+            var pending = players.ToList();
+            while (pending.Count > 0 && waited.Elapsed < TimeSpan.FromSeconds(15))
+            {
+                foreach (var player in pending.ToList())
+                {
+                    if ((await Harness.StoredAsync(player.CharacterId)).MapY == 117)
+                    {
+                        pending.Remove(player);
+                    }
+                }
+
+                await Task.Delay(250);
+            }
+
+            Assert.AreEqual(string.Empty, string.Join(", ", pending.Select(p => p.Name)), "not stored where they stood within 15 s of leaving");
+        }
+
+        [TestMethod]
         public async Task WhatIsSaidToTheGroupReachesItsMembersOnly()
         {
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);

@@ -434,10 +434,12 @@ namespace NosCore.GameObject.Ecs.Extensions
         {
             characterEntity.Group.LeaveGroup(characterEntity);
 
-            foreach (var entry in characterEntity.Group.Values.Where(s =>
-                s.Item2.VisualType == VisualType.Player && s.Item2.VisualId != characterEntity.VisualId))
+            var leaving = characterEntity.VisualId;
+            foreach (var memberId in characterEntity.Group.Keys
+                         .Where(s => s.Item1 == VisualType.Player && s.Item2 != leaving).Select(s => s.Item2).ToList())
             {
-                if (entry.Item2 is not PlayerComponentBundle groupMember)
+                // Asked by id: a member leaving the world at the same moment has no entity left.
+                if (!sessionRegistry.TryGetCharacter(s => s.VisualId == memberId, out var groupMember))
                 {
                     continue;
                 }

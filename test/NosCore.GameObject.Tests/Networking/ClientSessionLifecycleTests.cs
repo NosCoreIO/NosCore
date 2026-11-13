@@ -88,6 +88,21 @@ namespace NosCore.GameObject.Tests.Networking
         }
 
         [TestMethod]
+        public async Task ADisconnectStepThatFailsDoesNotStopTheSave()
+        {
+            var failing = new Mock<ISessionDisconnectHandler>();
+            failing.SetupGet(h => h.Order).Returns(-50);
+            failing.Setup(h => h.HandleDisconnectAsync(It.IsAny<ClientSession>())).ThrowsAsync(new InvalidOperationException());
+            Session = await World.CreateSessionAsync(
+                new List<IPacketHandler> { PulseHandler },
+                new List<ISessionDisconnectHandler> { failing.Object, DisconnectHandler.Object });
+
+            await Session.OnDisconnectedAsync();
+
+            CollectionAssert.Contains(Events, "save");
+        }
+
+        [TestMethod]
         public async Task PacketErrorDoesNotUnsubscribeBeforeTheDisconnectSave()
         {
             await new Spec("Packet error does not unsubscribe before the disconnect save")

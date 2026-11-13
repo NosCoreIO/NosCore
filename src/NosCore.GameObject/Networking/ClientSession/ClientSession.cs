@@ -335,7 +335,15 @@ namespace NosCore.GameObject.Networking.ClientSession
                     .OrderBy(h => h.Order)
                     .ThenBy(h => h.GetType().FullName, StringComparer.Ordinal))
                 {
-                    await handler.HandleDisconnectAsync(this);
+                    // One step that fails must not cost the ones after it, the save among them.
+                    try
+                    {
+                        await handler.HandleDisconnectAsync(this);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Disconnect step {Step} failed for session {SessionId}", handler.GetType().Name, SessionId);
+                    }
                 }
             }
             catch (Exception ex)
