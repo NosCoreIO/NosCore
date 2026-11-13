@@ -484,6 +484,21 @@ The holders are the box items with effect 69 and effect value 1 or 2, such as 28
 - [ ] With every other bag slot full, double-click a filled holder: the not-enough-space
       message appears and the card stays inside
 
+### Fairy Bead
+
+The Fairy Bead is 4194 (box, effect 69, effect value 3). The client only lets some fairies onto
+its window: Sellaim (274) is accepted, Solaris (273) is refused with "Please place your fairy here.".
+
+- [ ] `$CreateItem 4194` and `$CreateItem 274`. Double-click the bead and confirm: the Fairy
+      window opens
+- [ ] Drop the fairy on the window and press Store: "In Custody." shows for three seconds, then
+      the window closes and the fairy's slot empties
+- [ ] Log out and back in: the bead is still in the bag
+- [ ] Double-click the full bead and confirm: "You have received: 1x Sellaim" appears, the bead
+      is gone and the fairy is back at the level it had
+- [ ] With every other bag slot full, double-click a full bead: the not-enough-space message
+      appears and the fairy stays inside
+
 ### Specialist wings
 
 - [ ] Without transforming, use Angel Wings (`$CreateItem 1685`): "You must first transform
