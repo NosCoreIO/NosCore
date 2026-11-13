@@ -148,6 +148,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     clientSession.Account.AccountId,
                     characterName,
                     mapInstance.MapInstanceId,
+                    characterDto.MapId,
                     characterDto.MapX,
                     characterDto.MapY,
                     2,
