@@ -110,13 +110,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
             _stack = await ServerStack.StartAsync(_database.Name);
             var stack = _stack;
-            TestClient.ServerErrors = () =>
-            {
-                var errors = stack.Errors("NosCore.WorldServer").TakeLast(6).ToList();
-                return errors.Count == 0
-                    ? string.Empty
-                    : $"{Environment.NewLine}World server errors:{Environment.NewLine}{string.Join(Environment.NewLine, errors.Select(e => "  " + e))}";
-            };
+            TestClient.ServerDiagnosis = stack.Diagnose;
         }
 
         [AssemblyCleanup]

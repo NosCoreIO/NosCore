@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -36,6 +37,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public int LoginPort { get; }
 
         // One world server per channel, on one master and one login server.
+        private const string WorldServer = "NosCore.WorldServer";
+        private const int RecentLines = 200;
+
         public static async Task<ServerStack> StartAsync(string databaseName, int channels = 2)
         {
             var root = RepositoryRoot();
@@ -56,7 +60,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 {
                     var port = FreePort();
                     var world = new Dictionary<string, string>(environment) { ["WORLD_PORT"] = port.ToString() };
-                    await stack.StartAsync(binaries, "NosCore.WorldServer", "Successfully Loaded",
+                    await stack.StartAsync(binaries, WorldServer, "Successfully Loaded",
                         stack.WriteConfiguration(root, databaseName, port), world);
                 }
             }
@@ -69,9 +73,29 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             return stack;
         }
 
-        // What a server has written since it started, for a failing test's message.
-        public string LogTail(string server, int lines = 40) =>
-            string.Join(Environment.NewLine, _servers.Where(s => s.Name == server).SelectMany(s => s.Output.TakeLast(lines)));
+        // A connection the server closed is rarely explained by an error line, so that case also
+        // gets the last lines of every level and the servers that are no longer running.
+        public string Diagnose(bool connectionClosed)
+        {
+            var report = new StringBuilder();
+            Append(report, "World server errors", Errors(WorldServer).TakeLast(6));
+            if (connectionClosed)
+            {
+                Append(report, "Servers that stopped", _servers.Where(s => s.HasExited).Select(s => $"{s.Name} (exit code {s.ExitCode})"));
+                Append(report, "World server log", _servers.Where(s => s.Name == WorldServer).SelectMany(s => s.Recent.TakeLast(25)));
+            }
+
+            return report.ToString();
+        }
+
+        private static void Append(StringBuilder report, string title, IEnumerable<string> lines)
+        {
+            var kept = lines.Select(line => "  " + (line.Length > 300 ? line[..300] : line)).ToList();
+            if (kept.Count > 0)
+            {
+                report.AppendLine().Append(title).Append(':').AppendLine().AppendJoin(Environment.NewLine, kept);
+            }
+        }
 
         // An error line and the lines of its exception.
         public IEnumerable<string> Errors(string server)
@@ -195,7 +219,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
             public string Name { get; }
 
+            public bool HasExited => _process.HasExited;
+
+            public int ExitCode => _process.ExitCode;
+
             public ConcurrentQueue<string> Output { get; } = new();
+
+            // The last lines at every level, for the report on a closed connection.
+            public ConcurrentQueue<string> Recent { get; } = new();
 
             public async Task WaitForAsync(string text, TimeSpan timeout)
             {
@@ -246,12 +277,31 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 }
             }
 
-            // A server pings the master every second at debug level; none of that is worth keeping.
+            // The message bus reports every message it moves at debug level, about one a second.
+            // That is left out everywhere; other debug lines only go to the recent tail.
             private void Keep(string? line)
             {
-                if (line != null && !line.StartsWith("DBUG", StringComparison.Ordinal))
+                if (line == null)
+                {
+                    return;
+                }
+
+                var debug = line.StartsWith("DBUG", StringComparison.Ordinal);
+                if (!debug)
                 {
                     Output.Enqueue(line);
+                }
+
+                if (debug && (line.Contains("message(s) from", StringComparison.Ordinal)
+                        || line.Contains("Successfully processed message", StringComparison.Ordinal)))
+                {
+                    return;
+                }
+
+                Recent.Enqueue(line);
+                while (Recent.Count > RecentLines)
+                {
+                    Recent.TryDequeue(out _);
                 }
             }
         }

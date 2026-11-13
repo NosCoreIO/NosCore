@@ -131,8 +131,9 @@ Writing one:
 - `Harness.StoredAsync(characterId)` and `Harness.Database.CreateContext()` read what was
   stored.
 - A failing start prints the server's last lines, and an expectation that times out adds the
-  world servers' error lines to its message. `Harness.Stack.LogTail("NosCore.WorldServer")`
-  gives a scenario the rest.
+  world servers' error lines to its message. When the server closed the client's connection
+  the message also carries the world servers' last lines at every level and any server that
+  has stopped, with its exit code.
 
 The stack has two channels: two world servers on one master and one login server.
 `Harness.EnterAsync(..., channel: 1)` puts a character on the second one.

@@ -81,21 +81,21 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
     private async Task<bool> ValidateKeepAliveAsync(IPacket packet, ClientSession session)
     {
-        if (session.LastKeepAliveIdentity is { } last && packet.KeepAliveId != NextKeepAlive(last))
+        if (packet.KeepAliveId is not { } number)
+        {
+            logger.LogWarning("Session {SessionId} sent a packet without a keep-alive number and was disconnected", session.SessionId);
+            await session.DisconnectAsync();
+            return false;
+        }
+
+        if (session.LastKeepAliveIdentity is { } last && number != NextKeepAlive(last))
         {
             logger.LogError(logLanguage[LogLanguageKey.CORRUPTED_KEEPALIVE], session.SessionId);
             await session.DisconnectAsync();
             return false;
         }
 
-        session.LastKeepAliveIdentity = packet.KeepAliveId;
-
-        if (packet.KeepAliveId == null)
-        {
-            await session.DisconnectAsync();
-            return false;
-        }
-
+        session.LastKeepAliveIdentity = number;
         return true;
     }
 

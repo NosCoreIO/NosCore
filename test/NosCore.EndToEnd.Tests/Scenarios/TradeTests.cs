@@ -31,7 +31,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.SendAsync("exc_list 0 0");
             await alice.ExpectAsync(p => p.StartsWith($"exc_list 1 {bob.CharacterId} 0 0", StringComparison.Ordinal), "Bob's offer");
 
+            // 176 tells Alice the trade waits for the other side.
             await alice.SendAsync("req_exc 3");
+            await alice.ExpectAsync(p => p.StartsWith("infoi 176 ", StringComparison.Ordinal), "infoi 176");
             await bob.SendAsync("req_exc 3");
 
             await alice.ExpectAsync(p => p == "gold 600 0", "Alice's gold");
