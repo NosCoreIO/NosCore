@@ -16,6 +16,7 @@ using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
+using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
@@ -37,6 +38,9 @@ namespace NosCore.PacketHandlers.Battle
     //   Type 2 — "arena" (PVP respawn): −100 gold, full HP/MP, same map, and the arena revival card
     //            ("Invincible in PvP"). Only offered inside an arena.
     //
+    // In the Land of Death, type 0 spends a Saver for a full revive on the spot and type 1 goes back
+    // to the entrance, which is also where a player without a Saver ends up.
+    //
     // Every branch ends with `tp` (position) + `revive` + refreshed `stat`, mirroring
     // the death.txt trace at lines 6338–6344.
     public class RevivalPacketHandler(
@@ -45,7 +49,8 @@ namespace NosCore.PacketHandlers.Battle
         IRespawnService respawnService,
         IBuffService buffService,
         ICardCatalog cardCatalog,
-        IItemCatalog itemCatalog)
+        IItemCatalog itemCatalog,
+        ILandOfDeathService landOfDeathService)
         : PacketHandler<RevivalPacket>, IWorldPacketHandler
     {
         private const short SeedsRequired = 10;
@@ -59,8 +64,15 @@ namespace NosCore.PacketHandlers.Battle
 
             try
             {
+                var inLandOfDeath = character.MapInstance?.MapInstanceType == MapInstanceType.LodInstance;
                 switch (packet.Type)
                 {
+                    case RevivalType.InPlace when inLandOfDeath:
+                        await ReviveWithSaverAsync(session);
+                        break;
+                    case RevivalType.AtSavePoint when inLandOfDeath:
+                        await landOfDeathService.ReturnToEntranceAsync(session);
+                        break;
                     case RevivalType.InPlace when character.MapInstance?.MapInstanceType != MapInstanceType.ArenaInstance:
                         await ReviveInPlaceAsync(session).ConfigureAwait(false);
                         break;
@@ -114,6 +126,21 @@ namespace NosCore.PacketHandlers.Battle
             }
 
             RestoreLife(session, percent);
+            await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
+        }
+
+        private async Task ReviveWithSaverAsync(ClientSession session)
+        {
+            var character = session.Character;
+            var saver = itemCatalog.GetMaterialVNum(MaterialType.Saver);
+            if (character.InventoryService.CountItem(saver) < 1)
+            {
+                await landOfDeathService.ReturnToEntranceAsync(session);
+                return;
+            }
+
+            await session.SendPacketsAsync(character.InventoryService.RemoveItemAmountByVNum(saver, 1));
+            RestoreLife(session, 100);
             await BroadcastReviveAsync(session, character.PositionX, character.PositionY);
         }
 

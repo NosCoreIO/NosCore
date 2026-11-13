@@ -38,5 +38,6 @@ namespace NosCore.Data.Enumerations.Items
         ObsidianOfCompletion = 26,
         TopazOfCompletion = 27,
         SeedOfPower = 28,
+        Saver = 29,
     }
 }

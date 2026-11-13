@@ -28,6 +28,7 @@ using NosCore.Packets.Interfaces;
 using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Services.LandOfDeathService;
 using NosCore.Networking.SessionGroup;
 using System.Collections.Generic;
 using NosCore.Tests.Shared;
@@ -45,6 +46,7 @@ namespace NosCore.PacketHandlers.Tests.Battle
         private ClientSession _session;
         private Mock<IMapChangeService> _mapChangeService;
         private Mock<IRespawnService> _respawnService;
+        private Mock<ILandOfDeathService> _landOfDeath = new();
         private BuffService _buffs;
         private readonly List<IPacket> _broadcast = new();
 
@@ -71,7 +73,48 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 _respawnService.Object,
                 _buffs,
                 catalog.Object,
-                UpgradeMaterials.Catalog());
+                UpgradeMaterials.Catalog(),
+                _landOfDeath.Object);
+        }
+
+        [TestMethod]
+        public async Task ReviveInPlaceInTheLandOfDeathSpendsASaver()
+        {
+            await new Spec("Type 0 in the Land of Death spends one Saver and revives on the spot at full HP")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterHasSaversInInventory_, (short)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(HpShouldBeFullyRestored)
+                .And(SaverStackShouldBe_, (short)1)
+                .And(ReturnToEntranceShouldBeCalled_, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReviveInPlaceInTheLandOfDeathWithoutASaverReturnsToTheEntrance()
+        {
+            await new Spec("Type 0 in the Land of Death without a Saver sends the player back to the entrance")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
+                .Then(ReturnToEntranceShouldBeCalled_, 1)
+                .And(MapChangeShouldNotBeCalled)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ReviveAtSavePointInTheLandOfDeathReturnsToTheEntrance()
+        {
+            await new Spec("Type 1 in the Land of Death sends the player back to the entrance, not the save point")
+                .Given(CharacterIsDeadAtLevel_, (byte)60)
+                .And(CharacterIsInTheLandOfDeath)
+                .And(CharacterHasSaversInInventory_, (short)2)
+                .WhenAsync(SendingRevivalOfType_, RevivalType.AtSavePoint)
+                .Then(ReturnToEntranceShouldBeCalled_, 1)
+                .And(SaverStackShouldBe_, (short)2)
+                .And(MapChangeShouldNotBeCalled)
+                .ExecuteAsync();
         }
 
         [TestMethod]
@@ -304,7 +347,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 _respawnService.Object,
                 buffs.Object,
                 catalog.Object,
-                UpgradeMaterials.Catalog());
+                UpgradeMaterials.Catalog(),
+                _landOfDeath.Object);
         }
 
         private void CharacterShouldBeAlive() =>
@@ -352,6 +396,32 @@ namespace NosCore.PacketHandlers.Tests.Battle
         {
             _session.Character.Gold = gold;
         }
+
+        private void CharacterIsInTheLandOfDeath() =>
+            _session.Character.MapInstance.MapInstanceType = MapInstanceType.LodInstance;
+
+        private void CharacterHasSaversInInventory_(short amount)
+        {
+            var vnum = UpgradeMaterials.VNum(MaterialType.Saver);
+            var item = new Item
+            {
+                VNum = vnum,
+                Type = NoscorePocketType.Etc,
+                ItemType = ItemType.Main,
+                Material = MaterialType.Saver,
+            };
+            var inst = new ItemInstanceForTest(vnum) { Amount = amount, Item = item };
+            var inv = InventoryItemInstance.Create(inst, _session.Character.CharacterId);
+            inv.Slot = 0;
+            inv.Type = NoscorePocketType.Etc;
+            _session.Character.InventoryService[inv.ItemInstanceId] = inv;
+        }
+
+        private void SaverStackShouldBe_(short expected) =>
+            Assert.AreEqual(expected, _session.Character.InventoryService.CountItem(UpgradeMaterials.VNum(MaterialType.Saver)));
+
+        private void ReturnToEntranceShouldBeCalled_(int times) =>
+            _landOfDeath.Verify(l => l.ReturnToEntranceAsync(_session), Times.Exactly(times));
 
         private async Task SendingRevivalOfType_(RevivalType type)
         {
