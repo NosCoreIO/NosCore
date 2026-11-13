@@ -64,12 +64,14 @@ namespace NosCore.GameObject.Services.SkillService
             }
 
             await SendSkillListAsync(character, useSpecialist: true);
+            await character.SendPacketsAsync(character.GenerateQuicklist());
         }
 
         public async Task UnloadSpecialistSkillsAsync(PlayerComponentBundle character)
         {
             RemoveSpecialistSkills(character);
             await SendSkillListAsync(character, useSpecialist: false);
+            await character.SendPacketsAsync(character.GenerateQuicklist());
         }
 
         private static void RemoveSpecialistSkills(PlayerComponentBundle character)
