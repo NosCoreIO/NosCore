@@ -121,7 +121,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             baseDamage += (int)(baseDamage * bonus);
         }
 
-        return Land(attacker, baseDamage + elementalDamage, criticalBonus != null);
+        return Land(attacker, defender, context.Kind, baseDamage + elementalDamage, criticalBonus != null);
     }
 
     // A player's attack is the class table, the weapon scaled by its upgrade over the target's
@@ -157,7 +157,7 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
             damage += (int)(Math.Max(0, damage) * bonus);
         }
 
-        return Land(attacker, damage + levelDifference + elementalDamage, criticalBonus != null);
+        return Land(attacker, defender, context.Kind, damage + levelDifference + elementalDamage, criticalBonus != null);
     }
 
     private const int PlayerFlatAttack = 15;
@@ -175,9 +175,9 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
     }
 
     // A hit that lands always does some damage: anything under 5 becomes 1 to 5.
-    private DamageResult Land(CombatStats attacker, int damage, bool isCritical)
+    private DamageResult Land(CombatStats attacker, CombatStats defender, AttackKind kind, int damage, bool isCritical)
     {
-        var totalDamage = RollChanceDamage(attacker, damage);
+        var totalDamage = RollChanceDamageTaken(defender, kind, RollChanceDamage(attacker, damage));
         if (totalDamage < 5)
         {
             totalDamage = random.Next(1, 6);
@@ -205,6 +205,25 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         }
 
         return damage * (100 + percent) / 100;
+    }
+
+    private int RollChanceDamageTaken(CombatStats defender, AttackKind kind, int damage)
+    {
+        if (defender.ChanceDamageTaken == null)
+        {
+            return damage;
+        }
+
+        var percent = 0;
+        foreach (var effect in defender.ChanceDamageTaken)
+        {
+            if ((effect.Kind == null || effect.Kind == kind) && random.NextDouble() * 100 < effect.Chance)
+            {
+                percent += effect.Percent;
+            }
+        }
+
+        return damage * Math.Max(0, 100 + percent) / 100;
     }
 
     private static int SkillAttackBonus(SkillInfo skill, AttackKind kind, int level)
@@ -399,12 +418,5 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         public int MainWeaponMin;
         public int MainWeaponMax;
         public AttackKind Kind;
-    }
-
-    private enum AttackKind
-    {
-        Melee,
-        Ranged,
-        Magical,
     }
 }

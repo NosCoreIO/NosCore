@@ -105,14 +105,14 @@ Regenerate with `NOSCORE_DAT_FOLDER=<folder> dotnet test --filter BCardVocabular
 | 10 | 42 | yes | DodgeAndDefencePercentDefenceReduced | Defence power is reduced by %s%%. |
 | 10 | 51 | yes | DodgeAndDefencePercentAct8MonsterDamageIncreased | Increases damage to all monsters in Act 8 (excluding raids) and the Act 8 Land of Life by %s%%. |
 | 10 | 52 | yes | DodgeAndDefencePercentAct8MonsterDamageTakenReduced | Reduces damage from all monsters in Act 8 (excluding raids) and the Act 8 Land of Life by %s%%. |
-| 11 | 11 | yes | BlockChanceAllIncreased | There is a %s%% chance that damage taken from all attacks is increased by %s%%. |
-| 11 | 12 | yes | BlockChanceAllDecreased | There is a %s%% chance that damage from all attacks is reduced by %s%%. |
-| 11 | 21 | yes | BlockChanceMeleeIncreased | There is a %s%% chance that damage taken from melee attacks is increased by %s%%. |
-| 11 | 22 | yes | BlockChanceMeleeDecreased | There is a %s%% chance that damage from melee attacks is reduced by %s%%. |
-| 11 | 31 | yes | BlockChanceRangedIncreased | There is a %s%% chance that damage taken from ranged attacks is increased by %s%%. |
-| 11 | 32 | yes | BlockChanceRangedDecreased | There is a %s%% chance that damage from ranged attacks is reduced by %s%%. |
-| 11 | 41 | yes | BlockChanceMagicalIncreased | There is a %s%% chance that damage taken from magic attacks is increased by %s%%. |
-| 11 | 42 | yes | BlockChanceMagicalDecreased | There is a %s%% chance that damage from magic attacks is reduced by %s%%. |
+| 11 | 11 | yes | DamageTakenChanceAllIncreased | There is a %s%% chance that damage taken from all attacks is increased by %s%%. |
+| 11 | 12 | yes | DamageTakenChanceAllDecreased | There is a %s%% chance that damage from all attacks is reduced by %s%%. |
+| 11 | 21 | yes | DamageTakenChanceMeleeIncreased | There is a %s%% chance that damage taken from melee attacks is increased by %s%%. |
+| 11 | 22 | yes | DamageTakenChanceMeleeDecreased | There is a %s%% chance that damage from melee attacks is reduced by %s%%. |
+| 11 | 31 | yes | DamageTakenChanceRangedIncreased | There is a %s%% chance that damage taken from ranged attacks is increased by %s%%. |
+| 11 | 32 | yes | DamageTakenChanceRangedDecreased | There is a %s%% chance that damage from ranged attacks is reduced by %s%%. |
+| 11 | 41 | yes | DamageTakenChanceMagicalIncreased | There is a %s%% chance that damage taken from magic attacks is increased by %s%%. |
+| 11 | 42 | yes | DamageTakenChanceMagicalDecreased | There is a %s%% chance that damage from magic attacks is reduced by %s%%. |
 | 11 | 51 | yes | BlockCriticalDamageReducedPerHit | Final damage from incoming critical hits is reduced by %s%% per critical hit (max. %s hits). |
 | 11 | 52 | yes | BlockCriticalDamageReducedPerHitNegated | Final damage from incoming critical hits is reduced by %s%% per critical hit (max. %s hits). |
 | 12 | 11 | yes | AbsorptionAllAttackIncreased | All attacks below level (+%s) cause %s%% more damage. |

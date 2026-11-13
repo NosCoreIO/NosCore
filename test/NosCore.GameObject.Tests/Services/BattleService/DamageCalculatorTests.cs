@@ -155,6 +155,43 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void ADefendersChanceToTakeLessDamageCutsTheHitWhenItsRollSucceeds()
+        {
+            var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100 };
+            var guarded = StatsBuilder.Default() with
+            {
+                ChanceDamageTaken = new[] { new ChanceDamageTaken(30, -50, null) },
+            };
+
+            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var halved = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.1 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, guarded, MeleeSkill);
+            var unlucky = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.5 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, guarded, MeleeSkill);
+
+            Assert.AreEqual(full.Damage / 2, halved.Damage);
+            Assert.AreEqual(full.Damage, unlucky.Damage);
+        }
+
+        [TestMethod]
+        public void AChanceToTakeLessDamageFromMagicLeavesAMeleeHitAlone()
+        {
+            var attacker = StatsBuilder.Default() with { HitRate = 100, MinHit = 100, MaxHit = 100 };
+            var magicGuard = StatsBuilder.Default() with
+            {
+                ChanceDamageTaken = new[] { new ChanceDamageTaken(100, -50, AttackKind.Magical) },
+            };
+
+            var full = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, StatsBuilder.Default(), MeleeSkill);
+            var melee = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0, 0.0 }, ints: new[] { 100 }).Object)
+                .Calculate(attacker, magicGuard, MeleeSkill);
+
+            Assert.AreEqual(full.Damage, melee.Damage);
+        }
+
+        [TestMethod]
         public void MoraleAddsFlatDamage()
         {
             var calc = new DamageCalculator(Rng(doubles: new[] { 1.0, 1.0 }, ints: new[] { 10 }).Object);

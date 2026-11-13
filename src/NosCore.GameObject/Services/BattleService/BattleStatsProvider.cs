@@ -247,6 +247,11 @@ public sealed class BattleStatsProvider(
                     var percent = effect == BCardEffect.CriticalDamageIncreasingPropability ? card.SecondData : -card.SecondData;
                     (totals.ChanceDamage ??= []).Add(new ChanceDamage(card.FirstData, percent));
                 }
+                else if (DamageTakenChances.TryGetValue(effect, out var taken))
+                {
+                    var percent = taken.Increased ? card.SecondData : -card.SecondData;
+                    (totals.ChanceDamageTaken ??= []).Add(new ChanceDamageTaken(card.FirstData, percent, taken.Kind));
+                }
                 else if (CardEffects.TryGetValue(effect, out var apply))
                 {
                     apply(totals, ScaleByLevel(card, target.Level));
@@ -304,6 +309,7 @@ public sealed class BattleStatsProvider(
             CriticalDamageReceived = stats.CriticalDamageReceived + totals.CritReceived,
             CriticalReceivedChance = stats.CriticalReceivedChance + totals.CritReceivedChance,
             ChanceDamage = totals.ChanceDamage ?? stats.ChanceDamage,
+            ChanceDamageTaken = totals.ChanceDamageTaken ?? stats.ChanceDamageTaken,
         };
     }
 
@@ -334,7 +340,21 @@ public sealed class BattleStatsProvider(
         public int GuaranteedHit, GuaranteedDodge;
         public int DefencePercent;
         public List<ChanceDamage>? ChanceDamage;
+        public List<ChanceDamageTaken>? ChanceDamageTaken;
     }
+
+    private static readonly FrozenDictionary<BCardEffect, (AttackKind? Kind, bool Increased)> DamageTakenChances =
+        new Dictionary<BCardEffect, (AttackKind? Kind, bool Increased)>
+        {
+            [BCardEffect.DamageTakenChanceAllIncreased] = (null, true),
+            [BCardEffect.DamageTakenChanceAllDecreased] = (null, false),
+            [BCardEffect.DamageTakenChanceMeleeIncreased] = (AttackKind.Melee, true),
+            [BCardEffect.DamageTakenChanceMeleeDecreased] = (AttackKind.Melee, false),
+            [BCardEffect.DamageTakenChanceRangedIncreased] = (AttackKind.Ranged, true),
+            [BCardEffect.DamageTakenChanceRangedDecreased] = (AttackKind.Ranged, false),
+            [BCardEffect.DamageTakenChanceMagicalIncreased] = (AttackKind.Magical, true),
+            [BCardEffect.DamageTakenChanceMagicalDecreased] = (AttackKind.Magical, false),
+        }.ToFrozenDictionary();
 
     private static readonly FrozenDictionary<BCardEffect, Action<CardTotals, int>> CardEffects =
         new Dictionary<BCardEffect, Action<CardTotals, int>>
