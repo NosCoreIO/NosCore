@@ -87,10 +87,21 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
-        public async Task APackGivingEverythingIsLeftAlone()
+        public async Task APackGivingEverythingBecomesAnItemPack()
         {
-            await new Spec("A pack that gives its whole list is not a single roll")
-                .Given(Chest_Describing_, PackOfAll, "Let's hunt the Chicken King! This package contains:[n]1x Equipment Protection Scroll[n]1x New Year Lucky Pig[n]")
+            await new Spec("A pack that says it holds its whole list becomes an item pack giving every line")
+                .Given(Chest_Describing_, PackOfAll, "Let's hunt the Chicken King! This package contains:[n]1x Equipment Protection Scroll[n]3x New Year Lucky Pig[n]")
+                .WhenAsync(ParsingBoxContents)
+                .Then(_ShouldHaveEffect_, PackOfAll, ItemEffectType.ItemPack)
+                .And(_ShouldRoll_, PackOfAll, "1218x1 448x3")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AListLeftToLuckIsNotAPack()
+        {
+            await new Spec("A list whose wording leaves the outcome to luck is neither a box nor a pack")
+                .Given(Chest_Describing_, PackOfAll, "The chest contains Angel's Feathers. You will receive a certain amount when you open it:[n]1x Equipment Protection Scroll[n]3x Equipment Protection Scroll[n]")
                 .WhenAsync(ParsingBoxContents)
                 .Then(_ShouldNotBeABox, PackOfAll)
                 .And(_ShouldRoll_, PackOfAll, string.Empty)
@@ -128,8 +139,10 @@ namespace NosCore.Parser.Tests
             return _parser.InsertBoxContentsAsync(_folder);
         }
 
-        private void _ShouldBeABox(short vnum) =>
-            Assert.AreEqual(ItemEffectType.BoxEffect, _savedItems.Single(i => i.VNum == vnum).Effect);
+        private void _ShouldBeABox(short vnum) => _ShouldHaveEffect_(vnum, ItemEffectType.BoxEffect);
+
+        private void _ShouldHaveEffect_(short vnum, ItemEffectType effect) =>
+            Assert.AreEqual(effect, _savedItems.Single(i => i.VNum == vnum).Effect);
 
         private void _ShouldNotBeABox(short vnum) => Assert.IsFalse(_savedItems.Any(i => i.VNum == vnum));
 
