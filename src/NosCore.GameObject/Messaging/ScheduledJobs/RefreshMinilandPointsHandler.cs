@@ -7,6 +7,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using NodaTime;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MinilandService;
 
@@ -31,7 +32,10 @@ namespace NosCore.GameObject.Messaging.ScheduledJobs
                         continue;
                     }
 
-                    minilandRegistry.GetByCharacterId(session.Character.CharacterId)?.RefreshDailyPoints(now);
+                    if (minilandRegistry.GetByCharacterId(session.Character.CharacterId)?.RefreshDailyPoints(now) is > 0 and var earned)
+                    {
+                        await session.Character.SetReputationAsync(session.Character.Reputation + earned);
+                    }
                 }
             }
         }

@@ -24,6 +24,7 @@ using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -314,6 +315,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
+            mg.Instance.DurabilityPoint = Math.Max(0, mg.Instance.DurabilityPoint - MinilandPointExtensions.MinigameDurabilityCost(tier));
             await mg.Session.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.ItemVNum });
             var inv = mg.Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 itemProvider.Create(obj.ItemVNum,

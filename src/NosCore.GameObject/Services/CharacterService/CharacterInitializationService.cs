@@ -36,9 +36,9 @@ namespace NosCore.GameObject.Services.CharacterService
             }
 
             var miniland = await _minilandService.InitializeAsync(player, _mapInstanceGeneratorService);
-            if (_clock != null)
+            if (_clock != null && miniland.RefreshDailyPoints(_clock.GetCurrentInstant()) is > 0 and var earned)
             {
-                miniland.RefreshDailyPoints(_clock.GetCurrentInstant());
+                player.Reputation += earned;
             }
         }
     }
