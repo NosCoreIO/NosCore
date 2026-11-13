@@ -5,6 +5,7 @@
 //
 
 using System.Threading.Tasks;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 
 namespace NosCore.GameObject.Services.BattleService;
@@ -20,5 +21,5 @@ public interface IRegenerationService
     // suppressed for the 4s grace window. Sitting regen is unaffected —
     // resting is an explicit user action and the fall animation already took them
     // out of combat.
-    void NotifyDamaged(long characterId);
+    void NotifyDamaged(PlayerComponentBundle character);
 }
