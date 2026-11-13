@@ -12,5 +12,8 @@ namespace NosCore.GameObject.Messaging.Events
     // Published by GuriPacketHandler when a guri packet arrives. Wolverine fans out to every handler
     // with a Handle/HandleAsync(GuriPacketReceivedEvent) method; each handler filters internally
     // (no central Condition() registry).
-    public sealed record GuriPacketReceivedEvent(ClientSession ClientSession, GuriPacket Packet);
+    public sealed record GuriPacketReceivedEvent(ClientSession ClientSession, GuriPacket Packet) : IPlayerEvent
+    {
+        public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
+    }
 }

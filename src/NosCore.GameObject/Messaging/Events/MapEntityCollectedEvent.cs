@@ -10,8 +10,10 @@ using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Messaging.Events
 {
-    public sealed record MapEntityCollectedEvent(PlayerComponentBundle Character, INonPlayableEntity MapObject)
+    public sealed record MapEntityCollectedEvent(PlayerComponentBundle Character, INonPlayableEntity MapObject) : IPlayerEvent
     {
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
+
+        public bool PlayerHasLeft => Character.HasLeft();
     }
 }

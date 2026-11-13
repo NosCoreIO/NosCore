@@ -16,9 +16,11 @@ namespace NosCore.GameObject.Messaging.Events
     // handler walks NextQuestId and grants the follow-up quest. Anything else that
     // cares about a quest finishing (rewards, achievements, cutscenes) should also
     // subscribe here so the kill / move / item / dialog paths never need to know.
-    public sealed record QuestCompletedEvent(PlayerComponentBundle Character, CharacterQuest Quest)
+    public sealed record QuestCompletedEvent(PlayerComponentBundle Character, CharacterQuest Quest) : IPlayerEvent
     {
         // Read when handled, possibly after a map change replaced a player's entity.
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
+
+        public bool PlayerHasLeft => Character.HasLeft();
     }
 }

@@ -26,6 +26,12 @@ namespace NosCore.GameObject.Ecs.Extensions
                 : player;
         }
 
+        public static bool HasLeft(this PlayerComponentBundle player)
+        {
+            var live = player.Live();
+            return live.World != null && !live.World.IsAlive(live.Entity);
+        }
+
         public static IAliveEntity Live(this IAliveEntity entity) =>
             entity is PlayerComponentBundle player ? player.Live() : entity;
     }
