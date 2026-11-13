@@ -1889,7 +1889,9 @@ Give yourself the quest through its script, or by walking the quest line that le
 - [ ] Quit a game within its first ten seconds with a score: no reward level is offered
 - [ ] Management window: restoring durability takes 100 gold per point; a restore past the
       object's maximum durability, or costing more gold than you hold, changes nothing
-- [ ] Open a box batch in the gifts window: the items arrive and that level's box count drops to 0
+- [ ] Yield opens the gifts window with each level's box count; opening a box batch there gives
+      the items, the chat line names each item with its real amount, and that level's count
+      drops to 0
 - [ ] A visitor can play and earn rewards but cannot open the management or gifts window of the
       owner's object
 
@@ -1898,7 +1900,8 @@ Give yourself the quest through its script, or by walking the quest line that le
 Use a character that has never logged in before, or one whose points were spent yesterday.
 
 - [ ] After logging in, the minigame window shows 2000 production points
-- [ ] Each reward chosen after a minigame takes 100 points from the owner, whoever played
+- [ ] Each reward chosen after a minigame takes 100 points from the player who chose it, in
+      their own miniland or as a visitor
 - [ ] With fewer than 100 points, starting a game asks whether to play without production
       points, and choosing a reward afterwards gives nothing and leaves the points unchanged
 - [ ] Spend some points, wait past midnight UTC while still logged in: within a minute the
