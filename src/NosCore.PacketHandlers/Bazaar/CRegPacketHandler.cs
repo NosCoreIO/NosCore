@@ -196,9 +196,11 @@ namespace NosCore.PacketHandlers.Bazaar
                         return;
                     }
 
+                    InventoryItemInstance? left = stack;
                     if (stack.ItemInstance.Amount == cRegPacket.Amount)
                     {
                         clientSession.Character.InventoryService.Remove(stack.ItemInstanceId);
+                        left = null;
                     }
                     else
                     {
@@ -208,7 +210,7 @@ namespace NosCore.PacketHandlers.Bazaar
                     clientSession.Character.Gold -= tax;
                     await bazaarHttpClient.SettleAsync(saveService, clientSession, operationId, logger, logLanguage);
 
-                    await clientSession.SendPacketAsync(((InventoryItemInstance?)null).GeneratePocketChange(
+                    await clientSession.SendPacketAsync(left.GeneratePocketChange(
                         cRegPacket.Inventory == 4 ? PocketType.Equipment : (PocketType)cRegPacket.Inventory,
                         cRegPacket.Slot));
                     await clientSession.SendPacketAsync(clientSession.Character.GenerateGold());

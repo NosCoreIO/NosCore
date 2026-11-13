@@ -20,6 +20,8 @@ using NosCore.Tests.Shared.BDD;
 using NosCore.Tests.Shared.BDD.Steps;
 using SpecLight;
 using System;
+using System.Linq;
+using NosCore.Packets.ServerPackets.Inventory;
 using System.Threading.Tasks;
 using NosCore.GameObject.Services.NpcDialogService;
 
@@ -107,6 +109,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .WhenAsync(RegisteringAnExpensiveItem)
                 .Then(InventoryShouldBeEmpty)
                 .And(ShouldReceiveSuccessMessage)
+                .And(TheSlotShouldShow_Items, 0)
                 .ExecuteAsync();
         }
 
@@ -191,6 +194,7 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
                 .WhenAsync(Registering_Items, 949)
                 .Then(FiftyItemsShouldRemain)
                 .And(ShouldReceiveSuccessMessage)
+                .And(TheSlotShouldShow_Items, 50)
                 .ExecuteAsync();
         }
 
@@ -315,6 +319,13 @@ namespace NosCore.PacketHandlers.Tests.Bazaar
         private async Task Registering_Items(int value)
         {
             await CregPacketHandler.ExecuteAsync(CreateCRegPacket(amount: 949, price: 1), Session);
+        }
+
+        private void TheSlotShouldShow_Items(int amount)
+        {
+            var slot = Session.LastPackets.OfType<IvnPacket>().Last().IvnSubPackets.NotNull().Single();
+            Assert.AreEqual(amount, (int)slot.RareAmount);
+            Assert.AreEqual(amount == 0 ? 0 : 1012, (int)slot.VNum);
         }
 
         private void FiftyItemsShouldRemain()
