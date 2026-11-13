@@ -15,6 +15,8 @@ namespace NosCore.Data.Enumerations.Items
         RestoreDignity = 14,
         Speaker = 15,
         MarriageProposal = 34,
+        // EffectValue is the passive skill the book teaches.
+        PassiveSkillBook = 99,
         MateCapture = 100,
         OpenProduction = 100,
         Undefined = 69,

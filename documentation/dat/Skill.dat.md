@@ -25,6 +25,7 @@
 | LevelMinimum | Byte |  |  |
 | MinimumAdventurerLevel | Byte |  |  |
 | MinimumArcherLevel | Byte |  |  |
+| MinimumLevelIsChampionLevel | Boolean |  |  |
 | MinimumMagicianLevel | Byte |  |  |
 | MinimumSwordmanLevel | Byte |  |  |
 | MpCost | Int16 |  |  |

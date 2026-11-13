@@ -68,6 +68,8 @@ namespace NosCore.Database.Entities
 
         public byte MinimumSwordmanLevel { get; set; }
 
+        public bool MinimumLevelIsChampionLevel { get; set; }
+
         public short MpCost { get; set; }
 
         [Required]
