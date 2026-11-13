@@ -456,6 +456,8 @@ amount is "per level", the level is that of whoever inflicted the card, not the 
 - [ ] Wear a specialist card whose instance carries attack and defence, hit a monster, then
       transform and hit it again: the transformed hits are larger by about the card's attack
 - [ ] Untransform: the hits go back to the untransformed size
+- [ ] Put a skill on the quick bar while transformed, untransform and transform again: the
+      bar shows the normal skills while untransformed and that skill again once transformed
 - [ ] After re-running the parser on an existing database, transform with a card at
       specialist level 0: the skill bar shows the card's first six skills and the basic attack
       hits. At level 4 the seventh appears, and at level 20 all eleven

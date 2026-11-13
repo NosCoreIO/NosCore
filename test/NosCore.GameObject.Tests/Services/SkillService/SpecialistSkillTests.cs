@@ -14,7 +14,10 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Quicklist;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.SkillService
@@ -141,5 +144,38 @@ namespace NosCore.GameObject.Tests.Services.SkillService
 
             CollectionAssert.Contains(_session.Character.Skills.Keys.ToList(), (short)200);
         }
+    
+        [TestMethod]
+        public async Task TransformingShowsTheCardQuickBar()
+        {
+            WearTheCard();
+            _session.Character.SetQuicklistEntry(QSetType.Set, 1, 2, 1, 900);
+
+            await _service.LoadSpecialistSkillsAsync(_session.Character, MorphOfCard, spLevel: 99);
+
+            Assert.AreEqual<short?>(900, QuickBarSlot(1, 2));
+        }
+
+        [TestMethod]
+        public async Task RemovingTheCardShowsTheNormalQuickBarAgain()
+        {
+            WearTheCard();
+            _session.Character.SetQuicklistEntry(QSetType.Set, 1, 2, 1, 900);
+            _session.Character.UseSp = false;
+            _session.Character.Morph = 0;
+
+            await _service.UnloadSpecialistSkillsAsync(_session.Character);
+
+            Assert.AreEqual<short?>(-1, QuickBarSlot(1, 2));
+        }
+
+        private void WearTheCard()
+        {
+            _session.Character.UseSp = true;
+            _session.Character.Morph = MorphOfCard;
+        }
+
+        private short? QuickBarSlot(int bar, int slot) =>
+            _session.LastPackets.OfType<QSlotPacket>().Single(p => p.Slot == bar).Data?[slot]?.Data;
     }
 }
