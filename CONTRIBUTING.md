@@ -2,22 +2,35 @@
 
 ## Concurrency & locking
 
-NosCore intentionally uses **per-resource locks** rather than a global lock manager. Each lock has one job and lives on the resource it protects. When you add a new lock, follow the existing pattern below — do not introduce a centralised `LockManager`.
+Setting the project up is in [documentation/getting-started.md](documentation/getting-started.md).
 
-| Resource | Lock | Where it lives |
+Three things keep concurrent work apart. Use the one that already owns the state you are touching
+rather than adding a lock next to it.
+
+| What it serializes | How | Where it lives |
 |---|---|---|
-| Inbound packets for a session | `SemaphoreSlim _handlingPacketLock` | `ClientSession` |
-| Damage application to a single entity | `SemaphoreSlim HitSemaphore` | `IAliveEntity` (player / monster / NPC) |
-| SignalR hub connect/disconnect | `SemaphoreSlim _connectionLock` | `BaseHubClient` / `PubSubHubClient` |
+| The packets of one session | `AsyncLock _handlingPacketLock` | `ClientSession` |
+| Everything that changes one map: the life-loop tick, hits, vitals, entering and leaving | `MapExecutor`, reached with `entity.OnMapAsync(...)` | `MapInstance` |
+| Rows several channels share: bazaar listings, warehouses, family rows | the master server is their only writer, and takes a lock around each change | the master-side service (`BazaarService`, `WarehouseService`, `FamilyRecordService`) |
 
 ### Rules
 
-1. **One purpose per lock.** A lock guards exactly one mutable resource. Don't reuse an existing semaphore for unrelated state.
-2. **Lock lives on the resource.** Put it as a field on the entity / session / client it protects, not in a static dictionary.
-3. **Use `SemaphoreSlim(1, 1)` for serialization, `ConcurrentDictionary` for shared maps.** Don't reach for `lock(obj)` — async code can't `await` inside a `lock`.
-4. **Always `try { ... } finally { _lock.Release(); }`** when acquiring a semaphore. Without `finally` an exception leaves the lock held.
-5. **Never hold a lock across an external I/O call (DB, HTTP, SignalR).** If the call is slow, drop the lock first or use a more granular one.
-6. **Don't acquire two locks at once** unless the order is documented at both call sites. Lock-ordering bugs surface at scale.
+1. **Work on a map goes through its executor.** Code reached from a packet handler that changes what
+   other players on the map see or fight with runs inside `OnMapAsync`. Work running on an executor
+   must not wait on another executor or on a session's packet lock; a map change takes two executors
+   through `RunExclusiveAsync`, in a fixed order.
+2. **State shared between channels is written by the master.** A channel asks through a hub
+   (`IBazaarHub`, `IWarehouseHub`, `IFamilyHub`) and the master re-reads the row, checks and writes
+   under its lock. A lock in a channel does not stop another channel.
+3. **One purpose per lock.** A lock guards exactly one mutable resource. Don't reuse an existing one
+   for unrelated state.
+4. **Use `AsyncLock` (`NosCore.Core.Concurrency`) with `using var _ = await x.AcquireAsync();`** so it
+   is released on every path, and `ConcurrentDictionary` for shared maps. Don't reach for
+   `lock(obj)`: async code can't `await` inside it.
+5. **Don't hold a channel-side lock across a call to the master or to another server.** The
+   master-side locks in the table are the exception: holding them across the read and the write is
+   their purpose.
+6. **Don't acquire two locks at once** unless the order is documented at both call sites.
 
 If a new feature needs cross-cutting coordination (e.g. "all map instances must agree on X"), prefer publishing a Wolverine message to a handler that owns the state — not adding a lock that spans subsystems.
 
