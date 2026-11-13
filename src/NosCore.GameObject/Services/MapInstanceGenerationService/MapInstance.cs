@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private ConcurrentDictionary<int, NpcComponentBundle> _npcs;
 
-        private readonly VisibilitySystem _visibilitySystem;
+        private readonly MapItemSystem _mapItemSystem;
 
         public ConcurrentDictionary<Guid, MapDesignObject> MapDesignObjects = new();
 
@@ -101,7 +101,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             Portals = new List<Portal>();
             _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>();
             _npcs = new ConcurrentDictionary<int, NpcComponentBundle>();
-            _visibilitySystem = new VisibilitySystem();
+            _mapItemSystem = new MapItemSystem();
             _isSleeping = true;
             _clock = clock;
             LastUnregister = _clock.GetCurrentInstant().Plus(Duration.FromMinutes(-1));
@@ -125,38 +125,25 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public Instant LastUnregister { get; set; }
 
-        public int MapItemCount => GetMapItemBundles().Count();
+        public int MapItemCount => _mapItemSystem.Count(EcsWorld);
 
         public IEnumerable<MapItemComponentBundle> GetMapItemBundles()
         {
-            return _visibilitySystem.GetMapItemEntities(EcsWorld)
+            return _mapItemSystem.GetAll(EcsWorld)
                 .Select(entity => new MapItemComponentBundle(entity, EcsWorld));
         }
 
         public MapItemComponentBundle? TryGetMapItem(long visualId)
         {
-            foreach (var bundle in GetMapItemBundles())
-            {
-                if (bundle.VisualId == visualId)
-                {
-                    return bundle;
-                }
-            }
-            return null;
+            return _mapItemSystem.Find(EcsWorld, visualId) is { } entity
+                ? new MapItemComponentBundle(entity, EcsWorld)
+                : null;
         }
 
         // Only one of several callers racing for the same item gets true.
         public bool TryRemoveMapItem(long visualId)
         {
-            foreach (var entity in _visibilitySystem.GetMapItemEntities(EcsWorld))
-            {
-                var identity = EcsWorld.TryGetComponent<EntityIdentityComponent>(entity);
-                if (identity?.VisualId == visualId)
-                {
-                    return EcsWorld.DestroyEntity(entity);
-                }
-            }
-            return false;
+            return _mapItemSystem.Find(EcsWorld, visualId) is { } entity && EcsWorld.DestroyEntity(entity);
         }
 
         // A map with somebody on it is never asleep, whatever order a leaver's request to sleep
@@ -213,17 +200,6 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public byte MapIndexY { get; set; }
 
-        public List<MonsterComponentBundle> Monsters
-        {
-            get { return _monsters.Select(s => s.Value).ToList(); }
-        }
-
-        public List<NpcComponentBundle> Npcs
-        {
-            get { return _npcs.Select(s => s.Value).ToList(); }
-        }
-
-        // For the life loop, where Monsters and Npcs would allocate a list per call.
         public IEnumerable<MonsterComponentBundle> EnumerateMonsters() => _monsters.EnumerateValues();
 
         public IEnumerable<NpcComponentBundle> EnumerateNpcs() => _npcs.EnumerateValues();
@@ -395,7 +371,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             // TODO: Parallelize getting of items of mapinstance
             Portals.ForEach(s => packets.Add(s.GenerateGp()));
 
-            Monsters.ForEach(s =>
+            foreach (var s in _monsters.EnumerateValues())
             {
                 packets.Add(s.GenerateIn());
 
@@ -403,13 +379,13 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 {
                     packets.Add(s.GenerateCharSc());
                 }
-            });
+            }
 
-            Npcs.ForEach(s =>
+            foreach (var s in _npcs.EnumerateValues())
             {
                 if (!s.IsAlive)
                 {
-                    return;
+                    continue;
                 }
 
                 packets.Add(s.GenerateIn());
@@ -424,7 +400,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 {
                     packets.Add(s.GenerateCharSc());
                 }
-            });
+            }
+
             foreach (var mapItem in GetMapItemBundles())
             {
                 packets.Add(mapItem.GenerateIn());

@@ -52,7 +52,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             map.LoadMonsters(
                 new System.Collections.Generic.List<NosCore.Data.Dto.MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = 5, MapY = 4, VNum = 1 } },
                 new System.Collections.Generic.List<NpcMonsterDto> { new() { NpcMonsterVNum = 1, MaxHp = 100, MaxMp = 50, Level = 5 } });
-            var monster = map.Monsters.Single();
+            var monster = map.EnumerateMonsters().Single();
 
             var skill = new SkillInfo(
                 SkillVnum: 1, CastId: 7, Cooldown: 6, AttackAnimation: 0, CastEffect: 0, Effect: 0,
