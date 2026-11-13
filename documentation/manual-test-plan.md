@@ -6,6 +6,30 @@ skill does what its description says.
 
 Work through the sections that touch what you changed. Tick as you go.
 
+## What runs on every pull request
+
+The end-to-end scenarios in `test/NosCore.EndToEnd.Tests` start the real master, login and
+world servers and play the game's protocol against them. They check what the servers send
+and store, on every pull request. They do not open a client, so they say nothing about what
+is drawn: a check below that is about a bar, an animation or a window still needs a client
+even when its packets are covered here.
+
+| Covered without a client | Scenarios |
+|---|---|
+| Login: handover to the world, a wrong password, the character list, the same account twice | `LoginToWorldTests` |
+| The servers refusing to start on a database that is behind its migrations | `StartupTests` |
+| Character screen: creating, a name that is taken, deleting, a creation that cannot be stored | `CharacterScreenTests` |
+| The map: seeing someone arrive, walk and talk, portals and their delay, the position saved on leaving | `MapTests` |
+| Items: what a character carries on entering, dropping and picking up, an NPC shop selling and buying back | `ItemTests` |
+| Trade: gold changing hands and stored at once, a declined trade | `TradeTests` |
+| Chat: whispers, a whisper to nobody, a muted account | `ChatTests` |
+| Friends and groups: a request accepted, friend and group messages | `SocialTests` |
+| Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
+| Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival | `CombatTests` |
+
+Everything else in this file has no scenario yet. When a change adds a check here whose
+outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
+
 ## Setup
 
 - [ ] LoginServer, MasterServer and WorldServer all start and stay up
