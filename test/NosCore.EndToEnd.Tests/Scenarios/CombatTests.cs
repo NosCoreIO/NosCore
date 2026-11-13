@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,16 +19,35 @@ namespace NosCore.EndToEnd.Tests.Scenarios
     {
         private const int Monster = 3;
 
+        // A hit may miss: the attacker hits until one lands, and that one is returned as the watcher saw it.
+        private static async Task<string[]> HitAsync(TestClient attacker, TestClient watcher, int monster)
+        {
+            var tried = Stopwatch.StartNew();
+            while (true)
+            {
+                var seen = watcher.Mark();
+                var cast = attacker.Mark();
+                await attacker.SendAsync($"u_s 0 {Monster} {monster}");
+                var hit = (await watcher.ExpectSinceAsync(seen,
+                    p => p.StartsWith($"su 1 {attacker.CharacterId} {Monster} {monster} 200 ", StringComparison.Ordinal), "the hit")).Split(' ');
+                if (hit[13] != "0")
+                {
+                    return hit;
+                }
+
+                Assert.IsTrue(tried.Elapsed < TimeSpan.FromSeconds(30), "no hit landed in thirty seconds");
+                await attacker.ExpectSinceAsync(cast, p => p == "sr 0", "the skill ready again");
+            }
+        }
+
         [TestMethod]
         public async Task AHitTakesHpFromAMonsterAndEveryoneSeesIt()
         {
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 60, 61);
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 62, 62);
 
-            await alice.SendAsync($"u_s 0 {Monster} {WorldData.SturdyMonster}");
+            var hit = await HitAsync(alice, bob, WorldData.SturdyMonster);
 
-            var hit = (await bob.ExpectAsync(p => p.StartsWith($"su 1 {alice.CharacterId} {Monster} {WorldData.SturdyMonster} 200 ", StringComparison.Ordinal),
-                "the hit")).Split(' ');
             Assert.AreEqual("1", hit[11], "the monster is still alive");
             Assert.IsTrue(int.Parse(hit[13], CultureInfo.InvariantCulture) > 0, "the hit does damage");
         }
@@ -38,9 +58,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 45, 46);
             Assert.IsTrue(alice.Received.Any(p => p.StartsWith(In(WorldData.SlowMonster), StringComparison.Ordinal)), "alive, it is shown");
 
-            await alice.SendAsync($"u_s 0 {Monster} {WorldData.SlowMonster}");
-            var hit = (await alice.ExpectAsync(p => p.StartsWith($"su 1 {alice.CharacterId} {Monster} {WorldData.SlowMonster} 200 ", StringComparison.Ordinal),
-                "the killing hit")).Split(' ');
+            var hit = await HitAsync(alice, alice, WorldData.SlowMonster);
             Assert.AreEqual("0", hit[11], "the monster is dead");
 
             await using var bob = await Harness.EnterAsync("Bob", WorldData.Meadow, 47, 47);
@@ -63,10 +81,8 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var alice = await Harness.EnterAsync("Alice", WorldData.Meadow, 30, 31);
             var before = alice.Mark();
 
-            await alice.SendAsync($"u_s 0 {Monster} {WorldData.WeakMonster}");
+            var hit = await HitAsync(alice, alice, WorldData.WeakMonster);
 
-            var hit = (await alice.ExpectAsync(p => p.StartsWith($"su 1 {alice.CharacterId} {Monster} {WorldData.WeakMonster} 200 ", StringComparison.Ordinal),
-                "the killing hit")).Split(' ');
             Assert.AreEqual("0", hit[11], "the monster is dead");
             var level = (await alice.ExpectSinceAsync(before, p => TestClient.HeaderOf(p) == "lev", "the experience")).Split(' ');
             Assert.IsTrue(long.Parse(level[2], CultureInfo.InvariantCulture) > 0, "experience was gained");
