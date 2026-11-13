@@ -17,8 +17,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // Monster kills are driven by the closing SuPacket (alive=0, hp%=0) — the client
     // plays the death animation from that alone and auto-despawns the sprite. Sending
     // an OutPacket here would cut the animation short, so we only clear aggro and
-    // register the respawn timestamp on the map; the map's 400ms life loop reads the
-    // pending-respawn table and revives monsters whose time is up.
+    // stamp the monster's respawn time; the map's life loop revives it once that passes.
     [UsedImplicitly]
     public sealed class MonsterRespawnHandler(IAggroService aggroService, IClock clock)
     {
@@ -31,8 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
 
             aggroService.Clear(monster);
 
-            monster.MapInstance.ScheduleRespawn(monster,
-                clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster)));
+            monster.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster));
             return Task.CompletedTask;
         }
     }

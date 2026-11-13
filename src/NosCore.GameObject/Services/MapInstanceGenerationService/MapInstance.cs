@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using Arch.Core;
 using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Map;
@@ -74,8 +75,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly ISpeedCalculationService? _speedCalculationService;
         private readonly IBattleStatsProvider? _battleStatsProvider;
         private readonly IHeatService? _heatService;
-        private readonly ConcurrentDictionary<long, (MonsterComponentBundle Monster, Instant RespawnAt)> _pendingRespawns = new();
-        private readonly ConcurrentDictionary<long, (NpcComponentBundle Npc, Instant RespawnAt)> _pendingNpcRespawns = new();
+        private readonly RespawnSystem _respawnSystem = new();
+        private readonly List<Entity> _dueRespawns = new();
 
         public MapWorld EcsWorld { get; }
 
@@ -628,65 +629,31 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _logger.LogError(e, "Life tick failed for {What} {Id} on map {MapId}", what, id, Map.MapId);
         }
 
-        // Registered by MonsterRespawnHandler when a monster dies. The map-level life
-        // loop picks it up on the next 400ms tick instead of us spawning a Task.Delay
-        // per corpse.
-        public void ScheduleRespawn(MonsterComponentBundle monster, Instant respawnAt)
-        {
-            _pendingRespawns[monster.VisualId] = (monster, respawnAt);
-        }
-
-        public void ScheduleRespawn(NpcComponentBundle npc, Instant respawnAt)
-        {
-            _pendingNpcRespawns[npc.VisualId] = (npc, respawnAt);
-        }
-
         private async Task SweepPendingRespawnsAsync()
         {
-            await SweepPendingNpcRespawnsAsync();
-            if (_pendingRespawns.IsEmpty) return;
-            var now = _clock.GetCurrentInstant();
-            foreach (var (visualId, entry) in _pendingRespawns)
+            _dueRespawns.Clear();
+            _respawnSystem.TakeDue(EcsWorld, _clock.GetCurrentInstant(), _dueRespawns);
+            foreach (var entity in _dueRespawns)
             {
-                if (entry.RespawnAt > now) continue;
-                if (!_pendingRespawns.TryRemove(visualId, out _)) continue;
-                var monster = entry.Monster;
+                var visualType = EcsWorld.TryGetComponent<EntityIdentityComponent>(entity)?.VisualType;
                 try
                 {
-                    if (monster.MapInstance == null) continue;
-
-                    monster.Hp = monster.MaxHp;
-                    monster.Mp = monster.MaxMp;
-                    monster.IsAlive = true;
-                    monster.PositionX = monster.FirstX;
-                    monster.PositionY = monster.FirstY;
-                    monster.HitList.Clear();
-
-                    await this.SendPacketAsync(monster.GenerateIn());
+                    if (visualType == VisualType.Monster)
+                    {
+                        var monster = new MonsterComponentBundle(entity, EcsWorld);
+                        monster.Respawn();
+                        await this.SendPacketAsync(monster.GenerateIn());
+                    }
+                    else if (visualType == VisualType.Npc)
+                    {
+                        var npc = new NpcComponentBundle(entity, EcsWorld);
+                        npc.IsAlive = true;
+                        await this.SendPacketAsync(npc.GenerateIn());
+                    }
                 }
                 catch (Exception e)
                 {
-                    LogTickFailure(e, "respawn", visualId);
-                }
-            }
-        }
-
-        private async Task SweepPendingNpcRespawnsAsync()
-        {
-            if (_pendingNpcRespawns.IsEmpty) return;
-            var now = _clock.GetCurrentInstant();
-            foreach (var (visualId, entry) in _pendingNpcRespawns)
-            {
-                if (entry.RespawnAt > now) continue;
-                if (!_pendingNpcRespawns.TryRemove(visualId, out _)) continue;
-                try
-                {
-                    entry.Npc.IsAlive = true;
-                    await this.SendPacketAsync(entry.Npc.GenerateIn());
-                }
-                catch (Exception e)
-                {
-                    LogTickFailure(e, "respawn", visualId);
+                    _logger.LogError(e, "Life tick failed for respawn {Entity} on map {MapId}", entity, Map.MapId);
                 }
             }
         }
