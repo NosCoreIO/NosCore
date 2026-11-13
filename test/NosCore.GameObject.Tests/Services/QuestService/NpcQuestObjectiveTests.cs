@@ -71,10 +71,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                 World.LogLanguageLocalizer,
                 handlers,
                 new Mock<Wolverine.IMessageBus>().Object,
-                new List<QuestRewardDto>(),
-                new List<QuestQuestRewardDto>(),
-                new Mock<GameObject.Services.ItemGenerationService.IItemGenerationService>().Object,
-                new Mock<GameObject.Services.ExperienceService.IExperienceProgressionService>().Object);
+                new Mock<IQuestRewardService>().Object);
             TalkedHandler = new OnNpcTalkedHandler(questService, handlers);
             DialogHandler = new QuestDialogHandler(questService, handlers);
             CollectedHandler = new OnMapEntityCollectedHandler(questService, handlers);

@@ -30,6 +30,7 @@ using NosCore.GameObject.Services.EquipmentService;
 using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 using NosCore.Algorithm.ExperienceShareService;
+using NosCore.Algorithm.MonsterGoldService;
 using NosCore.Algorithm.LevelPenaltyService;
 using NosCore.Algorithm.LowLevelBoostService;
 
@@ -47,6 +48,7 @@ public sealed class RewardService(
     IExperienceProgressionService experienceProgression,
     IExperienceShareService experienceShareService,
     ILevelPenaltyService levelPenaltyService,
+    IMonsterGoldService monsterGoldService,
     ILowLevelBoostService lowLevelBoostService,
     IGroupLootService groupLootService,
     IMateProgressionService mateProgression,
@@ -305,7 +307,8 @@ public sealed class RewardService(
             return;
         }
 
-        var goldAmount = RandomHelper.Instance.RandomNumber(6 * mob.Level, 12 * mob.Level);
+        var (minGold, maxGold) = monsterGoldService.GetGoldDrop(mob.Level);
+        var goldAmount = RandomHelper.Instance.RandomNumber(minGold, maxGold + 1);
         if (topDamageDealer is { } owner)
         {
             if (RandomHelper.Instance.RandomNumber(0, 100) >= levelPenaltyService.GetGoldPenalty(owner.Level, mob.Level) * 100)

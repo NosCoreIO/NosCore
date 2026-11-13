@@ -37,10 +37,7 @@ namespace NosCore.GameObject.Services.QuestService
             ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             IEnumerable<IQuestTypeHandler> questTypeHandlers,
             Wolverine.IMessageBus messageBus,
-            List<QuestRewardDto> questRewards,
-            List<QuestQuestRewardDto> questQuestRewards,
-            Services.ItemGenerationService.IItemGenerationService itemBuilderService,
-            Services.ExperienceService.IExperienceProgressionService experienceProgression)
+            IQuestRewardService questRewardService)
         : IQuestService
     {
         public Task RunScriptAsync(PlayerComponentBundle character) => RunScriptAsync(character, null);
@@ -181,29 +178,14 @@ namespace NosCore.GameObject.Services.QuestService
                 return false;
             }
 
-            var rewardsForQuest = questQuestRewards
-                .Where(l => l.QuestId == questId)
-                .Select(l => questRewards.FirstOrDefault(r => r.QuestRewardId == l.QuestRewardId))
-                .Where(r => r != null)
-                .Cast<QuestRewardDto>()
-                .ToList();
-
-            // Bail out BEFORE claiming CompletedOn if any item reward won't fit;
-            // otherwise the quest turns in but the reward is dropped on the floor.
-            foreach (var reward in rewardsForQuest)
+            if (!questRewardService.HasRoomFor(character, questId))
             {
-                var type = (Data.Enumerations.Quest.QuestRewardType)reward.RewardType;
-                if (type is Data.Enumerations.Quest.QuestRewardType.EtcMainItem
-                    or Data.Enumerations.Quest.QuestRewardType.WearItem
-                    && !character.InventoryService.CanAddItem((short)reward.Data))
+                await character.SendPacketAsync(new MsgiPacket
                 {
-                    await character.SendPacketAsync(new MsgiPacket
-                    {
-                        Type = MessageType.Default,
-                        Message = Game18NConstString.NotEnoughSpace
-                    });
-                    return false;
-                }
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.NotEnoughSpace
+                });
+                return false;
             }
 
             // Claim the quest before awaiting reward application so a concurrent
@@ -217,70 +199,11 @@ namespace NosCore.GameObject.Services.QuestService
                 charQuest.CompletedOn = clock.GetCurrentInstant();
             }
 
-            foreach (var reward in rewardsForQuest)
-            {
-                await ApplyRewardAsync(character, reward);
-            }
+            await questRewardService.GiveAsync(character, charQuest);
 
             await character.SendPacketAsync(character.GenerateQuestPacket());
             await messageBus.PublishAsync(new QuestCompletedEvent(character, charQuest));
             return true;
-        }
-
-        private async Task ApplyRewardAsync(PlayerComponentBundle character, QuestRewardDto reward)
-        {
-            var amount = Math.Max(1, reward.Amount);
-            switch ((Data.Enumerations.Quest.QuestRewardType)reward.RewardType)
-            {
-                case Data.Enumerations.Quest.QuestRewardType.Gold:
-                case Data.Enumerations.Quest.QuestRewardType.BaseGoldByAmount:
-                case Data.Enumerations.Quest.QuestRewardType.CapturedGold:
-                case Data.Enumerations.Quest.QuestRewardType.UnknowGold:
-                    character.Gold += (long)reward.Data * amount;
-                    break;
-                case Data.Enumerations.Quest.QuestRewardType.Exp:
-                case Data.Enumerations.Quest.QuestRewardType.PercentExp:
-                    if (character is Ecs.PlayerComponentBundle xpPlayer)
-                    {
-                        await experienceProgression.AddExperienceAsync(xpPlayer, (long)reward.Data * amount, 0, 0, 0, 0);
-                    }
-                    break;
-                case Data.Enumerations.Quest.QuestRewardType.JobExp:
-                case Data.Enumerations.Quest.QuestRewardType.PercentJobExp:
-                    if (character is Ecs.PlayerComponentBundle jobPlayer)
-                    {
-                        await experienceProgression.AddExperienceAsync(jobPlayer, 0, (long)reward.Data * amount, 0, 0, 0);
-                    }
-                    break;
-                case Data.Enumerations.Quest.QuestRewardType.Reput:
-                    character.Reput += (long)reward.Data * amount;
-                    break;
-                case Data.Enumerations.Quest.QuestRewardType.EtcMainItem:
-                case Data.Enumerations.Quest.QuestRewardType.WearItem:
-                    var item = itemBuilderService.Create((short)reward.Data, (short)amount, (sbyte)reward.Rarity, reward.Upgrade, reward.Design);
-                    if (item == null)
-                    {
-                        logger.LogWarning("Quest reward skipped: invalid item vnum {VNum} for character {CharacterId}",
-                            reward.Data, character.CharacterId);
-                        break;
-                    }
-                    var added = character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(item, character.VisualId));
-                    if (added == null || added.Count == 0)
-                    {
-                        logger.LogWarning("Quest reward lost: inventory full for item {VNum}x{Amount} character {CharacterId}",
-                            reward.Data, amount, character.CharacterId);
-                        await character.SendPacketAsync(character.GenerateSayi(SayColorType.Yellow, Game18NConstString.NotEnoughSpace));
-                        break;
-                    }
-                    foreach (var inv in added)
-                    {
-                        await character.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
-                    }
-                    break;
-                default:
-                    logger.LogWarning("Unhandled quest reward type {Type}", reward.RewardType);
-                    break;
-            }
         }
 
         private async Task<bool> TimeAsync(short delay)
@@ -467,6 +390,7 @@ namespace NosCore.GameObject.Services.QuestService
 
             if (!hasQPayStep)
             {
+                await questRewardService.GiveAsync(character, quest);
                 await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
             }
         }

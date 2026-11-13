@@ -118,10 +118,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
                     World.Create<GoToQuestHandler>(),
                 },
                 new Mock<Wolverine.IMessageBus>().Object,
-                new List<QuestRewardDto>(),
-                new List<QuestQuestRewardDto>(),
-                new Mock<GameObject.Services.ItemGenerationService.IItemGenerationService>().Object,
-                new Mock<GameObject.Services.ExperienceService.IExperienceProgressionService>().Object);
+                new Mock<IQuestRewardService>().Object);
         }
 
         [TestMethod]
