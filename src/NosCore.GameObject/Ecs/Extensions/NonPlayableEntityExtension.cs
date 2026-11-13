@@ -86,7 +86,6 @@ namespace NosCore.GameObject.Ecs.Extensions
                 shop.ShopSkills = shopSkills?.Where(s => s.ShopId == shopDto.ShopId).ToList() ?? [];
                 shops[shop.ShopId] = shop;
             }
-            bundle.Shops = shops;
             bundle.Shop = shops.Values.First();
         }
 

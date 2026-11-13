@@ -36,7 +36,7 @@ namespace NosCore.GameObject.Ecs;
     typeof(PlayerContextComponent),
     typeof(PlayerInventoryComponent),
     typeof(PlayerSocialComponent),
-    typeof(PlayerRequestsComponent),
+    typeof(RequestsComponent),
     typeof(PlayerMatesComponent),
     typeof(DigestionComponent),
     typeof(PendingDelayComponent),
