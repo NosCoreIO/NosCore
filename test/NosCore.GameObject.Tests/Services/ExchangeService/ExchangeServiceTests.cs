@@ -381,6 +381,8 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             ExchangeProvider.OpenExchange(_sessionA.Character, _sessionB.Character);
             var goodClose = ExchangeProvider.CloseExchange(_sessionA.Character, ExchangeResultType.Failure);
             Assert.IsTrue((goodClose != null) && (goodClose.Type == ExchangeResultType.Failure));
+            Assert.IsFalse(_sessionA.Character.InExchange);
+            Assert.IsFalse(_sessionB.Character.InExchange);
         }
 
         private void FirstExchangeShouldSucceed()

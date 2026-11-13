@@ -295,7 +295,8 @@ namespace NosCore.GameObject.Services.ExchangeService
                 }
 
                 player.Exchange = null;
-                if (sessionRegistry.TryGetCharacter(c => c.VisualId == data.PartnerId, out var partner))
+                if (sessionRegistry.TryGetCharacter(c => c.VisualId == data.PartnerId, out var partner)
+                    && ReferenceEquals(partner.Exchange, data.Partner))
                 {
                     partner.Exchange = null;
                 }
