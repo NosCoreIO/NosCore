@@ -17,5 +17,7 @@ public record struct PlayerStateComponent(
     Instant LastSp,
     byte VehicleSpeed,
     short VehicleVNum,
-    Instant ConnectedAt
+    Instant ConnectedAt,
+    string? SpeechBubble = null,
+    Instant SpeechBubbleExpiresAt = default
 );

@@ -166,6 +166,18 @@ public static class PlayerBundleExtensions
         await player.MapInstance.SendPacketAsync(player.GenerateRest());
     }
 
+    public static BubblePacket GenerateBubble(this PlayerComponentBundle player, string message) => new()
+    {
+        CharacterId = player.VisualId,
+        Message = message
+    };
+
+    // The bubble is only relayed while it lasts; one that stops being relayed fades in the client.
+    public static BubblePacket? GenerateActiveBubble(this PlayerComponentBundle player, Instant now) =>
+        player.SpeechBubble is { } message && player.SpeechBubbleExpiresAt > now
+            ? player.GenerateBubble(message)
+            : null;
+
     public static TalkPacket GenerateTalk(this PlayerComponentBundle player, string message)
     {
         return new TalkPacket
