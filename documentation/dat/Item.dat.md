@@ -1,7 +1,7 @@
 # Item.dat
 
 ```text
-	FLAG	0	0	0	{IsSoldable}	{IsDroppable}	{IsTradable}	{IsMinilandActionable}	{IsWarehouse}	{Flag9}	{Flag1}	{Flag2}	{Flag3}	{Flag4}	{RequireBinding}	{IsColored}	{FemaleOnly}	{MaleOnly}	0	{Flag6}	0	{IsHeroic}	{Flag7}	{Flag8}	{RaidItem}	{UnknownLastBit}
+	FLAG	0	0	{NotAvailable}	{IsSoldable}	{IsDroppable}	{IsTradable}	{IsMinilandActionable}	{IsWarehouse}	{Flag9}	{Flag1}	{Flag2}	{Flag3}	{Flag4}	{RequireBinding}	{IsColored}	{FemaleOnly}	{MaleOnly}	0	{Flag6}	{ReputationPrice}	{IsHeroic}	{Flag7}	{Flag8}	{RaidItem}	{UnknownLastBit}
 	INDEX	0	0	{ItemSubType}
 	NAME	{NameI18NKey}
 	VNUM	{VNum}	{Price}
@@ -15,7 +15,7 @@
 |---:|---|---|---|---|
 | 2 | Unknown |  |  |  |
 | 3 | Unknown |  |  |  |
-| 4 | Unknown |  |  |  |
+| 4 | NonParsed | NotAvailable |  | The shop tooltip adds "Not available"; set on 3 items only (333, 334, 1225). |
 | 5 | Parsed | IsSoldable | Boolean | Inverted: dat=0 -> soldable |
 | 6 | Parsed | IsDroppable | Boolean | Inverted: dat=0 -> droppable |
 | 7 | Parsed | IsTradable | Boolean | Inverted: dat=0 -> tradable |
@@ -24,17 +24,17 @@
 | 10 | Parsed | Flag9 | Boolean | FLAG bit 9 (appears on beads, medals, raid seals) |
 | 11 | Parsed | Flag1 | Boolean | FLAG bit 10 (unknown) |
 | 12 | Parsed | Flag2 | Boolean | FLAG bit 11 (set on mounts + raid items + partner equipment) |
-| 13 | Parsed | Flag3 | Boolean | FLAG bit 12 (unknown) |
-| 14 | Parsed | Flag4 | Boolean | FLAG bit 13 (unknown) |
+| 13 | Parsed | Flag3 | Boolean | On a miniland object the tooltip shows "In use" or "Not used"; set on 1418 items, most of them mall goods |
+| 14 | Parsed | Flag4 | Boolean | Used on another item: double-clicking it picks a target item instead of sending u_i |
 | 15 | Parsed | RequireBinding | Boolean | Binds to character on use/equip |
 | 16 | Parsed | IsColored | Boolean | Uses design slot for color |
 | 17 | NonParsed | FemaleOnly |  | Set together with FLAG[18]=0 to mark a female-only item; rolled up into Sex. |
 | 18 | NonParsed | MaleOnly |  | Set together with FLAG[17]=0 to mark a male-only item; rolled up into Sex. |
 | 19 | Unknown |  |  |  |
-| 20 | Parsed | Flag6 | Boolean | FLAG bit 19 (unknown) |
-| 21 | Unknown |  |  |  |
+| 20 | Parsed | Flag6 | Boolean | Set on 17 upgrade materials (soul gems, dragon parts, completion stones, guardian angels); the client never reads it |
+| 21 | NonParsed | ReputationPrice |  | The shop tooltip labels the price "Reputation"; read into ReputPrice. |
 | 22 | Parsed | IsHeroic | Boolean | Heroic item |
-| 23 | Parsed | Flag7 | Boolean | FLAG bit 22 (unknown) |
+| 23 | Parsed | Flag7 | Boolean | Headgear that also hides the mask; only changes what the client draws |
 | 24 | Parsed | Flag8 | Boolean | FLAG bit 23 (unknown) |
 | 25 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket. |
 | 26 | NonParsed | UnknownLastBit |  |  |
@@ -99,7 +99,7 @@
 | Mp | Int16 | DATA[varies] | Mp bonus on equip |
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
 | ReputPrice | Int64 | FLAG[20] + VNUM[1] | Reputation price when FLAG[20] is set |
-| Sex | Byte | FLAG[16] + FLAG[17] | Gender restriction: 1=female, 2=male, 0=any |
+| Sex | Byte | FLAG[16] + FLAG[17] | Genders allowed, one bit per GenderType: 1=male only, 2=female only, 0=any |
 | ShellType | Nullable`1 | DATA[5] (shell only) | Shell kind, which decides the options it rolls |
 | Speed | Byte | DATA[varies] | Movement speed bonus / vehicle speed |
 | SpType | Byte | DATA[varies] (SP only) | SP transformation type |

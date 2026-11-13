@@ -63,15 +63,15 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Class, chunk => ImportEquipmentType(chunk) == EquipmentType.Fairy ? (byte)15 : Convert.ToByte(chunk["TYPE"][0][3]),
                     source: "TYPE[1] (fairy override: 15)", description: "Class restriction bitmask")
                 .Field(x => x.Flag8, "FLAG", 0, 24, s => s == "1", "FLAG bit 23 (unknown)")
-                .Field(x => x.Flag7, "FLAG", 0, 23, s => s == "1", "FLAG bit 22 (unknown)")
+                .Field(x => x.Flag7, "FLAG", 0, 23, s => s == "1", "Headgear that also hides the mask; only changes what the client draws")
                 .Field(x => x.IsHeroic, "FLAG", 0, 22, s => s == "1", "Heroic item")
-                .Field(x => x.Flag6, "FLAG", 0, 20, s => s == "1", "FLAG bit 19 (unknown)")
+                .Field(x => x.Flag6, "FLAG", 0, 20, s => s == "1", "Set on 17 upgrade materials (soul gems, dragon parts, completion stones, guardian angels); the client never reads it")
                 .Field(x => x.Sex, chunk => chunk["FLAG"][0][18] == "1" ? (byte)1 : chunk["FLAG"][0][17] == "1" ? (byte)2 : (byte)0,
-                    source: "FLAG[16] + FLAG[17]", description: "Gender restriction: 1=female, 2=male, 0=any")
+                    source: "FLAG[16] + FLAG[17]", description: "Genders allowed, one bit per GenderType: 1=male only, 2=female only, 0=any")
                 .Field(x => x.IsColored, "FLAG", 0, 16, s => s == "1", "Uses design slot for color")
                 .Field(x => x.RequireBinding, "FLAG", 0, 15, s => s == "1", "Binds to character on use/equip")
-                .Field(x => x.Flag4, "FLAG", 0, 14, s => s == "1", "FLAG bit 13 (unknown)")
-                .Field(x => x.Flag3, "FLAG", 0, 13, s => s == "1", "FLAG bit 12 (unknown)")
+                .Field(x => x.Flag4, "FLAG", 0, 14, s => s == "1", "Used on another item: double-clicking it picks a target item instead of sending u_i")
+                .Field(x => x.Flag3, "FLAG", 0, 13, s => s == "1", "On a miniland object the tooltip shows \"In use\" or \"Not used\"; set on 1418 items, most of them mall goods")
                 .Field(x => x.Flag2, "FLAG", 0, 12, s => s == "1", "FLAG bit 11 (set on mounts + raid items + partner equipment)")
                 .Field(x => x.Flag1, "FLAG", 0, 11, s => s == "1", "FLAG bit 10 (unknown)")
                 .Field(x => x.Flag9, "FLAG", 0, 10, s => s == "1", "FLAG bit 9 (appears on beads, medals, raid seals)")
@@ -154,6 +154,8 @@ namespace NosCore.Parser.Parsers
                 .Doc("FLAG", 17, "FemaleOnly", "Set together with FLAG[18]=0 to mark a female-only item; rolled up into Sex.")
                 .Doc("FLAG", 18, "MaleOnly", "Set together with FLAG[17]=0 to mark a male-only item; rolled up into Sex.")
                 .Doc("FLAG", 25, "RaidItem", "Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket.")
+                .Doc("FLAG", 4, "NotAvailable", "The shop tooltip adds \"Not available\"; set on 3 items only (333, 334, 1225).")
+                .Doc("FLAG", 21, "ReputationPrice", "The shop tooltip labels the price \"Reputation\"; read into ReputPrice.")
                 .Doc("FLAG", 26, "UnknownLastBit");
         }
 
