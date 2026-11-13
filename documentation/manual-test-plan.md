@@ -837,6 +837,8 @@ Two clients, A and B.
       own "This village is the designated place of revival." appears, in the client's
       language
 - [ ] Die and choose to revive in the village: you come back at that NPC
+- [ ] Die and close the client without answering, then log in again: you stand at your place of
+      revival with 1 HP and 1 MP, and no revival question is asked
 - [ ] Above level 20, die with 15 Seeds of Power: the dialog asks for 10, and confirming shows
       "You have used 10x Seed of Power.", you get up where you fell, and the Etc pocket shows 5
       seeds straight away

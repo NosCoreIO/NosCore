@@ -15,11 +15,10 @@ namespace NosCore.GameObject.Messaging.Events
     public sealed record EntityDiedEvent(
         IAliveEntity Victim,
         IAliveEntity? Killer,
-        IReadOnlyDictionary<Entity, int> HitSnapshot,
-        RevivalMode RevivalMode = RevivalMode.Normal)
+        IReadOnlyDictionary<Entity, int> HitSnapshot)
     {
-        public EntityDiedEvent(IAliveEntity victim, IAliveEntity? killer, RevivalMode revivalMode = RevivalMode.Normal)
-            : this(victim, killer, SnapshotHits(victim), revivalMode) { }
+        public EntityDiedEvent(IAliveEntity victim, IAliveEntity? killer)
+            : this(victim, killer, SnapshotHits(victim)) { }
 
         // Read when handled, possibly after a map change replaced a player's entity.
         public IAliveEntity Victim { get => field.Live(); init; } = Victim;
@@ -30,16 +29,5 @@ namespace NosCore.GameObject.Messaging.Events
             => victim.HitList is { } list
                 ? list.ToArray().ToDictionary(kv => kv.Key, kv => kv.Value)
                 : new Dictionary<Entity, int>();
-    }
-
-    // Normal = in-session death → town warp after the death-pose delay (what happens
-    // when the revive dialog's "return to town" option is picked or the dialog times out).
-    // ResumeInPlace = we detected a persisted-dead character on login: the player
-    // already "declined" the dialog by disconnecting, so just refill and leave
-    // them at the saved position instead of warping.
-    public enum RevivalMode
-    {
-        Normal,
-        ResumeInPlace,
     }
 }

@@ -190,8 +190,9 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Assert.AreEqual(0, (await Harness.StoredAsync(player.CharacterId)).Hp, "leaving does not bring her back to life");
         }
 
+        // The harness cannot bring such a character in the usual way: that waits for the map it was stored on.
         [TestMethod]
-        public async Task ACharacterStoredDeadCanReviveAtTheSavePoint()
+        public async Task ACharacterStoredDeadComesBackAtItsSavePointBarelyAlive()
         {
             var player = await Harness.AddPlayerAsync("Alice", WorldData.Meadow, 82, 30, c => c.Hp = 0);
             await using var alice = Harness.Client(player);
@@ -199,16 +200,15 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var entered = alice.Mark();
             await alice.SendAsync($"select {player.Slot}");
             await alice.ExpectAsync("OK");
+
             await alice.SendAsync("game_start");
             await alice.SendAsync("lbs 0");
-            await alice.ExpectSinceAsync(entered, p => p.StartsWith($"dlgi #revival^{ReviveHere} #revival^{ReviveAtTheSavePoint} ", StringComparison.Ordinal),
-                "the question how to revive");
-            var revived = alice.Mark();
 
-            await alice.SendAsync($"#revival^{ReviveAtTheSavePoint}");
-
-            await alice.ExpectSinceAsync(revived, p => p == $"c_map 0 {WorldData.Town} 1", "the town she revives in");
-            Assert.AreEqual(MostHp, Hp(await alice.ExpectSinceAsync(revived, p => Stat(p) && Hp(p) > 0, "her HP after reviving")));
+            await alice.ExpectSinceAsync(entered, p => p == $"c_map 0 {WorldData.Town} 1", "the town she comes back in");
+            var bars = await alice.ExpectSinceAsync(entered, Stat, "her bars on entering");
+            Assert.AreEqual((1, 1), (Hp(bars), Mp(bars)), "one point of each");
+            Assert.IsFalse(alice.Since(entered).Any(p => p.StartsWith("dlgi #revival", StringComparison.Ordinal)),
+                "nobody asks her how to revive");
         }
 
         [TestMethod]
