@@ -70,7 +70,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             DisconnectHandler = new GroupDisconnectHandler(groupLeaveService);
 
             var mock = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, mock.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object, new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new()));
         }
 
         [TestMethod]

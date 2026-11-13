@@ -56,7 +56,7 @@ namespace NosCore.PacketHandlers.Tests.Group
             }
 
             BlacklistHub = new Mock<IBlacklistHub>();
-            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object);
+            PJoinPacketHandler = new PjoinPacketHandler(Logger, BlacklistHub.Object, World.Clock, idServer, World.LogLanguageLocalizer, World.GameLanguageLocalizer, World.SessionRegistry, new Mock<GameObject.Services.GroupService.ICoupleBuffService>().Object, new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new()));
         }
 
         [TestMethod]
@@ -76,6 +76,29 @@ namespace NosCore.PacketHandlers.Tests.Group
                 .Given(Session1HasGroupRequestFromSession0)
                 .WhenAsync(Session0AcceptsSession1RequestAsync)
                 .Then(Session1ShouldLeadTheGroup)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AcceptingASharedPointOfReturnTakesTheSharersOne()
+        {
+            await new Spec("A party member who accepts the shared point of return gets the sharer's")
+                .GivenAsync(Session0And1AreInAPartyAsync)
+                .And(Session0SavedAPointOfReturnAt_, (short)1, (short)80, (short)116)
+                .WhenAsync(Session0SharesItsPointOfReturnAsync)
+                .AndAsync(Session1AcceptsTheSharedPointAsync)
+                .Then(Session1PointOfReturnShouldBe_, (short)1, (short)80, (short)116)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task SharingWithoutAPointOfReturnAsksNobody()
+        {
+            await new Spec("A sharer with no point of return is told so and no member is asked")
+                .GivenAsync(Session0And1AreInAPartyAsync)
+                .WhenAsync(Session0SharesItsPointOfReturnAsync)
+                .Then(Session0ShouldBeTold_, Game18NConstString.CantSharePoint)
+                .And(Session1ShouldHaveNoQuestion)
                 .ExecuteAsync();
         }
 
@@ -208,6 +231,41 @@ namespace NosCore.PacketHandlers.Tests.Group
             Assert.IsNotNull(packet);
             Assert.AreEqual(Game18NConstString.GroupInvite, packet.Question);
         }
+
+        private async Task Session0And1AreInAPartyAsync()
+        {
+            Session1HasGroupRequestFromSession0();
+            await Session0AcceptsSession1RequestAsync();
+            Sessions[0].LastPackets.Clear();
+            Sessions[1].LastPackets.Clear();
+        }
+
+        private void Session0SavedAPointOfReturnAt_(short mapId, short x, short y) =>
+            new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new())
+                .SetReturnPoint(Sessions[0].Character, mapId, x, y);
+
+        private Task Session0SharesItsPointOfReturnAsync() =>
+            PJoinPacketHandler.ExecuteAsync(new PjoinPacket { RequestType = GroupRequestType.Sharing }, Sessions[0]);
+
+        private Task Session1AcceptsTheSharedPointAsync() =>
+            PJoinPacketHandler.ExecuteAsync(new PjoinPacket
+            {
+                RequestType = GroupRequestType.AcceptedShare,
+                CharacterId = Sessions[0].Character.CharacterId
+            }, Sessions[1]);
+
+        private void Session1PointOfReturnShouldBe_(short mapId, short x, short y)
+        {
+            var point = new NosCore.GameObject.Services.BattleService.RespawnService(new(), new(), new())
+                .GetReturnPoint(Sessions[1].Character, mapId);
+            Assert.AreEqual(((short)mapId, x, y), point);
+        }
+
+        private void Session0ShouldBeTold_(Game18NConstString message) =>
+            Assert.AreEqual(message, Sessions[0].LastPackets.OfType<InfoiPacket>().Last().Message);
+
+        private void Session1ShouldHaveNoQuestion() =>
+            Assert.IsFalse(Sessions[1].LastPackets.OfType<Dlgi2Packet>().Any());
 
         private void Session1HasGroupRequestFromSession0()
         {

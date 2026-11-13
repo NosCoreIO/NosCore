@@ -5,6 +5,7 @@
 //
 
 using NodaTime;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Ecs;
 using NosCore.Core.I18N;
 using NosCore.Core.Services.IdService;
@@ -34,7 +35,7 @@ namespace NosCore.PacketHandlers.Group
     public class PjoinPacketHandler(ILogger<PjoinPacketHandler> logger, IBlacklistHub blacklistHttpCLient, IClock clock,
             IIdService<GameObject.Services.GroupService.Group> groupIdService,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage, IGameLanguageLocalizer gameLanguageLocalizer,
-            ISessionRegistry sessionRegistry, ICoupleBuffService coupleBuffService)
+            ISessionRegistry sessionRegistry, ICoupleBuffService coupleBuffService, IRespawnService respawnService)
         : PacketHandler<PjoinPacket>, IWorldPacketHandler
     {
         public override async Task ExecuteAsync(PjoinPacket pjoinPacket, ClientSession clientSession)
@@ -149,11 +150,21 @@ namespace NosCore.PacketHandlers.Group
                         return;
                     }
 
+                    if (respawnService.GetReturnPoint(clientSession.Character, clientSession.Character.MapInstance.Map.MapId) == null)
+                    {
+                        await clientSession.SendPacketAsync(new InfoiPacket
+                        {
+                            Message = Game18NConstString.CantSharePoint
+                        });
+                        return;
+                    }
+
                     await clientSession.SendPacketAsync(new InfoiPacket
                     {
-                        Message = Game18NConstString.CanNotChangeGroupMode
+                        Message = Game18NConstString.RequestedSharePointOfReturn
                     });
 
+                    var sharer = clientSession.Character;
                     await Task.WhenAll(clientSession.Character.Group.Values
                         .Where(s => s.Item2.VisualId != clientSession.Character.CharacterId)
                         .Select(s =>
@@ -164,12 +175,12 @@ namespace NosCore.PacketHandlers.Group
                                 return Task.CompletedTask;
                             }
 
-                            session.GroupRequestCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
+                            sharer.GroupRequestCharacterIds.TryAdd(s.Item2.VisualId, s.Item2.VisualId);
                             return session.SendPacketAsync(new Dlgi2Packet
                             {
                                 Question = Game18NConstString.ConfirmSetPointOfReturn,
                                 ArgumentType = 1,
-                                Game18NArguments = { s.Item2.Name ?? "" },
+                                Game18NArguments = { sharer.Name ?? "" },
                                 YesPacket = new PjoinPacket
                                 {
                                     CharacterId = clientSession.Character.CharacterId,
@@ -295,7 +306,14 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-                    await clientSession.SendPacketAsync(new MsgiPacket
+                    if (targetSession.MapInstance?.Map is not { } sharerMap
+                        || respawnService.GetReturnPoint(targetSession, sharerMap.MapId) is not { } shared)
+                    {
+                        return;
+                    }
+
+                    respawnService.SetReturnPoint(clientSession.Character, shared.MapId, shared.X, shared.Y);
+                    await targetSession.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.ChangedSamePointOfReturn
@@ -307,7 +325,6 @@ namespace NosCore.PacketHandlers.Group
                         ArgumentType = 1,
                         Game18NArguments = { targetSession.Name ?? "" }
                     });
-                    //TODO: add a way to change respawn points when system will be done
                     break;
                 case GroupRequestType.DeclinedShare:
                     if (!hasTargetSession || !targetSession.GroupRequestCharacterIds.Values.Contains(clientSession.Character.CharacterId))
@@ -316,17 +333,17 @@ namespace NosCore.PacketHandlers.Group
                     }
 
                     targetSession.GroupRequestCharacterIds.TryRemove(clientSession.Character.CharacterId, out _);
-                    await targetSession.SendPacketAsync(new MsgiPacket
+                    await clientSession.SendPacketAsync(new MsgiPacket
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.RefusedSharePointOfReturn
                     });
-                    await clientSession.SendPacketAsync(new Msgi2Packet
+                    await targetSession.SendPacketAsync(new Msgi2Packet
                     {
                         Type = MessageType.Default,
                         Message = Game18NConstString.SomeoneRefusedToSharePointOfReturn,
                         ArgumentType = 1,
-                        Game18NArguments = { targetSession.Name ?? "" }
+                        Game18NArguments = { clientSession.Character.Name ?? "" }
                     });
                     break;
                 default:
