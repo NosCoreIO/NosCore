@@ -181,8 +181,8 @@ namespace NosCore.Parser
         {
             await itemParser.ParseAsync(_folder);
             await minigameParser.InsertMinigamesAsync();
-            await boxContentParser.InsertBoxContentsAsync(_folder);
-            await speedBoostParser.InsertSpeedBoostsAsync(_folder);
+            await boxContentParser.InsertBoxContentsAsync();
+            await speedBoostParser.InsertSpeedBoostsAsync();
         }
 
         public void SetFolder(string folder)
