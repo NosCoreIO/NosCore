@@ -7,6 +7,8 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Networking;
@@ -62,6 +64,18 @@ namespace NosCore.GameObject.Tests.Services.MovementService
                 .Given(CharacterIsOnMap)
                 .WhenAsync(WalkingWithHighSpeed)
                 .Then(PositionShouldNotBeUpdated)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ARootedCharacterCannotWalk()
+        {
+            await new Spec("A character under a card that stops movement cannot walk")
+                .Given(CharacterIsOnMap)
+                .And(CharacterIsRooted)
+                .WhenAsync(WalkingToValidPosition)
+                .Then(PositionShouldNotBeUpdated)
+                .And(TheLastWalkShouldBeRefused)
                 .ExecuteAsync();
         }
 
@@ -279,6 +293,13 @@ namespace NosCore.GameObject.Tests.Services.MovementService
             Session.Character.Speed = 20;
             InitialX = Session.Character.PositionX;
             InitialY = Session.Character.PositionY;
+        }
+
+        private void CharacterIsRooted()
+        {
+            World.Freeze<Mock<IBuffService>>()
+                .Setup(b => b.HasEffect(It.IsAny<NosCore.GameObject.Ecs.Interfaces.IAliveEntity>(), BCardEffect.MoveMovementImpossible)).Returns(true);
+            Service = World.UseReal<IWalkService, WalkService>().Create<GameObject.Services.MovementService.MovementService>();
         }
 
         private async Task WalkingToValidPosition()

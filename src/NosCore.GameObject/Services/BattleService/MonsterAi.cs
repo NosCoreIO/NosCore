@@ -431,7 +431,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
     private async Task<bool> StepAlongPathAsync(INonPlayableEntity entity, short goalX, short goalY, int cellsToLeave)
     {
         var map = entity.MapInstance;
-        if (map == null) return false;
+        if (map == null || entity.Speed == 0) return false;
 
         var cache = entity.ChasePath;
         var now = clock.GetCurrentInstant();
@@ -459,8 +459,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             entity.ChasePath = cache;
         }
 
-        var speed = (int)Math.Max((byte)1, entity.NpcMonster.Speed);
-        var stepCount = Math.Min(cache.Path.Count - cellsToLeave, Math.Max(1, speed / 2));
+        var stepCount = Math.Min(cache.Path.Count - cellsToLeave, Math.Max(1, entity.Speed / 2));
         if (stepCount <= 0) return false;
 
         var dest = cache.Path[stepCount - 1];

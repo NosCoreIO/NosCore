@@ -4,7 +4,9 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Linq;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.GameObject.Ecs;
 using System.Collections.Generic;
 using NosCore.Algorithm.SpeedService;
@@ -18,31 +20,35 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
     public class SpeedCalculationService(ISpeedService speedService, IBuffService buffService, ICardCatalog cardCatalog,
         List<ItemDto> items) : ISpeedCalculationService
     {
-        private byte CalculateSpeed(IAliveEntity aliveEntity, byte defaultSpeed)
-        {
-            //    if (HasBuff(CardType.Move, (byte)AdditionalTypes.Move.MovementImpossible))
-            //    {
-            //        return 0;
-            //    }
+        private const int MaxSpeedOnFoot = 59;
 
-            // The movement BCards are still not read. The placeholder that used to sit
-            // here reached for subtype 32, which the files say is "movement speed is
-            // DECREASED by %s while you are hidden": wrong slot and wrong condition for a
-            // general speed bonus. The unconditional flat pair is 41-42, and 21-22 is the
-            // percentage.
-            var bonusSpeed = 0;
-            if (defaultSpeed + bonusSpeed > 59)
+        private byte CalculateSpeed(IAliveEntity aliveEntity, int baseSpeed, int maxSpeed)
+        {
+            if (buffService.HasEffect(aliveEntity, BCardEffect.MoveMovementImpossible))
             {
-                return 59;
+                return 0;
             }
 
-            return (byte)(defaultSpeed + bonusSpeed);
-        }
+            var bonus = 0;
+            foreach (var buff in buffService.GetActiveBuffs(aliveEntity))
+            {
+                foreach (var bCard in buff.BCards)
+                {
+                    bonus += bCard.Effect() switch
+                    {
+                        BCardEffect.MoveMovementSpeedIncreased => bCard.FirstData,
+                        BCardEffect.MoveMovementSpeedDecreased => -bCard.FirstData,
+                        _ => 0,
+                    };
+                }
+            }
 
+            return (byte)Math.Clamp(baseSpeed + bonus, 0, maxSpeed);
+        }
 
         public byte CalculateSpeed(INonPlayableEntity nonPlayableEntity)
         {
-            return CalculateSpeed(nonPlayableEntity, nonPlayableEntity.NpcMonster.Speed);
+            return CalculateSpeed(nonPlayableEntity, nonPlayableEntity.NpcMonster.Speed, MaxSpeedOnFoot);
         }
 
         public byte CalculateSpeed(PlayerComponentBundle characterEntity)
@@ -53,10 +59,10 @@ namespace NosCore.GameObject.Services.SpeedCalculationService
                         .Any(b => cardCatalog.IsGrantedBy(b.CardId, ItemEffectType.SpeedBooster))
                     ? items.Find(i => i.VNum == characterEntity.VehicleVNum)?.SpeedBoost ?? 0
                     : 0;
-                return (byte)(characterEntity.VehicleSpeed + boost);
+                return CalculateSpeed(characterEntity, characterEntity.VehicleSpeed + boost, byte.MaxValue);
             }
 
-            return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class));
+            return CalculateSpeed(characterEntity, speedService.GetSpeed(characterEntity.Class), MaxSpeedOnFoot);
         }
     }
 }

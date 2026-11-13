@@ -4,7 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System;
 using System.Threading.Tasks;
+using NosCore.Data.Enumerations.Buff;
+using NosCore.GameObject.Services.BattleService;
+using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Ecs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,12 +27,15 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
         private TestWorld World;
         private GameObject.Services.SpeedCalculationService.SpeedCalculationService SpeedCalculationService;
         private Mock<ISpeedService> SpeedService;
+        private Mock<IBuffService> Buffs;
 
         [TestInitialize]
         public async Task SetupAsync()
         {
             World = await TestWorld.CreateAsync();
             SpeedService = World.Freeze<Mock<ISpeedService>>();
+            Buffs = World.Freeze<Mock<IBuffService>>();
+            Buffs.Setup(b => b.GetActiveBuffs(It.IsAny<IAliveEntity>())).Returns(Array.Empty<BuffInstance>());
             SpeedCalculationService = World.Create<GameObject.Services.SpeedCalculationService.SpeedCalculationService>();
         }
 
@@ -87,6 +94,38 @@ namespace NosCore.GameObject.Tests.Services.SpeedCalculationService
 
             Assert.AreEqual(12, SpeedCalculationService.CalculateSpeed(character));
         }
+
+        [TestMethod]
+        public async Task HasteAddsItsSpeedAndASlowTakesItsAway()
+        {
+            SpeedService.Setup(x => x.GetSpeed(CharacterClassType.Archer)).Returns((byte)12);
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = CharacterClassType.Archer;
+            Buffs.Setup(b => b.GetActiveBuffs(character)).Returns(new[]
+            {
+                Buff(28, Move(BCardEffect.MoveMovementSpeedIncreased, 2)),
+                Buff(70, Move(BCardEffect.MoveMovementSpeedDecreased, 3)),
+            });
+
+            Assert.AreEqual(11, SpeedCalculationService.CalculateSpeed(character));
+        }
+
+        [TestMethod]
+        public async Task ARootedCharacterHasNoSpeed()
+        {
+            SpeedService.Setup(x => x.GetSpeed(CharacterClassType.Archer)).Returns((byte)12);
+            var character = (await World.CreateSessionAsync()).Character;
+            character.Class = CharacterClassType.Archer;
+            Buffs.Setup(b => b.HasEffect(character, BCardEffect.MoveMovementImpossible)).Returns(true);
+
+            Assert.AreEqual(0, SpeedCalculationService.CalculateSpeed(character));
+        }
+
+        private static BCardDto Move(BCardEffect effect, int value) =>
+            new() { Type = (byte)((short)effect / 100), SubType = (byte)((short)effect % 100), FirstData = value };
+
+        private static BuffInstance Buff(short cardId, BCardDto bCard) =>
+            new(cardId, BuffType.Good, null, NodaTime.Instant.MinValue, NodaTime.Instant.MaxValue, new[] { bCard });
 
         [TestMethod]
         public void DefaultMonsterSpeedIsNpcMonsterSpeed()

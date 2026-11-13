@@ -71,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             _resistance = new Mock<IDebuffResistanceService>();
             _service = new BuffService(new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
-                _catalog.Object, _random.Object, _resistance.Object);
+                _catalog.Object, _random.Object, _resistance.Object, new Mock<Wolverine.IMessageBus>().Object);
         }
 
         // A bundle carrying only the three components the buff path reads. MapInstance comes off

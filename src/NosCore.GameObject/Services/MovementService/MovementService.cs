@@ -6,12 +6,14 @@
 
 using Microsoft.Extensions.Logging;
 using NodaTime;
+using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.I18N;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MinilandService;
@@ -37,7 +39,7 @@ public interface IMovementService
 public sealed class MovementService(IHeuristic distanceCalculator, ILogger<MovementService> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage, IMessageBus messageBus, IWalkService walkService,
         IMapInstanceAccessorService mapInstanceAccessorService, IMinilandService minilandService, IClock clock,
-        IMapChangeService mapChangeService)
+        IMapChangeService mapChangeService, IBuffService buffService)
     : IMovementService
 {
     // Leaves room for network jitter so it is not counted as a speed hack.
@@ -46,6 +48,11 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
     public async Task<WalkResult> WalkAsync(ClientSession session, short x, short y, short speed, byte checksum)
     {
         var character = session.Character;
+        if (buffService.HasEffect(character, BCardEffect.MoveMovementImpossible))
+        {
+            return WalkResult.Refused;
+        }
+
         var distance = (int)distanceCalculator.GetDistance((character.PositionX, character.PositionY), (x, y)) - 1;
 
         if (character.Speed < speed)

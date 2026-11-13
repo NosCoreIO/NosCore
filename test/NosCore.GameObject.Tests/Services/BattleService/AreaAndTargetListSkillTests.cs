@@ -72,6 +72,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 NodaTime.SystemClock.Instance,
                 new Mock<ICaptureService>().Object,
                 new Mock<NosCore.GameObject.Services.BattleService.ICastDelayService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.IBuffService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance);
             _origin = new FakeEntity { Hp = 100, VisualId = 1 };
         }
