@@ -16,6 +16,7 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
 using NosCore.Shared.I18N;
@@ -28,7 +29,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
         ILogger<SpeakerHandler> logger,
         ILogLanguageLocalizer<LogLanguageKey> logLanguage,
         IGameLanguageLocalizer gameLanguageLocalizer,
-        ISessionRegistry sessionRegistry)
+        ISessionRegistry sessionRegistry,
+        IPenaltyService penaltyService)
     {
         private static string CraftMessage(string message, string[] valueSplit)
         {
@@ -70,6 +72,13 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
             {
                 logger.LogError(string.Format(logLanguage[LogLanguageKey.ITEM_NOT_FOUND],
                     NoscorePocketType.Etc, (short)(packet.VisualId ?? 0)));
+                return;
+            }
+
+            if (await penaltyService.GetMuteLeftAsync(session.Account.AccountId) is { } muteLeft)
+            {
+                await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Red,
+                    Game18NConstString.RemainingPunishment, 4, (long)Math.Ceiling(muteLeft.TotalMinutes)));
                 return;
             }
 

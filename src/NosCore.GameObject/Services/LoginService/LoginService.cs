@@ -12,6 +12,7 @@ using NosCore.Data.Enumerations.Character;
 using NosCore.GameObject.InterChannelCommunication.Hubs.AuthHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Networking.SessionRef;
 using NosCore.Packets.ClientPackets.Login;
 using NosCore.Packets.Enumerations;
@@ -28,7 +29,8 @@ namespace NosCore.GameObject.Services.LoginService
     public class LoginService(IOptions<LoginConfiguration> loginConfiguration, IDao<AccountDto, long> accountDao,
             IAuthHub authHttpClient,
             IPubSubHub pubSubHub, IChannelHub channelHub,
-            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder)
+            IDao<CharacterDto, long> characterDao, ISessionRefHolder sessionRefHolder,
+            IPenaltyService penaltyService)
         : ILoginService
     {
         public async Task LoginAsync(string? username, string? md5String, ClientVersionSubPacket? clientVersion,
@@ -70,7 +72,8 @@ namespace NosCore.GameObject.Services.LoginService
                     return;
                 }
 
-                switch (acc.Authority)
+                var authority = await penaltyService.IsBannedAsync(acc.AccountId) ? AuthorityType.Banned : acc.Authority;
+                switch (authority)
                 {
                     case AuthorityType.Banned:
                         await clientSession.SendPacketAsync(new FailcPacket

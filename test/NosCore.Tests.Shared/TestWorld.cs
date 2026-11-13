@@ -140,6 +140,7 @@ namespace NosCore.Tests.Shared
             MapNpcDao = Dao<MapNpc, MapNpcDto, int>();
             PortalDao = Dao<Portal, PortalDto, int>();
             ShopItemDao = Dao<ShopItem, ShopItemDto, int>();
+            PenaltyLogDao = Dao<PenaltyLog, PenaltyLogDto, int>();
 
             Fixture.Inject(ItemList);
             Fixture.UseReal<IItemGenerationService, ItemGenerationService>();
@@ -232,6 +233,7 @@ namespace NosCore.Tests.Shared
         public IDao<MapNpcDto, int> MapNpcDao { get; }
         public IDao<PortalDto, int> PortalDao { get; }
         public IDao<ShopItemDto, int> ShopItemDao { get; }
+        public IDao<PenaltyLogDto, int> PenaltyLogDao { get; }
 
         public List<ItemDto> ItemList { get; } = new()
         {

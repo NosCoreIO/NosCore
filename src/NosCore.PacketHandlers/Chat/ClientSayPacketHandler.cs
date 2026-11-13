@@ -7,25 +7,36 @@
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Networking;
 using NosCore.Networking.SessionGroup.ChannelMatcher;
 using NosCore.Packets.ClientPackets.Chat;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
+using System;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Chat
 {
-    public class ClientSayPacketHandler : PacketHandler<ClientSayPacket>, IWorldPacketHandler
+    public class ClientSayPacketHandler(IPenaltyService penaltyService) : PacketHandler<ClientSayPacket>, IWorldPacketHandler
     {
-        public override Task ExecuteAsync(ClientSayPacket clientSayPacket, ClientSession session)
+        public override async Task ExecuteAsync(ClientSayPacket clientSayPacket, ClientSession session)
         {
-            //TODO: Add a penalty check when it will be ready
-            const SayColorType type = SayColorType.Default;
-            return session.Character.MapInstance.SendPacketAsync(session.Character.GenerateSay(new SayPacket
+            var character = session.Character;
+            var muteLeft = await penaltyService.GetMuteLeftAsync(session.Account.AccountId);
+            if (muteLeft is { } left)
+            {
+                await character.MapInstance.SendPacketAsync(
+                    character.GenerateSayi(SayColorType.BubbleOnly, Game18NConstString.IAmUnderPenalty));
+                await session.SendPacketAsync(character.GenerateSayi(SayColorType.Red,
+                    Game18NConstString.RemainingPunishment, 4, (long)Math.Ceiling(left.TotalMinutes)));
+                return;
+            }
+
+            await character.MapInstance.SendPacketAsync(character.GenerateSay(new SayPacket
             {
                 Message = clientSayPacket.Message,
-                Type = type
+                Type = SayColorType.Default
             }), new EveryoneBut(session.ConnectedChannel.Id));
         }
     }

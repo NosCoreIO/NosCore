@@ -37,6 +37,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Networking;
 using NosCore.Networking.Encoding;
 using NosCore.Networking.Encoding.Filter;
@@ -87,6 +88,9 @@ namespace NosCore.LoginServer
                 .SingleInstance();
             containerBuilder.RegisterType<Dao<Database.Entities.Character, CharacterDto, long>>().As<IDao<CharacterDto, long>>()
                 .SingleInstance();
+            containerBuilder.RegisterType<Dao<PenaltyLog, PenaltyLogDto, int>>().As<IDao<PenaltyLogDto, int>>()
+                .SingleInstance();
+            containerBuilder.RegisterType<PenaltyService>().As<IPenaltyService>();
             containerBuilder.RegisterType<LoginDecoder>().AsImplementedInterfaces();
             containerBuilder.RegisterType<LoginEncoder>().AsImplementedInterfaces();
 

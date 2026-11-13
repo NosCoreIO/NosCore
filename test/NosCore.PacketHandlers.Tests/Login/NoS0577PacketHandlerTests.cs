@@ -17,6 +17,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
@@ -72,7 +73,8 @@ namespace NosCore.PacketHandlers.Tests.Login
                 (string?)((new OkObjectResult(Session.Account.Name)).Value));
             NoS0577PacketHandler = new NoS0577PacketHandler(new LoginService(LoginConfiguration,
                 World.AccountDao,
-                AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder));
+                AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder,
+                World.Create<PenaltyService>()));
         }
 
         [TestMethod]

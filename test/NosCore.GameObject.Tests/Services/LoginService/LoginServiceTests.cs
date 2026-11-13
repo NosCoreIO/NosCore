@@ -50,7 +50,8 @@ namespace NosCore.GameObject.Tests.Services.LoginService
                 PubSubHub.Object,
                 ChannelHub.Object,
                 World.CharacterDao,
-                SessionRefHolder);
+                SessionRefHolder,
+                World.Create<GameObject.Services.PenaltyService.PenaltyService>());
         }
 
         [TestMethod]
