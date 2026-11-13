@@ -107,8 +107,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Guri
                 await BroadcastToListenersAsync(session.Character.GenerateSay(message, (SayColorType)13), session.ConnectedChannel.Id);
             }
 
-            session.Character.InventoryService.RemoveItemAmountFromInventory(1, inv.ItemInstanceId);
-            await session.SendPacketAsync(inv.GeneratePocketChange(PocketType.Etc, (short)(packet.VisualId ?? 0)));
+            await session.Character.UseUpOneAsync(inv);
         }
     }
 }

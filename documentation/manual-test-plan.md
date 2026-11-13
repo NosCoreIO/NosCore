@@ -948,6 +948,9 @@ Needs two characters on the same channel. The commending one must be level 31 or
       up, none is lost
 - [ ] In Act 4, use a potion and another one straight after: the second stays in the inventory
       and heals nothing; five seconds later it works
+- [ ] Drink the last potion of a stack: its slot is drawn empty at once
+- [ ] Use one of a stack of two NosMerchant medals or backpacks: the slot shows 1 straight away,
+      not 2
 
 ### Resting in combat
 

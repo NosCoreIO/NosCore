@@ -81,9 +81,8 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+            await character.UseUpOneAsync(itemInstance);
             var characterId = character.CharacterId;
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
             var miniland = minilandProvider.GetMiniland(characterId);
             await mapChangeService.ChangeMapInstanceAsync(session, miniland.MapInstanceId, 5, 8);
         }

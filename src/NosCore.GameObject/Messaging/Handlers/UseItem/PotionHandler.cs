@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             var session = evt.ClientSession;
             var itemInstance = evt.InventoryItem;
+            InventoryItemInstance? left = null;
             var drunk = await session.Character.OnMapAsync(() =>
             {
                 var character = session.Character;
@@ -41,7 +42,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 }
 
                 potionCooldown.Start(character);
-                character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
+                left = character.InventoryService.RemoveItemAmountFromInventory(1, itemInstance.ItemInstanceId);
                 character.Hp = Math.Min(character.MaxHp, character.Hp + item.Hp);
                 character.Mp = Math.Min(character.MaxMp, character.Mp + item.Mp);
                 return Task.FromResult(true);
@@ -51,7 +52,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            await session.SendPacketAsync(itemInstance.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
+            await session.SendPacketAsync(left.GeneratePocketChange(itemInstance.Type.ToPocketType(), itemInstance.Slot));
             await session.SendPacketAsync(session.Character.GenerateStat());
         }
     }
