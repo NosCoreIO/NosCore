@@ -122,6 +122,8 @@ namespace NosCore.Parser.Parsers
                     source: "DATA[varies]", description: "Movement speed bonus / vehicle speed")
                 .Field(x => x.SpType, chunk => ImportSpType(chunk),
                     source: "DATA[varies] (SP only)", description: "SP transformation type")
+                .Field(x => x.PartnerSkillSet, chunk => ImportPartnerSkillSet(chunk),
+                    source: "DATA[14] (partner SP only)", description: "Partner SP skill set: the UpgradeType shared by its three partner skills, one more than the raw value")
                 .Field(x => x.LevelJobMinimum, chunk => ImportLevelJobMinimum(chunk),
                     source: "DATA[varies]", description: "Minimum job level to use/equip")
                 .Field(x => x.ReputationMinimum, chunk => ImportReputationMinimum(chunk),
@@ -519,6 +521,12 @@ namespace NosCore.Parser.Parsers
                 ItemType.Specialist => chunk["DATA"][0][13],
                 _ => "0"
             });
+        }
+        private byte ImportPartnerSkillSet(Dictionary<string, string[][]> chunk)
+        {
+            return ImportItemType(chunk) == ItemType.Specialist && chunk["INDEX"][0][4] == "4"
+                ? (byte)(Convert.ToByte(chunk["DATA"][0][14]) + 1)
+                : (byte)0;
         }
         private byte ImportLevelJobMinimum(Dictionary<string, string[][]> chunk)
         {

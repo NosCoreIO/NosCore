@@ -306,8 +306,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         };
     }
 
-    // Resolves the cached aggro target by visual id. Walks all three pools
-    // (players, monsters, NPCs) because any of them can be an aggro target.
+    // Resolves the cached aggro target by visual id. Walks every pool (players and
+    // their mates, monsters, NPCs) because any of them can be an aggro target.
     private IAliveEntity? ResolveTarget(INonPlayableEntity entity, long visualId)
     {
         var map = entity.MapInstance;
@@ -315,9 +315,22 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
         foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(entity.MapInstanceId))
         {
-            if (session.HasPlayerEntity && session.Character.VisualId == visualId)
+            if (!session.HasPlayerEntity)
+            {
+                continue;
+            }
+
+            if (session.Character.VisualId == visualId)
             {
                 return session.Character;
+            }
+
+            foreach (var mate in session.Character.Mates.Values)
+            {
+                if (mate.Entity is { } mateEntity && mateEntity.VisualId == visualId)
+                {
+                    return mateEntity;
+                }
             }
         }
         foreach (var monster in map.EnumerateMonsters())

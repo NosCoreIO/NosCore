@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261113141347_QuestRewardItemChoices";
+    public override string LastMigrationId => "20261113152606_PartnerSkillSet";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1526,6 +1526,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .IsRequired()
                     .HasMaxLength(255)
                     .HasColumnType("character varying(255)");
+
+                b.Property<byte>("PartnerSkillSet")
+                    .HasColumnType("smallint");
 
                 b.Property<byte>("PerfectionMaterial")
                     .HasColumnType("smallint");

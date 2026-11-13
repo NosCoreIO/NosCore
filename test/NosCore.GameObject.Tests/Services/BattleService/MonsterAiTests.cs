@@ -25,6 +25,7 @@ using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.GameObject.Services.PathfindingService;
 using NosCore.PathFinder.Interfaces;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -137,6 +138,23 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.IsTrue(await _ai.TickAsync(monster));
             SwingsAtThePlayer(Times.Once());
+        }
+
+        [TestMethod]
+        public async Task AMonsterHitByANosMateFightsBack()
+        {
+            var monster = SpawnMonster(4, 1, m => m.IsHostile = false);
+            PlacePlayer(4, 5);
+            var pet = TestMates.Pet(_session.Character.CharacterId);
+            _session.Character.Mates[pet.MateTransportId] = pet;
+            await pet.SpawnAsync(_session.Character, _map, 4, 2);
+
+            _aggro.AddThreat(monster, pet.Entity.NotNull(), 5);
+
+            Assert.IsTrue(await _ai.TickAsync(monster));
+            var petId = pet.MateTransportId;
+            _battle.Verify(b => b.Hit(It.IsAny<IAliveEntity>(), It.Is<IAliveEntity>(t => t.VisualId == petId),
+                It.IsAny<HitArguments>()), Times.Once());
         }
 
         [TestMethod]

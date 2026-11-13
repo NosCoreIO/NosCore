@@ -47,6 +47,8 @@ public sealed class SkillResolver : ISkillResolver
         };
     }
 
+    public SkillInfo Describe(SkillDto skill) => BuildInfo(skill, null, skill.CastId);
+
     private SkillInfo? ResolveCharacter(PlayerComponentBundle character, long castId)
     {
         // The same skill family can have multiple upgrades; client sends the base CastId

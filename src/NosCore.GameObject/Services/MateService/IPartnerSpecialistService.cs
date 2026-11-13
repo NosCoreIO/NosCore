@@ -4,8 +4,11 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
+using NosCore.GameObject.Ecs.Interfaces;
 
 namespace NosCore.GameObject.Services.MateService
 {
@@ -20,5 +23,11 @@ namespace NosCore.GameObject.Services.MateService
         Task TransformAsync(PlayerComponentBundle owner);
 
         Task UntransformAsync(PlayerComponentBundle owner, Mate partner);
+
+        /// <summary>The skills of the card a transformed partner wears, in skill bar order; none when it is not transformed.</summary>
+        IReadOnlyList<SkillDto> Skills(PlayerComponentBundle owner, Mate partner);
+
+        /// <summary>Casts the skill in a slot of a transformed partner's skill bar.</summary>
+        Task<bool> CastAsync(PlayerComponentBundle owner, long mateTransportId, int slot, IAliveEntity target);
     }
 }

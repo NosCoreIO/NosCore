@@ -45,6 +45,7 @@ namespace NosCore.PacketHandlers.Tests.Mates
         private const short PartnerSpecialist = 900;
         private const short PlayerSpecialist = 901;
         private const short SpecialistMorph = 2041;
+        private const byte SkillSet = 9;
 
         private ClientSession _session;
         private ItemGenerationService _items;
@@ -67,7 +68,8 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 new Item
                 {
                     Type = NoscorePocketType.Equipment, VNum = PartnerSpecialist, ItemType = ItemType.Specialist,
-                    EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = SpecialistMorph
+                    EquipmentSlot = EquipmentType.Sp, ItemSubType = 4, Morph = SpecialistMorph,
+                    PartnerSkillSet = SkillSet
                 },
                 new Item
                 {
@@ -75,6 +77,14 @@ namespace NosCore.PacketHandlers.Tests.Mates
                     EquipmentSlot = EquipmentType.Sp, ItemSubType = 0, Morph = 1
                 }
             }, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
+            World.Inject(new List<SkillDto>
+            {
+                new() { SkillVNum = 1317, CastId = 2, SkillType = 5, UpgradeType = SkillSet },
+                new() { SkillVNum = 1315, CastId = 0, SkillType = 5, UpgradeType = SkillSet },
+                new() { SkillVNum = 1316, CastId = 1, SkillType = 5, UpgradeType = SkillSet },
+                new() { SkillVNum = 1318, CastId = 0, SkillType = 5, UpgradeType = SkillSet + 1 },
+                new() { SkillVNum = 1000, CastId = 0, SkillType = 1, UpgradeType = SkillSet }
+            });
             _specialists = World.Create<PartnerSpecialistService>();
             _equipment = new PartnerEquipmentService(_specialists);
             _handler = new PslPacketHandler(_specialists);
@@ -126,6 +136,32 @@ namespace NosCore.PacketHandlers.Tests.Mates
                 .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Wear)
                 .Then(ThePartnerShouldLookLike_, SpecialistMorph)
                 .And(TheTransformationEffectShouldPlay)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ATransformedPartnerGetsItsCardsSkillBar()
+        {
+            await new Spec("Transforming fills the partner skill bar with its card's three skills in slot order")
+                .GivenAsync(APartnerIsOut)
+                .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
+                .AndAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
+                .And(_MillisecondsPass, 5000)
+                .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Wear)
+                .Then(TheSkillBarShouldHold_, new short[] { 1315, 1316, 1317 })
+                .And(TheOnlookersShouldSeeTheSkills_, new short[] { 1315, 1316, 1317 })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TurningBackClearsTheSkillBar()
+        {
+            await new Spec("Turning a transformed partner back takes its skill bar away")
+                .GivenAsync(APartnerIsOut)
+                .AndAsync(TheOwnerDrops_OnThePartner, PartnerSpecialist)
+                .AndAsync(ThePartnerIsTransformed)
+                .WhenAsync(TheOwnerSendsPsl_, PslPacketType.Unwear)
+                .Then(TheSkillBarShouldBeCleared)
                 .ExecuteAsync();
         }
 
@@ -285,6 +321,27 @@ namespace NosCore.PacketHandlers.Tests.Mates
             Assert.AreEqual(morph, cMode.Morph);
             Assert.AreEqual(morph, Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull().Morph);
             Assert.AreEqual(morph, _session.LastPackets.OfType<ScnPacket>().Last().MorphId);
+        }
+
+        private void TheSkillBarShouldHold_(short[] skills)
+        {
+            var bar = _session.LastPackets.OfType<PSkiPacket>().Single();
+            CollectionAssert.AreEqual(skills, new[] { (short)bar.FirstSkill, (short)bar.SecondSkill, (short)bar.ThirdSkill });
+            var scn = _session.LastPackets.OfType<ScnPacket>().Last();
+            CollectionAssert.AreEqual(skills, new[] { scn.Skill1Details, scn.Skill2Details, scn.Skill3Details }
+                .Select(s => (short)s.NotNull().SkillId).ToArray());
+        }
+
+        private void TheOnlookersShouldSeeTheSkills_(short[] skills)
+        {
+            var sub = Broadcast().OfType<InPacket>().Last().InNonPlayerSubPacket.NotNull();
+            CollectionAssert.AreEqual(skills, new[] { sub.Skill1, sub.Skill2, sub.Skill3 });
+        }
+
+        private void TheSkillBarShouldBeCleared()
+        {
+            Assert.AreEqual(0, _session.LastPackets.OfType<DpskiPacket>().Single().State);
+            Assert.IsFalse(_session.LastPackets.OfType<PSkiPacket>().Any());
         }
 
         private void TheTransformationEffectShouldPlay() =>
