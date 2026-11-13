@@ -738,6 +738,10 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] With one free Main slot and no sealed cards yet, double-click a Tarot Card Game: unless all
       five cards came out the same, the not-enough-space message appears and the game stays
 - [ ] Use a title item and a speaker: both still work as before
+- [ ] `$CreateItem 1401` (Legendary Treasure Chest) and double-click it: the chest opens at once,
+      the reward window shows one item from the list in its description, and the chest is gone
+- [ ] Hover a pack whose description says it contains several items (1562): double-clicking it
+      still does nothing, since it gives its whole list rather than one roll
 
 ### Perfume
 
