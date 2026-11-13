@@ -70,12 +70,45 @@ namespace NosCore.Parser.Parsers
         {
             var parser = BuildParser(folder).Build(loggerFactory, logLanguage);
             var quests = await parser.GetDtosAsync();
+            KeepExistingIds(quests);
 
             await questDao.TryInsertOrUpdateAsync(quests);
             await questQuestRewardDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestQuestReward != null).SelectMany(s => s.QuestQuestReward));
             await questObjectiveDao.TryInsertOrUpdateAsync(quests.Where(s => s.QuestObjective != null).SelectMany(s => s.QuestObjective));
 
             _logger.LogInformation(logLanguage[LogLanguageKey.QUESTS_PARSED], quests.Count);
+        }
+
+        // Child rows have no id in the file, so a re-import reuses the stored row with the same
+        // content instead of adding a duplicate that character progress would not point to.
+        private void KeepExistingIds(IEnumerable<QuestDto> quests)
+        {
+            var links = questQuestRewardDao.LoadAll()
+                .GroupBy(l => (l.QuestId, l.QuestRewardId))
+                .ToDictionary(g => g.Key, g => new Queue<Guid>(g.Select(l => l.Id)));
+            var objectives = questObjectiveDao.LoadAll()
+                .GroupBy(o => (o.QuestId, o.FirstData, o.SecondData, o.ThirdData, o.FourthData))
+                .ToDictionary(g => g.Key, g => new Queue<Guid>(g.Select(o => o.QuestObjectiveId)));
+
+            foreach (var quest in quests)
+            {
+                foreach (var link in quest.QuestQuestReward ?? [])
+                {
+                    if (links.TryGetValue((link.QuestId, link.QuestRewardId), out var ids) && ids.TryDequeue(out var id))
+                    {
+                        link.Id = id;
+                    }
+                }
+
+                foreach (var objective in quest.QuestObjective ?? [])
+                {
+                    if (objectives.TryGetValue((objective.QuestId, objective.FirstData, objective.SecondData, objective.ThirdData, objective.FourthData), out var ids)
+                        && ids.TryDequeue(out var id))
+                    {
+                        objective.QuestObjectiveId = id;
+                    }
+                }
+            }
         }
 
         private List<QuestQuestRewardDto> ImportQuestQuestRewards(Dictionary<string, string[][]> chunk)
