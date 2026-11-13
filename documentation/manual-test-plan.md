@@ -1962,6 +1962,16 @@ Run the WebApi, the master, the login server and two world servers (two channels
 - [ ] On an account with MFA set, log in through the launcher: the launcher asks for the
       code, the game does not ask again, and changing channel does not ask either
 
+### A character creation that fails
+
+Needs a world server whose starter pack names an item that does not exist: copy
+`configuration/`, change one `VNum` under `BasicEquipments: Adventurer` to an unused number
+and start the world server with `--config <copy>`.
+
+- [ ] Create a character: the client says "Creation failed. Please try again." and stays on
+      the creation screen
+- [ ] Log in again: the slot is still empty and the name can still be used
+
 ### Timed bans
 
 A ban is a row in `PenaltyLog` for the account (`Penalty` 1, `DateEnd` in the future).

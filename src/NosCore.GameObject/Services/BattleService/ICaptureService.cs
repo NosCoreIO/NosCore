@@ -10,9 +10,7 @@ using NosCore.GameObject.Services.BattleService.Model;
 
 namespace NosCore.GameObject.Services.BattleService
 {
-    // Handles skills that carry a `BCardType.Capture` / `CaptureAnimal` bcard. Mirrors
-    // vanosilla's BCardCaptureHandler + MonsterCaptureEventHandler flow (see
-    // `_plugins/WingsEmu.Plugins.BasicImplementation/BCards/Handlers/BCardCaptureHandler.cs`).
+    // Handles skills that carry a `BCardType.Capture` / `CaptureAnimal` bcard.
     public interface ICaptureService
     {
         // True if `skill` is a capture skill (contains a CaptureAnimal bcard).

@@ -85,8 +85,8 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .ReturnsAsync(true);
 
             var handler = new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(),
-                new Mock<IDao<QuicklistEntryDto, Guid>>().Object, itemInstances.Object, slots.Object, new HpService(), new MpService(),
-                _configuration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, World.ItemList, NullLoggerFactory.Instance);
+                World.QuicklistEntryDao, itemInstances.Object, slots.Object, new HpService(), new MpService(),
+                _configuration, World.CharacterSkillDao, World.ItemList, NullLoggerFactory.Instance, World.Create<IDaoTransactionScope>());
             _session.ClearPlayerEntity();
             await handler.ExecuteAsync(new CharNewPacket { Name = "Starter", Slot = 2, TargetClass = @class }, _session);
         }

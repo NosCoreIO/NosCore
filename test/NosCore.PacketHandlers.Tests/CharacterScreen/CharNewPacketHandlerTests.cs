@@ -8,6 +8,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.HpService;
 using NosCore.Algorithm.MpService;
+using NosCore.Core.Configuration;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -24,6 +25,8 @@ using NosCore.Networking.SessionGroup;
 using NosCore.PacketHandlers.CharacterScreen;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
@@ -48,8 +51,9 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
         {
             World = await TestWorld.CreateAsync();
             CharNewPacketHandler =
-                new CharNewPacketHandler(World.CharacterDao, new Mock<IItemGenerationService>().Object, new Mock<IDao<QuicklistEntryDto, Guid>>().Object,
-                    new Mock<IDao<IItemInstanceDto?, Guid>>().Object, new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, new HpService(), new MpService(), World.WorldConfiguration, new Mock<IDao<CharacterSkillDto, Guid>>().Object, World.ItemList, NullLoggerFactory.Instance);
+                new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(), World.QuicklistEntryDao,
+                    World.ItemInstanceDao, World.InventoryItemInstanceDao, new HpService(), new MpService(), World.WorldConfiguration,
+                    World.CharacterSkillDao, World.ItemList, NullLoggerFactory.Instance, World.Create<IDaoTransactionScope>());
             Session = await World.CreateSessionAsync(new List<IPacketHandler> { CharNewPacketHandler });
             MapChangeService = new Mock<IMapChangeService>();
             Session.ClearPlayerEntity();
@@ -115,6 +119,49 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                     Name = TestCharacterName
                 }
             });
+        }
+
+        [TestMethod]
+        public async Task ACreatedCharacterHasItsSkillsAndQuickSlots()
+        {
+            await new Spec("A created character has its skills and quick slots")
+                .WhenAsync(CreatingCharacter)
+                .ThenAsync(TheCharacterHasItsSkillsAndQuickSlots)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACharacterWhoseStarterItemDoesNotExistIsNotCreated()
+        {
+            await new Spec("A character whose starter item does not exist is not created")
+                .Given(AStarterItemDoesNotExist)
+                .WhenAsync(CreatingCharacter)
+                .ThenAsync(CharacterShouldNotExist)
+                .And(ThePlayerIsToldTheCreationFailed)
+                .ExecuteAsync();
+        }
+
+        private void AStarterItemDoesNotExist()
+        {
+            World.WorldConfiguration.Value.BasicEquipments["Adventurer"] = new Dictionary<StarterOrigin, List<BasicEquipment>>
+            {
+                [StarterOrigin.CreateAndUpgrade] = [new BasicEquipment { VNum = 31999, Amount = 1 }]
+            };
+        }
+
+        private async Task TheCharacterHasItsSkillsAndQuickSlots()
+        {
+            var character = (await World.CharacterDao.FirstOrDefaultAsync(s => s.Name == TestCharacterName)).NotNull();
+            var skills = World.CharacterSkillDao.Where(s => s.CharacterId == character.CharacterId).NotNull()
+                .Select(s => s.SkillVNum).OrderBy(s => s).ToArray();
+            CollectionAssert.AreEqual(new short[] { 200, 201, 209 }, skills);
+            Assert.AreEqual(4, World.QuicklistEntryDao.Where(s => s.CharacterId == character.CharacterId).NotNull().Count());
+        }
+
+        private void ThePlayerIsToldTheCreationFailed()
+        {
+            var told = Session.LastPackets.OfType<InfoiPacket>().Single();
+            Assert.AreEqual(Game18NConstString.CreationFailed, told.Message);
         }
 
         private async Task CreatingCharacter()
