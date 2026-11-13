@@ -22,7 +22,9 @@ using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.PacketHandlers.Warehouse;
+using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.ClientPackets.Warehouse;
+using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Packets.ServerPackets.Warehouse;
@@ -33,6 +35,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 
 namespace NosCore.PacketHandlers.Tests.Family
 {
@@ -46,6 +49,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         private readonly Dictionary<Guid, IItemInstanceDto> _instances = new();
         private readonly List<(Guid Id, short Slot, Guid ItemInstanceId)> _stored = new();
         private bool _takenElsewhere;
+        private readonly Mock<IFamilyLogService> _log = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -168,7 +172,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
             return new FamilyWarehouseService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items);
+                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _log.Object, World.Clock);
         }
 
         private void Store(short vnum, short amount, short slot)
@@ -217,6 +221,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(4, At(2).Amount);
             Assert.AreEqual(6, _session.Character.InventoryService.LoadBySlotAndType(0, NoscorePocketType.Main).NotNull().ItemInstance.Amount);
+            var name = _session.Character.Name;
+            _log.Verify(s => s.AddAsync(FamilyId, FamilyLogType.WareHouseAdded, name, (short)1012, (short)4), Times.Once);
         }
 
         [TestMethod]
@@ -279,6 +285,8 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(3, At(3).Amount);
             Assert.AreEqual(2, _session.Character.InventoryService.CountItem(1012));
+            var name = _session.Character.Name;
+            _log.Verify(s => s.AddAsync(FamilyId, FamilyLogType.WareHouseRemoved, name, (short)1012, (short)2), Times.Once);
         }
 
         [TestMethod]
@@ -303,6 +311,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(0, _stored.Count);
             Assert.AreEqual(10, _session.Character.InventoryService.CountItem(1013));
+            _log.VerifyNoOtherCalls();
         }
 
         [TestMethod]
@@ -344,6 +353,31 @@ namespace NosCore.PacketHandlers.Tests.Family
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(1012));
             Assert.AreEqual(5, At(3).Amount);
             Assert.AreEqual(Game18NConstString.NotEnoughSpace, _session.LastPackets.OfType<MsgiPacket>().Last().Message);
+            _log.VerifyNoOtherCalls();
+        }
+
+        [TestMethod]
+        public async Task TheHistoryWindowsUpdateButtonResendsTheHistory()
+        {
+            _log.Setup(s => s.GetWarehouseHistory(FamilyId)).Returns(new List<FamilyLogDto>
+            {
+                new()
+                {
+                    FamilyId = FamilyId,
+                    FamilyLogType = FamilyLogType.WareHouseAdded,
+                    FirstArgument = "Tester",
+                    SecondArgument = "2072",
+                    ThirdArgument = "1",
+                    Timestamp = World.Clock.GetCurrentInstant()
+                }
+            });
+
+            await new FslogCtsPacketHandler(Service()).ExecuteAsync(new FslogCtsPacket(), _session);
+
+            var entry = _session.LastPackets.OfType<FslogStcPacket>().Single().Entries?.Single();
+            Assert.IsNotNull(entry);
+            Assert.AreEqual(FamilyWarehouseLogType.Deposit, entry.Type);
+            Assert.AreEqual(2072, entry.ItemVNum);
         }
 
         [TestMethod]

@@ -1495,6 +1495,14 @@ to 21 (or 49). Members stand next to Salim (vnum 1431, dialog 462).
 - [ ] With a full bag, dragging a stack out leaves it in the warehouse
 - [ ] Two members dragging the same stack out at once: only one of them receives it
 - [ ] Disbanding the family empties its warehouse
+- [ ] "View Warehouse History" opens the history window: every deposit shows as "List
+      <name> > <item> X <amount>Piece" and every withdrawal as "Remove ...", newest first, with
+      "(within 1 hour(s))" or "(N hour(s) ago)" / "(N day(s) ago)"
+- [ ] The history keeps the newest 200 entries; scrolling to the bottom shows the 200th
+- [ ] With the window open, another member's deposit appears at the top after pressing Update
+- [ ] A member whose rank may not read the history (family settings) gets "Not authorised."
+      instead of the window; the head and assistants always see it
+- [ ] The family's own history window (fhis) still leaves warehouse entries out
 
 ### Family extensions
 

@@ -14,6 +14,8 @@ namespace NosCore.GameObject.Services.FamilyService
     {
         Task OpenAsync(ClientSession session);
 
+        Task OpenHistoryAsync(ClientSession session);
+
         Task DepositAsync(ClientSession session, PocketType pocket, short slot, short amount, short warehouseSlot);
 
         Task WithdrawAsync(ClientSession session, short warehouseSlot, short amount);

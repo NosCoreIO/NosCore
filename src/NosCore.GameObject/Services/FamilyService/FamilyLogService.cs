@@ -22,6 +22,7 @@ namespace NosCore.GameObject.Services.FamilyService
         private const int MaxArguments = 4;
         private const int ArgumentMaxLength = 255;
         private const int HistoryLength = 50;
+        private const int WarehouseHistoryLength = 200;
 
         public async Task AddAsync(long familyId, FamilyLogType type, params object[] arguments)
         {
@@ -49,6 +50,13 @@ namespace NosCore.GameObject.Services.FamilyService
                     && s.FamilyLogType != FamilyLogType.WareHouseRemoved)?
                 .OrderByDescending(s => s.Timestamp)
                 .Take(HistoryLength)
+                .ToList() ?? new List<FamilyLogDto>();
+
+        public IReadOnlyList<FamilyLogDto> GetWarehouseHistory(long familyId) =>
+            familyLogDao.Where(s => s.FamilyId == familyId
+                    && (s.FamilyLogType == FamilyLogType.WareHouseAdded || s.FamilyLogType == FamilyLogType.WareHouseRemoved))?
+                .OrderByDescending(s => s.Timestamp)
+                .Take(WarehouseHistoryLength)
                 .ToList() ?? new List<FamilyLogDto>();
 
         public async Task AddLevelUpsAsync(long familyId, string characterName, byte previousLevel, byte level)
