@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.MailHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.Algorithm.FamilyExperienceService;
+using NosCore.GameObject.Services.CharacterRankingService;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapChangeService;
@@ -45,7 +46,8 @@ namespace NosCore.PacketHandlers.Game
             ISerializer packetSerializer, IMailHub mailHttpClient, IQuestService questProvider,
             IMapChangeService mapChangeService, ISkillService skillService,
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
-            IBuffService buffService, IVitalityService vitalityService)
+            IBuffService buffService, IVitalityService vitalityService,
+            ICharacterRankingService characterRankingService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -179,22 +181,16 @@ namespace NosCore.PacketHandlers.Game
             await session.SendPacketAsync(session.Character.GenerateSki(useSpecialist: false));
             await session.SendPacketsAsync(session.Character.GenerateQuicklist());
 
-            //            string clinit = ServerManager.Instance.TopComplimented.Aggregate("clinit",
-            //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Compliment}|{character.Name}");
-            //            string flinit = ServerManager.Instance.TopReputation.Aggregate("flinit",
-            //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Reput}|{character.Name}");
-            //            string kdlinit = ServerManager.Instance.TopPoints.Aggregate("kdlinit",
-            //                (current, character) => current + $" {character.CharacterId}|{character.Level}|{character.HeroLevel}|{character.Act4Points}|{character.Name}");
-
             //            Session.CurrentMapInstance?.Broadcast(Session.Character.GenerateGidx());
 
             await session.Character.SendFinfoAsync(friendHttpClient, pubSubHub, packetSerializer, true);
 
             await session.SendPacketAsync(await session.Character.GenerateFinitAsync(friendHttpClient, channelHttpClient, pubSubHub));
             await session.SendPacketAsync(await session.Character.GenerateBlinitAsync(blacklistHttpClient));
-            //            Session.SendPacket(clinit);
-            //            Session.SendPacket(flinit);
-            //            Session.SendPacket(kdlinit);
+            var rankings = characterRankingService.GetRankings();
+            await session.SendPacketAsync(rankings.GeneratePopularityList());
+            await session.SendPacketAsync(rankings.GenerateReputationList());
+            await session.SendPacketAsync(rankings.GenerateCombatPointsList());
 
             //            Session.Character.LastPVPRevive = SystemTime.Now;
 

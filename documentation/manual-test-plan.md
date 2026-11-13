@@ -1634,6 +1634,19 @@ same map.
 - [ ] Opening the family window shows the name, the head, the level bar and the notice,
       with the notice's spaces intact
 
+### Messenger rankings
+
+The Messenger window (`N`) has three ranking tabs. Each is built once a day at 5 AM server
+time, and on the first login after a start, so a value changed in between only shows the next
+day or after a restart of the world server.
+
+- [ ] Popularity List: characters by compliments, highest first, as rank, level, name and
+      count; a hero level shows as `Lv80(+7)`
+- [ ] Rep. Rankings: the same by reputation
+- [ ] CP Rankings: the same by Act 4 points
+- [ ] A character with 0 in a list's value is not in that list
+- [ ] Characters of a game master account are in none of them, however high their values
+
 ### Family chat and shout
 
 Same seeded family, with a third character outside it.
