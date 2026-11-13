@@ -254,33 +254,7 @@ namespace NosCore.GameObject.Services.BattleService
             if (origin is not PlayerComponentBundle character) return;
 
             var readyAt = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(skill.Cooldown * 100));
-            character.PendingSkillResets[skill.CastId] = readyAt;
-        }
-
-        public async Task TickCooldownResetsAsync(MapInstance mapInstance)
-        {
-            var now = clock.GetCurrentInstant();
-            foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
-            {
-                if (!session.HasPlayerEntity) continue;
-                var character = session.Character;
-                var skills = character.PendingSkillResets;
-                if (skills.IsEmpty) continue;
-                foreach (var (castId, readyAt) in skills)
-                {
-                    if (readyAt > now) continue;
-                    if (!skills.TryRemove(castId, out _)) continue;
-                    if (character.IsDisconnecting) continue;
-                    try
-                    {
-                        await character.SendPacketAsync(new SkillResetPacket { CastId = castId }).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        logger.LogWarning(ex, "Failed to reset cooldown for skill {CastId}", castId);
-                    }
-                }
-            }
+            character.PendingResets[skill.CastId] = readyAt;
         }
 
         // NoAttack is a state-only gate (locked / sleeping / vehicled); the faction

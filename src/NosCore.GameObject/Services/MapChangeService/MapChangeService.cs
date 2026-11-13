@@ -384,7 +384,8 @@ namespace NosCore.GameObject.Services.MapChangeService
                     oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default,
                     oldWorld.TryGetComponent<DigestionComponent>(oldEntity) ?? new DigestionComponent(new DigestionState()),
                     oldWorld.TryGetComponent<HitListComponent>(oldEntity) ?? new HitListComponent(new()),
-                    oldWorld.TryGetComponent<BaseMapPositionComponent>(oldEntity) ?? default);
+                    oldWorld.TryGetComponent<BaseMapPositionComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<SkillResetComponent>(oldEntity) ?? new SkillResetComponent(new()));
 
                 session.SetPlayerEntity(playerEntity, to.EcsWorld);
                 oldWorld.Forward(oldEntity, session);

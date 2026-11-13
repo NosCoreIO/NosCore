@@ -17,6 +17,7 @@ using NosCore.Data.Enumerations.Battle;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
+using NosCore.GameObject.Ecs.Systems;
 using NosCore.GameObject.Generated;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
@@ -43,7 +44,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
-        public async Task ACastCharacterIsToldWhenTheSkillIsReadyAgain()
+        public async Task ACastSkillIsReadyAgainOnceItsCooldownHasRunOut()
         {
             World = await TestWorld.CreateAsync();
             var session = await World.CreateSessionAsync();
@@ -74,13 +75,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));
 
-            await service.TickCooldownResetsAsync(map);
-            Assert.IsFalse(session.LastPackets.OfType<SkillResetPacket>().Any(), "not ready yet");
+            var system = new SkillResetSystem();
+            var ready = new System.Collections.Generic.List<(Arch.Core.Entity Entity, long CastId)>();
+            system.TakeReady(map.EcsWorld, clock.GetCurrentInstant(), ready);
+            Assert.AreEqual(0, ready.Count, "not ready yet");
 
             clock.Advance(Duration.FromMilliseconds(600));
-            await service.TickCooldownResetsAsync(map);
+            system.TakeReady(map.EcsWorld, clock.GetCurrentInstant(), ready);
+            CollectionAssert.AreEqual(new[] { (session.Character.Entity, 7L) }, ready);
 
-            Assert.AreEqual(7, session.LastPackets.OfType<SkillResetPacket>().Single().CastId);
+            ready.Clear();
+            system.TakeReady(map.EcsWorld, clock.GetCurrentInstant(), ready);
+            Assert.AreEqual(0, ready.Count, "handed out once");
         }
     }
 }
