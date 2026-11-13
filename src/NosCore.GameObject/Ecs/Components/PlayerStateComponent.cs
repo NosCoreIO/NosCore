@@ -19,5 +19,6 @@ public record struct PlayerStateComponent(
     Instant ConnectedAt,
     string? SpeechBubble = null,
     Instant SpeechBubbleExpiresAt = default,
-    bool IsWaitingForEvent = false
+    bool IsWaitingForEvent = false,
+    Instant ReviveAskedAt = default
 );

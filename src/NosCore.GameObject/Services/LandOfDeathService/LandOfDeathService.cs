@@ -5,6 +5,7 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NodaTime;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
@@ -32,6 +33,7 @@ using NosCore.Shared.Enumerations;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,6 +51,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         ISessionRegistry sessionRegistry,
         IAggroService aggroService,
         IItemCatalog itemCatalog,
+        IClock clock,
         ILogger<LandOfDeathService> logger) : ILandOfDeathService, ISingletonService
     {
         public const short MapId = 150;
@@ -75,6 +78,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         private readonly SemaphoreSlim _landLock = new(1, 1);
         private int _running;
         private volatile bool _gateOpen;
+        private volatile bool _huntActive;
         private TimeSpan _remaining;
 
         public bool IsRunning => Volatile.Read(ref _running) == 1;
@@ -113,6 +117,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                 finally
                 {
                     _gateOpen = false;
+                    _huntActive = false;
                     await CloseAllAsync();
                     Volatile.Write(ref _running, 0);
                 }
@@ -166,6 +171,20 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             _lastArrival[land.MapInstanceId] = session.Character.CharacterId;
             await mapChangeService.ChangeMapInstanceAsync(session, land.MapInstanceId, EntranceX, EntranceY);
             await session.SendPacketAsync(Clock(_remaining));
+
+            // A family arriving while the devil is out elsewhere gets its own devil straight away.
+            await _landLock.WaitAsync();
+            try
+            {
+                if (_huntActive && !_devils.ContainsKey(land.MapInstanceId))
+                {
+                    await StartHuntAsync(land);
+                }
+            }
+            finally
+            {
+                _landLock.Release();
+            }
         }
 
         public async Task AskReviveAsync(PlayerComponentBundle player)
@@ -181,12 +200,14 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             });
 
             var mapInstanceId = player.MapInstance?.MapInstanceId;
+            var askedAt = clock.GetCurrentInstant();
+            player.ReviveAskedAt = askedAt;
             _ = Task.Run(async () =>
             {
                 try
                 {
                     await Task.Delay(ReviveTimeout);
-                    if (player.Hp > 0 || player.MapInstance?.MapInstanceId != mapInstanceId
+                    if (player.ReviveAskedAt != askedAt || player.Hp > 0 || player.MapInstance?.MapInstanceId != mapInstanceId
                         || sessionRegistry.GetSessionByCharacterId(player.CharacterId) is not { } session)
                     {
                         return;
@@ -229,7 +250,8 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         private async Task RunAsync()
         {
             _gateOpen = true;
-            for (_remaining = Length; _remaining > TimeSpan.Zero; _remaining -= ClockRefresh)
+            var started = Stopwatch.GetTimestamp();
+            for (var step = 0; (_remaining = Length - ClockRefresh * step) > TimeSpan.Zero; step++)
             {
                 var lands = _lands.Values.ToList();
                 foreach (var land in lands)
@@ -237,19 +259,24 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                     await land.SendPacketAsync(Clock(_remaining));
                 }
 
-                if (IsHuntStart(_remaining))
+                if (IsHuntStart(_remaining) || IsHuntEnd(_remaining))
                 {
-                    foreach (var land in lands)
+                    await _landLock.WaitAsync();
+                    try
                     {
-                        await StartHuntAsync(land);
+                        _huntActive = IsHuntStart(_remaining);
+                        if (!_huntActive)
+                        {
+                            _gateOpen = false;
+                        }
+                        foreach (var land in _lands.Values)
+                        {
+                            await (_huntActive ? StartHuntAsync(land) : EndHuntAsync(land));
+                        }
                     }
-                }
-                else if (IsHuntEnd(_remaining))
-                {
-                    _gateOpen = false;
-                    foreach (var land in lands)
+                    finally
                     {
-                        await EndHuntAsync(land);
+                        _landLock.Release();
                     }
                 }
 
@@ -261,7 +288,11 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                     }
                 }
 
-                await Task.Delay(ClockRefresh);
+                var wait = ClockRefresh * (step + 1) - Stopwatch.GetElapsedTime(started);
+                if (wait > TimeSpan.Zero)
+                {
+                    await Task.Delay(wait);
+                }
             }
         }
 
