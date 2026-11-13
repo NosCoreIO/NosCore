@@ -373,6 +373,20 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         }
 
         [TestMethod]
+        public async Task ClaimingARewardWearsTheObjectByItsLevel()
+        {
+            await new Spec("Claiming a reward wears the object by its level")
+                .Given(MinigameObjectExistsAndPlaced)
+                .And(MinilandHasPoints)
+                .AndAsync(PlayingMinigame)
+                .And(GameRunsForSeconds_, 60)
+                .AndAsync(Scoring_, 5000)
+                .WhenAsync(SelectingGift_, 1)
+                .Then(DurabilityShouldBe_, 985)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ClaimingARewardWithoutEnoughPointsIsRefused()
         {
             await new Spec("Claiming a reward without enough points is refused")
@@ -385,6 +399,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .WhenAsync(SelectingGift_, 1)
                 .Then(RewardsShouldBeGranted_, 0)
                 .And(MinilandPointsShouldBe_, 50L)
+                .And(DurabilityShouldBe_, 1000)
                 .ExecuteAsync();
         }
 

@@ -1926,6 +1926,9 @@ Give yourself the quest through its script, or by walking the quest line that le
       drops to 0
 - [ ] A visitor can play and earn rewards but cannot open the management or gifts window of the
       owner's object
+- [ ] Choosing a reward takes durability from the object: 10, 15, 20, 25 or 30 for reward
+      levels 1 to 5 (check the Durability window before and after). A reward refused for lack of
+      production points takes none. At 0 durability, Start Game says the object needs repairing
 
 ## Miniland points
 
@@ -1941,6 +1944,10 @@ Use a character that has never logged in before, or one whose points were spent 
 - [ ] Spend some points, log out and back in the same day: the points are unchanged; log in
       after midnight UTC: they are back to 2000
 - [ ] Visits to the miniland do not change its points
+- [ ] Have a second player visit the miniland a few times, then wait past midnight UTC while the
+      owner is logged in: within a minute the owner gets 2 reputation per visit of the day, with
+      the "reputation increased" chat line, and the day's visit count goes back to 0. An owner who
+      was offline at midnight gets the same reputation, silently, at their next login
 
 ## Not verifiable yet
 

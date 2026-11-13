@@ -17,6 +17,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
     {
         private MinilandDto _miniland = new();
         private Instant _now;
+        private long? _earned;
 
         [TestInitialize]
         public void Setup()
@@ -61,6 +62,31 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
         }
 
         [TestMethod]
+        public void TheDaysVisitsShouldEarnTheOwnerReputationAtMidnight()
+        {
+            new Spec("The day's visits should earn the owner reputation at midnight")
+                .Given(PointsAreRefreshed)
+                .And(OwnerHadDailyVisits_, 4)
+                .And(MinutesPass_, 31)
+                .When(PointsAreRefreshed)
+                .Then(EarnedReputationShouldBe_, 8L)
+                .Execute();
+        }
+
+        [TestMethod]
+        public void VisitsShouldEarnNothingBeforeMidnight()
+        {
+            new Spec("Visits should earn nothing before midnight")
+                .Given(PointsAreRefreshed)
+                .And(OwnerHadDailyVisits_, 4)
+                .And(MinutesPass_, 29)
+                .When(PointsAreRefreshed)
+                .Then(NoReputationShouldBeEarned)
+                .And(DailyVisitsShouldBe_, 4)
+                .Execute();
+        }
+
+        [TestMethod]
         public void PointsShouldNotExceedTheDailyAllowance()
         {
             new Spec("Points should not exceed the daily allowance")
@@ -71,7 +97,11 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 .Execute();
         }
 
-        private void PointsAreRefreshed() => _miniland.RefreshDailyPoints(_now);
+        private void PointsAreRefreshed() => _earned = _miniland.RefreshDailyPoints(_now);
+
+        private void EarnedReputationShouldBe_(long reputation) => Assert.AreEqual(reputation, _earned);
+
+        private void NoReputationShouldBeEarned() => Assert.IsNull(_earned);
 
         private void PointsAreSpentDownTo_(long points) => _miniland.MinilandPoint = points;
 
