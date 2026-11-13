@@ -14,9 +14,11 @@ namespace NosCore.GameObject.Messaging.Events
     // on the server. Subscribers decide what to do with the new coordinates:
     // GoTo quest validators, proximity triggers, aggro range checks, etc. The
     // packet handler itself knows nothing about any of them.
-    public sealed record CharacterMovedEvent(PlayerComponentBundle Character, short X, short Y, short MapId)
+    public sealed record CharacterMovedEvent(PlayerComponentBundle Character, short X, short Y, short MapId) : IPlayerEvent
     {
         // Read when handled, possibly after a map change replaced a player's entity.
         public PlayerComponentBundle Character { get => field.Live(); init; } = Character;
+
+        public bool PlayerHasLeft => Character.HasLeft();
     }
 }
