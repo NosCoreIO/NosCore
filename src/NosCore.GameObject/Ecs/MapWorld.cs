@@ -378,6 +378,7 @@ public class MapWorld : IDisposable
         long accountId,
         string name,
         Guid mapInstanceId,
+        short mapId,
         short positionX,
         short positionY,
         byte direction,
@@ -436,6 +437,7 @@ public class MapWorld : IDisposable
             new MinigameSessionComponent(null, Instant.MinValue, null),
             new HitListComponent(new ConcurrentDictionary<Entity, int>())
         );
+        _world.Add(entity, new BaseMapPositionComponent(mapId, positionX, positionY));
         return entity;
     }
 
@@ -465,7 +467,8 @@ public class MapWorld : IDisposable
         RequestsComponent requests,
         PlayerMatesComponent mates,
         DigestionComponent digestion,
-        HitListComponent hitList)
+        HitListComponent hitList,
+        BaseMapPositionComponent baseMapPosition)
     {
         // World.Create stops short of 25 generic components, so the last ones are added afterwards.
         using var scope = _sync.EnterScope();
@@ -475,6 +478,7 @@ public class MapWorld : IDisposable
             context, inventory, social, requests, mates);
         _world.Add(entity, digestion);
         _world.Add(entity, hitList);
+        _world.Add(entity, baseMapPosition);
         _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue, null));
         _world.Add(entity, new WalkAllowanceComponent(0));
         _world.Add(entity, new NpcDialogComponent(null));

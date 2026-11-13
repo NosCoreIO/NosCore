@@ -60,13 +60,16 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.Reput = character.Reput;
                 characterDto.Dignity = character.Dignity;
                 characterDto.Compliment = character.Compliment;
-                // MapX/Y is the last BaseMap position; keep it if we're saving off a BaseMap
-                // so miniland-exit can restore it.
+                // Off a base map the saved position stays the last base-map one, so leaving an
+                // instance or a miniland after a relog still lands there.
                 if (character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)
                 {
-                    characterDto.MapX = character.PositionX;
-                    characterDto.MapY = character.PositionY;
+                    character.MapX = character.PositionX;
+                    character.MapY = character.PositionY;
                 }
+                characterDto.MapId = character.MapId;
+                characterDto.MapX = character.MapX;
+                characterDto.MapY = character.MapY;
                 characterDto.SpPoint = character.SpPoint;
                 characterDto.SpAdditionPoint = character.SpAdditionPoint;
                 characterDto.CurrentScriptId = character.CurrentScriptId;

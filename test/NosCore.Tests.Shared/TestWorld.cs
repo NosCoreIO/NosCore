@@ -337,6 +337,7 @@ namespace NosCore.Tests.Shared
                 account.AccountId,
                 characterDto.Name ?? string.Empty,
                 mapInstance.MapInstanceId,
+                characterDto.MapId,
                 characterDto.MapX,
                 characterDto.MapY,
                 2,

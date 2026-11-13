@@ -44,7 +44,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(NpcDialogComponent),
     typeof(ListedTargetsComponent),
     typeof(MinigameSessionComponent),
-    typeof(HitListComponent)
+    typeof(HitListComponent),
+    typeof(BaseMapPositionComponent)
 )]
 public readonly partial struct PlayerComponentBundle : INamedEntity
 {
@@ -74,24 +75,6 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
     public short Race => (short)Class;
 
     // INamedEntity - LevelXp is generated
-
-    public short MapId
-    {
-        get => CharacterDto.MapId;
-        set => CharacterDto.MapId = value;
-    }
-
-    public short MapX
-    {
-        get => CharacterDto.MapX;
-        set => CharacterDto.MapX = value;
-    }
-
-    public short MapY
-    {
-        get => CharacterDto.MapY;
-        set => CharacterDto.MapY = value;
-    }
 
     public byte Slot => CharacterDto.Slot;
 
