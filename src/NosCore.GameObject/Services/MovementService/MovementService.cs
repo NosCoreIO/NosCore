@@ -48,7 +48,7 @@ public sealed class MovementService(IHeuristic distanceCalculator, ILogger<Movem
     public async Task<WalkResult> WalkAsync(ClientSession session, short x, short y, short speed, byte checksum)
     {
         var character = session.Character;
-        if (buffService.HasEffect(character, BCardEffect.MoveMovementImpossible))
+        if (character.NoMove || buffService.HasEffect(character, BCardEffect.MoveMovementImpossible))
         {
             return WalkResult.Refused;
         }

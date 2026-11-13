@@ -46,6 +46,9 @@ Events:
 - Type: InstantCombat
   Every: 02:00:00
   Offset: 00:00:00
+- Type: IceBreaker
+  Every: 01:00:00
+  Offset: 00:30:00
 # BasicEquipments / BasicSkills are keyed first by class name, then by starter origin:
 #   CreateAndUpgrade : Adventurer creation (lvl 1) and Adventurer -> specialist upgrade
 #   Create56         : specialist direct-create on normal server

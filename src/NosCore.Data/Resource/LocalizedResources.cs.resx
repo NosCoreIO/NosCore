@@ -569,4 +569,10 @@
   <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
     <value>Za {0} s začne Instant Combat pro všechny úrovně.</value>
   </data>
+  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
+    <value>Za {0} min. začne Icebreaker pro úrovně {1}-{2}.</value>
+  </data>
+  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
+    <value>Za {0} s začne Icebreaker pro úrovně {1}-{2}.</value>
+  </data>
 </root>

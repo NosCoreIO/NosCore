@@ -316,16 +316,24 @@ namespace NosCore.GameObject.Services.BattleService
         // guards never friendly-fire a player — so any ally pairing bails first.
         // Monsters are opposing-faction to both and are free to hit either. Area
         // targets go through this too, so PvP only needs deciding here.
-        internal static bool CanAttack(IAliveEntity origin, IAliveEntity target)
+        public static bool CanAttack(IAliveEntity origin, IAliveEntity target)
         {
             if (!CanCast(origin) || !target.IsAlive) return false;
             if (target.NoAttack) return false;
             if (origin is PlayerComponentBundle attacker && target is PlayerComponentBundle defender)
             {
-                return Arena.AreOpponents(attacker, defender);
+                return Arena.AreOpponents(attacker, defender) || AreOpponentsOnPvpMap(attacker, defender);
             }
             if (AreAllies(origin, target)) return false;
             return true;
+        }
+
+        public static bool AreOpponentsOnPvpMap(PlayerComponentBundle attacker, PlayerComponentBundle defender)
+        {
+            return attacker.CharacterId != defender.CharacterId
+                && attacker.MapInstance is { IsPvp: true } mapInstance
+                && defender.MapInstance?.MapInstanceId == mapInstance.MapInstanceId
+                && !attacker.Group.ContainsKey(new Tuple<VisualType, long>(VisualType.Player, defender.VisualId));
         }
 
         private static bool CanCast(IAliveEntity origin) => origin.IsAlive && !origin.NoAttack;

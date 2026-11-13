@@ -525,4 +525,10 @@
   <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
     <value>Za {0} s rozpocznie się Instant Combat dla wszystkich poziomów.</value>
   </data>
+  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
+    <value>Za {0} min. rozpocznie się Icebreaker dla poziomów {1}-{2}.</value>
+  </data>
+  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
+    <value>Za {0} s rozpocznie się Icebreaker dla poziomów {1}-{2}.</value>
+  </data>
 </root>
