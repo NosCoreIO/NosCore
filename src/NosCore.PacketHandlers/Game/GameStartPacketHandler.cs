@@ -23,6 +23,7 @@ using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.SkillService;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.Interfaces;
@@ -47,7 +48,7 @@ namespace NosCore.PacketHandlers.Game
             IMapChangeService mapChangeService, ISkillService skillService,
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
             IBuffService buffService, IVitalityService vitalityService,
-            ICharacterRankingService characterRankingService)
+            ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -121,10 +122,7 @@ namespace NosCore.PacketHandlers.Game
                 await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.NosMerchantActive));
             }
 
-            //            if (Session.Character.StaticBonusList.Any(s => s.StaticBonusType == StaticBonusType.PetBasket))
-            //            {
-            //                Session.SendPacket("ib 1278 1");
-            //            }
+            await warehouseService.SendCarriedStoragesAsync(session);
 
             //            if (Session.Character.MapInstance.Map.MapTypes.Any(m => m.MapTypeId == (short)MapTypeEnum.CleftOfDarkness))
             //            {

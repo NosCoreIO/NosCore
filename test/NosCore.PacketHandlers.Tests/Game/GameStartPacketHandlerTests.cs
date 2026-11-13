@@ -94,7 +94,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 Logger.Object,
                 BuffService.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
-                World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>());
+                World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>(),
+                new Mock<NosCore.GameObject.Services.WarehouseService.IPersonalWarehouseService>().Object);
         }
 
         [TestMethod]

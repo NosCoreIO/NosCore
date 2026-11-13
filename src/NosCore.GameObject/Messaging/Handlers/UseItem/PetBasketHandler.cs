@@ -17,13 +17,14 @@ using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.Enumerations;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.ServerPackets.Chats;
 using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Messaging.Handlers.UseItem
 {
     [UsedImplicitly]
-    public sealed class PetBasketHandler(IOptions<WorldConfiguration> conf, IClock clock)
+    public sealed class PetBasketHandler(IOptions<WorldConfiguration> conf, IClock clock, IPersonalWarehouseService warehouseService)
     {
         [UsedImplicitly]
         public async Task Handle(ItemUsedEvent evt)
@@ -77,6 +78,7 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
 
             session.Character.LoadExpensions();
             await session.SendPacketAsync(session.Character.GenerateExts(conf));
+            await warehouseService.SendCarriedStoragesAsync(session);
         }
     }
 }

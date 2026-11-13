@@ -4,32 +4,21 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
-using NosCore.Data.WebApi;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class DepositPacketHandler(IWarehouseHub warehouseHttpClient) : PacketHandler<DepositPacket>,
+    public class DepositPacketHandler(IPersonalWarehouseService warehouseService) : PacketHandler<DepositPacket>,
         IWorldPacketHandler
     {
-        public override Task ExecuteAsync(DepositPacket depositPacket, ClientSession clientSession)
-        {
-            short slot = 0;
-            return warehouseHttpClient.AddWarehouseItemAsync(new WareHouseDepositRequest
-            {
-
-                OwnerId = clientSession.Character.CharacterId,
-                WarehouseType = WarehouseType.Warehouse,
-                ItemInstance = new ItemInstanceDto(),
-                Slot = slot
-
-            });
-        }
+        public override Task ExecuteAsync(DepositPacket packet, ClientSession clientSession) =>
+            warehouseService.DepositAsync(clientSession,
+                packet.PartnerBackpack ? WarehouseType.PetWarehouse : WarehouseType.Warehouse,
+                packet.Inventory, packet.Slot, packet.Amount, packet.NewSlot);
     }
 }

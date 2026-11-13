@@ -4,22 +4,21 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Infastructure;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.ClientPackets.Warehouse;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Warehouse
 {
-    public class ReposPacketHandler : PacketHandler<ReposPacket>, IWorldPacketHandler
+    public class ReposPacketHandler(IPersonalWarehouseService warehouseService) : PacketHandler<ReposPacket>,
+        IWorldPacketHandler
     {
-        public ReposPacketHandler()
-        {
-        }
-
-        public override Task ExecuteAsync(ReposPacket reposPacket, ClientSession clientSession)
-        {
-            return Task.CompletedTask;
-        }
+        public override Task ExecuteAsync(ReposPacket packet, ClientSession clientSession) =>
+            warehouseService.MoveAsync(clientSession,
+                packet.PartnerBackpack ? WarehouseType.PetWarehouse : WarehouseType.Warehouse,
+                packet.OldSlot, packet.Amount, packet.NewSlot);
     }
 }
