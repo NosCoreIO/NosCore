@@ -5,11 +5,9 @@
 //
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Arch.Core;
 using NodaTime;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
@@ -92,11 +90,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         this.logger = logger;
     }
 
-    // Cached path per entity — invalidated when the target moves far enough that
-    // JPS's result is no longer useful.
     private static readonly Duration UnreachableRetry = Duration.FromSeconds(2);
-
-    private readonly ConcurrentDictionary<Entity, CachedPath> _pathCache = new();
 
     public async Task<bool> TickAsync(INonPlayableEntity entity)
     {
@@ -153,7 +147,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         if (target is { IsAlive: true }) return target;
 
         aggroService.Clear(entity);
-        _pathCache.TryRemove(entity.Handle, out _);
+        entity.ChasePath = null;
         return null;
     }
 
@@ -163,7 +157,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
         if (entity.PositionX == entity.MapX && entity.PositionY == entity.MapY)
         {
-            _pathCache.TryRemove(entity.Handle, out _);
+            entity.ChasePath = null;
             return false;
         }
 
@@ -335,7 +329,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         var map = entity.MapInstance;
         if (map == null) return false;
 
-        var cache = _pathCache.GetValueOrDefault(entity.Handle);
+        var cache = entity.ChasePath;
         var now = clock.GetCurrentInstant();
 
         // A goal the last search found no way to is searched for again only after a pause; a
@@ -358,7 +352,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                     (goalX, goalY))
                 .ToList();
             cache = new CachedPath(goalX, goalY, path, now, path.Count == 0);
-            _pathCache[entity.Handle] = cache;
+            entity.ChasePath = cache;
         }
 
         var speed = (int)Math.Max((byte)1, entity.NpcMonster.Speed);
@@ -367,7 +361,7 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
         var dest = cache.Path[stepCount - 1];
         cache.Path.RemoveRange(0, stepCount);
-        _pathCache[entity.Handle] = cache with { LastStepAt = clock.GetCurrentInstant() };
+        entity.ChasePath = cache with { LastStepAt = clock.GetCurrentInstant() };
 
         if (!map.Map.IsWalkable((short)dest.Item1, (short)dest.Item2)) return false;
 
@@ -376,11 +370,6 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         await map.SendPacketAsync(entity.GenerateMove(entity.PositionX, entity.PositionY));
         return true;
     }
-
-    // Cached pathfinding result. Mutable only on replan or step-advance so the record
-    // stays cheap to copy in concurrent tick scenarios.
-    private sealed record CachedPath(short TargetX, short TargetY, List<(short X, short Y)> Path, Instant LastStepAt,
-        bool Unreachable);
 
     private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs);
 }

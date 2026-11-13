@@ -199,6 +199,24 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task TheChasePathIsKeptOnTheMonsterAndDroppedWithItsTarget()
+        {
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 6);
+            await _ai.TickAsync(monster);
+
+            Assert.AreEqual((short)6, monster.ChasePath?.TargetY);
+
+            _session.Character.Hp = 0;
+            _session.Character.IsAlive = false;
+            monster.PositionX = monster.FirstX;
+            monster.PositionY = monster.FirstY;
+            await _ai.TickAsync(monster);
+
+            Assert.IsNull(monster.ChasePath);
+        }
+
+        [TestMethod]
         public async Task AMonsterMovedOffItsCachedPathPlansAgain()
         {
             var monster = SpawnMonster(4, 1);
