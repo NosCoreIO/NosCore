@@ -14,6 +14,7 @@ using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.IceBreakerService;
 using NosCore.GameObject.Services.LandOfDeathService;
+using NosCore.GameObject.Services.TalentArenaService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
@@ -41,7 +42,8 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ISessionRegistry sessionRegistry,
         IMapChangeService mapChangeService, IIceBreakerService iceBreakerService,
-        ILandOfDeathService landOfDeathService)
+        ILandOfDeathService landOfDeathService,
+        ITalentArenaService talentArenaService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -78,6 +80,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.LodInstance)
                 {
                     await landOfDeathService.AskReviveAsync(player);
+                    return;
+                }
+
+                if (player.MapInstance?.MapInstanceType == MapInstanceType.TalentArenaMapInstance)
+                {
+                    await talentArenaService.DefeatAsync(player);
                     return;
                 }
 
