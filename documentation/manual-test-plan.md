@@ -205,6 +205,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
       monster with a 20% critical chance hit you: no hit lands as a critical; take it off and about
       one landed hit in five is critical again
 
+### Chance-based damage taken
+
+- [ ] Wear an armour with "there is a 100% chance that damage from ranged attacks is reduced by 20%"
+      (4012) and let a ranged monster hit you: each landed hit does a fifth less than without it
+- [ ] A melee-only reduction (4746) leaves a ranged monster's hits unchanged
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,

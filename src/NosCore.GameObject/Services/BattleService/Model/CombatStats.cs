@@ -71,7 +71,19 @@ public readonly record struct CombatStats(
     int WeaponMinDistance = 0,
     int WeaponMaxDistance = 0,
     bool IsPlayer = false,
-    IReadOnlyList<ChanceDamage>? ChanceDamage = null);
+    IReadOnlyList<ChanceDamage>? ChanceDamage = null,
+    IReadOnlyList<ChanceDamageTaken>? ChanceDamageTaken = null);
 
 // Type 5 subtypes 3 and 4: each hit rolls Chance percent to change its damage by Percent.
 public readonly record struct ChanceDamage(int Chance, int Percent);
+
+// Type 11: each hit taken of the given kind, or of any kind when Kind is null, rolls Chance percent
+// to change its damage by Percent.
+public readonly record struct ChanceDamageTaken(int Chance, int Percent, AttackKind? Kind);
+
+public enum AttackKind
+{
+    Melee,
+    Ranged,
+    Magical,
+}

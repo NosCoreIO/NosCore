@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NodaTime;
@@ -84,6 +85,18 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 Card(BCardEffect.CriticalReceivingDecreased, 5));
 
             Assert.AreEqual(15, stats.CriticalReceivedChance);
+        }
+
+        [TestMethod]
+        public void AChanceToTakeLessDamageKeepsItsChancePercentAndKind()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.DamageTakenChanceAllDecreased, 10, 20),
+                Card(BCardEffect.DamageTakenChanceRangedIncreased, 5, 15));
+
+            CollectionAssert.AreEqual(
+                new[] { new ChanceDamageTaken(10, -20, null), new ChanceDamageTaken(5, 15, AttackKind.Ranged) },
+                stats.ChanceDamageTaken?.ToArray());
         }
 
         [TestMethod]
