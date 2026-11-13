@@ -4,7 +4,6 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Core.Encryption;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.I18N;
@@ -29,7 +28,7 @@ namespace NosCore.Parser
         ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
         ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser,
-        IDao<AccountDto, long> accountDao, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
+        AccountParser accountParser, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
         IDao<I18NNpcMonsterTalkDto, int> i18NNpcMonsterTalkDao,
         IDao<I18NNpcMonsterDto, int> i18NNpcMonsterDao, IDao<I18NMapPointDataDto, int> i18NMapPointDataDao,
         IDao<I18NMapIdDataDto, int> i18NMapIdDataDao,
@@ -37,34 +36,11 @@ namespace NosCore.Parser
         IDao<I18NCardDto, int> i18NCardDao, IDao<I18NActDescDto, int> i18NActDescDao, ILoggerFactory loggerFactory, ILogLanguageLocalizer<LogLanguageKey> logLanguage)
     {
         private readonly List<string[]> _packetList = new();
-        private readonly string _password = new Sha512Hasher().Hash("test");
         private string _folder = "";
 
-        public async Task ImportAccountsAsync()
+        public Task ImportAccountsAsync()
         {
-            var acc1 = new AccountDto
-            {
-                Authority = AuthorityType.GameMaster,
-                Name = "admin",
-                Password = _password
-            };
-
-            if (await accountDao.FirstOrDefaultAsync(s => s.Name == acc1.Name) == null)
-            {
-                acc1 = await accountDao.TryInsertOrUpdateAsync(acc1);
-            }
-
-            var acc2 = new AccountDto
-            {
-                Authority = AuthorityType.User,
-                Name = "test",
-                Password = _password
-            };
-
-            if (await accountDao.FirstOrDefaultAsync(s => s.Name == acc1.Name) == null)
-            {
-                acc2 = await accountDao.TryInsertOrUpdateAsync(acc2);
-            }
+            return accountParser.InsertAccountsAsync();
         }
 
         public Task ImportCardsAsync()
