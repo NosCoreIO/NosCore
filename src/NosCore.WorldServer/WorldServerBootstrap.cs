@@ -256,6 +256,7 @@ namespace NosCore.WorldServer
                     services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
                     services.Configure<HostOptions>(options => options.ShutdownTimeout = TimeSpan.FromSeconds(60));
                     services.AddHostedService<WorldServer>();
+                    services.AddHostedService<NosCore.GameObject.Services.EventService.EventSchedule>();
                     services.AddHostedService(sp => new RecurringMessagePublisher<SaveAllSessionsMessage>(
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<SaveAllSessionsMessage>>>(),

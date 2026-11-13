@@ -147,6 +147,26 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Battle
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AFallInAnInstantCombatIsOutOfIt()
+        {
+            await new Spec("Falling in an Instant Combat revives at 1 HP without asking, and costs no dignity")
+                .Given(CharacterHasHpMpAndDignity_, 1000, 500, (short)0)
+                .And(TheCharacterIsInAnInstantCombat)
+                .WhenAsync(PlayerDiesWithoutKiller)
+                .Then(HpShouldBe_, 1)
+                .And(MpShouldBe_, 1)
+                .And(DignityShouldBe_, (short)0)
+                .And(NoRevivalQuestionShouldBeAsked)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterIsInAnInstantCombat() =>
+            _session.Character.MapInstance.MapInstanceType = MapInstanceType.InstantCombatInstance;
+
+        private void NoRevivalQuestionShouldBeAsked() =>
+            Assert.IsFalse(_session.LastPackets.OfType<DlgiPacket>().Any());
+
         private void TheCharacterIsInAnArena() =>
             _session.Character.MapInstance.MapInstanceType = MapInstanceType.ArenaInstance;
 

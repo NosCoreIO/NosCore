@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261113152606_PartnerSkillSet";
+    public override string LastMigrationId => "20261113155018_AddInstantCombatWaves";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1302,6 +1302,56 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                     .IsUnique();
 
                 b.ToTable("I18NSkill");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.InstantCombatDrop", b =>
+            {
+                b.Property<short>("InstantCombatDropId")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("ItemVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("LevelMinimum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Piles")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Wave")
+                    .HasColumnType("smallint");
+
+                b.HasKey("InstantCombatDropId");
+
+                b.ToTable("InstantCombatDrop");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.InstantCombatMonster", b =>
+            {
+                b.Property<short>("InstantCombatMonsterId")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("Amount")
+                    .HasColumnType("smallint");
+
+                b.Property<bool>("IsMoving")
+                    .HasColumnType("boolean");
+
+                b.Property<byte>("LevelMinimum")
+                    .HasColumnType("smallint");
+
+                b.Property<short>("NpcMonsterVNum")
+                    .HasColumnType("smallint");
+
+                b.Property<byte>("Wave")
+                    .HasColumnType("smallint");
+
+                b.HasKey("InstantCombatMonsterId");
+
+                b.ToTable("InstantCombatMonster");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.InventoryItemInstance", b =>

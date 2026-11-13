@@ -84,6 +84,10 @@ namespace NosCore.Database
 
         public virtual DbSet<MinigameScore>? MinigameScore { get; set; }
 
+        public virtual DbSet<InstantCombatDrop>? InstantCombatDrop { get; set; }
+
+        public virtual DbSet<InstantCombatMonster>? InstantCombatMonster { get; set; }
+
         public virtual DbSet<Item>? Item { get; set; }
 
         public virtual DbSet<ItemInstance>? ItemInstance { get; set; }

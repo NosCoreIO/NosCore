@@ -560,4 +560,13 @@
   <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
     <value>Načteno {0} rodinných úkolů!</value>
   </data>
+  <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
+    <value>Tato událost už probíhá.</value>
+  </data>
+  <data name="INSTANT_COMBAT_STARTS_IN_MINUTES" xml:space="preserve">
+    <value>Za {0} min. začne Instant Combat pro všechny úrovně.</value>
+  </data>
+  <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
+    <value>Za {0} s začne Instant Combat pro všechny úrovně.</value>
+  </data>
 </root>

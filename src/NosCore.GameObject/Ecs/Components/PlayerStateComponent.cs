@@ -18,5 +18,6 @@ public record struct PlayerStateComponent(
     short VehicleVNum,
     Instant ConnectedAt,
     string? SpeechBubble = null,
-    Instant SpeechBubbleExpiresAt = default
+    Instant SpeechBubbleExpiresAt = default,
+    bool IsWaitingForEvent = false
 );

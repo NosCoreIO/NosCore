@@ -40,6 +40,12 @@ MaxBankGoldAmount: 100000000000
 MaxSpPoints: 10000
 MaxAdditionalSpPoints: 1000000
 AllClassAvailableOnCreate: false
+# Each channel runs its own events. An event starts at the listed times of day (At), or every
+# Every from midnight shifted by Offset; its countdown runs before. A GM can start one with $Event.
+Events:
+- Type: InstantCombat
+  Every: 02:00:00
+  Offset: 00:00:00
 # BasicEquipments / BasicSkills are keyed first by class name, then by starter origin:
 #   CreateAndUpgrade : Adventurer creation (lvl 1) and Adventurer -> specialist upgrade
 #   Create56         : specialist direct-create on normal server

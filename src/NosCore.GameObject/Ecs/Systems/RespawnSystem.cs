@@ -22,7 +22,7 @@ public class RespawnSystem
         {
             if (respawn.RespawnAt is { } at && at <= now)
             {
-                respawn = new RespawnComponent(null);
+                respawn = respawn with { RespawnAt = null };
                 due.Add(entity);
             }
         }));

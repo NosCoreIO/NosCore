@@ -577,4 +577,13 @@
   <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
     <value>{0} FamilyQuests geladen!</value>
   </data>
+  <data name="EVENT_ALREADY_RUNNING" xml:space="preserve">
+    <value>Dieses Event läuft bereits.</value>
+  </data>
+  <data name="INSTANT_COMBAT_STARTS_IN_MINUTES" xml:space="preserve">
+    <value>In {0} Minute(n) beginnt ein Instant Combat für alle Level.</value>
+  </data>
+  <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
+    <value>In {0} Sekunden beginnt ein Instant Combat für alle Level.</value>
+  </data>
 </root>

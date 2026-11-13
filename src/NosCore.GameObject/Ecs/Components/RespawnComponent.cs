@@ -8,5 +8,5 @@ using NodaTime;
 
 namespace NosCore.GameObject.Ecs.Components;
 
-// Null while the entity is up.
-public record struct RespawnComponent(Instant? RespawnAt);
+// RespawnAt is null while the entity is up; an entity that does not respawn stays down.
+public record struct RespawnComponent(Instant? RespawnAt, bool Respawns);
