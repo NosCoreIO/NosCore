@@ -29,6 +29,7 @@ using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Interfaces;
 using NosCore.PathFinder.Interfaces;
 using NosCore.Packets.ServerPackets.MiniMap;
+using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Shared.Enumerations;
 using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
@@ -428,6 +429,24 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 packets.Add(mapItem.GenerateIn());
             }
             return packets;
+        }
+
+        // The client lists the placed objects next to a visitor from this table; the owner fills it from mlobjlst.
+        public MltobjPacket GenerateMltobj()
+        {
+            return new MltobjPacket
+            {
+                MltobjSubPacket = MapDesignObjects.Values
+                    .OrderBy(o => o.Slot)
+                    .Select(o => (MltobjSubPacket?)new MltobjSubPacket
+                    {
+                        VNum = o.InventoryItemInstance?.ItemInstance.ItemVNum ?? 0,
+                        Slot = o.Slot,
+                        MapX = o.MapX,
+                        MapY = o.MapY
+                    })
+                    .ToList()
+            };
         }
 
         public CMapPacket GenerateCMap(bool enter)

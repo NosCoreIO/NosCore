@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Map
                 miniland.DailyVisitCount++;
                 miniland.VisitCount++;
                 await session.SendPacketAsync(miniland.GenerateMlinfobr());
+                await session.SendPacketAsync(evt.MapInstance.GenerateMltobj());
             }
             else
             {
