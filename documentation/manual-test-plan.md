@@ -196,7 +196,7 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 ### Costume attack and defence bonuses
 
 - [ ] Wear Flower Hairpin ("All attacks +5%"): the attack range in the character window rises by
-      5 %
+      5 %, rounded down (109-117 becomes 114-122)
 - [ ] Wear Denim Clothing ("All defence stats +5%"): every defence rises by 5 %
 
 ### Stun, root and speed buffs
