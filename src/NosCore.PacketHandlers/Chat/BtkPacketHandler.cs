@@ -56,8 +56,7 @@ namespace NosCore.PacketHandlers.Chat
                 return;
             }
 
-            var accounts = await subscriberCache.GetSubscribersAsync();
-            var receiver = accounts.FirstOrDefault(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
+            var receiver = await subscriberCache.FindAsync(x => x.ConnectedCharacter?.Id == btkPacket.CharacterId);
 
             if (receiver == null)
             {

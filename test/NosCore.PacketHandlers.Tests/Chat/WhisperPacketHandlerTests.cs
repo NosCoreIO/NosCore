@@ -181,6 +181,24 @@ namespace NosCore.PacketHandlers.Tests.Chat
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AWhisperToSomeoneWhoArrivedInsideTheCacheWindowIsDelivered()
+        {
+            await new Spec("A whisper to someone who arrived inside the cache window is delivered")
+                .Given(CharacterIsOnMap)
+                .And(NobodyIsOnline)
+                .AndAsync(WhisperingToTarget)
+                .And(TargetIsOnline)
+                .WhenAsync(WhisperingToTarget)
+                .Then(MessageShouldBeSentViaPubSub)
+                .ExecuteAsync();
+        }
+
+        private void NobodyIsOnline()
+        {
+            PubSubHub.Setup(x => x.GetSubscribersAsync()).Returns(Task.FromResult(new List<Subscriber>()));
+        }
+
         private void TheCacheWindowPasses()
         {
             World.Clock.Advance(BlacklistCacheService.CacheDuration);

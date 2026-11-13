@@ -5,12 +5,12 @@
 //
 
 using NosCore.Data.WebApi;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 
 namespace NosCore.GameObject.Services.SubscriberCacheService;
 
 public interface ISubscriberCacheService
 {
-    Task<IReadOnlyList<Subscriber>> GetSubscribersAsync();
+    Task<Subscriber?> FindAsync(Func<Subscriber, bool> matches);
 }

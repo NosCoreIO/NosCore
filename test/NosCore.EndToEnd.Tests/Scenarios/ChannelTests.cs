@@ -47,7 +47,6 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await using var bob = Harness.Client(bobPlayer, channel: Second);
             await bob.EnterWorldAsync(bobPlayer.Slot);
             await using var alice = await Harness.EnterAsync("Alice");
-            await Task.Delay(Harness.WhoIsOnlineIsCachedFor);
 
             await alice.SendAsync($"/{bobPlayer.Name} are you on channel two");
 

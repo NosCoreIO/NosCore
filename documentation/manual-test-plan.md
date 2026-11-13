@@ -1559,8 +1559,8 @@ Two characters, A and B, on the same channel, then on different channels.
 - [ ] A whispers B several times in a row: every whisper arrives, in order
 - [ ] A blacklists B, then whispers B straight away: A is refused with the blacklist message and B
       receives nothing. A removes B from the blacklist and whispers again: it arrives
-- [ ] B logs in and A whispers B within a few seconds: if A is told B is not playing, a whisper
-      a few seconds later arrives (the online list is re-read every 3 seconds)
+- [ ] B logs in and A whispers B at once, also right after A whispered B while B was still
+      away: the whisper arrives. The same for a friend message to a friend who has just logged in
 - [ ] A has several friends, some online, some not: the friend list shows each with its name
       and the right online state; a friend message to an online friend arrives, to an offline
       friend shows "friend offline"

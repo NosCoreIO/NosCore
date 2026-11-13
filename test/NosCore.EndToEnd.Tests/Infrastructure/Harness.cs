@@ -18,10 +18,6 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     [TestClass]
     public static class Harness
     {
-        // A channel asks the master who is online at most every three seconds, so a whisper sent
-        // sooner after its receiver arrived can be told the receiver is not playing.
-        public static readonly TimeSpan WhoIsOnlineIsCachedFor = TimeSpan.FromSeconds(3.2);
-
         private static TestDatabase? _database;
         private static ServerStack? _stack;
         private static string? _unavailable;
