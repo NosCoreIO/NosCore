@@ -177,7 +177,7 @@ public sealed class HitQueue(
             // regen.
             if (target is PlayerComponentBundle hurtCharacter)
             {
-                regenerationService.NotifyDamaged(hurtCharacter.CharacterId);
+                regenerationService.NotifyDamaged(hurtCharacter);
             }
 
             if (!killed && request.Skill.Duration > 0 && request.Skill.BCards.Count > 0)

@@ -6,7 +6,6 @@
 
 using System;
 using NosCore.GameObject.Ecs;
-using System.Collections.Concurrent;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
@@ -57,12 +56,9 @@ public sealed class RegenerationService(
         return (hp, mp);
     }
 
-    private readonly ConcurrentDictionary<long, Instant> _lastRegen = new();
-    private readonly ConcurrentDictionary<long, Instant> _lastDefence = new();
-
-    public void NotifyDamaged(long characterId)
+    public void NotifyDamaged(PlayerComponentBundle character)
     {
-        _lastDefence[characterId] = clock.GetCurrentInstant();
+        character.LastDamaged = clock.GetCurrentInstant();
     }
 
     public async Task TickAsync(MapInstance mapInstance)
@@ -78,8 +74,12 @@ public sealed class RegenerationService(
                 if (character.Hp >= character.MaxHp && character.Mp >= character.MaxMp) continue;
 
                 var interval = character.IsSitting ? SittingInterval : StandingInterval;
-                var last = _lastRegen.GetOrAdd(character.CharacterId, now);
-                if (now - last < interval) continue;
+                if (character.LastRegen == Instant.MinValue)
+                {
+                    character.LastRegen = now;
+                }
+
+                if (now - character.LastRegen < interval) continue;
 
                 var hpRate = recoveryRates.GetRestingHpRate(character.Class);
                 var mpRate = recoveryRates.GetRestingMpRate(character.Class);
@@ -88,10 +88,9 @@ public sealed class RegenerationService(
                     // Standing regen only kicks in once 4s have elapsed since the
                     // last incoming hit. Before that the rates are zero so the bars
                     // stay put while you're being swung at.
-                    if (_lastDefence.TryGetValue(character.CharacterId, out var lastDefence)
-                        && now - lastDefence < StandingDefenceGrace)
+                    if (now - character.LastDamaged < StandingDefenceGrace)
                     {
-                        _lastRegen[character.CharacterId] = now;
+                        character.LastRegen = now;
                         continue;
                     }
 
@@ -99,7 +98,7 @@ public sealed class RegenerationService(
                     mpRate = recoveryRates.GetStandingRate(mpRate, character.Level);
                 }
 
-                _lastRegen[character.CharacterId] = now;
+                character.LastRegen = now;
 
                 var (hpBonus, mpBonus) = RecoveryBonus(character);
                 hpRate += hpBonus;
@@ -119,7 +118,7 @@ public sealed class RegenerationService(
 
                 if (changed)
                 {
-                    await session.SendPacketAsync(character.GenerateStat()).ConfigureAwait(false);
+                    await session.SendPacketAsync(character.GenerateStat());
                 }
             }
         }
