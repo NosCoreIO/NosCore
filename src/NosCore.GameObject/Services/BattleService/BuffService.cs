@@ -51,7 +51,10 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             Caster: caster,
             StartedAt: now,
             ExpiresAt: now.Plus(Duration.FromMilliseconds(durationMs)),
-            BCards: bCards);
+            BCards: bCards)
+        {
+            CasterLevel = caster?.Level,
+        };
 
         await ReplaceSameGroupAsync(target, buffs, card);
         buffs.AddOrUpdate(card.CardId, buff, (_, _) => buff);
@@ -256,7 +259,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 BuffId = buff.CardId,
                 Duration = 0,
             },
-            BuffLevel = buff.Caster?.Level ?? 0,
+            BuffLevel = buff.CasterLevel ?? 0,
         });
     }
 
@@ -336,9 +339,10 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     }
 
     // Periodic damage never takes the last hit point, so it never kills and never awards a kill.
+    // A fixed amount that scales with a level scales with the level of whoever applied the card.
     private static async Task PulseAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
     {
-        long hpPercent = 0, mpPercent = 0;
+        long hpPercent = 0, mpPercent = 0, hpFixed = 0, mpFixed = 0;
         foreach (var (cardId, buff) in buffs)
         {
             if (buff.FromSkill || buff.ExpiresAt <= now || buff.PulsedUntil >= now)
@@ -355,25 +359,30 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                 }
 
                 var amount = times * BattleStatsProvider.ScaleByLevel(bCard, target.Level);
+                var fixedAmount = times * BattleStatsProvider.ScaleByLevel(bCard, buff.CasterLevel ?? target.Level);
                 switch (bCard.Effect())
                 {
                     case BCardEffect.RecoveryAndDamagePercentHpRecovered: hpPercent += amount; break;
                     case BCardEffect.RecoveryAndDamagePercentHpReduced: hpPercent -= amount; break;
                     case BCardEffect.RecoveryAndDamagePercentMpRecovered: mpPercent += amount; break;
                     case BCardEffect.RecoveryAndDamagePercentMpReduced: mpPercent -= amount; break;
+                    case BCardEffect.HealingBurningAndCastingRestoreHp: hpFixed += fixedAmount; break;
+                    case BCardEffect.HealingBurningAndCastingDecreaseHp: hpFixed -= fixedAmount; break;
+                    case BCardEffect.HealingBurningAndCastingRestoreMp: mpFixed += fixedAmount; break;
+                    case BCardEffect.HealingBurningAndCastingDecreaseMp: mpFixed -= fixedAmount; break;
                 }
             }
 
             buffs.TryUpdate(cardId, buff with { PulsedUntil = now }, buff);
         }
 
-        if ((hpPercent == 0 && mpPercent == 0) || !target.IsAlive)
+        if ((hpPercent == 0 && mpPercent == 0 && hpFixed == 0 && mpFixed == 0) || !target.IsAlive)
         {
             return;
         }
 
-        var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100, Math.Min(1, target.Hp), target.MaxHp);
-        var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100, 0, target.MaxMp);
+        var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100 + hpFixed, Math.Min(1, target.Hp), target.MaxHp);
+        var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100 + mpFixed, 0, target.MaxMp);
         var hpChange = hp - target.Hp;
         if (hpChange == 0 && mp == target.Mp)
         {
