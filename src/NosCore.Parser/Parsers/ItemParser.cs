@@ -192,17 +192,16 @@ namespace NosCore.Parser.Parsers
                     item.SecondaryElement = elementdic.ElementAt(1).Key;
                 }
             }
-            SetVehicles(items, new Dictionary<byte, List<(short, short)>>
+            foreach (var item in items)
             {
-                { 20, new List<(short, short)> { (9054, 2368), (1906, 2368), (9055, 2370), (1907, 2370), (9058, 2406), (1965, 2406), (9065, 2411),
-                    (5008, 2411), (5238, 1817), (5226, 1817), (5240, 1819), (5228, 1819), (5234, 2522), (5236, 2524) } },
-                { 21, new List<(short, short)> { (9070, 2429), (5117, 2429), (9073, 2432), (5152, 2432), (5196, 2517), (9078, 2520), (5232, 2520),
-                    (5321, 2528), (9090, 2934), (5386, 2934), (9091, 2936), (5387, 2936), (9092, 2938), (5388, 2938), (9093, 2940), (5389, 2940),
-                    (9094, 2942), (5390, 2942), (5391, 2944), (9115, 3679), (5997, 3679), (9079, 2522), (9080, 2524), (9081, 1817), (9082, 1819) } },
-                { 22, new List<(short, short)> { (9083, 2526), (5319, 2526), (5323, 2530), (9086, 2928), (5330, 2928), (9088, 2932), (5360, 2932), (9084, 2528), (9085, 2930) } },
-                { 14, new List<(short, short)> { (9087, 2930), (5332, 2930), (5914, 2513) } },
-                { 16, new List<(short, short)> { (5173, 2511) } },
-            });
+                if (Mounts.All.TryGetValue(item.VNum, out var mount))
+                {
+                    item.Speed = mount.Speed;
+                    item.WaitDelay = 3000;
+                    item.Morph = mount.Morph;
+                }
+            }
+
             await itemDao.TryInsertOrUpdateAsync(items);
             var itemVNums = items.Select(s => (short?)s.VNum).ToHashSet();
             await bCardDao.TryDeleteAsync(bCardDao.Where(s => itemVNums.Contains(s.ItemVNum))?.Select(s => s.BCardId).ToList() ?? []);
@@ -612,26 +611,6 @@ namespace NosCore.Parser.Parsers
                 ElementType.Dark => equipmentType == EquipmentType.Sp ? chunk["DATA"][0][18] : chunk["DATA"][0][11],
                 _ => "0"
             });
-        }
-
-        private void SetVehicles(List<ItemDto> items, Dictionary<byte, List<(short, short)>> vehicleDictionary)
-        {
-            foreach (var vehicle in vehicleDictionary)
-            {
-                foreach (var vehiclematch in vehicle.Value)
-                {
-                    var item = items.FirstOrDefault(s => s.VNum == vehiclematch.Item1);
-                    if (item == null)
-                    {
-                        continue;
-                    }
-
-                    item.Speed = vehicle.Key;
-                    item.WaitDelay = 3000;
-                    item.Morph = vehiclematch.Item2;
-                }
-            }
-
         }
 
         private void HardcodeItem(ItemDto item)
