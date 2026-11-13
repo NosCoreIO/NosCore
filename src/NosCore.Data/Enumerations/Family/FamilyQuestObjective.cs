@@ -10,6 +10,7 @@ namespace NosCore.Data.Enumerations.Family
     public enum FamilyQuestObjective : byte
     {
         FamilyLevel = 0,
-        DailyMessage = 1
+        DailyMessage = 1,
+        InstantCombat = 2
     }
 }

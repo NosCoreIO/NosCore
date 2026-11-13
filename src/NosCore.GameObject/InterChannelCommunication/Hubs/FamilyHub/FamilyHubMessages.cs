@@ -14,7 +14,7 @@ public record PurchaseFamilyExtensionRequest(long FamilyId, long CharacterId, sh
 
 public record AddFamilyExperienceRequest(long FamilyId, long CharacterId, int Experience) : IMasterRequest;
 
-public record AdvanceFamilyQuestsRequest(long FamilyId, FamilyQuestObjective Objective, int Amount) : IMasterRequest;
+public record AdvanceFamilyQuestsRequest(long FamilyId, long? CharacterId, FamilyQuestObjective Objective, int Amount) : IMasterRequest;
 
 public record CreateFamilyRequest(string Name, byte MaxSize, long HeadId, IReadOnlyList<long> DeputyIds) : IMasterRequest;
 

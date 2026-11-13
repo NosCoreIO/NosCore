@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261113155018_AddInstantCombatWaves";
+    public override string LastMigrationId => "20261113162532_FamilyDailyMissions";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -970,11 +970,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Property<byte?>("Objective")
                     .HasColumnType("smallint");
 
+                b.Property<bool>("OncePerMemberPerDay")
+                    .HasColumnType("boolean");
+
                 b.Property<int?>("Parameter")
                     .HasColumnType("integer");
 
                 b.Property<short?>("PreviousQuestId")
                     .HasColumnType("smallint");
+
+                b.Property<bool>("ResetsDaily")
+                    .HasColumnType("boolean");
 
                 b.Property<int>("Target")
                     .HasColumnType("integer");
@@ -982,6 +988,34 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.HasKey("QuestId");
 
                 b.ToTable("FamilyQuest");
+            });
+
+        modelBuilder.Entity("NosCore.Database.Entities.FamilyQuestContribution", b =>
+            {
+                var familyQuestContributionId = b.Property<long>("FamilyQuestContributionId")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bigint");
+
+                NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(familyQuestContributionId);
+
+                b.Property<long>("CharacterId")
+                    .HasColumnType("bigint");
+
+                b.Property<Instant>("ContributedAt")
+                    .HasColumnType("timestamp with time zone");
+
+                b.Property<long>("FamilyId")
+                    .HasColumnType("bigint");
+
+                b.Property<short>("QuestId")
+                    .HasColumnType("smallint");
+
+                b.HasKey("FamilyQuestContributionId");
+
+                b.HasIndex("FamilyId", "QuestId", "CharacterId")
+                    .IsUnique();
+
+                b.ToTable("FamilyQuestContribution");
             });
 
         modelBuilder.Entity("NosCore.Database.Entities.FamilyQuestProgress", b =>
@@ -1000,6 +1034,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<int>("Progress")
                     .HasColumnType("integer");
+
+                b.Property<Instant?>("ProgressedAt")
+                    .HasColumnType("timestamp with time zone");
 
                 b.Property<short>("QuestId")
                     .HasColumnType("smallint");
@@ -3808,6 +3845,17 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("Family");
             });
 
+        modelBuilder.Entity("NosCore.Database.Entities.FamilyQuestContribution", b =>
+            {
+                b.HasOne("NosCore.Database.Entities.Family", "Family")
+                    .WithMany("FamilyQuestContributions")
+                    .HasForeignKey("FamilyId")
+                    .OnDelete(DeleteBehavior.Restrict)
+                    .IsRequired();
+
+                b.Navigation("Family");
+            });
+
         modelBuilder.Entity("NosCore.Database.Entities.FamilyQuestProgress", b =>
             {
                 b.HasOne("NosCore.Database.Entities.Family", "Family")
@@ -4451,6 +4499,8 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
                 b.Navigation("FamilyCharacters");
 
                 b.Navigation("FamilyLogs");
+
+                b.Navigation("FamilyQuestContributions");
 
                 b.Navigation("FamilyQuestProgresses");
 

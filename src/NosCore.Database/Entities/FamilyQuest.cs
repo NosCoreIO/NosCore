@@ -40,5 +40,11 @@ namespace NosCore.Database.Entities
         public short? PreviousQuestId { get; set; }
 
         public int Experience { get; set; }
+
+        /// <summary>Progress starts over each day.</summary>
+        public bool ResetsDaily { get; set; }
+
+        /// <summary>Each member counts at most once a day.</summary>
+        public bool OncePerMemberPerDay { get; set; }
     }
 }

@@ -28,11 +28,11 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
         public static async Task<Reply<FamilyExperienceGain?>> Handle(AddFamilyExperienceRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<FamilyHub>().AddExperienceAsync(r.FamilyId, r.CharacterId, r.Experience));
 
-        public Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount) =>
-            familyProgressionService.AdvanceQuestsAsync(familyId, objective, amount);
+        public Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, long? characterId, FamilyQuestObjective objective,
+            int amount) => familyProgressionService.AdvanceQuestsAsync(familyId, characterId, objective, amount);
 
         public static async Task<Reply<FamilyExperienceGain?>> Handle(AdvanceFamilyQuestsRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<FamilyHub>().AdvanceQuestsAsync(r.FamilyId, r.Objective, r.Amount));
+            new(await services.GetRequiredService<FamilyHub>().AdvanceQuestsAsync(r.FamilyId, r.CharacterId, r.Objective, r.Amount));
 
         public Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds) =>
             familyRecordService.CreateAsync(name, maxSize, headId, deputyIds);

@@ -7,6 +7,7 @@
 using Microsoft.Extensions.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NodaTime;
 using NosCore.Core.I18N;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
@@ -89,7 +90,7 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 .Returns((Expression<Func<CharacterDto, bool>> p) => Task.FromResult<CharacterDto?>(characters.FirstOrDefault(p.Compile())));
 
             return new FamilyServiceImpl(familyDao.Object, membershipDao.Object, characterDao.Object,
-                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], new Mock<IFamilyHub>().Object);
+                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], new Mock<IFamilyHub>().Object, SystemClock.Instance);
         }
 
         private static FamilyServiceImpl Nemesis()

@@ -43,9 +43,14 @@ namespace NosCore.GameObject.Services.FamilyService
             }
         }
 
-        public async Task DailyMessageWrittenAsync(long familyId)
+        public Task DailyMessageWrittenAsync(long familyId) => AdvanceAsync(familyId, null, FamilyQuestObjective.DailyMessage);
+
+        public Task InstantCombatWonAsync(long familyId, long characterId) =>
+            AdvanceAsync(familyId, characterId, FamilyQuestObjective.InstantCombat);
+
+        private async Task AdvanceAsync(long familyId, long? characterId, FamilyQuestObjective objective)
         {
-            var gain = await familyHub.AdvanceQuestsAsync(familyId, FamilyQuestObjective.DailyMessage, 1);
+            var gain = await familyHub.AdvanceQuestsAsync(familyId, characterId, objective, 1);
             await AnnounceAsync(familyId, gain ?? new FamilyExperienceGain(0, false));
         }
 
