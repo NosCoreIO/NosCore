@@ -66,6 +66,16 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
                 IsSoldable = true,
                 IsTradable = true
             });
+            // What a new adventurer is given: its club, its catapult, its clothes, and its three skills.
+            context.Add(Worn(1, EquipmentType.MainWeapon, ItemType.Weapon));
+            context.Add(Worn(8, EquipmentType.SecondaryWeapon, ItemType.Weapon));
+            context.Add(Worn(12, EquipmentType.Armor, ItemType.Armor));
+            context.Add(new Item { VNum = 2081, Name = "item2081", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
+            foreach (var skill in new short[] { 200, 201, 209 })
+            {
+                context.Add(new Skill { SkillVNum = skill, Name = "skill" + skill });
+            }
+
             context.Add(new NpcMonster { NpcMonsterVNum = ShopkeeperVNum, Name = "shopkeeper", Level = 1, MaxHp = 100 });
             await context.SaveChangesAsync();
 
@@ -77,6 +87,11 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(new ShopItem { ShopId = shop.ShopId, ItemVNum = Seed, Slot = 0, Type = 0 });
             await context.SaveChangesAsync();
         }
+
+        private static Item Worn(short vnum, EquipmentType slot, ItemType type) => new()
+        {
+            VNum = vnum, Name = "item" + vnum, Type = NoscorePocketType.Equipment, ItemType = type, EquipmentSlot = slot
+        };
 
         // What a character carries has to be there before it is selected: the bag is read then.
         public static async Task GiveAsync(NosCoreContext context, long characterId, short vnum, short amount, short slot)
