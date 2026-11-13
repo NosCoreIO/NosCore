@@ -77,6 +77,16 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void TheChanceOfReceivingCriticalsAddsUpAcrossCards()
+        {
+            var stats = StatsWith(
+                Card(BCardEffect.CriticalReceivingIncreased, 20),
+                Card(BCardEffect.CriticalReceivingDecreased, 5));
+
+            Assert.AreEqual(15, stats.CriticalReceivedChance);
+        }
+
+        [TestMethod]
         public void ADefencePercentReductionLowersEveryDefence()
         {
             var stats = StatsWith(Card(BCardEffect.DodgeAndDefencePercentDefenceReduced, 10));
