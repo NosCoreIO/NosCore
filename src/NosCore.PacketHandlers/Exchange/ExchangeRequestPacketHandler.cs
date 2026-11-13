@@ -55,8 +55,7 @@ namespace NosCore.PacketHandlers.Exchange
             switch (packet.RequestType)
             {
                 case RequestExchangeType.Requested:
-                    if (exchangeService.CheckExchange(clientSession.Character.CharacterId) ||
-                        exchangeService.CheckExchange(hasTarget ? target.VisualId : 0))
+                    if (clientSession.Character.InExchange || (hasTarget && target.InExchange))
                     {
                         await clientSession.SendPacketAsync(new Infoi2Packet
                         {
@@ -151,7 +150,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    if (!exchangeService.OpenExchange(clientSession.Character.VisualId, target.CharacterId))
+                    if (!exchangeService.OpenExchange(clientSession.Character, target))
                     {
                         return;
                     }
@@ -172,7 +171,7 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.Confirmed:
-                    var targetId = exchangeService.GetTargetId(clientSession.Character.CharacterId);
+                    var targetId = clientSession.Character.Exchange?.PartnerId;
 
                     if (!targetId.HasValue)
                     {
@@ -187,7 +186,7 @@ namespace NosCore.PacketHandlers.Exchange
                         return;
                     }
 
-                    var claim = exchangeService.ConfirmExchange(clientSession.Character.VisualId);
+                    var claim = exchangeService.ConfirmExchange(clientSession.Character);
                     if (claim == null)
                     {
                         await clientSession.SendPacketAsync(new InfoiPacket
@@ -223,7 +222,7 @@ namespace NosCore.PacketHandlers.Exchange
                     }
                     finally
                     {
-                        settled = exchangeService.CloseExchange(clientSession.Character.VisualId, result);
+                        settled = exchangeService.CloseExchange(clientSession.Character, result);
                     }
 
                     await clientSession.SendPacketAsync(settled);
@@ -234,14 +233,14 @@ namespace NosCore.PacketHandlers.Exchange
                     return;
 
                 case RequestExchangeType.Cancelled:
-                    var cancelId = exchangeService.GetTargetId(clientSession.Character.CharacterId);
+                    var cancelId = clientSession.Character.Exchange?.PartnerId;
                     if (!cancelId.HasValue)
                     {
                         logger.LogError(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
                         return;
                     }
 
-                    var cancelled = exchangeService.CancelExchange(clientSession.Character.VisualId);
+                    var cancelled = exchangeService.CancelExchange(clientSession.Character);
                     if (cancelled == null)
                     {
                         return;

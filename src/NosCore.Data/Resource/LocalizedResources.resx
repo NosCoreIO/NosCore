@@ -505,9 +505,6 @@
   <data name="UNKNOWN" xml:space="preserve">
     <value>Unknown</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Failed to remove item from inventory.</value>
-  </data>
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>You are already in an exchange.</value>
   </data>

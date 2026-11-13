@@ -431,9 +431,6 @@
   <data name="UNKNOWN" xml:space="preserve">
     <value>Neznámý</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Nepodařilo se odebrat položku z inventáře.</value>
-  </data>
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>Již jste ve výměně.</value>
   </data>

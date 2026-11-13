@@ -26,28 +26,23 @@ namespace NosCore.GameObject.Services.ExchangeService
         void RegisterRequest(PlayerComponentBundle requester, long targetId);
         bool TakeRequest(PlayerComponentBundle requester, long targetId);
 
-        bool SetOffer(long visualId, long gold, long bankGold, IReadOnlyDictionary<InventoryItemInstance, short> items);
+        bool SetOffer(PlayerComponentBundle player, long gold, long bankGold, IReadOnlyDictionary<InventoryItemInstance, short> items);
 
         Tuple<ExchangeResultType, Dictionary<long, IPacket>?> ValidateExchange(ClientSession session,
             PlayerComponentBundle targetSession, ExchangeData exchangeInfo, ExchangeData targetInfo);
 
         // Records the confirmation. Returns both sides' offers to the one call that completes the
         // pair, which then owns the settlement; every other call gets null.
-        ClaimedExchange? ConfirmExchange(long visualId);
+        ClaimedExchange? ConfirmExchange(PlayerComponentBundle player);
 
         // Closes the exchange as failed unless it has already been claimed for settlement.
-        ExcClosePacket? CancelExchange(long visualId);
+        ExcClosePacket? CancelExchange(PlayerComponentBundle player);
 
         // Closes the exchange of a player who is leaving. A trade already settling is waited for
         // until the settlement closes it, so the leaving player's save and cleanup only run once it
         // has ended; returns null when the settlement closed it.
-        Task<ExcClosePacket?> LeaveExchangeAsync(long visualId);
-        bool IsExchangeConfirmed(long visualId);
-        ExchangeData GetData(long visualId);
-        bool CheckExchange(long visualId);
-        long? GetTargetId(long visualId);
-        bool CheckExchange(long visualId, long targetId);
-        ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType);
-        bool OpenExchange(long visualId, long targetVisualId);
+        Task<ExcClosePacket?> LeaveExchangeAsync(PlayerComponentBundle player);
+        ExcClosePacket? CloseExchange(PlayerComponentBundle player, ExchangeResultType resultType);
+        bool OpenExchange(PlayerComponentBundle initiator, PlayerComponentBundle target);
     }
 }

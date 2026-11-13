@@ -471,9 +471,6 @@
   <data name="UNKNOWN" xml:space="preserve">
     <value>Nieznany</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Nie udało się usunąć przedmiotu z ekwipunku.</value>
-  </data>
   <data name="ALREADY_EXCHANGE" xml:space="preserve">
     <value>Już jesteś w wymianie.</value>
   </data>

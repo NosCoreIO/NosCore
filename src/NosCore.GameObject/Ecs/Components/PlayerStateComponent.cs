@@ -11,7 +11,6 @@ public record struct PlayerStateComponent(
     bool IsChangingMapInstance,
     bool IsDisconnecting,
     bool InShop,
-    bool InExchange,
     bool CanFight,
     Instant LastPortal,
     Instant LastSp,

@@ -90,7 +90,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     MaxGoldAmount = 1_000_000_000,
                     MaxBankGoldAmount = 100_000_000_000
                 }),
-                NullLogger<ExchangeService>.Instance, World.Create<ExchangeRequestRegistry>(),
+                NullLogger<ExchangeService>.Instance,
                 World.LogLanguageLocalizer, World.SessionRegistry, Clock);
 
             RequestHandler = new ExchangeRequestPackettHandler(Exchange, NullLogger<ExchangeRequestPackettHandler>.Instance,
@@ -425,7 +425,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         {
             await RequesterAsksForATrade();
             await TargetAccepts();
-            Assert.IsTrue(Exchange.CheckExchange(Requester.Character.VisualId));
+            Assert.IsTrue(Requester.Character.InExchange);
         }
 
         private async Task ExchangeWasOpenedAndCancelled()
@@ -438,8 +438,8 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void BothConfirmationsClaimTheTrade()
         {
-            Assert.IsNull(Exchange.ConfirmExchange(Target.Character.VisualId));
-            Assert.IsNotNull(Exchange.ConfirmExchange(Requester.Character.VisualId));
+            Assert.IsNull(Exchange.ConfirmExchange(Target.Character));
+            Assert.IsNotNull(Exchange.ConfirmExchange(Requester.Character));
         }
 
         private Task _disconnect;
@@ -491,7 +491,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private async Task TheSettlementClosesTheTrade()
         {
-            Exchange.CloseExchange(Requester.Character.VisualId, ExchangeResultType.Success);
+            Exchange.CloseExchange(Requester.Character, ExchangeResultType.Success);
             await _disconnect.WaitAsync(TimeSpan.FromSeconds(5));
         }
 
@@ -582,9 +582,9 @@ namespace NosCore.PacketHandlers.Tests.Exchange
                     Task.Run(async () => { barrier.SignalAndWait(); await TargetConfirms(); }));
 
                 _concurrentResults.Add((Requester.Character.Gold, Target.Character.Gold));
-                if (Exchange.CheckExchange(Requester.Character.VisualId))
+                if (Requester.Character.InExchange)
                 {
-                    Exchange.CloseExchange(Requester.Character.VisualId, ExchangeResultType.Failure);
+                    Exchange.CloseExchange(Requester.Character, ExchangeResultType.Failure);
                 }
             }
         }
@@ -600,18 +600,17 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void NoExchangeIsOpen()
         {
-            Assert.IsFalse(Exchange.CheckExchange(Requester.Character.VisualId));
-            Assert.IsFalse(Exchange.CheckExchange(Target.Character.VisualId));
+            Assert.IsFalse(Requester.Character.InExchange);
             Assert.IsFalse(Target.Character.InExchange);
         }
 
         private void ExchangeIsOpen()
         {
-            Assert.AreEqual(Target.Character.VisualId, Exchange.GetTargetId(Requester.Character.VisualId));
+            Assert.AreEqual(Target.Character.VisualId, Requester.Character.Exchange?.PartnerId);
         }
 
         private void TargetConfirmationIsCleared() =>
-            Assert.IsFalse(Exchange.IsExchangeConfirmed(Target.Character.VisualId));
+            Assert.IsFalse(Target.Character.Exchange?.ExchangeConfirmed ?? false);
 
         private void RequesterReceivedNoCancellation() =>
             Assert.IsFalse(Requester.LastPackets.OfType<SayiPacket>().Any(p => p.Message == Game18NConstString.TradeCancelled2));
@@ -627,14 +626,14 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void NoGoldIsOffered()
         {
-            var offer = Exchange.GetData(Requester.Character.VisualId);
-            Assert.AreEqual(0L, offer.Gold);
-            Assert.AreEqual(0L, offer.BankGold);
+            var offer = Requester.Character.Exchange;
+            Assert.AreEqual(0L, offer?.Gold ?? 0);
+            Assert.AreEqual(0L, offer?.BankGold ?? 0);
         }
 
         private void NothingIsOffered()
         {
-            Assert.IsTrue(Exchange.GetData(Requester.Character.VisualId).ExchangeItems.IsEmpty);
+            Assert.IsTrue(Requester.Character.Exchange?.ExchangeItems.IsEmpty ?? true);
         }
     }
 }

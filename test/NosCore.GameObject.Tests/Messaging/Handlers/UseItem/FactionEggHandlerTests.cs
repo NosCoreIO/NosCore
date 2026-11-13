@@ -1,3 +1,4 @@
+using NosCore.GameObject.Services.ExchangeService;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -160,7 +161,7 @@ public class FactionEggHandlerTests
     [TestMethod]
     public async Task TradingCharacterCannotUseEgg()
     {
-        _session.Character.InExchange = true;
+        _session.Character.Exchange = ExchangeData.Pair(_session.Character.VisualId, 0).Initiator;
         await UseAsync(1);
         AssertUnchanged();
     }

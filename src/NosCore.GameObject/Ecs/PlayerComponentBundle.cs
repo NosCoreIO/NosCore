@@ -48,6 +48,7 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
 {
     public Arch.Core.Entity Handle => Entity;
     public long CharacterId => PlayerCharacterId;
+    public bool InExchange => Exchange != null;
     public bool InExchangeOrShop => InShop || InExchange;
     public double StatOption => this.GenerateStatOption();
 

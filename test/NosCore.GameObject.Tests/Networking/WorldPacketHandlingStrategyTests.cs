@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Services.ExchangeService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NosCore.Data.CommandPackets;
 using NosCore.GameObject.Infastructure;
@@ -304,7 +305,7 @@ namespace NosCore.GameObject.Tests.Networking
                 .ExecuteAsync();
         }
 
-        private void TheCharacterIsInAnExchange() => Session.Character.InExchange = true;
+        private void TheCharacterIsInAnExchange() => Session.Character.Exchange = ExchangeData.Pair(Session.Character.VisualId, 0).Initiator;
 
         private void TheCharacterIsInAShop() => Session.Character.InShop = true;
 

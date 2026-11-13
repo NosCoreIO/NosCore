@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 namespace NosCore.GameObject.Services.ExchangeService
 {
     public class ExchangeService(IOptions<WorldConfiguration> worldConfiguration, ILogger<ExchangeService> logger,
-            IExchangeRequestRegistry exchangeRegistry, ILogLanguageLocalizer<LogLanguageKey> logLanguage,
+            ILogLanguageLocalizer<LogLanguageKey> logLanguage,
             ISessionRegistry sessionRegistry, IClock clock)
         : IExchangeService
     {
@@ -67,17 +67,17 @@ namespace NosCore.GameObject.Services.ExchangeService
                 && clock.GetCurrentInstant() - requestedAt <= RequestLifetime;
         }
 
-        public bool SetOffer(long visualId, long gold, long bankGold,
+        public bool SetOffer(PlayerComponentBundle player, long gold, long bankGold,
             IReadOnlyDictionary<InventoryItemInstance, short> items)
         {
-            var data = exchangeRegistry.GetExchangeData(visualId);
-            var targetId = GetTargetId(visualId);
-            var partner = targetId.HasValue ? exchangeRegistry.GetExchangeData(targetId.Value) : null;
-            if (data == null || partner == null)
+            var data = player.Exchange;
+            if (data == null)
             {
                 logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                 return false;
             }
+
+            var partner = data.Partner;
 
             lock (data.Settlement)
             {
@@ -203,15 +203,15 @@ namespace NosCore.GameObject.Services.ExchangeService
 
         }
 
-        public ClaimedExchange? ConfirmExchange(long visualId)
+        public ClaimedExchange? ConfirmExchange(PlayerComponentBundle player)
         {
-            var data = exchangeRegistry.GetExchangeData(visualId);
-            var targetId = GetTargetId(visualId);
-            var partner = targetId.HasValue ? exchangeRegistry.GetExchangeData(targetId.Value) : null;
-            if (data == null || partner == null)
+            var data = player.Exchange;
+            if (data == null)
             {
                 return null;
             }
+
+            var partner = data.Partner;
 
             lock (data.Settlement)
             {
@@ -231,9 +231,9 @@ namespace NosCore.GameObject.Services.ExchangeService
             }
         }
 
-        public ExcClosePacket? CancelExchange(long visualId)
+        public ExcClosePacket? CancelExchange(PlayerComponentBundle player)
         {
-            var settlement = exchangeRegistry.GetExchangeData(visualId)?.Settlement;
+            var settlement = player.Exchange?.Settlement;
             if (settlement == null)
             {
                 logger.LogError(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
@@ -250,12 +250,12 @@ namespace NosCore.GameObject.Services.ExchangeService
                 settlement.IsClaimed = true;
             }
 
-            return CloseExchange(visualId, ExchangeResultType.Failure);
+            return CloseExchange(player, ExchangeResultType.Failure);
         }
 
-        public async Task<ExcClosePacket?> LeaveExchangeAsync(long visualId)
+        public async Task<ExcClosePacket?> LeaveExchangeAsync(PlayerComponentBundle player)
         {
-            var settlement = exchangeRegistry.GetExchangeData(visualId)?.Settlement;
+            var settlement = player.Exchange?.Settlement;
             if (settlement == null)
             {
                 return null;
@@ -273,115 +273,56 @@ namespace NosCore.GameObject.Services.ExchangeService
                 await settlement.Closed.Task;
             }
 
-            return GetTargetId(visualId).HasValue ? CloseExchange(visualId, ExchangeResultType.Failure) : null;
+            return player.InExchange ? CloseExchange(player, ExchangeResultType.Failure) : null;
         }
 
-        public bool IsExchangeConfirmed(long visualId)
+        public ExcClosePacket? CloseExchange(PlayerComponentBundle player, ExchangeResultType resultType)
         {
-            return exchangeRegistry.GetExchangeData(visualId)?.ExchangeConfirmed ?? false;
-        }
-
-        public ExchangeData GetData(long visualId)
-        {
-            return exchangeRegistry.GetExchangeData(visualId) ?? new ExchangeData();
-        }
-
-        public bool CheckExchange(long visualId)
-        {
-            return exchangeRegistry.HasExchange(visualId);
-        }
-
-        public long? GetTargetId(long visualId)
-        {
-            var pair = exchangeRegistry.GetExchangeRequestPair(visualId);
-            if (pair == null)
-            {
-                return null;
-            }
-
-            return pair.Value.Value == visualId ? pair.Value.Key : pair.Value.Value;
-        }
-
-        public bool CheckExchange(long visualId, long targetId)
-        {
-            var pair1 = exchangeRegistry.GetExchangeRequestPair(visualId);
-            var pair2 = exchangeRegistry.GetExchangeRequestPair(targetId);
-            return (pair1 != null && pair1.Value.Key == visualId && pair1.Value.Value == visualId) ||
-                   (pair2 != null && pair2.Value.Key == targetId && pair2.Value.Value == targetId);
-        }
-
-        public ExcClosePacket? CloseExchange(long visualId, ExchangeResultType resultType)
-        {
-            KeyValuePair<long, long> data;
-            ExchangeSettlement? settlement;
+            ExchangeSettlement settlement;
             lock (_openLock)
             {
-                var pair = exchangeRegistry.GetExchangeRequestPair(visualId);
-                if (pair == null)
+                var data = player.Exchange;
+                if (data == null)
                 {
                     logger.LogError(logLanguage[LogLanguageKey.INVALID_EXCHANGE]);
                     return null;
                 }
 
-                data = pair.Value;
-                settlement = exchangeRegistry.GetExchangeData(data.Key)?.Settlement;
-                if (settlement != null)
+                settlement = data.Settlement;
+                lock (settlement)
                 {
-                    lock (settlement)
-                    {
-                        settlement.IsClaimed = true;
-                    }
+                    settlement.IsClaimed = true;
                 }
 
-                if (!exchangeRegistry.RemoveExchangeData(data.Key) || !exchangeRegistry.RemoveExchangeRequest(data.Key))
+                player.Exchange = null;
+                if (sessionRegistry.TryGetCharacter(c => c.VisualId == data.PartnerId, out var partner))
                 {
-                    logger.LogError(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Key);
-                }
-
-                if (!exchangeRegistry.RemoveExchangeData(data.Value) || !exchangeRegistry.RemoveExchangeRequest(data.Value))
-                {
-                    logger.LogError(logLanguage[LogLanguageKey.TRY_REMOVE_FAILED], data.Value);
+                    partner.Exchange = null;
                 }
             }
 
-            SetInExchange(data.Key, false);
-            SetInExchange(data.Value, false);
-            settlement?.Closed.TrySetResult();
-
+            settlement.Closed.TrySetResult();
             return new ExcClosePacket
             {
                 Type = resultType
             };
         }
 
-        // The lifecycle owns the flag. Set at the seven call sites instead, it was simply
-        // never set at all, which left every InExchangeOrShop guard inert.
-        private void SetInExchange(long visualId, bool value)
-        {
-            if (sessionRegistry.TryGetCharacter(c => c.VisualId == visualId, out var character))
-            {
-                character.InExchange = value;
-            }
-        }
-
-        public bool OpenExchange(long visualId, long targetVisualId)
+        public bool OpenExchange(PlayerComponentBundle initiator, PlayerComponentBundle target)
         {
             lock (_openLock)
             {
-                if (CheckExchange(visualId) || CheckExchange(targetVisualId))
+                if (initiator.InExchange || target.InExchange)
                 {
                     logger.LogError(logLanguage[LogLanguageKey.ALREADY_EXCHANGE]);
                     return false;
                 }
 
-                var settlement = new ExchangeSettlement();
-                exchangeRegistry.SetExchangeRequest(visualId, targetVisualId);
-                exchangeRegistry.SetExchangeData(visualId, new ExchangeData { Settlement = settlement });
-                exchangeRegistry.SetExchangeData(targetVisualId, new ExchangeData { Settlement = settlement });
+                var (initiatorData, targetData) = ExchangeData.Pair(initiator.VisualId, target.VisualId);
+                initiator.Exchange = initiatorData;
+                target.Exchange = targetData;
             }
 
-            SetInExchange(visualId, true);
-            SetInExchange(targetVisualId, true);
             return true;
         }
     }
