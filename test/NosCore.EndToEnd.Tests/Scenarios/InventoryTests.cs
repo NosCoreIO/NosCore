@@ -5,6 +5,7 @@
 //
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
@@ -276,6 +277,36 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task PickingUpMoreThanAStackCanTakeFillsItAndStartsAnother()
+        {
+            var owner = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(owner, WorldData.Seed, MostInASlot - 2);
+            var dropper = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await Harness.GiveAsync(dropper, WorldData.Seed, 5);
+            await using var bob = await EnterAsync(dropper);
+            IReadOnlyList<string> told;
+            await using (var alice = await EnterAsync(owner))
+            {
+                await bob.SendAsync($"put {EtcPocket} 0 5");
+                var drop = await alice.ExpectAsync(p => p.StartsWith($"drop {WorldData.Seed} ", StringComparison.Ordinal), "the drop");
+                var picked = alice.Mark();
+
+                await alice.SendAsync($"get {Player} {alice.CharacterId} {drop.Split(' ')[2]} 0");
+
+                await alice.ExpectSinceAsync(picked, Slot(EtcPocket, 0, WorldData.Seed, MostInASlot), "the stack filled up");
+                // The pick-up is shown to the map once the bag has been sent.
+                await alice.ExpectSinceAsync(picked, p => p.StartsWith($"get {Player} {alice.CharacterId} ", StringComparison.Ordinal), "the pick-up");
+                told = alice.Since(picked);
+            }
+
+            await using var back = await Harness.ComeBackAsync(owner);
+            Same(new[] { $"0.{WorldData.Seed}.{MostInASlot}", $"1.{WorldData.Seed}.3" }, Listed(back, EtcPocket));
+            Assert.IsTrue(told.Where(p => p.StartsWith($"ivn {EtcPocket} ", StringComparison.Ordinal))
+                    .SelectMany(p => p.Split(' ').Skip(2)).Any(slot => slot.StartsWith($"1.{WorldData.Seed}.3.", StringComparison.Ordinal)),
+                "the client is told of the rest, in a slot of its own");
+        }
+
+        [TestMethod]
         public async Task WithAFullBagADropStaysOnTheMap()
         {
             var owner = await Harness.AddPlayerAsync("Alice");
@@ -476,6 +507,39 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             Same(new[] { $"1.{WorldData.CostumeHat}.1" }, await StoredAsync(player.CharacterId, NoscorePocketType.Costume));
             Same(Array.Empty<string>(), Listed(again, EquipmentPocket));
         }
+
+        [TestMethod]
+        public async Task ACostumeMovedOntoATakenSlotIsNotShownAsGone()
+        {
+            var player = await Harness.AddPlayerAsync("Alice");
+            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.CostumeHat, Amount = 1 }, NoscorePocketType.Equipment);
+            await Harness.GiveAsync(player, new WearableInstance { ItemVNum = WorldData.CostumeHat, Amount = 1 }, NoscorePocketType.Costume);
+            string[] toldBag;
+            string[] toldCostumes;
+            await using (var alice = await EnterAsync(player))
+            {
+                var moved = alice.Mark();
+
+                await alice.SendAsync($"mve {EquipmentPocket} 0 {CostumePocket} 0");
+
+                await alice.ExpectSinceAsync(moved, AnySlot(CostumePocket, 0), "the costume slot");
+                await alice.ExpectSinceAsync(moved, AnySlot(EquipmentPocket, 0), "the bag slot");
+                toldBag = Held(alice.Since(moved).Last(AnySlot(EquipmentPocket, 0)));
+                toldCostumes = Held(alice.Since(moved).Last(AnySlot(CostumePocket, 0)));
+            }
+
+            // Whether the two swap or the move is refused, the client must be told what the server kept.
+            await using var back = await Harness.ComeBackAsync(player);
+            Same(Listed(back, EquipmentPocket).Select(slot => string.Join('.', slot.Split('.').Take(2))).ToArray(), toldBag,
+                "the bag as the client was told against the bag as it is");
+            Same(Listed(back, CostumePocket).Select(slot => string.Join('.', slot.Split('.').Take(2))).ToArray(), toldCostumes,
+                "the costume pocket as the client was told against the pocket as it is");
+        }
+
+        // "slot.vnum" for what an ivn says a slot holds, nothing when it says the slot is empty.
+        private static string[] Held(string ivn) =>
+            ivn.Split(' ').Skip(2).Select(slot => slot.Split('.')).Where(slot => slot[1] is not ("0" or "-1"))
+                .Select(slot => $"{slot[0]}.{slot[1]}").ToArray();
 
         [TestMethod]
         public async Task APotionRestoresHpAndIsUsedUp()
