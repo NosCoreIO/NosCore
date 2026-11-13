@@ -1,6 +1,3 @@
-using Arch.Core;
-using System.Collections.Concurrent;
-using System.Threading;
 
 namespace NosCore.GameObject.Ecs.Components;
 
@@ -25,6 +22,4 @@ public record struct CombatComponent(
     int DistanceDefenceRate,
     int MagicDefence,
     int Element,
-    int ElementRate,
-    SemaphoreSlim HitSemaphore,
-    ConcurrentDictionary<Entity, int> HitList);
+    int ElementRate);

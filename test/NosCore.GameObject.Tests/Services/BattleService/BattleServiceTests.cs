@@ -202,7 +202,6 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             public byte HeroLevel => 0;
             public short Race => 0;
             public Shop? Shop { get; set; }
-            public SemaphoreSlim HitSemaphore { get; } = new(1, 1);
             public ConcurrentDictionary<Entity, int> HitList { get; } = new();
             public VisualType VisualType { get; set; } = VisualType.Player;
             public short VNum => 0;

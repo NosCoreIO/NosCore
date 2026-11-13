@@ -7,7 +7,6 @@
 using Arch.Core;
 using NosCore.GameObject.Services.ShopService;
 using System.Collections.Concurrent;
-using System.Threading;
 
 namespace NosCore.GameObject.Ecs.Interfaces
 {
@@ -54,8 +53,6 @@ namespace NosCore.GameObject.Ecs.Interfaces
         short Race { get; }
 
         Shop? Shop { get; set; }
-
-        SemaphoreSlim HitSemaphore { get; }
 
         ConcurrentDictionary<Entity, int> HitList { get; }
     }
