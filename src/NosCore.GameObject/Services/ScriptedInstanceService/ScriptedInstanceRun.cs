@@ -6,6 +6,7 @@
 
 using NodaTime;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -27,6 +28,8 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         public short ReturnX { get; } = entrance.PositionX;
 
         public short ReturnY { get; } = entrance.PositionY;
+
+        public ConcurrentDictionary<int, byte> VisitedRooms { get; } = new();
 
         private int _closed;
 
