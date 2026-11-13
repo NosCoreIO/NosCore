@@ -8,11 +8,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.MapItem;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.Packets.ClientPackets.Drops;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -28,6 +30,9 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
 
         private ClientSession _session;
         private Mock<IMessageBus> _messageBus;
+        private MapItemComponentBundle _drop;
+        private short _droppedVNum;
+        private short _droppedAmount;
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -42,21 +47,50 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.MapItem
         public async Task PickingUpAnItemAnnouncesIt()
         {
             await new Spec("A drop that lands in the inventory publishes the item and amount received")
-                .WhenAsync(PickingUp_Of_, 3, PickedItem)
+                .Given(ADropOf_Of_, 3, PickedItem)
+                .WhenAsync(PickingItUp)
                 .Then(TheCharacterShouldCarry_Of_, 3, PickedItem)
                 .And(TheReceivedItemsShouldBePublished_Of_, 3, PickedItem)
                 .ExecuteAsync();
         }
 
-        private Task PickingUp_Of_(int amount, short vNum)
+        [TestMethod]
+        public async Task APickUpThatOverflowsAStackShowsBothSlots()
+        {
+            await new Spec("A pick-up too big for the stack held fills it and shows the rest in a new slot")
+                .Given(ADropOf_Of_, 5, PickedItem)
+                .And(TheCharacterHolds_Of_, 997, PickedItem)
+                .WhenAsync(PickingItUp)
+                .Then(TheCharacterShouldCarry_Of_, 1002, PickedItem)
+                .And(TheClientShouldBeShownSlot_With_, 0, 999)
+                .And(TheClientShouldBeShownSlot_With_, 1, 3)
+                .ExecuteAsync();
+        }
+
+        private void TheCharacterHolds_Of_(int amount, short vNum) =>
+            _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
+                World.GenerateItemProvider().Create(vNum, (short)amount), _session.Character.CharacterId));
+
+        private void TheClientShouldBeShownSlot_With_(int slot, int amount)
+        {
+            var shown = _session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets ?? []).OfType<IvnSubPacket>()
+                .Last(i => i.Slot == slot);
+            Assert.AreEqual(amount, shown.RareAmount);
+        }
+
+        private void ADropOf_Of_(int amount, short vNum)
         {
             var item = _session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 World.GenerateItemProvider().Create(vNum, (short)amount), _session.Character.CharacterId)).NotNull().First().ItemInstance;
-            var mapItem = _session.Character.MapInstance.PutItem((short)amount, item, _session).NotNull();
-            return World.Create<DropHandler>().Handle(new MapItemPickedUpEvent(
-                _session, mapItem.VisualId, vNum, (short)amount, mapItem.ItemInstance,
-                new GetPacket { PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = mapItem.VisualId }));
+            _drop = _session.Character.MapInstance.PutItem((short)amount, item, _session).NotNull();
+            _droppedVNum = vNum;
+            _droppedAmount = (short)amount;
         }
+
+        private Task PickingItUp() =>
+            World.Create<DropHandler>().Handle(new MapItemPickedUpEvent(
+                _session, _drop.VisualId, _droppedVNum, _droppedAmount, _drop.ItemInstance,
+                new GetPacket { PickerType = VisualType.Player, PickerId = _session.Character.CharacterId, VisualId = _drop.VisualId }));
 
         private void TheCharacterShouldCarry_Of_(int amount, short vNum) =>
             Assert.AreEqual(amount, _session.Character.InventoryService.CountItem(vNum));

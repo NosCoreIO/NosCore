@@ -879,6 +879,8 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Two characters standing on the same dropped item press pick-up at the same moment: only
       one of them receives it; the other sees it disappear
 - [ ] Spam the pick-up key on a stack of gold: the gold counter rises by that stack only once
+- [ ] Hold 997 of an item and pick up a drop of 5 of it: the stack shows 999 and the next free
+      slot shows 3 straight away, without leaving the map
 - [ ] With the bag full, try to pick up an item: the not-enough-space message appears and the
       item stays on the ground for anyone to pick up
 - [ ] Spam double-click on a single box or sealed tarot card: one reward arrives and the box or
