@@ -28,6 +28,7 @@ using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
 using NosCore.Packets.ServerPackets.Warehouse;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
@@ -97,7 +98,9 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 MinilandItems,
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
-            _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider, _warehouseHubMock.Object, _itemInstanceDaoMock.Object, _itemProvider,
+            _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider,
+                new PersonalWarehouseService(new WarehouseTransferService(_warehouseHubMock.Object, _itemInstanceDaoMock.Object,
+                    new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _itemProvider)),
                 MinigameRewards);
         }
 
@@ -263,8 +266,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
 
         private void ShouldReceiveWarehousePacket()
         {
-            var lastPacket = (StashAllPacket?)_session.LastPackets.FirstOrDefault(s => s is StashAllPacket);
-            Assert.IsNotNull(lastPacket);
+            var stash = _session.LastPackets.OfType<StashAllPacket>().Single();
+            Assert.AreEqual(50, stash.WarehouseSize);
         }
     }
 }

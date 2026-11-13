@@ -12,11 +12,11 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.Data.WebApi;
 using NosCore.GameObject.Ecs.Extensions;
-using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
@@ -31,9 +31,7 @@ using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
-    public class FamilyWarehouseService(IWarehouseHub warehouseHub, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-        IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider,
-        IFamilyLogService familyLogService, IClock clock)
+    public class FamilyWarehouseService(IWarehouseTransferService transfer, IFamilyLogService familyLogService, IClock clock)
         : IFamilyWarehouseService
     {
         public async Task OpenAsync(ClientSession session)
@@ -45,7 +43,7 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var items = await GetItemsAsync(family.FamilyId);
+            var items = await transfer.GetItemsAsync(family.FamilyId, WarehouseType.FamilyWareHouse);
             await session.SendPacketAsync(new FStashAllPacket
             {
                 WarehouseSize = family.WarehouseSize,
@@ -73,46 +71,12 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var source = session.Character.InventoryService.LoadBySlotAndType(slot, (NoscorePocketType)pocket);
-            if (source?.ItemInstance == null || !source.ItemInstance.Item.IsTradable || source.ItemInstance.BoundCharacterId != null
-                || amount <= 0 || amount > source.ItemInstance.Amount
-                || warehouseSlot < 0 || warehouseSlot >= family.WarehouseSize
-                || (await GetItemsAsync(family.FamilyId)).Any(s => s.Slot == warehouseSlot))
+            var stored = await transfer.DepositAsync(session, Slots(family), pocket, slot, amount, warehouseSlot,
+                item => item.Item.IsTradable && item.BoundCharacterId == null);
+            if (stored != null)
             {
-                return;
+                await familyLogService.AddAsync(family.FamilyId, FamilyLogType.WareHouseAdded, session.Character.Name, stored.ItemVNum, amount);
             }
-
-            var stored = (IItemInstance)source.ItemInstance.Clone();
-            stored.Id = Guid.NewGuid();
-            stored.Amount = amount;
-            await itemInstanceDao.TryInsertOrUpdateAsync(stored);
-            if (!await warehouseHub.AddWarehouseItemAsync(new WareHouseDepositRequest
-            {
-                OwnerId = family.FamilyId,
-                WarehouseType = WarehouseType.FamilyWareHouse,
-                ItemInstance = stored.Adapt<ItemInstanceDto>(),
-                Slot = warehouseSlot
-            }))
-            {
-                await itemInstanceDao.TryDeleteAsync(stored.Id);
-                return;
-            }
-
-            InventoryItemInstance? remaining;
-            if (amount == source.ItemInstance.Amount)
-            {
-                await inventoryItemInstanceDao.TryDeleteAsync(source.Id);
-                session.Character.InventoryService.DeleteById(source.ItemInstanceId);
-                remaining = null;
-            }
-            else
-            {
-                remaining = session.Character.InventoryService.RemoveItemAmountFromInventory(amount, source.ItemInstanceId);
-            }
-
-            await session.SendPacketAsync(remaining.GeneratePocketChange(pocket, slot));
-            await SendSlotAsync(session, stored, warehouseSlot);
-            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.WareHouseAdded, session.Character.Name, stored.ItemVNum, amount);
         }
 
         public async Task WithdrawAsync(ClientSession session, short warehouseSlot, short amount)
@@ -124,40 +88,11 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var stored = (await GetItemsAsync(family.FamilyId)).FirstOrDefault(s => s.Slot == warehouseSlot);
-            if (stored.Item == null || amount <= 0 || amount > stored.Item.Amount)
+            var taken = await transfer.WithdrawAsync(session, Slots(family), warehouseSlot, amount);
+            if (taken != null)
             {
-                return;
+                await familyLogService.AddAsync(family.FamilyId, FamilyLogType.WareHouseRemoved, session.Character.Name, taken.ItemVNum, amount);
             }
-
-            if (!await warehouseHub.TakeWarehouseItemAsync(stored.LinkId, amount))
-            {
-                return;
-            }
-
-            var whole = amount == stored.Item.Amount;
-            var taken = (IItemInstance)stored.Item.Clone();
-            taken.Id = Guid.NewGuid();
-            taken.Amount = amount;
-            var added = session.Character.InventoryService.AddItemToPocket(
-                InventoryItemInstance.Create(taken, session.Character.CharacterId));
-            if (added == null || added.Count == 0)
-            {
-                await ReturnAsync(family.FamilyId, whole ? stored.Item : taken, warehouseSlot);
-                await session.SendPacketAsync(new MsgiPacket { Type = MessageType.Default, Message = Game18NConstString.NotEnoughSpace });
-                return;
-            }
-
-            IItemInstance? left = null;
-            if (!whole)
-            {
-                stored.Item.Amount -= amount;
-                left = stored.Item;
-            }
-
-            await session.SendPacketAsync(added.GeneratePocketChange());
-            await SendSlotAsync(session, left, warehouseSlot);
-            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.WareHouseRemoved, session.Character.Name, taken.ItemVNum, amount);
         }
 
         public async Task MoveAsync(ClientSession session, short sourceSlot, short amount, short destinationSlot)
@@ -169,48 +104,11 @@ namespace NosCore.GameObject.Services.FamilyService
                 return;
             }
 
-            var items = await GetItemsAsync(family.FamilyId);
-            var source = items.FirstOrDefault(s => s.Slot == sourceSlot);
-            var destination = items.FirstOrDefault(s => s.Slot == destinationSlot);
-            if (source.Item == null || sourceSlot == destinationSlot || amount <= 0 || amount > source.Item.Amount
-                || destinationSlot < 0 || destinationSlot >= family.WarehouseSize)
-            {
-                return;
-            }
-
-            if (destination.Item == null && amount < source.Item.Amount)
-            {
-                var split = (IItemInstance)source.Item.Clone();
-                split.Id = Guid.NewGuid();
-                split.Amount = amount;
-                await itemInstanceDao.TryInsertOrUpdateAsync(split);
-                if (!await warehouseHub.SplitWarehouseItemAsync(family.FamilyId, WarehouseType.FamilyWareHouse,
-                        sourceSlot, destinationSlot, split.Adapt<ItemInstanceDto>()))
-                {
-                    await itemInstanceDao.TryDeleteAsync(split.Id);
-                    return;
-                }
-
-                source.Item.Amount -= amount;
-                await SendSlotAsync(session, split, destinationSlot);
-                await SendSlotAsync(session, source.Item, sourceSlot);
-                return;
-            }
-
-            if (!await warehouseHub.MoveWarehouseItemAsync(family.FamilyId, WarehouseType.FamilyWareHouse, sourceSlot, destinationSlot))
-            {
-                return;
-            }
-
-            await SendSlotAsync(session, source.Item, destinationSlot);
-            await SendSlotAsync(session, destination.Item, sourceSlot);
+            await transfer.MoveAsync(session, Slots(family), sourceSlot, amount, destinationSlot);
         }
 
-        private async Task ReturnAsync(long familyId, IItemInstance item, short slot)
-        {
-            await itemInstanceDao.TryInsertOrUpdateAsync(item);
-            await warehouseHub.ReturnWarehouseItemAsync(familyId, WarehouseType.FamilyWareHouse, slot, item.Adapt<ItemInstanceDto>());
-        }
+        private static WarehouseSlots Slots(Family family) =>
+            new(family.FamilyId, WarehouseType.FamilyWareHouse, family.WarehouseSize);
 
         private static bool CanPut(ClientSession session, Family family) => family.AuthorityOf(session.Character.CharacterId) switch
         {
@@ -226,21 +124,6 @@ namespace NosCore.GameObject.Services.FamilyService
             _ => family.MemberAuthorityType == FamilyAuthorityType.ALL
         };
 
-        private async Task<List<(Guid LinkId, short Slot, IItemInstance Item)>> GetItemsAsync(long familyId)
-        {
-            var items = new List<(Guid, short, IItemInstance)>();
-            foreach (var link in await warehouseHub.GetWarehouseItems(null, familyId, WarehouseType.FamilyWareHouse, null))
-            {
-                var instance = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == link.ItemInstance.Id);
-                if (instance != null)
-                {
-                    items.Add((link.WarehouseItemId, link.Slot, itemProvider.Convert(instance)));
-                }
-            }
-
-            return items;
-        }
-
         private static FslogStcPacket GenerateFslog(IEnumerable<FamilyLogDto> history, Instant now) => new()
         {
             Entries = history.Select(s => (FslogStcSubPacket?)new FslogStcSubPacket
@@ -255,8 +138,5 @@ namespace NosCore.GameObject.Services.FamilyService
 
         private static short ParseShort(string? value) =>
             short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : default;
-
-        private static Task SendSlotAsync(ClientSession session, IItemInstance? item, short slot) =>
-            session.SendPacketAsync(new FStashClientPacket { Items = [item.GenerateWarehouseSubPacket(slot)] });
     }
 }

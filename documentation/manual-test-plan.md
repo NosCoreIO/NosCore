@@ -1339,6 +1339,25 @@ Two accounts on the same channel. The owner holds a Miniland Bell and a Seed of 
 - [ ] Try the same from inside a time-space or an arena: the client's "cannot be used here"
       line appears and you stay where you are
 
+### Personal warehouse, pet basket and partner backpack
+
+`/mnt/project-files/pet-backpack/scene.sh` gives the tester potions, a Miniland Bell and a
+warehouse (3005) placed in the miniland; `mates.sh` adds a pet and a partner out and, with
+`BONUS=1`, the bought pet basket and partner backpack.
+
+- [ ] In the miniland, open the warehouse shed: the window shows 0/21. Drag potions into it: they
+      leave the bag and the counter reads 1/21. Move them to another slot, then drag them back
+      into the bag
+- [ ] Equipment from the Miniland pocket cannot be dropped in, and nothing moves while trading
+- [ ] With the pet basket bought, the pet in the party panel has a small icon; clicking it asks
+      "Would you like to open the warehouse?" and Confirm opens the same 21-slot warehouse
+      anywhere
+- [ ] Without the pet basket the icon is not there
+- [ ] With the partner backpack bought, the partner's icon asks "Do you want to open your
+      partner's backpack?" and Confirm opens the Partner's Backpack with 50 slots; deposit and
+      withdraw work there too, and its content is separate from the warehouse
+- [ ] Log out and back in: stored items are still in their slots
+
 ### Invite cooldown and blacklist
 
 Three characters, A, B and C, on the same map and channel. A is a family head (for the

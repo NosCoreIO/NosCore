@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.PacketHandlers.Warehouse;
 using NosCore.Packets.ClientPackets.Families;
 using NosCore.Packets.ClientPackets.Warehouse;
@@ -171,8 +172,8 @@ namespace NosCore.PacketHandlers.Tests.Family
             instances.Setup(s => s.FirstOrDefaultAsync(It.IsAny<Expression<Func<IItemInstanceDto?, bool>>>()))
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
-            return new FamilyWarehouseService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _log.Object, World.Clock);
+            return new FamilyWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
+                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items), _log.Object, World.Clock);
         }
 
         private void Store(short vnum, short amount, short slot)

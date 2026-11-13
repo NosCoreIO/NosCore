@@ -4,28 +4,20 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
-using NosCore.Dao.Interfaces;
-using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Miniland;
-using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Infastructure;
-using NosCore.GameObject.InterChannelCommunication.Hubs.WarehouseHub;
 using NosCore.GameObject.Networking.ClientSession;
-using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MinilandService;
+using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Miniland;
-using NosCore.Packets.ServerPackets.Warehouse;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using UseObjPacket = NosCore.Packets.ClientPackets.Miniland.UseObjPacket;
 
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
-    public class UseobjPacketHandler(IMinilandService minilandProvider, IWarehouseHub warehouseHttpClient, IDao<IItemInstanceDto?, Guid> itemInstanceDao, IItemGenerationService itemProvider,
+    public class UseobjPacketHandler(IMinilandService minilandProvider, IPersonalWarehouseService warehouseService,
         IMinigameRewardService minigameRewards)
         : PacketHandler<UseObjPacket>, IWorldPacketHandler
     {
@@ -61,23 +53,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
             else
             {
-                var links = await warehouseHttpClient.GetWarehouseItems(null, clientSession.Character.CharacterId,
-                    WarehouseType.Warehouse, null);
-                var warehouseItems = new List<(short Slot, IItemInstance Item)>();
-                foreach (var warehouselink in links)
-                {
-                    var itemInstance = await itemInstanceDao.FirstOrDefaultAsync(s => s.Id == warehouselink.ItemInstance.Id);
-                    if (itemInstance != null)
-                    {
-                        warehouseItems.Add((warehouselink.Slot, itemProvider.Convert(itemInstance)));
-                    }
-                }
-                await clientSession.SendPacketAsync(new StashAllPacket
-                {
-                    WarehouseSize =
-                        (byte)instance.Item.MinilandObjectPoint,
-                    Items = warehouseItems.Select(s => s.Item.GenerateWarehouseSubPacket(s.Slot)).ToList()
-                });
+                await warehouseService.OpenAsync(clientSession, WarehouseType.Warehouse);
             }
         }
     }
