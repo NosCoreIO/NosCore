@@ -48,7 +48,8 @@ namespace NosCore.PacketHandlers.Game
             IMapChangeService mapChangeService, ISkillService skillService,
             IFamilyExperienceService familyExperienceService, ILogger<GameStartPacketHandler> logger,
             IBuffService buffService, IVitalityService vitalityService,
-            ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService)
+            ICharacterRankingService characterRankingService, IPersonalWarehouseService warehouseService,
+            IRespawnService respawnService)
         : PacketHandler<GameStartPacket>, IWorldPacketHandler
     {
         /// <summary>
@@ -83,7 +84,7 @@ namespace NosCore.PacketHandlers.Game
 
             if (session.Character.Hp <= 0)
             {
-                //                ServerManager.Instance.ReviveFirstPosition(Session.Character.CharacterId);
+                await ComeBackToLifeAtTheSavePointAsync(session);
             }
             else
             {
@@ -247,6 +248,18 @@ namespace NosCore.PacketHandlers.Game
             //            {
             //                Session.Character.ConnectAct4();
             //            }
+        }
+
+        // A character that left the world dead is back on its feet at its save point, barely alive.
+        private async Task ComeBackToLifeAtTheSavePointAsync(ClientSession session)
+        {
+            var character = session.Character;
+            var (mapId, x, y) = respawnService.GetRespawnLocation(character,
+                respawnService.ResolveRespawnMapTypeId(character.MapId));
+            character.Hp = 1;
+            character.Mp = 1;
+            character.IsAlive = true;
+            await mapChangeService.ChangeMapAsync(session, mapId, x, y);
         }
     }
 }

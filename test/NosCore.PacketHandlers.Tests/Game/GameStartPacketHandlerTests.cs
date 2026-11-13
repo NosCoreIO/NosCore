@@ -51,6 +51,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private Mock<ISkillService> SkillService;
         private Mock<IBuffService> BuffService;
         private Mock<IQuestService> QuestService;
+        private readonly Mock<NosCore.GameObject.Services.BattleService.IRespawnService> RespawnService = new();
         private readonly Mock<ILogger<GameStartPacketHandler>> Logger = new();
         private TaskCompletionSource ScriptRun;
         private Task GameStart;
@@ -95,7 +96,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 BuffService.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
                 World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>(),
-                new Mock<NosCore.GameObject.Services.WarehouseService.IPersonalWarehouseService>().Object);
+                new Mock<NosCore.GameObject.Services.WarehouseService.IPersonalWarehouseService>().Object,
+                RespawnService.Object);
         }
 
         [TestMethod]
@@ -209,15 +211,30 @@ namespace NosCore.PacketHandlers.Tests.Game
         }
 
         [TestMethod]
-        public async Task GameStartWithZeroHpShouldNotCallMapChange()
+        public async Task ACharacterStoredDeadComesBackAtItsSavePointBarelyAlive()
         {
-            await new Spec("Game start with zero HP should not call map change")
+            await new Spec("A character stored dead enters the world at its save point with 1 HP and 1 MP")
                 .Given(CharacterIsReadyToStart)
                 .And(CharacterHasZeroHp)
+                .And(TheSavePointIsMap_At_, (short)1, (short)79, (short)116)
                 .WhenAsync(ExecutingGameStart)
-                .Then(MapChangeShouldNotBeCalled)
+                .Then(TheCharacterShouldBeAliveWithOneHpAndMp)
+                .And(TheCharacterShouldEnterMap_At_, (short)1, (short)79, (short)116)
                 .ExecuteAsync();
         }
+
+        private void TheSavePointIsMap_At_(short mapId, short x, short y) =>
+            RespawnService.Setup(s => s.GetRespawnLocation(It.IsAny<PlayerComponentBundle>(), It.IsAny<long?>()))
+                .Returns((mapId, x, y));
+
+        private void TheCharacterShouldBeAliveWithOneHpAndMp()
+        {
+            Assert.IsTrue(Session.Character.IsAlive);
+            Assert.AreEqual((1, 1), (Session.Character.Hp, Session.Character.Mp));
+        }
+
+        private void TheCharacterShouldEnterMap_At_(short mapId, short x, short y) =>
+            MapChangeService.Verify(s => s.ChangeMapAsync(Session, mapId, x, y), Times.Once);
 
         private void CharacterHasNoScriptYet() => Session.Character.Script = null;
 
@@ -281,6 +298,7 @@ namespace NosCore.PacketHandlers.Tests.Game
         private void CharacterHasZeroHp()
         {
             Session.Character.Hp = 0;
+            Session.Character.IsAlive = false;
         }
 
         private async Task ExecutingGameStart()

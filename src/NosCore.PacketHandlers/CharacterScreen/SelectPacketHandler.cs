@@ -31,13 +31,11 @@ using NosCore.GameObject.Services.CharacterService;
 using NosCore.GameObject.Services.GroupService;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService;
-using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.MapInstanceAccessService;
 using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.Networking.SessionGroup;
-using Wolverine;
 using NosCore.Packets.ClientPackets.CharacterSelectionScreen;
 using NosCore.Packets.ServerPackets.CharacterSelectionScreen;
 using NosCore.Core.I18N;
@@ -67,7 +65,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
             List<ItemDto> items, IHpService hpService, IMpService mpService, ISpeedService speedService,
             NosCore.GameObject.Services.BattleService.IVitalityService vitalityService,
             ISessionGroupFactory sessionGroupFactory,
-            ICharacterInitializationService characterInitializationService, IMessageBus messageBus,
+            ICharacterInitializationService characterInitializationService,
             IMateService mateService, IFamilyService familyService, IStaticBuffService staticBuffService)
         : PacketHandler<SelectPacket>, IWorldPacketHandler
     {
@@ -133,14 +131,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 var maxHp = (int)hpService.GetHp(characterDto.Class, characterDto.Level);
                 var maxMp = (int)mpService.GetMp(characterDto.Class, characterDto.Level);
                 var authority = clientSession.Account.Authority;
-
-                // If the character was persisted at 0 HP (died right before a crash /
-                // disconnect-on-death), we load them in that state, then at the end of
-                // this handler we publish EntityDiedEvent to replay the normal revival
-                // flow — equivalent to declining the revive dialog. This keeps death
-                // semantics in one place (PlayerRevivalHandler) instead of hard-coding
-                // a "wake up at 1 HP" fallback here.
-                var wasDeadOnLoad = characterDto.Hp <= 0;
 
                 var playerEntity = mapInstance.EcsWorld.CreatePlayer(
                     (int)characterId,
@@ -297,16 +287,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                 await characterInitializationService.InitializeAsync(character);
 
                 await clientSession.SendPacketAsync(new OkPacket());
-
-                // Character was persisted at 0 HP (died then disconnected). Replay the
-                // death flow in ResumeInPlace mode — the decline-dialog equivalent:
-                // we already loaded them at their saved position, so the handler just
-                // needs to refill (Hp=Mp=1) and push the revive/stat packets. Killer
-                // is null because there's no in-session attacker to credit.
-                if (wasDeadOnLoad)
-                {
-                    await messageBus.PublishAsync(new EntityDiedEvent(character, null, RevivalMode.ResumeInPlace)).ConfigureAwait(false);
-                }
             }
             catch (Exception ex)
             {
