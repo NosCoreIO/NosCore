@@ -26,6 +26,10 @@ even when its packets are covered here.
 | Friends and groups: a request accepted, friend and group messages | `SocialTests` |
 | Two channels: the channel list, players apart, a whisper across, one account on one channel | `ChannelTests` |
 | Combat: a hit and its `su`, a kill and its experience, a dead monster on arrival | `CombatTests` |
+| Families: founding and its conditions, chat on one channel and across two, inviting, leaving, disbanding, dismissing, the notice, the shout, deputies | `FamilyTests`, `FamilyManagementTests` |
+| NosBazaar: listing and its tax, finding, buying, taking back, packages, a changed price, its limits | `BazaarTests` |
+| Parcels: a gift taken from its parcel, taken once, thrown away | `ParcelTests` |
+| Warehouses: depositing and withdrawing, the pet basket, the family warehouse and its permissions | `WarehouseTests` |
 
 Everything else in this file has no scenario yet. When a change adds a check here whose
 outcome is a packet or a stored row, add a scenario for it as well (`test/README.md`).
