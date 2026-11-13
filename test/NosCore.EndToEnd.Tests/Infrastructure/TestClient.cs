@@ -22,6 +22,9 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
     {
         public static readonly TimeSpan DefaultTimeout = TimeSpan.FromSeconds(10);
 
+        // What the servers logged as errors, added to the message of an expectation that fails.
+        public static Func<string>? ServerErrors { get; set; }
+
         private readonly string _account;
         private readonly string _password;
         private readonly string _host;
@@ -176,7 +179,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             var tail = string.Join(Environment.NewLine, Received.TakeLast(15).Select(p => "  " + Shorten(p)));
             throw new TimeoutException(
                 $"No '{description}' packet within {(timeout ?? DefaultTimeout).TotalSeconds:0.#} s" +
-                $"{(_disconnected ? " (the server closed the connection)" : string.Empty)}. Last packets:{Environment.NewLine}{tail}");
+                $"{(_disconnected ? " (the server closed the connection)" : string.Empty)}. Last packets:{Environment.NewLine}{tail}" +
+                ServerErrors?.Invoke());
         }
 
         // A packet received at or after a mark, wherever it falls among the others. For when two

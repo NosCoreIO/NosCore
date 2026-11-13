@@ -73,9 +73,23 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public string LogTail(string server, int lines = 40) =>
             string.Join(Environment.NewLine, _servers.Where(s => s.Name == server).SelectMany(s => s.Output.TakeLast(lines)));
 
-        public IEnumerable<string> Errors(string server) =>
-            _servers.Where(s => s.Name == server).SelectMany(s => s.Output)
-                .Where(line => line.StartsWith("EROR", StringComparison.Ordinal));
+        // An error line and the lines of its exception.
+        public IEnumerable<string> Errors(string server)
+        {
+            foreach (var process in _servers.Where(s => s.Name == server))
+            {
+                var inError = false;
+                foreach (var line in process.Output)
+                {
+                    var levelled = line.Length > 4 && line[4] == ' ' && line[..4].All(char.IsUpper);
+                    inError = levelled ? line.StartsWith("EROR", StringComparison.Ordinal) : inError;
+                    if (inError && !line.StartsWith("   at Microsoft.", StringComparison.Ordinal) && !line.StartsWith("   at System.", StringComparison.Ordinal))
+                    {
+                        yield return line.Length > 300 ? line[..300] : line;
+                    }
+                }
+            }
+        }
 
         private async Task StartAsync(string binaries, string name, string readyLine, string configuration,
             Dictionary<string, string> environment)

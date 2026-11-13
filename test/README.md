@@ -111,7 +111,7 @@ What it needs and does:
   `build/net11.0` on free ports, with a copy of `configuration/`.
 - **Its own database**, created for the run, migrated, seeded by `WorldData` and dropped at
   the end. No client files are involved: the world is two open maps joined by portals, a
-  miniland, one item and a shopkeeper who sells it. Add to `WorldData` what a new scenario
+  miniland, a shopkeeper with one item to sell, and what a new adventurer is given. Add to `WorldData` what a new scenario
   needs; static data is read when the servers start.
 
 Writing one:
@@ -130,8 +130,9 @@ Writing one:
   `configure: c => c.Gold = 1000` on `EnterAsync` or `AddPlayerAsync` sets anything on the row.
 - `Harness.StoredAsync(characterId)` and `Harness.Database.CreateContext()` read what was
   stored.
-- A failing start prints the server's last lines; `Harness.Stack.LogTail("NosCore.WorldServer")`
-  gives them to a scenario.
+- A failing start prints the server's last lines, and an expectation that times out adds the
+  world servers' error lines to its message. `Harness.Stack.LogTail("NosCore.WorldServer")`
+  gives a scenario the rest.
 
 The stack has two channels: two world servers on one master and one login server.
 `Harness.EnterAsync(..., channel: 1)` puts a character on the second one.
