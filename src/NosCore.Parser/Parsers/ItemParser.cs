@@ -50,8 +50,8 @@ namespace NosCore.Parser.Parsers
                     source: "FLAG[20] + VNUM[1]", description: "Reputation price when FLAG[20] is set")
                 .Field(x => x.NameI18NKey, "NAME", 0, 2, s => s, "Localization key (zts##e)")
                 .Field(x => x.Type, chunk => ImportType(chunk),
-                    source: "FLAG[25] + DATA[0] + INDEX[0,1]",
-                    description: "Pocket type: FLAG[25]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map")
+                    source: "FLAG[26] + DATA[0] + INDEX[0,1]",
+                    description: "Pocket type: FLAG[26]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map")
                 .Field(x => x.ItemType, chunk => ImportItemType(chunk),
                     source: "INDEX[0,1]", description: "ItemType composite enum, built from the INDEX pocket even for Raid and Mount items")
                 .Field(x => x.ItemSubType, "INDEX", 0, 4, s => Convert.ToByte(s), "Subtype within item category")
@@ -150,13 +150,18 @@ namespace NosCore.Parser.Parsers
                     source: "DATA[varies]", description: "Max weapon damage")
                 .Field(x => x.DamageMinimum, chunk => ImportDamageMinimum(chunk),
                     source: "DATA[varies]", description: "Min weapon damage")
-                .Describe("FLAG", "25 boolean bits. FLAG[25] identifies raid-inventory items (seals, boxes, chests, drops).")
+                .Describe("FLAG", "25 boolean bits. The last one identifies raid-inventory items (seals, boxes, chests, drops).")
                 .Doc("FLAG", 17, "FemaleOnly", "Set together with FLAG[18]=0 to mark a female-only item; rolled up into Sex.")
                 .Doc("FLAG", 18, "MaleOnly", "Set together with FLAG[17]=0 to mark a male-only item; rolled up into Sex.")
-                .Doc("FLAG", 25, "RaidItem", "Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket.")
+                .Doc("FLAG", 2, "Unused", "0 on every item; the client reads it as a number, not a flag.")
+                .Doc("FLAG", 3, "Unused", "0 on every item.")
                 .Doc("FLAG", 4, "NotAvailable", "The shop tooltip adds \"Not available\"; set on 3 items only (333, 334, 1225).")
+                .Doc("FLAG", 19, "Unused", "0 on every item.")
                 .Doc("FLAG", 21, "ReputationPrice", "The shop tooltip labels the price \"Reputation\"; read into ReputPrice.")
-                .Doc("FLAG", 26, "UnknownLastBit");
+                .Doc("FLAG", 25, "Unused", "0 on every item.")
+                .Doc("FLAG", 26, "RaidItem", "Set on raid seals, raid boxes, chests and drops; routes the item to the Raid pocket.")
+                .Doc("INDEX", 2, "Pocket", "The pocket the item goes to (8, 9, 10 are Equipment, Main, Etc); read into Type.")
+                .Doc("INDEX", 3, "Category", "The kind of item within its pocket; read with the pocket into ItemType.");
         }
 
         public async Task ParseAsync(string folder)
