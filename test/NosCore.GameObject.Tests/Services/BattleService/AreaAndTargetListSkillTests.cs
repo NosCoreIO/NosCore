@@ -21,6 +21,7 @@ using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BattleService.Model;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 using SpecLight;
@@ -136,6 +137,17 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .WhenAsync(CastingAtACell)
                 .Then(TheCastShouldBeAccepted_, true)
                 .And(_HitsShouldBeSent, 0)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AnAreaCastIsAnnouncedAtItsCell()
+        {
+            await new Spec("A ground skill shows its cast with ct_n and its landing on the cell with bs, without a cast time")
+                .Given(TheSkillResolves)
+                .And(TheAreaHolds_Targets, 1)
+                .WhenAsync(CastingAtACell)
+                .Then(TheMapShouldSeeTheCastThenTheLandingAt_, (10, 10))
                 .ExecuteAsync();
         }
 
@@ -295,6 +307,14 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var main = Monster(1);
             _targetResolver.Setup(r => r.Resolve(_origin, main, It.IsAny<SkillInfo>())).Returns(new List<IAliveEntity> { main });
             _accepted = await _service.Hit(_origin, main, new HitArguments { SkillId = 1, ListedTargets = listed });
+        }
+
+        private void TheMapShouldSeeTheCastThenTheLandingAt_((int X, int Y) cell)
+        {
+            var packets = _map.LastPackets.Where(p => p is CtNPacket or BsPacket).ToList();
+            Assert.IsInstanceOfType<CtNPacket>(packets[0]);
+            var landing = packets.OfType<BsPacket>().Single();
+            Assert.AreEqual(((short)cell.X, (short)cell.Y, (long)1), (landing.MapX, landing.MapY, landing.SkillVnum));
         }
 
         private void TheCastShouldBeAccepted_(bool accepted)
