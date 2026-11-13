@@ -19,6 +19,7 @@ using NosCore.GameObject.Messaging.Handlers.Guri;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.WarehouseService;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Mates;
 using NosCore.Packets.ServerPackets.Warehouse;
 using NosCore.Tests.Shared;
 using ClientGuriPacket = NosCore.Packets.ClientPackets.UI.GuriPacket;
@@ -79,6 +80,18 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
             await UsingAsync(GuriPacketType.PartnerBackpack);
 
             Assert.AreEqual(50, _session.LastPackets.OfType<PStashAllPacket>().Single().WarehouseSize);
+        }
+
+        [TestMethod]
+        public async Task TheNosMatePanelShowsOnlyTheStoragesBought()
+        {
+            Has(StaticBonusType.PetBackPack);
+
+            await World.Create<IPersonalWarehouseService>().SendCarriedStoragesAsync(_session);
+
+            var ib = _session.LastPackets.OfType<IbPacket>().Single();
+            Assert.AreEqual(CarriedStorageType.PartnerBackpack, ib.Storage);
+            Assert.IsTrue(ib.IsAvailable);
         }
     }
 }
