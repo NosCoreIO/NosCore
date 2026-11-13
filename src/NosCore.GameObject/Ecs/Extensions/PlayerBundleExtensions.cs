@@ -657,7 +657,8 @@ public static class PlayerBundleExtensions
         };
     }
 
-    // The character window shows exactly what combat uses, worn gear and active effects included.
+    // The character window shows what combat uses, worn gear and active effects included. Combat
+    // keeps a debuffed attack or defence below zero, but the window stops each at 0.
     public static ScPacket GenerateSc(this PlayerComponentBundle player, IBattleStatsProvider battleStatsProvider)
     {
         var stats = battleStatsProvider.GetStats(player);
@@ -671,24 +672,24 @@ public static class PlayerBundleExtensions
         {
             Type = (byte)mainType,
             MainWeaponUpgrade = (byte)stats.MeleeUpgrade,
-            MinHit = stats.MinHit,
-            MaxHit = stats.MaxHit,
+            MinHit = Math.Max(0, stats.MinHit),
+            MaxHit = Math.Max(0, stats.MaxHit),
             HitRate = stats.HitRate,
             CriticalHitRate = (short)stats.CriticalChance,
             CriticalHitMultiplier = stats.CriticalRate,
             Type2 = (byte)secondaryType,
             SecondaryWeaponUpgrade = (short)stats.RangedUpgrade,
-            SecondaryMinHit = (short)stats.MinDistance,
-            SecondaryMaxHit = (short)stats.MaxDistance,
+            SecondaryMinHit = (short)Math.Max(0, stats.MinDistance),
+            SecondaryMaxHit = (short)Math.Max(0, stats.MaxDistance),
             SecondaryHitRate = (short)stats.DistanceRate,
             SecondaryCriticalHitRate = (short)stats.DistanceCriticalChance,
             SecondaryCriticalHitMultiplier = (short)stats.DistanceCriticalRate,
             ArmorUpgrade = (byte)stats.DefenceUpgrade,
-            Defence = (short)stats.Defence,
+            Defence = (short)Math.Max(0, stats.Defence),
             DefenceRate = (short)stats.DefenceDodge,
-            DistanceDefence = (short)stats.DistanceDefence,
+            DistanceDefence = (short)Math.Max(0, stats.DistanceDefence),
             DistanceDefenceRate = (short)stats.DistanceDefenceDodge,
-            MagicalDefence = (short)stats.MagicDefence,
+            MagicalDefence = (short)Math.Max(0, stats.MagicDefence),
             FireResistance = (short)stats.FireResistance,
             WaterResistance = (short)stats.WaterResistance,
             LightResistance = (short)stats.LightResistance,
