@@ -48,6 +48,8 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 OwnerId = Session.Character.CharacterId
             });
 
+            await World.SeedMinilandEntrancesAsync();
+
             Service = new GameObject.Services.MinilandService.MinilandService(
                 World.MapInstanceAccessorService,
                 FriendHttpClient.Object,
@@ -62,6 +64,7 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 },
                 World.MinilandDao,
                 World.MinilandObjectDao,
+                World.PortalDao,
                 World.Create<MinilandRegistry>());
         }
 
@@ -199,12 +202,15 @@ namespace NosCore.GameObject.Tests.Services.MinilandService
                 MapInstanceId = _minilandInstance.MapInstanceId,
             });
 
+            await World.SeedMinilandEntrancesAsync();
+
             _isolatedService = new GameObject.Services.MinilandService.MinilandService(
                 _isolatedAccessor.Object,
                 FriendHttpClient.Object,
                 new List<MapDto> { mapMiniland },
                 World.MinilandDao,
                 World.MinilandObjectDao,
+                World.PortalDao,
                 registry);
             await Task.CompletedTask;
         }

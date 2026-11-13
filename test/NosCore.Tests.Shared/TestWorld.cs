@@ -269,6 +269,20 @@ namespace NosCore.Tests.Shared
 
         public GroupLootService GroupLootService => Create<GroupLootService>();
 
+        public async Task SeedMinilandEntrancesAsync()
+        {
+            await PortalDao.TryInsertOrUpdateAsync(new PortalDto
+            {
+                PortalId = 9001, SourceMapId = 1, SourceX = 48, SourceY = 132,
+                DestinationMapId = 20001, DestinationX = 5, DestinationY = 8, Type = PortalType.Miniland,
+            });
+            await PortalDao.TryInsertOrUpdateAsync(new PortalDto
+            {
+                PortalId = 9002, SourceMapId = 145, SourceX = 9, SourceY = 171,
+                DestinationMapId = 20001, DestinationX = 5, DestinationY = 8, Type = PortalType.Miniland,
+            });
+        }
+
         public async Task<ClientSession> CreateSessionAsync(List<IPacketHandler>? packetHandlers = null,
             List<ISessionDisconnectHandler>? disconnectHandlers = null)
         {

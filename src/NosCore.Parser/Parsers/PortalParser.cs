@@ -67,6 +67,26 @@ namespace NosCore.Parser.Parsers
                 await portalDao.TryInsertOrUpdateAsync(minilandPortal);
             }
 
+            // A miniland entrance leads to the miniland of whoever walks in, so the server
+            // only takes its position and the miniland map from here.
+            foreach (var minilandEntrance in new[]
+            {
+                new PortalDto { SourceMapId = 1, SourceX = 48, SourceY = 132 },
+                new PortalDto { SourceMapId = 145, SourceX = 9, SourceY = 171 },
+            })
+            {
+                minilandEntrance.DestinationMapId = 20001;
+                minilandEntrance.DestinationX = 5;
+                minilandEntrance.DestinationY = 8;
+                minilandEntrance.Type = PortalType.Miniland;
+                if (!portalsdb.Any(s => s.SourceMapId == minilandEntrance.SourceMapId
+                    && s.SourceX == minilandEntrance.SourceX && s.SourceY == minilandEntrance.SourceY))
+                {
+                    portalCounter++;
+                    await portalDao.TryInsertOrUpdateAsync(minilandEntrance);
+                }
+            }
+
             var weddingPortal = new PortalDto
             {
                 SourceMapId = 2586,
