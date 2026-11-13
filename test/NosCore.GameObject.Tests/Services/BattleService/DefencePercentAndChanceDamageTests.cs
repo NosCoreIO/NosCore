@@ -87,6 +87,25 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public void ACostumeDefenceBonusRaisesEveryDefenceByItsPercent()
+        {
+            var stats = StatsWith(Card(BCardEffect.ItemDefenceIncreased, 5));
+
+            Assert.AreEqual(105, stats.Defence);
+            Assert.AreEqual(210, stats.DistanceDefence);
+            Assert.AreEqual(315, stats.MagicDefence);
+        }
+
+        [TestMethod]
+        public void ACostumeAttackBonusRaisesEveryAttackByItsPercent()
+        {
+            var stats = StatsWith(Card(BCardEffect.ItemAttackIncreased, 10));
+
+            Assert.AreEqual(55, stats.MinHit);
+            Assert.AreEqual(55, stats.MaxHit);
+        }
+
+        [TestMethod]
         public void AChanceDamageCardKeepsBothItsChanceAndItsPercent()
         {
             var stats = StatsWith(
