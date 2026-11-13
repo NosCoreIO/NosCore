@@ -2271,6 +2271,13 @@ Recorded so nobody spends time hunting for them:
       then the character mounts and moves at the vehicle's speed.
 - [ ] Use the vehicle again while mounted: dismount, with normal walking speed restored.
 - [ ] Repeat mounting and dismounting from Main inventory or an existing shortcut.
+- [ ] Ride mounts from different years and check each shows its own look and speed, for example
+      Magic Jaguar (5834), Turtlecopter (9149), Royal Rabbit Carriage (9443), Chi Tu (13752),
+      12th Anniversary Speedy Alpaca (5807). The `cond` speed is the one in the mount's
+      description.
+- [ ] The limited jeeps (9090 to 9094) show the colour of their name and the limited Black
+      Unicorn (9085) is a unicorn.
+- [ ] A female character on the same mounts shows the female rider.
 - [ ] Relog and repeat: the vehicle remains usable and is not consumed.
 
 Early or missing delay completion is covered by automated tests; a stock client

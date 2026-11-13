@@ -351,6 +351,35 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)1906, 20, 2368)]
+        [DataRow((short)5834, 20, 3693)]
+        [DataRow((short)9085, 22, 2530)]
+        [DataRow((short)9090, 21, 2936)]
+        [DataRow((short)13752, 24, 3770)]
+        public async Task ItemParser_AMountGetsItsSpeedAndItsLook(short vnum, int speed, int morph)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum, indexType: 1, indexSubType: 4, equipmentSlot: 0, morph: -1,
+                data: "1000\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0\t0"));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            var mount = _savedItems.Single();
+            Assert.AreEqual((byte)speed, mount.Speed);
+            Assert.AreEqual((short)morph, mount.Morph);
+            Assert.AreEqual(3000, mount.WaitDelay);
+        }
+
+        [TestMethod]
+        public void EveryMountHasASpeedAndALook()
+        {
+            foreach (var (vnum, mount) in Mounts.All)
+            {
+                Assert.IsTrue(mount.Speed > 0 && mount.Morph > 0, $"mount {vnum}");
+            }
+        }
+
+        [TestMethod]
         public async Task ItemParser_PartnerSkinTakesItsLookFromData()
         {
             CreateTestFile(CreateItemData(vnum: 1103, indexType: 1, indexSubType: 4, equipmentSlot: 0, morph: 1103,
