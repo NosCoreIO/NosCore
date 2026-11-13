@@ -73,6 +73,23 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             return stack;
         }
 
+        // One server on its own, for a scenario about how a server starts: what it wrote by the
+        // time the expected line arrived. It is stopped before this returns.
+        public static async Task<IReadOnlyList<string>> StartAloneAsync(string name, string databaseName, string expectedLine)
+        {
+            var root = RepositoryRoot();
+            await using var stack = new ServerStack(FreePort());
+            var environment = new Dictionary<string, string>
+            {
+                ["MASTER_PORT"] = FreePort().ToString(),
+                ["LOGIN_PORT"] = stack.LoginPort.ToString(),
+                ["WORLD_PORT"] = FreePort().ToString(),
+            };
+            await stack.StartAsync(Path.Combine(root, "build", "net11.0"), name, expectedLine,
+                stack.WriteConfiguration(root, databaseName, 0), environment);
+            return stack._servers.SelectMany(s => s.Output).ToList();
+        }
+
         // A connection the server closed is rarely explained by an error line, so that case also
         // gets the last lines of every level and the servers that are no longer running.
         public string Diagnose(bool connectionClosed)

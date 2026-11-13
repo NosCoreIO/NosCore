@@ -5,8 +5,11 @@
 //
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using NosCore.Database;
 using Npgsql;
 
@@ -35,7 +38,10 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // Null when no PostgreSQL answers: the tests then report themselves as not run. A server
         // that answers and then refuses is a failure, not an absence.
-        public static async Task<TestDatabase?> TryCreateAsync()
+        public static Task<TestDatabase?> TryCreateAsync() => TryCreateAsync(0);
+
+        // With a number, the database stops that many migrations short of the build's own.
+        public static async Task<TestDatabase?> TryCreateAsync(int migrationsBehind)
         {
             var database = new TestDatabase("noscore_e2e_" + Guid.NewGuid().ToString("N")[..8]);
             await using (var connection = new NpgsqlConnection(ConnectionString("postgres")))
@@ -57,7 +63,8 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             try
             {
                 await using var context = database.CreateContext();
-                await context.Database.MigrateAsync();
+                var migrations = context.Database.GetMigrations().ToList();
+                await context.GetService<IMigrator>().MigrateAsync(migrations[^(1 + migrationsBehind)]);
             }
             catch
             {

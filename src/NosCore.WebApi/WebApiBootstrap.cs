@@ -46,6 +46,7 @@ namespace NosCore.WebApi
             var conf = ConfiguratorBuilder.InitializeConfiguration(args, new[] { "logger.yml", "api.yml" });
             var loginConfiguration = conf.Get<ApiConfiguration>()
                 ?? throw new InvalidOperationException("The ApiConfiguration section could not be read.");
+            DatabaseReadiness.EnsureUpToDate(loginConfiguration.Database.ConnectionString);
             builder.Services.AddNosCoreContext(loginConfiguration.Database.ConnectionString);
             builder.Services.AddOptions<LoginConfiguration>().Bind(conf).ValidateDataAnnotations();
             builder.Services.AddOptions<ServerConfiguration>().Bind(conf).ValidateDataAnnotations();
