@@ -175,6 +175,24 @@ distance the walk check uses.
       is refused from two cells further away
 - [ ] Cast while walking: the hit lands and you are not pulled back to an old cell
 
+### Cast time
+
+A skill's cast time (Skill.dat, tenths of a second) is waited out on the server, after a
+`ct` that shows the wind-up.
+
+- [ ] Cast Slingshot (203, 1 s) at a monster: a cast bar and charging effect appear over the
+      character, and the damage lands about a second later, not at once
+- [ ] A second character next to you sees the same wind-up
+- [ ] Kill the target with another character during the wind-up: the cast ends without a hit
+- [ ] A monster with a cast-time skill stops chasing while it winds up, then resumes
+
+### Debuff resistance
+
+- [ ] Let a monster whose skill causes Blackout hit you: Blackout lands on every hit that
+      connects
+- [ ] Wear the Monkey Hat ("high chance of protection from Blackouts") and repeat: Blackout
+      lands only now and then (about one hit in ten)
+
 ### Area skills and bystanders
 
 - [ ] Stand a second character next to a monster and cast an area skill at the monster: the
