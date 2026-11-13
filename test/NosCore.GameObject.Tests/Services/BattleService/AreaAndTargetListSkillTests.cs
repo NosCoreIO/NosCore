@@ -152,6 +152,17 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AHitIsDrawnWithTheSkillsOwnEffect()
+        {
+            await new Spec("The hit line carries the skill's effect, not its cast effect")
+                .Given(TheSkillResolvesWithEffect_AndCastEffect_, (short)513, (short)-1)
+                .And(AMonsterStandsInTheArea)
+                .WhenAsync(CastingAtACell)
+                .Then(TheHitShouldBeDrawnWithEffect_, (short)513)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task ADeadCasterCannotCastAtACell()
         {
             await new Spec("A dead caster's area cast is refused before anything is hit")
@@ -261,6 +272,19 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _skillResolver.Setup(r => r.Resolve(_origin, 1L)).Returns(GroundSkill(2));
         }
 
+        private void TheSkillResolvesWithEffect_AndCastEffect_(short effect, short castEffect)
+        {
+            _origin.MapInstance = _map;
+            _skillResolver.Setup(r => r.Resolve(_origin, 1L))
+                .Returns(GroundSkill(2) with { Effect = effect, CastEffect = castEffect });
+        }
+
+        private void AMonsterStandsInTheArea()
+        {
+            _targetResolver.Setup(r => r.ResolveArea(_origin, _map, 10, 10, It.IsAny<SkillInfo>()))
+                .Returns(new List<IAliveEntity> { Monster(10) });
+        }
+
         private void TheSkillResolvesAsSingleTarget()
         {
             _origin.MapInstance = _map;
@@ -315,6 +339,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Assert.IsInstanceOfType<CtNPacket>(packets[0]);
             var landing = packets.OfType<BsPacket>().Single();
             Assert.AreEqual(((short)cell.X, (short)cell.Y, (long)1), (landing.MapX, landing.MapY, landing.SkillVnum));
+        }
+
+        private void TheHitShouldBeDrawnWithEffect_(short effect)
+        {
+            Assert.AreEqual(effect, _map.LastPackets.OfType<SuPacket>().Single().SkillEffect);
         }
 
         private void TheCastShouldBeAccepted_(bool accepted)

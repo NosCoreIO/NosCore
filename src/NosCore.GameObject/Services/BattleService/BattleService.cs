@@ -253,7 +253,7 @@ namespace NosCore.GameObject.Services.BattleService
                 SkillVnum = skill.SkillVnum,
                 SkillCooldown = skill.Cooldown,
                 AttackAnimation = skill.AttackAnimation,
-                SkillEffect = skill.CastEffect,
+                SkillEffect = skill.Effect,
                 PositionX = presentation.X,
                 PositionY = presentation.Y,
                 TargetIsAlive = target.IsAlive,
