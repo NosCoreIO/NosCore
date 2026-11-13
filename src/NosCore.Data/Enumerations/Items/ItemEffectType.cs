@@ -90,6 +90,9 @@ namespace NosCore.Data.Enumerations.Items
         // Takes over an item bound to another player; the item's level and rarity set how many it takes.
         Perfume = 1021,
 
+        // EffectValue is the reward level of the minigame box, 0 for the lowest.
+        MinigameChest = 1022,
+
         BuffPotions = 6600,
         MarriageSeparation = 6969
     }

@@ -56,6 +56,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             new Item { Type = NoscorePocketType.Miniland, VNum = 3001, ItemType = ItemType.Minigame, MinilandObjectPoint = 100, IsWarehouse = true },
             new Item { Type = NoscorePocketType.Main, VNum = 1269, Effect = ItemEffectType.MinigameDurabilityCoupon, EffectValue = 300 },
             new Item { Type = NoscorePocketType.Main, VNum = 1271, Effect = ItemEffectType.ProductionCoupon, EffectValue = 500 },
+            new Item { Type = NoscorePocketType.Etc, VNum = 393, Effect = ItemEffectType.MinigameChest, EffectValue = 1 },
+            new Item { Type = NoscorePocketType.Etc, VNum = 392, Effect = ItemEffectType.MinigameChest, EffectValue = 0 },
         };
 
         private static MinigameRewardService MinigameRewards => new(
@@ -96,7 +98,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 MinilandItems,
                 NullLoggerFactory.Instance,
                 World.LogLanguageLocalizer, new RarityPointService());
-            _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards, World.Clock);
+            _mgPacketHandler = new MgPacketHandler(_minilandProvider, _itemProvider, MinigameRewards, World.Clock,
+                new ItemCatalog(MinilandItems));
         }
 
         [TestMethod]
@@ -639,6 +642,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         {
             var lastPacket = (MloPmgPacket?)_session.LastPackets.FirstOrDefault(s => s is MloPmgPacket);
             Assert.IsNotNull(lastPacket);
+            CollectionAssert.AreEqual(new short[] { 392, 393 },
+                lastPacket.MloPmgSubPackets.NotNull().Take(2).Select(box => box.NotNull().BoxVNum).ToArray());
         }
     }
 }
