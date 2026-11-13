@@ -29,8 +29,6 @@ using Wolverine;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
 {
-    // The skill handler schedules a cooldown reset and the map's life loop sends it, so both must
-    // reach the same BattleService: with a transient registration the client never got its "sr".
     [TestClass]
     public class BattleServiceLifetimeTests
     {

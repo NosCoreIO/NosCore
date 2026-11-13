@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.InventoryService;
@@ -21,4 +22,5 @@ public record struct PlayerInventoryComponent(
     List<QuicklistEntryDto> QuicklistEntries,
     List<StaticBonusDto> StaticBonusList,
     List<TitleDto> Titles,
-    List<RespawnDto> Respawns);
+    List<RespawnDto> Respawns,
+    ConcurrentDictionary<long, Instant> PendingSkillResets);

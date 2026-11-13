@@ -380,7 +380,8 @@ namespace NosCore.Tests.Shared
                 new List<QuicklistEntryDto>(),
                 new List<StaticBonusDto>(),
                 new List<TitleDto>(),
-                new List<RespawnDto>()));
+                new List<RespawnDto>(),
+                new ConcurrentDictionary<long, NodaTime.Instant>()));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerSocialComponent(
                 new ConcurrentDictionary<long, long>(),
                 null,
