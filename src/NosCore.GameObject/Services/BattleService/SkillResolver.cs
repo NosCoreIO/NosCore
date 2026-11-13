@@ -141,7 +141,7 @@ public sealed class SkillResolver : ISkillResolver
             Cooldown: main.Cooldown,
             AttackAnimation: main.AttackAnimation,
             CastEffect: upgrade?.CastEffect ?? main.CastEffect,
-            Effect: main.Effect,
+            Effect: upgrade?.Effect ?? main.Effect,
             Type: main.Type,
             HitType: (TargetHitType)main.HitType,
             Range: main.Range,

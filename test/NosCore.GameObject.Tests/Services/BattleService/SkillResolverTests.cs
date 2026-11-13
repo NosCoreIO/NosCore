@@ -103,6 +103,20 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AnOwnedUpgradeGivesTheSkillItsEffect()
+        {
+            var baseSkill = new SkillDto { SkillVNum = 100, CastId = 1, SkillType = 1, Effect = 515 };
+            var upgrade = new SkillDto { SkillVNum = 101, CastId = 1, UpgradeSkill = 100, SkillType = 2, Effect = 539 };
+            var character = await NewCharacterAsync();
+            var skills = character.Skills;
+            skills.Clear();
+            skills.TryAdd(100, new CharacterSkill { SkillVNum = 100, Skill = baseSkill });
+            skills.TryAdd(101, new CharacterSkill { SkillVNum = 101, Skill = upgrade });
+
+            Assert.AreEqual((short)539, new SkillResolver(_skills, _catalog).Resolve(character, 1)?.Effect);
+        }
+
+        [TestMethod]
         public async Task CharacterWithoutMatchingCastIdReturnsNull()
         {
             var character = await NewCharacterAsync();
