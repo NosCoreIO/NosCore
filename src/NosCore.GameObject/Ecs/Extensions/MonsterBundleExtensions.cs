@@ -16,10 +16,11 @@ public static class MonsterBundleExtensions
     {
         monster.Hp = monster.MaxHp;
         monster.Mp = monster.MaxMp;
-        monster.IsAlive = true;
         monster.PositionX = monster.FirstX;
         monster.PositionY = monster.FirstY;
         monster.HitList.Clear();
+        // Last: whoever sees it alive must already find it whole and at its spawn point.
+        monster.IsAlive = true;
     }
 
     public static InPacket GenerateIn(this MonsterComponentBundle monster)
