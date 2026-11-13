@@ -928,6 +928,13 @@ Needs two characters on the same channel. The commending one must be level 31 or
       costume inventory, then open them from the ADDITIONAL tab: the cards close up in order
       of the job level they need, the costumes in item number order
 
+### Moving into the card and costume inventories
+
+- [ ] Drag a costume from the EQUIP tab onto a taken slot of the costume inventory (ADDITIONAL
+      tab): it lands in the first free slot and leaves the EQUIP tab
+- [ ] Not verifiable yet: a move onto a taken slot being refused, since the client always picks
+      a free slot itself
+
 ### Potions
 
 - [ ] Take some damage, then use a Small Health Potion (`$CreateItem 1002`): the HP bar

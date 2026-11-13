@@ -18,13 +18,15 @@ namespace NosCore.PacketHandlers.Inventory
     {
         public override async Task ExecuteAsync(MvePacket mvePacket, ClientSession clientSession)
         {
-            var inv = clientSession.Character.InventoryService.MoveInPocket(mvePacket.Slot,
-                (NoscorePocketType)mvePacket.InventoryType,
+            var inventory = clientSession.Character.InventoryService;
+            inventory.MoveInPocket(mvePacket.Slot, (NoscorePocketType)mvePacket.InventoryType,
                 (NoscorePocketType)mvePacket.DestinationInventoryType, mvePacket.DestinationSlot, false);
-            await clientSession.SendPacketAsync(inv.GeneratePocketChange(mvePacket.DestinationInventoryType,
-                mvePacket.DestinationSlot));
-            await clientSession.SendPacketAsync(
-                ((InventoryItemInstance?)null).GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
+            await clientSession.SendPacketAsync(inventory
+                .LoadBySlotAndType(mvePacket.DestinationSlot, (NoscorePocketType)mvePacket.DestinationInventoryType)
+                .GeneratePocketChange(mvePacket.DestinationInventoryType, mvePacket.DestinationSlot));
+            await clientSession.SendPacketAsync(inventory
+                .LoadBySlotAndType(mvePacket.Slot, (NoscorePocketType)mvePacket.InventoryType)
+                .GeneratePocketChange(mvePacket.InventoryType, mvePacket.Slot));
         }
     }
 }
