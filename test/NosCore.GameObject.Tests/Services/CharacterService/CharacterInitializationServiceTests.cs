@@ -127,7 +127,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
 
         private void ServiceWithNullDependencies()
         {
-            NullService = World.Create<CharacterInitializationService>();
+            NullService = new CharacterInitializationService();
         }
 
         private async Task InitializingCharacterWithNullServices()

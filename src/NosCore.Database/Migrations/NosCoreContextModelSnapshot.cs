@@ -17,7 +17,7 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
     // If you encounter a merge conflict in the line below, it means you need to
     // discard one of the migration branches and recreate its migrations on top of
     // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-    public override string LastMigrationId => "20261113024020_AddWigDyeEffect";
+    public override string LastMigrationId => "20261113053332_AddMinilandPointRefreshedAt";
 
     protected override void BuildModel(ModelBuilder modelBuilder)
     {
@@ -1976,6 +1976,9 @@ partial class NosCoreContextModelSnapshot : ModelSnapshot
 
                 b.Property<long>("MinilandPoint")
                     .HasColumnType("bigint");
+
+                b.Property<Instant?>("MinilandPointRefreshedAt")
+                    .HasColumnType("timestamp with time zone");
 
                 b.Property<long>("OwnerId")
                     .HasColumnType("bigint");

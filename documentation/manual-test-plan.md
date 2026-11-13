@@ -1866,6 +1866,20 @@ Give yourself the quest through its script, or by walking the quest line that le
 - [ ] A visitor can play and earn rewards but cannot open the management or gifts window of the
       owner's object
 
+## Miniland points
+
+Use a character that has never logged in before, or one whose points were spent yesterday.
+
+- [ ] After logging in, the minigame window shows 2000 production points
+- [ ] Each reward chosen after a minigame takes 100 points from the owner, whoever played
+- [ ] With fewer than 100 points, starting a game asks whether to play without production
+      points, and choosing a reward afterwards gives nothing and leaves the points unchanged
+- [ ] Spend some points, wait past midnight UTC while still logged in: within a minute the
+      points are back to 2000 and the daily visit count is 0
+- [ ] Spend some points, log out and back in the same day: the points are unchanged; log in
+      after midnight UTC: they are back to 2000
+- [ ] Visits to the miniland do not change its points
+
 ## Not verifiable yet
 
 Recorded so nobody spends time hunting for them:

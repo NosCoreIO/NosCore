@@ -299,7 +299,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private async Task SelectGiftAsync(Minigame mg)
         {
-            if (mg.Miniland.MinilandPoint < 100)
+            if (!mg.Miniland.CanPayMinigameReward())
             {
                 return;
             }
@@ -318,11 +318,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
 
             await mg.Session.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.ItemVNum });
-            // mg.Session.SendPacket(new MlptPacket {mg.Miniland.MinilandPoint, 100});
             var inv = mg.Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
                 itemProvider.Create(obj.ItemVNum,
                     obj.Amount), mg.Session.Character.CharacterId));
-            mg.Miniland.MinilandPoint -= 100;
+            mg.Miniland.MinilandPoint -= MinilandPointExtensions.MinigameRewardCost;
             if (inv == null || inv.Count == 0)
             {
                 //todo add gifts
@@ -392,7 +391,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
 
             // The client's own Start Game sends no point; the confirmation below sends 1.
-            if (mg.Miniland.MinilandPoint <= 0 && mg.Packet.Point is null)
+            if (!mg.Miniland.CanPayMinigameReward() && mg.Packet.Point is null)
             {
                 await mg.Session.SendPacketAsync(new QnaiPacket
                 {

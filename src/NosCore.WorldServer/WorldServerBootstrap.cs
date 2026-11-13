@@ -264,6 +264,10 @@ namespace NosCore.WorldServer
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RemoveTimeoutStaticBonusesMessage>>>(),
                         TimeSpan.FromMinutes(5)));
+                    services.AddHostedService(sp => new RecurringMessagePublisher<RefreshMinilandPointsMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshMinilandPointsMessage>>>(),
+                        TimeSpan.FromMinutes(1)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);
