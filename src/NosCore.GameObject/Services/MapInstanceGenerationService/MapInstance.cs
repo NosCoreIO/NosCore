@@ -400,6 +400,11 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
             foreach (var s in _monsters.EnumerateValues())
             {
+                if (!s.IsAlive)
+                {
+                    continue;
+                }
+
                 packets.Add(s.GenerateIn());
 
                 if (s.Size != 10)

@@ -19,8 +19,8 @@ using NosCore.Shared.Enumerations;
 namespace NosCore.EndToEnd.Tests.Infrastructure
 {
     // The smallest world a server will run: no client files, only what the scenarios stand on.
-    // Two open maps joined by a portal, a miniland, one item and one shopkeeper who sells it.
-    // Characters are added by the scenarios.
+    // Two open maps joined by a portal, a miniland, a shopkeeper with one item to sell, what a
+    // new adventurer is given, and two creatures to hit. Characters are added by the scenarios.
     public static class WorldData
     {
         public const string Password = "test";
@@ -31,6 +31,14 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         public const long SeedPrice = 100;
         public const int Shopkeeper = 1;
         private const short ShopkeeperVNum = 1;
+        public const int WeakMonster = 100;
+        public const int SturdyMonster = 101;
+        private const short WeakVNum = 2;
+        private const short SturdyVNum = 3;
+
+        // Falls to any hit and takes ten minutes to come back: only one scenario may kill it.
+        public const int SlowMonster = 102;
+        private const short SlowVNum = 4;
 
         public static async Task SeedAsync(NosCoreContext context)
         {
@@ -71,10 +79,32 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             context.Add(Worn(8, EquipmentType.SecondaryWeapon, ItemType.Weapon));
             context.Add(Worn(12, EquipmentType.Armor, ItemType.Armor));
             context.Add(new Item { VNum = 2081, Name = "item2081", Type = NoscorePocketType.Etc, ItemType = ItemType.Main });
-            foreach (var skill in new short[] { 200, 201, 209 })
+            // As the client data has them: skill type 1 is an active skill.
+            context.Add(new Skill
             {
-                context.Add(new Skill { SkillVNum = skill, Name = "skill" + skill });
-            }
+                SkillVNum = 200, Name = "skill200", CastId = 0, SkillType = 1, Type = 0, Range = 1, CastTime = 2, Cooldown = 6,
+                Effect = 200, AttackAnimation = 11, CastAnimation = -1, CastEffect = -1
+            });
+            context.Add(new Skill
+            {
+                SkillVNum = 201, Name = "skill201", CastId = 1, SkillType = 1, Type = 1, Range = 7, CastTime = 6, Cooldown = 6,
+                Effect = 201, AttackAnimation = 23, CastAnimation = 26, CastEffect = -1
+            });
+            context.Add(new Skill
+            {
+                SkillVNum = 209, Name = "skill209", CastId = 16, SkillType = 1, CastTime = 6, Cooldown = 150, MpCost = 10,
+                UpgradeSkill = 3, LevelMinimum = 1, Effect = -1, AttackAnimation = -1, CastAnimation = -1, CastEffect = -1
+            });
+
+            // Creatures that stand still on the meadow: one that falls to any hit, one that does
+            // not, and one that stays dead for a while.
+            context.Add(new NpcMonster { NpcMonsterVNum = WeakVNum, Name = "weak", Level = 1, MaxHp = 1, Xp = 40, JobXp = 10 });
+            context.Add(new NpcMonster { NpcMonsterVNum = SturdyVNum, Name = "sturdy", Level = 1, MaxHp = 100000 });
+            context.Add(new NpcMonster { NpcMonsterVNum = SlowVNum, Name = "slow", Level = 1, MaxHp = 1, RespawnTime = 6000 });
+            await context.SaveChangesAsync();
+            context.Add(new MapMonster { MapMonsterId = WeakMonster, MapId = Meadow, MapX = 30, MapY = 30, VNum = WeakVNum });
+            context.Add(new MapMonster { MapMonsterId = SturdyMonster, MapId = Meadow, MapX = 60, MapY = 60, VNum = SturdyVNum });
+            context.Add(new MapMonster { MapMonsterId = SlowMonster, MapId = Meadow, MapX = 45, MapY = 45, VNum = SlowVNum });
 
             context.Add(new NpcMonster { NpcMonsterVNum = ShopkeeperVNum, Name = "shopkeeper", Level = 1, MaxHp = 100 });
             await context.SaveChangesAsync();
@@ -135,6 +165,12 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             };
             configure?.Invoke(character);
             context.Add(character);
+            await context.SaveChangesAsync();
+            foreach (var skill in new short[] { 200, 201, 209 })
+            {
+                context.Add(new CharacterSkill { Id = Guid.NewGuid(), CharacterId = character.CharacterId, SkillVNum = skill });
+            }
+
             await context.SaveChangesAsync();
             return new Player(account.Name, name, character.CharacterId, character.Slot);
         }

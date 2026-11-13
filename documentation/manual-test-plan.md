@@ -2157,6 +2157,9 @@ Recorded so nobody spends time hunting for them:
 - **Being muted or banned while playing** — nothing writes a `PenaltyLog` row from inside the
   game yet. A mute given by hand applies from the next line; a ban given by hand only applies at
   the next login, the player who is online is not disconnected.
+- **A dead monster on arrival** — a monster waiting to respawn is no longer sent to a player
+  who enters the map, but the client never drew one it received at 0 HP, so the screen is the
+  same either way. The end-to-end scenario checks the packet.
 - **Bleeding on a monster, by playing** — no skill of a low-level character inflicts a bleeding
   card, so the monster check was run with a database row that makes the adventurer's basic
   attack inflict Heavy Bleeding (card 42): a level 40 character's hit makes a Big Wild Pii Pod
