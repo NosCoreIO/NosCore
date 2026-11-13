@@ -648,6 +648,7 @@ namespace NosCore.Parser.Parsers
                 var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 2 => 70000,
                 var _ when (item.Effect == ItemEffectType.DroppedSpRecharger || item.Effect == ItemEffectType.PremiumSpRecharger) && item.EffectValue == 3 => 180000,
                 var _ when item.Effect == ItemEffectType.SpecialistMedal => 30_000,
+                var x when x >= 392 && x <= 396 => x - 392,
                 var x when x == 5838 || x == 9118 => 10,
                 var x when x == 5839 || x == 9119 => 30,
                 var x when x == 9031 || x == 1332 => 5108,
@@ -713,6 +714,7 @@ namespace NosCore.Parser.Parsers
             {
                 var x when item.ItemType == ItemType.Special && ((x > 5891 && x < 5900) || (x > 9100 && x < 9109)) => ItemEffectType.MedalOfHonour,
                 var x when x > 2059 && x < 2070 => ItemEffectType.ApplyHairDie,
+                var x when x >= 392 && x <= 396 => ItemEffectType.MinigameChest,
                 282 => ItemEffectType.RedAmulet,
                 283 => ItemEffectType.BlueAmulet,
                 284 => ItemEffectType.ReinforcementAmulet,

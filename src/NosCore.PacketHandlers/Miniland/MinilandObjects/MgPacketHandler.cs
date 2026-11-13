@@ -35,7 +35,7 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
     public class MgPacketHandler(IMinilandService minilandProvider, IItemGenerationService itemProvider,
-        IMinigameRewardService minigameRewards, IClock clock)
+        IMinigameRewardService minigameRewards, IClock clock, IItemCatalog itemCatalog)
         : PacketHandler<MinigamePacket>, IWorldPacketHandler
     {
         private sealed record Minigame(ClientSession Session, MinigamePacket Packet,
@@ -157,14 +157,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             }
 
             var tier = (byte)point;
-            var amount = tier switch
-            {
-                0 => mg.Object.Level1BoxAmount,
-                1 => mg.Object.Level2BoxAmount,
-                2 => mg.Object.Level3BoxAmount,
-                3 => mg.Object.Level4BoxAmount,
-                _ => mg.Object.Level5BoxAmount
-            };
+            var amount = BoxAmount(mg.Object, tier);
             if (amount == 0)
             {
                 return;
@@ -251,6 +244,15 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
             });
         }
 
+        private static byte BoxAmount(MapDesignObject minilandObject, int level) => level switch
+        {
+            0 => minilandObject.Level1BoxAmount,
+            1 => minilandObject.Level2BoxAmount,
+            2 => minilandObject.Level3BoxAmount,
+            3 => minilandObject.Level4BoxAmount,
+            _ => minilandObject.Level5BoxAmount
+        };
+
         private Task ShowGiftsAsync(Minigame mg, MloPmgSubPacket[] array)
         {
             return mg.Session.SendPacketAsync(new MloPmgPacket
@@ -259,14 +261,10 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 MinilandPoint = mg.Miniland.MinilandPoint,
                 LowDurability = mg.Instance.DurabilityPoint < 1000,
                 IsFull = false,
-                MloPmgSubPackets = new[]
-                {
-                    new MloPmgSubPacket {BoxVNum = 392, BoxAmount = mg.Object.Level1BoxAmount},
-                    new MloPmgSubPacket {BoxVNum = 393, BoxAmount = mg.Object.Level2BoxAmount},
-                    new MloPmgSubPacket {BoxVNum = 394, BoxAmount = mg.Object.Level3BoxAmount},
-                    new MloPmgSubPacket {BoxVNum = 395, BoxAmount = mg.Object.Level4BoxAmount},
-                    new MloPmgSubPacket {BoxVNum = 396, BoxAmount = mg.Object.Level5BoxAmount}
-                }.Concat(array).ToArray()
+                MloPmgSubPackets = itemCatalog.GetItemsWithEffect(ItemEffectType.MinigameChest)
+                    .OrderBy(chest => chest.EffectValue)
+                    .Select(chest => new MloPmgSubPacket { BoxVNum = chest.VNum, BoxAmount = BoxAmount(mg.Object, chest.EffectValue) })
+                    .Concat(array).ToArray()
             });
         }
 

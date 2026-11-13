@@ -167,6 +167,20 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow((short)392, 0)]
+        [DataRow((short)396, 4)]
+        public async Task ItemParser_MarksTheMinigameChestsWithTheirLevel(short vnum, int level)
+        {
+            CreateTestFile(CreateItemData(vnum: vnum));
+
+            var parser = new ItemParser(_itemDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ParseAsync(_tempFolder);
+
+            Assert.AreEqual(ItemEffectType.MinigameChest, _savedItems.Single().Effect);
+            Assert.AreEqual(level, _savedItems.Single().EffectValue);
+        }
+
+        [TestMethod]
         [DataRow((short)5107, ItemEffectType.EventSpUpgradeScroll, UpgradePacketType.UpgradeSpChiken)]
         [DataRow((short)907, ItemEffectType.EventSpecialist, UpgradePacketType.UpgradeSpChiken)]
         [DataRow((short)5207, ItemEffectType.EventSpUpgradeScroll, UpgradePacketType.UpgradeSpPyjama)]
