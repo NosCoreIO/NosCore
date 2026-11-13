@@ -32,34 +32,32 @@ namespace NosCore.GameObject.Messaging.Handlers.Mate
             }
 
             var map = character.MapInstance;
-            MatePlacement.Arrange(character.PositionX, character.PositionY, map.Map, mates);
-
-            foreach (var mate in mates)
+            foreach (var (mate, x, y) in MatePlacement.Arrange(character.PositionX, character.PositionY, map.Map, mates))
             {
                 // The entity carries the position aggro and range checks read, not the packet.
                 if (mate.Entity is { } handle)
                 {
-                    handle.PositionX = mate.PositionX;
-                    handle.PositionY = mate.PositionY;
+                    handle.PositionX = x;
+                    handle.PositionY = y;
                 }
 
                 var move = new MovePacket
                 {
                     VisualType = VisualType.Npc,
                     VisualEntityId = mate.MateTransportId,
-                    MapX = mate.PositionX,
-                    MapY = mate.PositionY,
+                    MapX = x,
+                    MapY = y,
                     Speed = mate.NpcMonster.Speed
                 };
 
                 // Broadcasting a hidden owner's mates would put the owner back on screen.
                 if (character.Invisible)
                 {
-                    await character.SendPacketAsync(move).ConfigureAwait(false);
+                    await character.SendPacketAsync(move);
                     continue;
                 }
 
-                await map.SendPacketAsync(move).ConfigureAwait(false);
+                await map.SendPacketAsync(move);
             }
         }
     }

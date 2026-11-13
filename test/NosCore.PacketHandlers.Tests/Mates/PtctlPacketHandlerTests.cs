@@ -191,7 +191,6 @@ namespace NosCore.PacketHandlers.Tests.Mates
 
         private static void AssertStandsAt(Mate mate, short x, short y)
         {
-            Assert.AreEqual((x, y), (mate.PositionX, mate.PositionY));
             Assert.AreEqual((x, y), (mate.Entity.NotNull().PositionX, mate.Entity.NotNull().PositionY));
         }
 

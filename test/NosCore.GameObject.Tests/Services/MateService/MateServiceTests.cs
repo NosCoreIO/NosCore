@@ -195,9 +195,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var mate = (await service.LoadAsync(CharacterId))[0];
             mate.Hp = mate.MaxHp / 2;
-            mate.PositionX = 26;
-            mate.PositionY = 26;
-            var packet = mate.GenerateIn(RegionType.EN);
+            var packet = mate.GenerateIn(RegionType.EN, 26, 26);
 
             Assert.AreEqual(VisualType.Npc, packet.VisualType);
             Assert.AreEqual(CharacterId, packet.InNonPlayerSubPacket.NotNull().Owner);
@@ -221,9 +219,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
             var mates = await service.LoadAsync(CharacterId);
 
             Assert.AreEqual(0, mates.Single(s => s.MateType == MateType.Pet)
-                .GenerateIn(RegionType.EN).InNonPlayerSubPacket.NotNull().Unknow1);
+                .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Unknow1);
             Assert.AreEqual(1, mates.Single(s => s.MateType == MateType.Partner)
-                .GenerateIn(RegionType.EN).InNonPlayerSubPacket.NotNull().Unknow1);
+                .GenerateIn(RegionType.EN, 0, 0).InNonPlayerSubPacket.NotNull().Unknow1);
         }
 
         [TestMethod]
@@ -255,7 +253,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
 
             var mate = (await service.LoadAsync(CharacterId))[0];
 
-            Assert.AreEqual(mate.GenerateIn(RegionType.EN).VisualId, mate.GenerateOut().VisualId);
+            Assert.AreEqual(mate.GenerateIn(RegionType.EN, 0, 0).VisualId, mate.GenerateOut().VisualId);
         }
 
         [TestMethod]
@@ -311,9 +309,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
             }, Creature(ChickenVNum, "Chicken", 157, 10), Creature(PartnerVNum, "Bob", 870, 200));
 
             var mates = await service.LoadAsync(CharacterId);
-            MatePlacement.Arrange(4, 4, OpenGround(), mates);
+            var placed = MatePlacement.Arrange(4, 4, OpenGround(), mates);
 
-            Assert.AreEqual(2, mates.Select(s => (s.PositionX, s.PositionY)).Distinct().Count());
+            Assert.AreEqual(2, placed.Select(s => (s.X, s.Y)).Distinct().Count());
         }
 
         [TestMethod]
@@ -336,11 +334,9 @@ namespace NosCore.GameObject.Tests.Services.MateService
             }, Creature(ChickenVNum, "Chicken", 157, 10));
 
             var mates = await service.LoadAsync(CharacterId);
-            MatePlacement.Arrange(0, 0, walled, mates);
+            var (_, x, y) = MatePlacement.Arrange(0, 0, walled, mates)[0];
 
-            var mate = mates[0];
-            Assert.IsTrue(walled.IsWalkable(mate.PositionX, mate.PositionY),
-                $"placed at {mate.PositionX},{mate.PositionY}, which is not walkable");
+            Assert.IsTrue(walled.IsWalkable(x, y), $"placed at {x},{y}, which is not walkable");
         }
 
         [TestMethod]
@@ -357,7 +353,7 @@ namespace NosCore.GameObject.Tests.Services.MateService
                 .ToList());
 
             foreach (var packet in new IPacket[]
-                { mate.GenerateIn(RegionType.EN), mate.GenerateScp(RegionType.EN), mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object) })
+                { mate.GenerateIn(RegionType.EN, 0, 0), mate.GenerateScp(RegionType.EN), mate.GenerateScn(RegionType.EN, new Mock<IInventoryService>().Object) })
             {
                 var line = serializer.Serialize(new[] { packet }).TrimEnd();
                 StringAssert.Contains(line, "Joyeux^Mouton",

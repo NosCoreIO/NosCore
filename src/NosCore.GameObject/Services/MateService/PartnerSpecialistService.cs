@@ -121,7 +121,7 @@ namespace NosCore.GameObject.Services.MateService
             await SendAsync(owner, entity.GenerateCMode());
             await owner.SendPacketAsync(partner.GenerateScn(owner.AccountLanguage, owner.InventoryService));
             await SendAsync(owner, partner.GenerateOut());
-            await SendAsync(owner, partner.GenerateIn(owner.AccountLanguage));
+            await SendAsync(owner, partner.GenerateIn(owner.AccountLanguage, entity.PositionX, entity.PositionY));
         }
 
         private static Mate? TeamPartner(PlayerComponentBundle owner) =>

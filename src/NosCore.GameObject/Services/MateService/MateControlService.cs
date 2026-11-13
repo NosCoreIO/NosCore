@@ -46,8 +46,6 @@ namespace NosCore.GameObject.Services.MateService
                 return false;
             }
 
-            mate.PositionX = x;
-            mate.PositionY = y;
             entity.PositionX = x;
             entity.PositionY = y;
 

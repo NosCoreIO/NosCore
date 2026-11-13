@@ -189,7 +189,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
             await ChangingToMinilandInstance();
 
             Assert.IsNotNull(home.Entity);
-            Assert.AreEqual(((short)4, (short)1), (home.PositionX, home.PositionY));
+            Assert.AreEqual(((short)4, (short)1), (home.Entity.NotNull().PositionX, home.Entity.NotNull().PositionY));
             Assert.IsFalse(Session.LastPackets.OfType<PinitPacket>().Last().PinitSubPackets.NotNull()
                 .Any(s => s.NotNull().VisualId == home.MateTransportId), "a NosMate at home is not in the party panel");
         }
