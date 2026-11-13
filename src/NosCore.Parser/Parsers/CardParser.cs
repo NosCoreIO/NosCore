@@ -25,7 +25,7 @@ namespace NosCore.Parser.Parsers
         //  NAME    Name
         //
         //  GROUP	Level	0
-        //  STYLE	0	0	BuffType	0	0
+        //  STYLE	0	Kind	BuffType	0	0
         //  EFFECT	0	0
         //  TIME	Duration	Delay
         //  1ST	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
@@ -45,14 +45,14 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.Level, "GROUP", 0, 3, s => Convert.ToByte(s), "Card level tier")
                 .Field(x => x.EffectId, "EFFECT", 0, 2, s => Convert.ToInt32(s), "Visual effect id")
                 .Field(x => x.BuffType, "STYLE", 0, 3, s => (BuffType)Convert.ToByte(s), "Good, neutral or bad")
+                .Field(x => x.Kind, "STYLE", 0, 2, s => (CardKind)Convert.ToByte(s), "0 general, 1 magic (freeze, sleep, haste), 2 poison, 3 bleeding, burns and diseases")
                 .Field(x => x.GroupId, "GROUP", 0, 2, s => Convert.ToInt16(s), "Buff family: a new buff replaces an active one of the same family, except in family 0")
                 .Field(x => x.Duration, "TIME", 0, 2, s => Convert.ToInt32(s), "Duration in deciseconds")
                 .Field(x => x.Delay, "TIME", 0, 3, s => Convert.ToInt32(s), "Activation delay")
                 .Field(x => x.TimeoutBuff, "LAST", 0, 2, s => Convert.ToInt16(s), "Follow-up buff id when card expires")
                 .Field(x => x.TimeoutBuffChance, "LAST", 0, 3, s => Convert.ToByte(s), "% chance the follow-up buff fires")
                 .Field(x => x.BCards, chunk => AddBCards(chunk),
-                    source: "1ST + 2ST (5 groups of 6)", description: "Up to 5 BCards, first 3 from 1ST then 2 from 2ST")
-                .Doc("STYLE", 2, "Kind", "0 general, 1 magic (freeze, sleep, haste), 2 poison, 3 bleeding, burns and diseases.");
+                    source: "1ST + 2ST (5 groups of 6)", description: "Up to 5 BCards, first 3 from 1ST then 2 from 2ST");
         }
 
         private readonly ILogger<CardParser> _logger = loggerFactory.CreateLogger<CardParser>();

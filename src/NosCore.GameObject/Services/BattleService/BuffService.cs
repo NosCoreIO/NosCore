@@ -30,7 +30,7 @@ namespace NosCore.GameObject.Services.BattleService;
 // Expiration is pull-based: the map's life loop asks BuffSystem which entities are due and
 // calls TickAsync on those, so the service needs no timers or background tasks.
 public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
-    IRandomProvider randomProvider) : IBuffService
+    IRandomProvider randomProvider, IDebuffResistanceService debuffResistanceService) : IBuffService
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
@@ -456,7 +456,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
 
             var card = cardCatalog.GetCard(cardId);
-            if (card == null || (card.BuffType == BuffType.Bad && IsImmuneToDebuffs(target)))
+            if (card == null || Resists(target, card))
             {
                 continue;
             }
@@ -465,8 +465,21 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
     }
 
-    private static bool IsImmuneToDebuffs(IAliveEntity target) =>
-        target is INonPlayableEntity { NpcMonster.CantDebuff: true };
+    private bool Resists(IAliveEntity target, CardDto card)
+    {
+        if (card.BuffType != BuffType.Bad)
+        {
+            return false;
+        }
+
+        if (target is INonPlayableEntity { NpcMonster.CantDebuff: true })
+        {
+            return true;
+        }
+
+        var modifier = debuffResistanceService.ChanceModifier(target, card, GetActiveBuffs(target));
+        return modifier < 0 && !Rolls(100 + modifier);
+    }
 
     private async Task ApplyTimeoutBuffAsync(IAliveEntity target, BuffInstance expired)
     {
@@ -482,7 +495,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         }
 
         var followUp = cardCatalog.GetCard(card.TimeoutBuff);
-        if (followUp == null || (followUp.BuffType == BuffType.Bad && IsImmuneToDebuffs(target)))
+        if (followUp == null || Resists(target, followUp))
         {
             return;
         }

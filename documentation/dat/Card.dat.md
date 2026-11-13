@@ -40,7 +40,7 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | NonParsed | Kind |  | 0 general, 1 magic (freeze, sleep, haste), 2 poison, 3 bleeding, burns and diseases. |
+| 2 | Parsed | Kind | CardKind | 0 general, 1 magic (freeze, sleep, haste), 2 poison, 3 bleeding, burns and diseases |
 | 3 | Parsed | BuffType | BuffType | Good, neutral or bad |
 
 ## TIME
