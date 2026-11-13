@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NodaTime;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Miniland;
 using NosCore.GameObject.Ecs.Extensions;
@@ -34,11 +35,14 @@ using System.Threading.Tasks;
 namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 {
     public class MgPacketHandler(IMinilandService minilandProvider, IItemGenerationService itemProvider,
-        IMinigameRewardService minigameRewards)
+        IMinigameRewardService minigameRewards, IClock clock)
         : PacketHandler<MinigamePacket>, IWorldPacketHandler
     {
         private sealed record Minigame(ClientSession Session, MinigamePacket Packet,
-            GameObject.Services.MinilandService.Miniland Miniland, MapDesignObject Object, IItemInstance Instance);
+            GameObject.Services.MinilandService.Miniland Miniland, MapDesignObject Object, IItemInstance Instance)
+        {
+            public short MinigameVNum => Instance.ItemVNum;
+        }
 
         public override async Task ExecuteAsync(MinigamePacket minigamePacket, ClientSession clientSession)
         {
@@ -62,7 +66,12 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            //todo check if enought points
+            var ownerOnly = minigamePacket.Type is MinigamePacketType.ShowManagement or MinigamePacketType.Refill
+                or MinigamePacketType.ShowGifts or MinigamePacketType.OpenGiftBatch or MinigamePacketType.UseCoupon;
+            if (ownerOnly && minilandObject.InventoryItemInstance.CharacterId != clientSession.Character.CharacterId)
+            {
+                return;
+            }
 
             switch (minigamePacket.Type)
             {
@@ -131,7 +140,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         {
             return mg.Session.SendPacketAsync(new MloMgPacket
             {
-                MinigameVNum = mg.Packet.MinigameVNum,
+                MinigameVNum = mg.MinigameVNum,
                 MinilandPoint = mg.Miniland.MinilandPoint,
                 Unknown1 = 0,
                 Unknown2 = 0,
@@ -142,47 +151,62 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private async Task OpenGiftBatchAsync(Minigame mg)
         {
-            var amount = 0;
-            switch (mg.Packet.Point)
+            if (mg.Packet.Point is not (>= 0 and <= 4) || mg.Packet.Point is not { } point)
             {
-                case 0:
-                    amount = mg.Object.Level1BoxAmount;
-                    break;
+                return;
+            }
 
-                case 1:
-                    amount = mg.Object.Level2BoxAmount;
-                    break;
-
-                case 2:
-                    amount = mg.Object.Level3BoxAmount;
-                    break;
-
-                case 3:
-                    amount = mg.Object.Level4BoxAmount;
-                    break;
-
-                case 4:
-                    amount = mg.Object.Level5BoxAmount;
-                    break;
+            var tier = (byte)point;
+            var amount = tier switch
+            {
+                0 => mg.Object.Level1BoxAmount,
+                1 => mg.Object.Level2BoxAmount,
+                2 => mg.Object.Level3BoxAmount,
+                3 => mg.Object.Level4BoxAmount,
+                _ => mg.Object.Level5BoxAmount
+            };
+            if (amount == 0)
+            {
+                return;
             }
 
             var gifts = new List<Gift>();
             for (var i = 0; i < amount; i++)
             {
-                var reward = minigameRewards.DrawReward(mg.Packet.MinigameVNum, (byte)(mg.Packet.Point ?? 0));
-                var gift = reward == null ? null : new Gift(reward.ItemVNum, (byte)reward.Amount);
-                if (gift == null)
+                var reward = minigameRewards.DrawReward(mg.MinigameVNum, tier);
+                if (reward == null)
                 {
                     return;
                 }
-                if (gifts.Any(o => o.VNum == gift.VNum))
+
+                var existing = gifts.FirstOrDefault(o => o.VNum == reward.ItemVNum);
+                if (existing != null)
                 {
-                    gifts.First(o => o.VNum == gift.VNum).Amount += gift.Amount;
+                    existing.Amount += (byte)reward.Amount;
                 }
                 else
                 {
-                    gifts.Add(gift);
+                    gifts.Add(new Gift(reward.ItemVNum, (byte)reward.Amount));
                 }
+            }
+
+            switch (tier)
+            {
+                case 0:
+                    mg.Object.Level1BoxAmount = 0;
+                    break;
+                case 1:
+                    mg.Object.Level2BoxAmount = 0;
+                    break;
+                case 2:
+                    mg.Object.Level3BoxAmount = 0;
+                    break;
+                case 3:
+                    mg.Object.Level4BoxAmount = 0;
+                    break;
+                default:
+                    mg.Object.Level5BoxAmount = 0;
+                    break;
             }
 
             var str = string.Empty;
@@ -232,7 +256,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
         {
             return mg.Session.SendPacketAsync(new MloPmgPacket
             {
-                MinigameVNum = mg.Packet.MinigameVNum,
+                MinigameVNum = mg.MinigameVNum,
                 MinilandPoint = mg.Miniland.MinilandPoint,
                 LowDurability = mg.Instance.DurabilityPoint < 1000,
                 IsFull = false,
@@ -249,25 +273,28 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
         private async Task RefillAsync(Minigame mg)
         {
-            if (mg.Packet?.Point == null)
+            var points = (int)((mg.Packet.Point ?? 0) / 100);
+            if (points <= 0 || mg.Instance.DurabilityPoint + points > mg.Instance.Item.MinilandObjectPoint)
             {
                 return;
             }
 
-            if (mg.Session?.Character.Gold > mg.Packet.Point)
+            var cost = points * 100;
+            if (mg.Session.Character.Gold < cost)
             {
-                mg.Session.Character.Gold -= (int)mg.Packet.Point;
-                await mg.Session.SendPacketAsync(mg.Session.Character.GenerateGold());
-                mg.Instance.DurabilityPoint +=
-                    (int)(mg.Packet.Point / 100);
-                await mg.Session.SendPacketAsync(new InfoiPacket
-                {
-                    Message = Game18NConstString.ToppedUpPoints,
-                    ArgumentType = 4,
-                    Game18NArguments = { (int)mg.Packet.Point / 100 }
-                });
-                await ShowMinilandManagmentAsync(mg);
+                return;
             }
+
+            mg.Session.Character.Gold -= cost;
+            await mg.Session.SendPacketAsync(mg.Session.Character.GenerateGold());
+            mg.Instance.DurabilityPoint += points;
+            await mg.Session.SendPacketAsync(new InfoiPacket
+            {
+                Message = Game18NConstString.ToppedUpPoints,
+                ArgumentType = 4,
+                Game18NArguments = { points }
+            });
+            await ShowMinilandManagmentAsync(mg);
         }
 
         private async Task SelectGiftAsync(Minigame mg)
@@ -277,11 +304,19 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 return;
             }
 
-            var obj = minigameRewards.DrawReward(mg.Packet.MinigameVNum, (byte)(mg.Packet.Point ?? 0));
+            if (mg.Packet.Point is not (>= 0 and <= 4) || mg.Packet.Point is not { } point
+                || !mg.Session.Character.TryClaimMinigameReward(mg.Object.MinilandObjectId, (int)point))
+            {
+                return;
+            }
+
+            var tier = (byte)point;
+            var obj = minigameRewards.DrawReward(mg.MinigameVNum, tier);
             if (obj == null)
             {
                 return;
             }
+
             await mg.Session.SendPacketAsync(new MloRwPacket { Amount = obj.Amount, VNum = obj.ItemVNum });
             // mg.Session.SendPacket(new MlptPacket {mg.Miniland.MinilandPoint, 100});
             var inv = mg.Session.Character.InventoryService.AddItemToPocket(InventoryItemInstance.Create(
@@ -296,7 +331,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
 
             if (mg.Miniland.MapInstanceId != mg.Session.Character.MapInstanceId)
             {
-                switch (mg.Packet.Point)
+                switch (tier)
                 {
                     case 0:
                         mg.Object.Level1BoxAmount++;
@@ -329,12 +364,13 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 Value = 1,
                 EntityId = mg.Session.Character.CharacterId
             });
-            var level = minigameRewards.GetLevel(game, mg.Packet.Point ?? 0);
+            var level = mg.Session.Character.FinishMinigame(mg.Object.MinilandObjectId,
+                minigameRewards.GetLevel(game, mg.Packet.Point ?? 0), clock.GetCurrentInstant());
 
             await mg.Session.SendPacketAsync(level is { } reached
                 ? new MloLvPacket { Level = reached }
                 : (IPacket)new MinigamePacket
-                { Type = MinigamePacketType.ShowBoxLevels, Id = (byte)game, MinigameVNum = mg.Packet.MinigameVNum, Unknown = 0, Point = 0 });
+                { Type = MinigamePacketType.ShowBoxLevels, Id = (byte)game, MinigameVNum = mg.MinigameVNum, Unknown = 0, Point = 0 });
         }
 
         private Task BroadcastEffectAsync(Minigame mg)
@@ -379,6 +415,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                 Value = 1,
                 EntityId = mg.Session.Character.CharacterId
             });
+            mg.Session.Character.StartMinigame(mg.Object.MinilandObjectId, clock.GetCurrentInstant());
             await mg.Session.SendPacketAsync(new MloStPacket { Game = (short)game });
         }
     }

@@ -422,7 +422,8 @@ public class MapWorld : IDisposable
             new PendingDelayComponent(null, Instant.MinValue, null),
             new WalkAllowanceComponent(0),
             new NpcDialogComponent(null),
-            new ListedTargetsComponent(null)
+            new ListedTargetsComponent(null),
+            new MinigameSessionComponent(null, Instant.MinValue, null)
         );
         return entity;
     }
@@ -465,6 +466,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new WalkAllowanceComponent(0));
         _world.Add(entity, new NpcDialogComponent(null));
         _world.Add(entity, new ListedTargetsComponent(null));
+        _world.Add(entity, new MinigameSessionComponent(null, Instant.MinValue, null));
         return entity;
     }
 

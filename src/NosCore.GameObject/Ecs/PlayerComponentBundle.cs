@@ -42,7 +42,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(PendingDelayComponent),
     typeof(WalkAllowanceComponent),
     typeof(NpcDialogComponent),
-    typeof(ListedTargetsComponent)
+    typeof(ListedTargetsComponent),
+    typeof(MinigameSessionComponent)
 )]
 public readonly partial struct PlayerComponentBundle : INamedEntity
 {

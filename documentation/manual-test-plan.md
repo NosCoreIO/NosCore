@@ -1857,6 +1857,14 @@ Give yourself the quest through its script, or by walking the quest line that le
 - [ ] Confirm: the minigame that was opened starts; Cancel: nothing happens
 - [ ] A visitor standing next to a placed minigame in someone else's miniland sees the blue arrow;
       clicking it and Open opens the minigame window, as it does for the owner
+- [ ] Play a game to the end: the reward level matches the score, and choosing a reward gives one
+      item; a second choice for the same game gives nothing
+- [ ] Quit a game within its first ten seconds with a score: no reward level is offered
+- [ ] Management window: restoring durability takes 100 gold per point; a restore past the
+      object's maximum durability, or costing more gold than you hold, changes nothing
+- [ ] Open a box batch in the gifts window: the items arrive and that level's box count drops to 0
+- [ ] A visitor can play and earn rewards but cannot open the management or gifts window of the
+      owner's object
 
 ## Not verifiable yet
 
