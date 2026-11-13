@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Data.WebApi;
@@ -143,7 +144,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         {
             Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
-            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(true);
+            TargetSession.Character.Exchange = ExchangeData.Pair(TargetSession.Character.VisualId, 0).Initiator;
         }
 
         private void TargetBlocksExchange()
@@ -151,7 +152,6 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = true;
-            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
         private void TargetAllowsExchange()
@@ -159,20 +159,17 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             TargetSession.Character.ExchangeBlocked = false;
-            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
         private void TargetIsSelf()
         {
             Session.Character.MapInstance = World.GetBaseMap(1);
-            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
         }
 
         private void TargetIsBlacklisted()
         {
             Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
-            ExchangeService.Setup(x => x.CheckExchange(It.IsAny<long>())).Returns(false);
             var visualId = Session.Character.VisualId;
             var targetVisualId = TargetSession.Character.VisualId;
             BlacklistHub.Setup(x => x.GetBlacklistedAsync(visualId))
@@ -186,9 +183,10 @@ namespace NosCore.PacketHandlers.Tests.Exchange
         {
             Session.Character.MapInstance = World.GetBaseMap(1);
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
-            ExchangeService.Setup(x => x.GetTargetId(It.IsAny<long>()))
-                .Returns((long?)TargetSession.Character.CharacterId);
-            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<long>()))
+            var (own, partner) = ExchangeData.Pair(Session.Character.VisualId, TargetSession.Character.VisualId);
+            Session.Character.Exchange = own;
+            TargetSession.Character.Exchange = partner;
+            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<PlayerComponentBundle>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
 
@@ -221,7 +219,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void NoExchangeShouldBeOpened()
         {
-            ExchangeService.Verify(x => x.OpenExchange(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            ExchangeService.Verify(x => x.OpenExchange(It.IsAny<PlayerComponentBundle>(), It.IsAny<PlayerComponentBundle>()), Times.Never);
         }
 
         private void ShouldReceiveTradingWithSomeoneMessage()
@@ -254,7 +252,7 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeShouldBeClosed()
         {
-            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<long>()), Times.Once);
+            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<PlayerComponentBundle>()), Times.Once);
         }
     }
 }

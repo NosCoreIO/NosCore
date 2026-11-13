@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.GameObject.Ecs;
 using NosCore.Algorithm.RarityPointService;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -158,9 +159,10 @@ namespace NosCore.PacketHandlers.Tests.Exchange
             TargetSession.Character.MapInstance = Session.Character.MapInstance;
             var visualId = Session.Character.VisualId;
             var targetVisualId = TargetSession.Character.VisualId;
-            ExchangeService.Setup(x => x.GetTargetId(visualId))
-                .Returns(targetVisualId);
-            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<long>()))
+            var (own, partner) = ExchangeData.Pair(visualId, targetVisualId);
+            Session.Character.Exchange = own;
+            TargetSession.Character.Exchange = partner;
+            ExchangeService.Setup(x => x.CancelExchange(It.IsAny<PlayerComponentBundle>()))
                 .Returns(new ExcClosePacket { Type = ExchangeResultType.Failure });
         }
 
@@ -212,32 +214,32 @@ namespace NosCore.PacketHandlers.Tests.Exchange
 
         private void ExchangeGoldShouldNotBeSet()
         {
-            ExchangeService.Verify(x => x.SetOffer(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(),
+            ExchangeService.Verify(x => x.SetOffer(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>(), It.IsAny<long>(),
                 It.IsAny<IReadOnlyDictionary<InventoryItemInstance, short>>()), Times.Never);
         }
 
         private void ExchangeShouldNotBeClosed()
         {
-            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<long>()), Times.Never);
+            ExchangeService.Verify(x => x.CancelExchange(It.IsAny<PlayerComponentBundle>()), Times.Never);
         }
 
         private void ExchangeGoldShouldBeSet()
         {
             var characterId = Session.Character.CharacterId;
-            ExchangeService.Verify(x => x.SetOffer(characterId, 5000, 0,
+            ExchangeService.Verify(x => x.SetOffer(It.Is<PlayerComponentBundle>(p => p.CharacterId == characterId), 5000, 0,
                 It.IsAny<IReadOnlyDictionary<InventoryItemInstance, short>>()), Times.Once);
         }
 
         private void ExchangeShouldBeClosed()
         {
             var visualId = Session.Character.VisualId;
-            ExchangeService.Verify(x => x.CancelExchange(visualId), Times.Once);
+            ExchangeService.Verify(x => x.CancelExchange(It.Is<PlayerComponentBundle>(p => p.VisualId == visualId)), Times.Once);
         }
 
         private void ItemShouldBeAddedToExchange()
         {
             var characterId = Session.Character.CharacterId;
-            ExchangeService.Verify(x => x.SetOffer(characterId, 0, 0,
+            ExchangeService.Verify(x => x.SetOffer(It.Is<PlayerComponentBundle>(p => p.CharacterId == characterId), 0, 0,
                 It.Is<IReadOnlyDictionary<InventoryItemInstance, short>>(d => d.Count == 1 && d.Values.Single() == 5)), Times.Once);
         }
     }

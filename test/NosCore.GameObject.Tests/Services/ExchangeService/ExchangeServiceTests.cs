@@ -31,7 +31,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ExchangeRequestRegistry = NosCore.GameObject.Services.ExchangeService.ExchangeRequestRegistry;
 
 namespace NosCore.GameObject.Tests.Services.ExchangeService
 {
@@ -65,11 +64,14 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
             ItemProvider = new GameObject.Services.ItemGenerationService.ItemGenerationService(items, NullLoggerFactory.Instance, World.LogLanguageLocalizer, new RarityPointService());
             ExchangeProvider = CreateExchangeService();
+            _sessionA = await World.CreateSessionAsync();
+            _sessionB = await World.CreateSessionAsync();
+            _sessionC = await World.CreateSessionAsync();
         }
 
         private GameObject.Services.ExchangeService.ExchangeService CreateExchangeService() =>
             new(WorldConfiguration, NullLogger<NosCore.GameObject.Services.ExchangeService.ExchangeService>.Instance,
-                World.Create<ExchangeRequestRegistry>(), World.LogLanguageLocalizer, World.SessionRegistry,
+                World.LogLanguageLocalizer, World.SessionRegistry,
                 World.Clock);
 
         private static Dictionary<InventoryItemInstance, short> NoItems => new();
@@ -236,15 +238,15 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private ClientSession _sessionA;
         private ClientSession _sessionB;
+        private ClientSession _sessionC;
         private Tuple<ExchangeResultType, Dictionary<long, IPacket>?>? _validationResult;
         private GameObject.Services.ExchangeService.ExchangeService _realExchange;
 
-        private async Task SessionAndTargetAreSetUp()
+        private Task SessionAndTargetAreSetUp()
         {
-            _sessionA = await World.CreateSessionAsync();
-            _sessionB = await World.CreateSessionAsync();
             _realExchange = CreateExchangeService();
-            _realExchange.OpenExchange(_sessionA.Character.CharacterId, _sessionB.Character.VisualId);
+            _realExchange.OpenExchange(_sessionA.Character, _sessionB.Character);
+            return Task.CompletedTask;
         }
 
         private void SessionCharacterGoldIs_(long gold) => _sessionA.Character.Gold = gold;
@@ -252,10 +254,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         private void TargetCharacterGoldIs_(long gold) => _sessionB.Character.Gold = gold;
 
         private void ExchangeOfferTargetsGoldIs_(long gold) =>
-            _realExchange.SetOffer(_sessionB.Character.VisualId, gold, 0, NoItems);
+            _realExchange.SetOffer(_sessionB.Character, gold, 0, NoItems);
 
         private void ExchangeOfferSessionsGoldIs_(long gold) =>
-            _realExchange.SetOffer(_sessionA.Character.CharacterId, gold, 0, NoItems);
+            _realExchange.SetOffer(_sessionA.Character, gold, 0, NoItems);
 
         private void BothOfferGold_(long sessionGold, long targetGold)
         {
@@ -268,10 +270,10 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
         private void TargetBankGoldIs_(long bankGold) => _sessionB.Character.BankGold = bankGold;
 
         private void ExchangeOfferSessionsBankGoldIs_(long bankGold) =>
-            _realExchange.SetOffer(_sessionA.Character.CharacterId, 0, bankGold, NoItems);
+            _realExchange.SetOffer(_sessionA.Character, 0, bankGold, NoItems);
 
         private void ExchangeOfferTargetsBankGoldIs_(long bankGold) =>
-            _realExchange.SetOffer(_sessionB.Character.VisualId, 0, bankGold, NoItems);
+            _realExchange.SetOffer(_sessionB.Character, 0, bankGold, NoItems);
 
         private void SessionOffersANonTradableItem()
         {
@@ -280,13 +282,13 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             var item = new InventoryItemInstance(new GameObject.Services.ItemGenerationService.Item.ItemInstance(
                 new Item { VNum = 999, Type = NoscorePocketType.Main, IsTradable = false })
             { Amount = 1 });
-            _realExchange.SetOffer(_sessionA.Character.CharacterId, 0, 0, new Dictionary<InventoryItemInstance, short> { [item] = 1 });
+            _realExchange.SetOffer(_sessionA.Character, 0, 0, new Dictionary<InventoryItemInstance, short> { [item] = 1 });
         }
 
         private Task ValidatingExchange()
         {
             _validationResult = _realExchange.ValidateExchange(_sessionA, _sessionB.Character,
-                _realExchange.GetData(_sessionA.Character.CharacterId), _realExchange.GetData(_sessionB.Character.VisualId));
+                _sessionA.Character.Exchange.NotNull(), _sessionB.Character.Exchange.NotNull());
             return Task.CompletedTask;
         }
 
@@ -309,33 +311,33 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
 
         private void ExchangeIsOpen()
         {
-            ExchangeProvider.OpenExchange(1, 2);
+            ExchangeProvider.OpenExchange(_sessionA.Character, _sessionB.Character);
         }
 
         private void SettingGoldForBothParties()
         {
-            ExchangeProvider.SetOffer(1, 1000, 1000, NoItems);
-            ExchangeProvider.SetOffer(2, 2000, 2000, NoItems);
+            ExchangeProvider.SetOffer(_sessionA.Character, 1000, 1000, NoItems);
+            ExchangeProvider.SetOffer(_sessionB.Character, 2000, 2000, NoItems);
         }
 
         private void BothPartiesShouldHaveCorrectGold()
         {
-            var data1 = ExchangeProvider.GetData(1);
-            var data2 = ExchangeProvider.GetData(2);
+            var data1 = _sessionA.Character.Exchange.NotNull();
+            var data2 = _sessionB.Character.Exchange.NotNull();
             Assert.IsTrue((data1.Gold == 1000) && (data1.BankGold == 1000) && (data2.Gold == 2000) &&
                 (data2.BankGold == 2000));
         }
 
         private void BothPartiesConfirm()
         {
-            ExchangeProvider.ConfirmExchange(1);
-            ExchangeProvider.ConfirmExchange(2);
+            ExchangeProvider.ConfirmExchange(_sessionA.Character);
+            ExchangeProvider.ConfirmExchange(_sessionB.Character);
         }
 
         private void BothShouldBeConfirmed()
         {
-            var data1 = ExchangeProvider.GetData(1);
-            var data2 = ExchangeProvider.GetData(2);
+            var data1 = _sessionA.Character.Exchange.NotNull();
+            var data2 = _sessionB.Character.Exchange.NotNull();
             Assert.IsTrue(data1.ExchangeConfirmed && data2.ExchangeConfirmed);
         }
 
@@ -345,51 +347,53 @@ namespace NosCore.GameObject.Tests.Services.ExchangeService
             {
                 Amount = 1
             });
-            ExchangeProvider.SetOffer(1, 0, 0, new Dictionary<InventoryItemInstance, short> { [item] = item.ItemInstance.Amount });
+            ExchangeProvider.SetOffer(_sessionA.Character, 0, 0, new Dictionary<InventoryItemInstance, short> { [item] = item.ItemInstance.Amount });
         }
 
         private void ExchangeShouldContainItem()
         {
-            var data1 = ExchangeProvider.GetData(1);
+            var data1 = _sessionA.Character.Exchange.NotNull();
             Assert.IsTrue(data1.ExchangeItems.Any(s =>
                 (s.Key.ItemInstance?.ItemVNum == 1012) && (s.Key.ItemInstance.Amount == 1)));
         }
 
         private void CheckBeforeOpenShouldBeFalse()
         {
-            var wrongExchange = ExchangeProvider.CheckExchange(1);
+            var wrongExchange = _sessionA.Character.InExchange;
             Assert.IsFalse(wrongExchange);
         }
 
         private void CheckAfterOpenShouldBeTrue()
         {
-            ExchangeProvider.OpenExchange(1, 2);
-            var goodExchange = ExchangeProvider.CheckExchange(1);
+            ExchangeProvider.OpenExchange(_sessionA.Character, _sessionB.Character);
+            var goodExchange = _sessionA.Character.InExchange;
             Assert.IsTrue(goodExchange);
         }
 
         private void CloseWithoutExchangeShouldReturnNull()
         {
-            var wrongClose = ExchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
+            var wrongClose = ExchangeProvider.CloseExchange(_sessionA.Character, ExchangeResultType.Failure);
             Assert.IsNull(wrongClose);
         }
 
         private void CloseWithExchangeShouldReturnResult()
         {
-            ExchangeProvider.OpenExchange(1, 2);
-            var goodClose = ExchangeProvider.CloseExchange(1, ExchangeResultType.Failure);
+            ExchangeProvider.OpenExchange(_sessionA.Character, _sessionB.Character);
+            var goodClose = ExchangeProvider.CloseExchange(_sessionA.Character, ExchangeResultType.Failure);
             Assert.IsTrue((goodClose != null) && (goodClose.Type == ExchangeResultType.Failure));
+            Assert.IsFalse(_sessionA.Character.InExchange);
+            Assert.IsFalse(_sessionB.Character.InExchange);
         }
 
         private void FirstExchangeShouldSucceed()
         {
-            var exchange = ExchangeProvider.OpenExchange(1, 2);
+            var exchange = ExchangeProvider.OpenExchange(_sessionA.Character, _sessionB.Character);
             Assert.IsTrue(exchange);
         }
 
         private void SecondExchangeShouldFail()
         {
-            var wrongExchange = ExchangeProvider.OpenExchange(1, 3);
+            var wrongExchange = ExchangeProvider.OpenExchange(_sessionA.Character, _sessionC.Character);
             Assert.IsFalse(wrongExchange);
         }
 

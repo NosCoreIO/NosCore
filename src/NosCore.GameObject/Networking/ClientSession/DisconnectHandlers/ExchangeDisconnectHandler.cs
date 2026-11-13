@@ -20,13 +20,13 @@ public class ExchangeDisconnectHandler(IExchangeService exchangeService, ISessio
             return;
         }
 
-        var targetId = exchangeService.GetTargetId(session.Character.VisualId);
+        var targetId = session.Character.Exchange?.PartnerId;
         if (!targetId.HasValue)
         {
             return;
         }
 
-        var closeExchange = await exchangeService.LeaveExchangeAsync(session.Character.VisualId);
+        var closeExchange = await exchangeService.LeaveExchangeAsync(session.Character);
         var targetSender = sessionRegistry.GetSenderByCharacterId(targetId.Value);
         if (closeExchange != null && targetSender != null)
         {

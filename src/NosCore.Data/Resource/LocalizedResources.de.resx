@@ -503,9 +503,6 @@
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Alte Authentikation versuchen</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Das Entfernen ist fehlgeschlagen.</value>
-  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Die Gruppe kann nicht erriecht werden</value>
   </data>

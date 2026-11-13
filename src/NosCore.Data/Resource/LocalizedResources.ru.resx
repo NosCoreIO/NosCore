@@ -502,9 +502,6 @@
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Попробуйте использователь старый метод аутентификации {0}</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Попытка удаления завершилась неудачей: {0}</value>
-  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Невозможно отправить приглашение в группу</value>
   </data>

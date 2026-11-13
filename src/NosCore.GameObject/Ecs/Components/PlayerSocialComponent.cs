@@ -6,6 +6,7 @@
 
 using NodaTime;
 using NosCore.GameObject.Ecs.Extensions;
+using NosCore.GameObject.Services.ExchangeService;
 using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Concurrent;
 
@@ -20,4 +21,5 @@ public record struct PlayerSocialComponent(
     ConcurrentDictionary<long, Instant> ExchangeRequestCharacterIds,
     Instant? LastExchangeRequest,
     ConcurrentDictionary<(InviteType Type, long TargetId), Instant> LastInvites,
-    ConcurrentDictionary<long, long> MarriageProposalCharacterIds);
+    ConcurrentDictionary<long, long> MarriageProposalCharacterIds,
+    ExchangeData? Exchange = null);

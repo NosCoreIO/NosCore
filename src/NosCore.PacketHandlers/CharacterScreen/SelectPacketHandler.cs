@@ -186,7 +186,6 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     false,
                     false,
                     false,
-                    false,
                     true,
                     now,
                     now,

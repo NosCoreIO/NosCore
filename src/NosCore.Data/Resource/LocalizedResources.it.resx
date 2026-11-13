@@ -524,9 +524,6 @@
   <data name="TRY_OLD_AUTH" xml:space="preserve">
     <value>Ha provato ad utilizzare il vecchio metodo di autorizzazione {0}.</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>Lo scambio {0} contenente {1} non è riuscito.</value>
-  </data>
   <data name="UNABLE_TO_REQUEST_GROUP" xml:space="preserve">
     <value>Impossibile richiedere il gruppo</value>
   </data>

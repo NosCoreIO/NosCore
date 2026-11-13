@@ -36,7 +36,7 @@ namespace NosCore.PacketHandlers.Exchange
         public override async Task ExecuteAsync(ExcListPacket packet, ClientSession clientSession)
         {
             var character = clientSession.Character;
-            var targetId = exchangeService.GetTargetId(character.VisualId);
+            var targetId = character.Exchange?.PartnerId;
             if (!targetId.HasValue)
             {
                 logger.LogError(logLanguage[LogLanguageKey.USER_NOT_IN_EXCHANGE]);
@@ -102,7 +102,7 @@ namespace NosCore.PacketHandlers.Exchange
                 subPacketList.Add(new ServerExcListSubPacket { ExchangeSlot = null });
             }
 
-            if (!exchangeService.SetOffer(character.CharacterId, packet.Gold, packet.BankGold * BankUnits.GoldPerUnit, offer))
+            if (!exchangeService.SetOffer(character, packet.Gold, packet.BankGold * BankUnits.GoldPerUnit, offer))
             {
                 return;
             }
@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Exchange
 
         private async Task CancelAsync(ClientSession clientSession, PlayerComponentBundle target)
         {
-            var closeExchange = exchangeService.CancelExchange(clientSession.Character.VisualId);
+            var closeExchange = exchangeService.CancelExchange(clientSession.Character);
             if (closeExchange == null)
             {
                 return;

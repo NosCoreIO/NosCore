@@ -58,7 +58,6 @@ public static class WolverineDependencyRegistrar
         services.AddSingleton<ISessionRegistry, SessionRegistry>();
         services.AddSingleton<IMinilandRegistry, MinilandRegistry>();
         services.AddSingleton<IMapInstanceRegistry, MapInstanceRegistry>();
-        services.AddSingleton<IExchangeRequestRegistry, ExchangeRequestRegistry>();
         services.AddSingleton<ISessionGroupFactory, SessionGroupFactory>();
         services.AddSingleton<IMateService, MateService>();
         services.AddSingleton<IFamilyService, FamilyService>();

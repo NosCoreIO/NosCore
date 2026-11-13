@@ -468,9 +468,6 @@
   <data name="PLAYER_IN_SHOP" xml:space="preserve">
     <value>Le joueur {0} est en mode magasin privé.</value>
   </data>
-  <data name="TRY_REMOVE_FAILED" xml:space="preserve">
-    <value>L'échange  {0} contenant {1} à échoué.</value>
-  </data>
   <data name="UPDATE_GOLD" xml:space="preserve">
     <value>La quantité d'or en inventaire a été mise à jour.</value>
   </data>
