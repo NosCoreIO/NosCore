@@ -204,6 +204,9 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         public MapInstanceType MapInstanceType { get; set; }
 
+        // Every player on the map may attack any player outside their group.
+        public bool IsPvp { get; set; }
+
         public byte MapIndexX { get; set; }
 
         public byte MapIndexY { get; set; }

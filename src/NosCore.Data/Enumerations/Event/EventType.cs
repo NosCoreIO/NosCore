@@ -8,6 +8,7 @@ namespace NosCore.Data.Enumerations.Event
 {
     public enum EventType
     {
-        InstantCombat
+        InstantCombat,
+        IceBreaker
     }
 }

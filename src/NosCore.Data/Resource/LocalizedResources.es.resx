@@ -505,4 +505,10 @@
   <data name="INSTANT_COMBAT_STARTS_IN_SECONDS" xml:space="preserve">
     <value>Un combate instantáneo para todos los niveles empezará en {0} segundos.</value>
   </data>
+  <data name="ICE_BREAKER_STARTS_IN_MINUTES" xml:space="preserve">
+    <value>Un Icebreaker para los niveles {1}-{2} empezará en {0} minuto(s).</value>
+  </data>
+  <data name="ICE_BREAKER_STARTS_IN_SECONDS" xml:space="preserve">
+    <value>Un Icebreaker para los niveles {1}-{2} empezará en {0} segundos.</value>
+  </data>
 </root>

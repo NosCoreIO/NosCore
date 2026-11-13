@@ -1918,6 +1918,33 @@ countdown starts at :55). Use two characters on a base map.
 - [ ] Ten seconds later everyone is back where they came from
 - [ ] Not clearing it in 15 minutes shows "Instant Combat time has elapsed" and gives nothing
 
+### Icebreaker
+
+Run `$Event IceBreaker` as a GM to skip the countdown, or wait for the next half hour (the countdown
+starts at :25). The first run is for levels 1-25, then 20-40, 35-55, 50-70, 65-85 and 80-99. Use two
+characters in the bracket on a base map, each with at least 500 gold.
+
+- [ ] The countdown says "An Icebreaker for levels 1-25 will start in 5 minute(s).", then
+      1 minute, 30 seconds and 10 seconds, in the chat and as a notice
+- [ ] "Icebreaker has started" shows; only characters in the bracket get the join question, which
+      asks for 500 gold
+- [ ] Saying yes takes 500 gold and moves the character to the Icebreaker map at once; without
+      500 gold it says "You don't have enough Gold"
+- [ ] Saying yes after 10 seconds says "You cannot join Icebreaker once it has started!"
+- [ ] With one character in the map, it ends at once: "Icebreaker is over" and the reward
+- [ ] With two, "PvP will be available shortly..." shows three times, then "Begin attack!"; before
+      that, nobody can hit anybody
+- [ ] After "Begin attack!", players hit each other, but never members of their own group
+- [ ] A character whose HP reaches zero is not offered a revive: "X is frozen." shows, they stand
+      up with full HP, cannot move or attack, the ice effect plays on them, and nobody can hit them
+- [ ] When one player (or one group) is left standing, "Icebreaker is over" shows and they get the
+      bracket's gold (100 / 1 000 / 3 000 / 5 000 / 10 000 / 20 000), level x 10 reputation, and
+      dignity raised to 100 if it was lower; frozen players get nothing
+- [ ] "You will return to the starting position in 10 seconds." follows, then everyone is back
+      where they came from and can move and attack again
+- [ ] After 10 minutes without a winner, "Icebreaker will end in 30 seconds" then "Icebreaker time
+      has elapsed" show and nobody is rewarded
+
 ---
 
 ## Quests

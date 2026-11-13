@@ -12,6 +12,7 @@ using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.IceBreakerService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
@@ -30,13 +31,14 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     //
     // A fall in an arena costs neither dignity nor reputation; the fighter is offered a paid revive
     // on the spot instead. A fall in an Instant Combat is out of it: back where they came from with 1 HP.
+    // A fall in an Icebreaker freezes the player where they stand until it ends.
     //
     // Dialog text id depends on level:
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
     //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power.
     [UsedImplicitly]
     public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ISessionRegistry sessionRegistry,
-        IMapChangeService mapChangeService)
+        IMapChangeService mapChangeService, IIceBreakerService iceBreakerService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -61,6 +63,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.InstantCombatInstance)
                 {
                     await LeaveInstantCombatAsync(player);
+                    return;
+                }
+
+                if (player.MapInstance?.MapInstanceType == MapInstanceType.IceBreakerInstance)
+                {
+                    await iceBreakerService.FreezeAsync(player);
                     return;
                 }
 
