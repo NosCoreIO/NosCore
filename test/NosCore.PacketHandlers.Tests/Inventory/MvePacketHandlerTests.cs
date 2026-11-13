@@ -61,6 +61,30 @@ namespace NosCore.PacketHandlers.Tests.Inventory
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task MovingOntoATakenSlotShowsBothItemsWhereTheyStayed()
+        {
+            await new Spec("A move onto a taken costume slot is refused and the client still sees both costumes")
+                .Given(CharacterHasFashionItemInEquipment)
+                .And(CharacterHasFashionItemInCostume)
+                .WhenAsync(MovingItemFromEquipmentToCostume)
+                .Then(TheClientShouldBeShown_InSlot0Of_, 924, PocketType.Costume)
+                .And(TheClientShouldBeShown_InSlot0Of_, 924, PocketType.Equipment)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasFashionItemInCostume() =>
+            Session.Character.InventoryService.AddItemToPocket(
+                InventoryItemInstance.Create(ItemProvider.Create(924, 1), Session.Character.CharacterId),
+                NoscorePocketType.Costume, 0);
+
+        private void TheClientShouldBeShown_InSlot0Of_(int vNum, PocketType pocket)
+        {
+            var shown = Session.LastPackets.OfType<IvnPacket>().Where(p => p.Type == pocket)
+                .SelectMany(p => p.IvnSubPackets ?? []).OfType<IvnSubPacket>().Last(i => i.Slot == 0);
+            Assert.AreEqual(vNum, shown.VNum);
+        }
+
         private void CharacterHasEquipmentItemInSlot0()
         {
             var item = ItemProvider.Create(1, 1);
