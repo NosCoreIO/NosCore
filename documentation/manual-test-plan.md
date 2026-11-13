@@ -263,6 +263,14 @@ values from its race, level and equipment levels, then adds the flat modifiers o
 
 ---
 
+### Poisons and regeneration on monsters
+
+- [ ] Inflict a card that drains HP over time on a monster (card 455: 8 % every 4 seconds) and
+      select it: its HP bar drops by that share at each step for you and for a second player who
+      has it selected, and the drain stops at 1 HP without killing it
+- [ ] A regeneration card on a monster (card 1426: 20 % every 6 seconds) refills its bar up to
+      its maximum and no further
+
 ## Character
 
 ### Mounts
