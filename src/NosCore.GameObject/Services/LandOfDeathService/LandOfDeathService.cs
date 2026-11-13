@@ -269,7 +269,9 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                         {
                             _gateOpen = false;
                         }
-                        foreach (var land in _lands.Values)
+                        // A land nobody has reached yet gets its devil from the entry path, on its first arrival.
+                        foreach (var land in _lands.Values.Where(l => !_huntActive
+                                     || sessionRegistry.GetClientSessionsByMapInstance(l.MapInstanceId).Any()))
                         {
                             await land.Executor.RunAsync(() => _huntActive ? StartHuntAsync(land) : EndHuntAsync(land));
                         }
