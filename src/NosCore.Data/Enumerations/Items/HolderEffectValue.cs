@@ -11,6 +11,7 @@ namespace NosCore.Data.Enumerations.Items
     public enum HolderEffectValue : short
     {
         SpecialistCard = 1,
-        GoldenSpecialistCard = 2
+        GoldenSpecialistCard = 2,
+        Fairy = 3
     }
 }
