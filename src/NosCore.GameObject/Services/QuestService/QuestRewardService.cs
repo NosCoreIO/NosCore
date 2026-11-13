@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using NosCore.Algorithm.ExperienceService;
 using NosCore.Algorithm.HeroExperienceService;
 using NosCore.Algorithm.JobExperienceService;
+using NosCore.Algorithm.MonsterGoldService;
 using NosCore.Algorithm.SkillPointService;
 using NosCore.Core.Configuration;
 using NosCore.Core.I18N;
@@ -33,7 +34,8 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         IItemCatalog itemCatalog, IItemGenerationService itemGenerationService,
         IExperienceProgressionService experienceProgression, IExperienceService experienceService,
         IJobExperienceService jobExperienceService, IHeroExperienceService heroExperienceService,
-        ISkillPointService skillPointService, ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
+        ISkillPointService skillPointService, IMonsterGoldService monsterGoldService, List<NpcMonsterDto> npcMonsters,
+        ISessionRegistry sessionRegistry, IGameLanguageLocalizer localizer,
         IOptions<WorldConfiguration> worldConfiguration, ILogger<QuestRewardService> logger)
     : IQuestRewardService
 {
@@ -43,12 +45,13 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         RewardsOf(questId).Where(r => ItemCandidates(r).Count > 0)
             .All(r => character.InventoryService.CanAddItem(ItemCandidates(r)[0]));
 
-    public async Task GiveAsync(PlayerComponentBundle character, short questId)
+    public async Task GiveAsync(PlayerComponentBundle character, CharacterQuest quest)
     {
+        var questId = quest.QuestId;
         var slots = new List<(QuestRewardType Type, int Data, int Amount)>();
         foreach (var reward in RewardsOf(questId))
         {
-            if (await GiveAsync(character, reward) is { } slot)
+            if (await GiveAsync(character, quest, reward) is { } slot)
             {
                 slots.Add(slot);
             }
@@ -78,14 +81,40 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         _ => [],
     };
 
-    private async Task<(QuestRewardType, int, int)?> GiveAsync(PlayerComponentBundle character, QuestRewardDto reward)
+    private async Task<(QuestRewardType, int, int)?> GiveAsync(PlayerComponentBundle character, CharacterQuest quest, QuestRewardDto reward)
     {
         switch (reward.RewardType)
         {
+            case QuestRewardType.GoldPerMonster:
+                // A quest without a hunted monster values its "monster" at the character's level.
+                var monsterLevel = HuntedMonsters(quest).FirstOrDefault().Monster?.Level ?? character.Level;
+                return await GiveGoldAsync(character, reward.RewardType, RollGold(monsterLevel, reward.Amount));
+
+            case QuestRewardType.GoldPerKill:
+                var killGold = HuntedMonsters(quest).Sum(h => RollGold(h.Monster.Level, h.Kills));
+                return await GiveGoldAsync(character, reward.RewardType, Percent(killGold, reward.Amount));
+
+            case QuestRewardType.ExperiencePerMonster:
+                if (HuntedMonsters(quest).FirstOrDefault().Monster is not { } hunted)
+                {
+                    logger.LogWarning("Quest {QuestId} pays experience per monster but hunts none", quest.QuestId);
+                    return null;
+                }
+                await experienceProgression.AddExperienceAsync(character, (long)hunted.Xp * reward.Amount, 0, 0, 0, 0);
+                return (reward.RewardType, 0, reward.Amount);
+
+            case QuestRewardType.ExperiencePerKill:
+                await experienceProgression.AddExperienceAsync(character,
+                    Percent(HuntedMonsters(quest).Sum(h => (long)h.Monster.Xp * h.Kills), reward.Amount), 0, 0, 0, 0);
+                return (reward.RewardType, 0, reward.Amount);
+
+            case QuestRewardType.JobExperiencePerKill:
+                await experienceProgression.AddExperienceAsync(character, 0,
+                    Percent(HuntedMonsters(quest).Sum(h => (long)h.Monster.JobXp * h.Kills), reward.Amount), 0, 0, 0);
+                return (reward.RewardType, 0, reward.Amount);
+
             case QuestRewardType.Gold:
-                var gold = Math.Min(reward.Amount, Math.Max(0, worldConfiguration.Value.MaxGoldAmount - character.Gold));
-                await character.AddGoldAsync(gold, localizer);
-                return (reward.RewardType, 0, (int)gold);
+                return await GiveGoldAsync(character, reward.RewardType, reward.Amount);
 
             case QuestRewardType.Reputation:
                 await character.SetReputationAsync(character.Reputation + reward.Amount);
@@ -176,6 +205,38 @@ public class QuestRewardService(List<QuestRewardDto> questRewards, List<QuestQue
         }
 
         return (reward.RewardType, vnum, amount);
+    }
+
+    private async Task<(QuestRewardType, int, int)> GiveGoldAsync(PlayerComponentBundle character, QuestRewardType type, long amount)
+    {
+        var gold = Math.Min(amount, Math.Max(0, worldConfiguration.Value.MaxGoldAmount - character.Gold));
+        await character.AddGoldAsync(gold, localizer);
+        return (type, 0, (int)gold);
+    }
+
+    private long RollGold(byte monsterLevel, int monsters)
+    {
+        var (min, max) = monsterGoldService.GetGoldDrop(monsterLevel);
+        return Enumerable.Range(0, monsters).Sum(_ => (long)RandomHelper.Instance.RandomNumber(min, max + 1));
+    }
+
+    private List<(NpcMonsterDto Monster, int Kills)> HuntedMonsters(CharacterQuest quest)
+    {
+        if (quest.Quest.QuestType is not (QuestType.Hunt or QuestType.NumberOfKill))
+        {
+            return [];
+        }
+
+        var hunted = new List<(NpcMonsterDto Monster, int Kills)>();
+        foreach (var objective in quest.Quest.QuestObjectives)
+        {
+            if (npcMonsters.FirstOrDefault(m => m.NpcMonsterVNum == objective.FirstData) is { } monster)
+            {
+                hunted.Add((monster, quest.ObjectiveProgress.TryGetValue(objective.QuestObjectiveId, out var kills) ? kills : 0));
+            }
+        }
+
+        return hunted;
     }
 
     private static long Percent(long total, int percent) => total * percent / 100;

@@ -1917,7 +1917,10 @@ the level 26 bar and 30% of the job level 16 bar.
       reaches that step, and nothing is paid twice
 - [ ] With a full bag, a `q_pay` quest with an item prize says "not enough space" and stays open
 - [ ] A level prize (17/18) raises a lower level and leaves a higher one alone
-- [ ] Prizes counted in monsters (2, 4, 10, 11, 12) are not paid yet
+- [ ] A hunt quest whose prize is "gold worth N monsters" (for example 100: 5 of monster 25) pays
+      between 6 and 12 gold per monster level for each of the N monsters, and the window shows that sum
+- [ ] A hunt quest with an "experience as many as killed" prize (for example 31) moves the bar by
+      the killed monsters' experience
 
 ---
 

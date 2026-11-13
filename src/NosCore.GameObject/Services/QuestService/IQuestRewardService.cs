@@ -14,5 +14,5 @@ public interface IQuestRewardService
     bool HasRoomFor(PlayerComponentBundle character, short questId);
 
     // Grants every prize of the quest and opens the reward window.
-    Task GiveAsync(PlayerComponentBundle character, short questId);
+    Task GiveAsync(PlayerComponentBundle character, CharacterQuest quest);
 }

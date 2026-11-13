@@ -35,6 +35,12 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         private PlayerComponentBundle Character;
         private readonly List<QuestRewardDto> Rewards = new();
         private readonly List<QuestQuestRewardDto> Links = new();
+        private readonly List<NpcMonsterDto> Monsters = new();
+        private readonly CharacterQuest Tracked = new()
+        {
+            QuestId = QuestId,
+            Quest = new Quest { QuestId = QuestId, QuestType = QuestType.Dialog1, QuestObjectives = [] },
+        };
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -46,6 +52,16 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Experience = World.Freeze<Mock<IExperienceProgressionService>>();
             World.Inject(Rewards);
             World.Inject(Links);
+            World.Inject(Monsters);
+        }
+
+        private void Hunt(short vnum, byte level, int xp, int jobXp, int kills)
+        {
+            Monsters.Add(new NpcMonsterDto { NpcMonsterVNum = vnum, Level = level, Xp = xp, JobXp = jobXp });
+            var objective = new QuestObjectiveDto { QuestObjectiveId = System.Guid.NewGuid(), QuestId = QuestId, FirstData = vnum, SecondData = kills };
+            Tracked.Quest.QuestType = QuestType.Hunt;
+            Tracked.Quest.QuestObjectives.Add(objective);
+            Tracked.ObjectiveProgress[objective.QuestObjectiveId] = kills;
         }
 
         private void Prize(QuestRewardDto reward)
@@ -55,7 +71,7 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Links.Add(new QuestQuestRewardDto { Id = System.Guid.NewGuid(), QuestId = QuestId, QuestRewardId = reward.QuestRewardId });
         }
 
-        private Task GiveAsync() => World.Create<QuestRewardService>().GiveAsync(Character, QuestId);
+        private Task GiveAsync() => World.Create<QuestRewardService>().GiveAsync(Character, Tracked);
 
         private QrPacket Window => Session.LastPackets.OfType<QrPacket>().Single();
 
@@ -177,6 +193,78 @@ namespace NosCore.GameObject.Tests.Services.QuestService
 
             Assert.AreEqual(20, Character.Level);
             Assert.AreEqual(5, Character.JobLevel);
+        }
+
+        [TestMethod]
+        public async Task GoldPerMonsterIsWorthThatManyHuntedMonsters()
+        {
+            Character.Gold = 0;
+            Hunt(24, 10, 0, 0, 8);
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.GoldPerMonster, Amount = 5 });
+
+            await GiveAsync();
+
+            Assert.IsTrue(Character.Gold is >= 5 * 60 and <= 5 * 120, $"{Character.Gold}");
+            Assert.AreEqual((int)Character.Gold, Window.Reward1Amount);
+        }
+
+        [TestMethod]
+        public async Task GoldPerMonsterWithoutAHuntUsesTheCharactersLevel()
+        {
+            Character.Gold = 0;
+            Character.Level = 2;
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.GoldPerMonster, Amount = 10 });
+
+            await GiveAsync();
+
+            Assert.IsTrue(Character.Gold is >= 10 * 12 and <= 10 * 24, $"{Character.Gold}");
+        }
+
+        [TestMethod]
+        public async Task GoldPerKillIsAPercentOfTheKilledMonstersGold()
+        {
+            Character.Gold = 0;
+            Hunt(24, 10, 0, 0, 4);
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.GoldPerKill, Amount = 50 });
+
+            await GiveAsync();
+
+            Assert.IsTrue(Character.Gold is >= 4 * 60 / 2 and <= 4 * 120 / 2, $"{Character.Gold}");
+        }
+
+        [TestMethod]
+        public async Task ExperiencePerMonsterIsTheHuntedMonstersExperienceTimesTheCount()
+        {
+            Hunt(24, 10, 150, 20, 8);
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.ExperiencePerMonster, Amount = 10 });
+
+            await GiveAsync();
+
+            Experience.Verify(e => e.AddExperienceAsync(Character, 1500, 0, 0, 0, 0));
+        }
+
+        [TestMethod]
+        public async Task ExperiencePerMonsterWithoutAHuntPaysNothing()
+        {
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.ExperiencePerMonster, Amount = 10 });
+
+            await GiveAsync();
+
+            Experience.Verify(e => e.AddExperienceAsync(It.IsAny<PlayerComponentBundle>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>(), It.IsAny<int>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task ExperiencePerKillCountsEveryKilledMonster()
+        {
+            Hunt(24, 10, 150, 20, 4);
+            Hunt(25, 12, 200, 30, 2);
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.ExperiencePerKill, Amount = 50 });
+            Prize(new QuestRewardDto { RewardType = QuestRewardType.JobExperiencePerKill, Amount = 100 });
+
+            await GiveAsync();
+
+            Experience.Verify(e => e.AddExperienceAsync(Character, (4 * 150 + 2 * 200) / 2, 0, 0, 0, 0));
+            Experience.Verify(e => e.AddExperienceAsync(Character, 0, 4 * 20 + 2 * 30, 0, 0, 0));
         }
 
         [TestMethod]

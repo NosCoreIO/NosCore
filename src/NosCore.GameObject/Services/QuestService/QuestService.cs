@@ -199,7 +199,7 @@ namespace NosCore.GameObject.Services.QuestService
                 charQuest.CompletedOn = clock.GetCurrentInstant();
             }
 
-            await questRewardService.GiveAsync(character, questId);
+            await questRewardService.GiveAsync(character, charQuest);
 
             await character.SendPacketAsync(character.GenerateQuestPacket());
             await messageBus.PublishAsync(new QuestCompletedEvent(character, charQuest));
@@ -390,7 +390,7 @@ namespace NosCore.GameObject.Services.QuestService
 
             if (!hasQPayStep)
             {
-                await questRewardService.GiveAsync(character, quest.QuestId);
+                await questRewardService.GiveAsync(character, quest);
                 await messageBus.PublishAsync(new QuestCompletedEvent(character, quest));
             }
         }
