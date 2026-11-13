@@ -270,6 +270,10 @@ namespace NosCore.WorldServer
                         sp.GetRequiredService<IMessageBus>(),
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshMinilandPointsMessage>>>(),
                         TimeSpan.FromMinutes(1)));
+                    services.AddHostedService(sp => new RecurringMessagePublisher<RefreshGroupBarsMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshGroupBarsMessage>>>(),
+                        TimeSpan.FromSeconds(2)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);

@@ -1331,6 +1331,8 @@ closes Buddy's connection.
 - [ ] Three characters group up and the leader logs out: the two left stay grouped and one of
       them is told they lead now
 - [ ] Two married characters group up and one logs out: the other's Wedding icon goes away
+- [ ] In a party, one member is wounded or drinks a potion: within a couple of seconds the HP
+      and MP bars of that member in the others' party panel follow
 
 ### Group loot
 
