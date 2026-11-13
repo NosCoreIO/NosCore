@@ -5,11 +5,13 @@
 //
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations;
 using NosCore.Database.Entities;
 
 namespace NosCore.EndToEnd.Tests.Infrastructure
@@ -23,6 +25,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         private static ServerStack? _stack;
         private static string? _unavailable;
         private static int _players;
+        private static int _families;
 
         // The running servers. A test that needs them and cannot have them is reported as not
         // run rather than failed: without a PostgreSQL to reach there is nothing to test.
@@ -48,7 +51,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         {
             _ = Stack;
             await using var context = Database.CreateContext();
-            var unique = name + (char)('a' + Interlocked.Increment(ref _players) % 26) + Random.Shared.Next(100, 999);
+            var unique = $"{name}{Interlocked.Increment(ref _players)}";
             return await WorldData.AddPlayerAsync(context, unique, mapId, x, y, configure);
         }
 
@@ -73,11 +76,60 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             return client;
         }
 
+        // A character that has just left, in the world again: its account is refused until the
+        // servers have let go of the session it had.
+        public static async Task<TestClient> ComeBackAsync(Player player, int channel = 0)
+        {
+            var waited = Stopwatch.StartNew();
+            while (true)
+            {
+                var client = Client(player, channel: channel);
+                try
+                {
+                    await client.EnterWorldAsync(player.Slot);
+                    return client;
+                }
+                catch (Exception refused) when (refused is InvalidOperationException or TimeoutException
+                    && waited.Elapsed < TimeSpan.FromSeconds(15))
+                {
+                    await client.DisposeAsync();
+                    await Task.Delay(250);
+                }
+                catch
+                {
+                    await client.DisposeAsync();
+                    throw;
+                }
+            }
+        }
+
         // Puts items in a character's bag. Call it before the character enters the world.
-        public static async Task GiveAsync(Player player, short vnum, short amount, short slot = 0)
+        public static async Task GiveAsync(Player player, short vnum, short amount, short slot = 0,
+            NoscorePocketType pocket = NoscorePocketType.Etc)
         {
             await using var context = Database.CreateContext();
-            await WorldData.GiveAsync(context, player.CharacterId, vnum, amount, slot);
+            await WorldData.GiveAsync(context, player.CharacterId, vnum, amount, slot, pocket);
+        }
+
+        // The same for one item with properties of its own, such as an upgraded weapon.
+        public static async Task GiveAsync(Player player, ItemInstance item, NoscorePocketType pocket, short slot = 0)
+        {
+            await using var context = Database.CreateContext();
+            await WorldData.GiveAsync(context, player.CharacterId, item, slot, pocket);
+        }
+
+        // A family name no other scenario of the run uses.
+        public static string FamilyName() =>
+            $"Clan{Interlocked.Increment(ref _families)}x{Random.Shared.Next(100, 999)}";
+
+        // A family that exists before its members enter the world. The first player is its head.
+        public static Task<FoundedFamily> AddFamilyAsync(Player head, params Player[] members) =>
+            AddFamilyAsync(null, head, members);
+
+        public static async Task<FoundedFamily> AddFamilyAsync(Action<Family>? configure, Player head, params Player[] members)
+        {
+            await using var context = Database.CreateContext();
+            return await WorldData.AddFamilyAsync(context, FamilyName(), configure, head, members);
         }
 
         // The stored row of a character, as it is now.
