@@ -167,6 +167,23 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task AGiftArrivesAsAParcelAndItsItemIsTakenIntoTheBag()
+        {
+            var master = await GameMasterAsync();
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var gm = await EnterAsync(master);
+            await using var bob = await EnterAsync(receiver);
+
+            var id = await GiftAsync(gm, bob, receiver, 3);
+            var taken = bob.Mark();
+            await bob.SendAsync($"pcl 4 {id}");
+
+            await bob.ExpectSinceAsync(taken, p => p == $"parcel 2 1 {id}", "the parcel taken");
+            Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the parcel is no longer stored");
+            await bob.ExpectSinceAsync(taken, p => p.StartsWith($"ivn {EtcPocket} 0.{WorldData.Seed}.3.", StringComparison.Ordinal), "the three in the bag");
+        }
+
+        [TestMethod]
         public async Task AnItemTakenFromAParcelIsInTheBagAfterComingBack()
         {
             var master = await GameMasterAsync();
