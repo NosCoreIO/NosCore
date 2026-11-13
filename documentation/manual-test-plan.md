@@ -1346,6 +1346,18 @@ closes Buddy's connection.
 - [ ] In a party, one member is wounded or drinks a potion: within a couple of seconds the HP
       and MP bars of that member in the others' party panel follow
 
+### Sharing the point of return
+
+Two characters in a party, the sharer with a point of return set at a NosVille statue. Open the
+party menu (the arrow above the party panel) and pick Return Spot.
+
+- [ ] The sharer is asked to confirm; confirming asks every other member whether to take the
+      sharer's point of return, naming the sharer
+- [ ] A member confirms: they are told the sharer changed their point of return, the sharer is
+      told it worked, and after logging out the member's point of return is the sharer's
+- [ ] A member cancels: they are told they refused, and the sharer is told who refused
+- [ ] A sharer with no point of return yet is told sharing is not possible and nobody is asked
+
 ### Group loot
 
 Two characters, A and B, in a party with A as the master, on the same map and channel; a third

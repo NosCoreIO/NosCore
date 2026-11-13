@@ -413,6 +413,7 @@ namespace NosCore.Tests.Shared
                 new ConcurrentDictionary<long, Instant>(),
                 null,
                 new ConcurrentDictionary<(InviteType Type, long TargetId), Instant>(),
+                new ConcurrentDictionary<long, long>(),
                 new ConcurrentDictionary<long, long>()));
             ecs.AddComponent(playerEntity, new GameObject.Ecs.Components.PlayerMatesComponent(
                 new ConcurrentDictionary<long, GameObject.Services.MateService.Mate>()));
