@@ -637,4 +637,10 @@
   <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
     <value>{0} FamilyUpgrades Loaded!</value>
   </data>
+  <data name="FAMILY_QUESTS_PARSED" xml:space="preserve">
+    <value>{0} FamilyQuests Parsed!</value>
+  </data>
+  <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
+    <value>{0} FamilyQuests Loaded!</value>
+  </data>
 </root>

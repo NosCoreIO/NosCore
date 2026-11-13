@@ -60,9 +60,9 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
             var management = new FamilyManagementService(_familyService.Object, pubSubHub.Object, new FamilyExperienceService(),
                 registry.Object,
-                new Mock<IFamilyLogService>().Object);
+                new Mock<IFamilyLogService>().Object, new Mock<IFamilyContributionService>().Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
-                World.GameLanguageLocalizer, management);
+                World.GameLanguageLocalizer, management, World.ItemList);
             foreach (var session in sessions)
             {
                 session.LastPackets.Clear();

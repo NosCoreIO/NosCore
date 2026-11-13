@@ -12,8 +12,12 @@ using NosCore.Dao;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Family;
+using NosCore.Data.StaticEntities;
+using FamilyQuestKind = NosCore.Packets.Enumerations.FamilyQuestKind;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Tests.Shared;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using FamilyEntity = NosCore.Database.Entities.Family;
 
@@ -29,6 +33,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         private readonly FamilyExperienceService _curve = new();
         private IDao<FamilyDto, long> _familyDao;
         private IDao<FamilyCharacterDto, long> _familyCharacterDao;
+        private IDao<FamilyQuestProgressDto, long> _questProgressDao;
+        private List<FamilyQuestDto> _quests;
         private FamilyProgressionService _service;
         private long _familyId;
 
@@ -48,8 +54,33 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             {
                 FamilyId = _familyId, CharacterId = MemberId, Authority = FamilyAuthority.Head, DailyMessage = string.Empty
             });
-            _service = new FamilyProgressionService(_familyDao, _familyCharacterDao, _curve, new DaoTransactionScope(context));
+            _questProgressDao = new Dao<Database.Entities.FamilyQuestProgress, FamilyQuestProgressDto, long>(
+                NullLogger<Dao<Database.Entities.FamilyQuestProgress, FamilyQuestProgressDto, long>>.Instance, context);
+            _quests =
+            [
+                Achievement(LevelTwo, FamilyQuestObjective.FamilyLevel, target: 1, parameter: 2),
+                Achievement(LevelThree, FamilyQuestObjective.FamilyLevel, target: 1, parameter: 3, previous: LevelTwo),
+                Achievement(FirstQuotes, FamilyQuestObjective.DailyMessage, target: 2, experience: QuoteReward),
+                Achievement(MoreQuotes, FamilyQuestObjective.DailyMessage, target: 4, previous: FirstQuotes)
+            ];
+            _service = new FamilyProgressionService(_familyDao, _familyCharacterDao, _questProgressDao, _quests, _curve,
+                new DaoTransactionScope(context), World.Clock);
         }
+
+        private const short LevelTwo = 9018;
+        private const short LevelThree = 9019;
+        private const short FirstQuotes = 9037;
+        private const short MoreQuotes = 9038;
+        private const int QuoteReward = 300;
+
+        private static FamilyQuestDto Achievement(short id, FamilyQuestObjective objective, int target, int? parameter = null,
+            short? previous = null, int experience = 0) => new()
+        {
+            QuestId = id, Kind = FamilyQuestKind.Achievement, Objective = objective, FamilyLevelMinimum = 1, Target = target,
+            Parameter = parameter, PreviousQuestId = previous, Experience = experience
+        };
+
+        private FamilyQuestProgressDto? Quest(short id) => _questProgressDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId && s.QuestId == id).Result;
 
         private async Task<FamilyDto?> FamilyAsync() => await _familyDao.FirstOrDefaultAsync(s => s.FamilyId == _familyId);
 
@@ -101,6 +132,72 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         [TestMethod]
+        public async Task LevellingUpUnlocksTheAchievementForThatLevel()
+        {
+            var gain = (await _service.AddExperienceAsync(_familyId, MemberId, (int)_curve.GetFamilyExperience(1))).NotNull();
+
+            CollectionAssert.AreEqual(new[] { LevelTwo }, gain.CompletedQuestIds.ToArray());
+            Assert.IsNotNull(Quest(LevelTwo).NotNull().CompletedAt);
+            Assert.IsNull(Quest(LevelThree));
+        }
+
+        [TestMethod]
+        public async Task SkippingALevelUnlocksEveryAchievementOnTheWay()
+        {
+            var bar = (int)(_curve.GetFamilyExperience(1) + _curve.GetFamilyExperience(2));
+
+            var gain = (await _service.AddExperienceAsync(_familyId, MemberId, bar)).NotNull();
+
+            CollectionAssert.AreEqual(new[] { LevelTwo, LevelThree }, gain.CompletedQuestIds.ToArray());
+        }
+
+        [TestMethod]
+        public async Task EachDailyMessageCountsTowardsTheQuoteAchievement()
+        {
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, FamilyQuestObjective.DailyMessage, 1)).NotNull();
+
+            Assert.AreEqual(0, gain.CompletedQuestIds.Count);
+            Assert.AreEqual(1, Quest(FirstQuotes).NotNull().Progress);
+            Assert.IsNull(Quest(FirstQuotes).NotNull().CompletedAt);
+        }
+
+        [TestMethod]
+        public async Task ReachingTheTargetUnlocksItGrantsItsExperienceAndCarriesTheCountOn()
+        {
+            await _service.AdvanceQuestsAsync(_familyId, FamilyQuestObjective.DailyMessage, 1);
+
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, FamilyQuestObjective.DailyMessage, 1)).NotNull();
+
+            CollectionAssert.AreEqual(new[] { FirstQuotes }, gain.CompletedQuestIds.ToArray());
+            Assert.AreEqual(QuoteReward, (await FamilyAsync()).NotNull().FamilyExperience);
+            Assert.AreEqual(2, Quest(MoreQuotes).NotNull().Progress);
+            Assert.AreEqual(0, (await _familyCharacterDao.FirstOrDefaultAsync(s => s.CharacterId == MemberId)).NotNull().Experience);
+        }
+
+        [TestMethod]
+        public async Task AnUnlockedAchievementIsNotUnlockedAgain()
+        {
+            await _service.AdvanceQuestsAsync(_familyId, FamilyQuestObjective.DailyMessage, 2);
+
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, FamilyQuestObjective.DailyMessage, 1)).NotNull();
+
+            Assert.AreEqual(0, gain.CompletedQuestIds.Count);
+            Assert.AreEqual(1, Quest(FirstQuotes).NotNull().TotalCompletions);
+            Assert.AreEqual(3, Quest(MoreQuotes).NotNull().Progress);
+        }
+
+        [TestMethod]
+        public async Task AnAchievementRewardThatLevelsTheFamilyUnlocksTheLevelAchievementToo()
+        {
+            _quests[2].Experience = (int)_curve.GetFamilyExperience(1);
+
+            var gain = (await _service.AdvanceQuestsAsync(_familyId, FamilyQuestObjective.DailyMessage, 2)).NotNull();
+
+            Assert.IsTrue(gain.LeveledUp);
+            CollectionAssert.AreEquivalent(new[] { FirstQuotes, LevelTwo }, gain.CompletedQuestIds.ToArray());
+        }
+
+        [TestMethod]
         public async Task AFailedSaveReportsNoGain()
         {
             var familyCharacterDao = new Mock<IDao<FamilyCharacterDto, long>>();
@@ -110,8 +207,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
             familyCharacterDao.Setup(s => s.TryInsertOrUpdateAsync(It.IsAny<FamilyCharacterDto>()))
                 .Returns(Task.FromResult<FamilyCharacterDto>(null));
 #nullable restore
-            var service = new FamilyProgressionService(_familyDao, familyCharacterDao.Object, _curve,
-                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object);
+            var service = new FamilyProgressionService(_familyDao, familyCharacterDao.Object, _questProgressDao, _quests, _curve,
+                new Mock<IDaoTransactionScope> { DefaultValue = DefaultValue.Mock }.Object, World.Clock);
 
             Assert.IsNull(await service.AddExperienceAsync(_familyId, MemberId, 600));
         }

@@ -8,10 +8,13 @@ using NosCore.Core.I18N;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Data.StaticEntities;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,7 +22,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class FamilyChangedDataMessageChannelCommunicationMessageHandler(ISessionRegistry sessionRegistry,
             IFamilyService familyService, IGameLanguageLocalizer gameLanguageLocalizer,
-            IFamilyManagementService familyManagementService)
+            IFamilyManagementService familyManagementService, List<ItemDto> items)
         : ChannelCommunicationMessageHandler<FamilyChangedData>
     {
         public override async Task Handle(FamilyChangedData data)
@@ -55,6 +58,11 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                     });
                 }
 
+                if (character.Family?.FamilyId == data.FamilyId && character.Family is { } family)
+                {
+                    await SendUnlockedAchievementsAsync(session, family, data.CompletedQuestIds);
+                }
+
                 if (!data.CharacterIds.Contains(character.CharacterId))
                 {
                     continue;
@@ -69,6 +77,26 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 var watchers = sessionRegistry.GetSessions(s => s.HasPlayerEntity && s.Character.MapInstanceId == character.MapInstanceId);
                 await Task.WhenAll(watchers.Select(watcher =>
                     watcher.SendPacketAsync(character.GenerateGidx(gameLanguageLocalizer, watcher.Character.AccountLanguage))));
+            }
+        }
+
+        private async Task SendUnlockedAchievementsAsync(ClientSession session, Family family, List<short> completedQuestIds)
+        {
+            foreach (var quest in family.Quests)
+            {
+                if (quest.Quest.Kind != FamilyQuestKind.Achievement || !completedQuestIds.Contains(quest.Quest.QuestId)
+                    || items.FirstOrDefault(s => s.VNum == quest.Quest.NameItemVNum) is not { } name)
+                {
+                    continue;
+                }
+
+                await session.SendPacketAsync(new Msgi2Packet
+                {
+                    Type = MessageType.Default,
+                    Message = Game18NConstString.FamilyUnlockAchievement,
+                    ArgumentType = 2,
+                    Game18NArguments = { family.Name, name.Name[session.Character.AccountLanguage] }
+                });
             }
         }
     }

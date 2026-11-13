@@ -20,6 +20,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Messages
 
         public byte? ReachedFamilyLevel { get; set; }
 
+        public List<short> CompletedQuestIds { get; set; } = new();
+
         public Guid Id { get; set; } = Guid.NewGuid();
     }
 }

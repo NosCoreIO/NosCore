@@ -4,7 +4,12 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using System.Collections.Generic;
+
 namespace NosCore.GameObject.Services.FamilyService
 {
-    public record FamilyExperienceGain(byte FamilyLevel, bool LeveledUp);
+    public record FamilyExperienceGain(byte FamilyLevel, bool LeveledUp)
+    {
+        public IReadOnlyList<short> CompletedQuestIds { get; init; } = [];
+    }
 }

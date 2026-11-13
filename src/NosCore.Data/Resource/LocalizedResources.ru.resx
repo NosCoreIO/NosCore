@@ -570,4 +570,10 @@
   <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
     <value>Загружено {0} улучшений семьи!</value>
   </data>
+  <data name="FAMILY_QUESTS_PARSED" xml:space="preserve">
+    <value>Импортировано {0} семейных заданий!</value>
+  </data>
+  <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
+    <value>Загружено {0} семейных заданий!</value>
+  </data>
 </root>

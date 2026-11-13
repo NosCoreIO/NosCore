@@ -510,4 +510,10 @@
   <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
     <value>Załadowano: {0} FamilyUpgrades!</value>
   </data>
+  <data name="FAMILY_QUESTS_PARSED" xml:space="preserve">
+    <value>{0} FamilyQuests wprowadzono!</value>
+  </data>
+  <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
+    <value>Załadowano: {0} FamilyQuests!</value>
+  </data>
 </root>

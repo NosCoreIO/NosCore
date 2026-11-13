@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.Enumerations.Family;
 using Microsoft.Extensions.DependencyInjection;
 using NosCore.GameObject.Services.FamilyService;
 using System;
@@ -26,6 +27,12 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
 
         public static async Task<Reply<FamilyExperienceGain?>> Handle(AddFamilyExperienceRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<FamilyHub>().AddExperienceAsync(r.FamilyId, r.CharacterId, r.Experience));
+
+        public Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount) =>
+            familyProgressionService.AdvanceQuestsAsync(familyId, objective, amount);
+
+        public static async Task<Reply<FamilyExperienceGain?>> Handle(AdvanceFamilyQuestsRequest r, IServiceProvider services) =>
+            new(await services.GetRequiredService<FamilyHub>().AdvanceQuestsAsync(r.FamilyId, r.Objective, r.Amount));
 
         public Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds) =>
             familyRecordService.CreateAsync(name, maxSize, headId, deputyIds);

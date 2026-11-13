@@ -564,4 +564,10 @@
   <data name="FAMILY_UPGRADES_LOADED" xml:space="preserve">
     <value>{0} aile geliştirmesi yüklendi!</value>
   </data>
+  <data name="FAMILY_QUESTS_PARSED" xml:space="preserve">
+    <value>{0} aile görevi işlendi!</value>
+  </data>
+  <data name="FAMILY_QUESTS_LOADED" xml:space="preserve">
+    <value>{0} aile görevi yüklendi!</value>
+  </data>
 </root>
