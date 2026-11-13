@@ -18,6 +18,7 @@ using NosCore.Networking;
 using NosCore.Networking.SessionGroup;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.UI;
+using NosCore.Shared.Enumerations;
 
 namespace NosCore.GameObject.Services.GroupService;
 
@@ -52,7 +53,8 @@ public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISession
 
         if (isLeader)
         {
-            if (!sessionRegistry.TryGetCharacter(s => s.VisualId == group.Values.First().Item2.VisualId, out var newLeader))
+            var next = PlayersOf(group).FirstOrDefault();
+            if (next == default || !sessionRegistry.TryGetCharacter(s => s.VisualId == next, out var newLeader))
             {
                 return;
             }
@@ -68,21 +70,31 @@ public sealed class GroupLeaveService(IIdService<Group> groupIdService, ISession
             return;
         }
 
-        foreach (var member in group.Values.Select(s => s.Item2).OfType<PlayerComponentBundle>())
+        foreach (var memberId in PlayersOf(group))
         {
-            await member.SendPacketAsync(member.GeneratePinit());
+            if (sessionRegistry.TryGetCharacter(s => s.VisualId == memberId, out var member))
+            {
+                await member.SendPacketAsync(member.GeneratePinit());
+            }
         }
 
         await character.SendPacketAsync(character.GeneratePinit());
         await character.MapInstance.SendPacketAsync(character.Group.GeneratePidx(character));
     }
 
+    // The ids are read from the group's keys: a member that is leaving the world at the same
+    // moment has no entity left to ask.
+    private static List<long> PlayersOf(Group group) => group
+        .Where(member => member.Key.Item1 == VisualType.Player)
+        .OrderBy(member => member.Value.Item1)
+        .Select(member => member.Key.Item2)
+        .ToList();
+
     private async Task DisbandAsync(Group group)
     {
-        var members = new List<INamedEntity>(group.Values.Select(s => s.Item2));
-        foreach (var member in members.OfType<PlayerComponentBundle>())
+        foreach (var memberId in PlayersOf(group))
         {
-            if (!sessionRegistry.TryGetCharacter(s => s.VisualId == member.VisualId, out var target))
+            if (!sessionRegistry.TryGetCharacter(s => s.VisualId == memberId, out var target))
             {
                 continue;
             }
