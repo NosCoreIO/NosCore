@@ -36,32 +36,33 @@ This project is a community project not for commercial use. The emulator itself 
 ### Legal ###
 This Website and Project is in no way affiliated with, authorized, maintained, sponsored or endorsed by Gameforge or any of its affiliates or subsidiaries. This is an independent and unofficial server for educational use ONLY. Using the Project might be against the TOS.
 
-### Contribution is only possible with Visual Studio 2026 ###
-We recommend usage of : 
+### Editors ###
+Any editor that handles .NET 11 works: the build, the tests and every tool here run from the command line on Windows, Linux and macOS. In Visual Studio we recommend:
 * [Roslynator extension](https://github.com/JosefPihrt/Roslynator).
 * [Resharper](https://www.jetbrains.com/resharper/)
 * [SwitchStartupProject extension](https://marketplace.visualstudio.com/items?itemName=vs-publisher-141975.SwitchStartupProjectForVS2022)
 
 
-# Building the code #
+# Building and running #
 
-## 1. Install .Net 10 ##
-- https://dotnet.microsoft.com/download/dotnet/10.0
-- Visual Studio > Tools > Options > Preview Features > Use previews of the .NET CORE SDK
-- Restart
+[documentation/getting-started.md](documentation/getting-started.md) goes from a fresh clone to a character in the world: the game data the parser needs, the database, the order to start the servers in, the accounts that exist by default and how to point a client at your server.
 
-## 2. Install or Configure PostgreSQL ##
-- PostgreSQL: https://www.postgresql.org/
-- Use update-database
-- Parse all
+[documentation/architecture.md](documentation/architecture.md) explains how the servers, the projects and the sibling packages fit together.
 
-## 3. Use the NuGet Package Manager to Update the Database ##
-- Go to Tools -> NuGet Package Manager -> Package Manager Console
-- Choose Project NosCore.Database
-- Type 'update-database' and update the Database
+In short, with each server in its own terminal:
 
-## 4. Start services ##
-- script to start services are in .\scripts 
+```
+dotnet build NosCore.sln
+cd build/net11.0
+dotnet NosCore.Parser.dll --folder <parser input folder>
+dotnet NosCore.MasterServer.dll
+dotnet NosCore.LoginServer.dll
+dotnet NosCore.WorldServer.dll
+```
+
+It needs the .NET 11 SDK and a PostgreSQL on `localhost:5432` (user `postgres`, password `password`). The parser creates the database and applies the migrations itself.
+
+On Windows, `scripts\` has a `.cmd` for each of these, and `docker-compose.yml` runs the same servers in containers.
 
 ### Inter-server messaging ###
 Master, world, login and web API servers talk to each other through [Wolverine](https://wolverinefx.net). By default the queues live in the same PostgreSQL database as the game data, so there is nothing extra to install.
@@ -74,7 +75,7 @@ Messaging:
 ```
 All servers must use the same transport. Queues are created on startup.
 
-## 5. (Optional) Local NuGet packages ##
+## (Optional) Local NuGet packages ##
 Every NosCore repo ships a `Directory.Build.props` that adds a NuGet source when the `NOSCORE_LOCAL_PACKAGES` environment variable is set — useful for testing an un-released `NosCore.Packets` / `NosCore.Dao` / `NosCore.Shared` build without publishing it.
 
 One-time setup (run once per machine):
