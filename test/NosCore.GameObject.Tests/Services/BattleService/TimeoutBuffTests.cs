@@ -99,6 +99,31 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         [TestMethod]
+        public async Task AMonsterImmuneToDebuffsGetsNoBadFollowUp()
+        {
+            RollGives(0);
+            var catalog = new Mock<ICardCatalog>();
+            catalog.Setup(c => c.GetCard(FirstCardId)).Returns(FirstCard);
+            catalog.Setup(c => c.GetCard(FollowUpCardId)).Returns(new CardDto
+            {
+                CardId = FollowUpCardId, Duration = 1200, BuffType = NosCore.Data.Enumerations.Buff.BuffType.Bad
+            });
+            catalog.Setup(c => c.GetCardBCards(It.IsAny<short>())).Returns(Array.Empty<BCardDto>());
+            var service = new BuffService(_clock, catalog.Object, _random.Object);
+            var immune = new MonsterComponentBundle(
+                _world.Exclusive(w => w.Create(
+                    new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
+                    new NpcStateComponent { NpcMonster = new NpcMonsterDto { CantDebuff = true } })),
+                _world);
+            await service.ApplyAsync(immune, FirstCard, Array.Empty<BCardDto>(), null);
+
+            _clock.Advance(Duration.FromSeconds(10));
+            await service.TickAsync(immune);
+
+            Assert.AreEqual(0, service.GetActiveBuffs(immune).Count);
+        }
+
+        [TestMethod]
         public async Task ASkillBuffSharingACardIdHasNoFollowUp()
         {
             RollGives(0);

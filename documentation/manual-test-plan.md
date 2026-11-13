@@ -272,6 +272,11 @@ values from its race, level and equipment levels, then adds the flat modifiers o
       its maximum and no further
 - [ ] At each step the amount rises from the monster as a number, red for a drain, for everyone
       on the map whether or not they have it selected
+- [ ] The same draining card on a Training Stake (monster 195, immune to debuffs): no `bf` is
+      sent, no drain number rises from it and its HP bar only drops by the hits themselves. A good
+      card still lands on it
+- [ ] A Training Stake doesn't open a target window when selected (its data hides it), so read
+      its HP from the bar over its head
 
 ## Character
 
