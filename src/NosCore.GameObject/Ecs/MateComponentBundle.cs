@@ -15,6 +15,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(EffectComponent),
     typeof(TimingComponent),
     typeof(NpcStateComponent),
+    typeof(RequestsComponent),
+    typeof(NpcShopComponent),
     typeof(BuffStateComponent),
     typeof(AggroComponent),
     typeof(ChasePathComponent),

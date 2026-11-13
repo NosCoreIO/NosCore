@@ -380,7 +380,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                     context with { MapInstance = to },
                     oldWorld.TryGetComponent<PlayerInventoryComponent>(oldEntity) ?? default,
                     oldWorld.TryGetComponent<PlayerSocialComponent>(oldEntity) ?? default,
-                    oldWorld.TryGetComponent<PlayerRequestsComponent>(oldEntity) ?? default,
+                    oldWorld.TryGetComponent<RequestsComponent>(oldEntity) ?? default,
                     oldWorld.TryGetComponent<PlayerMatesComponent>(oldEntity) ?? default,
                     oldWorld.TryGetComponent<DigestionComponent>(oldEntity) ?? new DigestionComponent(new DigestionState()),
                     oldWorld.TryGetComponent<HitListComponent>(oldEntity) ?? new HitListComponent(new()));

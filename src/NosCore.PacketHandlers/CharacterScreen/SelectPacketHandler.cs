@@ -218,7 +218,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     new ConcurrentDictionary<long, long>()));
                 mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerMatesComponent(
                     new ConcurrentDictionary<long, Mate>()));
-                mapInstance.EcsWorld.AddComponent(playerEntity, new PlayerRequestsComponent(
+                mapInstance.EcsWorld.AddComponent(playerEntity, new RequestsComponent(
                     new Dictionary<Type, Subject<RequestData>>
                     {
                         { typeof(NpcDialogRequestSubject), new Subject<RequestData>() }

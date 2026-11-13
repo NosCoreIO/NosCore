@@ -11,5 +11,6 @@ using System.Reactive.Subjects;
 
 namespace NosCore.GameObject.Ecs.Components;
 
-public record struct PlayerRequestsComponent(
+// What the entity answers when someone acts on it - a dialog opened, a shop browsed.
+public record struct RequestsComponent(
     Dictionary<Type, Subject<RequestData>> Requests);
