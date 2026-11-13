@@ -5,6 +5,8 @@
 //
 
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using NosCore.Core.Configuration;
 using NosCore.Data.Enumerations.Interaction;
 using NosCore.GameObject.Infastructure;
 using NosCore.Data.StaticEntities;
@@ -14,7 +16,10 @@ using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Mapster;
 using NosCore.Data.Enumerations.Map;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.MiniMap;
 using System.Collections.Generic;
@@ -32,66 +37,72 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         private readonly Lazy<IMapInstanceGeneratorService> _mapInstanceGeneratorService;
         private readonly IMapInstanceRegistry _mapInstanceRegistry;
+        private readonly IInstanceScriptLoader _scriptLoader;
+        private readonly ISessionRegistry _sessionRegistry;
+        private readonly Lazy<IMapChangeService> _mapChangeService;
         private readonly IClock _clock;
 
         private readonly ConcurrentDictionary<Guid, ScriptedInstanceRun> _runsByRoom = new();
         private readonly Dictionary<short, MapDto> _mapsByVNum;
+        private readonly Dictionary<short, NpcMonsterDto> _npcMonsters;
         private readonly ILogger<ScriptedInstanceService> _logger;
         private readonly ILogLanguageLocalizer<LogLanguageKey> _logLanguage;
+        private readonly TimeSpan _scriptTimeout;
 
         public ScriptedInstanceService(List<ScriptedInstanceDto> scriptedInstances,
             List<MapDto> maps,
+            List<NpcMonsterDto> npcMonsters,
             Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
             IMapInstanceRegistry mapInstanceRegistry,
+            IInstanceScriptLoader scriptLoader,
+            ISessionRegistry sessionRegistry,
+            Lazy<IMapChangeService> mapChangeService,
             IClock clock,
+            IOptions<WorldConfiguration> worldConfiguration,
             ILogger<ScriptedInstanceService> logger,
             ILogLanguageLocalizer<LogLanguageKey> logLanguage)
         {
+            _scriptTimeout = worldConfiguration.Value.InstanceScriptTimeout;
             _mapInstanceGeneratorService = mapInstanceGeneratorService;
             _mapInstanceRegistry = mapInstanceRegistry;
+            _scriptLoader = scriptLoader;
+            _sessionRegistry = sessionRegistry;
+            _mapChangeService = mapChangeService;
             _clock = clock;
             _logger = logger;
             _logLanguage = logLanguage;
             _mapsByVNum = maps.GroupBy(s => s.MapId).ToDictionary(s => s.Key, s => s.First());
+            _npcMonsters = npcMonsters.GroupBy(s => s.NpcMonsterVNum).ToDictionary(s => s.Key, s => s.First());
 
             _byMap = scriptedInstances
-                .Select(row => Build(row, logger, logLanguage))
+                .Select(row => row.Adapt<ScriptedInstance>())
                 .GroupBy(s => s.MapId)
                 .ToDictionary(s => s.Key, s => s.OrderBy(o => o.PositionY).ThenBy(o => o.PositionX).ToList());
         }
 
-        private static ScriptedInstance Build(ScriptedInstanceDto row, ILogger logger,
-            ILogLanguageLocalizer<LogLanguageKey> logLanguage)
+        public async Task<bool> LoadAsync(ScriptedInstance entrance)
         {
-            var instance = row.Adapt<ScriptedInstance>();
+            if (entrance.Logic != null)
+            {
+                return true;
+            }
+
+            if (string.IsNullOrWhiteSpace(entrance.Script))
+            {
+                return false;
+            }
+
             try
             {
-                instance.Definition = ScriptedInstanceDefinitionParser.Parse(row.Script);
-                return instance;
+                entrance.Logic = await _scriptLoader.LoadAsync(entrance.Script).WaitAsync(_scriptTimeout);
+                return true;
             }
             catch (Exception exception)
             {
-                logger.LogError(exception,
-                    logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE],
-                    row.ScriptedInstanceId, row.MapId);
-                return instance;
+                _logger.LogError(exception, _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_UNREADABLE],
+                    entrance.ScriptedInstanceId, entrance.MapId);
+                return false;
             }
-        }
-
-        public void Register(short mapId, short positionX, short positionY,
-            ScriptedInstanceDefinition definition)
-        {
-            var entrance = GetAt(mapId, positionX, positionY);
-            if (entrance == null)
-            {
-                // A door that was never imported: better said than silently unreachable.
-                _logger.LogError(
-                    _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_NO_ENTRANCE],
-                    mapId, positionX, positionY, definition.Label);
-                return;
-            }
-
-            entrance.Definition = definition;
         }
 
         public IReadOnlyList<ScriptedInstance> GetByMap(short mapId)
@@ -115,8 +126,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
         public async Task<ScriptedInstanceRun?> InstantiateAsync(ScriptedInstance entrance)
         {
-            var rooms = entrance.Definition?.Rooms;
-            if (rooms == null || rooms.Count == 0)
+            if (!await LoadAsync(entrance) || entrance.Logic is not { } logic)
+            {
+                return null;
+            }
+
+            var rooms = logic.Definition.Rooms;
+            if (rooms.Count == 0)
             {
                 return null;
             }
@@ -125,7 +141,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 ? MapInstanceType.TimeSpaceInstance
                 : MapInstanceType.RaidInstance;
 
-            var built = new Dictionary<int, Guid>();
+            var built = new Dictionary<int, MapInstance>();
             foreach (var room in rooms)
             {
                 if (!_mapsByVNum.TryGetValue(room.VNum, out var map))
@@ -133,7 +149,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     _logger.LogError(
                         _logLanguage[LogLanguageKey.SCRIPTED_INSTANCE_MAP_MISSING],
                         entrance.ScriptedInstanceId, room.VNum);
-                    await RemoveRoomsAsync(built.Values);
+                    await RemoveRoomsAsync(built.Values.Select(s => s.MapInstanceId));
                     return null;
                 }
 
@@ -145,16 +161,33 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 
                 await _mapInstanceGeneratorService.Value.AddMapInstanceAsync(mapInstance);
                 await mapInstance.StartLifeAsync();
-                built[room.Key] = id;
+                built[room.Key] = mapInstance;
             }
 
-            var run = new ScriptedInstanceRun(entrance, built, _clock.GetCurrentInstant());
-            foreach (var id in built.Values)
+            var run = new ScriptedInstanceRun(entrance, entrance.Logic, built, _npcMonsters, _clock,
+                _sessionRegistry, _mapChangeService, _logger, _scriptTimeout);
+            foreach (var id in run.Rooms.Values)
             {
                 _runsByRoom[id] = run;
             }
 
             return run;
+        }
+
+        public async Task TickAsync()
+        {
+            foreach (var run in _runsByRoom.Values.Distinct().ToList())
+            {
+                try
+                {
+                    await run.TickAsync();
+                }
+                catch (Exception exception)
+                {
+                    _logger.LogError(exception, "The tick of instance {ScriptedInstanceId} failed",
+                        run.Entrance.ScriptedInstanceId);
+                }
+            }
         }
 
         public ScriptedInstanceRun? GetRun(Guid mapInstanceId)

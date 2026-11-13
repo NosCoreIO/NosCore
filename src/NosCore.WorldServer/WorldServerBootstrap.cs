@@ -44,6 +44,8 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Messaging;
 using NosCore.GameObject.Messaging.ScheduledJobs;
+using NosCore.Instances.Abstractions;
+using NosCore.Instances.Scripting;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.ChannelCommunicationService.Handlers;
@@ -72,6 +74,7 @@ using NosCore.Shared.I18N;
 using Serilog;
 using Wolverine;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -174,6 +177,10 @@ namespace NosCore.WorldServer
             // aren't duplicated here — registering them on both sides would produce the
             // "An item with the same key..." runtime errors (see PersistenceModule.MirrorTo
             // comment for the same pattern on the DAO side).
+
+            containerBuilder.Register(_ => new CsxInstanceScriptLoader(Path.Combine(AppContext.BaseDirectory, "instances")))
+                .As<IInstanceScriptLoader>()
+                .SingleInstance();
 
             containerBuilder.RegisterType<NosCore.GameObject.Ecs.LadderInitializer>()
                 .AsSelf()
@@ -278,6 +285,11 @@ namespace NosCore.WorldServer
                         sp.GetRequiredService<ILogger<RecurringMessagePublisher<RefreshGroupBarsMessage>>>(),
                         sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
                         TimeSpan.FromSeconds(2)));
+                    services.AddHostedService(sp => new RecurringMessagePublisher<TickTimeSpacesMessage>(
+                        sp.GetRequiredService<IMessageBus>(),
+                        sp.GetRequiredService<ILogger<RecurringMessagePublisher<TickTimeSpacesMessage>>>(),
+                        sp.GetRequiredService<ILogLanguageLocalizer<LogLanguageKey>>(),
+                        TimeSpan.FromSeconds(1)));
 
                     TypeAdapterConfig.GlobalSettings.AllowImplicitSourceInheritance = false;
                     TypeAdapterConfig.GlobalSettings.ForDestinationType<IPacket>().Ignore(s => s.ValidationResult);

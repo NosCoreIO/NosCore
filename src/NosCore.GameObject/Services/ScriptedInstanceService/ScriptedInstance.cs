@@ -5,6 +5,7 @@
 //
 
 using NosCore.Data.StaticEntities;
+using NosCore.Instances.Abstractions;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Event;
 using System.Collections.Generic;
@@ -14,7 +15,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
 {
     public class ScriptedInstance : ScriptedInstanceDto
     {
-        public ScriptedInstanceDefinition? Definition { get; set; }
+        public IInstanceScript? Logic { get; set; }
+
+        public ScriptedInstanceDefinition? Definition => Logic?.Definition;
 
         public byte EffectiveLevelMinimum =>
             Definition is { LevelMinimum: > 0 } ? Definition.LevelMinimum : LevelMinimum;
@@ -46,9 +49,9 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                     MaxLevel = EffectiveLevelMaximum
                 },
                 RequiredSeeds = (short)(Definition?.RequiredItems.Sum(s => s.Amount) ?? 0),
-                DrawRewards = Slots(Definition?.DrawItems, 5),
-                SpecialRewards = Slots(Definition?.SpecialItems, 2),
-                BonusRewards = Slots(Definition?.GiftItems, 3),
+                DrawRewards = EmptySlots(5),
+                SpecialRewards = EmptySlots(2),
+                BonusRewards = EmptySlots(3),
                 HighScore = new RbrSubPacketHighScore { Score = 0, Nickname = null },
                 IsHidden = false,
                 LoserMode = false,
@@ -60,20 +63,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             };
         }
 
-        private static List<RbrSubPacketItem?> Slots(IReadOnlyList<InstanceGift>? gifts, int count)
-        {
-            var slots = new List<RbrSubPacketItem?>(count);
-            for (var i = 0; i < count; i++)
-            {
-                var gift = gifts != null && i < gifts.Count ? gifts[i] : null;
-                slots.Add(new RbrSubPacketItem
-                {
-                    ItemId = gift?.VNum,
-                    Quantity = gift?.Amount ?? 0
-                });
-            }
-
-            return slots;
-        }
+        private static List<RbrSubPacketItem?> EmptySlots(int count) =>
+            [.. Enumerable.Range(0, count).Select(_ => (RbrSubPacketItem?)new RbrSubPacketItem { Quantity = 0 })];
     }
 }

@@ -13,6 +13,8 @@ using NosCore.Data.StaticEntities;
 using NosCore.Packets.Enumerations;
 using System.Collections.Generic;
 using NosCore.Tests.Shared;
+using NosCore.GameObject.Services.MapChangeService;
+using NosCore.Instances.Abstractions;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
@@ -35,7 +37,11 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
 
         private ServiceUnderTest Build(params ScriptedInstanceDto[] entrances)
         {
-            return new ServiceUnderTest(entrances.ToList(), [], new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object), World.Create<MapInstanceRegistry>(), World.Clock, NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
+            return new ServiceUnderTest(entrances.ToList(), [], [],
+                new System.Lazy<IMapInstanceGeneratorService>(new Mock<IMapInstanceGeneratorService>().Object),
+                new MapInstanceRegistry(), new Mock<IInstanceScriptLoader>().Object, World.SessionRegistry,
+                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), World.Clock, World.WorldConfiguration,
+                NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object);
         }
 
         private static ScriptedInstanceDto TimeSpace(short id, short mapId, short x, short y,
@@ -164,21 +170,31 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
                 NameI18NKey = "instanceRoom",
                 Data = [4, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             }).ToList();
-            return (new ServiceUnderTest([entrance], maps, new System.Lazy<IMapInstanceGeneratorService>(generator.Object),
-                    World.MapInstanceRegistry, World.Clock,
+            var loader = new Mock<IInstanceScriptLoader>();
+            loader.Setup(s => s.LoadAsync(TwoRooms)).ReturnsAsync(new TwoRoomScript());
+            loader.Setup(s => s.LoadAsync(Broken)).ThrowsAsync(new InvalidOperationException("did not compile"));
+            return (new ServiceUnderTest([entrance], maps, [], new System.Lazy<IMapInstanceGeneratorService>(generator.Object),
+                    World.MapInstanceRegistry, loader.Object, World.SessionRegistry,
+                    new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), World.Clock, World.WorldConfiguration,
                     NullLogger<ServiceUnderTest>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
                 generator, removed);
         }
 
-        private const string TwoRooms = """
-            <Definition>
-              <Globals><StartX Value="3" /><StartY Value="4" /></Globals>
-              <InstanceEvents>
-                <CreateMap Map="1" VNum="2004" IndexX="0" IndexY="0" />
-                <CreateMap Map="2" VNum="2005" IndexX="1" IndexY="0" />
-              </InstanceEvents>
-            </Definition>
-            """;
+        private const string TwoRooms = "two-rooms";
+
+        private const string Broken = "broken";
+
+        private sealed class TwoRoomScript : InstanceScript
+        {
+            public TwoRoomScript()
+            {
+                Definition = InstanceDefinitionBuilder.Named(1, "two-rooms", "two-rooms")
+                    .StartingAt(3, 4)
+                    .WithRoom(2004, out _)
+                    .WithRoom(2005, out _, 1)
+                    .Build();
+            }
+        }
 
         [TestMethod]
         public async Task EachRoomOfTheDefinitionBecomesItsOwnMapInstanceAsync()
@@ -215,6 +231,27 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
             Assert.IsNull(await service.InstantiateAsync(service.GetAt(1, 5, 6).NotNull()));
             generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
                 Times.Never);
+        }
+
+        [TestMethod]
+        public async Task AScriptThatDoesNotCompileBuildsNothingAsync()
+        {
+            var (service, generator, _) = BuildWithMaps(Scripted(1, 1, 5, 6, Broken), 2004, 2005);
+
+            Assert.IsNull(await service.InstantiateAsync((service.GetAt(1, 5, 6) ?? throw new AssertFailedException("no entrance"))));
+            generator.Verify(s => s.AddMapInstanceAsync(It.IsAny<GameObject.Services.MapInstanceGenerationService.MapInstance>()),
+                Times.Never);
+        }
+
+        [TestMethod]
+        public async Task TheScriptIsWhatTheTimeSpaceWindowDescribesAsync()
+        {
+            var (service, _, _) = BuildWithMaps(Scripted(1, 1, 5, 6, TwoRooms), 2004, 2005);
+            var entrance = (service.GetAt(1, 5, 6) ?? throw new AssertFailedException("no entrance"));
+
+            Assert.IsNull(entrance.Definition);
+            Assert.IsTrue(await service.LoadAsync(entrance));
+            Assert.AreEqual("two-rooms", entrance.GenerateRbr().TitleAndDescription?.Title);
         }
 
         [TestMethod]

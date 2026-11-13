@@ -39,6 +39,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
         private IMapChangeService Service;
         private ClientSession Session;
         private Mock<IMinilandService> MinilandService;
+        private readonly Mock<GameObject.Services.ScriptedInstanceService.IScriptedInstanceService> ScriptedInstances = new();
 
         [TestInitialize]
         public async Task SetupAsync()
@@ -65,13 +66,7 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 World.GameLanguageLocalizer,
                 World.SessionRegistry,
                 new Mock<Wolverine.IMessageBus>().Object,
-                new GameObject.Services.ScriptedInstanceService.ScriptedInstanceService(
-                    new System.Collections.Generic.List<NosCore.Data.StaticEntities.ScriptedInstanceDto>(),
-                    new System.Collections.Generic.List<NosCore.Data.StaticEntities.MapDto>(),
-                    new System.Lazy<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>(new Mock<GameObject.Services.MapInstanceGenerationService.IMapInstanceGeneratorService>().Object),
-                    World.Create<GameObject.Services.MapInstanceGenerationService.MapInstanceRegistry>(),
-                    World.Clock,
-                    NullLogger<GameObject.Services.ScriptedInstanceService.ScriptedInstanceService>.Instance, new Mock<ILogLanguageLocalizer<LogLanguageKey>>().Object),
+                ScriptedInstances.Object,
                 new Mock<NosCore.GameObject.Services.BattleService.IBattleStatsProvider>().Object);
         }
 
@@ -131,6 +126,49 @@ namespace NosCore.GameObject.Tests.Services.MapChangeService
                 .WhenAsync(ChangingToMinilandInstance)
                 .Then(CharacterMapIdShouldBe_, (short)42)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TimeSpaceStonesAreOnlyPlacedOnTheOpenWorld()
+        {
+            await ChangingToBaseMap1();
+            ScriptedInstances.Verify(s => s.GenerateWp(1), Times.Once);
+
+            await ChangingToMinilandInstance();
+            ScriptedInstances.Verify(s => s.GenerateWp(It.IsAny<short>()), Times.Once);
+        }
+
+        private sealed class EmptyScript : NosCore.Instances.Abstractions.InstanceScript;
+
+        private GameObject.Services.ScriptedInstanceService.ScriptedInstanceRun Run() =>
+            new(new GameObject.Services.ScriptedInstanceService.ScriptedInstance(), new EmptyScript(),
+                new System.Collections.Generic.Dictionary<int, MapInstance>(),
+                new System.Collections.Generic.Dictionary<short, NosCore.Data.StaticEntities.NpcMonsterDto>(),
+                World.Clock, World.SessionRegistry,
+                new System.Lazy<IMapChangeService>(new Mock<IMapChangeService>().Object), NullLogger.Instance,
+                System.TimeSpan.FromSeconds(30));
+
+        [TestMethod]
+        public async Task WalkingIntoTheNextRoomKeepsTheTimeSpaceRunning()
+        {
+            var run = Run();
+            ScriptedInstances.Setup(s => s.GetRun(It.IsAny<System.Guid>())).Returns(run);
+
+            await ChangingToBaseMap1();
+
+            ScriptedInstances.Verify(s => s.DisposeIfEmptyAsync(It.IsAny<GameObject.Services.ScriptedInstanceService.ScriptedInstanceRun>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task LeavingATimeSpaceDisposesItsRunWhenEmpty()
+        {
+            var run = Run();
+            var current = Session.Character.MapInstance.MapInstanceId;
+            ScriptedInstances.Setup(s => s.GetRun(current)).Returns(run);
+
+            await ChangingToBaseMap1();
+
+            ScriptedInstances.Verify(s => s.DisposeIfEmptyAsync(run), Times.Once);
         }
 
         [TestMethod]
