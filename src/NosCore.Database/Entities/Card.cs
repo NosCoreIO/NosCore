@@ -43,6 +43,8 @@ namespace NosCore.Database.Entities
 
         public BuffType BuffType { get; set; }
 
+        public CardKind Kind { get; set; }
+
         public short GroupId { get; set; }
 
         public CardTrigger Trigger { get; set; }

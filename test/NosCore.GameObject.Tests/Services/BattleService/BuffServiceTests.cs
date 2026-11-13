@@ -42,7 +42,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         public void Setup()
         {
             _clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
-            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object);
+            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object);
         }
 
         [TestMethod]

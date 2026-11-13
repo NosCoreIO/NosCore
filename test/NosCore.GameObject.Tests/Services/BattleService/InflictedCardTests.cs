@@ -30,6 +30,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private BuffService _service;
         private Mock<ICardCatalog> _catalog;
         private Mock<IRandomProvider> _random;
+        private Mock<IDebuffResistanceService> _resistance;
         private MapWorld _world;
         private IAliveEntity _target;
         private IAliveEntity _caster;
@@ -68,8 +69,9 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _target = Entity();
             _caster = Entity();
 
+            _resistance = new Mock<IDebuffResistanceService>();
             _service = new BuffService(new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0)),
-                _catalog.Object, _random.Object);
+                _catalog.Object, _random.Object, _resistance.Object);
         }
 
         // A bundle carrying only the three components the buff path reads. MapInstance comes off
@@ -101,6 +103,54 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 (System.Collections.ICollection)System.Linq.Enumerable.First(buff).BCards);
             Assert.AreSame(_caster, System.Linq.Enumerable.First(buff).Caster);
         }
+
+        [TestMethod]
+        public async Task ABadCardTheTargetFullyResistsDoesNotLand()
+        {
+            RollGives(0);
+            ResistanceIs(-100);
+
+            await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, StunCardId));
+
+            Assert.AreEqual(0, _service.GetActiveBuffs(_target).Count);
+        }
+
+        [TestMethod]
+        public async Task ABadCardLandsWhenTheRollBeatsThePartialResistance()
+        {
+            RollGives(50);
+            ResistanceIs(-30);
+
+            await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, StunCardId));
+
+            Assert.AreEqual(1, _service.GetActiveBuffs(_target).Count);
+        }
+
+        [TestMethod]
+        public async Task ABadCardIsShruggedOffWhenTheRollFallsInTheResistance()
+        {
+            RollGives(50);
+            ResistanceIs(-60);
+
+            await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, StunCardId));
+
+            Assert.AreEqual(0, _service.GetActiveBuffs(_target).Count);
+        }
+
+        [TestMethod]
+        public async Task ResistanceDoesNotStopAGoodCard()
+        {
+            RollGives(0);
+            ResistanceIs(-100);
+
+            await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, BlessingCardId));
+
+            Assert.AreEqual(1, _service.GetActiveBuffs(_target).Count);
+        }
+
+        private void ResistanceIs(int modifier) =>
+            _resistance.Setup(r => r.ChanceModifier(_target, It.IsAny<CardDto>(), It.IsAny<IReadOnlyCollection<BuffInstance>>()))
+                .Returns(modifier);
 
         [TestMethod]
         public async Task AFailedRollAppliesNothing()

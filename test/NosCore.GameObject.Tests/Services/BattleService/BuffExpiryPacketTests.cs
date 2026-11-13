@@ -48,7 +48,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 .Returns(Task.CompletedTask);
             _session.Character.MapInstance.Sessions = mapSessions.Object;
             _clock = new FakeClock(Instant.FromUtc(2026, 1, 1, 0, 0));
-            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object);
+            _service = new BuffService(_clock, new Mock<ICardCatalog>().Object, new Mock<IRandomProvider>().Object, new Mock<IDebuffResistanceService>().Object);
         }
 
         [TestMethod]
