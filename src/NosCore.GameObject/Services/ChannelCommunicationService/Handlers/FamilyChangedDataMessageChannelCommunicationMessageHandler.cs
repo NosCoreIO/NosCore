@@ -13,7 +13,6 @@ using NosCore.GameObject.Services.FamilyService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Packets.ServerPackets.UI;
-using NosCore.Data.StaticEntities;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,7 +21,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
 {
     public class FamilyChangedDataMessageChannelCommunicationMessageHandler(ISessionRegistry sessionRegistry,
             IFamilyService familyService, IGameLanguageLocalizer gameLanguageLocalizer,
-            IFamilyManagementService familyManagementService, List<ItemDto> items)
+            IFamilyManagementService familyManagementService)
         : ChannelCommunicationMessageHandler<FamilyChangedData>
     {
         public override async Task Handle(FamilyChangedData data)
@@ -84,8 +83,7 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
         {
             foreach (var quest in family.Quests)
             {
-                if (quest.Quest.Kind != FamilyQuestKind.Achievement || !completedQuestIds.Contains(quest.Quest.QuestId)
-                    || items.FirstOrDefault(s => s.VNum == quest.Quest.NameItemVNum) is not { } name)
+                if (quest.Quest.Kind != FamilyQuestKind.Achievement || !completedQuestIds.Contains(quest.Quest.QuestId))
                 {
                     continue;
                 }
@@ -94,8 +92,8 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
                 {
                     Type = MessageType.Default,
                     Message = Game18NConstString.FamilyUnlockAchievement,
-                    ArgumentType = 2,
-                    Game18NArguments = { family.Name, name.Name[session.Character.AccountLanguage] }
+                    ArgumentType = 5,
+                    Game18NArguments = { family.Name, (long)quest.Quest.NameItemVNum }
                 });
             }
         }

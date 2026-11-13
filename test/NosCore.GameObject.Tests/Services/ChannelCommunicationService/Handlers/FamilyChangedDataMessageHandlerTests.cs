@@ -8,7 +8,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using NosCore.Algorithm.FamilyExperienceService;
 using NosCore.Data.Dto;
+using NosCore.Data.StaticEntities;
 using NosCore.Data.WebApi;
+using FamilyQuestKind = NosCore.Packets.Enumerations.FamilyQuestKind;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.InterChannelCommunication.Messages;
 using NosCore.GameObject.Networking.ClientSession;
@@ -62,7 +64,7 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
                 registry.Object,
                 new Mock<IFamilyLogService>().Object, new Mock<IFamilyContributionService>().Object);
             _handler = new FamilyChangedDataMessageChannelCommunicationMessageHandler(registry.Object, _familyService.Object,
-                World.GameLanguageLocalizer, management, World.ItemList);
+                World.GameLanguageLocalizer, management);
             foreach (var session in sessions)
             {
                 session.LastPackets.Clear();
@@ -101,6 +103,25 @@ namespace NosCore.GameObject.Tests.Services.ChannelCommunicationService.Handlers
             Assert.AreEqual(Game18NConstString.FamilyLevelIncreased, announced.Message);
             Assert.AreEqual(2L, announced.Game18NArguments[0]);
             Assert.AreEqual(0, _bystander.LastPackets.OfType<MsgiPacket>().Count());
+        }
+
+        [TestMethod]
+        public async Task EveryMemberHearsWhichAchievementWasUnlocked()
+        {
+            _family.Quests =
+            [
+                new FamilyQuestStatus(new FamilyQuestDto { QuestId = 9018, NameItemVNum = 9618, Kind = FamilyQuestKind.Achievement },
+                    new FamilyQuestProgressDto { QuestId = 9018 })
+            ];
+
+            await _handler.Handle(new FamilyChangedData { FamilyId = 42, CompletedQuestIds = { 9018 } });
+
+            var unlocked = _member.LastPackets.OfType<Msgi2Packet>().Single();
+            Assert.AreEqual(Game18NConstString.FamilyUnlockAchievement, unlocked.Message);
+            Assert.AreEqual(5, unlocked.ArgumentType);
+            Assert.AreEqual("Testers", unlocked.Game18NArguments[0]);
+            Assert.AreEqual(9618L, unlocked.Game18NArguments[1]);
+            Assert.AreEqual(0, _bystander.LastPackets.OfType<Msgi2Packet>().Count());
         }
 
         [TestMethod]

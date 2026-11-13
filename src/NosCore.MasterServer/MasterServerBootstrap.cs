@@ -242,6 +242,10 @@ namespace NosCore.MasterServer
                 .As<List<ItemDto>>()
                 .SingleInstance()
                 .AutoActivate();
+
+            containerBuilder.Register(c => c.Resolve<IDao<FamilyQuestDto, short>>().LoadAll().ToList())
+                .As<List<FamilyQuestDto>>()
+                .SingleInstance();
         }
 
         public static void RegisterDatabaseObject<TDto, TDb, TPk>(ContainerBuilder containerBuilder) where TDb : class where TPk : struct
