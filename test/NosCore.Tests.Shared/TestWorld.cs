@@ -382,7 +382,8 @@ namespace NosCore.Tests.Shared
                 10,
                 account.Authority,
                 account.Authority >= AuthorityType.GameMaster,
-                WorldConfiguration.Value.ServerId);
+                WorldConfiguration.Value.ServerId,
+                characterDto.Faction);
 
             var now = Clock.GetCurrentInstant();
             var group = new Group(Data.Enumerations.Group.GroupType.Group, SessionGroupFactory);

@@ -177,7 +177,8 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     speedService.GetSpeed(characterDto.Class),
                     authority,
                     authority >= NosCore.Shared.Enumerations.AuthorityType.GameMaster,
-                    configuration.Value.ServerId);
+                    configuration.Value.ServerId,
+                    characterDto.Faction);
 
                 var now = clock.GetCurrentInstant();
                 var group = new NosCore.GameObject.Services.GroupService.Group(GroupType.Group, sessionGroupFactory);

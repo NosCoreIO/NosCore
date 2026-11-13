@@ -113,7 +113,7 @@ public static class PlayerBundleExtensions
     }
 
     public static FsPacket GenerateFaction(this PlayerComponentBundle player) =>
-        new() { Faction = player.CharacterDto.Faction };
+        new() { Faction = player.Faction };
 
     public static Task SendPacketAsync(this PlayerComponentBundle player, IPacket? packet)
     {
@@ -350,7 +350,7 @@ public static class PlayerBundleExtensions
                 ReputIco = GetIcon(player),
                 Invisible = false,
                 MorphUpgrade = player.UseSp ? player.MorphUpgrade : (byte)0,
-                Faction = player.CharacterDto.Faction,
+                Faction = player.Faction,
                 MorphUpgrade2 = player.UseSp ? (byte)player.MorphDesign : (byte)0,
                 Level = player.Level,
                 FamilyLevel = 0,

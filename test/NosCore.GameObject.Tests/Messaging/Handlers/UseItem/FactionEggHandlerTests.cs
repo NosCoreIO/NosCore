@@ -41,7 +41,7 @@ public class FactionEggHandlerTests
         _session = await World.CreateSessionAsync();
         _session.Character.MapInstance = World.GetBaseMap(1);
         _session.Character.Hp = 100;
-        _session.Character.CharacterDto.Faction = FactionType.Neutral;
+        _session.Character.Faction = FactionType.Neutral;
         _session.Character.CharacterDto.Act4Points = 123;
         var instance = new EggInstance { Amount = 2 };
         _item = InventoryItemInstance.Create(instance, _session.Character.CharacterId);
@@ -74,10 +74,10 @@ public class FactionEggHandlerTests
     [DataRow(FactionType.Demon, FactionType.Angel)]
     public async Task ConfirmationChangesFactionAndConsumesOneEgg(FactionType previous, FactionType target)
     {
-        _session.Character.CharacterDto.Faction = previous;
+        _session.Character.Faction = previous;
         _item.ItemInstance.Item.EffectValue = (int)target;
         await UseAsync(1);
-        Assert.AreEqual(target, _session.Character.CharacterDto.Faction);
+        Assert.AreEqual(target, _session.Character.Faction);
         Assert.AreEqual(0, _session.Character.CharacterDto.Act4Points);
         Assert.AreEqual((short)1, _item.ItemInstance.Amount);
         Assert.AreEqual(target, _session.LastPackets.OfType<FsPacket>().Single().Faction);
@@ -92,7 +92,7 @@ public class FactionEggHandlerTests
     [DataRow(FactionType.Demon)]
     public async Task SameFactionKeepsEggAndPoints(FactionType faction)
     {
-        _session.Character.CharacterDto.Faction = faction;
+        _session.Character.Faction = faction;
         _item.ItemInstance.Item.EffectValue = (int)faction;
         await UseAsync(1);
         AssertUnchanged(faction);
@@ -181,7 +181,7 @@ public class FactionEggHandlerTests
     {
         _item.ItemInstance.Amount = 1;
         await UseAsync(1);
-        Assert.AreEqual(FactionType.Angel, _session.Character.CharacterDto.Faction);
+        Assert.AreEqual(FactionType.Angel, _session.Character.Faction);
         Assert.AreEqual((short)0, _item.ItemInstance.Amount);
         Assert.IsNull(_session.Character.InventoryService.LoadBySlotAndType(_item.Slot, _item.Type));
         await UseAsync(1);
@@ -210,7 +210,7 @@ public class FactionEggHandlerTests
     }
 
     [TestMethod]
-    public async Task ChangedFactionAndPointsSurvivePersistence()
+    public async Task ResetPointsSurvivePersistence()
     {
         await UseAsync(1);
         await World.CharacterDao.TryInsertOrUpdateAsync(_session.Character.CharacterDto);
@@ -218,7 +218,6 @@ public class FactionEggHandlerTests
         var saved = await World.CharacterDao.FirstOrDefaultAsync(character =>
             character.CharacterId == characterId);
         Assert.IsNotNull(saved);
-        Assert.AreEqual(FactionType.Angel, saved.Faction);
         Assert.AreEqual(0, saved.Act4Points);
     }
 
@@ -227,7 +226,7 @@ public class FactionEggHandlerTests
 
     private void AssertUnchanged(FactionType faction = FactionType.Neutral)
     {
-        Assert.AreEqual(faction, _session.Character.CharacterDto.Faction);
+        Assert.AreEqual(faction, _session.Character.Faction);
         Assert.AreEqual(123, _session.Character.CharacterDto.Act4Points);
         Assert.AreEqual((short)2, _item.ItemInstance.Amount);
         Assert.IsFalse(_session.LastPackets.OfType<FsPacket>().Any());

@@ -46,7 +46,8 @@ namespace NosCore.GameObject.Ecs;
     typeof(MinigameSessionComponent),
     typeof(HitListComponent),
     typeof(BaseMapPositionComponent),
-    typeof(SkillResetComponent)
+    typeof(SkillResetComponent),
+    typeof(FactionComponent)
 )]
 public readonly partial struct PlayerComponentBundle : INamedEntity
 {
