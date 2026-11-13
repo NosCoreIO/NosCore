@@ -1405,6 +1405,17 @@ reputation, so have each player relog after a `$SetReputation` on them.
 - [ ] The ranking is re-read every 30 seconds: a change of saved reputation can take that long
       to decide who may use the hero chat, but A's own live reputation counts at once
 
+### Speech bubble
+
+Two characters A and B on the same map; A has a Speech Bubble (2174) in the Etc pocket.
+
+- [ ] A double-clicks the bubble and confirms: a "Speech Bubble Text" window opens
+- [ ] A types "Hello world" and confirms: the bubble is used up and "Hello world", spaces
+      included, shows above A on both clients within about 5 seconds
+- [ ] B leaves the map and comes back: the bubble is above A again within about 5 seconds
+- [ ] A confirms the window empty: nothing shows and the bubble stays in the inventory
+- [ ] After 30 minutes the bubble is gone on both clients; A relogging removes it at once
+
 ### Whispers and friend messages
 
 Two characters, A and B, on the same channel, then on different channels.

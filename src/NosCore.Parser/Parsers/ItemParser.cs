@@ -285,6 +285,8 @@ namespace NosCore.Parser.Parsers
                 ItemType.Box => chunk["DATA"][0][3],
                 ItemType.Event => chunk["DATA"][0][7],
                 ItemType.Magical when ImportEffect(chunk) == ItemEffectType.PassiveSkillBook => chunk["DATA"][0][5],
+                // Minutes the bubble stays up; the item's description gives 30 and its data row has no duration.
+                ItemType.Magical when ImportEffect(chunk) == ItemEffectType.SpeechBubble => "30",
                 ItemType.Magical => chunk["DATA"][0][4],
                 ItemType.Production => chunk["DATA"][0][4],
                 // Cellons carry the option tier here; every other upgrade material leaves it 0.
