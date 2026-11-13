@@ -12,7 +12,7 @@ namespace NosCore.GameObject.Messaging.Events
     // Published by MapChangeService when a player finishes changing into a new map instance.
     // Wolverine fans out to every handler with a Handle/HandleAsync(MapInstanceEnteredEvent)
     // method; each handler filters by map type / state internally.
-    public sealed record MapInstanceEnteredEvent(ClientSession ClientSession, MapInstance MapInstance) : IPlayerEvent
+    public sealed record MapInstanceEnteredEvent(ClientSession ClientSession, MapInstance MapInstance, MapInstance LeftMapInstance) : IPlayerEvent
     {
         public bool PlayerHasLeft => !ClientSession.HasPlayerEntity;
     }

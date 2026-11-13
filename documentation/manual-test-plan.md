@@ -2019,7 +2019,7 @@ level 55+ character in a family, standing next to the gatekeeper on map 98 (5,37
 - [ ] Under level 55 it says "Your level is too low. You can only enter from level 55."
 - [ ] Otherwise it asks "Would you like to move to the Land of Death?"; yes moves the character to
       (153,145) of a Land of Death only their family shares, with the clock counting down from the
-      time left
+      time left, and the land is full of its usual monsters
 - [ ] A second member of the same family lands in the same copy; a member of another family lands in
       another one
 - [ ] Monsters drop no gold, and anyone can pick up an item; "X has received an item" shows to everyone
@@ -2033,6 +2033,7 @@ level 55+ character in a family, standing next to the gatekeeper on map 98 (5,37
 - [ ] With 5 minutes left "The Land of Death will be closed soon." shows
 - [ ] At the end, "You are now out of the Land of Death" shows and everyone is back on map 98
 - [ ] The portal at (172,171) leads back to map 98 at any time
+- [ ] However the character leaves, the clock disappears from the bottom left
 
 ---
 

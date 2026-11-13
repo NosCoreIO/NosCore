@@ -5,6 +5,8 @@
 //
 
 using Microsoft.Extensions.Logging;
+using NosCore.Dao.Interfaces;
+using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
@@ -40,6 +42,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
     // Devil hunts the last player to arrive, and experience and drops are tripled while it is out.
     public class LandOfDeathService(
         List<NpcMonsterDto> npcMonsters,
+        IDao<MapMonsterDto, int> mapMonsters,
         Lazy<IMapInstanceGeneratorService> mapInstanceGeneratorService,
         IMapInstanceRegistry mapInstanceRegistry,
         IMapChangeService mapChangeService,
@@ -220,7 +223,6 @@ namespace NosCore.GameObject.Services.LandOfDeathService
 
             await player.SendPacketAsync(player.GenerateStat());
             await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
-            await player.SendPacketAsync(ClearClock);
             await player.SendPacketAsync(Message(Game18NConstString.ReturnToEntranceLandOfDeath));
         }
 
@@ -287,6 +289,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
 
                 var land = mapInstanceGeneratorService.Value.CreateMapInstance(baseMap.Map, Guid.NewGuid(), false,
                     MapInstanceType.LodInstance);
+                land.LoadMonsters(mapMonsters.Where(m => m.MapId == MapId)?.ToList() ?? [], npcMonsters);
                 await mapInstanceGeneratorService.Value.AddMapInstanceAsync(land);
                 await land.StartLifeAsync();
                 _lands[familyId] = land;
@@ -348,7 +351,6 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                     await mapInstanceGeneratorService.Value.RemoveMapAsync(land.MapInstanceId);
                     foreach (var player in players)
                     {
-                        await player.SendPacketAsync(ClearClock);
                         await player.SendPacketAsync(Message(Game18NConstString.OutOfLandOfDeath));
                     }
                 }
@@ -365,7 +367,8 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             }
         }
 
-        private static readonly EventPacket ClearClock = new() { Type = EventPacketType.ClearTimeSpaceUI };
+        public Task LeaveAsync(ClientSession session) =>
+            session.SendPacketAsync(new EventPacket { Type = EventPacketType.ClearTimeSpaceUI });
 
         private static EventPacket Clock(TimeSpan remaining)
         {

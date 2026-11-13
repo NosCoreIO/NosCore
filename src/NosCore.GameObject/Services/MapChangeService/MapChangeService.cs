@@ -316,7 +316,7 @@ namespace NosCore.GameObject.Services.MapChangeService
                 await session.SendPacketsAsync(teamMates.Select(s => s.GenerateCond()));
                 await session.SendPacketsAsync(teamMates.Select(s => s.GeneratePst()));
 
-                await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance));
+                await messageBus.PublishAsync(new Messaging.Events.MapInstanceEnteredEvent(session, newMapInstance, currentMapInstance));
             }
             catch (Exception ex)
             {

@@ -28,5 +28,8 @@ namespace NosCore.GameObject.Services.LandOfDeathService
         Task AskReviveAsync(PlayerComponentBundle player);
 
         Task ReturnToEntranceAsync(ClientSession session);
+
+        // Takes the clock off the screen of a player who has left the land, whichever way they left.
+        Task LeaveAsync(ClientSession session);
     }
 }
