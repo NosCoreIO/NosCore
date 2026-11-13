@@ -6,77 +6,36 @@
 
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
-using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace NosCore.Parser.Parsers
 {
-    // The client lists what many chests hold only in their English description, one "<amount>x <item name>"
-    // per line. A chest that says it gives one of them becomes a box that rolls one line, each line as likely;
-    // a pack that says it holds the whole list becomes an item pack that gives every line.
-    public partial class BoxContentParser(IDao<ItemDto, short> itemDao,
+    public class BoxContentParser(IDao<ItemDto, short> itemDao,
         IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<BoxContentParser> logger)
     {
-        [GeneratedRegex(@"^([1-9]\d*)x (.+)$")]
-        private static partial Regex ContentLine();
-
-        [GeneratedRegex(@"\bone of (the following|these)\b", RegexOptions.IgnoreCase)]
-        private static partial Regex GivesOneOf();
-
-        [GeneratedRegex(@"\b(contains|consists of|includes|receive the following items?)\b|\[(Contents|Items)\]", RegexOptions.IgnoreCase)]
-        private static partial Regex GivesWholeList();
-
-        // Wording that makes what comes out depend on luck or on the character, so the list is not what every opener gets.
-        [GeneratedRegex(@"\b(random|one of|certain amount|available|a pair of|variety|gender)\b", RegexOptions.IgnoreCase)]
-        private static partial Regex GivesSomeOf();
-
-        public async Task InsertBoxContentsAsync(string folder)
+        public async Task InsertBoxContentsAsync()
         {
-            var text = ItemDescriptions.ReadText(folder);
-            var keys = ItemDescriptions.ReadNameAndDescriptionKeys(folder);
             var items = itemDao.LoadAll().ToDictionary(i => i.VNum);
-
-            // A name shared by several items (a limited copy, a mall copy) means the oldest one.
-            var vnumByName = keys
-                .Where(k => text.ContainsKey(k.Value.Name))
-                .GroupBy(k => text[k.Value.Name])
-                .ToDictionary(g => g.Key, g => g.Min(k => k.Key));
-
             var rolls = new List<RollGeneratedItemDto>();
             var boxes = new List<ItemDto>();
-            foreach (var (vnum, key) in keys)
+            foreach (var (vnum, (effect, contents)) in BoxContents.All)
             {
-                if (!items.TryGetValue(vnum, out var box) || box.Effect is not (ItemEffectType.NoEffect or ItemEffectType.BoxEffect)
-                    || key.Description == null || !text.TryGetValue(key.Description, out var description))
+                if (!items.TryGetValue(vnum, out var box) || contents.Any(c => !items.ContainsKey(c.VNum)))
                 {
                     continue;
                 }
 
-                var lines = description.Split("[n]");
-                var intro = string.Join(' ', lines.Where(l => !ContentLine().IsMatch(l)));
-                var contents = lines.Select(l => ContentLine().Match(l)).Where(m => m.Success)
-                    .Select(m => (Amount: int.Parse(m.Groups[1].Value), Name: m.Groups[2].Value.Trim()))
-                    .ToList();
-                var givesOne = GivesOneOf().IsMatch(intro);
-                var givesAll = !givesOne && GivesWholeList().IsMatch(intro) && !GivesSomeOf().IsMatch(intro);
-                if (contents.Count == 0 || !(givesOne || givesAll)
-                    || contents.Any(c => !vnumByName.ContainsKey(c.Name) || c.Amount > byte.MaxValue))
-                {
-                    continue;
-                }
-
-                box.Effect = givesOne ? ItemEffectType.BoxEffect : ItemEffectType.ItemPack;
+                box.Effect = effect;
                 boxes.Add(box);
                 rolls.AddRange(contents.Select(c => new RollGeneratedItemDto
                 {
                     OriginalItemVNum = vnum,
-                    ItemGeneratedVNum = vnumByName[c.Name],
-                    ItemGeneratedAmount = (byte)c.Amount,
+                    ItemGeneratedVNum = c.VNum,
+                    ItemGeneratedAmount = c.Amount,
                     Probability = 1,
                 }));
             }
@@ -89,7 +48,7 @@ namespace NosCore.Parser.Parsers
             await rollGeneratedItemDao.TryDeleteAsync(rollGeneratedItemDao.LoadAll().Select(r => r.RollGeneratedItemId).ToList());
             await itemDao.TryInsertOrUpdateAsync(boxes);
             await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
-            logger.LogInformation("{Boxes} boxes and packs take their {Rolls} items from their description", boxes.Count, rolls.Count);
+            logger.LogInformation("{Boxes} boxes and packs get their {Rolls} items", boxes.Count, rolls.Count);
         }
     }
 }

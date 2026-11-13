@@ -109,6 +109,11 @@ the decided design, not a migration in flight:
 5. A **player-facing string**? → a `LanguageKey` plus every `.resx` under
    `NosCore.Data/Resource/`, never a literal.
 
+**Never derive logic from description text.** Item, card and skill descriptions are
+translations that change between client versions, so no parser or service may read them
+to decide what an item does. Read a description to learn a value, then hardcode it in a
+table in `NosCore.Parser` that writes it to the database (`BoxContents`, `MountSpeedBoosts`).
+
 ### Schema changes
 
 Additive where possible. When a value's source changes, rewire the parser rather than
