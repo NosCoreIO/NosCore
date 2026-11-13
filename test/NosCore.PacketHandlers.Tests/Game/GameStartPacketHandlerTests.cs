@@ -93,7 +93,8 @@ namespace NosCore.PacketHandlers.Tests.Game
                 new NosCore.Algorithm.FamilyExperienceService.FamilyExperienceService(),
                 Logger.Object,
                 BuffService.Object,
-                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object);
+                new Mock<NosCore.GameObject.Services.BattleService.IVitalityService>().Object,
+                World.Create<NosCore.GameObject.Services.CharacterRankingService.CharacterRankingService>());
         }
 
         [TestMethod]
