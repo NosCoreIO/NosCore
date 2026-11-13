@@ -92,6 +92,7 @@ public class WorldPacketHandlingStrategy(ILogger<WorldPacketHandlingStrategy> lo
 
         if (packet.KeepAliveId == null)
         {
+            logger.LogWarning("Session {SessionId} sent a packet without a keep-alive number and was disconnected", session.SessionId);
             await session.DisconnectAsync();
             return false;
         }
