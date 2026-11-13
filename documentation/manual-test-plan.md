@@ -1842,6 +1842,8 @@ Give yourself the quest through its script, or by walking the quest line that le
       Start Game: "You cannot be rewarded because you don't have enough production points. Start
       game anyway?" appears
 - [ ] Confirm: the minigame that was opened starts; Cancel: nothing happens
+- [ ] A visitor standing next to a placed minigame in someone else's miniland sees the blue arrow;
+      clicking it and Open opens the minigame window, as it does for the owner
 
 ## Not verifiable yet
 

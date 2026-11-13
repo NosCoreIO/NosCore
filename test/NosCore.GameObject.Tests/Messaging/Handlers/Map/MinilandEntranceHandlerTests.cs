@@ -13,7 +13,10 @@ using Moq;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.Map;
 using NosCore.GameObject.Networking;
+using NosCore.Data.Enumerations;
 using NosCore.GameObject.Networking.ClientSession;
+using NosCore.GameObject.Services.InventoryService;
+using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MinilandService;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Chats;
@@ -68,6 +71,28 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
                 .And(VisitCountShouldStillBe_, 1)
                 .And(TotalVisitorsSayPacketShouldCarryVisitCount_, 1)
                 .And(TodayVisitorsSayPacketShouldCarryDailyCount_, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task AVisitorIsToldWhereTheObjectsArePlaced()
+        {
+            await new Spec("A visitor receives mltobj with each placed object's vnum, slot and position")
+                .Given(MinilandIsRegisteredWithOwner_, false)
+                .And(AQuarryIsPlacedInSlot_At_, (short)3, (short)6, (short)8)
+                .WhenAsync(HandlingEnterEvent)
+                .Then(MltobjShouldList_, "3117.3.6.8")
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheOwnerGetsNoMltobj()
+        {
+            await new Spec("The owner fills the client table from mlobjlst and receives no mltobj")
+                .Given(MinilandIsRegisteredWithOwner_, true)
+                .And(AQuarryIsPlacedInSlot_At_, (short)3, (short)6, (short)8)
+                .WhenAsync(HandlingEnterEvent)
+                .Then(NoMltobjShouldBeSent)
                 .ExecuteAsync();
         }
 
@@ -145,6 +170,30 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Map
             Assert.IsNotNull(say);
             Assert.AreEqual(expected, say.Game18NArguments[0]);
         }
+
+        private void AQuarryIsPlacedInSlot_At_(short slot, short x, short y)
+        {
+            var quarry = new ItemInstance(new Item { VNum = 3117, Type = NoscorePocketType.Miniland }) { Amount = 1 };
+            var placed = InventoryItemInstance.Create(quarry, _session.Character.CharacterId);
+            placed.Slot = slot;
+            placed.Type = NoscorePocketType.Miniland;
+            _session.Character.MapInstance.MapDesignObjects[placed.Id] = new MapDesignObject
+            {
+                MapX = x,
+                MapY = y,
+                Slot = slot,
+                InventoryItemInstance = placed,
+            };
+        }
+
+        private void MltobjShouldList_(string objects)
+        {
+            var packet = _session.LastPackets.OfType<MltobjPacket>().Single();
+            Assert.AreEqual(objects, string.Join(' ', (packet.MltobjSubPacket ?? []).Select(o => $"{o?.VNum}.{o?.Slot}.{o?.MapX}.{o?.MapY}")));
+        }
+
+        private void NoMltobjShouldBeSent() =>
+            Assert.IsFalse(_session.LastPackets.OfType<MltobjPacket>().Any());
 
         private void NoPacketShouldBeSent() =>
             Assert.AreEqual(0, _session.LastPackets.Count);
