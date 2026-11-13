@@ -27,14 +27,13 @@ namespace NosCore.GameObject.Services.BattleService;
 
 // Buffs live on a per-entity ConcurrentDictionary keyed by CardId. Re-applying refreshes
 // ExpiresAt rather than stacking — matches the one-icon-per-card client convention.
-// Expiration is pull-based: TickAsync is called from the world's life loop, which keeps
-// this service dependency-free (no timers, no background tasks) and trivial to test.
+// Expiration is pull-based: the map's life loop asks BuffSystem which entities are due and
+// calls TickAsync on those, so the service needs no timers or background tasks.
 public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
     IRandomProvider randomProvider) : IBuffService
 {
     private static readonly IReadOnlyCollection<BuffInstance> EmptyBuffs = Array.Empty<BuffInstance>();
     private static readonly IReadOnlyList<BuffInstance> EmptyExpired = Array.Empty<BuffInstance>();
-    private static readonly Duration PulseStep = Duration.FromSeconds(2);
 
     public async Task ApplyAsync(IAliveEntity target, CardDto card, IReadOnlyList<BCardDto> bCards, IAliveEntity? caster, int overrideDuration = -1)
     {
@@ -74,7 +73,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                     Duration = durationMs / 100,
                 },
                 BuffLevel = level,
-            }).ConfigureAwait(false);
+            });
         }
     }
 
@@ -336,7 +335,6 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
         return expired;
     }
 
-    // A card BCard with ThirdData set fires every ThirdData x 2 seconds while the buff lasts.
     // Periodic damage never takes the last hit point, so it never kills and never awards a kill.
     private static async Task PulseAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
     {
@@ -350,14 +348,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
 
             foreach (var bCard in buff.BCards)
             {
-                if (bCard.ThirdData <= 0)
-                {
-                    continue;
-                }
-
-                var interval = PulseStep.BclCompatibleTicks * bCard.ThirdData;
-                var times = (now - buff.StartedAt).BclCompatibleTicks / interval
-                    - (buff.PulsedUntil - buff.StartedAt).BclCompatibleTicks / interval;
+                var times = buff.PulsesDue(bCard, now);
                 if (times <= 0)
                 {
                     continue;
