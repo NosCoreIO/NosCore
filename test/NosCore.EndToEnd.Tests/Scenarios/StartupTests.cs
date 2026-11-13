@@ -19,6 +19,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         [DataRow("NosCore.MasterServer")]
         [DataRow("NosCore.LoginServer")]
         [DataRow("NosCore.WorldServer")]
+        [DataRow("NosCore.WebApi")]
         public async Task AServerOnADatabaseThatIsBehindSaysSoInsteadOfStarting(string server)
         {
             _ = Harness.Stack;
