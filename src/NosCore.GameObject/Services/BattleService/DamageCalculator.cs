@@ -89,11 +89,6 @@ public sealed class DamageCalculator(IRandomProvider random) : IDamageCalculator
         // gives a positive bias when attacker out-levels and damp when under-levelled.
         var baseDamage = RollBaseDamage(context.MainMinDmg, context.MainMaxDmg);
         baseDamage += morale - defender.Level;
-        if (attacker.Class == CharacterClassType.Adventurer)
-        {
-            // Historic Adventurer flat bonus (they have otherwise weak primary stats).
-            baseDamage += 20;
-        }
 
         // Weapon upgrade table: negative values pad defender's armour, positive values
         // pad attacker's damage. Linear to ~+/-5 then accelerating, so a +10 weapon
