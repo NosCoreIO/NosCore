@@ -14,7 +14,9 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.Entities;
+using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
 
 namespace NosCore.GameObject.Tests.Services.BattleService
@@ -156,6 +158,95 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             Assert.AreEqual(100, monster.Hp);
         }
+
+        [TestMethod]
+        public async Task TheHpAMonsterLosesFloatsOverItForTheMap()
+        {
+            var monster = Monster(200);
+            await _buffs.ApplyAsync(monster, Poison, [HpReduced(8, 2)], null);
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(4));
+            await _buffs.TickAsync(monster);
+
+            var shown = map.LastPackets.OfType<DmPacket>().Single();
+            Assert.AreEqual(VisualType.Monster, shown.VisualType);
+            Assert.AreEqual(monster.VisualId, shown.VisualId);
+            Assert.AreEqual(16, shown.Damages);
+        }
+
+        [TestMethod]
+        public async Task TheNumberIsWhatWasTakenWhenOneHpIsLeft()
+        {
+            var monster = Monster(200);
+            monster.Hp = 5;
+            await _buffs.ApplyAsync(monster, Poison, [HpReduced(8, 2)], null);
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(4));
+            await _buffs.TickAsync(monster);
+
+            Assert.AreEqual(4, map.LastPackets.OfType<DmPacket>().Single().Damages);
+        }
+
+        [TestMethod]
+        public async Task TheHpAMonsterRecoversFloatsOverItForTheMap()
+        {
+            var monster = Monster(200);
+            monster.Hp = 190;
+            await _buffs.ApplyAsync(monster, Poison, [HpRecovered(20, 3)], null);
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(6));
+            await _buffs.TickAsync(monster);
+
+            Assert.AreEqual(10, map.LastPackets.OfType<RcPacket>().Single().HealAmount);
+            Assert.IsFalse(map.LastPackets.OfType<DmPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task NoNumberWhenOnlyMpChanges()
+        {
+            var monster = Monster(200);
+            monster.Mp = 10;
+            await _buffs.ApplyAsync(monster, Poison, [new BCardDto
+            {
+                Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 22, FirstData = 50, ThirdData = 2,
+            }], null);
+            var map = _session.Character.MapInstance;
+            map.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(4));
+            await _buffs.TickAsync(monster);
+
+            Assert.AreEqual(5, monster.Mp);
+            Assert.IsFalse(map.LastPackets.OfType<DmPacket>().Any());
+            Assert.IsFalse(map.LastPackets.OfType<RcPacket>().Any());
+        }
+
+        [TestMethod]
+        public async Task APlayersOwnLossFloatsOverThemForTheMap()
+        {
+            var character = _session.Character;
+            character.Hp = character.MaxHp;
+            await _buffs.ApplyPermanentAsync(character, Heat, [HpReduced(8, 1)]);
+            character.MapInstance.LastPackets.Clear();
+
+            World.Clock.Advance(Duration.FromSeconds(2));
+            await _buffs.TickAsync(character);
+
+            var shown = character.MapInstance.LastPackets.OfType<DmPacket>().Single();
+            Assert.AreEqual(VisualType.Player, shown.VisualType);
+            Assert.AreEqual(character.MaxHp * 8 / 100, shown.Damages);
+        }
+
+        private static BCardDto HpRecovered(int percent, int steps) => new()
+        {
+            Type = (byte)BCardType.CardType.RecoveryAndDamagePercent, SubType = 11, FirstData = percent, ThirdData = steps,
+        };
 
         private MonsterComponentBundle Monster(int maxHp)
         {
