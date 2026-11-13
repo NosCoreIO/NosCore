@@ -291,7 +291,7 @@ namespace NosCore.GameObject.Services.BattleService
 
             await castDelayService.WaitAsync(Duration.FromMilliseconds(skill.CastTime * 100));
             return ReferenceEquals(origin.MapInstance, map) && !IsStunned(origin)
-                && (target == null ? CanCast(origin) : CanAttack(origin, target));
+                && (target == null ? CanCast(origin) : CanAttack(origin, target) && ReferenceEquals(target.MapInstance, map));
         }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)
