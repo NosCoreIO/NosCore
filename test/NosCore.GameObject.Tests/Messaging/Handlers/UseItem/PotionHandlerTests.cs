@@ -22,6 +22,7 @@ using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.PotionService;
 using NosCore.Packets.ClientPackets.Inventory;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Inventory;
 using NosCore.Packets.ServerPackets.Player;
 using NosCore.Shared.Enumerations;
 using NosCore.Tests.Shared;
@@ -190,6 +191,24 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
         }
 
         private void _MillisecondsPass(int ms) => World.Clock.Advance(Duration.FromMilliseconds(ms));
+
+        [TestMethod]
+        public async Task TheLastPotionOfAStackLeavesItsSlotEmpty()
+        {
+            await new Spec("Drinking the last potion of a stack shows its slot empty, not the potion with none left")
+                .Given(APotionRestoring_Hp_Mp, 300, 0)
+                .And(CharacterHas_Hp_Mp, 500, 200)
+                .WhenAsync(DrinkingThePotion)
+                .Then(ThePotionsSlotShouldBeShownEmpty)
+                .ExecuteAsync();
+        }
+
+        private void ThePotionsSlotShouldBeShownEmpty()
+        {
+            var shown = _session.LastPackets.OfType<IvnPacket>().SelectMany(p => p.IvnSubPackets ?? []).OfType<IvnSubPacket>()
+                .Last(i => i.Slot == 0);
+            Assert.AreNotEqual(PotionVNum, shown.VNum);
+        }
 
         private void _PotionsRestoring_Hp(int amount, int hp)
         {
