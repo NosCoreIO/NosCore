@@ -180,12 +180,8 @@ namespace NosCore.Parser.Parsers
                 .Field(x => x.DistanceDefenceDodge, chunk => Defence(chunk, _monsterStatService.GetDodge, 6),
                     reads: new[] { ("ARMOR", 0, 2), ("ARMOR", 0, 6), ("LEVEL", 0, 2), ("RACE", 0, 2) },
                     source: "race/level/ARMOR[2] curve + ARMOR[6]", description: "Dodge against ranged attacks, the same as close dodge")
-                .Field(x => x.AttackUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["WINFO"][0][4]),
-                    reads: new[] { ("WINFO", 0, 2), ("WINFO", 0, 4), ("ETC", 0, 2) },
-                    source: "WINFO[2] or WINFO[4] (gated by LoadUnknownData)", description: "Weapon upgrade level")
-                .Field(x => x.DefenceUpgrade, chunk => Convert.ToByte(LoadUnknownData(chunk) == 1 ? chunk["WINFO"][0][2] : chunk["AINFO"][0][3]),
-                    reads: new[] { ("WINFO", 0, 2), ("AINFO", 0, 3), ("ETC", 0, 2) },
-                    source: "WINFO[2] or AINFO[3] (gated by LoadUnknownData)", description: "Armor upgrade level")
+                .Field(x => x.AttackUpgrade, "WINFO", 0, 4, s => Convert.ToByte(s), "Weapon upgrade level")
+                .Field(x => x.DefenceUpgrade, "AINFO", 0, 3, s => Convert.ToByte(s), "Armor upgrade level")
                 .Field(x => x.VNumRequired, chunk => Convert.ToInt16(chunk["SETTING"][0][4] != "0" && ShouldLoadPetinfo(chunk) ? chunk["PETINFO"][0][2] : chunk["SETTING"][0][4]),
                     reads: new[] { ("SETTING", 0, 4), ("PETINFO", 0, 2), ("ETC", 0, 2) },
                     source: "SETTING[4] or PETINFO[2]", description: "VNum of the item required to tame/interact")
@@ -257,9 +253,9 @@ namespace NosCore.Parser.Parsers
                 .Doc("ZSKILL", 4, "hitChance", "Basic-attack hit chance (unused by the parser).")
                 .Doc("ZSKILL", 7, "dashSpeed", "Speed used when dashing.")
                 .Doc("ZSKILL", 8, "unknown4")
-                .Doc("WINFO", 2, "winfoAttType", "Attack-type override for ARMOR/WEAPON derivation (1 => special path).")
+                .Doc("WINFO", 2, "winfoAttType", "Attack type (0 melee, 1 ranged, 2 magic), the same as ZSKILL[2].")
                 .Doc("WINFO", 3, "unknown5")
-                .Doc("WINFO", 4, "weaponGrade", "Weapon grade; used as AttackUpgrade when WINFO[0]!=1.")
+                .Doc("WINFO", 4, "weaponGrade", "Weapon upgrade.")
                 .Doc("WEAPON", 2, "weaponLvl", "Weapon level; with the monster level and race it gives damage and hit rate.")
                 .Doc("WEAPON", 3, "weaponRange")
                 .Doc("WEAPON", 4, "weaponDmgMin", "Flat minimum damage added to the curve.")
@@ -268,7 +264,7 @@ namespace NosCore.Parser.Parsers
                 .Doc("WEAPON", 7, "weaponCritChance", "Added to the base critical chance.")
                 .Doc("WEAPON", 8, "weaponCritDmg", "Added to the base critical damage.")
                 .Doc("AINFO", 2, "ainfoDefType", "Defence-type override for ARMOR derivation.")
-                .Doc("AINFO", 3, "armorGrade", "Armor grade; used as DefenceUpgrade when WINFO[0]!=1.")
+                .Doc("AINFO", 3, "armorGrade", "Armor upgrade.")
                 .Doc("ARMOR", 2, "armorLvl", "Armor level; with the monster level and race it gives every defence and dodge.")
                 .Doc("ARMOR", 3, "meleeDef", "Flat amount added to the curve.")
                 .Doc("ARMOR", 4, "rangedDef", "Flat amount added to the curve.")

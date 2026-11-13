@@ -158,14 +158,12 @@
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
 | 2 | Parsed | AmountRequired | Byte | Amount of the required item |
-| 2 | Parsed | AttackUpgrade | Byte | Weapon upgrade level |
 | 2 | Parsed | CanCatch | Boolean | ETC bit 3 -> catchable (mate) |
 | 2 | Parsed | CanCollect | Boolean | ETC bit 1 -> harvestable |
 | 2 | Parsed | CantDebuff | Boolean | ETC bit 2 -> immune to debuffs |
 | 2 | Parsed | CantTargetInfo | Boolean | ETC bit 31 -> hidden from target-info UI |
 | 2 | Parsed | CantVoke | Boolean | ETC bit 11 -> immune to voke |
 | 2 | Parsed | CanWalk | Boolean | ETC bit 0 clear -> can walk |
-| 2 | Parsed | DefenceUpgrade | Byte | Armor upgrade level |
 | 2 | Parsed | DisappearAfterHitting | Boolean | ETC bit 5 -> despawns after a hit |
 | 2 | Parsed | DisappearAfterSeconds | Boolean | ETC bit 4 -> despawns on a timer |
 | 2 | Parsed | DisappearAfterSecondsMana | Boolean | ETC bit 7 -> despawns when mana empties |
@@ -441,8 +439,7 @@
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Parsed | AttackUpgrade | Byte | Weapon upgrade level |
-| 2 | Parsed | DefenceUpgrade | Byte | Armor upgrade level |
+| 2 | NonParsed | winfoAttType |  | Attack type (0 melee, 1 ranged, 2 magic), the same as ZSKILL[2]. |
 | 3 | NonParsed | unknown5 |  |  |
 | 4 | Parsed | AttackUpgrade | Byte | Weapon upgrade level |
 
