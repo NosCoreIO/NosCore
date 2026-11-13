@@ -70,6 +70,16 @@ namespace NosCore.PacketHandlers.Tests.Group
         }
 
         [TestMethod]
+        public async Task TheOneWhoInvitedLeadsTheNewGroup()
+        {
+            await new Spec("The one who invited is told they lead the new group, and does")
+                .Given(Session1HasGroupRequestFromSession0)
+                .WhenAsync(Session0AcceptsSession1RequestAsync)
+                .Then(Session1ShouldLeadTheGroup)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task JoinFullGroupShouldFail()
         {
             await new Spec("Join full group should fail")
@@ -303,6 +313,13 @@ namespace NosCore.PacketHandlers.Tests.Group
 
                 await PJoinPacketHandler.ExecuteAsync(pjoinPacket, Sessions[0]);
             }
+        }
+
+        private void Session1ShouldLeadTheGroup()
+        {
+            Assert.IsTrue(Sessions[1].LastPackets.OfType<InfoiPacket>().Any(p => p.Message == Game18NConstString.YouAreNowGroupLeader));
+            Assert.IsTrue(Sessions[1].Character.Group.IsGroupLeader(Sessions[1].Character.CharacterId));
+            Assert.IsFalse(Sessions[0].Character.Group.IsGroupLeader(Sessions[0].Character.CharacterId));
         }
 
         private void BothSessionsShouldBeInSameGroup()

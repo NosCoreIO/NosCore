@@ -20,11 +20,13 @@ using NosCore.PacketHandlers.Group;
 using NosCore.Packets.ClientPackets.Groups;
 using NosCore.Packets.Enumerations;
 using NosCore.Packets.ServerPackets.Groups;
+using NosCore.Packets.ServerPackets.UI;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace NosCore.PacketHandlers.Tests.Group
@@ -95,8 +97,8 @@ namespace NosCore.PacketHandlers.Tests.Group
         {
             await new Spec("Leader leaving should transfer leadership")
                 .GivenAsync(SessionsAreInFullGroupAsync)
-                .WhenAsync(Session_LeavesGroupAsync, 0)
-                .Then(Session_ShouldBeLeader, 1)
+                .WhenAsync(Session_LeavesGroupAsync, 1)
+                .Then(Session_ShouldBeLeader, 0)
                 .ExecuteAsync();
         }
 
@@ -105,8 +107,19 @@ namespace NosCore.PacketHandlers.Tests.Group
         {
             await new Spec("Non leader leaving three person group should keep leader")
                 .GivenAsync(SessionsAreInFullGroupAsync)
-                .WhenAsync(Session_LeavesGroupAsync, 1)
-                .Then(Session_ShouldBeLeader, 0)
+                .WhenAsync(Session_LeavesGroupAsync, 0)
+                .Then(Session_ShouldBeLeader, 1)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheEndOfAGroupOfTwoIsAnnouncedOnceToEachMember()
+        {
+            await new Spec("Each member of a group of two hears once that it was disbanded")
+                .GivenAsync(TwoSessionsAreGroupedAsync)
+                .WhenAsync(Session_LeavesGroupAsync, 0)
+                .Then(Session_ShouldHearOfTheDisbandingOnce, 0)
+                .And(Session_ShouldHearOfTheDisbandingOnce, 1)
                 .ExecuteAsync();
         }
 
@@ -145,8 +158,8 @@ namespace NosCore.PacketHandlers.Tests.Group
         {
             await new Spec("The leader disconnecting hands the group on")
                 .GivenAsync(SessionsAreInFullGroupAsync)
-                .WhenAsync(Session_DisconnectsAsync, 0)
-                .Then(Session_ShouldBeLeader, 1)
+                .WhenAsync(Session_DisconnectsAsync, 1)
+                .Then(Session_ShouldBeLeader, 0)
                 .And(Session_ShouldBeInAGroupOf, 2)
                 .ExecuteAsync();
         }
@@ -158,7 +171,7 @@ namespace NosCore.PacketHandlers.Tests.Group
 
         private void Session_ShouldBeInAGroupOf(int count)
         {
-            Assert.AreEqual(count, Sessions[1].Character.Group.Count);
+            Assert.AreEqual(count, Sessions[0].Character.Group.Count);
         }
 
         private async Task SessionsAreInFullGroupAsync()
@@ -225,6 +238,10 @@ namespace NosCore.PacketHandlers.Tests.Group
             Assert.IsTrue(Sessions[value].Character.Group
                 .IsGroupLeader(Sessions[value].Character.CharacterId));
         }
+
+        private void Session_ShouldHearOfTheDisbandingOnce(int value) =>
+            Assert.AreEqual(1, Sessions[value].LastPackets.OfType<MsgiPacket>()
+                .Count(p => p.Message == Game18NConstString.PartyDisbanded));
 
         private void BothSessionsShouldBeAlone()
         {

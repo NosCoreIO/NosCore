@@ -22,9 +22,13 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         private const int Invite = 1;
         private const int Accept = 3;
         private const int Decline = 4;
+        private const int LootMode = 8;
         private const int GroupIsFull = 230;
         private const int InvitationDeclined = 237;
         private const int GroupDisbanded = 478;
+        private const int NotTheLeader = 560;
+        private const int SharedByTheGroup = 561;
+        private const int YouLeadTheGroup = 599;
         private const int MostHp = 221;
 
         private static Func<string, bool> Told(int message) =>
@@ -102,6 +106,46 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task AGroupFormedIsShownToItsMembersAndToTheMap()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+            await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
+            await using var carol = await Harness.EnterAsync("Carol", x: 82, y: 116);
+            await alice.SendAsync($"pjoin {Invite} {bob.CharacterId}");
+            await bob.ExpectAsync("dlgi2");
+            var formed = alice.Mark();
+            var seen = carol.Mark();
+
+            await bob.SendAsync($"pjoin {Accept} {alice.CharacterId}");
+
+            CollectionAssert.AreEqual(Ids(alice, bob), Members(await alice.ExpectSinceAsync(formed, GroupOf(2), "the group of two")));
+            CollectionAssert.AreEqual(Ids(alice, bob), Members(await bob.ExpectAsync(GroupOf(2), "the group of two")));
+            await alice.ExpectSinceAsync(formed, Told(YouLeadTheGroup), "the inviter told she leads");
+            // pidx <group> <type>.<id> ..., as a trace has it: "pidx 35 1.446955 1.317685".
+            var shown = (await carol.ExpectSinceAsync(seen, p => TestClient.HeaderOf(p) == "pidx", "the group shown to the map")).Split(' ');
+            Assert.AreNotEqual("-1", shown[1], "the group has a number");
+            Assert.AreEqual($"{Player}.{alice.CharacterId} {Player}.{bob.CharacterId}", string.Join(' ', shown.Skip(2).OrderBy(member => member)));
+        }
+
+        [TestMethod]
+        public async Task AMembersBarsCarryThePlaceTheMemberListGivesIt()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+            await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
+            var formed = alice.Mark();
+
+            // The one who invites was created last: the order of joining is not the order of the ids.
+            await InviteAsync(bob, alice, 2);
+
+            var list = await alice.ExpectSinceAsync(formed, GroupOf(2), "the group of two");
+            var place = list.Split(' ', StringSplitOptions.RemoveEmptyEntries).Skip(2).Select(member => member.Split('|'))
+                .Single(member => member[1] == bob.CharacterId.ToString(CultureInfo.InvariantCulture))[2];
+            var bar = (await alice.ExpectSinceAsync(formed, p => p.StartsWith($"pst {Player} {bob.CharacterId} ", StringComparison.Ordinal), "Bob's bars")).Split(' ');
+            Assert.AreEqual("1", place, "the one who invited holds the first place");
+            Assert.AreEqual(place, bar[3], "his bars are sent for the place the list gave him");
+        }
+
+        [TestMethod]
         public async Task MembersAreToldEachOthersHpWhenTheGroupForms()
         {
             await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
@@ -114,6 +158,28 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var bar = (await alice.ExpectSinceAsync(formed, p => p.StartsWith($"pst {Player} {bob.CharacterId} ", StringComparison.Ordinal), "Bob's bars")).Split(' ');
             Assert.AreEqual((100 * 100 / MostHp).ToString(CultureInfo.InvariantCulture), bar[4], "the part of his HP he has left");
             Assert.AreEqual(MostHp.ToString(CultureInfo.InvariantCulture), bar[6]);
+        }
+
+        [TestMethod]
+        public async Task TheOneWhoInvitedSetsHowTheGroupLoots()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+            await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
+            var formed = alice.Mark();
+            await InviteAsync(alice, bob, 2);
+            await alice.ExpectSinceAsync(formed, Told(YouLeadTheGroup), "the inviter told she leads");
+            var refused = bob.Mark();
+
+            await bob.SendAsync($"gop {LootMode} 1");
+
+            await bob.ExpectSinceAsync(refused, Told(NotTheLeader), "the member refused");
+            var changed = alice.Mark();
+            var heard = bob.Mark();
+
+            await alice.SendAsync($"gop {LootMode} 1");
+
+            await bob.ExpectSinceAsync(heard, Announced(SharedByTheGroup), "the new way of looting announced to the member");
+            await alice.ExpectSinceAsync(changed, Announced(SharedByTheGroup), "the new way of looting announced to the leader");
         }
 
         [TestMethod]
@@ -135,6 +201,24 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.ExpectSinceAsync(gone, Announced(GroupDisbanded), "the end of the group announced to Bob");
             await carol.ExpectSinceAsync(seen, p => p == $"pidx -1 {Player}.{alice.CharacterId}", "Alice shown without a group");
             await carol.ExpectSinceAsync(seen, p => p == $"pidx -1 {Player}.{bob.CharacterId}", "Bob shown without a group");
+        }
+
+        [TestMethod]
+        public async Task TheEndOfAGroupIsAnnouncedOnceToEachMember()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+            await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
+            await InviteAsync(alice, bob, 2);
+            var left = alice.Mark();
+            var gone = bob.Mark();
+
+            await bob.SendAsync("pleave");
+
+            await alice.ExpectSinceAsync(left, Announced(GroupDisbanded), "the end of the group announced to Alice");
+            await bob.ExpectSinceAsync(gone, Announced(GroupDisbanded), "the end of the group announced to Bob");
+            Assert.IsTrue(await alice.NoneSinceAsync(left, p => false, TimeSpan.FromSeconds(1)));
+            Assert.AreEqual(1, alice.Since(left).Count(Announced(GroupDisbanded)), "announcements to Alice");
+            Assert.AreEqual(1, bob.Since(gone).Count(Announced(GroupDisbanded)), "announcements to Bob");
         }
 
         [TestMethod]
@@ -179,6 +263,29 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             StringAssert.EndsWith(await bob.ExpectAsync("spk"), "two of us now");
             Assert.IsTrue(await carol.NoneSinceAsync(said, p => TestClient.HeaderOf(p) == "spk", TimeSpan.FromSeconds(1)),
                 "the one who left hears the group no more");
+        }
+
+        [TestMethod]
+        public async Task WhenTheLeaderLeavesAGroupOfThreeTheNextToHaveJoinedLeads()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+            await using var bob = await Harness.EnterAsync("Bob", x: 81, y: 116);
+            await using var carol = await Harness.EnterAsync("Carol", x: 82, y: 116);
+            var formed = alice.Mark();
+            await InviteAsync(alice, bob, 2);
+            await alice.ExpectSinceAsync(formed, Told(YouLeadTheGroup), "the inviter told she leads");
+            await InviteAsync(bob, carol, 3);
+            var promoted = bob.Mark();
+            var kept = carol.Mark();
+            var left = alice.Mark();
+
+            await alice.SendAsync("pleave");
+
+            await alice.ExpectSinceAsync(left, GroupOf(0), "Alice on her own");
+            CollectionAssert.AreEqual(Ids(bob, carol), Members(await bob.ExpectSinceAsync(promoted, GroupOf(2), "the group of two")));
+            CollectionAssert.AreEqual(Ids(bob, carol), Members(await carol.ExpectSinceAsync(kept, GroupOf(2), "the group of two")));
+            await bob.ExpectSinceAsync(promoted, Told(YouLeadTheGroup), "Bob told he leads");
+            Assert.IsFalse(carol.Since(kept).Any(Told(YouLeadTheGroup)), "Carol is not told she leads");
         }
 
         [TestMethod]

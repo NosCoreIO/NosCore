@@ -221,9 +221,9 @@ namespace NosCore.PacketHandlers.Group
                         }
                         else
                         {
-                            clientSession.Character.Group.GroupId = groupIdService.GetNextId();
-                            targetSession.JoinGroup(clientSession.Character.Group);
-                            targetSession.Group = clientSession.Character.Group;
+                            // The one who invited holds the first place, and the first place leads.
+                            targetSession.Group.GroupId = groupIdService.GetNextId();
+                            clientSession.Character.JoinGroup(targetSession.Group);
                             clientSession.Character.GroupRequestCharacterIds.Clear();
                             formedGroup = true;
                         }

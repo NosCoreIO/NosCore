@@ -444,17 +444,6 @@ namespace NosCore.GameObject.Ecs.Extensions
                     continue;
                 }
 
-                if (characterEntity.Group.Count == 1)
-                {
-                    await groupMember.LeaveGroupAsync(sessionGroupFactory, sessionRegistry);
-                    await groupMember.SendPacketAsync(characterEntity.Group.GeneratePidx(groupMember));
-                    await groupMember.SendPacketAsync(new MsgiPacket
-                    {
-                        Type = MessageType.Default,
-                        Message = Game18NConstString.PartyDisbanded
-                    });
-                }
-
                 await groupMember.SendPacketAsync(groupMember.GeneratePinit());
             }
 

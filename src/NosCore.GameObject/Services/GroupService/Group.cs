@@ -50,6 +50,9 @@ namespace NosCore.GameObject.Services.GroupService
 
         public ISessionGroup Sessions { get; set; } = sessionGroupFactory.Create();
 
+        // The place a member holds is the same wherever it is told: who joined first comes first.
+        public IEnumerable<INamedEntity> MembersInJoiningOrder => Values.OrderBy(s => s.Item1).Select(s => s.Item2);
+
         public PinitPacket GeneratePinit()
         {
             var i = 0;
@@ -57,7 +60,7 @@ namespace NosCore.GameObject.Services.GroupService
             return new PinitPacket
             {
                 GroupSize = Count == 1 ? 0 : Count,
-                PinitSubPackets = Values.Select(s => s.Item2.GenerateSubPinit(Count == 1 ? i : ++i)).ToList() as List<PinitSubPacket?>
+                PinitSubPackets = MembersInJoiningOrder.Select(s => s.GenerateSubPinit(Count == 1 ? i : ++i)).ToList() as List<PinitSubPacket?>
             };
         }
 
@@ -65,7 +68,7 @@ namespace NosCore.GameObject.Services.GroupService
         {
             var i = 0;
 
-            return Values.OrderBy(s => s.Item1).Select(s => s.Item2).Select(member => new PstPacket
+            return MembersInJoiningOrder.Select(member => new PstPacket
             {
                 Type = member.VisualType,
                 VisualId = member.VisualId,
@@ -81,9 +84,7 @@ namespace NosCore.GameObject.Services.GroupService
             }).ToList();
         }
 
-        public INamedEntity? Leader => Values.OrderBy(s => s.Item1)
-            .Select(s => s.Item2)
-            .FirstOrDefault(s => s.VisualType == VisualType.Player);
+        public INamedEntity? Leader => MembersInJoiningOrder.FirstOrDefault(s => s.VisualType == VisualType.Player);
 
         public bool IsGroupLeader(long visualId) => (Count > 1) && (Leader?.VisualId == visualId);
 

@@ -80,16 +80,12 @@ namespace NosCore.GameObject.Ecs.Extensions
             };
         }
 
+        // Every member of a pidx line in a packet trace carries 1 here, in a group or alone.
         public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity)
-        {
-            return playableEntity.GenerateSubPidx(false);
-        }
-
-        public static PidxSubPacket GenerateSubPidx(this IAliveEntity playableEntity, bool isMemberOfGroup)
         {
             return new PidxSubPacket
             {
-                IsGrouped = isMemberOfGroup,
+                IsGrouped = true,
                 VisualId = playableEntity.VisualId
             };
         }

@@ -1308,6 +1308,15 @@ and 5 Apples.
 - [ ] Press Produce and confirm: after the bar, "[Attack Potion] has been produced." pops up,
       the potion appears, the materials are gone and one scroll is used up
 
+### Forming a party
+
+- [ ] A invites B and B confirms: both see the other in the party panel and "In party" under
+      both names, and A is told "You are now the group leader"
+- [ ] B toggles the party sharing line: B is told only the leader can do that; A toggles it and
+      both see the new looting mode
+- [ ] A third joins and A leaves: B is told they lead now
+- [ ] A party of two ends: each of the two sees the party-disbanded message once
+
 ### Leaving a party
 
 `/mnt/project-files/group-disconnect/scene.sh <checkout> <outdir>` groups Tester and Buddy and
