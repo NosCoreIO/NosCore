@@ -110,6 +110,10 @@ same damage means only one of the two is being read.
 - [ ] A critical hit adds its bonus on top of a normal hit; the level gap is not multiplied
 - [ ] A level 30 swordsman with a +0 Crossbow (68) fires Crossbow Shot at a level 30 Baby Dander
       from range: every non-critical hit is between 132 and 137
+- [ ] Every hit, a monster's on a player included, draws the skill's impact on the target, not
+      only the damage number
+- [ ] Hit a monster with a class skill, then again once its upgrade is learned: the impact
+      changes with the upgrade
 
 ### Combo chains
 
