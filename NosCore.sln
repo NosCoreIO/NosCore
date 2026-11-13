@@ -51,6 +51,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.EcsGenerator", "too
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.DiGenerator", "tools\NosCore.DiGenerator\NosCore.DiGenerator.csproj", "{E4AD945D-BF33-40FB-8F3A-3F706850ED76}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NosCore.EndToEnd.Tests", "test\NosCore.EndToEnd.Tests\NosCore.EndToEnd.Tests.csproj", "{E754521D-D81C-427D-9E60-316CCBFF1065}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -301,6 +303,18 @@ Global
 		{E4AD945D-BF33-40FB-8F3A-3F706850ED76}.Release|x64.Build.0 = Release|Any CPU
 		{E4AD945D-BF33-40FB-8F3A-3F706850ED76}.Release|x86.ActiveCfg = Release|Any CPU
 		{E4AD945D-BF33-40FB-8F3A-3F706850ED76}.Release|x86.Build.0 = Release|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Debug|x64.Build.0 = Debug|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Debug|x86.Build.0 = Debug|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Release|x64.ActiveCfg = Release|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Release|x64.Build.0 = Release|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Release|x86.ActiveCfg = Release|Any CPU
+		{E754521D-D81C-427D-9E60-316CCBFF1065}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -326,6 +340,7 @@ Global
 		{4E68313F-69F8-4125-B87E-665D6F7DFD5D} = {EFA0F8A7-CBF2-4542-82A9-931BB0111FED}
 		{78731E48-C6CA-4614-B617-65B55A85CAE0} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
 		{E4AD945D-BF33-40FB-8F3A-3F706850ED76} = {07C2787E-EAC7-C090-1BA3-A61EC2A24D84}
+		{E754521D-D81C-427D-9E60-316CCBFF1065} = {EFA0F8A7-CBF2-4542-82A9-931BB0111FED}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {4B673C11-52EF-455B-BFC6-8CFEBC340972}

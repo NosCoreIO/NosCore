@@ -80,3 +80,59 @@ Other ways to control a dependency:
 A test that needs no session, map or database can use `new NosCoreFixture()` directly. It
 follows the same rules. `TestLocalizers.Log` and `TestLocalizers.Game` echo the key they are
 asked for.
+
+## End-to-end scenarios
+
+`NosCore.EndToEnd.Tests` starts the real master, login and world servers and talks to them
+over sockets the way the game client does. Nothing is mocked: a scenario covers the path from
+the socket through the decoder, the session, the handler and the service back to what the other
+player receives.
+
+```csharp
+[TestMethod]
+public async Task AStepIsSeenByTheOtherPlayer()
+{
+    await using var bob = await Harness.EnterAsync("Bob", x: 82, y: 116);
+    await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+
+    await alice.WalkAsync(81, 117);
+
+    var step = await bob.ExpectAsync(p => p.StartsWith($"mv 1 {alice.CharacterId} "), "mv for Alice");
+    Assert.AreEqual($"mv 1 {alice.CharacterId} 81 117 {alice.Speed}", step);
+}
+```
+
+What it needs and does:
+
+- **A PostgreSQL**, on `localhost` with `postgres` / `password` or wherever `DB_HOST`,
+  `DB_USER` and `DB_PASSWORD` point. Without one the scenarios report themselves as not run.
+  Set `NOSCORE_E2E_REQUIRED=true` to make that a failure instead, as CI does.
+- **The built servers.** Build the solution first; the servers are started from
+  `build/net11.0` on free ports, with a copy of `configuration/`.
+- **Its own database**, created for the run, migrated, seeded by `WorldData` and dropped at
+  the end. No client files are involved: the world is two open maps joined by portals, a
+  miniland, one item and a shopkeeper who sells it. Add to `WorldData` what a new scenario
+  needs; static data is read when the servers start.
+
+Writing one:
+
+- `Harness.EnterAsync("Name", map, x, y)` adds a character on an account of its own and brings
+  it into the world. Every scenario makes its own characters, so scenarios never share one.
+- `client.SendAsync("line")` sends a packet as text. `client.ExpectAsync("header")` returns the
+  next packet with that header and fails the test with the last packets received when none
+  comes. Each `ExpectAsync` starts after the packet the previous one returned, so a chain of
+  them also asserts the order.
+- When two packets answer one action and their order is not the point, take
+  `var mark = client.Mark()` before the action and use `client.ExpectSinceAsync(mark, ...)`.
+- To assert that something is not sent, take a mark before the action and check
+  `await client.NoneSinceAsync(mark, match, TimeSpan.FromSeconds(1))`.
+- `Harness.GiveAsync(player, vnum, amount)` puts items in a bag before the character enters;
+  `configure: c => c.Gold = 1000` on `EnterAsync` or `AddPlayerAsync` sets anything on the row.
+- `Harness.StoredAsync(characterId)` and `Harness.Database.CreateContext()` read what was
+  stored.
+- A failing start prints the server's last lines; `Harness.Stack.LogTail("NosCore.WorldServer")`
+  gives them to a scenario.
+
+The servers are shared by the whole run, so a scenario must not depend on being alone on a
+map: assert on packets about its own characters.
+

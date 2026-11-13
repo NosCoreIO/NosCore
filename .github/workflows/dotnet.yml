@@ -17,6 +17,18 @@ jobs:
   build:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_PASSWORD: password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
     - uses: actions/checkout@v7
     - name: Setup .NET
@@ -46,6 +58,11 @@ jobs:
         dotnet test test/NosCore.Tests.Shared/NosCore.Tests.Shared.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.Parser.Tests/NosCore.Parser.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
         dotnet test test/NosCore.WebApi.Tests/NosCore.WebApi.Tests.csproj --no-build --filter TestCategory!=OPTIONAL-TEST /p:CollectCoverage=true /p:CoverletOutput="../TestResults/" /p:MergeWith="../TestResults/coverlet.json" /p:CoverletOutputFormat=opencover /p:ExcludeByAttribute='GeneratedCodeAttribute' /p:ExcludeByAttribute='Obsolete' /p:ExcludeByAttribute='CompilerGeneratedAttribute' /p:CoverletOutput='./tools/coverage.opencover.xml'
+
+    - name: Run end-to-end scenarios
+      env:
+        NOSCORE_E2E_REQUIRED: true
+      run: dotnet test test/NosCore.EndToEnd.Tests/NosCore.EndToEnd.Tests.csproj --no-build
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7
