@@ -73,7 +73,8 @@ namespace NosCore.Parser.Tests
 
         private static string BuildMonster(short vnum, string name, byte level, byte race = 0, byte raceType = 0,
             int hp = 0, int mp = 0, int xp = 0, int jxp = 0, byte armorLvl = 1, byte weaponLvl = 1, byte weaponType = 0,
-            string weaponModifiers = "0\t0\t0\t0\t0", string armorModifiers = "0\t0\t0\t0", byte attackClass = 0)
+            string weaponModifiers = "0\t0\t0\t0\t0", string armorModifiers = "0\t0\t0\t0", byte attackClass = 0,
+            long etc = 0, string winfo = "0\t0\t0", string ainfo = "0\t0")
         {
             var zeros50 = string.Join("\t", Enumerable.Repeat("0", 50));
             var zeros20 = string.Join("\t", Enumerable.Repeat("0", 20));
@@ -90,13 +91,13 @@ namespace NosCore.Parser.Tests
                 $"\tEXP\t{xp}\t{jxp}\r\n" +
                 $"\tPREATT\t0\t0\t0\t0\t0\t0\r\n" +
                 $"\tSETTING\t0\t0\t0\t0\t0\t0\r\n" +
-                $"\tETC\t0\t0\t0\t0\t0\t0\t0\t0\r\n" +
+                $"\tETC\t{etc}\t0\t0\t0\t0\t0\t0\t0\r\n" +
                 $"\tPETINFO\t0\t0\t0\t0\r\n" +
                 $"\tEFF\t0\t0\t0\r\n" +
                 $"\tZSKILL\t{attackClass}\t0\t0\t0\t0\t0\r\n" +
-                $"\tWINFO\t0\t0\t0\r\n" +
+                $"\tWINFO\t{winfo}\r\n" +
                 $"\tWEAPON\t{weaponLvl}\t{weaponType}\t{weaponModifiers}\r\n" +
-                $"\tAINFO\t0\t0\r\n" +
+                $"\tAINFO\t{ainfo}\r\n" +
                 $"\tARMOR\t{armorLvl}\t{armorModifiers}\r\n" +
                 $"\tSKILL\t{zeros15}\r\n" +
                 $"\tPARTNER\t{zeros20}\r\n" +
@@ -118,6 +119,20 @@ namespace NosCore.Parser.Tests
             Assert.AreEqual(1, _savedMonsters.Count);
             Assert.AreEqual(1, _savedMonsters[0].NpcMonsterVNum);
             Assert.AreEqual("testmob", _savedMonsters[0].NameI18NKey);
+        }
+
+        [TestMethod]
+        public async Task NpcMonsterParser_AStationaryMonsterTakesItsUpgradesFromTheUpgradeColumns()
+        {
+            File.WriteAllText(Path.Combine(_tempFolder, "monster.dat"), BuildMonster(396, "zts396e", 10,
+                etc: 1, winfo: "1\t0\t5", ainfo: "0\t3"));
+            var parser = new NpcMonsterParser(_skillDaoMock.Object, _bCardDaoMock.Object, _dropDaoMock.Object,
+                _npcMonsterSkillDaoMock.Object, _npcMonsterDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object, MonsterStats);
+            await parser.InsertNpcMonstersAsync(_tempFolder);
+
+            var monster = _savedMonsters.Single();
+            Assert.AreEqual(5, monster.AttackUpgrade);
+            Assert.AreEqual(3, monster.DefenceUpgrade);
         }
 
         [TestMethod]
