@@ -35,6 +35,9 @@ namespace NosCore.GameObject.Services.MailService
             IDao<CharacterDto, long> characterDto)
         : IMailService
     {
+        private static readonly JsonSerializerOptions MailJson =
+            new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+
         public List<MailData> GetMails(long id, long characterId, bool senderCopy)
         {
             var mails = parcelRegistry.GetMails(characterId, false).Values.Concat(parcelRegistry.GetMails(characterId, true).Values);
@@ -83,8 +86,8 @@ namespace NosCore.GameObject.Services.MailService
                 return null;
             }
 
-            var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail, new JsonSerializerOptions().ConfigureForNodaTime(DateTimeZoneProviders.Tzdb))).RootElement);
-            var edited = JsonSerializer.Deserialize<MailDto>(result.GetRawText());
+            var result = mailData.Apply(JsonDocument.Parse(JsonSerializer.SerializeToUtf8Bytes(mail, MailJson)).RootElement);
+            var edited = JsonSerializer.Deserialize<MailDto>(result.GetRawText(), MailJson);
             if (edited == null)
             {
                 return null;
@@ -95,7 +98,7 @@ namespace NosCore.GameObject.Services.MailService
             var targetCharacterId = mail.IsSenderCopy && mail.SenderId is { } senderId ? senderId : mail.ReceiverId;
             var savedData = parcelRegistry.GetMails(targetCharacterId, mail.IsSenderCopy)
                     .FirstOrDefault(s => s.Value.MailDto.MailId == id);
-            if (savedData.Value.ItemInstance == null || savedData.Value.ReceiverName == null)
+            if (savedData.Value?.ReceiverName == null)
             {
                 return null;
             }
@@ -167,11 +170,8 @@ namespace NosCore.GameObject.Services.MailService
             var receiver = await pubSubHub.GetWorldSubscriberAsync(channelHub, mailref.ReceiverId);
 
             mailref = await mailDao.TryInsertOrUpdateAsync(mailref);
-            if (itemInstance == null)
-            {
-                return false;
-            }
-            var mailData = await GenerateMailDataAsync(mailref, (short?)it?.ItemType ?? -1, itemInstance, receiverName);
+            var itemType = (short?)it?.ItemType ?? -1;
+            var mailData = await GenerateMailDataAsync(mailref, itemType, itemInstance, receiverName);
             if (!await TryRegisterAsync(mailref.ReceiverId, mailData))
             {
                 return false;
@@ -179,7 +179,7 @@ namespace NosCore.GameObject.Services.MailService
 
             await NotifyAsync(0, receiver, mailData);
 
-            if (mailref.SenderId == null)
+            if (mailref.SenderId is not { } senderId)
             {
                 return true;
             }
@@ -188,22 +188,25 @@ namespace NosCore.GameObject.Services.MailService
             var senderCopy = mailref.Adapt<MailDto>();
             senderCopy.IsSenderCopy = true;
             senderCopy.MailId = 0;
-            if (itemInstance.Adapt(itemInstance.GetType(), itemInstance.GetType()) is not IItemInstanceDto senderItem)
+            IItemInstanceDto? savedSenderItem = null;
+            if (itemInstance != null)
             {
-                return true;
+                if (itemInstance.Adapt(itemInstance.GetType(), itemInstance.GetType()) is not IItemInstanceDto senderItem)
+                {
+                    return true;
+                }
+
+                senderItem.Id = Guid.NewGuid();
+                savedSenderItem = await itemInstanceDao.TryInsertOrUpdateAsync(senderItem);
             }
 
-            senderItem.Id = Guid.NewGuid();
-            var savedSenderItem = await itemInstanceDao.TryInsertOrUpdateAsync(senderItem);
             senderCopy.ItemInstanceId = savedSenderItem?.Id;
             senderCopy = await mailDao.TryInsertOrUpdateAsync(senderCopy);
-            var mailDataCopy = await GenerateMailDataAsync(senderCopy, (short?)it?.ItemType ?? -1, savedSenderItem, receiverName);
-            if (!await TryRegisterAsync(mailref.ReceiverId, mailDataCopy))
+            var mailDataCopy = await GenerateMailDataAsync(senderCopy, itemType, savedSenderItem, receiverName);
+            if (await TryRegisterAsync(senderId, mailDataCopy))
             {
-                return false;
+                await NotifyAsync(0, await pubSubHub.GetWorldSubscriberAsync(channelHub, senderId), mailDataCopy);
             }
-
-            await NotifyAsync(0, receiver, mailDataCopy);
 
             return true;
         }
@@ -241,7 +244,7 @@ namespace NosCore.GameObject.Services.MailService
 
         private async Task NotifyAsync(byte notifyType, Subscriber? receiver, MailData mailData)
         {
-            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver?.Name)
+            var type = !mailData.MailDto.IsSenderCopy && (mailData.ReceiverName == receiver?.ConnectedCharacter?.Name)
                 ? mailData.ItemInstance != null ? (byte)0 : (byte)1 : (byte)2;
 
             if (receiver?.ConnectedCharacter is not { } connected)

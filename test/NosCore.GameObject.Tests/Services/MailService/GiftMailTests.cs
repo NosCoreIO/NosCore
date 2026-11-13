@@ -149,7 +149,8 @@ namespace NosCore.GameObject.Tests.Services.MailService
             Assert.IsTrue(_savedMails[1].IsSenderCopy);
             Assert.AreNotEqual(_savedMails[0].ItemInstanceId, _savedMails[1].ItemInstanceId);
             Assert.AreNotEqual(Guid.Empty, _savedMails[1].ItemInstanceId);
-            _parcelRegistry.Verify(s => s.TryAddMail(ReceiverId, It.IsAny<bool>(), It.IsAny<MailData>()), Times.Exactly(2));
+            _parcelRegistry.Verify(s => s.TryAddMail(ReceiverId, false, It.IsAny<MailData>()), Times.Once);
+            _parcelRegistry.Verify(s => s.TryAddMail(SenderId, true, It.IsAny<MailData>()), Times.Once);
         }
 
         [TestMethod]

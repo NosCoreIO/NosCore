@@ -18,7 +18,8 @@ namespace NosCore.GameObject.Services.ChannelCommunicationService.Handlers
     {
         public override async Task Handle(MailData data)
         {
-            var session = sessionRegistry.GetSession(s => s.Character.Name == data.ReceiverName);
+            var owner = data.MailDto.IsSenderCopy ? data.SenderName : data.ReceiverName;
+            var session = sessionRegistry.GetSession(s => s.Character.Name == owner);
 
             if (session == null)
             {

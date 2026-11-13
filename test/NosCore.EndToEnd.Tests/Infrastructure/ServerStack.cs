@@ -38,6 +38,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
 
         // One world server per channel, on one master and one login server.
         private const string WorldServer = "NosCore.WorldServer";
+        private const string MasterServer = "NosCore.MasterServer";
         private const int RecentLines = 200;
 
         public static async Task<ServerStack> StartAsync(string databaseName, int channels = 2)
@@ -54,7 +55,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
             try
             {
                 var shared = stack.WriteConfiguration(root, databaseName, 0);
-                await stack.StartAsync(binaries, "NosCore.MasterServer", "Successfully Loaded", shared, environment);
+                await stack.StartAsync(binaries, MasterServer, "Successfully Loaded", shared, environment);
                 await stack.StartAsync(binaries, "NosCore.LoginServer", "Listening Port", shared, environment);
                 for (var channel = 0; channel < channels; channel++)
                 {
@@ -96,6 +97,7 @@ namespace NosCore.EndToEnd.Tests.Infrastructure
         {
             var report = new StringBuilder();
             Append(report, "World server errors", Errors(WorldServer).TakeLast(6));
+            Append(report, "Master server errors", Errors(MasterServer).TakeLast(6));
             if (connectionClosed)
             {
                 Append(report, "Servers that stopped", _servers.Where(s => s.HasExited).Select(s => $"{s.Name} (exit code {s.ExitCode})"));

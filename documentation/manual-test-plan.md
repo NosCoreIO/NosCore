@@ -1166,6 +1166,12 @@ stands within 5 cells of the NPC whose dialog was opened, on the same map. Windo
       taking each one puts exactly that item in the inventory and removes only that parcel
 - [ ] With the main inventory full, take a parcel: "Not enough space" shows, the parcel stays in
       the list, and taking it again after freeing a slot delivers it
+- [ ] Send a note to a character that is online: the note icon lights up for them at once, the
+      note is in their received box, and the sender has it in the sent box
+- [ ] Send a note to a character that is offline: it is in their box when they next log in
+- [ ] Open a received note: its text shows, and it is marked read after a relog
+- [ ] Send a gift: the receiver gets one parcel and the sender finds the gift in the sent box, not
+      the receiver
 - [ ] Delete a parcel and a note from the post box: each disappears and stays gone after a relog
 - [ ] Restart the master server with parcels waiting, then log in at once: every parcel is listed
 - [ ] `$SetReputation` above the current value shows "Reputation increased: +N" in green, below it

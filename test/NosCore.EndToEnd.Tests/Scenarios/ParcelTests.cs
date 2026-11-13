@@ -77,6 +77,68 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task ANoteReachesItsReceiverAndCanBeRead()
+        {
+            var sender = await Harness.AddPlayerAsync("Alice");
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var alice = await EnterAsync(sender);
+            await using var bob = await EnterAsync(receiver);
+
+            await alice.SendAsync(Note(receiver.Name, "Lunch", "noon"));
+
+            // 813 is the client's notice that the note was sent.
+            await alice.ExpectAsync(p => p.StartsWith($"sayi 1 {alice.CharacterId} 11 813 ", StringComparison.Ordinal), "the sent notice");
+            Assert.AreEqual("noon", (await StoredMailAsync(receiver.CharacterId)).Single(m => !m.IsSenderCopy).Message, "the note is stored");
+            // post 1 <1: received> <id> 0 <opened> <date> <sender> <title> <text>
+            var note = (await bob.ExpectAsync(p => p.StartsWith($"post 1 {Received} ", StringComparison.Ordinal), "the note")).Split(' ');
+            Assert.AreEqual($"{sender.Name} Lunch noon", string.Join(' ', note.TakeLast(3)));
+            Assert.AreEqual("0", note[5], "it is unread");
+
+            await bob.SendAsync($"pst 3 {Received} {note[3]}");
+
+            var opened = await bob.ExpectAsync(p => p.StartsWith($"post 5 {Received} {note[3]} ", StringComparison.Ordinal), "the opened note");
+            StringAssert.EndsWith(opened, $" {sender.Name} Lunch noon");
+            var stored = (await StoredMailAsync(receiver.CharacterId)).Single(m => !m.IsSenderCopy);
+            Assert.AreEqual("noon", stored.Message);
+            Assert.IsTrue(stored.IsOpened, "a note that was read is stored as opened");
+        }
+
+        [TestMethod]
+        public async Task ANoteWaitsForAReceiverWhoIsAway()
+        {
+            var sender = await Harness.AddPlayerAsync("Alice");
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var alice = await EnterAsync(sender);
+
+            await alice.SendAsync(Note(receiver.Name, "Lunch", "noon"));
+            await alice.ExpectAsync(p => p.StartsWith($"sayi 1 {alice.CharacterId} 11 813 ", StringComparison.Ordinal), "the sent notice");
+
+            await using var bob = Harness.Client(receiver);
+            await bob.EnterWorldAsync(receiver.Slot);
+            var note = await bob.ExpectSinceAsync(0, p => p.StartsWith($"post 1 {Received} ", StringComparison.Ordinal), "the note");
+            StringAssert.EndsWith(note, $" {sender.Name} Lunch noon");
+        }
+
+        [TestMethod]
+        public async Task TheSenderKeepsACopyOfANote()
+        {
+            var sender = await Harness.AddPlayerAsync("Alice");
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var alice = await EnterAsync(sender);
+            await using var bob = await EnterAsync(receiver);
+            var sent = bob.Mark();
+
+            await alice.SendAsync(Note(receiver.Name, "Lunch", "noon"));
+
+            // A sent note names who it went to.
+            var copy = await alice.ExpectAsync(p => p.StartsWith($"post 1 {Sent} ", StringComparison.Ordinal), "the sender's copy");
+            StringAssert.EndsWith(copy, $" {receiver.Name} Lunch noon");
+            await bob.ExpectSinceAsync(sent, p => p.StartsWith($"post 1 {Received} ", StringComparison.Ordinal), "the note");
+            Assert.IsTrue(await bob.NoneSinceAsync(sent, p => p.StartsWith($"post 1 {Sent} ", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+                "the receiver is not given the sender's copy");
+        }
+
+        [TestMethod]
         public async Task ANoteToNobodySaysSo()
         {
             await using var alice = await Harness.EnterAsync("Alice");
@@ -85,6 +147,23 @@ namespace NosCore.EndToEnd.Tests.Scenarios
 
             // 810 is the client's notice that the player cannot be found.
             await alice.ExpectAsync(p => p.StartsWith($"sayi 1 {alice.CharacterId} 10 810 ", StringComparison.Ordinal), "the not-found notice");
+        }
+
+        [TestMethod]
+        public async Task ADeletedNoteIsGone()
+        {
+            var sender = await Harness.AddPlayerAsync("Alice");
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var alice = await EnterAsync(sender);
+            await using var bob = await EnterAsync(receiver);
+            await alice.SendAsync(Note(receiver.Name, "Lunch", "noon"));
+            var note = (await bob.ExpectAsync(p => p.StartsWith($"post 1 {Received} ", StringComparison.Ordinal), "the note")).Split(' ');
+
+            await bob.SendAsync($"pst 2 {Received} {note[3]}");
+
+            // 814 is the client's notice that the note was deleted.
+            await bob.ExpectAsync(p => p.StartsWith($"sayi 1 {bob.CharacterId} 11 814 ", StringComparison.Ordinal), "the deleted notice");
+            Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the note is no longer stored");
         }
 
         [TestMethod]
@@ -146,6 +225,23 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             await bob.ExpectSinceAsync(thrown, p => p == $"parcel 7 1 {id}", "the parcel removed");
             Assert.IsFalse((await StoredMailAsync(receiver.CharacterId)).Any(m => !m.IsSenderCopy), "the parcel is no longer stored");
             Assert.IsTrue(await bob.NoneSinceAsync(thrown, p => TestClient.HeaderOf(p) == "ivn", TimeSpan.FromSeconds(1)), "nothing goes to the bag");
+        }
+
+        [TestMethod]
+        public async Task TheReceiverOfAGiftGetsOneParcel()
+        {
+            var master = await GameMasterAsync();
+            var receiver = await Harness.AddPlayerAsync("Bob", x: 82, y: 116);
+            await using var gm = await EnterAsync(master);
+            await using var bob = await EnterAsync(receiver);
+            var sent = bob.Mark();
+
+            await GiftAsync(gm, bob, receiver, 3);
+
+            Assert.IsTrue(await bob.NoneSinceAsync(sent, p => p.StartsWith($"parcel 1 {Sent} ", StringComparison.Ordinal), TimeSpan.FromSeconds(1)),
+                "the receiver is not given the sender's copy");
+            // The list sent on entering can carry the same parcel a second time; it is still one parcel.
+            Assert.AreEqual(1, bob.Since(sent).Where(p => p.StartsWith("parcel 1 ", StringComparison.Ordinal)).Distinct().Count());
         }
 
         [TestMethod]
