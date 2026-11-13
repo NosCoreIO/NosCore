@@ -418,6 +418,9 @@ public sealed class BattleStatsProvider(
             [BCardEffect.DodgeAndDefencePercentDefenceIncreased] = (t, v) => t.DefencePercent += v,
             [BCardEffect.DodgeAndDefencePercentDefenceReduced] = (t, v) => t.DefencePercent -= v,
 
+            [BCardEffect.ItemAttackIncreased] = (t, v) => t.DamageAll += v,
+            [BCardEffect.ItemDefenceIncreased] = (t, v) => t.DefencePercent += v,
+
             [BCardEffect.MoraleMoraleIncreased] = (t, v) => t.Morale += v,
             [BCardEffect.MoraleMoraleDecreased] = (t, v) => t.Morale -= v,
 

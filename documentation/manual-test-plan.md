@@ -193,6 +193,12 @@ A skill's cast time (Skill.dat, tenths of a second) is waited out on the server,
 - [ ] Wear the Monkey Hat ("high chance of protection from Blackouts") and repeat: Blackout
       lands only now and then (about one hit in ten)
 
+### Costume attack and defence bonuses
+
+- [ ] Wear Flower Hairpin ("All attacks +5%"): the attack range in the character window rises by
+      5 %, rounded down (109-117 becomes 114-122)
+- [ ] Wear Denim Clothing ("All defence stats +5%"): every defence rises by 5 %
+
 ### Stun, root and speed buffs
 
 - [ ] While Blackout is on you, the no-attack and no-move icons show over your character,
