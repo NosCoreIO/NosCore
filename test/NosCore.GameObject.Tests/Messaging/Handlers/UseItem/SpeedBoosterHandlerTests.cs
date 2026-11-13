@@ -15,6 +15,7 @@ using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Buff;
 using NosCore.Data.Enumerations.Items;
 using NosCore.Data.StaticEntities;
+using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
 using NosCore.GameObject.Messaging.Handlers.UseItem;
 using NosCore.GameObject.Networking.ClientSession;
@@ -175,6 +176,32 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.UseItem
             Assert.AreEqual((short)0, _session.Character.PositionX);
             Assert.AreEqual((short)1, _session.Character.PositionY);
             Assert.AreEqual(0, _session.Character.InventoryService.CountItem(BoosterVNum));
+        }
+
+        [TestMethod]
+        public async Task ADashingMountMovesTheRiderForwards()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 21, SpeedBoost = 2, SpeedBoostDuration = 3, SpeedBoostDashCells = 5 });
+            await _session.Character.TeleportAsync(4, 0);
+            _session.Character.Direction = 2;
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(((short)4, (short)5), (_session.Character.PositionX, _session.Character.PositionY));
+        }
+
+        [TestMethod]
+        public async Task ADashStopsBeforeAWall()
+        {
+            Mount(new ItemDto { VNum = MountVNum, Speed = 21, SpeedBoost = 2, SpeedBoostDuration = 3, SpeedBoostDashCells = 5 });
+            await _session.Character.TeleportAsync(6, 2);
+            _session.Character.Direction = 3;
+            GiveBoosters(1);
+
+            await UseAsync();
+
+            Assert.AreEqual(((short)4, (short)2), (_session.Character.PositionX, _session.Character.PositionY));
         }
 
         [TestMethod]

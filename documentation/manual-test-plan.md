@@ -669,6 +669,9 @@ success, on the assumption that the window says "Appearance changed" itself.
       of each (450 at level 30) with the heal number over the character
 - [ ] On Nossi the Dragon (5196) while under a level 4 or lower debuff, the booster removes it;
       a higher level debuff stays
+- [ ] On a Horned Sweeper (5152), walk a few cells in the open and use the booster: the rider
+      jumps 5 cells further the way it was walking
+- [ ] Do the same facing a fence a couple of cells away: the rider stops in front of the fence
 
 ### Fireworks and event toys
 

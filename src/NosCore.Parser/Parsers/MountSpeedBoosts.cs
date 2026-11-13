@@ -17,12 +17,12 @@ namespace NosCore.Parser.Parsers
             [1965] = new(Speed: 2, Duration: 3),
             [5008] = new(Speed: 2, Duration: 3),
             [5117] = new(Speed: 5, Duration: 3),
-            [5152] = new(Speed: 3, Duration: 5),
+            [5152] = new(Speed: 3, Duration: 5, DashCells: 5),
             [5173] = new(Speed: 2, Duration: 8),
             [5196] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4),
             [5226] = new(Speed: 3, Duration: 5),
             [5228] = new(Speed: 3, Duration: 5),
-            [5232] = new(Speed: 3, Duration: 5),
+            [5232] = new(Speed: 3, Duration: 5, DashCells: 5),
             [5234] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4),
             [5236] = new(Speed: 3, Duration: 5, RestoresPerLevel: 15),
             [5238] = new(Speed: 3, Duration: 5),
@@ -52,9 +52,9 @@ namespace NosCore.Parser.Parsers
             [9058] = new(Speed: 2, Duration: 3),
             [9065] = new(Speed: 2, Duration: 3),
             [9070] = new(Speed: 5, Duration: 3),
-            [9073] = new(Speed: 3, Duration: 5),
+            [9073] = new(Speed: 3, Duration: 5, DashCells: 5),
             [9076] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4),
-            [9078] = new(Speed: 3, Duration: 5),
+            [9078] = new(Speed: 3, Duration: 5, DashCells: 5),
             [9079] = new(Speed: 3, Duration: 5, RemovesDebuffsUpToLevel: 4),
             [9080] = new(Speed: 3, Duration: 5, RestoresPerLevel: 15),
             [9081] = new(Speed: 3, Duration: 5),
@@ -88,12 +88,12 @@ namespace NosCore.Parser.Parsers
             [9443] = new(Speed: 2, Duration: 10, RemovesDebuffsUpToLevel: 4),
             [9589] = new(Speed: 2, Duration: 10, RemovesDebuffsUpToLevel: 4),
             [13414] = new(Speed: 2, Duration: 4),
-            [13415] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4),
+            [13415] = new(Speed: 3, Duration: 8, RemovesDebuffsUpToLevel: 4, DashCells: 5),
             [13468] = new(Speed: 5, Duration: 8, RemovesDebuffsUpToLevel: 4),
-            [13752] = new(Speed: 4, Duration: 12),
+            [13752] = new(Speed: 4, Duration: 12, DashCells: 5),
         };
     }
 
     public sealed record MountSpeedBoost(byte Speed, byte Duration, byte RestoresPerLevel = 0, byte RemovesDebuffsUpToLevel = 0,
-        bool TeleportsRandomly = false);
+        bool TeleportsRandomly = false, byte DashCells = 0);
 }
