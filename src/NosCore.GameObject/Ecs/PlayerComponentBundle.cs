@@ -81,12 +81,6 @@ public readonly partial struct PlayerComponentBundle : INamedEntity
 
     public Guid? CurrentScriptId => Script?.Id;
 
-    public long BankGold
-    {
-        get => Account.BankMoney;
-        set => Account.BankMoney = value;
-    }
-
     public string? Prefix => null;
 
     public ReputationType ReputIcon => ReputationLevels.FromReputation(Reputation);

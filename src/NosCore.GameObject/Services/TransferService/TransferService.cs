@@ -155,6 +155,7 @@ namespace NosCore.GameObject.Services.TransferService
                 foreach (var character in new[] { first, second })
                 {
                     character.CharacterDto.Gold = character.Gold;
+                    character.Account.BankMoney = character.BankGold;
                     if (await characterDao.TryInsertOrUpdateAsync(character.CharacterDto) == null
                         || await accountDao.TryInsertOrUpdateAsync(character.Account) == null)
                     {
@@ -216,6 +217,7 @@ namespace NosCore.GameObject.Services.TransferService
                     character.Gold = gold;
                     character.BankGold = bankGold;
                     character.CharacterDto.Gold = gold;
+                    character.Account.BankMoney = bankGold;
                     var inventory = character.InventoryService;
                     var kept = items.Select(s => s.Item.ItemInstanceId).ToHashSet();
                     foreach (var added in inventory.Keys.Where(id => !kept.Contains(id)).ToList())

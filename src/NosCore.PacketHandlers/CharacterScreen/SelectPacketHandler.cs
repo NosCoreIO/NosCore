@@ -163,6 +163,7 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     characterDto.HeroLevel,
                     characterDto.HeroXp,
                     characterDto.Gold,
+                    clientSession.Account.BankMoney,
                     characterDto.Reput,
                     characterDto.SpPoint,
                     characterDto.SpAdditionPoint,

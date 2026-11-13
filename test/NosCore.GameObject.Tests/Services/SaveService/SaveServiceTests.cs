@@ -295,6 +295,28 @@ namespace NosCore.GameObject.Tests.Services.SaveService
         }
 
         [TestMethod]
+        public async Task SavingCharacterPersistsTheAccountsBankGold()
+        {
+            await new Spec("Saving the character writes its bank gold to the account")
+                .Given(CharacterHasBankGold_, 123_456L)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedBankGoldShouldBe_, 123_456L)
+                .ExecuteAsync();
+        }
+
+        private void CharacterHasBankGold_(long bankGold)
+        {
+            Session.Character.BankGold = bankGold;
+        }
+
+        private async Task PersistedBankGoldShouldBe_(long expected)
+        {
+            var accountId = Session.Character.Account.AccountId;
+            var persisted = (await World.AccountDao.FirstOrDefaultAsync(a => a.AccountId == accountId)).NotNull();
+            Assert.AreEqual(expected, persisted.BankMoney);
+        }
+
+        [TestMethod]
         public async Task SavingOnBaseMapPersistsPositionAsMapXY()
         {
             await new Spec("Saving while on a BaseMap writes PositionX/Y to MapX/Y")
