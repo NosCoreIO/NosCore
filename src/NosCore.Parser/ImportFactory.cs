@@ -25,7 +25,7 @@ namespace NosCore.Parser
         MapNpcParser mapNpcParser, MapParser mapParser, MapTypeMapParser mapTypeMapParser,
         MapTypeParser mapTypeParser, NpcMonsterParser npcMonsterParser,
         PortalParser portalParser, RespawnMapTypeParser respawnMapTypeParser,
-        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
+        ShopItemParser shopItemParser, ShopSkillParser shopSkillParser, FamilyUpgradeParser familyUpgradeParser, MinigameParser minigameParser, BoxContentParser boxContentParser, SpeedBoostParser speedBoostParser, ShopParser shopParser, TeleporterParser teleporterParser, RecipeParser recipeParser, SkillParser skillParser, NpcTalkParser npcTalkParser,
         QuestPrizeParser questPrizeParser, QuestParser questParser, ActParser actParser, ScriptParser scriptParser,
         ConstStringParser constStringParser, ScriptedInstanceParser scriptedInstanceParser,
         AccountParser accountParser, IDao<I18NQuestDto, int> i18NQuestDao, IDao<I18NSkillDto, int> i18NSkillDao,
@@ -182,6 +182,7 @@ namespace NosCore.Parser
             await itemParser.ParseAsync(_folder);
             await minigameParser.InsertMinigamesAsync();
             await boxContentParser.InsertBoxContentsAsync(_folder);
+            await speedBoostParser.InsertSpeedBoostsAsync(_folder);
         }
 
         public void SetFolder(string folder)
