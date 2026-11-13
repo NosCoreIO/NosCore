@@ -257,11 +257,12 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, isHostile),
             new EffectComponent(0, 0),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), null, null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled),
+            new NpcStateComponent(npcMonster, mapInstance, null, null, null, new Dictionary<Type, Subject<RequestData>>(), null, isDisabled),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
+            new HitListComponent(new ConcurrentDictionary<Entity, int>()),
             new RespawnComponent(null)
         );
         return entity;
@@ -300,11 +301,12 @@ public class MapWorld : IDisposable
             new SpawnComponent(firstX, firstY, isMoving, false),
             new EffectComponent(effect, effectDelay),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
-            new NpcStateComponent(npcMonster, mapInstance, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>(), shop, null, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled),
+            new NpcStateComponent(npcMonster, mapInstance, shop, null, null, new Dictionary<Type, Subject<RequestData>> { [typeof(NpcDialogRequestSubject)] = new() }, dialog, isDisabled),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
+            new HitListComponent(new ConcurrentDictionary<Entity, int>()),
             new RespawnComponent(null)
         );
         return entity;
@@ -331,14 +333,14 @@ public class MapWorld : IDisposable
             new SpawnComponent(positionX, positionY, false, false),
             new EffectComponent(0, 0),
             new TimingComponent(now, now, Instant.MinValue, Instant.MinValue, Instant.MinValue),
-            new NpcStateComponent(mate.NpcMonster, mapInstance, new SemaphoreSlim(1, 1),
-                new ConcurrentDictionary<Entity, int>(), null, null, null,
+            new NpcStateComponent(mate.NpcMonster, mapInstance, null, null, null,
                 new Dictionary<Type, Subject<RequestData>>(), null, false),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new AggroComponent(VisualType.Object, 0, 0, Instant.MinValue),
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>()),
-            new MateStateComponent(mate, mate.CharacterId)
+            new MateStateComponent(mate, mate.CharacterId),
+            new HitListComponent(new ConcurrentDictionary<Entity, int>())
         );
     }
 
@@ -414,7 +416,7 @@ public class MapWorld : IDisposable
             new ReputationComponent(reputation, dignity, compliment),
             new SpComponent(0, spPoint, spAdditionPoint),
             new NameComponent(name),
-            new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, new SemaphoreSlim(1, 1), new ConcurrentDictionary<Entity, int>()),
+            new CombatComponent(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0),
             new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
             new PlayerComponent(accountId, characterId, isGm, serverId),
             new PlayerFlagsComponent(false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, false, authority, false, false, false, false),
@@ -425,7 +427,8 @@ public class MapWorld : IDisposable
             new WalkAllowanceComponent(0),
             new NpcDialogComponent(null),
             new ListedTargetsComponent(null),
-            new MinigameSessionComponent(null, Instant.MinValue, null)
+            new MinigameSessionComponent(null, Instant.MinValue, null),
+            new HitListComponent(new ConcurrentDictionary<Entity, int>())
         );
         return entity;
     }
@@ -455,7 +458,8 @@ public class MapWorld : IDisposable
         PlayerSocialComponent social,
         PlayerRequestsComponent requests,
         PlayerMatesComponent mates,
-        DigestionComponent digestion)
+        DigestionComponent digestion,
+        HitListComponent hitList)
     {
         // World.Create stops short of 25 generic components, so the last ones are added afterwards.
         using var scope = _sync.EnterScope();
@@ -464,6 +468,7 @@ public class MapWorld : IDisposable
             reputation, sp, name, combat, buffs, player, playerFlags, timing, speed, state, network,
             context, inventory, social, requests, mates);
         _world.Add(entity, digestion);
+        _world.Add(entity, hitList);
         _world.Add(entity, new PendingDelayComponent(null, Instant.MinValue, null));
         _world.Add(entity, new WalkAllowanceComponent(0));
         _world.Add(entity, new NpcDialogComponent(null));
