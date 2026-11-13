@@ -1904,8 +1904,8 @@ Krem. Stand next to one before each check.
 
 ### Rewards
 
-`/mnt/project-files/quest-rewards/reset-rewards.sh` puts Tester (level 26, job 16, 1 000 gold) on
-Chicken Farm Path with quest 1595 open and its NPC next to them. Its prizes: 15 000 gold, 37% of
+Put a level 26, job level 16 character with 1 000 gold on Chicken Farm Path with quest 1595 open
+and an NPC of vnum 300 next to them. Its prizes: 15 000 gold, 37% of
 the level 26 bar and 30% of the job level 16 bar.
 
 - [ ] Talk to the NPC: "Quest complete" shows, then the Quest Clear window with a job
