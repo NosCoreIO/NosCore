@@ -329,23 +329,15 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             await ApplyTimeoutBuffAsync(target, buff);
         }
 
-        if (target is PlayerComponentBundle player)
-        {
-            await PulseAsync(player, buffs, now);
-        }
+        await PulseAsync(target, buffs, now);
 
         return expired;
     }
 
     // A card BCard with ThirdData set fires every ThirdData x 2 seconds while the buff lasts.
-    // Periodic damage never takes the last hit point.
-    private static async Task PulseAsync(PlayerComponentBundle player, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
+    // Periodic damage never takes the last hit point, so it never kills and never awards a kill.
+    private static async Task PulseAsync(IAliveEntity target, ConcurrentDictionary<short, BuffInstance> buffs, Instant now)
     {
-        if (!player.IsAlive)
-        {
-            return;
-        }
-
         long hpPercent = 0, mpPercent = 0;
         foreach (var (cardId, buff) in buffs)
         {
@@ -369,7 +361,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
                     continue;
                 }
 
-                var amount = times * BattleStatsProvider.ScaleByLevel(bCard, player.Level);
+                var amount = times * BattleStatsProvider.ScaleByLevel(bCard, target.Level);
                 switch (bCard.Effect())
                 {
                     case BCardEffect.RecoveryAndDamagePercentHpRecovered: hpPercent += amount; break;
@@ -382,21 +374,29 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             buffs.TryUpdate(cardId, buff with { PulsedUntil = now }, buff);
         }
 
-        if (hpPercent == 0 && mpPercent == 0)
+        if ((hpPercent == 0 && mpPercent == 0) || !target.IsAlive)
         {
             return;
         }
 
-        var hp = (int)Math.Clamp(player.Hp + player.MaxHp * hpPercent / 100, Math.Min(1, player.Hp), player.MaxHp);
-        var mp = (int)Math.Clamp(player.Mp + player.MaxMp * mpPercent / 100, 0, player.MaxMp);
-        if (hp == player.Hp && mp == player.Mp)
+        var hp = (int)Math.Clamp(target.Hp + target.MaxHp * hpPercent / 100, Math.Min(1, target.Hp), target.MaxHp);
+        var mp = (int)Math.Clamp(target.Mp + target.MaxMp * mpPercent / 100, 0, target.MaxMp);
+        if (hp == target.Hp && mp == target.Mp)
         {
             return;
         }
 
-        player.Hp = hp;
-        player.Mp = mp;
-        await player.SendPacketAsync(player.GenerateStat());
+        target.Hp = hp;
+        target.Mp = mp;
+        if (target is PlayerComponentBundle player)
+        {
+            await player.SendPacketAsync(player.GenerateStat());
+        }
+
+        if (target.MapInstance != null)
+        {
+            await target.MapInstance.SendPacketAsync(target.GenerateStatInfo());
+        }
     }
 
     // BuffStateComponent lives on the target's ECS world; walking through the bundle
