@@ -54,6 +54,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private readonly IMapItemGenerationService _mapItemGenerationService;
         private readonly Lock _sleepLock = new();
+        private readonly Lock _spawnLock = new();
         private bool _isSleeping;
         private bool _isSleepingRequest;
         private ConcurrentDictionary<int, MonsterComponentBundle> _monsters;
@@ -322,6 +323,25 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 entries[x.MapMonsterId] = new MonsterComponentBundle(entity, EcsWorld);
             }
             _monsters = new ConcurrentDictionary<int, MonsterComponentBundle>(entries);
+        }
+
+        // A monster brought in while the map runs; it stays down once killed.
+        public MonsterComponentBundle SpawnMonster(NpcMonsterDto npcMonster, short positionX, short positionY, bool isMoving)
+        {
+            lock (_spawnLock)
+            {
+                var monsterId = _monsters.IsEmpty ? 1 : _monsters.Keys.Max() + 1;
+                var entity = EcsWorld.CreateMonster(
+                    monsterId,
+                    npcMonster,
+                    this,
+                    positionX, positionY, 0,
+                    positionX, positionY,
+                    isMoving && npcMonster.CanWalk, true, false, respawns: false);
+                var monster = new MonsterComponentBundle(entity, EcsWorld);
+                _monsters[monsterId] = monster;
+                return monster;
+            }
         }
 
         public void LoadNpcs(List<MapNpcDto> npcs, List<NpcMonsterDto> npcMonsters)

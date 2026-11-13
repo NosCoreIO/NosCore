@@ -60,6 +60,8 @@ namespace NosCore.Core.Configuration
 
         public Dictionary<string, Dictionary<StarterOrigin, List<short>>> BasicSkills { get; set; } = new();
 
+        public List<ScheduledEventConfiguration> Events { get; set; } = new();
+
 #pragma warning restore CA2227 // Collection properties should be read only
     }
 

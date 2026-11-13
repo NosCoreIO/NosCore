@@ -242,7 +242,8 @@ public class MapWorld : IDisposable
         short firstY,
         bool isMoving,
         bool isHostile,
-        bool isDisabled)
+        bool isDisabled,
+        bool respawns = true)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         using var scope = _sync.EnterScope();
@@ -265,7 +266,7 @@ public class MapWorld : IDisposable
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
-            new RespawnComponent(null)
+            new RespawnComponent(null, respawns)
         );
         return entity;
     }
@@ -312,7 +313,7 @@ public class MapWorld : IDisposable
             new ChasePathComponent(null),
             new SkillCooldownComponent(new ConcurrentDictionary<short, Instant>(), Instant.MinValue),
             new HitListComponent(new ConcurrentDictionary<Entity, int>()),
-            new RespawnComponent(null)
+            new RespawnComponent(null, true)
         );
         return entity;
     }

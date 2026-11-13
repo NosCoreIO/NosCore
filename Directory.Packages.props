@@ -38,11 +38,11 @@
     <PackageVersion Include="NodaTime" Version="3.3.7" />
     <PackageVersion Include="NodaTime.Serialization.SystemTextJson" Version="1.4.0" />
     <PackageVersion Include="NodaTime.Testing" Version="3.3.7" />
-    <PackageVersion Include="NosCore.Algorithm" Version="6.7.0" />
+    <PackageVersion Include="NosCore.Algorithm" Version="6.8.0" />
     <PackageVersion Include="NosCore.Analyzers" Version="2.3.0" />
     <PackageVersion Include="NosCore.Dao" Version="6.1.0" />
     <PackageVersion Include="NosCore.Networking" Version="9.0.0" />
-    <PackageVersion Include="NosCore.Packets" Version="35.0.0" />
+    <PackageVersion Include="NosCore.Packets" Version="36.0.0" />
     <PackageVersion Include="NosCore.PathFinder" Version="3.0.0" />
     <PackageVersion Include="NosCore.Shared" Version="7.0.0" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="11.0.0-rc.3" />

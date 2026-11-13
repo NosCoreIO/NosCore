@@ -1881,6 +1881,29 @@ required items, start room and coordinates). Stand on the stone.
 - [ ] With the items, START moves you into the first room at its start coordinates
 - [ ] The required items leave the inventory, across stacks if split, and no more than asked
 
+### Instant Combat
+
+Run `$Event InstantCombat` as a GM to skip the countdown, or wait for the next even hour (the
+countdown starts at :55). Use two characters on a base map.
+
+- [ ] The countdown says "An Instant Combat for all levels will start in 5 minute(s).", then
+      1 minute, 30 seconds and 10 seconds, in the chat and as a notice
+- [ ] "An Instant Combat has started" shows and the join question appears as an icon; a second
+      `$Event InstantCombat` answers that the event is already running
+- [ ] After 30 seconds whoever said yes is moved to the Instant Combat map; whoever did not has
+      the question removed
+- [ ] Characters of level 45 and 85 land in different rooms, each fighting its own bracket's
+      monsters
+- [ ] "A horde of monsters is slowly approaching" comes 10 seconds before each wave and
+      "Monsters have appeared" with it; five waves, the last one with a boss
+- [ ] Gold piles and items appear around the map before the next wave
+- [ ] Killed monsters do not come back
+- [ ] Dying sends the character back where they came from with 1 HP, without the revive question
+- [ ] Clearing the last wave once 12 minutes have passed shows "You have won the Instant Combat",
+      and gives level x 50 reputation, level x 1000 gold and level x 100 SP points
+- [ ] Ten seconds later everyone is back where they came from
+- [ ] Not clearing it in 15 minutes shows "Instant Combat time has elapsed" and gives nothing
+
 ---
 
 ## Quests

@@ -29,6 +29,7 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             if (monster.MapInstance == null) return Task.CompletedTask;
 
             aggroService.Clear(monster);
+            if (!monster.Respawns) return Task.CompletedTask;
 
             monster.RespawnAt = clock.GetCurrentInstant().Plus(RespawnTiming.For(monster.NpcMonster));
             return Task.CompletedTask;

@@ -11,9 +11,12 @@ using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Extensions;
 using NosCore.GameObject.Messaging.Events;
+using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.MapChangeService;
 using NosCore.Networking;
 using NosCore.Packets.ClientPackets.Event;
 using NosCore.Packets.Enumerations;
+using NosCore.Packets.ServerPackets.Battle;
 using NosCore.Packets.ServerPackets.UI;
 using NosCore.Shared.Enumerations;
 using Microsoft.Extensions.Logging;
@@ -26,13 +29,14 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
     // which RevivalPacketHandler turns into the actual tp + revive + stat sequence.
     //
     // A fall in an arena costs neither dignity nor reputation; the fighter is offered a paid revive
-    // on the spot instead.
+    // on the spot instead. A fall in an Instant Combat is out of it: back where they came from with 1 HP.
     //
     // Dialog text id depends on level:
     //   - lvl <= 20: ContinueHereFree (570)      — revive in place is free.
     //   - lvl >  20: ContinueHereTenSeeds (571)  — costs 10x Seed of Power.
     [UsedImplicitly]
-    public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger)
+    public sealed class PlayerRevivalHandler(ILogger<PlayerRevivalHandler> logger, ISessionRegistry sessionRegistry,
+        IMapChangeService mapChangeService)
     {
         // Canonical NosTale fork default for dignity penalty on death.
         private const short DignityLossPerDeath = 50;
@@ -53,6 +57,12 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
                     player.Mp = 0;
                     return Task.CompletedTask;
                 });
+
+                if (player.MapInstance?.MapInstanceType == MapInstanceType.InstantCombatInstance)
+                {
+                    await LeaveInstantCombatAsync(player);
+                    return;
+                }
 
                 if (player.MapInstance?.MapInstanceType == MapInstanceType.ArenaInstance)
                 {
@@ -95,6 +105,34 @@ namespace NosCore.GameObject.Messaging.Handlers.Battle
             {
                 logger.LogWarning(ex, "PlayerRevivalHandler failed for {CharacterId}", player.CharacterId);
             }
+        }
+
+        private async Task LeaveInstantCombatAsync(PlayerComponentBundle player)
+        {
+            if (sessionRegistry.GetSessionByCharacterId(player.CharacterId) is not { } session)
+            {
+                return;
+            }
+
+            await player.OnMapAsync(() =>
+            {
+                player.Hp = 1;
+                player.Mp = 1;
+                player.IsAlive = true;
+                return Task.CompletedTask;
+            });
+            if (player.MapInstance is { } mapInstance)
+            {
+                await mapInstance.SendPacketAsync(new RevivePacket
+                {
+                    VisualType = VisualType.Player,
+                    VisualId = player.VisualId,
+                    Data = 0,
+                });
+            }
+
+            await player.SendPacketAsync(player.GenerateStat());
+            await mapChangeService.ChangeMapAsync(session, player.MapId, player.MapX, player.MapY);
         }
     }
 }

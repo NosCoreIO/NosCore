@@ -21,6 +21,7 @@ namespace NosCore.Data.Enumerations.Map
         Act4Instance,
         IceBreakerInstance,
         RainbowBattleInstance,
-        ArenaInstance
+        ArenaInstance,
+        InstantCombatInstance
     }
 }
