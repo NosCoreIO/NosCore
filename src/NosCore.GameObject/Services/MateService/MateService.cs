@@ -77,7 +77,7 @@ namespace NosCore.GameObject.Services.MateService
             row.Adapt(mate);
             mate.MateTransportId = mateIdService.GetNextId();
             mateStatsService.ApplyLevel(mate);
-            mate.Hp = Math.Min(mate.Hp, mate.MaxHp);
+            mate.Hp = mate.Hp <= 0 ? mate.MaxHp : Math.Min(mate.Hp, mate.MaxHp);
             mate.Mp = Math.Min(mate.Mp, mate.MaxMp);
             return mate;
         }

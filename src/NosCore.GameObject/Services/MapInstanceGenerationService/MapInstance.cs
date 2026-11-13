@@ -19,6 +19,7 @@ using NosCore.GameObject.Map;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.DigestionService;
+using NosCore.GameObject.Services.MateService;
 using NosCore.GameObject.Services.BroadcastService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapChangeService;
@@ -75,6 +76,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly ISpeedCalculationService? _speedCalculationService;
         private readonly IBattleStatsProvider? _battleStatsProvider;
         private readonly IHeatService? _heatService;
+        private readonly IMateRevivalService? _mateRevivalService;
         private readonly RespawnSystem _respawnSystem = new();
         private readonly List<Entity> _dueRespawns = new();
         private readonly BuffSystem _buffSystem = new();
@@ -93,7 +95,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             IVitalityService? vitalityService = null,
             IDigestionService? digestionService = null, ISpeedCalculationService? speedCalculationService = null,
             IBattleStatsProvider? battleStatsProvider = null,
-            IHeatService? heatService = null)
+            IHeatService? heatService = null,
+            IMateRevivalService? mateRevivalService = null)
         {
             LastPackets = new ConcurrentQueue<IPacket>();
             XpRate = 1;
@@ -123,6 +126,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             _speedCalculationService = speedCalculationService;
             _battleStatsProvider = battleStatsProvider;
             _heatService = heatService;
+            _mateRevivalService = mateRevivalService;
             EcsWorld = new MapWorld();
         }
 
@@ -520,6 +524,7 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
             await GuardAsync(_buffService is { } buffs ? () => TickBuffsAsync(buffs) : null, "buffs");
             await GuardAsync(_regenerationService == null ? null : () => _regenerationService.TickAsync(this), "regeneration");
             await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
+            await GuardAsync(_mateRevivalService == null ? null : () => _mateRevivalService.TickAsync(this), "mate revival");
             await GuardAsync(SendSkillResetsAsync, "cooldown resets");
             await GuardAsync(SweepPendingRespawnsAsync, "respawns");
         }

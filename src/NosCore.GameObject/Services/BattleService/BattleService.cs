@@ -200,13 +200,18 @@ namespace NosCore.GameObject.Services.BattleService
 
         // The target's own HP/MP bars read off `stat`, which goes to the target alone before the su
         // goes to the map, so the bar settles before the damage animates.
-        private static Task SendTargetStatAsync(IAliveEntity target)
+        private Task SendTargetStatAsync(IAliveEntity target)
         {
-            if (target is PlayerComponentBundle player)
+            switch (target)
             {
-                return player.SendPacketAsync(player.GenerateStat());
+                case PlayerComponentBundle player:
+                    return player.SendPacketAsync(player.GenerateStat());
+                case MateComponentBundle mate when sessionRegistry.TryGetCharacter(s => s.CharacterId == mate.OwnerId, out var owner):
+                    mate.Mate.Hp = mate.Hp;
+                    return owner.SendPacketAsync(mate.Mate.GeneratePst());
+                default:
+                    return Task.CompletedTask;
             }
-            return Task.CompletedTask;
         }
 
         // StPacket broadcast — the selected-target portrait at the top of every
