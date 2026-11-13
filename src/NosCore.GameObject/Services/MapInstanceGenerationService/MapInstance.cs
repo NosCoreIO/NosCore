@@ -77,6 +77,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
         private readonly IHeatService? _heatService;
         private readonly RespawnSystem _respawnSystem = new();
         private readonly List<Entity> _dueRespawns = new();
+        private readonly BuffSystem _buffSystem = new();
+        private readonly List<(Entity Entity, VisualType VisualType)> _dueBuffs = new();
 
         public MapWorld EcsWorld { get; }
 
@@ -514,74 +516,69 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
                 }
             }
 
-            if (_buffService != null)
-            {
-                foreach (var (_, monster) in _monsters)
-                {
-                    try
-                    {
-                        await _buffService.TickAsync(monster);
-                    }
-                    catch (Exception e)
-                    {
-                        LogTickFailure(e, "monster buffs", monster.VisualId);
-                    }
-                }
-
-                foreach (var (_, npc) in _npcs)
-                {
-                    try
-                    {
-                        await _buffService.TickAsync(npc);
-                    }
-                    catch (Exception e)
-                    {
-                        LogTickFailure(e, "npc buffs", npc.VisualId);
-                    }
-                }
-
-                foreach (var session in _sessionRegistry.GetClientSessionsByMapInstance(MapInstanceId))
-                {
-                    try
-                    {
-                        if (!session.HasPlayerEntity)
-                        {
-                            continue;
-                        }
-
-                        var expired = await _buffService.TickAsync(session.Character);
-                        if (expired.Count > 0 && _vitalityService != null)
-                        {
-                            await _vitalityService.RefreshAndNotifyAsync(session.Character);
-                        }
-
-                        if (_battleStatsProvider != null && expired.Count > 0)
-                        {
-                            await session.SendPacketAsync(session.Character.GenerateSc(_battleStatsProvider));
-                        }
-
-                        if (_speedCalculationService != null && expired.Count > 0 && session.Character.IsVehicled)
-                        {
-                            session.Character.Speed = _speedCalculationService.CalculateSpeed(session.Character);
-                            await session.SendPacketAsync(session.Character.GenerateCond());
-                        }
-
-                        if (_heatService != null && expired.Count > 0)
-                        {
-                            await _heatService.RefreshAsync(session.Character);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        LogTickFailure(e, "player buffs", session.SessionId);
-                    }
-                }
-            }
-
+            await GuardAsync(_buffService is { } buffs ? () => TickBuffsAsync(buffs) : null, "buffs");
             await GuardAsync(_regenerationService == null ? null : () => _regenerationService.TickAsync(this), "regeneration");
             await GuardAsync(_digestionService == null ? null : () => _digestionService.TickAsync(this), "digestion");
             await GuardAsync(_battleService == null ? null : () => _battleService.TickCooldownResetsAsync(this), "cooldown resets");
             await GuardAsync(SweepPendingRespawnsAsync, "respawns");
+        }
+
+        private async Task TickBuffsAsync(IBuffService buffs)
+        {
+            _dueBuffs.Clear();
+            _buffSystem.FindDue(EcsWorld, _clock.GetCurrentInstant(), _dueBuffs);
+            foreach (var (entity, visualType) in _dueBuffs)
+            {
+                try
+                {
+                    switch (visualType)
+                    {
+                        case VisualType.Monster:
+                            await buffs.TickAsync(new MonsterComponentBundle(entity, EcsWorld));
+                            break;
+                        case VisualType.Npc:
+                            await buffs.TickAsync(new NpcComponentBundle(entity, EcsWorld));
+                            break;
+                        case VisualType.Player:
+                            await TickPlayerBuffsAsync(buffs, new PlayerComponentBundle(entity, EcsWorld));
+                            break;
+                    }
+                }
+                catch (Exception e)
+                {
+                    LogTickFailure(e, $"{visualType} buffs", EcsWorld.TryGetComponent<EntityIdentityComponent>(entity)?.VisualId ?? 0);
+                }
+            }
+        }
+
+        private async Task TickPlayerBuffsAsync(IBuffService buffs, PlayerComponentBundle character)
+        {
+            var expired = await buffs.TickAsync(character);
+            if (expired.Count == 0)
+            {
+                return;
+            }
+
+            if (_vitalityService != null)
+            {
+                await _vitalityService.RefreshAndNotifyAsync(character);
+            }
+
+            if (_battleStatsProvider != null)
+            {
+                await character.SendPacketAsync(character.GenerateSc(_battleStatsProvider));
+            }
+
+            if (_speedCalculationService != null && character.IsVehicled)
+            {
+                character.Speed = _speedCalculationService.CalculateSpeed(character);
+                await character.SendPacketAsync(character.GenerateCond());
+            }
+
+            if (_heatService != null)
+            {
+                await _heatService.RefreshAsync(character);
+            }
         }
 
         private async Task GuardAsync(Func<Task>? step, string what)
