@@ -178,7 +178,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
             {
                 if (_huntActive && !_devils.ContainsKey(land.MapInstanceId))
                 {
-                    await StartHuntAsync(land);
+                    await land.Executor.RunAsync(() => StartHuntAsync(land));
                 }
             }
             finally
@@ -271,7 +271,7 @@ namespace NosCore.GameObject.Services.LandOfDeathService
                         }
                         foreach (var land in _lands.Values)
                         {
-                            await (_huntActive ? StartHuntAsync(land) : EndHuntAsync(land));
+                            await land.Executor.RunAsync(() => _huntActive ? StartHuntAsync(land) : EndHuntAsync(land));
                         }
                     }
                     finally

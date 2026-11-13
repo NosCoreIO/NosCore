@@ -85,7 +85,8 @@ namespace NosCore.PacketHandlers.Tests.Battle
                 .And(CharacterIsInTheLandOfDeath)
                 .And(CharacterHasSaversInInventory_, (short)2)
                 .WhenAsync(SendingRevivalOfType_, RevivalType.InPlace)
-                .Then(HpShouldBeFullyRestored)
+                .Then(CharacterShouldBeAlive)
+                .And(HpShouldBeFullyRestored)
                 .And(SaverStackShouldBe_, (short)1)
                 .And(ReturnToEntranceShouldBeCalled_, 0)
                 .ExecuteAsync();
