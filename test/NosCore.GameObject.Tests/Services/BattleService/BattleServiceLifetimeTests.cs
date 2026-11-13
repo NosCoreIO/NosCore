@@ -71,6 +71,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             var service = new GameObject.Services.BattleService.BattleService(
                 skillResolver.Object, targetResolver.Object, hitQueue.Object, new Mock<IMessageBus>().Object,
                 World.SessionRegistry, clock, new Mock<ICaptureService>().Object,
+                new Mock<NosCore.GameObject.Services.BattleService.ICastDelayService>().Object,
                 NullLogger<GameObject.Services.BattleService.BattleService>.Instance);
 
             Assert.IsTrue(await service.Hit(session.Character, monster, new HitArguments { SkillId = 7 }));

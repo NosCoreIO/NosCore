@@ -344,6 +344,43 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         }
 
         // The shared fixture map declares 8 rows but ships 6, which the pathfinder walks off.
+        [TestMethod]
+        public async Task AMonsterWindingUpASkillStandsStillUntilItsHitResolvesWithoutHoldingUpTheLoop()
+        {
+            var catalog = new Mock<INpcCombatCatalog>();
+            catalog.Setup(c => c.GetSkills(1)).Returns(new List<NpcMonsterSkillDto>
+            {
+                new() { NpcMonsterVNum = 1, SkillVNum = 50 }
+            });
+            var random = new Mock<IRandomProvider>();
+            random.Setup(r => r.Next(0, 10)).Returns(9);
+            var ai = new MonsterAi(_battle.Object, _aggro,
+                World.Create<GameObject.Services.PathfindingService.PathfindingService>(), World.SessionRegistry,
+                World.DistanceCalculator, catalog.Object, random.Object, World.Clock,
+                new Dictionary<short, SkillDto> { [50] = new() { SkillVNum = 50, CastId = 3, Range = 2, Cooldown = 100, CastTime = 10 } },
+                NullLogger<MonsterAi>.Instance);
+            var cast = new TaskCompletionSource<bool>();
+            _battle.Setup(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.Is<HitArguments>(a => a.SkillId == 3)))
+                .Returns(cast.Task);
+            var monster = SpawnMonster(4, 1);
+            PlacePlayer(4, 3);
+
+            Assert.IsTrue(await ai.TickAsync(monster));
+            PlacePlayer(4, 6);
+            await ai.TickAsync(monster);
+
+            Assert.AreEqual((short)1, monster.PositionY);
+            _battle.Verify(b => b.Hit(It.IsAny<IAliveEntity>(), It.IsAny<IAliveEntity>(), It.IsAny<HitArguments>()), Times.Once);
+
+            World.Clock.Advance(Duration.FromMilliseconds(1000));
+            await ai.TickAsync(monster);
+            Assert.AreEqual((short)1, monster.PositionY, "the hit has not resolved yet");
+
+            cast.SetResult(true);
+            await ai.TickAsync(monster);
+            Assert.AreNotEqual((short)1, monster.PositionY);
+        }
+
         private static GameObject.Map.Map TestMap()
         {
             var data = new List<byte> { 8, 0, 8, 0 };

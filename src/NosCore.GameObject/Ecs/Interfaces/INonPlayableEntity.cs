@@ -27,6 +27,8 @@ namespace NosCore.GameObject.Ecs.Interfaces
 
         CachedPath? ChasePath { get; set; }
 
+        Instant CastingUntil { get; set; }
+
         new bool IsAlive { get; set; }
 
         new byte Speed { get; set; }

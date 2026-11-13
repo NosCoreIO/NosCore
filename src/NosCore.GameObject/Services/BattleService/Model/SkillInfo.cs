@@ -28,7 +28,10 @@ public sealed record SkillInfo(
     short Duration,
     short MpCost,
     IReadOnlyList<BCardDto> BCards,
-    string? CellPattern = null)
+    string? CellPattern = null,
+    short CastAnimation = 0,
+    // Tenths of a second the caster winds up before the hit lands.
+    short CastTime = 0)
 {
     public bool IsAoe => HitType is TargetHitType.SingleAoeTargetHit
                          or TargetHitType.AoeTargetHit

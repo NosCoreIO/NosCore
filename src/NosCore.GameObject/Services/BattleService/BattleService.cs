@@ -41,6 +41,7 @@ namespace NosCore.GameObject.Services.BattleService
         ISessionRegistry sessionRegistry,
         IClock clock,
         ICaptureService captureService,
+        ICastDelayService castDelayService,
         ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
@@ -75,6 +76,12 @@ namespace NosCore.GameObject.Services.BattleService
                 return true;
             }
 
+            if (!await CastAsync(origin, target, skill))
+            {
+                await CancelAsync(origin, target);
+                return false;
+            }
+
             var targets = targetResolver.Resolve(origin, target, skill);
             if (skill.HitsSeveral && arguments.ListedTargets is { Count: > 0 } listed)
             {
@@ -101,6 +108,12 @@ namespace NosCore.GameObject.Services.BattleService
             var mapInstance = origin.MapInstance;
             var skill = CanCast(origin) && mapInstance != null ? skillResolver.Resolve(origin, arguments.SkillId) : null;
             if (mapInstance == null || skill == null || !skill.HitsSeveral || captureService.IsCaptureSkill(skill))
+            {
+                await CancelAsync(origin, null);
+                return false;
+            }
+
+            if (!await CastAsync(origin, null, skill))
             {
                 await CancelAsync(origin, null);
                 return false;
@@ -248,6 +261,36 @@ namespace NosCore.GameObject.Services.BattleService
 
         // Where su draws the blow from and whether it is drawn as caught in an area.
         private readonly record struct HitPresentation(short X, short Y, bool InArea);
+
+        // The client sends the skill as soon as it is used and leaves the wind-up to the server:
+        // ct starts the cast animation, and the hit resolves once the cast time has passed and
+        // both sides can still fight.
+        private async Task<bool> CastAsync(IAliveEntity origin, IAliveEntity? target, SkillInfo skill)
+        {
+            if (skill.CastTime <= 0)
+            {
+                return true;
+            }
+
+            var map = origin.MapInstance;
+            if (map != null)
+            {
+                await map.SendPacketAsync(new CtPacket
+                {
+                    VisualType = origin.VisualType,
+                    VisualId = origin.VisualId,
+                    TargetVisualType = (target ?? origin).VisualType,
+                    TargetId = (target ?? origin).VisualId,
+                    CastAnimationId = skill.CastAnimation,
+                    CastEffect = skill.CastEffect,
+                    SkillId = skill.SkillVnum
+                });
+            }
+
+            await castDelayService.WaitAsync(Duration.FromMilliseconds(skill.CastTime * 100));
+            return ReferenceEquals(origin.MapInstance, map)
+                && (target == null ? CanCast(origin) : CanAttack(origin, target));
+        }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)
         {
