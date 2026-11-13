@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NodaTime;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Components;
@@ -27,7 +28,8 @@ namespace NosCore.GameObject.Services.BattleService;
 
 // Aggro-driven AI for both monsters and NPCs (guards), called from MapInstance's life
 // loop every 400ms. Each tick:
-//   1. Hostile entities without a target scan NoticeRange for the closest enemy.
+//   1. Hostile entities without a target scan NoticeRange for the closest enemy; a
+//      group member (GroupAttack) without one takes the target of a fighting member.
 //      Two-faction rule — NPCs and players are same-side, monsters the other: NPCs
 //      target monsters only, monsters target whichever of player/NPC is closer.
 //   2. 20% chance to pick a random cooldown-ready NpcMonsterSkill, else the basic
@@ -105,6 +107,16 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                 if (noticed != null)
                 {
                     aggroService.AddThreat(entity, noticed, 1);
+                    target = CurrentTarget(entity);
+                }
+            }
+
+            if (target == null && entity.NpcMonster.GroupAttack != (byte)GroupAttackType.None)
+            {
+                var groupTarget = TargetOfGroup(entity);
+                if (groupTarget != null)
+                {
+                    aggroService.AddThreat(entity, groupTarget, 1);
                     target = CurrentTarget(entity);
                 }
             }
@@ -234,6 +246,62 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             }
         }
         return best;
+    }
+
+    // A group member that is not fighting joins whatever another member of its group is
+    // fighting, once that target comes within its own notice range.
+    private IAliveEntity? TargetOfGroup(INonPlayableEntity entity)
+    {
+        var map = entity.MapInstance;
+        if (map == null) return null;
+
+        var range = (int)Math.Max(entity.NpcMonster.NoticeRange, (byte)1);
+        if (entity.VisualType == VisualType.Npc)
+        {
+            foreach (var npc in map.EnumerateNpcs())
+            {
+                if (TargetOfMember(entity, npc, range) is { } target) return target;
+            }
+            return null;
+        }
+
+        foreach (var monster in map.EnumerateMonsters())
+        {
+            if (TargetOfMember(entity, monster, range) is { } target) return target;
+        }
+        return null;
+    }
+
+    private IAliveEntity? TargetOfMember<TMember>(INonPlayableEntity entity, TMember member, int range)
+        where TMember : INonPlayableEntity
+    {
+        if (member.VisualId == entity.VisualId || !member.IsAlive || !SameGroup(entity.NpcMonster, member.NpcMonster))
+        {
+            return null;
+        }
+
+        var aggro = aggroService.Current(member);
+        if (!aggro.HasTarget) return null;
+
+        var target = ResolveTarget(entity, aggro.TargetVisualId);
+        if (target is not { IsAlive: true } || target.VisualType == entity.VisualType) return null;
+
+        var d = distanceCalculator.GetDistance(
+            (entity.PositionX, entity.PositionY),
+            (target.PositionX, target.PositionY));
+        return d <= range ? target : null;
+    }
+
+    private static bool SameGroup(NpcMonsterDto entity, NpcMonsterDto? other)
+    {
+        if (other == null || other.GroupAttack != entity.GroupAttack) return false;
+
+        return (GroupAttackType)entity.GroupAttack switch
+        {
+            GroupAttackType.SameRace => other.Race == entity.Race,
+            GroupAttackType.SameIcon => other.IconId == entity.IconId,
+            _ => false
+        };
     }
 
     // Resolves the cached aggro target by visual id. Walks all three pools

@@ -240,6 +240,9 @@ cooldown once.
 - [ ] Run off: it follows, then gives up; a monster that gave up walks home at the pace it
       chased at and wanders around its spawn point from there
 - [ ] A monster that is not hostile ignores you until you hit it, then fights back
+- [ ] Hit one miner among several (Chicken Farm Path or Mine 1): the other miners within their
+      notice range join the fight. Wolves do the same for their pack, but a fox next to them
+      does not
 - [ ] Kill a monster: XP arrives, the drops appear where it fell, and it respawns at its
       spawn point
 
