@@ -1859,6 +1859,16 @@ required items, start room and coordinates). Stand on the stone.
 
 ## Quests
 
+### Script target steps
+
+The opening story script marks places on the minimap ("target" steps). The client acknowledges
+such a step as soon as it shows the marker, and the script used to stop there.
+
+- [ ] Put a character on script 1 step 365 (the target after Rookie Training quest 1508) and
+      enter the world: the quest window opens with Rookie Training, "Conversation with Mimi
+      Mentor" (quest 1999)
+- [ ] The minimap shows the marker the step points at
+
 ### Talk, pay, inspect and hand-in objectives
 
 Quests of these types used to be accepted and then never advance. A new character with the

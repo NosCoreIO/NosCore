@@ -162,9 +162,8 @@ namespace NosCore.GameObject.Services.QuestService
                 "talk" => true,
                 "openwin" => true,
                 "opendual" => true,
-
-                "move" => false, //todo handle
-                "target" => false,  //todo handle
+                "move" => true,
+                "target" => true,
                 "run" => true,  //todo handle
                 _ => false,
             };

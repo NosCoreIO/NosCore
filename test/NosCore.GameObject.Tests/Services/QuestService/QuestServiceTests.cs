@@ -10,6 +10,7 @@ using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.QuestService;
 using NosCore.GameObject.Services.QuestService.Handlers;
+using NosCore.Packets.ClientPackets.Quest;
 using NosCore.Packets.Enumerations;
 using NosCore.Tests.Shared;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -570,6 +571,26 @@ namespace NosCore.GameObject.Tests.Services.QuestService
         }
 
         [TestMethod]
+        public async Task TheClientAcknowledgingATargetStepMovesToTheNextOne()
+        {
+            await new Spec("The client acknowledging a target step moves the character to the next step")
+                .Given(CharacterIsOn_StepOneOfScript_, "target", (byte)100)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)1, (byte)100)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task TheClientAcknowledgingAMoveStepMovesToTheNextOne()
+        {
+            await new Spec("The client acknowledging a move step moves the character to the next step")
+                .Given(CharacterIsOn_StepOneOfScript_, "move", (byte)100)
+                .WhenAsync(TheClientAcknowledgesStep_OfScript_, (short)1, (byte)100)
+                .Then(CharacterShouldBeOnStep_OfScript_, (short)2, (byte)100)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task RunningTheCurrentStepWithoutAScriptDoesNothing()
         {
             await new Spec("Running the current step of a character with no script sends nothing")
@@ -606,6 +627,24 @@ namespace NosCore.GameObject.Tests.Services.QuestService
             Scripts.Add(current);
             Scripts.Add(new ScriptDto { ScriptId = scriptId, ScriptStepId = 2, StepType = "talk" });
             Session.Character.Script = current;
+        }
+
+        private void CharacterIsOn_StepOneOfScript_(string stepType, byte scriptId)
+        {
+            var current = new ScriptDto { Id = Guid.NewGuid(), ScriptId = scriptId, ScriptStepId = 1, StepType = stepType };
+            Scripts.Add(current);
+            Scripts.Add(new ScriptDto { ScriptId = scriptId, ScriptStepId = 2, StepType = "talk" });
+            Session.Character.Script = current;
+        }
+
+        private Task TheClientAcknowledgesStep_OfScript_(short stepId, byte scriptId)
+        {
+            return Service.RunScriptAsync(Session.Character, new ScriptClientPacket
+            {
+                Type = QuestActionType.Dialog,
+                FirstArgument = scriptId,
+                SecondArgument = stepId,
+            });
         }
 
         private void CharacterHasNoScript()

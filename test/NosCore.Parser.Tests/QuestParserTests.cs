@@ -192,5 +192,29 @@ namespace NosCore.Parser.Tests
 
             Assert.AreEqual(0, _savedQuests.Count);
         }
+
+        [TestMethod]
+        public async Task QuestParser_AReimportKeepsTheStoredObjectiveAndPrizeIds()
+        {
+            CreateTestFile(CreateQuestData(questId: 7).Replace("DATA\t-1\t-1\t-1\t-1", "DATA\t25\t5\t5\t-1")
+                .Replace("PRIZE\t-1\t-1\t-1\t-1", "PRIZE\t4\t-1\t-1\t-1"));
+            _questRewardDaoMock.Setup(x => x.LoadAll()).Returns(new List<QuestRewardDto> { new() { QuestRewardId = 4 } });
+            var objectiveId = Guid.NewGuid();
+            var linkId = Guid.NewGuid();
+            _questObjectiveDaoMock.Setup(x => x.LoadAll()).Returns(new List<QuestObjectiveDto>
+            {
+                new() { QuestObjectiveId = objectiveId, QuestId = 7, FirstData = 25, SecondData = 5, ThirdData = 5 },
+            });
+            _questQuestRewardDaoMock.Setup(x => x.LoadAll()).Returns(new List<QuestQuestRewardDto>
+            {
+                new() { Id = linkId, QuestId = 7, QuestRewardId = 4 },
+            });
+
+            var parser = new QuestParser(_questDaoMock.Object, _questObjectiveDaoMock.Object, _questRewardDaoMock.Object, _questQuestRewardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.ImportQuestsAsync(_tempFolder);
+
+            Assert.AreEqual(objectiveId, _savedObjectives.Single().QuestObjectiveId);
+            Assert.AreEqual(linkId, _savedQuestRewards.Single().Id);
+        }
     }
 }
