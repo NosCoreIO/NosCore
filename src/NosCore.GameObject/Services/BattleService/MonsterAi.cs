@@ -383,14 +383,14 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
 
         if (skill.CastTimeMs > 0)
         {
-            // The life loop must not wait out the cast: the monster stands still until it ends
-            // and the hit resolves on its own.
+            // The life loop must not wait out the cast: the monster stands still until the hit
+            // has resolved on its own.
             if (cooldowns != null)
             {
                 cooldowns.Value.NextUsableAt[skill.SkillVnum] = now.Plus(Duration.FromMilliseconds(skill.CooldownMs));
             }
 
-            entity.CastingUntil = now.Plus(Duration.FromMilliseconds(skill.CastTimeMs));
+            entity.CastingUntil = Instant.MaxValue;
             _ = HitAfterCastAsync(entity, target, skill);
             return;
         }
@@ -412,6 +412,13 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         catch (Exception ex)
         {
             logger.LogError(ex, "Cast of skill {Skill} by {VisualId} failed", skill.SkillVnum, entity.VisualId);
+        }
+        finally
+        {
+            if (entity.MapInstance?.EcsWorld.IsAlive(entity.Handle) == true)
+            {
+                entity.CastingUntil = Instant.MinValue;
+            }
         }
     }
 

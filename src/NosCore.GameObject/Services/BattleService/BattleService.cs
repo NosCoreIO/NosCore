@@ -272,9 +272,10 @@ namespace NosCore.GameObject.Services.BattleService
                 return true;
             }
 
-            if (origin.MapInstance != null)
+            var map = origin.MapInstance;
+            if (map != null)
             {
-                await origin.MapInstance.SendPacketAsync(new CtPacket
+                await map.SendPacketAsync(new CtPacket
                 {
                     VisualType = origin.VisualType,
                     VisualId = origin.VisualId,
@@ -287,7 +288,8 @@ namespace NosCore.GameObject.Services.BattleService
             }
 
             await castDelayService.WaitAsync(Duration.FromMilliseconds(skill.CastTime * 100));
-            return target == null ? CanCast(origin) : CanAttack(origin, target);
+            return ReferenceEquals(origin.MapInstance, map)
+                && (target == null ? CanCast(origin) : CanAttack(origin, target));
         }
 
         private void ScheduleCooldownReset(IAliveEntity origin, SkillInfo skill)

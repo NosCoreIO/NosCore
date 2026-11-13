@@ -345,7 +345,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         // The shared fixture map declares 8 rows but ships 6, which the pathfinder walks off.
         [TestMethod]
-        public async Task AMonsterWindingUpASkillStandsStillWithoutHoldingUpTheLoop()
+        public async Task AMonsterWindingUpASkillStandsStillUntilItsHitResolvesWithoutHoldingUpTheLoop()
         {
             var catalog = new Mock<INpcCombatCatalog>();
             catalog.Setup(c => c.GetSkills(1)).Returns(new List<NpcMonsterSkillDto>
@@ -374,8 +374,10 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
             World.Clock.Advance(Duration.FromMilliseconds(1000));
             await ai.TickAsync(monster);
-            cast.SetResult(true);
+            Assert.AreEqual((short)1, monster.PositionY, "the hit has not resolved yet");
 
+            cast.SetResult(true);
+            await ai.TickAsync(monster);
             Assert.AreNotEqual((short)1, monster.PositionY);
         }
 
