@@ -234,7 +234,7 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Nrun
         private void CharacterGoldIs_(long gold) => _session.Character.Gold = gold;
 
         private Task Option_IsPickedAtNpc_(short index, int npcId) =>
-            _handler.HandleAsync(_session, _session.Character.MapInstance.Npcs.First(s => s.VisualId == npcId),
+            _handler.HandleAsync(_session, _session.Character.MapInstance.EnumerateNpcs().First(s => s.VisualId == npcId),
                 new NrunPacket { Runner = _handler.Runner, Type = index, VisualType = VisualType.Npc, VisualId = npcId });
 
         private Task OptionIsPickedWithoutTarget_(short index) =>

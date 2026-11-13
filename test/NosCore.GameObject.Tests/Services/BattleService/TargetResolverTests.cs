@@ -58,7 +58,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _map.LoadMonsters(
                 cells.Select((cell, i) => new MapMonsterDto { MapMonsterId = 200 + i, MapId = 0, MapX = cell.X, MapY = cell.Y, VNum = 1 }).ToList(),
                 new List<NpcMonsterDto> { template });
-            return _map.Monsters.OrderBy(m => m.VisualId).ToList();
+            return _map.EnumerateMonsters().OrderBy(m => m.VisualId).ToList();
         }
 
         [TestMethod]

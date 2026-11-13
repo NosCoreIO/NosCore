@@ -201,7 +201,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _map.LoadMonsters(
                 cells.Select((cell, i) => new MapMonsterDto { MapMonsterId = 200 + i, MapId = 0, MapX = (short)cell.X, MapY = (short)cell.Y, VNum = 1 }).ToList(),
                 new List<NpcMonsterDto> { template });
-            _monsters = _map.Monsters.OrderBy(m => m.VisualId).ToList();
+            _monsters = _map.EnumerateMonsters().OrderBy(m => m.VisualId).ToList();
         }
 
         private void Monster_IsDead(int index)

@@ -327,7 +327,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _map.LoadMonsters(
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = x, MapY = y, VNum = 1 } },
                 new List<NpcMonsterDto> { template });
-            return _map.Monsters.Single();
+            return _map.EnumerateMonsters().Single();
         }
 
         private void PlacePlayer(short x, short y)

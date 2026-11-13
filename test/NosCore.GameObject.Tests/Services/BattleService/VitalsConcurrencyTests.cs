@@ -143,7 +143,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             Task Reward(MonsterComponentBundle monster) =>
                 rewards.DistributeAsync(monster, _session.Character, new Dictionary<Entity, int> { [player] = 10 });
 
-            var monsters = _map.Monsters;
+            var monsters = _map.EnumerateMonsters().ToList();
             await Reward(monsters[0]);
             var oneKill = _session.Character.LevelXp;
             Assert.IsTrue(oneKill > 0);

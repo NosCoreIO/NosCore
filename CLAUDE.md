@@ -93,9 +93,9 @@ the decided design, not a migration in flight:
   on one entity through its bundle.
 - **Systems** (`Ecs/Systems/`) are for iteration-heavy queries over many entities.
   Prefer a system over LINQ across a bundle list when the call site runs per tick.
-- **Hot paths do not materialise bundle lists.** `MapInstance.Monsters`/`Npcs` allocate a
-  fresh `List` per access; anything called from the map life loop enumerates the backing
-  dictionaries or a system query instead.
+- **Hot paths do not materialise bundle lists.** Anything called from the map life loop goes
+  through `MapInstance.EnumerateMonsters()`/`EnumerateNpcs()` or a system query, never a
+  `ToList()` of bundles.
 
 ### Deciding, in order
 
