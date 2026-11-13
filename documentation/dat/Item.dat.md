@@ -1,20 +1,20 @@
 # Item.dat
 
 ```text
-	FLAG	0	0	{NotAvailable}	{IsSoldable}	{IsDroppable}	{IsTradable}	{IsMinilandActionable}	{IsWarehouse}	{Flag9}	{Flag1}	{Flag2}	{Flag3}	{Flag4}	{RequireBinding}	{IsColored}	{FemaleOnly}	{MaleOnly}	0	{Flag6}	{ReputationPrice}	{IsHeroic}	{Flag7}	{Flag8}	{RaidItem}	{UnknownLastBit}
-	INDEX	0	0	{ItemSubType}
+	FLAG	{Unused}	{Unused}	{NotAvailable}	{IsSoldable}	{IsDroppable}	{IsTradable}	{IsMinilandActionable}	{IsWarehouse}	{Flag9}	{Flag1}	{Flag2}	{Flag3}	{Flag4}	{RequireBinding}	{IsColored}	{FemaleOnly}	{MaleOnly}	{Unused}	{Flag6}	{ReputationPrice}	{IsHeroic}	{Flag7}	{Flag8}	{Unused}	{RaidItem}
+	INDEX	{Pocket}	{Category}	{ItemSubType}
 	NAME	{NameI18NKey}
 	VNUM	{VNum}	{Price}
 ```
 
 ## FLAG
 
-25 boolean bits. FLAG[25] identifies raid-inventory items (seals, boxes, chests, drops).
+25 boolean bits. The last one identifies raid-inventory items (seals, boxes, chests, drops).
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Unknown |  |  |  |
-| 3 | Unknown |  |  |  |
+| 2 | NonParsed | Unused |  | 0 on every item; the client reads it as a number, not a flag. |
+| 3 | NonParsed | Unused |  | 0 on every item. |
 | 4 | NonParsed | NotAvailable |  | The shop tooltip adds "Not available"; set on 3 items only (333, 334, 1225). |
 | 5 | Parsed | IsSoldable | Boolean | Inverted: dat=0 -> soldable |
 | 6 | Parsed | IsDroppable | Boolean | Inverted: dat=0 -> droppable |
@@ -30,21 +30,21 @@
 | 16 | Parsed | IsColored | Boolean | Uses design slot for color |
 | 17 | NonParsed | FemaleOnly |  | Set together with FLAG[18]=0 to mark a female-only item; rolled up into Sex. |
 | 18 | NonParsed | MaleOnly |  | Set together with FLAG[17]=0 to mark a male-only item; rolled up into Sex. |
-| 19 | Unknown |  |  |  |
+| 19 | NonParsed | Unused |  | 0 on every item. |
 | 20 | Parsed | Flag6 | Boolean | Set on 17 upgrade materials (soul gems, dragon parts, completion stones, guardian angels); the client never reads it |
 | 21 | NonParsed | ReputationPrice |  | The shop tooltip labels the price "Reputation"; read into ReputPrice. |
 | 22 | Parsed | IsHeroic | Boolean | Heroic item |
 | 23 | Parsed | Flag7 | Boolean | Headgear that also hides the mask; only changes what the client draws |
 | 24 | Parsed | Flag8 | Boolean | FLAG bit 23 (unknown) |
-| 25 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops — routed to the Raid pocket. |
-| 26 | NonParsed | UnknownLastBit |  |  |
+| 25 | NonParsed | Unused |  | 0 on every item. |
+| 26 | NonParsed | RaidItem |  | Set on raid seals, raid boxes, chests and drops; routes the item to the Raid pocket. |
 
 ## INDEX
 
 | Column | Status | Name | Type | Description |
 |---:|---|---|---|---|
-| 2 | Unknown |  |  |  |
-| 3 | Unknown |  |  |  |
+| 2 | NonParsed | Pocket |  | The pocket the item goes to (8, 9, 10 are Equipment, Main, Etc); read into Type. |
+| 3 | NonParsed | Category |  | The kind of item within its pocket; read with the pocket into ItemType. |
 | 4 | Parsed | ItemSubType | Byte | Subtype within item category |
 
 ## NAME
@@ -103,7 +103,7 @@
 | ShellType | Nullable`1 | DATA[5] (shell only) | Shell kind, which decides the options it rolls |
 | Speed | Byte | DATA[varies] | Movement speed bonus / vehicle speed |
 | SpType | Byte | DATA[varies] (SP only) | SP transformation type |
-| Type | NoscorePocketType | FLAG[25] + DATA[0] + INDEX[0,1] | Pocket type: FLAG[25]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map |
+| Type | NoscorePocketType | FLAG[26] + DATA[0] + INDEX[0,1] | Pocket type: FLAG[26]==1 -> Raid, DATA[0]==1000 && INDEX[1]==4 -> Mount, else legacy INDEX[0] map |
 | WaitDelay | Int16 | DATA[varies] | Cooldown / use delay |
 | WaterResistance | Int16 | DATA[8] or DATA[16] | Water resistance; SP uses DATA[16] |
 | Width | Byte | DATA[3] (miniland only) | Miniland object footprint width |
