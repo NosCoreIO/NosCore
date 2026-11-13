@@ -57,11 +57,13 @@ namespace NosCore.GameObject.Messaging.Handlers.MapItem
             var pickedUp = (IItemInstance)item.Clone();
             pickedUp.Id = Guid.NewGuid();
             var itemInstance = InventoryItemInstance.Create(pickedUp, session.Character.CharacterId);
-            var inv = session.Character.InventoryService.AddItemToPocket(itemInstance)?.FirstOrDefault();
+            var added = session.Character.InventoryService.AddItemToPocket(itemInstance) ?? [];
+            var pocketChange = added.GeneratePocketChange();
 
-            if (inv != null)
+            if (pocketChange != null)
             {
-                await session.SendPacketAsync(inv.GeneratePocketChange(inv.Type.ToPocketType(), inv.Slot));
+                var inv = added[0];
+                await session.SendPacketAsync(pocketChange);
                 await session.SendPacketAsync(session.Character.GenerateSayi(SayColorType.Green, Game18NConstString.ReceivedThisItem,
                     2, inv.ItemInstance.ItemVNum.ToString(), amount));
                 await session.SendPacketAsync(session.Character.GenerateIcon(1, inv.ItemInstance.ItemVNum));
