@@ -62,7 +62,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             _head.Character.Family = _family;
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
             _pubSubHub.Setup(s => s.GetSubscribersAsync()).ReturnsAsync(new List<Subscriber>());
-            _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>())).ReturnsAsync(true);
             _familyService.Setup(s => s.GetMemberCharactersAsync(It.IsAny<GameObject.Services.FamilyService.Family>())).ReturnsAsync(new List<CharacterDto>());
         }
 
@@ -156,7 +156,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsTrue(_family.ManagerCanInvite);
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, new FamilyChange { ManagerCanInvite = true },
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, _headId, new FamilyChange { ManagerCanInvite = true },
                 It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == 0)), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
@@ -173,7 +173,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FAuthPacket { MemberType = Packets.Enumerations.FamilyAuthority.Manager, AuthorityId = 0, Value = 1 }, _head);
 
             Assert.IsFalse(_family.ManagerCanInvite);
-            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
+            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
         }
 
         private void Become(FamilyAuthority authority) =>
@@ -186,7 +186,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ExecuteAsync(new FamilyNoticePacket { Message = "meet at the bank " }, _head);
 
             Assert.AreEqual("meet at the bank", _family.FamilyMessage);
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, new FamilyChange { FamilyMessage = "meet at the bank" },
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, _headId, new FamilyChange { FamilyMessage = "meet at the bank" },
                 It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == 0)), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
@@ -231,7 +231,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             var mine = _family.Members.First(s => s.CharacterId == _headId);
             Assert.AreEqual("good morning", mine.DailyMessage);
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, null, It.Is<IReadOnlyList<FamilyMemberChange>>(members =>
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, _headId, null, It.Is<IReadOnlyList<FamilyMemberChange>>(members =>
                 members.Single() == new FamilyMemberChange(mine.CharacterId) { DailyMessage = "good morning" })), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
@@ -248,7 +248,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.IsNull(_family.FamilyMessage);
             Assert.AreNotEqual(tooLong, _family.Members.First(s => s.CharacterId == _headId).DailyMessage);
-            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
+            _familyService.Verify(s => s.UpdateAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()), Times.Never);
         }
 
         [TestMethod]
@@ -298,17 +298,17 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(GenderType.Female, _family.FamilyHeadGender);
             Assert.IsTrue(_family.Members.All(s => s.Rank == Data.Enumerations.Family.FamilyMemberRank.Nothing));
-            _familyService.Verify(s => s.UpdateAsync(FamilyId, new FamilyChange { FamilyHeadGender = GenderType.Female },
+            _familyService.Verify(s => s.UpdateAsync(FamilyId, _headId, new FamilyChange { FamilyHeadGender = GenderType.Female },
                 It.Is<IReadOnlyList<FamilyMemberChange>>(members => members.Count == _family.Members.Count
                     && members.All(m => m.Rank == Data.Enumerations.Family.FamilyMemberRank.Nothing))), Times.Once);
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
         [TestMethod]
-        public async Task AFailedGenderSaveKeepsTheTitles()
+        public async Task AGenderChangeTheMasterRefusesKeepsTheTitlesAndReloadsTheFamily()
         {
             _family.Members.First(s => s.CharacterId == 7).Rank = Data.Enumerations.Family.FamilyMemberRank.Uncle;
-            _familyService.Setup(s => s.UpdateAsync(FamilyId, It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
+            _familyService.Setup(s => s.UpdateAsync(FamilyId, It.IsAny<long>(), It.IsAny<FamilyChange?>(), It.IsAny<IReadOnlyList<FamilyMemberChange>>()))
                 .ReturnsAsync(false);
 
             await World.Create<FamilyGenderPacketHandler>()
@@ -316,7 +316,9 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             Assert.AreEqual(GenderType.Male, _family.FamilyHeadGender);
             Assert.AreEqual(Data.Enumerations.Family.FamilyMemberRank.Uncle, _family.Members.First(s => s.CharacterId == 7).Rank);
-            Assert.AreEqual(0, _published.Count);
+            var reload = (FamilyChangedData)_published.Single();
+            Assert.AreEqual(FamilyId, reload.FamilyId);
+            CollectionAssert.AreEqual(new[] { _headId }, reload.CharacterIds);
         }
 
         [TestMethod]

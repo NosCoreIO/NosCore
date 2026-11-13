@@ -58,8 +58,14 @@ namespace NosCore.PacketHandlers.Family
                 return;
             }
 
-            if (!await familyService.RemoveMemberAsync(family.FamilyId, target.CharacterId))
+            if (!await familyService.RemoveMemberAsync(family.FamilyId, session.Character.CharacterId, target.CharacterId))
             {
+                // The master refused what this session's copy of the family allowed: the copy is behind.
+                await pubSubHub.SendMessageAsync(new FamilyChangedData
+                {
+                    FamilyId = family.FamilyId,
+                    CharacterIds = { session.Character.CharacterId }
+                });
                 return;
             }
 

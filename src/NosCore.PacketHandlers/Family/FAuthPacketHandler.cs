@@ -40,8 +40,19 @@ namespace NosCore.PacketHandlers.Family
                 (Packets.Enumerations.FamilyAuthority.Member, 1) => new FamilyChange { MemberAuthorityType = (FamilyAuthorityType)packet.Value },
                 _ => null
             };
-            if (change == null || !await familyService.UpdateAsync(family.FamilyId, change, []))
+            if (change == null)
             {
+                return;
+            }
+
+            if (!await familyService.UpdateAsync(family.FamilyId, session.Character.CharacterId, change, []))
+            {
+                // The master refused what this session's copy of the family allowed: the copy is behind.
+                await pubSubHub.SendMessageAsync(new FamilyChangedData
+                {
+                    FamilyId = family.FamilyId,
+                    CharacterIds = { session.Character.CharacterId }
+                });
                 return;
             }
 

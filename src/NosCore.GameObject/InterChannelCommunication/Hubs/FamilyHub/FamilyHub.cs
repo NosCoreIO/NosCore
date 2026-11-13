@@ -38,22 +38,22 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
         public static async Task<Reply<bool>> Handle(DisbandFamilyRequest r, IServiceProvider services) =>
             new(await services.GetRequiredService<FamilyHub>().DisbandAsync(r.FamilyId, r.HeadId));
 
-        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long characterId) =>
-            familyRecordService.AddMemberAsync(familyId, characterId);
+        public Task<FamilyMemberAddition> AddMemberAsync(long familyId, long inviterId, long characterId) =>
+            familyRecordService.AddMemberAsync(familyId, inviterId, characterId);
 
         public static async Task<Reply<FamilyMemberAddition>> Handle(AddFamilyMemberRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<FamilyHub>().AddMemberAsync(r.FamilyId, r.CharacterId));
+            new(await services.GetRequiredService<FamilyHub>().AddMemberAsync(r.FamilyId, r.InviterId, r.CharacterId));
 
-        public Task<bool> RemoveMemberAsync(long familyId, long characterId) =>
-            familyRecordService.RemoveMemberAsync(familyId, characterId);
+        public Task<bool> RemoveMemberAsync(long familyId, long actorId, long characterId) =>
+            familyRecordService.RemoveMemberAsync(familyId, actorId, characterId);
 
         public static async Task<Reply<bool>> Handle(RemoveFamilyMemberRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<FamilyHub>().RemoveMemberAsync(r.FamilyId, r.CharacterId));
+            new(await services.GetRequiredService<FamilyHub>().RemoveMemberAsync(r.FamilyId, r.ActorId, r.CharacterId));
 
-        public Task<bool> ChangeAsync(long familyId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members) =>
-            familyRecordService.ChangeAsync(familyId, family, members);
+        public Task<bool> ChangeAsync(long familyId, long actorId, FamilyChange? family, IReadOnlyList<FamilyMemberChange> members) =>
+            familyRecordService.ChangeAsync(familyId, actorId, family, members);
 
         public static async Task<Reply<bool>> Handle(ChangeFamilyRequest r, IServiceProvider services) =>
-            new(await services.GetRequiredService<FamilyHub>().ChangeAsync(r.FamilyId, r.Family, r.Members));
+            new(await services.GetRequiredService<FamilyHub>().ChangeAsync(r.FamilyId, r.ActorId, r.Family, r.Members));
     }
 }

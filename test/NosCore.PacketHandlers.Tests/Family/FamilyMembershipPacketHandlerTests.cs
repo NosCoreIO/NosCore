@@ -74,8 +74,8 @@ namespace NosCore.PacketHandlers.Tests.Family
                     return found.Count > 0;
                 }));
             _pubSubHub.Setup(s => s.SendMessageAsync(It.IsAny<IMessage>())).Callback<IMessage>(_published.Add).ReturnsAsync(true);
-            _familyService.Setup(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(FamilyMemberAddition.Added);
-            _familyService.Setup(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
+            _familyService.Setup(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(FamilyMemberAddition.Added);
+            _familyService.Setup(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>())).ReturnsAsync(true);
             _blacklistHub.Setup(s => s.GetBlacklistedAsync(It.IsAny<long>())).ReturnsAsync(new List<CharacterRelationStatus>());
             _head.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Head));
         }
@@ -236,27 +236,30 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             await AnswerAsync(FamilyInviteAnswerType.Accept);
 
-            _familyService.Verify(s => s.AddMemberAsync(FamilyId, _otherId), Times.Once);
+            var inviterId = _head.Character.CharacterId;
+            _familyService.Verify(s => s.AddMemberAsync(FamilyId, inviterId, _otherId), Times.Once);
             var changed = (FamilyChangedData)_published.Single();
             CollectionAssert.AreEqual(new[] { _other.Character.CharacterId }, changed.CharacterIds);
             Assert.AreEqual(_other.Character.Name, changed.JoinedCharacterName);
         }
 
         [TestMethod]
-        public async Task AJoinTheMasterRefusesAnnouncesNothing()
+        public async Task AJoinTheMasterRefusesReloadsTheInvitersFamilyAndAnnouncesNoJoin()
         {
-            _familyService.Setup(s => s.AddMemberAsync(FamilyId, _otherId)).ReturnsAsync(FamilyMemberAddition.NotAdded);
+            _familyService.Setup(s => s.AddMemberAsync(FamilyId, It.IsAny<long>(), _otherId)).ReturnsAsync(FamilyMemberAddition.NotAdded);
             await InviteAsync(_head, _other.Character.Name);
 
             await AnswerAsync(FamilyInviteAnswerType.Accept);
 
-            Assert.AreEqual(0, _published.Count);
+            var reload = (FamilyChangedData)_published.Single();
+            Assert.IsNull(reload.JoinedCharacterName);
+            CollectionAssert.AreEqual(new[] { _head.Character.CharacterId }, reload.CharacterIds);
         }
 
         [TestMethod]
         public async Task AFamilyThatFilledUpMeanwhileTellsTheInvitee()
         {
-            _familyService.Setup(s => s.AddMemberAsync(FamilyId, _otherId)).ReturnsAsync(FamilyMemberAddition.FamilyFull);
+            _familyService.Setup(s => s.AddMemberAsync(FamilyId, It.IsAny<long>(), _otherId)).ReturnsAsync(FamilyMemberAddition.FamilyFull);
             await InviteAsync(_head, _other.Character.Name);
 
             await AnswerAsync(FamilyInviteAnswerType.Accept);
@@ -275,7 +278,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             await AnswerAsync(FamilyInviteAnswerType.Accept);
 
-            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
@@ -286,7 +289,7 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             await AnswerAsync(FamilyInviteAnswerType.Accept);
 
-            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
@@ -294,7 +297,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await AnswerAsync(FamilyInviteAnswerType.Accept);
 
-            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
@@ -306,7 +309,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await AnswerAsync(FamilyInviteAnswerType.Decline);
 
             Assert.AreEqual(Game18NConstString.PlayerRefusedFamilyInvite, LastInfo(_head));
-            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.AddMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
@@ -315,7 +318,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await World.Create<FamilyLeavePacketHandler>().ExecuteAsync(new FamilyLeavePacket(), _head);
 
             Assert.AreEqual(Game18NConstString.FamilyHeadCanNotLeave, LastInfo(_head));
-            _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
         [TestMethod]
@@ -325,21 +328,23 @@ namespace NosCore.PacketHandlers.Tests.Family
 
             await World.Create<FamilyLeavePacketHandler>().ExecuteAsync(new FamilyLeavePacket(), _other);
 
-            _familyService.Verify(s => s.RemoveMemberAsync(FamilyId, _otherId), Times.Once);
+            _familyService.Verify(s => s.RemoveMemberAsync(FamilyId, _otherId, _otherId), Times.Once);
             Assert.AreEqual(Game18NConstString.LeftFamily, LastInfo(_other));
             Assert.AreEqual(FamilyId, ((FamilyChangedData)_published.Single()).FamilyId);
         }
 
         [TestMethod]
-        public async Task ALeaveTheMasterRefusesAnnouncesNothing()
+        public async Task ALeaveTheMasterRefusesReloadsTheFamilyAndSaysNothing()
         {
             _other.Character.Family = Family((_head.Character.CharacterId, FamilyAuthority.Head), (_other.Character.CharacterId, FamilyAuthority.Member));
-            _familyService.Setup(s => s.RemoveMemberAsync(FamilyId, _otherId)).ReturnsAsync(false);
+            _familyService.Setup(s => s.RemoveMemberAsync(FamilyId, It.IsAny<long>(), _otherId)).ReturnsAsync(false);
 
             await World.Create<FamilyLeavePacketHandler>().ExecuteAsync(new FamilyLeavePacket(), _other);
 
             Assert.IsNull(LastInfo(_other));
-            Assert.AreEqual(0, _published.Count);
+            var reload = (FamilyChangedData)_published.Single();
+            Assert.AreEqual(FamilyId, reload.FamilyId);
+            CollectionAssert.AreEqual(new[] { _otherId }, reload.CharacterIds);
         }
 
         private Task DismissAsync(FamilyAuthority actor, FamilyAuthority target)
@@ -360,7 +365,8 @@ namespace NosCore.PacketHandlers.Tests.Family
         {
             await DismissAsync(actor, target);
 
-            _familyService.Verify(s => s.RemoveMemberAsync(FamilyId, _otherId), Times.Once);
+            var actorId = _head.Character.CharacterId;
+            _familyService.Verify(s => s.RemoveMemberAsync(FamilyId, actorId, _otherId), Times.Once);
             CollectionAssert.AreEqual(new[] { _other.Character.CharacterId }, ((FamilyChangedData)_published.Single()).CharacterIds);
         }
 
@@ -372,7 +378,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await DismissAsync(actor, target);
 
             Assert.AreEqual(Game18NConstString.CanNotDismissedDeputy, LastInfo(_head));
-            _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
 
         [DataTestMethod]
@@ -383,7 +389,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             await DismissAsync(actor, FamilyAuthority.Member);
 
             Assert.AreEqual(Game18NConstString.NotAuthorizedToAcceptFamily, LastInfo(_head));
-            _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+            _familyService.Verify(s => s.RemoveMemberAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<long>()), Times.Never);
         }
     }
 }
