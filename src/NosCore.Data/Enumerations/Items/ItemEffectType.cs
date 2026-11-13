@@ -52,6 +52,8 @@ namespace NosCore.Data.Enumerations.Items
         DefenseAmulet = 933,
         // Fireworks and similar toys: show the item's EffectValue on the user.
         PlayEffect = 997,
+        // A pack that opens into every item its roll rows list.
+        ItemPack = 995,
         // EffectValue is the seconds of heat resistance one use adds.
         HeatResistance = 996,
         SpeedBooster = 998,

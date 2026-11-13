@@ -20,7 +20,8 @@ using System.Threading.Tasks;
 namespace NosCore.Parser.Parsers
 {
     // The client lists what many chests hold only in their English description, one "<amount>x <item name>"
-    // per line. A chest that says it gives one of them becomes a box that rolls one line, each line as likely.
+    // per line. A chest that says it gives one of them becomes a box that rolls one line, each line as likely;
+    // a pack that says it holds the whole list becomes an item pack that gives every line.
     public partial class BoxContentParser(IDao<ItemDto, short> itemDao,
         IDao<RollGeneratedItemDto, short> rollGeneratedItemDao, ILogger<BoxContentParser> logger)
     {
@@ -32,6 +33,13 @@ namespace NosCore.Parser.Parsers
 
         [GeneratedRegex(@"\bone of (the following|these)\b", RegexOptions.IgnoreCase)]
         private static partial Regex GivesOneOf();
+
+        [GeneratedRegex(@"\b(contains|consists of|includes|receive the following items?)\b|\[(Contents|Items)\]", RegexOptions.IgnoreCase)]
+        private static partial Regex GivesWholeList();
+
+        // Wording that makes what comes out depend on luck or on the character, so the list is not what every opener gets.
+        [GeneratedRegex(@"\b(random|one of|certain amount|available|a pair of|variety|gender)\b", RegexOptions.IgnoreCase)]
+        private static partial Regex GivesSomeOf();
 
         public async Task InsertBoxContentsAsync(string folder)
         {
@@ -60,13 +68,15 @@ namespace NosCore.Parser.Parsers
                 var contents = lines.Select(l => ContentLine().Match(l)).Where(m => m.Success)
                     .Select(m => (Amount: int.Parse(m.Groups[1].Value), Name: m.Groups[2].Value.Trim()))
                     .ToList();
-                if (contents.Count == 0 || !GivesOneOf().IsMatch(intro)
+                var givesOne = GivesOneOf().IsMatch(intro);
+                var givesAll = !givesOne && GivesWholeList().IsMatch(intro) && !GivesSomeOf().IsMatch(intro);
+                if (contents.Count == 0 || !(givesOne || givesAll)
                     || contents.Any(c => !vnumByName.ContainsKey(c.Name) || c.Amount > byte.MaxValue))
                 {
                     continue;
                 }
 
-                box.Effect = ItemEffectType.BoxEffect;
+                box.Effect = givesOne ? ItemEffectType.BoxEffect : ItemEffectType.ItemPack;
                 boxes.Add(box);
                 rolls.AddRange(contents.Select(c => new RollGeneratedItemDto
                 {
@@ -85,7 +95,7 @@ namespace NosCore.Parser.Parsers
             await rollGeneratedItemDao.TryDeleteAsync(rollGeneratedItemDao.LoadAll().Select(r => r.RollGeneratedItemId).ToList());
             await itemDao.TryInsertOrUpdateAsync(boxes);
             await rollGeneratedItemDao.TryInsertOrUpdateAsync(rolls);
-            logger.LogInformation("{Boxes} boxes take their {Rolls} possible items from their description", boxes.Count, rolls.Count);
+            logger.LogInformation("{Boxes} boxes and packs take their {Rolls} items from their description", boxes.Count, rolls.Count);
         }
 
         private static Dictionary<string, string> ReadText(string file)

@@ -748,8 +748,12 @@ Needs two characters on the same channel. The commending one must be level 31 or
 - [ ] Use a title item and a speaker: both still work as before
 - [ ] `$CreateItem 1401` (Legendary Treasure Chest) and double-click it: the chest opens at once,
       the reward window shows one item from the list in its description, and the chest is gone
-- [ ] Hover a pack whose description says it contains several items (1562): double-clicking it
-      still does nothing, since it gives its whole list rather than one roll
+- [ ] `$CreateItem 5183` (Black Bushi Costume Set) and double-click it, confirming the "Use the
+      item." box: the costume and the hat both arrive in Equipment with one "received" line each,
+      and the set is gone; with the Equipment pocket full the set stays and the not-enough-space
+      message appears
+- [ ] Double-click a raid package whose description names items the parser cannot match (1562):
+      nothing happens
 
 ### Perfume
 
