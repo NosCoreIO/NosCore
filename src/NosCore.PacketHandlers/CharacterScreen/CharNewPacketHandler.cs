@@ -29,6 +29,7 @@ using NosCore.Shared.Helpers;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -89,6 +90,43 @@ namespace NosCore.PacketHandlers.CharacterScreen
             new() { Id = Guid.NewGuid(), CharacterId = characterId, Slot = 8, Type = 1, IconType = 1, IconVNum = 16 },
         ];
 
+        private async Task<bool> StoreAsync(CharacterDto character, InventoryService inventory, List<short> skills)
+        {
+            try
+            {
+                await using var transaction = daoTransactionScope.Begin();
+                var stored = await characterDao.TryInsertOrUpdateAsync(character);
+                if (stored == null)
+                {
+                    return false;
+                }
+
+                var characterId = stored.CharacterId;
+                foreach (var item in inventory.Values)
+                {
+                    item.CharacterId = characterId;
+                }
+
+                var written = await characterSkillDao.TryInsertOrUpdateAsync(skills.Distinct().Select(skill =>
+                        new CharacterSkillDto { CharacterId = characterId, SkillVNum = skill, Id = Guid.NewGuid() }).ToArray())
+                    && await quicklistEntryDao.TryInsertOrUpdateAsync(StarterQuicklist(characterId))
+                    && await itemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.Select(s => s.ItemInstance).ToArray())
+                    && await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.ToArray());
+                if (!written)
+                {
+                    return false;
+                }
+
+                await transaction.CommitAsync();
+                return true;
+            }
+            catch (DbException e)
+            {
+                logger.LogError(e, "The creation of {Name} was not committed", character.Name);
+                return false;
+            }
+        }
+
         public override async Task ExecuteAsync(CharNewPacket packet, ClientSession clientSession)
         {
             if (clientSession.HasSelectedCharacter)
@@ -139,18 +177,21 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     // Everything is built before anything is written, and written in one transaction:
                     // a creation that fails must not leave a character without its equipment and skills.
                     var origin = ResolveStarterOrigin(@class, _worldConfiguration.AllClassAvailableOnCreate);
-                    var starterItems = new List<(IItemInstance Item, NoscorePocketType Pocket)>();
+                    var inventory = new InventoryService(items, worldConfiguration, loggerFactory.CreateLogger<InventoryService>());
                     try
                     {
                         foreach (var itemToAdd in ResolvePack(_worldConfiguration.BasicEquipments, @class, origin, new List<BasicEquipment>()))
                         {
-                            starterItems.Add((itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount, itemToAdd.Rare, itemToAdd.Upgrade),
-                                itemToAdd.NoscorePocketType));
+                            var item = itemBuilderService.Create(itemToAdd.VNum, itemToAdd.Amount, itemToAdd.Rare, itemToAdd.Upgrade);
+                            if (inventory.AddItemToPocket(InventoryItemInstance.Create(item, 0), itemToAdd.NoscorePocketType) is not { Count: > 0 })
+                            {
+                                throw new InvalidOperationException($"Starter item {itemToAdd.VNum} does not fit in {itemToAdd.NoscorePocketType}.");
+                            }
                         }
                     }
                     catch (InvalidOperationException e)
                     {
-                        logger.LogError(e, "A starter item of {Class} does not exist; {Name} was not created", @class, characterName);
+                        logger.LogError(e, "The starter items of {Class} cannot be given; {Name} was not created", @class, characterName);
                         await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CreationFailed });
                         return;
                     }
@@ -160,35 +201,11 @@ namespace NosCore.PacketHandlers.CharacterScreen
                     var skillsToAdd = new List<short> { 200, 201, 209 };
                     skillsToAdd.AddRange(ResolvePack(_worldConfiguration.BasicSkills, @class, origin, new List<short>()));
 
-                    await using (var transaction = daoTransactionScope.Begin())
+                    if (!await StoreAsync(chara, inventory, skillsToAdd))
                     {
-                        chara = await characterDao.TryInsertOrUpdateAsync(chara);
-                        if (chara == null)
-                        {
-                            await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CreationFailed });
-                            return;
-                        }
-
-                        var inventory = new InventoryService(items, worldConfiguration, loggerFactory.CreateLogger<InventoryService>());
-                        foreach (var (item, pocket) in starterItems)
-                        {
-                            inventory.AddItemToPocket(InventoryItemInstance.Create(item, chara.CharacterId), pocket);
-                        }
-
-                        var characterId = chara.CharacterId;
-                        var written = await characterSkillDao.TryInsertOrUpdateAsync(skillsToAdd.Distinct().Select(skill =>
-                                new CharacterSkillDto { CharacterId = characterId, SkillVNum = skill, Id = Guid.NewGuid() }).ToArray())
-                            && await quicklistEntryDao.TryInsertOrUpdateAsync(StarterQuicklist(characterId))
-                            && await itemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.Select(s => s.ItemInstance).ToArray())
-                            && await inventoryItemInstanceDao.TryInsertOrUpdateAsync(inventory.Values.ToArray());
-                        if (!written)
-                        {
-                            logger.LogError("{Name} could not be stored and was not created", characterName);
-                            await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CreationFailed });
-                            return;
-                        }
-
-                        await transaction.CommitAsync();
+                        logger.LogError("{Name} could not be stored and was not created", characterName);
+                        await clientSession.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.CreationFailed });
+                        return;
                     }
 
                     await clientSession.SendPacketAsync(new SuccessPacket());

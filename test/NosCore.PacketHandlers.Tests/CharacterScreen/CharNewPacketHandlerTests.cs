@@ -12,6 +12,7 @@ using NosCore.Core.Configuration;
 using NosCore.Core.Services.IdService;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Map;
 using NosCore.GameObject.Map;
 using NosCore.GameObject.Services.MinilandService;
@@ -32,6 +33,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using SpecLight;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -139,6 +141,53 @@ namespace NosCore.PacketHandlers.Tests.CharacterScreen
                 .ThenAsync(CharacterShouldNotExist)
                 .And(ThePlayerIsToldTheCreationFailed)
                 .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ACharacterWhoseStarterItemsDoNotFitIsNotCreated()
+        {
+            await new Spec("A character whose starter items do not fit is not created")
+                .Given(TwoStarterItemsShareAnEquipmentSlot)
+                .WhenAsync(CreatingCharacter)
+                .ThenAsync(CharacterShouldNotExist)
+                .And(ThePlayerIsToldTheCreationFailed)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task ThePlayerIsToldWhenTheCreationIsNotCommitted()
+        {
+            await new Spec("The player is told when the creation is not committed")
+                .Given(TheDatabaseRefusesToCommit)
+                .WhenAsync(CreatingCharacter)
+                .Then(ThePlayerIsToldTheCreationFailed)
+                .ExecuteAsync();
+        }
+
+        private void TwoStarterItemsShareAnEquipmentSlot()
+        {
+            World.WorldConfiguration.Value.BasicEquipments["Adventurer"] = new Dictionary<StarterOrigin, List<BasicEquipment>>
+            {
+                [StarterOrigin.CreateAndUpgrade] =
+                [
+                    new BasicEquipment { VNum = 1, Amount = 1, NoscorePocketType = NoscorePocketType.Wear },
+                    new BasicEquipment { VNum = 1, Amount = 1, NoscorePocketType = NoscorePocketType.Wear }
+                ]
+            };
+        }
+
+        private sealed class CommitRefused : DbException;
+
+        private void TheDatabaseRefusesToCommit()
+        {
+            var transaction = new Mock<IDaoTransaction>();
+            transaction.Setup(t => t.CommitAsync()).ThrowsAsync(new CommitRefused());
+            var scope = new Mock<IDaoTransactionScope>();
+            scope.Setup(s => s.Begin()).Returns(transaction.Object);
+            CharNewPacketHandler =
+                new CharNewPacketHandler(World.CharacterDao, World.GenerateItemProvider(), World.QuicklistEntryDao,
+                    World.ItemInstanceDao, World.InventoryItemInstanceDao, new HpService(), new MpService(), World.WorldConfiguration,
+                    World.CharacterSkillDao, World.ItemList, NullLoggerFactory.Instance, scope.Object);
         }
 
         private void AStarterItemDoesNotExist()
