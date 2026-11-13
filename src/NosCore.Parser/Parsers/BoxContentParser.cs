@@ -28,7 +28,7 @@ namespace NosCore.Parser.Parsers
         private const string ItemFile = "Item.dat";
         private const string EnglishItemText = "_code_uk_Item.txt";
 
-        [GeneratedRegex(@"^(\d+)x (.+)$")]
+        [GeneratedRegex(@"^([1-9]\d*)x (.+)$")]
         private static partial Regex ContentLine();
 
         [GeneratedRegex(@"\bone of (the following|these)\b", RegexOptions.IgnoreCase)]
