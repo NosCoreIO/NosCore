@@ -13,5 +13,7 @@ namespace NosCore.GameObject.Services.FamilyService
         Task CharacterLevelledUpAsync(long familyId, long characterId, string characterName, byte previousLevel, byte level);
 
         Task DailyMessageWrittenAsync(long familyId);
+
+        Task InstantCombatWonAsync(long familyId, long characterId);
     }
 }

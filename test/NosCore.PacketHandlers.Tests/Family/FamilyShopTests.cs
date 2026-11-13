@@ -116,7 +116,7 @@ namespace NosCore.PacketHandlers.Tests.Family
             var master = new FamilyExtensionService(_familyDao, _familyCharacterDao, familyUpgradeDao, new FamilyUpgradeService());
             var familyHub = new Mock<IFamilyHub>();
             _familyService = new FamilyService(_familyDao, _familyCharacterDao, World.CharacterDao,
-                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], familyHub.Object);
+                new Mock<IDao<FamilyQuestProgressDto, long>>().Object, [], familyHub.Object, World.Clock);
             familyHub.Setup(s => s.PurchaseExtensionAsync(It.IsAny<long>(), It.IsAny<long>(), It.IsAny<short>()))
                 .Returns((long familyId, long characterId, short vnum) => master.PurchaseAsync(familyId, characterId, vnum));
             var pubSubHub = new Mock<IPubSubHub>();

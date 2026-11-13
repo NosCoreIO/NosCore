@@ -19,6 +19,7 @@ using NosCore.GameObject.Networking;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.BattleService;
 using NosCore.GameObject.Services.BroadcastService;
+using NosCore.GameObject.Services.FamilyService;
 using NosCore.GameObject.Services.ItemGenerationService;
 using NosCore.GameObject.Services.MapChangeService;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -48,6 +49,7 @@ namespace NosCore.GameObject.Services.InstantCombatService
         IMapItemGenerationService mapItemGenerationService,
         IRandomProvider random,
         IInstantCombatRewardService rewardService,
+        IFamilyContributionService familyContributionService,
         IOptions<WorldConfiguration> worldConfiguration,
         IGameLanguageLocalizer gameLanguageLocalizer,
         ILogger<InstantCombatService> logger) : IInstantCombatService, ISingletonService
@@ -320,6 +322,10 @@ namespace NosCore.GameObject.Services.InstantCombatService
                 ArgumentType = 4,
                 Game18NArguments = { gold },
             });
+            if (character.Family is { } family)
+            {
+                await familyContributionService.InstantCombatWonAsync(family.FamilyId, character.CharacterId);
+            }
 
             var spPoints = rewardService.GetSpAdditionPoints(character.Level);
             character.AddAdditionalSpPoints(spPoints, worldConfiguration);

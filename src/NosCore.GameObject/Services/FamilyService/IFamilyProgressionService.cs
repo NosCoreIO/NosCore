@@ -15,6 +15,6 @@ namespace NosCore.GameObject.Services.FamilyService
         Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience);
 
         /// <returns>null when the family does not exist.</returns>
-        Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount);
+        Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, long? characterId, FamilyQuestObjective objective, int amount);
     }
 }

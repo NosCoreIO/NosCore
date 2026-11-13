@@ -5,6 +5,7 @@
 //
 
 using Mapster;
+using NodaTime;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations.Character;
@@ -21,7 +22,7 @@ namespace NosCore.GameObject.Services.FamilyService
     public class FamilyService(IDao<FamilyDto, long> familyDao,
         IDao<FamilyCharacterDto, long> familyCharacterDao,
         IDao<CharacterDto, long> characterDao, IDao<FamilyQuestProgressDto, long> familyQuestProgressDao,
-        List<FamilyQuestDto> familyQuests, IFamilyHub familyHub) : IFamilyService
+        List<FamilyQuestDto> familyQuests, IFamilyHub familyHub, IClock clock) : IFamilyService
     {
         public async Task<Family?> GetFamilyAsync(long characterId)
         {
@@ -43,9 +44,10 @@ namespace NosCore.GameObject.Services.FamilyService
             family.Members = familyCharacterDao.Where(s => s.FamilyId == family.FamilyId)?.ToList()
                 ?? new List<FamilyCharacterDto>();
             var quests = familyQuests.ToDictionary(s => s.QuestId);
+            var now = clock.GetCurrentInstant();
             family.Quests = (familyQuestProgressDao.Where(s => s.FamilyId == family.FamilyId) ?? [])
                 .Where(s => quests.ContainsKey(s.QuestId))
-                .Select(s => new FamilyQuestStatus(quests[s.QuestId], s))
+                .Select(s => new FamilyQuestStatus(quests[s.QuestId], FamilyQuestPeriod.Current(quests[s.QuestId], s, now)))
                 .ToList();
 
             var head = family.Members.FirstOrDefault(s => s.Authority == FamilyAuthority.Head);

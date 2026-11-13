@@ -17,7 +17,7 @@ public interface IFamilyHub
 
     Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience);
 
-    Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount);
+    Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, long? characterId, FamilyQuestObjective objective, int amount);
 
     Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds);
 

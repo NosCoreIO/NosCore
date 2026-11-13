@@ -26,5 +26,7 @@ namespace NosCore.Database.Entities
         public Instant? CompletedAt { get; set; }
 
         public int TotalCompletions { get; set; }
+
+        public Instant? ProgressedAt { get; set; }
     }
 }

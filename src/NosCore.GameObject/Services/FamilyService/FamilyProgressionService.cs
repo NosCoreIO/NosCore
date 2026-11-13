@@ -21,6 +21,7 @@ namespace NosCore.GameObject.Services.FamilyService
     // re-read and written under one lock.
     public class FamilyProgressionService(IDao<FamilyDto, long> familyDao,
         IDao<FamilyCharacterDto, long> familyCharacterDao, IDao<FamilyQuestProgressDto, long> familyQuestProgressDao,
+        IDao<FamilyQuestContributionDto, long> familyQuestContributionDao,
         List<FamilyQuestDto> familyQuests, IFamilyExperienceService familyExperienceService,
         IDaoTransactionScope daoTransactionScope, IClock clock) : IFamilyProgressionService
     {
@@ -37,12 +38,13 @@ namespace NosCore.GameObject.Services.FamilyService
             }
 
             membership.Experience += experience;
-            var progress = new Progress(family, LoadQuests(familyId), clock.GetCurrentInstant());
+            var progress = new Progress(family, LoadQuests(familyId), [], null, clock.GetCurrentInstant());
             Gain(progress, experience);
             return await SaveAsync(progress, membership);
         }
 
-        public async Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount)
+        public async Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, long? characterId,
+            FamilyQuestObjective objective, int amount)
         {
             using var _ = await FamilyRowLock.Instance.AcquireAsync();
             var family = await familyDao.FirstOrDefaultAsync(s => s.FamilyId == familyId);
@@ -51,7 +53,10 @@ namespace NosCore.GameObject.Services.FamilyService
                 return null;
             }
 
-            var progress = new Progress(family, LoadQuests(familyId), clock.GetCurrentInstant());
+            var contributions = characterId is { } id
+                ? (familyQuestContributionDao.Where(s => s.FamilyId == familyId && s.CharacterId == id) ?? []).ToDictionary(s => s.QuestId)
+                : [];
+            var progress = new Progress(family, LoadQuests(familyId), contributions, characterId, clock.GetCurrentInstant());
             Gain(progress, Advance(progress, objective, amount));
             return await SaveAsync(progress, null);
         }
@@ -87,9 +92,22 @@ namespace NosCore.GameObject.Services.FamilyService
             foreach (var quest in familyQuests.Where(s => s.Objective == objective).OrderBy(s => s.QuestId))
             {
                 progress.Quests.TryGetValue(quest.QuestId, out var row);
+                if (row != null && FamilyQuestPeriod.HasExpired(quest, row, progress.Now))
+                {
+                    row = FamilyQuestPeriod.Current(quest, row, progress.Now);
+                    progress.Quests[quest.QuestId] = row;
+                }
+
                 var previous = quest.PreviousQuestId is { } previousId ? progress.Quests.GetValueOrDefault(previousId) : null;
                 if (row?.CompletedAt != null || progress.Family.FamilyLevel < quest.FamilyLevelMinimum
                     || (quest.PreviousQuestId != null && previous?.CompletedAt == null))
+                {
+                    continue;
+                }
+
+                progress.Contributions.TryGetValue(quest.QuestId, out var contribution);
+                if (quest.OncePerMemberPerDay && (progress.CharacterId == null
+                    || contribution?.ContributedAt.InUtc().Date == progress.Now.InUtc().Date))
                 {
                     continue;
                 }
@@ -107,6 +125,17 @@ namespace NosCore.GameObject.Services.FamilyService
 
                 row ??= new FamilyQuestProgressDto { FamilyId = progress.Family.FamilyId, QuestId = quest.QuestId };
                 row.Progress = Math.Min(count, quest.Target);
+                row.ProgressedAt = progress.Now;
+                if (quest.OncePerMemberPerDay && progress.CharacterId is { } characterId)
+                {
+                    contribution ??= new FamilyQuestContributionDto
+                    {
+                        FamilyId = progress.Family.FamilyId, QuestId = quest.QuestId, CharacterId = characterId
+                    };
+                    contribution.ContributedAt = progress.Now;
+                    progress.Contributions[quest.QuestId] = contribution;
+                }
+
                 progress.Quests[quest.QuestId] = row;
                 progress.Changed.Add(row);
                 if (count < quest.Target)
@@ -141,6 +170,14 @@ namespace NosCore.GameObject.Services.FamilyService
                     }
                 }
 
+                foreach (var contribution in progress.Contributions.Values.Where(s => s.ContributedAt == progress.Now))
+                {
+                    if (await familyQuestContributionDao.TryInsertOrUpdateAsync(contribution) == null)
+                    {
+                        return null;
+                    }
+                }
+
                 await transaction.CommitAsync();
             }
 
@@ -150,11 +187,14 @@ namespace NosCore.GameObject.Services.FamilyService
             };
         }
 
-        private sealed class Progress(FamilyDto family, Dictionary<short, FamilyQuestProgressDto> quests, Instant now)
+        private sealed class Progress(FamilyDto family, Dictionary<short, FamilyQuestProgressDto> quests,
+            Dictionary<short, FamilyQuestContributionDto> contributions, long? characterId, Instant now)
         {
             public FamilyDto Family { get; } = family;
             public byte PreviousLevel { get; } = family.FamilyLevel;
             public Dictionary<short, FamilyQuestProgressDto> Quests { get; } = quests;
+            public Dictionary<short, FamilyQuestContributionDto> Contributions { get; } = contributions;
+            public long? CharacterId { get; } = characterId;
             public Instant Now { get; } = now;
             public List<FamilyQuestProgressDto> Changed { get; } = [];
             public List<short> Completed { get; } = [];

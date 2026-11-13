@@ -1860,8 +1860,22 @@ opens the list; its Achievements tab holds them.
       which also completes "Family Level 2 Unlocked" with its own message
 - [ ] Levelling a member up to fill the bar instead also completes "Family Level 2 Unlocked"
 - [ ] Logging in again keeps every completed date and the 20/100 count
-- [ ] Not verifiable yet: missions and the other achievements (raids, Rainbow Battle,
-      time-spaces), which have nothing that counts them yet
+- [ ] Not verifiable yet: the other achievements (raids, Rainbow Battle, time-spaces), which have
+      nothing that counts them yet
+
+### Family missions
+
+Run the parser's quest import first. `/mnt/project-files/instant-combat/reset-family-mission.sh`
+puts Tester's family at 9 of the 10 Instant Combats of "[Daily] Complete 10 Instant Combats".
+Open the family window's Missions button and pick "Daily Challenges" in the filter.
+
+- [ ] The mission shows "[9/10] (Total: 0)"
+- [ ] Winning an Instant Combat completes it: every member sees the unlock message, the family
+      gets its 3 000 FXP and the entry shows today's date
+- [ ] A second win by the same member on the same day does not count
+- [ ] The next day the mission shows as not started, with its total kept
+- [ ] Not verifiable yet: the other missions (raids, Rainbow Battle, Glacernon), which have
+      nothing that counts them yet
 
 ---
 

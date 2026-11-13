@@ -20,8 +20,8 @@ namespace NosCore.GameObject.InterChannelCommunication.Hubs.FamilyHub
         public Task<FamilyExperienceGain?> AddExperienceAsync(long familyId, long characterId, int experience) =>
             bus.RequestAsync<FamilyExperienceGain?>(new AddFamilyExperienceRequest(familyId, characterId, experience));
 
-        public Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, FamilyQuestObjective objective, int amount) =>
-            bus.RequestAsync<FamilyExperienceGain?>(new AdvanceFamilyQuestsRequest(familyId, objective, amount));
+        public Task<FamilyExperienceGain?> AdvanceQuestsAsync(long familyId, long? characterId, FamilyQuestObjective objective,
+            int amount) => bus.RequestAsync<FamilyExperienceGain?>(new AdvanceFamilyQuestsRequest(familyId, characterId, objective, amount));
 
         public Task<long?> CreateAsync(string name, byte maxSize, long headId, IReadOnlyList<long> deputyIds) =>
             bus.RequestAsync<long?>(new CreateFamilyRequest(name, maxSize, headId, deputyIds));

@@ -169,7 +169,7 @@ namespace NosCore.PacketHandlers.Tests.Family
         [TestMethod]
         public async Task ADailyMessageCountsTowardsTheFamilyAchievements()
         {
-            _familyHub.Setup(s => s.AdvanceQuestsAsync(FamilyId, FamilyQuestObjective.DailyMessage, 1))
+            _familyHub.Setup(s => s.AdvanceQuestsAsync(FamilyId, null, FamilyQuestObjective.DailyMessage, 1))
                 .ReturnsAsync(new FamilyExperienceGain(1, false) { CompletedQuestIds = [9037] });
 
             await World.Create<FamilyTodayPacketHandler>()

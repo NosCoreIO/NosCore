@@ -51,7 +51,11 @@ namespace NosCore.Parser.Parsers
                         .Select(i => Number(chunk["PRIZE"][0][i]))
                         .Sum(prize => prize is { } vnum ? FamilyExperiencePrizes.All.GetValueOrDefault((short)vnum) : 0),
                     [("PRIZE", 0, 1), ("PRIZE", 0, 2), ("PRIZE", 0, 3), ("PRIZE", 0, 4)],
-                    description: "Family experience from the reward items");
+                    description: "Family experience from the reward items")
+                .Field(x => x.ResetsDaily, chunk => (Number(chunk["VNUM"][0][3]), Number(chunk["VNUM"][0][4])) is ((int)FamilyQuestKind.Mission, 1),
+                    [("VNUM", 0, 3), ("VNUM", 0, 4)], description: "Category 1 missions are daily")
+                .Field(x => x.OncePerMemberPerDay, chunk => FamilyMissionLimits.OncePerMemberPerDay.Contains(Convert.ToInt16(chunk["VNUM"][0][1])),
+                    [("VNUM", 0, 1)], description: "Each member counts once a day");
         }
 
         public async Task InsertFamilyQuestsAsync(string folder)
@@ -67,6 +71,7 @@ namespace NosCore.Parser.Parsers
             {
                 ((int)FamilyQuestKind.Achievement, 0, 0) => FamilyQuestObjective.FamilyLevel,
                 ((int)FamilyQuestKind.Achievement, 0, 1) => FamilyQuestObjective.DailyMessage,
+                ((int)FamilyQuestKind.Mission, 1, 4) => FamilyQuestObjective.InstantCombat,
                 _ => null
             };
 

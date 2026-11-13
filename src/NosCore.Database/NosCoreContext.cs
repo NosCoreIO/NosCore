@@ -78,6 +78,8 @@ namespace NosCore.Database
 
         public virtual DbSet<FamilyQuestProgress>? FamilyQuestProgress { get; set; }
 
+        public virtual DbSet<FamilyQuestContribution>? FamilyQuestContribution { get; set; }
+
         public virtual DbSet<FamilyUpgrade>? FamilyUpgrade { get; set; }
 
         public virtual DbSet<MinigameReward>? MinigameReward { get; set; }
@@ -412,6 +414,16 @@ namespace NosCore.Database
 
             modelBuilder.Entity<FamilyQuestProgress>()
                 .HasIndex(e => new { e.FamilyId, e.QuestId })
+                .IsUnique();
+
+            modelBuilder.Entity<Family>()
+                .HasMany(e => e.FamilyQuestContributions)
+                .WithOne(e => e.Family)
+                .HasForeignKey(e => e.FamilyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FamilyQuestContribution>()
+                .HasIndex(e => new { e.FamilyId, e.QuestId, e.CharacterId })
                 .IsUnique();
 
             modelBuilder.Entity<FamilyCharacter>()

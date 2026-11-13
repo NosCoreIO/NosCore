@@ -18,6 +18,7 @@ namespace NosCore.Database.Entities
             FamilyCharacters = new HashSet<FamilyCharacter>();
             FamilyLogs = new HashSet<FamilyLog>();
             FamilyQuestProgresses = new HashSet<FamilyQuestProgress>();
+            FamilyQuestContributions = new HashSet<FamilyQuestContribution>();
             Warehouses = new HashSet<Warehouse>();
         }
 
@@ -37,6 +38,8 @@ namespace NosCore.Database.Entities
         public virtual ICollection<FamilyLog> FamilyLogs { get; set; }
 
         public virtual ICollection<FamilyQuestProgress> FamilyQuestProgresses { get; set; }
+
+        public virtual ICollection<FamilyQuestContribution> FamilyQuestContributions { get; set; }
 
         [MaxLength(255)]
         public string? FamilyMessage { get; set; }
