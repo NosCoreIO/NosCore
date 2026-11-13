@@ -6,6 +6,7 @@
 
 using NosCore.Data.Enumerations;
 using NosCore.Data.Enumerations.Character;
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Services.InventoryService;
 using NosCore.GameObject.Services.ItemGenerationService.Item;
 using NosCore.GameObject.Services.MapInstanceGenerationService;
@@ -19,6 +20,7 @@ using NosCore.Packets.ServerPackets.Player;
 using NosCore.Packets.ServerPackets.Visibility;
 using NosCore.Networking;
 using NosCore.Shared.Enumerations;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -82,7 +84,23 @@ namespace NosCore.GameObject.Ecs.Extensions
 
         public static short Morph(this Mate mate) => mate.SpecialistMorph ?? (mate.Skin != 0 ? mate.Skin : (short)-1);
 
-        public static ScnPacket GenerateScn(this Mate mate, RegionType language, IInventoryService inventory)
+        public static PSkiPacket GeneratePski(this IReadOnlyList<SkillDto> skills) => new()
+        {
+            FirstSkill = SkillAt(skills, 0),
+            SecondSkill = SkillAt(skills, 1),
+            ThirdSkill = SkillAt(skills, 2)
+        };
+
+        private static short SkillAt(IReadOnlyList<SkillDto>? skills, int slot) =>
+            skills != null && slot < skills.Count ? skills[slot].SkillVNum : (short)0;
+
+        private static ScnPacket.ScSkillDetails? SkillDetails(IReadOnlyList<SkillDto>? skills, int slot) =>
+            skills != null && slot < skills.Count
+                ? new ScnPacket.ScSkillDetails { SkillId = skills[slot].SkillVNum, Rank = SpPartnerRank.NotIdentifiedYet }
+                : null;
+
+        public static ScnPacket GenerateScn(this Mate mate, RegionType language, IInventoryService inventory,
+            IReadOnlyList<SkillDto>? skills = null)
         {
             var specialist = mate.Specialist(inventory);
             return new ScnPacket
@@ -124,14 +142,15 @@ namespace NosCore.GameObject.Ecs.Extensions
                 MorphId = mate.Morph(),
                 IsSummonable = mate.IsSummonable,
                 SpDetails = specialist is null ? null : new ScnPacket.ScSpDetails { ItemId = specialist.ItemVNum },
-                Skill1Details = null,
-                Skill2Details = null,
-                Skill3Details = null,
+                Skill1Details = SkillDetails(skills, 0),
+                Skill2Details = SkillDetails(skills, 1),
+                Skill3Details = SkillDetails(skills, 2),
                 Unknown6 = specialist is null ? null : (byte)0
             };
         }
 
-        public static InPacket GenerateIn(this Mate mate, RegionType language, short x, short y)
+        public static InPacket GenerateIn(this Mate mate, RegionType language, short x, short y,
+            IReadOnlyList<SkillDto>? skills = null)
         {
             return new InPacket
             {
@@ -156,7 +175,10 @@ namespace NosCore.GameObject.Ecs.Extensions
                     IsSitting = false,
                     Morph = mate.Morph(),
                     Name = mate.DisplayName(language),
-                    Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 0)
+                    Unknow1 = (byte)(mate.MateType == MateType.Partner ? 1 : 0),
+                    Skill1 = SkillAt(skills, 0),
+                    Skill2 = SkillAt(skills, 1),
+                    Skill3 = SkillAt(skills, 2)
                 }
             };
         }

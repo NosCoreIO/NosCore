@@ -97,6 +97,7 @@
 | MinilandObjectPoint | Int32 | DATA[2] (miniland only) | Miniland point value |
 | Morph | Int16 | DATA[4] (partner skin) or INDEX[7] | Morph id: the partner skin's look, else the item's own |
 | Mp | Int16 | DATA[varies] | Mp bonus on equip |
+| PartnerSkillSet | Byte | DATA[14] (partner SP only) | Partner SP skill set: the UpgradeType shared by its three partner skills, one more than the raw value |
 | ReputationMinimum | Byte | DATA[varies] | Minimum reputation tier |
 | ReputPrice | Int64 | FLAG[20] + VNUM[1] | Reputation price when FLAG[20] is set |
 | Sex | Byte | FLAG[16] + FLAG[17] | Genders allowed, one bit per GenderType: 1=male only, 2=female only, 0=any |

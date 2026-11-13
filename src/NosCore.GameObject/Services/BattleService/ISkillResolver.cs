@@ -4,6 +4,7 @@
 // |_|\__|\__/ |___/ \__/\__/|_|_\___|
 //
 
+using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs.Interfaces;
 using NosCore.GameObject.Services.BattleService.Model;
 
@@ -15,4 +16,6 @@ namespace NosCore.GameObject.Services.BattleService;
 public interface ISkillResolver
 {
     SkillInfo? Resolve(IAliveEntity caster, long castId);
+
+    SkillInfo Describe(SkillDto skill);
 }

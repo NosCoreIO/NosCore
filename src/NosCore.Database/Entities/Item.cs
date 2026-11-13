@@ -163,6 +163,8 @@ namespace NosCore.Database.Entities
 
         public short Mp { get; set; }
 
+        public byte PartnerSkillSet { get; set; }
+
         public short MpRegeneration { get; set; }
 
         [Required]
