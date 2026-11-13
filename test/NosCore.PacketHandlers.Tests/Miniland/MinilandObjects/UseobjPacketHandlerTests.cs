@@ -100,7 +100,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 World.LogLanguageLocalizer, new RarityPointService());
             _useobjPacketHandler = new UseobjPacketHandler(_minilandProvider,
                 new PersonalWarehouseService(new WarehouseTransferService(_warehouseHubMock.Object, _itemInstanceDaoMock.Object,
-                    new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _itemProvider)),
+                    new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _itemProvider, new Mock<NosCore.GameObject.Services.SaveService.ISaveService>().Object)),
                 MinigameRewards);
         }
 

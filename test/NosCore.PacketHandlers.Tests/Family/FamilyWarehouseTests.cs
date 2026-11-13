@@ -43,6 +43,7 @@ namespace NosCore.PacketHandlers.Tests.Family
     [TestClass]
     public class FamilyWarehouseTests
     {
+        private readonly Mock<NosCore.GameObject.Services.SaveService.ISaveService> _saves = new();
         private TestWorld World;
         private const long FamilyId = 9;
         private ClientSession _session;
@@ -173,7 +174,7 @@ namespace NosCore.PacketHandlers.Tests.Family
                 .ReturnsAsync((Expression<Func<IItemInstanceDto?, bool>> p) => _instances.Values.FirstOrDefault(p.Compile()));
 
             return new FamilyWarehouseService(new WarehouseTransferService(hub.Object, instances.Object,
-                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items), _log.Object, World.Clock);
+                new Mock<IDao<InventoryItemInstanceDto, Guid>>().Object, _items, _saves.Object), _log.Object, World.Clock);
         }
 
         private void Store(short vnum, short amount, short slot)

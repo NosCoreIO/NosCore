@@ -1426,6 +1426,8 @@ warehouse (3005) placed in the miniland; `mates.sh` adds a pet and a partner out
       partner's backpack?" and Confirm opens the Partner's Backpack with 50 slots; deposit and
       withdraw work there too, and its content is separate from the warehouse
 - [ ] Log out and back in: stored items are still in their slots
+- [ ] Deposit part of a stack, or withdraw a stack, then stop the world server without logging
+      out: after a restart the items are where the transfer left them, once and only once
 
 ### Invite cooldown and blacklist
 

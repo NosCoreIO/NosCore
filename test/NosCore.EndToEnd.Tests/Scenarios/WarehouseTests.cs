@@ -146,6 +146,34 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task APartlyDepositedStackIsStoredAsSplit()
+        {
+            var player = await OwnerAsync(5);
+            await using var alice = await EnterAsync(player);
+
+            await alice.SendAsync($"deposit {EtcPocket} 0 3 0 0");
+            await alice.ExpectAsync(p => p == Stored(0, 3), "the three in the warehouse");
+
+            Assert.AreEqual(3, (await StoredInWarehouseAsync(player.CharacterId)).Sum(s => s.Amount));
+            Assert.AreEqual(2, await StoredInBagAsync(player.CharacterId), "the stored bag holds what was not deposited");
+        }
+
+        [TestMethod]
+        public async Task AWithdrawnItemIsStoredInTheBag()
+        {
+            var player = await OwnerAsync(5);
+            await using var alice = await EnterAsync(player);
+            await alice.SendAsync($"deposit {EtcPocket} 0 5 0 0");
+            await alice.ExpectAsync(p => p == Stored(0, 5), "the five in the warehouse");
+
+            await alice.SendAsync("withdraw 0 5 0");
+            await alice.ExpectAsync(p => p == EmptyStorageSlot(0), "the emptied warehouse slot");
+
+            Assert.AreEqual(0, (await StoredInWarehouseAsync(player.CharacterId)).Length);
+            Assert.AreEqual(5, await StoredInBagAsync(player.CharacterId), "the stored bag holds what was taken out");
+        }
+
+        [TestMethod]
         public async Task WhatIsInTheWarehouseIsThereAfterComingBack()
         {
             var player = await OwnerAsync(5);
