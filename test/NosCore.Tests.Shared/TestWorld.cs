@@ -352,6 +352,7 @@ namespace NosCore.Tests.Shared
                 characterDto.HeroLevel,
                 characterDto.HeroXp,
                 characterDto.Gold,
+                account.BankMoney,
                 characterDto.Reput,
                 characterDto.SpPoint,
                 characterDto.SpAdditionPoint,

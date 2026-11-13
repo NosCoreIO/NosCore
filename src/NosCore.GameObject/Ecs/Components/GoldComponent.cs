@@ -6,4 +6,5 @@
 
 namespace NosCore.GameObject.Ecs.Components;
 
-public record struct GoldComponent(long Gold);
+// BankGold belongs to the account; only one of its characters is ever in the world.
+public record struct GoldComponent(long Gold, long BankGold);
