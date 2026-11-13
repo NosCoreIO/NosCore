@@ -137,7 +137,9 @@ Start.
 dotnet test NosCore.sln
 ```
 
-They use an in-memory database and need none of the above.
+The unit tests use an in-memory database and need none of the above. The end-to-end scenarios
+(`test/NosCore.EndToEnd.Tests`) start the three servers against a database of their own; they
+need the PostgreSQL from above and report themselves as not run without it.
 
 ## When something does not work
 
