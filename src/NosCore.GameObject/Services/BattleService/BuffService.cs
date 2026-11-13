@@ -456,7 +456,7 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             }
 
             var card = cardCatalog.GetCard(cardId);
-            if (card == null)
+            if (card == null || (card.BuffType == BuffType.Bad && IsImmuneToDebuffs(target)))
             {
                 continue;
             }
@@ -464,6 +464,9 @@ public sealed class BuffService(IClock clock, ICardCatalog cardCatalog,
             await ApplyAsync(target, card, cardCatalog.GetCardBCards(cardId), caster);
         }
     }
+
+    private static bool IsImmuneToDebuffs(IAliveEntity target) =>
+        target is INonPlayableEntity { NpcMonster.CantDebuff: true };
 
     private async Task ApplyTimeoutBuffAsync(IAliveEntity target, BuffInstance expired)
     {

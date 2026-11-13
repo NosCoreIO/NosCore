@@ -34,7 +34,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private IAliveEntity _target;
         private IAliveEntity _caster;
 
-        private static readonly CardDto StunCard = new() { CardId = StunCardId, Duration = 30 };
+        private const short BlessingCardId = 8;
+
+        private static readonly CardDto StunCard = new() { CardId = StunCardId, Duration = 30, BuffType = BuffType.Bad };
+
+        private static readonly CardDto BlessingCard = new() { CardId = BlessingCardId, Duration = 30, BuffType = BuffType.Good };
 
         private static readonly List<BCardDto> StunCardEffects = new()
         {
@@ -56,6 +60,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _catalog = new Mock<ICardCatalog>();
             _catalog.Setup(c => c.GetCard(StunCardId)).Returns(StunCard);
             _catalog.Setup(c => c.GetCardBCards(StunCardId)).Returns(StunCardEffects);
+            _catalog.Setup(c => c.GetCard(BlessingCardId)).Returns(BlessingCard);
+            _catalog.Setup(c => c.GetCardBCards(BlessingCardId)).Returns(new List<BCardDto>());
 
             _random = new Mock<IRandomProvider>();
             _world = new MapWorld();
@@ -68,11 +74,11 @@ namespace NosCore.GameObject.Tests.Services.BattleService
 
         // A bundle carrying only the two components the buff path reads. MapInstance comes off
         // NpcStateComponent and is left null, so ApplyAsync stores the buff and sends no packet.
-        private IAliveEntity Entity() =>
+        private IAliveEntity Entity(bool immuneToDebuffs = false) =>
             new MonsterComponentBundle(
                 _world.Exclusive(w => w.Create(
                     new BuffStateComponent(new ConcurrentDictionary<short, BuffInstance>()),
-                    new NpcStateComponent())),
+                    new NpcStateComponent { NpcMonster = new NpcMonsterDto { CantDebuff = immuneToDebuffs } })),
                 _world);
 
         private void RollGives(int value) => _random.Setup(r => r.Next(0, 100)).Returns(value);
@@ -159,6 +165,28 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, 9999));
 
             Assert.AreEqual(0, _service.GetActiveBuffs(_target).Count);
+        }
+
+        [TestMethod]
+        public async Task AMonsterImmuneToDebuffsResistsABadCard()
+        {
+            RollGives(0);
+            _target = Entity(immuneToDebuffs: true);
+
+            await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, StunCardId));
+
+            Assert.AreEqual(0, _service.GetActiveBuffs(_target).Count);
+        }
+
+        [TestMethod]
+        public async Task AMonsterImmuneToDebuffsStillTakesAGoodCard()
+        {
+            RollGives(0);
+            _target = Entity(immuneToDebuffs: true);
+
+            await Inflict(Declares(BCardEffect.BuffChanceCausing, 100, BlessingCardId));
+
+            Assert.IsTrue(_service.HasBuff(_target, BlessingCardId));
         }
     }
 }
