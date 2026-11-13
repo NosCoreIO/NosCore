@@ -61,6 +61,7 @@ namespace NosCore.GameObject.Services.SaveService
                 characterDto.Reput = character.Reput;
                 characterDto.Dignity = character.Dignity;
                 characterDto.Compliment = character.Compliment;
+                characterDto.Faction = character.Faction;
                 // Off a base map the saved position stays the last base-map one, so leaving an
                 // instance or a miniland after a relog still lands there.
                 if (character.MapInstance?.MapInstanceType == MapInstanceType.BaseMapInstance)

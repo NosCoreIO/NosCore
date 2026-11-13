@@ -407,7 +407,8 @@ public class MapWorld : IDisposable
         byte speed,
         AuthorityType authority,
         bool isGm,
-        int serverId)
+        int serverId,
+        FactionType faction)
     {
         var now = SystemClock.Instance.GetCurrentInstant();
         using var scope = _sync.EnterScope();
@@ -440,6 +441,7 @@ public class MapWorld : IDisposable
         );
         _world.Add(entity, new BaseMapPositionComponent(mapId, positionX, positionY));
         _world.Add(entity, new SkillResetComponent(new ConcurrentDictionary<long, Instant>()));
+        _world.Add(entity, new FactionComponent(faction));
         return entity;
     }
 
@@ -471,7 +473,8 @@ public class MapWorld : IDisposable
         DigestionComponent digestion,
         HitListComponent hitList,
         BaseMapPositionComponent baseMapPosition,
-        SkillResetComponent skillResets)
+        SkillResetComponent skillResets,
+        FactionComponent faction)
     {
         // World.Create stops short of 25 generic components, so the last ones are added afterwards.
         using var scope = _sync.EnterScope();
@@ -488,6 +491,7 @@ public class MapWorld : IDisposable
         _world.Add(entity, new ListedTargetsComponent(null));
         _world.Add(entity, new MinigameSessionComponent(null, Instant.MinValue, null));
         _world.Add(entity, skillResets);
+        _world.Add(entity, faction);
         return entity;
     }
 

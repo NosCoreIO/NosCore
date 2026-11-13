@@ -304,6 +304,28 @@ namespace NosCore.GameObject.Tests.Services.SaveService
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task SavingCharacterPersistsItsFaction()
+        {
+            await new Spec("Saving the character writes its faction")
+                .Given(CharacterJoins_, FactionType.Demon)
+                .WhenAsync(SavingCharacter)
+                .ThenAsync(PersistedFactionShouldBe_, FactionType.Demon)
+                .ExecuteAsync();
+        }
+
+        private void CharacterJoins_(FactionType faction)
+        {
+            Session.Character.Faction = faction;
+        }
+
+        private async Task PersistedFactionShouldBe_(FactionType expected)
+        {
+            var characterId = Session.Character.CharacterId;
+            var persisted = (await World.CharacterDao.FirstOrDefaultAsync(c => c.CharacterId == characterId)).NotNull();
+            Assert.AreEqual(expected, persisted.Faction);
+        }
+
         private void CharacterHasBankGold_(long bankGold)
         {
             Session.Character.BankGold = bankGold;

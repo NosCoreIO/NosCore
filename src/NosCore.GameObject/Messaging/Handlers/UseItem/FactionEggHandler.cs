@@ -47,7 +47,7 @@ public sealed class FactionEggHandler
             return;
         }
 
-        if (character.CharacterDto.Faction == faction)
+        if (character.Faction == faction)
         {
             await session.SendPacketAsync(new MsgiPacket
             {
@@ -81,7 +81,7 @@ public sealed class FactionEggHandler
             return;
         }
 
-        character.CharacterDto.Faction = faction;
+        character.Faction = faction;
         character.CharacterDto.Act4Points = 0;
         await session.SendPacketAsync(evt.InventoryItem.GeneratePocketChange((PocketType)evt.InventoryItem.Type, evt.InventoryItem.Slot));
         await session.SendPacketAsync(character.GenerateFaction());
