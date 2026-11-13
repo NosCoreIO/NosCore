@@ -164,7 +164,8 @@ namespace NosCore.GameObject.Services.MapInstanceGenerationService
 
         private async Task LoadPortalsAsync(MapInstance mapInstance, List<PortalDto> portals)
         {
-            var portalList = await Task.WhenAll(portals.Adapt<List<Portal>>().Select(portal =>
+            // A miniland entrance leads somewhere different for each player, so the miniland service hands it out.
+            var portalList = await Task.WhenAll(portals.Where(p => p.Type != PortalType.Miniland).Adapt<List<Portal>>().Select(portal =>
              {
                  portal.SourceMapInstanceId = mapInstance.MapInstanceId;
                  if (portal.DestinationMapInstanceId == default)

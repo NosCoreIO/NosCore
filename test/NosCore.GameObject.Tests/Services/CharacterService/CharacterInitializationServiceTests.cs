@@ -46,6 +46,8 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
                 OwnerId = Session.Character.CharacterId
             });
 
+            await World.SeedMinilandEntrancesAsync();
+
             MinilandService = new GameObject.Services.MinilandService.MinilandService(
                 World.MapInstanceAccessorService,
                 FriendHttpClient.Object,
@@ -60,6 +62,7 @@ namespace NosCore.GameObject.Tests.Services.CharacterService
                 },
                 World.MinilandDao,
                 World.MinilandObjectDao,
+                World.PortalDao,
                 World.Create<MinilandRegistry>());
 
             Service = new CharacterInitializationService(MinilandService, World.MapInstanceGeneratorService);

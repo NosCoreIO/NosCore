@@ -103,6 +103,22 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        public async Task PortalParser_CreatesTheMinilandEntrances()
+        {
+            var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);
+            await parser.InsertPortalsAsync(new List<string[]>());
+
+            var entrances = _savedPortals.Where(p => p.Type == PortalType.Miniland)
+                .Select(p => (p.SourceMapId, p.SourceX, p.SourceY, p.DestinationMapId))
+                .ToList();
+            CollectionAssert.AreEquivalent(new List<(short, short, short, short)>
+            {
+                (1, 48, 132, 20001),
+                (145, 9, 171, 20001),
+            }, entrances);
+        }
+
+        [TestMethod]
         public async Task PortalParser_CreatesTheArenaExits()
         {
             var parser = new PortalParser(_loggerMock.Object, _mapDaoMock.Object, _portalDaoMock.Object, _logLanguageMock.Object);

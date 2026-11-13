@@ -28,46 +28,43 @@ namespace NosCore.GameObject.Services.MinilandService
     public class MinilandService(IMapInstanceAccessorService mapInstanceAccessorService,
             IFriendHub friendHttpClient, List<MapDto> maps,
             IDao<MinilandDto, Guid> minilandDao, IDao<MinilandObjectDto, Guid> minilandObjectsDao,
-            IMinilandRegistry minilandRegistry)
+            IDao<PortalDto, int> portalDao, IMinilandRegistry minilandRegistry)
         : IMinilandService
     {
+        private readonly Lazy<List<PortalDto>> _entrances = new(() =>
+            portalDao.Where(s => s.Type == PortalType.Miniland)?.ToList() ?? []);
+
         public List<Portal> GetMinilandPortals(long characterId)
         {
-            if (mapInstanceAccessorService.GetBaseMapById(1) is not { } nosville
-                || mapInstanceAccessorService.GetBaseMapById(145) is not { } oldNosville
-                || minilandRegistry.GetByCharacterId(characterId) is not { } minilandInfo
+            if (minilandRegistry.GetByCharacterId(characterId) is not { } minilandInfo
                 || mapInstanceAccessorService.GetMapInstance(minilandInfo.MapInstanceId) is not { } miniland)
             {
-                return new List<Portal>();
+                return [];
             }
 
-            return new List<Portal>
+            var portals = new List<Portal>();
+            foreach (var entrance in _entrances.Value)
             {
-                new()
+                if (mapInstanceAccessorService.GetBaseMapById(entrance.SourceMapId) is not { } source)
                 {
-                    SourceX = 48,
-                    SourceY = 132,
-                    DestinationX = 5,
-                    DestinationY = 8,
-                    Type = PortalType.Miniland,
-                    SourceMapId = 1,
-                    DestinationMapId = 20001,
-                    DestinationMapInstanceId = miniland.MapInstanceId,
-                    SourceMapInstanceId = nosville.MapInstanceId
-                },
-                new()
-                {
-                    SourceX = 9,
-                    SourceY = 171,
-                    DestinationX = 5,
-                    DestinationY = 8,
-                    Type = PortalType.Miniland,
-                    SourceMapId = 145,
-                    DestinationMapId = 20001,
-                    DestinationMapInstanceId = miniland.MapInstanceId,
-                    SourceMapInstanceId = oldNosville.MapInstanceId
+                    continue;
                 }
-            };
+
+                portals.Add(new Portal
+                {
+                    SourceX = entrance.SourceX,
+                    SourceY = entrance.SourceY,
+                    DestinationX = entrance.DestinationX,
+                    DestinationY = entrance.DestinationY,
+                    Type = PortalType.Miniland,
+                    SourceMapId = entrance.SourceMapId,
+                    DestinationMapId = entrance.DestinationMapId,
+                    DestinationMapInstanceId = miniland.MapInstanceId,
+                    SourceMapInstanceId = source.MapInstanceId
+                });
+            }
+
+            return portals;
         }
 
         public Miniland GetMiniland(long characterId)
@@ -134,7 +131,7 @@ namespace NosCore.GameObject.Services.MinilandService
                 }
             }
 
-            var map = maps.First(s => s.MapId == 20001);
+            var map = maps.First(s => s.MapId == _entrances.Value.First().DestinationMapId);
             var miniland = generator.CreateMapInstance(map.Adapt<Map.Map>(), Guid.NewGuid(), map.ShopAllowed,
                 MapInstanceType.NormalInstance);
 

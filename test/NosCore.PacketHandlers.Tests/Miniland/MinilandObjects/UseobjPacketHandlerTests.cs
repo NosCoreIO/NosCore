@@ -76,6 +76,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
             {
                 OwnerId = _session.Character.CharacterId,
             });
+            await World.SeedMinilandEntrancesAsync();
             _minilandProvider = new MinilandService(World.MapInstanceAccessorService,
                 World.FriendHub.Object,
                 new List<MapDto> {new Map
@@ -85,7 +86,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                     Data = new byte[] {}
                 }},
                 World.MinilandDao,
-                World.MinilandObjectDao, World.Create<MinilandRegistry>());
+                World.MinilandObjectDao, World.PortalDao, World.Create<MinilandRegistry>());
             await _minilandProvider.InitializeAsync(_session.Character, World.MapInstanceGeneratorService);
             var miniland = _minilandProvider.GetMiniland(_session.Character.CharacterId);
             var mapInstance = World.GetMap(miniland.MapInstanceId);
