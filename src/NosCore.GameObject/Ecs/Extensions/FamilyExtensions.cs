@@ -9,6 +9,7 @@ using NosCore.Core.I18N;
 using NosCore.Data.Enumerations.Family;
 using NosCore.Data.Enumerations.I18N;
 using FamilyRankingType = NosCore.Packets.Enumerations.FamilyRankingType;
+using FamilyWarehouseLogType = NosCore.Packets.Enumerations.FamilyWarehouseLogType;
 using FamilyRankingTypeExtensions = NosCore.Packets.Enumerations.FamilyRankingTypeExtensions;
 using NosCore.Packets.ServerPackets.Families;
 using NosCore.Shared.Enumerations;
@@ -16,6 +17,7 @@ using NodaTime;
 using NosCore.Data.Dto;
 using NosCore.GameObject.Services.FamilyService;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 
 namespace NosCore.GameObject.Ecs.Extensions;
@@ -155,6 +157,21 @@ public static class FamilyExtensions
             HoursAgo = (int)(now - s.Timestamp).TotalHours
         }).ToList()
     };
+
+    public static FslogStcPacket GenerateFslog(this IEnumerable<FamilyLogDto> warehouseHistory, Instant now) => new()
+    {
+        Entries = warehouseHistory.Select(s => (FslogStcSubPacket?)new FslogStcSubPacket
+        {
+            Type = s.FamilyLogType == FamilyLogType.WareHouseAdded ? FamilyWarehouseLogType.Deposit : FamilyWarehouseLogType.Withdrawal,
+            CharacterName = s.FirstArgument,
+            ItemVNum = ParseShort(s.SecondArgument),
+            Amount = ParseShort(s.ThirdArgument),
+            HoursAgo = (int)(now - s.Timestamp).TotalHours
+        }).ToList()
+    };
+
+    private static short ParseShort(string? value) =>
+        short.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed) ? parsed : default;
 
     public static FrankStcPacket GenerateFrank(this IEnumerable<FamilyRankingEntry> ranking, FamilyRankingType type) => new()
     {

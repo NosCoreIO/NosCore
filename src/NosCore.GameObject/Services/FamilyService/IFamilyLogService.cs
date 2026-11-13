@@ -20,6 +20,9 @@ namespace NosCore.GameObject.Services.FamilyService
         /// <summary>The newest entries first, without the warehouse's own entries.</summary>
         IReadOnlyList<FamilyLogDto> GetHistory(long familyId);
 
+        /// <summary>The warehouse's own entries, newest first.</summary>
+        IReadOnlyList<FamilyLogDto> GetWarehouseHistory(long familyId);
+
         Task<bool> HasWrittenDailyMessageTodayAsync(long familyId, string characterName);
     }
 }

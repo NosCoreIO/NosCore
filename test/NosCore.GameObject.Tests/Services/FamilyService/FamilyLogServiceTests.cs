@@ -86,6 +86,19 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
         }
 
         [TestMethod]
+        public async Task TheWarehouseHistoryHoldsOnlyWarehouseEntriesNewestFirst()
+        {
+            await new Spec("The warehouse history lists deposits and withdrawals newest first and nothing else")
+                .Given(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.WareHouseAdded, FamilyId, 5)
+                .And(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.UserManaged, FamilyId, 1)
+                .And(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.WareHouseRemoved, FamilyId, 2)
+                .And(AnEntryOfType_For_Written_HoursAgo, FamilyLogType.WareHouseRemoved, FamilyId + 1, 0)
+                .When(ReadingTheWarehouseHistory)
+                .Then(TheHistoryTypesShouldBe_, new[] { FamilyLogType.WareHouseRemoved, FamilyLogType.WareHouseAdded })
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
         public async Task TheHistoryKeepsTheNewestFifty()
         {
             await new Spec("Only the 50 newest entries are listed")
@@ -230,6 +243,8 @@ namespace NosCore.GameObject.Tests.Services.FamilyService
                 AnEntryOfType_For_Written_HoursAgo(FamilyLogType.LevelUp, FamilyId, i);
             }
         }
+
+        private void ReadingTheWarehouseHistory() => _history = _service.GetWarehouseHistory(FamilyId);
 
         private void ReadingTheHistory() => _history = _service.GetHistory(FamilyId);
 

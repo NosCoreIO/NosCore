@@ -5,6 +5,7 @@
 //
 
 using Mapster;
+using NodaTime;
 using NosCore.Dao.Interfaces;
 using NosCore.Data.Dto;
 using NosCore.Data.Enumerations;
@@ -24,11 +25,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FamilyAuthority = NosCore.Data.Enumerations.Family.FamilyAuthority;
+using FamilyLogType = NosCore.Data.Enumerations.Family.FamilyLogType;
 
 namespace NosCore.GameObject.Services.FamilyService
 {
     public class FamilyWarehouseService(IWarehouseHub warehouseHub, IDao<IItemInstanceDto?, Guid> itemInstanceDao,
-        IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider)
+        IDao<InventoryItemInstanceDto, Guid> inventoryItemInstanceDao, IItemGenerationService itemProvider,
+        IFamilyLogService familyLogService, IClock clock)
         : IFamilyWarehouseService
     {
         public async Task OpenAsync(ClientSession session)
@@ -46,6 +49,17 @@ namespace NosCore.GameObject.Services.FamilyService
                 WarehouseSize = family.WarehouseSize,
                 Items = items.Select(s => s.Item.GenerateWarehouseSubPacket(s.Slot)).ToList()
             });
+        }
+
+        public Task OpenHistoryAsync(ClientSession session)
+        {
+            var family = session.Character.Family;
+            if (family == null || !family.CanGetHistory(session.Character.CharacterId))
+            {
+                return session.SendPacketAsync(new InfoiPacket { Message = Game18NConstString.NotAuthorized });
+            }
+
+            return session.SendPacketAsync(familyLogService.GetWarehouseHistory(family.FamilyId).GenerateFslog(clock.GetCurrentInstant()));
         }
 
         public async Task DepositAsync(ClientSession session, PocketType pocket, short slot, short amount, short warehouseSlot)
@@ -96,6 +110,7 @@ namespace NosCore.GameObject.Services.FamilyService
 
             await session.SendPacketAsync(remaining.GeneratePocketChange(pocket, slot));
             await SendSlotAsync(session, stored, warehouseSlot);
+            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.WareHouseAdded, session.Character.Name, stored.ItemVNum, amount);
         }
 
         public async Task WithdrawAsync(ClientSession session, short warehouseSlot, short amount)
@@ -140,6 +155,7 @@ namespace NosCore.GameObject.Services.FamilyService
 
             await session.SendPacketAsync(added.GeneratePocketChange());
             await SendSlotAsync(session, left, warehouseSlot);
+            await familyLogService.AddAsync(family.FamilyId, FamilyLogType.WareHouseRemoved, session.Character.Name, taken.ItemVNum, amount);
         }
 
         public async Task MoveAsync(ClientSession session, short sourceSlot, short amount, short destinationSlot)
