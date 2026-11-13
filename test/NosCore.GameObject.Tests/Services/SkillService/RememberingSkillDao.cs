@@ -19,8 +19,18 @@ namespace NosCore.GameObject.Tests.Services.SkillService
     {
         public List<CharacterSkillDto> Rows { get; } = new();
 
+        public bool FailWrites { get; set; }
+
         public Task<CharacterSkillDto> TryInsertOrUpdateAsync(CharacterSkillDto dto)
         {
+            if (FailWrites)
+            {
+                // The store answers a failed write with null, though its signature does not say so.
+#nullable disable warnings
+                return Task.FromResult<CharacterSkillDto>(null);
+#nullable restore warnings
+            }
+
             Rows.RemoveAll(r => r.Id == dto.Id);
             Rows.Add(dto);
             return Task.FromResult(dto);

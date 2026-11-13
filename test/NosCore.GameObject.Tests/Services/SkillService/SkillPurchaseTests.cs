@@ -184,6 +184,20 @@ namespace NosCore.GameObject.Tests.Services.SkillService
         }
 
         [TestMethod]
+        public async Task AFailedSaveKeepsTheBookTheGoldAndTheWeakerPassive()
+        {
+            Know(Beginner);
+            _dao.FailWrites = true;
+
+            Assert.IsFalse(await _service.LearnFromBookAsync(_session.Character, 21));
+            await _service.BuyAsync(_session.Character, Advanced);
+
+            Assert.IsTrue(_session.Character.Skills.ContainsKey(20));
+            Assert.IsFalse(_session.Character.Skills.ContainsKey(21));
+            Assert.AreEqual(100_000, _session.Character.Gold);
+        }
+
+        [TestMethod]
         public async Task AClassPassiveUsesItsClassLevel()
         {
             await _service.BuyAsync(_session.Character, SwordsmanOnly);
