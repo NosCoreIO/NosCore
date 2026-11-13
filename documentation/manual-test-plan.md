@@ -1412,6 +1412,15 @@ reputation, so have each player relog after a `$SetReputation` on them.
 - [ ] The ranking is re-read every 30 seconds: a change of saved reputation can take that long
       to decide who may use the hero chat, but A's own live reputation counts at once
 
+### Dye Bomb
+
+- [ ] Wear a Wig and double-click a Dye Bomb, then confirm: the wig takes another colour, a second
+      player on the map sees the same colour, and the bomb is used up
+- [ ] Equip a Wig dyed earlier: it shows its own colour rather than the hair colour, also after
+      changing map and relogging
+- [ ] Use a Dye Bomb with no hat, or with a hat that has no colours: "You're not wearing this
+      item." appears and the bomb stays
+
 ### Speech bubble
 
 Two characters A and B on the same map; A has a Speech Bubble (2174) in the Etc pocket.

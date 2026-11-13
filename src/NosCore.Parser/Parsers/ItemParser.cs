@@ -287,6 +287,8 @@ namespace NosCore.Parser.Parsers
                 ItemType.Magical when ImportEffect(chunk) == ItemEffectType.PassiveSkillBook => chunk["DATA"][0][5],
                 // Minutes the bubble stays up; the item's description gives 30 and its data row has no duration.
                 ItemType.Magical when ImportEffect(chunk) == ItemEffectType.SpeechBubble => "30",
+                // How many wig colours a dye bomb picks from; its data row has no count.
+                ItemType.Magical when ImportEffect(chunk) == ItemEffectType.WigDye => "15",
                 ItemType.Magical => chunk["DATA"][0][4],
                 ItemType.Production => chunk["DATA"][0][4],
                 // Cellons carry the option tier here; every other upgrade material leaves it 0.

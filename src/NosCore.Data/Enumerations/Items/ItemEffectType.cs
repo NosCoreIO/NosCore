@@ -16,6 +16,8 @@ namespace NosCore.Data.Enumerations.Items
         Speaker = 15,
         // EffectValue is how many minutes the bubble stays up.
         SpeechBubble = 16,
+        // EffectValue is how many colours a wig can be dyed.
+        WigDye = 30,
         MarriageProposal = 34,
         // EffectValue is the passive skill the book teaches.
         PassiveSkillBook = 99,
