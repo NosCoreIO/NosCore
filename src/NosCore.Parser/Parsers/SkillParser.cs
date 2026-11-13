@@ -153,14 +153,15 @@ namespace NosCore.Parser.Parsers
                 }
 
                 var first = int.Parse(chunks["BASIC"][j][5]);
+                var value = EffectValue.Decode(first);
                 var comb = new BCardDto
                 {
                     SkillVNum = Convert.ToInt16(chunks["VNUM"][0][2]),
                     Type = type,
                     SubType = (byte)((int.Parse(chunks["BASIC"][j][4]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
-                    IsLevelScaled = Convert.ToBoolean((uint)(first < 0 ? 0 : first) % 4),
-                    IsLevelDivided = (uint)(first < 0 ? 0 : first) % 4 == 2,
-                    FirstData = (short)((first > 0 ? first : -first) / 4),
+                    IsLevelScaled = value.IsLevelScaled,
+                    IsLevelDivided = value.IsLevelDivided,
+                    FirstData = (short)value.Value,
                     SecondData = (short)(int.Parse(chunks["BASIC"][j][6]) / 4),
                     ThirdData = (short)(int.Parse(chunks["BASIC"][j][7]) / 4)
                 };

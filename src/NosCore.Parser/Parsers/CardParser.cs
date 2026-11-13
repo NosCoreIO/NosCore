@@ -120,16 +120,17 @@ namespace NosCore.Parser.Parsers
                 }
 
                 var first = int.Parse(row[i * 6 + 6]);
+                var value = EffectValue.Decode(first);
                 list.Add(new BCardDto
                 {
                     CardId = Convert.ToInt16(chunks["VNUM"][0][2]),
                     Type = byte.Parse(row[2 + i * 6]),
                     SubType = (byte)((Convert.ToByte(row[3 + i * 6]) + 1) * 10 + 1 + (first < 0 ? 1 : 0)),
-                    FirstData = (first > 0 ? first : -first) / 4,
+                    FirstData = value.Value,
                     SecondData = int.Parse(row[7 + i * 6]) / 4,
                     ThirdData = int.Parse(row[5 + i * 6]),
-                    IsLevelScaled = Convert.ToBoolean(first % 4),
-                    IsLevelDivided = Math.Abs(first % 4) == 2
+                    IsLevelScaled = value.IsLevelScaled,
+                    IsLevelDivided = value.IsLevelDivided
                 });
             }
 
