@@ -43,10 +43,6 @@ namespace NosCore.GameObject.Services.BattleService
         ICaptureService captureService,
         ILogger<BattleService> logger) : IBattleService, ISingletonService
     {
-        // CharacterId (VisualId) → CastId → ReadyAt. Populated by ScheduleCooldownReset
-        // and drained by TickCooldownResetsAsync on each map's 400ms life tick.
-        private readonly ConcurrentDictionary<long, ConcurrentDictionary<long, Instant>> _pendingCooldownResets = new();
-
         public async Task<bool> Hit(IAliveEntity origin, IAliveEntity target, HitArguments arguments)
         {
             if (!CanAttack(origin, target))
@@ -258,19 +254,18 @@ namespace NosCore.GameObject.Services.BattleService
             if (origin is not PlayerComponentBundle character) return;
 
             var readyAt = clock.GetCurrentInstant().Plus(Duration.FromMilliseconds(skill.Cooldown * 100));
-            _pendingCooldownResets
-                .GetOrAdd(character.VisualId, _ => new ConcurrentDictionary<long, Instant>())[skill.CastId] = readyAt;
+            character.PendingSkillResets[skill.CastId] = readyAt;
         }
 
         public async Task TickCooldownResetsAsync(MapInstance mapInstance)
         {
-            if (_pendingCooldownResets.IsEmpty) return;
             var now = clock.GetCurrentInstant();
             foreach (var session in sessionRegistry.GetClientSessionsByMapInstance(mapInstance.MapInstanceId))
             {
                 if (!session.HasPlayerEntity) continue;
                 var character = session.Character;
-                if (!_pendingCooldownResets.TryGetValue(character.VisualId, out var skills)) continue;
+                var skills = character.PendingSkillResets;
+                if (skills.IsEmpty) continue;
                 foreach (var (castId, readyAt) in skills)
                 {
                     if (readyAt > now) continue;
