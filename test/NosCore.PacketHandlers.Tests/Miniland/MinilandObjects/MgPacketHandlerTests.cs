@@ -65,7 +65,7 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .ToList(),
             Enumerable.Range(0, 5)
                 .Select(level => new MinigameRewardDto
-                    { MinigameRewardId = (short)level, MinigameVNum = 3000, Level = (byte)level, ItemVNum = 1269, Amount = 1 })
+                    { MinigameRewardId = (short)level, MinigameVNum = 3000, Level = (byte)level, ItemVNum = 1269, Amount = 2 })
                 .ToList(),
             new RandomNumberSource());
 
@@ -325,7 +325,8 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
                 .And(ObjectHasLevel1Boxes_, 2)
                 .WhenAsync(OpeningGiftBatch)
                 .Then(Level1BoxesShouldBe_, 0)
-                .And(CharacterShouldHold_Of_, 2, (short)1269)
+                .And(CharacterShouldHold_Of_, 4, (short)1269)
+                .And(ReceivedItemMessageShouldSay_, 4)
                 .ExecuteAsync();
         }
 
@@ -436,6 +437,10 @@ namespace NosCore.PacketHandlers.Tests.Miniland.MinilandObjects
         private Task Refilling_(int gold) => Send_(MinigamePacketType.Refill, gold);
 
         private Task OpeningGiftBatch() => Send_(MinigamePacketType.OpenGiftBatch, 0);
+
+        private void ReceivedItemMessageShouldSay_(int amount) =>
+            Assert.AreEqual(amount.ToString(), _session.LastPackets.OfType<SayiPacket>()
+                .Single(p => p.Message == Game18NConstString.ReceivedThisItem).Game18NArguments[1]?.ToString());
 
         private void GoldShouldBe_(long gold) => Assert.AreEqual(gold, _session.Character.Gold);
 

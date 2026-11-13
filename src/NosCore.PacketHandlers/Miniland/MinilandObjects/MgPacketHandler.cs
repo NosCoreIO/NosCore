@@ -209,7 +209,6 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     break;
             }
 
-            var str = string.Empty;
             var list = new List<MloPmgSubPacket>();
             for (var i = 0; i < 9; i++)
             {
@@ -221,7 +220,7 @@ namespace NosCore.PacketHandlers.Miniland.MinilandObjects
                     if (inv != null && inv.Count != 0)
                     {
                         await mg.Session.SendPacketAsync(mg.Session.Character.GenerateSayi(SayColorType.Yellow, Game18NConstString.ReceivedThisItem,
-                            2, item.Item.VNum.ToString(), amount));
+                            2, item.Item.VNum.ToString(), gifts.ElementAt(i).Amount));
                     }
 
                     list.Add(new MloPmgSubPacket
