@@ -1450,6 +1450,19 @@ Same setup as above, with both players inside the arena.
 
 ## Chat
 
+### Muted accounts
+
+A mute is a row in `PenaltyLog` for the account (`Penalty` 0, `DateEnd` in the future). There is
+no command for it yet, so insert the row; it is read on every line, so no restart or new login
+is needed.
+
+- [ ] Say something in general chat: a speech bubble with the client's own "<I am serving a
+      penalty.>" appears over the character, and "Remaining punishment: N minutes" shows in red
+      in the chat window. The client still prints the line you typed in your own window
+- [ ] A second player on the map sees the bubble and never the words
+- [ ] Use a speaker item: the red line shows, nobody hears it and the speaker stays in the bag
+- [ ] Set `DateEnd` to the past: the next line is said normally
+
 ### Hero chat
 
 Run two world servers (two channels). You need a GM account to set reputation, and five
@@ -1828,6 +1841,14 @@ Run the WebApi, the master, the login server and two world servers (two channels
 - [ ] On an account with MFA set, log in through the launcher: the launcher asks for the
       code, the game does not ask again, and changing channel does not ask either
 
+### Timed bans
+
+A ban is a row in `PenaltyLog` for the account (`Penalty` 1, `DateEnd` in the future).
+
+- [ ] Log in with the account: the client shows its "banned" message instead of the server list
+      and closes
+- [ ] Set `DateEnd` to the past: the login works again, and the row is still there
+
 ### One session per account
 
 - [ ] Log in on channel 1, then log the same account in from a second client and pick
@@ -1953,6 +1974,9 @@ Use a character that has never logged in before, or one whose points were spent 
 
 Recorded so nobody spends time hunting for them:
 
+- **Being muted or banned while playing** — nothing writes a `PenaltyLog` row from inside the
+  game yet. A mute given by hand applies from the next line; a ban given by hand only applies at
+  the next login, the player who is online is not disconnected.
 - **Bleeding on a monster, by playing** — no skill of a low-level character inflicts a bleeding
   card, so the monster check was run with a database row that makes the adventurer's basic
   attack inflict Heavy Bleeding (card 42): a level 40 character's hit makes a Big Wild Pii Pod

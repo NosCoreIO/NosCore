@@ -67,6 +67,46 @@ namespace NosCore.GameObject.Tests.Messaging.Handlers.Guri
                 .ExecuteAsync();
         }
 
+        [TestMethod]
+        public async Task AMutedPlayersSpeakerIsKeptAndNobodyHearsIt()
+        {
+            await new Spec("A muted player's speaker is kept and nobody hears it")
+                .Given(ListenerAllowsHeroChat)
+                .AndAsync(TheSpeakerIsMuted)
+                .WhenAsync(SpeakerIsUsed)
+                .Then(ListenerShouldNotHearIt)
+                .And(TheSpeakerItemIsStillThere)
+                .And(TheSpeakerIsToldThePunishmentLeft)
+                .ExecuteAsync();
+        }
+
+        private async Task TheSpeakerIsMuted()
+        {
+            var now = World.Clock.GetCurrentInstant();
+            await World.PenaltyLogDao.TryInsertOrUpdateAsync(new NosCore.Data.Dto.PenaltyLogDto
+            {
+                AccountId = _speaker.Account.AccountId,
+                Penalty = NosCore.Data.Enumerations.Interaction.PenaltyType.Muted,
+                DateStart = now,
+                DateEnd = now.Plus(NodaTime.Duration.FromMinutes(45)),
+                AdminName = "admin",
+                Reason = "test",
+            });
+            World.Inject<NosCore.GameObject.Services.PenaltyService.IPenaltyService>(
+                World.Create<NosCore.GameObject.Services.PenaltyService.PenaltyService>());
+            _handler = World.Create<SpeakerHandler>();
+        }
+
+        private void TheSpeakerItemIsStillThere() =>
+            Assert.IsNotNull(_speaker.Character.InventoryService.LoadBySlotAndType(SpeakerSlot, NoscorePocketType.Etc));
+
+        private void TheSpeakerIsToldThePunishmentLeft()
+        {
+            var told = _speaker.LastPackets.OfType<SayiPacket>().Single();
+            Assert.AreEqual(Game18NConstString.RemainingPunishment, told.Message);
+            Assert.AreEqual(45L, told.Game18NArguments[0]);
+        }
+
         private void Register(ClientSession session) =>
             World.SessionRegistry.Register(new SessionInfo
             {

@@ -16,6 +16,7 @@ using NosCore.GameObject.InterChannelCommunication.Hubs.ChannelHub;
 using NosCore.GameObject.InterChannelCommunication.Hubs.PubSub;
 using NosCore.GameObject.Networking.ClientSession;
 using NosCore.GameObject.Services.LoginService;
+using NosCore.GameObject.Services.PenaltyService;
 using NosCore.Networking;
 using NosCore.Networking.SessionRef;
 using NosCore.PacketHandlers.Login;
@@ -60,7 +61,8 @@ namespace NosCore.PacketHandlers.Tests.Login
             SessionRefHolder[Session.Channel.NotNull().Id] = new RegionTypeMapping(Session.SessionId, RegionType.EN);
             NoS0575PacketHandler = new NoS0575PacketHandler(new LoginService(LoginConfiguration,
                     World.AccountDao,
-                    AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder),
+                    AuthHttpClient.Object, PubSubHub.Object, ChannelHub.Object, World.CharacterDao, SessionRefHolder,
+                    World.Create<PenaltyService>()),
                 LoginConfiguration, Logger, World.LogLanguageLocalizer);
         }
 
@@ -116,6 +118,29 @@ namespace NosCore.PacketHandlers.Tests.Login
         {
             await new Spec("Login with correct credentials should succeed")
                 .Given(ServerIsAvailable)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveNsTestPacket)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginDuringATimedBanShouldFail()
+        {
+            await new Spec("Login during a timed ban should fail")
+                .Given(ServerIsAvailable)
+                .AndAsync(TheAccountIsBannedFor_Days, 3)
+                .WhenAsync(LoggingInCorrectlyAsync)
+                .Then(ShouldReceiveBannedError)
+                .ExecuteAsync();
+        }
+
+        [TestMethod]
+        public async Task LoginAfterATimedBanShouldSucceed()
+        {
+            await new Spec("Login after a timed ban should succeed")
+                .Given(ServerIsAvailable)
+                .AndAsync(TheAccountIsBannedFor_Days, 3)
+                .And(Time_Passes, NodaTime.Duration.FromDays(3))
                 .WhenAsync(LoggingInCorrectlyAsync)
                 .Then(ShouldReceiveNsTestPacket)
                 .ExecuteAsync();
@@ -242,6 +267,29 @@ namespace NosCore.PacketHandlers.Tests.Login
                 Password = Password,
                 Username = Session.Account.Name
             }, Session);
+        }
+
+        private Task TheAccountIsBannedFor_Days(int days)
+        {
+            var now = World.Clock.GetCurrentInstant();
+            return World.PenaltyLogDao.TryInsertOrUpdateAsync(new NosCore.Data.Dto.PenaltyLogDto
+            {
+                AccountId = Session.Account.AccountId,
+                Penalty = NosCore.Data.Enumerations.Interaction.PenaltyType.Banned,
+                DateStart = now,
+                DateEnd = now.Plus(NodaTime.Duration.FromDays(days)),
+                AdminName = "admin",
+                Reason = "test",
+            });
+        }
+
+        private void Time_Passes(NodaTime.Duration time) => World.Clock.Advance(time);
+
+        private void ShouldReceiveBannedError()
+        {
+            Assert.IsTrue(((FailcPacket?)Session.LastPackets.FirstOrDefault(s => s is FailcPacket))?.Type ==
+                LoginFailType.Banned);
+            Assert.IsNull(Session.LastPackets.FirstOrDefault(s => s is NsTestPacket));
         }
 
         private void ShouldReceiveOldClientError()
