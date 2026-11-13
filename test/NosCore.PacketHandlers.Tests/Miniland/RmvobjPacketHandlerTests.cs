@@ -113,6 +113,25 @@ namespace NosCore.PacketHandlers.Tests.Miniland
         }
 
         [TestMethod]
+        public async Task AnObjectTakenAwayIsNoLongerStored()
+        {
+            await new Spec("An object taken away does not come back with the next visit")
+                .Given(MinilandObjectExistsAndPlaced)
+                .AndAsync(ThePlacedObjectIsStored)
+                .And(MinilandIsLocked)
+                .WhenAsync(RemovingMinilandObject)
+                .Then(NoPlacedObjectShouldBeStored)
+                .ExecuteAsync();
+        }
+
+        private async Task ThePlacedObjectIsStored() =>
+            await World.MinilandObjectDao.TryInsertOrUpdateAsync(
+                _session.Character.MapInstance.MapDesignObjects[_minilandObject.Id]);
+
+        private void NoPlacedObjectShouldBeStored() =>
+            Assert.IsFalse(World.MinilandObjectDao.LoadAll().Any());
+
+        [TestMethod]
         public async Task RemoveNonPlacedObjectShouldFail()
         {
             await new Spec("Remove non placed object should fail")

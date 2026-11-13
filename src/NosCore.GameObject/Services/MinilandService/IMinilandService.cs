@@ -23,6 +23,7 @@ namespace NosCore.GameObject.Services.MinilandService
         List<Portal> GetMinilandPortals(long characterId);
         Miniland? GetMinilandFromMapInstanceId(Guid mapInstanceId);
         void AddMinilandObject(MapDesignObject mapObject, long characterId, InventoryItemInstance minilandobject);
+        Task<MapDesignObject?> RemoveMinilandObjectAsync(long characterId, InventoryItemInstance minilandobject);
         Task SetStateAsync(long characterId, MinilandState state);
     }
 }
