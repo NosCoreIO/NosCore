@@ -58,9 +58,12 @@ namespace NosCore.GameObject.Messaging.Handlers.UseItem
                 return;
             }
 
-            foreach (var item in contents)
+            var granted = contents
+                .Select(item => (Item: item, Slots: inventory.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId)) ?? []))
+                .ToList();
+            foreach (var (item, slots) in granted)
             {
-                foreach (var added in inventory.AddItemToPocket(InventoryItemInstance.Create(item, character.CharacterId)) ?? [])
+                foreach (var added in slots)
                 {
                     await session.SendPacketAsync(added.GeneratePocketChange(added.Type.ToPocketType(), added.Slot));
                 }
