@@ -363,15 +363,16 @@ namespace NosCore.Parser.Parsers
                 }
 
                 var first = int.Parse(chunk["CARD"][0][5 * i + 3]);
+                var value = EffectValue.Decode(first);
                 var itemCard = new BCardDto
                 {
                     NpcMonsterVNum = monstervnum,
                     Type = type,
                     SubType = (byte)(int.Parse(chunk["CARD"][0][5 * i + 5]) + 1 * 10 + 1
                         + (first > 0 ? 0 : 1)),
-                    IsLevelScaled = Convert.ToBoolean(first % 4),
-                    IsLevelDivided = (uint)(first > 0 ? first : -first) % 4 == 2,
-                    FirstData = (short)((first > 0 ? first : -first) / 4),
+                    IsLevelScaled = value.IsLevelScaled,
+                    IsLevelDivided = value.IsLevelDivided,
+                    FirstData = (short)value.Value,
                     SecondData = (short)(int.Parse(chunk["CARD"][0][5 * i + 4]) / 4),
                     ThirdData = (short)(int.Parse(chunk["CARD"][0][5 * i + 6]) / 4),
                     Slot = (byte)(i + 1)
@@ -385,7 +386,7 @@ namespace NosCore.Parser.Parsers
                     Type = type,
                     SubType =
                         (byte)((int.Parse(chunk["BASIC"][0][5 * i + 6]) + 1) * 10 + 1 + (first > 0 ? 0 : 1)),
-                    FirstData = (short)((first > 0 ? first : -first) / 4),
+                    FirstData = (short)EffectValue.Decode(first).Value,
                     SecondData = (short)(int.Parse(chunk["BASIC"][0][5 * i + 4]) / 4),
                     ThirdData = (short)(int.Parse(chunk["BASIC"][0][5 * i + 3]) / 4),
                     CastType = 1,

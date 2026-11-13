@@ -138,6 +138,15 @@ subtle: a card worth 5 is fivefold.
       multiples, not by a few per cent
 - [ ] The decreasing half halves rather than taking a couple of points off
 
+### Debuffs that grow with the level
+
+A value that scales with a level is "so much per level". The data needs a re-import (run the
+parser) after a change to how these are read.
+
+- [ ] Under Resurrection Side Effects (card 44, 2 per level) at level 30, the character window
+      (`p`) shows attack and all three defences 60 lower than without it. A naked adventurer goes
+      from 59~67 attack and 42 / 44 / 42 defence to -1~7 and -18 / -16 / -18
+
 ### The equipped fairy's element — BCard type 96 subtypes 0 and 1
 
 - [ ] With a fire fairy worn, note a fire skill's hits on a monster, then gain an effect that
@@ -1928,6 +1937,9 @@ Recorded so nobody spends time hunting for them:
   subtype 11, 100 % chance, the card as second value). With card 455 on the adventurer's basic
   attack, a Big Wild Pii Pod (level 32, 1 210 HP, 382 MP) shows a red 96 over its head 4, 8 and
   12 seconds after one hit, and its bars lose 96 HP and 22 MP each time.
+- **Resurrection Side Effects by playing** — nothing gives a character card 44 yet, so the
+  check under "Debuffs that grow with the level" needs a `StaticBuff` row for the character
+  (`CardId` 44, any `RemainingTime`) and a new login.
 - **Sending rules while a private shop is open** — no code sets the shop flag yet, so the
   refusals that apply in a shop never fire; a character with an open private shop is treated
   like any other until it is wired.

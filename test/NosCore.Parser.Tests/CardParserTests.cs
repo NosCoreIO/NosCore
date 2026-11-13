@@ -212,6 +212,28 @@ namespace NosCore.Parser.Tests
         }
 
         [TestMethod]
+        [DataRow("-15", 4, true, false, DisplayName = "Heavy Bleeding takes 4 per level")]
+        [DataRow("-3", 1, true, false, DisplayName = "The smallest scaled loss is 1 per level")]
+        [DataRow("13", 3, true, false, DisplayName = "A scaled gain")]
+        [DataRow("-10", 3, true, true, DisplayName = "A loss of the level divided by 3")]
+        [DataRow("-32", 8, false, false, DisplayName = "A plain loss")]
+        public async Task CardParser_SplitsAnEffectValueFromItsLevelFlags(string raw, int value, bool scaled, bool divided)
+        {
+            CreateTestFile(CreateCardData(cardId: 42).Replace(
+                "\t1ST\t0\t0\t0\t0\t0\t0",
+                $"\t1ST\t22\t0\t0\t1\t{raw}\t0"));
+
+            var parser = new CardParser(_cardDaoMock.Object, _bCardDaoMock.Object, NullLoggerFactory.Instance, _logLanguageMock.Object);
+            await parser.InsertCardsAsync(_tempFolder);
+
+            var bCard = _savedBCards.Single(b => b.CardId == 42);
+            Assert.AreEqual(value, bCard.FirstData);
+            Assert.AreEqual(scaled, bCard.IsLevelScaled);
+            Assert.AreEqual(divided, bCard.IsLevelDivided);
+            Assert.AreEqual(raw.StartsWith('-') ? (byte)12 : (byte)11, bCard.SubType);
+        }
+
+        [TestMethod]
         public async Task ParsingTheSameCardsTwiceKeepsOneCopyOfEachBCard()
         {
             CreateTestFile(CreateCardData(cardId: 121).Replace(
