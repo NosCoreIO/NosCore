@@ -149,6 +149,8 @@ public sealed class SkillResolver : ISkillResolver
             Duration: main.Duration,
             MpCost: main.MpCost,
             BCards: _catalog.GetSkillBCards(main.SkillVNum),
-            CellPattern: main.CellPattern);
+            CellPattern: main.CellPattern,
+            CastAnimation: main.CastAnimation,
+            CastTime: main.CastTime);
     }
 }

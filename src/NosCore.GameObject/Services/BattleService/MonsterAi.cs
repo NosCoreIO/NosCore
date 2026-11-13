@@ -100,6 +100,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         {
             if (!entity.IsAlive || entity.NpcMonster == null) return false;
 
+            if (entity.CastingUntil > clock.GetCurrentInstant()) return true;
+
             var target = CurrentTarget(entity);
             if (target == null && entity.NpcMonster.IsHostile)
             {
@@ -359,7 +361,8 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
                 SkillVnum: dto.SkillVNum,
                 CastId: dto.CastId,
                 SkillRange: Math.Max(1, (int)dto.Range),
-                CooldownMs: Math.Max(200, dto.Cooldown * 100));
+                CooldownMs: Math.Max(200, dto.Cooldown * 100),
+                CastTimeMs: dto.CastTime * 100);
         }
         return null;
     }
@@ -378,11 +381,37 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
             return;
         }
 
+        if (skill.CastTimeMs > 0)
+        {
+            // The life loop must not wait out the cast: the monster stands still until it ends
+            // and the hit resolves on its own.
+            if (cooldowns != null)
+            {
+                cooldowns.Value.NextUsableAt[skill.SkillVnum] = now.Plus(Duration.FromMilliseconds(skill.CooldownMs));
+            }
+
+            entity.CastingUntil = now.Plus(Duration.FromMilliseconds(skill.CastTimeMs));
+            _ = HitAfterCastAsync(entity, target, skill);
+            return;
+        }
+
         var accepted = await battleService.Hit(entity, target, new HitArguments { SkillId = skill.CastId });
 
         if (accepted && cooldowns != null)
         {
             cooldowns.Value.NextUsableAt[skill.SkillVnum] = now.Plus(Duration.FromMilliseconds(skill.CooldownMs));
+        }
+    }
+
+    private async Task HitAfterCastAsync(INonPlayableEntity entity, IAliveEntity target, ChosenSkill skill)
+    {
+        try
+        {
+            await battleService.Hit(entity, target, new HitArguments { SkillId = skill.CastId });
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Cast of skill {Skill} by {VisualId} failed", skill.SkillVnum, entity.VisualId);
         }
     }
 
@@ -439,5 +468,5 @@ public sealed class MonsterAi : IMonsterAi, ISingletonService
         return true;
     }
 
-    private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs);
+    private sealed record ChosenSkill(short SkillVnum, long CastId, int SkillRange, int CooldownMs, int CastTimeMs = 0);
 }

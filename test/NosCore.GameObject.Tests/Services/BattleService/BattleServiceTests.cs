@@ -34,6 +34,7 @@ namespace NosCore.GameObject.Tests.Services.BattleService
         private Mock<ITargetResolver> _targetResolver;
         private Mock<IHitQueue> _hitQueue;
         private Mock<IMessageBus> _bus;
+        private Mock<ICastDelayService> _castDelay;
         private GameObject.Services.BattleService.BattleService _service;
 
         [TestInitialize]
@@ -43,6 +44,8 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             _targetResolver = new Mock<ITargetResolver>();
             _hitQueue = new Mock<IHitQueue>();
             _bus = new Mock<IMessageBus>();
+            _castDelay = new Mock<ICastDelayService>();
+            _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>())).Returns(Task.CompletedTask);
             _service = new GameObject.Services.BattleService.BattleService(
                 _skillResolver.Object,
                 _targetResolver.Object,
@@ -51,7 +54,51 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new Mock<GameObject.Services.BroadcastService.ISessionRegistry>().Object,
                 NodaTime.SystemClock.Instance,
                 new Mock<NosCore.GameObject.Services.BattleService.ICaptureService>().Object,
+                _castDelay.Object,
                 NullLogger<NosCore.GameObject.Services.BattleService.BattleService>.Instance);
+        }
+
+        [TestMethod]
+        public async Task ASkillWithACastTimeHitsOnlyOnceTheCastEnds()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit) with { CastTime = 10 });
+            var cast = new TaskCompletionSource();
+            _castDelay.Setup(d => d.WaitAsync(NodaTime.Duration.FromSeconds(1))).Returns(cast.Task);
+
+            var hit = _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
+
+            cast.SetResult();
+            Assert.IsTrue(await hit);
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Once);
+        }
+
+        [TestMethod]
+        public async Task ACastWhoseTargetDiesMeanwhileLandsNothing()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit) with { CastTime = 10 });
+            _castDelay.Setup(d => d.WaitAsync(It.IsAny<NodaTime.Duration>()))
+                .Callback(() => target.Hp = 0)
+                .Returns(Task.CompletedTask);
+
+            Assert.IsFalse(await _service.Hit(origin, target, new HitArguments { SkillId = 1 }));
+            _hitQueue.Verify(q => q.EnqueueAsync(It.IsAny<HitRequest>()), Times.Never);
+        }
+
+        [TestMethod]
+        public async Task ASkillWithoutACastTimeDoesNotWait()
+        {
+            var origin = new FakeEntity { Hp = 100 };
+            var target = new FakeEntity { Hp = 100, VisualType = VisualType.Monster };
+            SetupLanding(origin, target, MakeSkill(TargetHitType.SingleTargetHit));
+
+            await _service.Hit(origin, target, new HitArguments { SkillId = 1 });
+
+            _castDelay.Verify(d => d.WaitAsync(It.IsAny<NodaTime.Duration>()), Times.Never);
         }
 
         [TestMethod]
