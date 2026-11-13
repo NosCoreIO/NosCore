@@ -21,8 +21,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new PidxPacket
             {
                 GroupId = group.Count == 1 ? -1 : group.GroupId,
-                SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { entity.GenerateSubPidx(true) }
-                    : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
+                SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { entity.GenerateSubPidx() }
+                    : group.MembersInJoiningOrder.Select(s => s.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };
         }
 
@@ -31,8 +31,8 @@ namespace NosCore.GameObject.Ecs.Extensions
             return new PidxPacket
             {
                 GroupId = group.Count == 1 ? -1 : group.GroupId,
-                SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { player.GenerateSubPidx(true) }
-                    : group.Values.Select(s => s.Item2.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
+                SubPackets = group.Count == 1 ? new List<PidxSubPacket?> { player.GenerateSubPidx() }
+                    : group.MembersInJoiningOrder.Select(s => s.GenerateSubPidx()).ToList() as List<PidxSubPacket?>
             };
         }
     }

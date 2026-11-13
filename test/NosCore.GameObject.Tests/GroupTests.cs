@@ -66,6 +66,35 @@ namespace NosCore.GameObject.Tests
         }
 
         [TestMethod]
+        public async Task TheMemberListAndTheBarsGiveEachMemberTheSamePlace()
+        {
+            await new Spec("A member holds the place of its joining in the member list and in the bars alike")
+                .GivenAsync(ThreePlayersJoinLastCreatedFirst)
+                .Then(TheMemberListShouldFollowTheJoiningOrder)
+                .And(TheBarsShouldUseThePlacesOfTheMemberList)
+                .ExecuteAsync();
+        }
+
+        private async Task ThreePlayersJoinLastCreatedFirst()
+        {
+            var created = new[] { await CreateCharacterAsync(), await CreateCharacterAsync(), await CreateCharacterAsync() };
+            foreach (var session in created.Reverse())
+            {
+                Group.JoinGroup(session.Character);
+            }
+        }
+
+        private void TheMemberListShouldFollowTheJoiningOrder() =>
+            CollectionAssert.AreEqual(
+                Sessions.AsEnumerable().Reverse().Select(s => s.Character.VisualId).ToList(),
+                Group.GeneratePinit().PinitSubPackets.NotNull().Select(m => m.NotNull().VisualId).ToList());
+
+        private void TheBarsShouldUseThePlacesOfTheMemberList() =>
+            CollectionAssert.AreEqual(
+                Group.GeneratePinit().PinitSubPackets.NotNull().Select(m => (m.NotNull().VisualId, m.NotNull().GroupPosition)).ToList(),
+                Group.GeneratePst().Select(bar => (bar.VisualId, bar.GroupOrder)).ToList());
+
+        [TestMethod]
         public void PetsCannotJoinGroups()
         {
             new Spec("Pets cannot join groups")
