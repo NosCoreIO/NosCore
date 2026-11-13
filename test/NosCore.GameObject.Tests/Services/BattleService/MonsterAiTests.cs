@@ -15,6 +15,7 @@ using Moq;
 using NodaTime;
 using NodaTime.Testing;
 using NosCore.Data.Dto;
+using NosCore.Data.Enumerations.Map;
 using NosCore.Data.StaticEntities;
 using NosCore.GameObject.Ecs;
 using NosCore.GameObject.Ecs.Interfaces;
@@ -294,6 +295,50 @@ namespace NosCore.GameObject.Tests.Services.BattleService
             SwingsAtThePlayer(Times.Never());
         }
 
+        [TestMethod]
+        public async Task AGroupMemberJoinsTheFightOfAnotherMemberOfItsRace()
+        {
+            var (fighting, idle) = SpawnGroup(GroupAttackType.SameRace, m => m.Race = 2, m => m.Race = 2);
+            PlacePlayer(4, 4);
+            _aggro.AddThreat(fighting, _session.Character, 5);
+
+            Assert.IsTrue(await _ai.TickAsync(idle));
+            SwingsAtThePlayerFrom(idle, Times.Once());
+        }
+
+        [TestMethod]
+        public async Task AMonsterOfAnotherRaceStaysOutOfTheFight()
+        {
+            var (fighting, idle) = SpawnGroup(GroupAttackType.SameRace, m => m.Race = 2, m => m.Race = 3);
+            PlacePlayer(4, 4);
+            _aggro.AddThreat(fighting, _session.Character, 5);
+
+            Assert.IsFalse(await _ai.TickAsync(idle));
+            SwingsAtThePlayerFrom(idle, Times.Never());
+        }
+
+        [TestMethod]
+        public async Task AGroupMemberJoinsTheFightOfAnotherMemberWithItsIcon()
+        {
+            var (fighting, idle) = SpawnGroup(GroupAttackType.SameIcon, m => m.IconId = 7, m => m.IconId = 7);
+            PlacePlayer(4, 4);
+            _aggro.AddThreat(fighting, _session.Character, 5);
+
+            Assert.IsTrue(await _ai.TickAsync(idle));
+            SwingsAtThePlayerFrom(idle, Times.Once());
+        }
+
+        [TestMethod]
+        public async Task AGroupMemberIgnoresAFightBeyondItsNoticeRange()
+        {
+            var (fighting, idle) = SpawnGroup(GroupAttackType.SameRace, m => m.Race = 2, m => m.NoticeRange = 1);
+            PlacePlayer(4, 2);
+            _aggro.AddThreat(fighting, _session.Character, 5);
+
+            Assert.IsFalse(await _ai.TickAsync(idle));
+            SwingsAtThePlayerFrom(idle, Times.Never());
+        }
+
         // The shared fixture map declares 8 rows but ships 6, which the pathfinder walks off.
         private static GameObject.Map.Map TestMap()
         {
@@ -328,6 +373,49 @@ namespace NosCore.GameObject.Tests.Services.BattleService
                 new List<MapMonsterDto> { new() { MapMonsterId = 200, MapId = 0, MapX = x, MapY = y, VNum = 1 } },
                 new List<NpcMonsterDto> { template });
             return _map.EnumerateMonsters().Single();
+        }
+
+        // Two peaceful monsters of one group: the first at (4,1), the second at (4,5).
+        private (MonsterComponentBundle First, MonsterComponentBundle Second) SpawnGroup(GroupAttackType group,
+            Action<NpcMonsterDto> tuneFirst, Action<NpcMonsterDto> tuneSecond)
+        {
+            NpcMonsterDto Template(short vnum, Action<NpcMonsterDto> tune)
+            {
+                var template = new NpcMonsterDto
+                {
+                    NpcMonsterVNum = vnum,
+                    MaxHp = 100,
+                    MaxMp = 50,
+                    Level = 5,
+                    IsHostile = false,
+                    GroupAttack = (byte)group,
+                    NoticeRange = 5,
+                    BasicRange = 1,
+                    BasicCooldown = 10,
+                    CanWalk = true,
+                    Speed = 6,
+                };
+                tune(template);
+                return template;
+            }
+
+            _map.LoadMonsters(
+                new List<MapMonsterDto>
+                {
+                    new() { MapMonsterId = 200, MapId = 0, MapX = 4, MapY = 1, VNum = 1 },
+                    new() { MapMonsterId = 201, MapId = 0, MapX = 4, MapY = 5, VNum = 2 },
+                },
+                new List<NpcMonsterDto> { Template(1, tuneFirst), Template(2, tuneSecond) });
+            var monsters = _map.EnumerateMonsters().ToList();
+            return (monsters.Single(m => m.VisualId == 200), monsters.Single(m => m.VisualId == 201));
+        }
+
+        private void SwingsAtThePlayerFrom(MonsterComponentBundle monster, Times times)
+        {
+            var playerId = _session.Character.VisualId;
+            var monsterId = monster.VisualId;
+            _battle.Verify(b => b.Hit(It.Is<IAliveEntity>(m => m.VisualId == monsterId),
+                It.Is<IAliveEntity>(t => t.VisualId == playerId), It.IsAny<HitArguments>()), times);
         }
 
         private void PlacePlayer(short x, short y)
