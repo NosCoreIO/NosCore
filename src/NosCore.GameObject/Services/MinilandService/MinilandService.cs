@@ -230,5 +230,18 @@ namespace NosCore.GameObject.Services.MinilandService
 
             miniland.MapDesignObjects.TryAdd(minilandobject.Id, mapObject);
         }
+
+        public async Task<MapDesignObject?> RemoveMinilandObjectAsync(long characterId, InventoryItemInstance minilandobject)
+        {
+            if (minilandRegistry.GetByCharacterId(characterId) is not { } minilandInfo
+                || mapInstanceAccessorService.GetMapInstance(minilandInfo.MapInstanceId) is not { } miniland
+                || !miniland.MapDesignObjects.TryRemove(minilandobject.Id, out var mapObject))
+            {
+                return null;
+            }
+
+            await minilandObjectsDao.TryDeleteAsync(mapObject.MinilandObjectId);
+            return mapObject;
+        }
     }
 }

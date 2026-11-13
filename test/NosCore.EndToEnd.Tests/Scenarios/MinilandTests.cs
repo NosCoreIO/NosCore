@@ -290,6 +290,33 @@ namespace NosCore.EndToEnd.Tests.Scenarios
         }
 
         [TestMethod]
+        public async Task WhatWasTakenAwayFromAMinilandStaysAwayWhenItsOwnerComesBack()
+        {
+            var owner = await OwnerAsync();
+            await Harness.GiveAsync(owner, WorldData.Bench, 1, pocket: NoscorePocketType.Miniland);
+            await using (var alice = await EnterAsync(owner))
+            {
+                await GoHomeAsync(alice);
+                await SetStateAsync(alice, Locked, MinilandIsLocked);
+                await alice.SendAsync("addobj 0 10 12");
+                await alice.ExpectAsync(p => p.StartsWith("mlobj 1 0 10 12 ", StringComparison.Ordinal), "the bench where she stood it");
+            }
+
+            await using (var again = await Harness.ComeBackAsync(owner))
+            {
+                var home = await GoHomeAsync(again, 71);
+                StringAssert.StartsWith(again.Since(home).Last(p => TestClient.HeaderOf(p) == "mlobjlst"), "mlobjlst 0.1.10.12.");
+                await SetStateAsync(again, Locked, MinilandIsLocked);
+                await again.SendAsync("rmvobj 0");
+                await again.ExpectAsync(p => p.StartsWith("mlobj 0 0 ", StringComparison.Ordinal), "the bench taken away");
+            }
+
+            await using var back = await Harness.ComeBackAsync(owner);
+            var returned = await GoHomeAsync(back);
+            StringAssert.StartsWith(back.Since(returned).Last(p => TestClient.HeaderOf(p) == "mlobjlst"), "mlobjlst 0.0.");
+        }
+
+        [TestMethod]
         public async Task AnInvitationCostsASeedOfPowerAndLetsAStrangerIn()
         {
             var owner = await OwnerAsync();

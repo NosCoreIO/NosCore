@@ -38,13 +38,12 @@ namespace NosCore.PacketHandlers.Miniland
                 return;
             }
 
-            if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id))
+            if (!clientSession.Character.MapInstance.MapDesignObjects.ContainsKey(minilandobject.Id)
+                || await minilandProvider.RemoveMinilandObjectAsync(clientSession.Character.CharacterId, minilandobject) is not { } minilandObject)
             {
                 return;
             }
 
-            var minilandObject = clientSession.Character.MapInstance.MapDesignObjects[minilandobject.Id];
-            clientSession.Character.MapInstance.MapDesignObjects.TryRemove(minilandobject.Id, out _);
             await clientSession.SendPacketAsync(minilandObject.GenerateEffect(true));
             await clientSession.SendPacketAsync(new MinilandPointPacket
             { MinilandPoint = minilandobject.ItemInstance.Item.MinilandObjectPoint, Unknown = 100 });

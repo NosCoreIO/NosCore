@@ -828,6 +828,8 @@ Two clients, A and B.
       monsters there still move for B
 - [ ] A opens their miniland, B visits, A closes it: B is sent back to their own map and A's
       miniland keeps working on the next visit
+- [ ] Lock your miniland, take away an object that stands in it, log out and in again and walk
+      in: the object is not standing there, and it is still in the miniland inventory
 
 ### Respawn point
 
