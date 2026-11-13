@@ -10,6 +10,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NosCore.Data.Enumerations;
 using NosCore.EndToEnd.Tests.Infrastructure;
 
 namespace NosCore.EndToEnd.Tests.Scenarios
@@ -19,6 +20,7 @@ namespace NosCore.EndToEnd.Tests.Scenarios
     {
         private const int Player = 1;
         private const int Monster = 3;
+        private const int MainPocket = 1;
         private const int Invite = 1;
         private const int Accept = 3;
         private const int Decline = 4;
@@ -158,6 +160,24 @@ namespace NosCore.EndToEnd.Tests.Scenarios
             var bar = (await alice.ExpectSinceAsync(formed, p => p.StartsWith($"pst {Player} {bob.CharacterId} ", StringComparison.Ordinal), "Bob's bars")).Split(' ');
             Assert.AreEqual((100 * 100 / MostHp).ToString(CultureInfo.InvariantCulture), bar[4], "the part of his HP he has left");
             Assert.AreEqual(MostHp.ToString(CultureInfo.InvariantCulture), bar[6]);
+        }
+
+        [TestMethod]
+        public async Task AMembersHpChangeIsShownToTheOthers()
+        {
+            await using var alice = await Harness.EnterAsync("Alice", x: 80, y: 116);
+            var wounded = await Harness.AddPlayerAsync("Bob", x: 81, y: 116, configure: c => c.Hp = 100);
+            await Harness.GiveAsync(wounded, WorldData.Potion, 1, pocket: NoscorePocketType.Main);
+            await using var bob = Harness.Client(wounded);
+            await bob.EnterWorldAsync(wounded.Slot);
+            await InviteAsync(alice, bob, 2);
+            var drunk = alice.Mark();
+
+            await bob.SendAsync($"u_i {Player} {bob.CharacterId} {MainPocket} 0 0 0");
+            await bob.ExpectAsync(p => p.StartsWith($"stat {100 + WorldData.PotionHp} ", StringComparison.Ordinal), "the HP after the potion");
+
+            var bar = (await alice.ExpectSinceAsync(drunk, p => p.StartsWith($"pst {Player} {bob.CharacterId} ", StringComparison.Ordinal), "Bob's bars")).Split(' ');
+            Assert.AreEqual(((100 + WorldData.PotionHp) * 100 / MostHp).ToString(CultureInfo.InvariantCulture), bar[4]);
         }
 
         [TestMethod]
