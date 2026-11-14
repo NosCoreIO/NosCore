@@ -306,6 +306,30 @@ namespace NosCore.GameObject.Tests.Services.ScriptedInstanceService
         }
 
         [TestMethod]
+        public async Task AnEffectThatNeverFinishesBeforeASuccessFailsTheRunAsync()
+        {
+            var run = Run(new Script
+            {
+                Enter = r =>
+                {
+                    r.Summon(2, new MonsterSpawn(Grunt, new Spot(1, 1)));
+                    r.Succeed();
+                }
+            }, TimeSpan.FromMilliseconds(200));
+            var release = new TaskCompletionSource();
+            var holder = _second.Executor.RunAsync(() => release.Task);
+
+            await run.StartAsync();
+            release.SetResult();
+            await holder;
+
+            Assert.AreEqual(EndStateType.Fail, run.EndState);
+            var scores = _first.LastPackets.OfType<NosCore.Packets.ClientPackets.Instance.ScorePacket>().ToList();
+            Assert.AreEqual(1, scores.Count);
+            Assert.AreEqual(EndStateType.Fail, scores[0].EndState);
+        }
+
+        [TestMethod]
         public async Task AScriptThatSucceedsAndThenThrowsFailsTheRunAsync()
         {
             var run = Run(new Script

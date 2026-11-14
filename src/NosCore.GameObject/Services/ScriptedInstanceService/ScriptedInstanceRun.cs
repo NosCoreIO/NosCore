@@ -56,6 +56,7 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private Instant? _returnAt;
         private readonly TimeSpan _stepTimeout;
         private volatile bool _abandoned;
+        private bool _endingApplied;
 
         public ScriptedInstanceRun(ScriptedInstance entrance, IInstanceScript script,
             IReadOnlyDictionary<int, MapInstance> rooms, IReadOnlyDictionary<short, NpcMonsterDto> npcMonsters,
@@ -290,7 +291,11 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
                 IsAllMonstersKilled = _killed >= _summoned,
                 IsNoNpcDead = true
             };
-            _pending.Add(() => BroadcastAsync(score));
+            _pending.Add(() =>
+            {
+                _endingApplied = true;
+                return BroadcastAsync(score);
+            });
         }
 
         private EventPacket GenerateClock(Instant endsAt)
@@ -342,6 +347,12 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
         private void Abandon()
         {
             _abandoned = true;
+            if (!_endingApplied)
+            {
+                // The ending was asked for but never reached the players, so the failure replaces it.
+                EndState = null;
+            }
+
             End(EndStateType.Fail);
         }
 
@@ -377,16 +388,13 @@ namespace NosCore.GameObject.Services.ScriptedInstanceService
             await _gate.WaitAsync();
             try
             {
-                var endBefore = EndState;
                 try
                 {
                     await trigger();
                 }
                 catch (ScriptAbandonedException)
                 {
-                    // An ending the failed trigger asked for was never applied.
                     _pending.Clear();
-                    EndState = endBefore;
                     Abandon();
                 }
                 catch (Exception exception)
